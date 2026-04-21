@@ -4,6 +4,13 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/HugoMachadoRodrigues/edaphos/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/HugoMachadoRodrigues/edaphos/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
+[![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
+
+[![ORCID](https://img.shields.io/badge/ORCID-0000--0002--8070--8126-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-8070-8126)
+[![Google Scholar](https://img.shields.io/badge/Google%20Scholar-profile-4285F4?logo=google-scholar&logoColor=white)](https://scholar.google.com/citations?hl=en&user=vu-Ka7wAAAAJ)
+[![ResearchGate](https://img.shields.io/badge/ResearchGate-profile-00CCBB?logo=researchgate&logoColor=white)](https://www.researchgate.net/profile/Hugo-Rodrigues-12)
+[![X / Twitter](https://img.shields.io/badge/X-@Hugo__MRodrigues-000000?logo=x&logoColor=white)](https://x.com/Hugo_MRodrigues)
 <!-- badges: end -->
 
 *From Greek ἔδαφος — “soil, ground.”*
@@ -113,6 +120,28 @@ Continuous integration on GitHub Actions checks the package on
 **0 errors / 0 warnings / 0 notes** under `R CMD check`.
 
 ## 6. Citation
+
+Every release has a permanent DOI minted by Zenodo. The **concept DOI**
+below resolves to the latest version and is the identifier to cite in
+publications:
+
+> Rodrigues Machado, H. (2026). *edaphos: Disruptive Algorithms for
+> Digital Soil Mapping* (Version 0.1.0) [Software]. Zenodo.
+> <https://doi.org/10.5281/zenodo.19683708>
+
+```bibtex
+@software{RodriguesMachado_edaphos_2026,
+  author    = {Rodrigues Machado, Hugo},
+  title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
+  year      = {2026},
+  version   = {0.1.0},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.19683708},
+  url       = {https://github.com/HugoMachadoRodrigues/edaphos}
+}
+```
+
+Alternatively, an auto-generated citation is available in R:
 
 ```r
 citation("edaphos")

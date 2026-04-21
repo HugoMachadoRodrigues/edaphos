@@ -23,12 +23,21 @@ type: software
 version: "0.1.0"
 date-released: "2026-04-21"
 license: MIT
+doi: "10.5281/zenodo.19683708"
 url: "https://github.com/HugoMachadoRodrigues/edaphos"
 repository-code: "https://github.com/HugoMachadoRodrigues/edaphos"
+identifiers:
+  - description: "Concept DOI (all versions)"
+    type: doi
+    value: "10.5281/zenodo.19683708"
+  - description: "Version DOI (v0.1.0)"
+    type: doi
+    value: "10.5281/zenodo.19683709"
 authors:
   - family-names: "Rodrigues Machado"
     given-names: "Hugo"
     email: "rodrigues.machado.hugo@gmail.com"
+    orcid: "https://orcid.org/0000-0002-8070-8126"
 keywords:
   - "digital soil mapping"
   - "pedometry"
@@ -48,8 +57,10 @@ preferred-citation:
     - family-names: "Rodrigues Machado"
       given-names: "Hugo"
       email: "rodrigues.machado.hugo@gmail.com"
+      orcid: "https://orcid.org/0000-0002-8070-8126"
   year: 2026
   version: "0.1.0"
+  doi: "10.5281/zenodo.19683708"
   url: "https://github.com/HugoMachadoRodrigues/edaphos"
 references:
   - type: article
