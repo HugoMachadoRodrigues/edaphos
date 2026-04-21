@@ -323,13 +323,19 @@ $$
      {\displaystyle\sum_{k \neq (i,v)} \exp\!\bigl(\mathrm{sim}(\mathbf{z}^{(v)}_{i},\,\mathbf{z}_{k})/\tau\bigr)}.
 $$
 
-Here the two views of patch $i$ are mapped to projection vectors
-$\mathbf{z}^{(1)}_{i}$ and $\mathbf{z}^{(2)}_{i}$ through
-$f_\theta$ (the backbone) followed by $g_\phi$ (the projection head);
-$\mathrm{sim}(\cdot,\cdot)$ is cosine similarity and $\tau$ is the
-temperature. After pre-training the **projection head is discarded**
-and the backbone output $f_\theta(\mathbf{x})$ is reused as the
-downstream feature vector.
+For every patch $i$ the two augmented views are mapped to projection
+vectors through a shared backbone $f_\theta$ followed by a projection
+head $g_\phi$:
+
+$$
+\mathbf{z}^{(v)}_{i} \;=\; g_\phi\!\bigl(f_\theta(\tilde{\mathbf{x}}^{(v)}_{i})\bigr),
+\qquad v \in \{1,2\}.
+$$
+
+The similarity $\mathrm{sim}(\cdot,\cdot)$ is cosine similarity and
+$\tau > 0$ is the temperature. After pre-training the **projection
+head is discarded** and the backbone output $f_\theta(\mathbf{x})$ is
+reused as the downstream feature vector.
 
 ```r
 # `patches` is a (N, C, H, W) array of 7 × 7 raster tiles (see
@@ -620,7 +626,7 @@ MIT © Hugo Rodrigues Machado. See [LICENSE.md](LICENSE.md).
 
 ---
 
-<p align="center"><em>Made with love for the Pedometrics community, by Hugo.</em></p>
+<p align="center"><em>Made with ❤️ for the Pedometrics community, by Hugo ❤️</em></p>
 
 ---
 
