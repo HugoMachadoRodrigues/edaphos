@@ -307,21 +307,27 @@ an encoder on *unlabelled* raster patches and reuses the resulting
 representation as a learned feature map — the premise of a future
 **"SoilGPT"**.
 
-**Governing object.** The normalised temperature-scaled cross-entropy
-(NT-Xent) contrastive loss [[Chen et al. 2020][chen2020]]: for a batch
-of $B$ patches with two augmented views
-$(\tilde{\mathbf{x}}_i^{(1)}, \tilde{\mathbf{x}}_i^{(2)})$ encoded to
-projections $\mathbf{z}_i^{(v)} = g_\phi(f_\theta(\tilde{\mathbf{x}}_i^{(v)}))$,
+**Governing object.** Given a batch of $B$ raster patches, SimCLR
+draws two stochastic augmentations per patch, encodes each with a
+shared backbone CNN and a projection head, and minimises the
+**normalised temperature-scaled cross-entropy (NT-Xent)** contrastive
+loss [[Chen et al. 2020][chen2020]]:
 
 $$
-\mathcal{L}_{\text{NT-Xent}} \;=\;
-  -\frac{1}{2B}\sum_{i=1}^{B}\sum_{v\in\{1,2\}}
-    \log\frac{\exp\!\bigl(\text{sim}(\mathbf{z}_i^{(v)}, \mathbf{z}_i^{(v')})/\tau\bigr)}
-             {\sum_{k\neq(i,v)} \exp\!\bigl(\text{sim}(\mathbf{z}_i^{(v)}, \mathbf{z}_k)/\tau\bigr)},
+\mathcal{L}_{\text{NT-Xent}}
+\;=\;
+-\frac{1}{2B}
+\sum_{i=1}^{B}\sum_{v\in\{1,2\}}
+\log
+\frac{\exp\!\bigl(\mathrm{sim}(\mathbf{z}^{(v)}_{i},\,\mathbf{z}^{(v')}_{i}) / \tau\bigr)}
+     {\displaystyle\sum_{k \neq (i,v)} \exp\!\bigl(\mathrm{sim}(\mathbf{z}^{(v)}_{i},\,\mathbf{z}_{k})/\tau\bigr)}.
 $$
 
-with $\tau$ the temperature and $\text{sim}(\cdot,\cdot)$ cosine
-similarity. After pre-training the **projection head is discarded**
+Here the two views of patch $i$ are mapped to projection vectors
+$\mathbf{z}^{(1)}_{i}$ and $\mathbf{z}^{(2)}_{i}$ through
+$f_\theta$ (the backbone) followed by $g_\phi$ (the projection head);
+$\mathrm{sim}(\cdot,\cdot)$ is cosine similarity and $\tau$ is the
+temperature. After pre-training the **projection head is discarded**
 and the backbone output $f_\theta(\mathbf{x})$ is reused as the
 downstream feature vector.
 
@@ -611,3 +617,15 @@ citation("edaphos")
 ## License
 
 MIT © Hugo Rodrigues Machado. See [LICENSE.md](LICENSE.md).
+
+---
+
+<p align="center"><em>Made with love for the Pedometrics community, by Hugo.</em></p>
+
+---
+
+### Notes for life
+
+> *Education without ethics is only rhetoric.*
+>
+> *Power without reflection is violence.*
