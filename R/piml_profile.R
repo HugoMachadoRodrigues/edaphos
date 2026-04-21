@@ -130,15 +130,18 @@ piml_profile_fit <- function(depths, values, y_surface = NULL,
             all(is.finite(depths)), all(is.finite(values)),
             all(depths >= 0))
   if (is.null(start)) {
+    # Data-driven guess that works for both decaying (SOC, nutrients:
+    # y0 > y_inf) and ascending (argillic clay: y0 < y_inf) profiles.
+    # Initialise y0 from the shallowest horizon and y_inf from the
+    # deepest — the ODE handles both cases through the sign of
+    # (y0 - y_inf).
     ord <- order(depths)
     zd  <- depths[ord]; yd <- values[ord]
-    rng <- range(values)
-    # Data-driven guess for the surface decay rate from the first two
-    # (shallowest) horizons: dy/dz ~ -lambda0 * (y0 - y_inf).
-    dy0 <- (yd[2] - yd[1]) / max(zd[2] - zd[1], 1e-3)
-    y_inf_guess <- rng[1]
-    y0_guess    <- if (is.null(y_surface)) rng[2] else y_surface
-    denom       <- max(abs(y0_guess - y_inf_guess), 1e-3)
+    y0_guess    <- if (is.null(y_surface)) yd[1L] else y_surface
+    y_inf_guess <- yd[length(yd)]
+    # Surface derivative from the first two horizons.
+    dy0 <- (yd[2L] - yd[1L]) / max(zd[2L] - zd[1L], 1e-3)
+    denom <- max(abs(y0_guess - y_inf_guess), 1e-3)
     lambda0_guess <- max(abs(dy0) / denom, 1e-4)
     if (is.null(y_surface)) {
       start <- c(
