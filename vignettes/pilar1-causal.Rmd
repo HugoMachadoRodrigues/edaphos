@@ -1,6 +1,6 @@
 ---
 title: "Pilar 1 — Causal AI: Backdoor Adjustment in Pedogenetic DAGs"
-author: "Hugo Rodrigues Machado"
+author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
     toc: true

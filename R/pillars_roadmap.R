@@ -12,7 +12,7 @@
 #' | 3. 4D Pedometry                  | `temporal_*`   | implemented | Stacked ConvLSTM (Shi et al., 2015) with seq-to-seq training, multi-step rollout and a mass-balance physics loss.             |
 #' | 4. Foundation Models             | `foundation_*` | scaffold    | NT-Xent contrastive objective (Chen et al., 2020) on unlabelled raster patches.                                                |
 #' | 5. Autonomous Active Learning    | `al_*`         | implemented | Hybrid policy \eqn{\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})} with PIML-backed gate.  |
-#' | 6. Quantum ML                    | `quantum_*`    | roadmap     | Variational quantum circuits for organo-mineral simulation.                                                                 |
+#' | 6. Quantum ML                    | `quantum_*`    | scaffold    | Pure-R ZZFeatureMap ([quantum_feature_map()]) + quantum-kernel Gram matrix ([quantum_kernel()]) + kernel ridge regression ([quantum_krr_fit()]). VQE for organo-mineral simulation is on the roadmap. |
 #'
 #' @name edaphos-roadmap
 #' @keywords internal

@@ -332,6 +332,63 @@ ggsave(file.path(out_dir, "pillar5-al-map.png"), p5b,
        width = 7, height = 5.5, dpi = 160)
 
 # ---------------------------------------------------------------------------
+# Pillar 6 -- Quantum ML (pure-R ZZFeatureMap kernel)
+# ---------------------------------------------------------------------------
+cat("\n[Pillar 6] Quantum -- ZZFeatureMap kernel + KRR on br_cerrado\n")
+
+# Pillar 6 demo: predict NDVI median-class from 3 covariates that drive
+# it in the br_cerrado data-generating process. Three qubits give a
+# Hilbert space of dimension 2^3 = 8 and the signal is strong enough
+# that the quantum kernel clearly separates classes in the Gram matrix.
+set.seed(1L)
+q_covs <- c("slope", "twi", "map_mm")   # true NDVI predictors in the DGP
+n_q <- 200L
+q_idx <- sample(nrow(br_cerrado), n_q)
+Xq_raw <- br_cerrado[q_idx, q_covs, drop = FALSE]
+Xq <- quantum_scale(as.matrix(Xq_raw))
+yq <- sign(br_cerrado$ndvi[q_idx] -
+             stats::median(br_cerrado$ndvi[q_idx]))
+yq[yq == 0] <- 1L
+
+# 140 / 60 split
+set.seed(1L)
+tr <- sort(sample(n_q, 140L)); te <- setdiff(seq_len(n_q), tr)
+
+K_train <- quantum_kernel(Xq[tr, ], reps = 2L)
+fit_q <- quantum_krr_fit(Xq[tr, ], yq[tr], reps = 2L, lambda = 0.1)
+cap("pillar6_fit", fit_q)
+
+acc_test <- mean(predict(fit_q, Xq[te, ], type = "class") == yq[te])
+captured$pillar6_acc <- sprintf("test accuracy: %.2f  (%d test samples)",
+                                 acc_test, length(te))
+
+# Kernel heatmap sorted by predicted score for interpretability
+order_by_score <- order(fit_q$fitted)
+K_sorted <- K_train[order_by_score, order_by_score]
+kdf <- expand.grid(i = seq_len(nrow(K_sorted)),
+                   j = seq_len(ncol(K_sorted)))
+kdf$K <- as.vector(K_sorted)
+
+p6 <- ggplot(kdf, aes(i, j, fill = K)) +
+  geom_raster() +
+  scale_fill_viridis_c(option = "magma",
+                       name = expression(K[ij]),
+                       limits = c(0, 1)) +
+  coord_equal() +
+  labs(
+    x = "training sample index (ordered by predicted SOC score)",
+    y = "training sample index",
+    title = "Pillar 6 — Quantum kernel Gram matrix",
+    subtitle = "ZZFeatureMap on 4 covariates of br_cerrado (reps = 2); entry K_ij = |<\u03c6(x_j)|\u03c6(x_i)>|\u00b2"
+  ) +
+  theme_edaphos() +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank())
+ggsave(file.path(out_dir, "pillar6-quantum.png"), p6,
+       width = 6.5, height = 6, dpi = 160)
+
+# ---------------------------------------------------------------------------
 # Dump the captured text outputs
 # ---------------------------------------------------------------------------
 out_file <- file.path("tools", "readme-outputs.txt")

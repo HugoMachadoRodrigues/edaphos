@@ -3,7 +3,7 @@
   "description": "<p><strong>edaphos</strong> is a research-oriented R package implementing frontier algorithms for Digital Soil Mapping (DSM) beyond the regression-tree state of the art. Contributions are organised across six research pillars:</p><ol><li><em>Causal AI</em> &mdash; DAG-backed backdoor adjustment.</li><li><em>Physics-Informed ML</em> &mdash; parametric pedogenetic ODE + differentiable Neural ODE + covariate-conditioned hierarchical Neural ODE.</li><li><em>4D Pedometry</em> &mdash; multi-layer stacked ConvLSTM with multi-step rollout and optional mass-balance physics loss.</li><li><em>Foundation Models</em> &mdash; SimCLR-style contrastive pre-training on unlabelled raster patches.</li><li><em>Autonomous Active Learning</em> &mdash; hybrid cLHS + QRF policy with Physics-Informed rejection gates.</li><li><em>Quantum ML</em> &mdash; roadmap.</li></ol><p>Ships 109 unit and integration tests, six mathematically-derived vignettes with LaTeX formulations and full bibliography, GitHub Actions CI across macOS / Windows / Ubuntu, and a bundled reproducible Cerrado covariate-and-response cube.</p>",
   "creators": [
     {
-      "name": "Rodrigues Machado, Hugo",
+      "name": "Rodrigues, Hugo",
       "affiliation": "",
       "orcid": "0000-0002-8070-8126"
     }

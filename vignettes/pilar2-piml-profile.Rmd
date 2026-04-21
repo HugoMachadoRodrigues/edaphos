@@ -1,6 +1,6 @@
 ---
 title: "Pilar 2 — Physics-Informed ML for Soil Depth Profiles"
-author: "Hugo Rodrigues Machado"
+author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
     toc: true

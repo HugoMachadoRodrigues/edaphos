@@ -1,9 +1,10 @@
 Package: edaphos
 Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
-    person("Hugo", "Rodrigues Machado", , "rodrigues.machado.hugo@gmail.com",
-           role = c("aut", "cre"))
+    person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-8070-8126"))
 Description: A research-oriented R package that implements frontier
     algorithms for Digital Soil Mapping (DSM) beyond the current
     regression-tree state of the art. The package is organised around
@@ -22,8 +23,11 @@ Description: A research-oriented R package that implements frontier
     (5) Autonomous Active Learning with a hybrid uncertainty +
     feature-space-diversity batch policy, logistical cost-aware
     extension, and Physics-Informed rejection gates; (6) Quantum ML
-    (roadmap). A synthesised Cerrado covariate-and-response cube is
-    bundled so every vignette runs offline and reproducibly.
+    with a pure-R state-vector simulator of the ZZFeatureMap
+    encoding, a quantum kernel Gram matrix and a closed-form Kernel
+    Ridge Regression wrapper. A synthesised Cerrado covariate-and-
+    response cube is bundled so every vignette runs offline and
+    reproducibly.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US

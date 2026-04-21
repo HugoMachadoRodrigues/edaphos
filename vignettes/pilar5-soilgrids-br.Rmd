@@ -1,6 +1,6 @@
 ---
 title: "Pilar 5 — Active Learning on a Brazilian Cerrado Transect"
-author: "Hugo Rodrigues Machado"
+author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
     toc: true

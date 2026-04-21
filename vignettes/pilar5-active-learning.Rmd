@@ -1,6 +1,6 @@
 ---
 title: "Pilar 5 — Autonomous Active Learning for Soil Mapping"
-author: "Hugo Rodrigues Machado"
+author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
     toc: true

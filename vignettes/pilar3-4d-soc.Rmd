@@ -1,6 +1,6 @@
 ---
 title: "Pilar 3 — 4D Pedometry: Stacked ConvLSTM Forecasts of SOC"
-author: "Hugo Rodrigues Machado"
+author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
     toc: true

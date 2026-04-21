@@ -49,3 +49,11 @@ map_mm, slope, twi
 9     8        65 4.913287          18.3640
 10    9        70 4.942248          16.9916
 
+===== pillar6_fit =====
+<edaphos_quantum_krr>
+  n_qubits = 3   reps = 2   lambda = 0.1
+  n_train  = 140   training RMSE = 0.6431
+
+===== pillar6_acc =====
+test accuracy: 0.72  (60 test samples)
+

@@ -40,8 +40,12 @@
 #'     [al_update()]; with both global and per-location Physics-
 #'     Informed rejection gates — [al_physics_gate_piml()],
 #'     [al_physics_gate_piml_hierarchical()].}
-#'   \item{\strong{6. Quantum ML.}}{Variational quantum circuits for
-#'     organo-mineral simulation (roadmap).}
+#'   \item{\strong{6. Quantum ML.}}{Pure-R state-vector simulator of
+#'     the ZZFeatureMap encoding (Havlicek et al., 2019),
+#'     quantum-kernel Gram matrix [quantum_kernel()], and a
+#'     closed-form Kernel Ridge Regression wrapper
+#'     [quantum_krr_fit()]. Variational Quantum Eigensolvers for
+#'     organo-mineral simulation remain on the roadmap.}
 #' }
 #'
 #' @section Vignettes:
@@ -52,7 +56,8 @@
 #' \code{vignette("pilar3-4d-soc", package = "edaphos")},
 #' \code{vignette("pilar4-simclr-embeddings", package = "edaphos")},
 #' \code{vignette("pilar5-active-learning", package = "edaphos")},
-#' \code{vignette("pilar5-soilgrids-br", package = "edaphos")}.
+#' \code{vignette("pilar5-soilgrids-br", package = "edaphos")},
+#' \code{vignette("pilar6-quantum", package = "edaphos")}.
 #'
 #' @references
 #' McBratney, A. B., Mendon\enc{ç}{c}a Santos, M. L. and Minasny, B.

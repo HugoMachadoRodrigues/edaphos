@@ -17,7 +17,7 @@ mathematical object. Use this together with the package overview —
    3. 4D Pedometry \tab \verb{temporal_*} \tab implemented \tab Stacked ConvLSTM (Shi et al., 2015) with seq-to-seq training, multi-step rollout and a mass-balance physics loss. \cr
    4. Foundation Models \tab \verb{foundation_*} \tab scaffold \tab NT-Xent contrastive objective (Chen et al., 2020) on unlabelled raster patches. \cr
    5. Autonomous Active Learning \tab \verb{al_*} \tab implemented \tab Hybrid policy \eqn{\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})} with PIML-backed gate. \cr
-   6. Quantum ML \tab \verb{quantum_*} \tab roadmap \tab Variational quantum circuits for organo-mineral simulation. \cr
+   6. Quantum ML \tab \verb{quantum_*} \tab scaffold \tab Pure-R ZZFeatureMap (\code{\link[=quantum_feature_map]{quantum_feature_map()}}) + quantum-kernel Gram matrix (\code{\link[=quantum_kernel]{quantum_kernel()}}) + kernel ridge regression (\code{\link[=quantum_krr_fit]{quantum_krr_fit()}}). VQE for organo-mineral simulation is on the roadmap. \cr
 }
 }
 \keyword{internal}

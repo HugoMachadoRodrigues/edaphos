@@ -1,6 +1,6 @@
 ---
 title: "Pilar 4 — Contrastive Raster Embeddings as Active-Learning Covariates"
-author: "Hugo Rodrigues Machado"
+author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
     toc: true

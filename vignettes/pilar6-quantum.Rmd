@@ -1,0 +1,255 @@
+---
+title: "Pilar 6 — Quantum Kernel Methods for High-Dimensional Soil Covariates"
+author: "Hugo Rodrigues"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 6 — Quantum Kernel Methods for High-Dimensional Soil Covariates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 6.5, fig.height = 5
+)
+```
+
+## Abstract
+
+High-dimensional covariate stacks — a natural product of modern Digital
+Soil Mapping pipelines [@McBratney2003; @Wadoux2020] — eventually hit
+the classical curse of dimensionality: the volume of the covariate
+hypercube grows exponentially with the number of features, while the
+number of labelled soil samples remains stubbornly linear in budget
+[@Brus2019]. The **Pillar 6** of `edaphos` addresses this gap by
+reformulating the kernel of the regression problem as the *overlap of
+parametrised quantum states* [@Havlicek2019; @Schuld2019qml]. The
+resulting **quantum kernel** lives in a complex Hilbert space whose
+dimension grows as $2^n$ in the number of covariates $n$, yet remains
+tractable to simulate in pure R for $n \le 8$ and is the subject of an
+active research program on real NISQ hardware
+[@Preskill2018nisq; @Biamonte2017qml].
+
+The implementation in this release is a **self-contained, dependency-
+free pure-R state-vector simulator** of the ZZFeatureMap circuit of
+[@Havlicek2019], a quantum kernel Gram matrix evaluator, and a closed-
+form Kernel Ridge Regression (KRR) wrapper. We demonstrate the full
+pipeline on a binary NDVI-classification task drawn from the bundled
+`br_cerrado` dataset, using the three covariates that drive NDVI in
+the data-generating process.
+
+## 1. Background: the curse of dimensionality as a Hilbert-space question
+
+Classical DSM regressors (Random Forests, GAMs, Gaussian Processes)
+live on the data itself: features enter through a (possibly non-linear)
+kernel $k(\mathbf{x}_i, \mathbf{x}_j)$ on $\mathbb{R}^n$. The RBF
+kernel $k_{\text{RBF}}(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma
+\lVert\mathbf{x}_i - \mathbf{x}_j\rVert^2)$ is equivalent to an inner
+product in an infinite-dimensional feature space, but this space is
+*classically computable* and its expressivity is bounded by the
+behaviour of $\gamma$.
+
+A **quantum feature map** lifts each data point $\mathbf{x}$ to a
+quantum state $\lvert\phi(\mathbf{x})\rangle$ in the Hilbert space of
+$n$ qubits, $\mathcal{H} = \mathbb{C}^{2^n}$. The induced **quantum
+kernel** is the squared overlap of those states:
+
+$$
+K(\mathbf{x}_i, \mathbf{x}_j) \;=\;
+  \bigl\lvert\langle \phi(\mathbf{x}_j) \mid \phi(\mathbf{x}_i)\rangle\bigr\rvert^{2}.
+$$
+
+For a carefully designed feature map, computing $K$ on a classical
+computer is believed to be **exponentially hard**
+[@Havlicek2019, Supplementary Information] — the whole point of the
+quantum hardware is to evaluate overlaps in that space directly. For
+the small-$n$ problems that actually arise in DSM covariate stacks
+(typical $n = 4\text{–}8$), however, classical simulation is cheap,
+and the resulting kernel is a *new scientific object* to study even
+without a quantum device.
+
+## 2. The ZZFeatureMap encoding
+
+The Havlicek et al. feature map constructs
+$\lvert\phi(\mathbf{x})\rangle$ from a parameterised unitary
+$U_\phi(\mathbf{x})$ applied to a uniform superposition:
+
+$$
+\lvert\phi(\mathbf{x})\rangle
+   \;=\; \bigl(U_\phi(\mathbf{x})\,H^{\otimes n}\bigr)^{R}\,\lvert 0\rangle^{\otimes n},
+$$
+
+with $R \ge 1$ the number of encoding repetitions and
+
+$$
+U_\phi(\mathbf{x})
+  \;=\; \exp\!\Bigl(i\sum_{S\subseteq[n]}\phi_S(\mathbf{x})\prod_{i\in S} Z_i\Bigr).
+$$
+
+In the second-order regime the non-trivial subsets are the singletons
+$\{i\}$ and the pairs $\{i, j\}$, for which we take
+
+$$
+\phi_{\{i\}}(\mathbf{x}) \;=\; 2\,x_i,
+\qquad
+\phi_{\{i, j\}}(\mathbf{x}) \;=\; 2\,(\pi - x_i)(\pi - x_j).
+$$
+
+Pairwise terms are implemented via the standard
+$\mathrm{CNOT}_{i\to j}\,R_z\bigl(\phi_{\{i,j\}}(\mathbf{x})\bigr)\,\mathrm{CNOT}_{i\to j}$
+decomposition. This is the exact circuit that
+[`.quantum_zz_feature_map()`][quantum_feature_map] implements in
+`R/quantum_kernel.R`.
+
+## 3. Implementation: a dependency-free R simulator
+
+For up to 8 qubits the state vector has length $\le 256$, and every
+gate can be applied by an $O(2^n)$ bit-level permutation of that
+vector — no explicit $2^n \times 2^n$ Kronecker product is built. This
+keeps `edaphos` free of any external quantum-simulator dependency
+(no `qsimulatR`, no `reticulate` + PennyLane) for the core pathway,
+while still reproducing the Havlicek *Nature* 2019 feature map
+bit-for-bit.
+
+```{r setup, message=FALSE}
+library(edaphos)
+set.seed(1)
+
+# Sanity check: a 3-qubit state is normalised.
+psi <- quantum_feature_map(c(pi / 4, pi / 3, pi / 2), reps = 2L)
+length(psi)                 # 2^3 = 8 complex amplitudes
+sum(Mod(psi)^2)             # <psi|psi> = 1
+```
+
+## 4. Quantum kernel on the bundled Cerrado dataset
+
+We use the three `br_cerrado` covariates that **drive NDVI** in the
+data-generating process — `slope`, `twi`, `map_mm` — and target the
+binary median-split of NDVI itself. Three qubits give a Hilbert space
+of dimension $2^3 = 8$. The features are rescaled into $[0, \pi]$ by
+[`quantum_scale()`][quantum_scale], the de-facto range of validity for
+the ZZFeatureMap.
+
+```{r cerrado-data}
+data(br_cerrado, package = "edaphos")
+
+covs <- c("slope", "twi", "map_mm")    # three drivers of NDVI in the DGP
+set.seed(1)
+idx  <- sample(nrow(br_cerrado), 200L)
+Xraw <- as.matrix(br_cerrado[idx, covs])
+X    <- quantum_scale(Xraw)            # rescale columns -> [0, pi]
+
+# Binary NDVI target: above / below the local median
+y <- sign(br_cerrado$ndvi[idx] - stats::median(br_cerrado$ndvi[idx]))
+y[y == 0] <- 1L
+table(y)
+```
+
+```{r kernel-matrix}
+K <- quantum_kernel(X, reps = 2L)
+dim(K); round(K[1:5, 1:5], 3)
+```
+
+The Gram matrix is symmetric, with `K[i, i] = 1` by construction
+(self-overlap of a normalised state) and all off-diagonal entries
+in $[0, 1]$ — the numerical fingerprint of a valid quantum kernel.
+
+```{r kernel-psd}
+lambda_min <- min(eigen(K, symmetric = TRUE, only.values = TRUE)$values)
+stopifnot(lambda_min > -1e-8)             # positive semi-definite
+```
+
+## 5. Quantum Kernel Ridge Regression on binary NDVI
+
+With the Gram matrix in hand, Kernel Ridge Regression is a closed-form
+problem:
+
+$$
+\boldsymbol{\alpha} \;=\; (K + \lambda I)^{-1}\,\mathbf{y}.
+$$
+
+[`quantum_krr_fit()`][quantum_krr_fit] computes this solve and
+packages the training covariates, the dual coefficients
+$\boldsymbol{\alpha}$ and the kernel configuration into a
+`edaphos_quantum_krr` S3 object.
+
+```{r qkrr-fit}
+set.seed(1)
+train <- sort(sample(length(y), 140L))
+test  <- setdiff(seq_along(y), train)
+
+fit <- quantum_krr_fit(
+  X[train, ], y[train],
+  reps   = 2L,
+  lambda = 0.1
+)
+fit
+```
+
+```{r qkrr-predict}
+# Numeric scores for soft evaluation
+scores <- predict(fit, X[test, ], type = "numeric")
+# Hard labels (pm 1) via sign(scores)
+pred   <- predict(fit, X[test, ], type = "class")
+table(predicted = pred, truth = y[test])
+mean(pred == y[test])
+```
+
+This is not a benchmark — the point is the **scientific plumbing**:
+every piece of the quantum-kernel pipeline is computable in a few
+hundred lines of pure R, leaving the mathematical and physical
+interpretation visible at every step.
+
+## 6. Interpreting the kernel visually
+
+```{r kernel-heatmap, fig.width=6, fig.height=6}
+ord <- order(fit$fitted)
+K_sorted <- fit$K_train[ord, ord]
+
+image(seq_len(nrow(K_sorted)), seq_len(ncol(K_sorted)),
+      K_sorted[, rev(seq_len(ncol(K_sorted)))],
+      xlab = "train sample (ordered by predicted SOC score)",
+      ylab = "train sample",
+      main = "Quantum kernel — ZZFeatureMap on br_cerrado",
+      col  = hcl.colors(64, "YlOrRd"),
+      axes = FALSE)
+```
+
+Sorting the training samples by their predicted NDVI score reveals
+diagonal blocks where the kernel recognises within-class similarity;
+off-diagonal entries quantify across-class separation in the quantum
+Hilbert space.
+
+## 7. Limits and roadmap
+
+The pure-R simulator scales comfortably to **8 qubits** (256-dim state
+vector; fractions of a second per kernel entry). Beyond that,
+three avenues open up:
+
+1. **Real NISQ hardware** [@Preskill2018nisq] — the same ZZFeatureMap
+   can be shipped as an OpenQASM program to IBM Quantum or similar
+   backends. The `edaphos` side contributes the pedometric data
+   pipeline and the evaluation metrics.
+2. **Variational Quantum Eigensolver (VQE)** [@Peruzzo2014vqe] —
+   simulating the Hamiltonian of organo-mineral complexes (clay-humus
+   adsorption, iron-oxide weathering) in order to predict soil
+   fertility from first principles, rather than by regression from
+   surface proxies. This is the direct link to the user's
+   "simulation of materials" vision.
+3. **Python bridge** (`reticulate` + PennyLane / Qiskit) — when the
+   number of qubits exceeds 8, or when differentiable quantum
+   parameters are needed (Quantum-PINN, quantum-GPs), the R-side API
+   remains the same but the numerical back-end is deferred.
+
+Quantum machine learning in pedometry is unambiguously early. The
+role of Pillar 6 in `edaphos` is to provide a clean, self-contained
+reference implementation against which more advanced quantum
+pedometric workflows can be calibrated.
+
+## References

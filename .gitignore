@@ -28,3 +28,4 @@ Thumbs.db
 # Environment files
 .Renviron
 .env
+inst/doc

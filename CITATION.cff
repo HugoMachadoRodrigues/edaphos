@@ -34,7 +34,7 @@ identifiers:
     type: doi
     value: "10.5281/zenodo.19683709"
 authors:
-  - family-names: "Rodrigues Machado"
+  - family-names: "Rodrigues"
     given-names: "Hugo"
     email: "rodrigues.machado.hugo@gmail.com"
     orcid: "https://orcid.org/0000-0002-8070-8126"
@@ -54,7 +54,7 @@ preferred-citation:
   type: software
   title: "edaphos: Disruptive Algorithms for Digital Soil Mapping"
   authors:
-    - family-names: "Rodrigues Machado"
+    - family-names: "Rodrigues"
       given-names: "Hugo"
       email: "rodrigues.machado.hugo@gmail.com"
       orcid: "https://orcid.org/0000-0002-8070-8126"

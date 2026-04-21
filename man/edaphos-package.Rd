@@ -47,8 +47,12 @@ feature-space diversity and logistical cost — \code{\link[=al_loop]{al_loop()}
 \code{\link[=al_update]{al_update()}}; with both global and per-location Physics-
 Informed rejection gates — \code{\link[=al_physics_gate_piml]{al_physics_gate_piml()}},
 \code{\link[=al_physics_gate_piml_hierarchical]{al_physics_gate_piml_hierarchical()}}.}
-\item{\strong{6. Quantum ML.}}{Variational quantum circuits for
-organo-mineral simulation (roadmap).}
+\item{\strong{6. Quantum ML.}}{Pure-R state-vector simulator of
+the ZZFeatureMap encoding (Havlicek et al., 2019),
+quantum-kernel Gram matrix \code{\link[=quantum_kernel]{quantum_kernel()}}, and a
+closed-form Kernel Ridge Regression wrapper
+\code{\link[=quantum_krr_fit]{quantum_krr_fit()}}. Variational Quantum Eigensolvers for
+organo-mineral simulation remain on the roadmap.}
 }
 }
 
@@ -61,7 +65,8 @@ real or reproducible synthetic data. Entry points:
 \code{vignette("pilar3-4d-soc", package = "edaphos")},
 \code{vignette("pilar4-simclr-embeddings", package = "edaphos")},
 \code{vignette("pilar5-active-learning", package = "edaphos")},
-\code{vignette("pilar5-soilgrids-br", package = "edaphos")}.
+\code{vignette("pilar5-soilgrids-br", package = "edaphos")},
+\code{vignette("pilar6-quantum", package = "edaphos")}.
 }
 
 \references{
@@ -81,7 +86,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Hugo Rodrigues Machado \email{rodrigues.machado.hugo@gmail.com}
+\strong{Maintainer}: Hugo Rodrigues \email{rodrigues.machado.hugo@gmail.com} (\href{https://orcid.org/0000-0002-8070-8126}{ORCID})
 
 }
 \keyword{internal}
