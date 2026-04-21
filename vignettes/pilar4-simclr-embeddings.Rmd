@@ -1,0 +1,195 @@
+---
+title: "Pilar 4 — Contrastive Raster Embeddings as Active-Learning Covariates"
+author: "Hugo Rodrigues Machado"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 4 — Contrastive Raster Embeddings as Active-Learning Covariates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 6.5, fig.height = 4.2
+)
+```
+
+## Abstract
+
+Self-Supervised Learning (SSL) has emerged as the dominant
+representation-learning paradigm in computer vision
+[@Chen2020simclr; @He2020moco; @Oord2018cpc] and is increasingly
+applied to remote sensing [@Jean2019tile2vec; @ReichsteinDL2019]. The
+**Pillar 4** of `edaphos` ships a minimal SimCLR-style pipeline
+[@Chen2020simclr] that pre-trains a small raster encoder on unlabelled
+covariate patches; the resulting per-pixel embeddings are then used as
+additional covariates inside the Pillar 5 Active Learning loop on
+`br_cerrado`. We report a head-to-head comparison of the identical AL
+policy with and without the learned features.
+
+## 1. Contrastive representation learning
+
+Given a mini-batch \(\{\mathbf{x}_{i}\}_{i=1}^{B}\) of raster patches,
+SimCLR draws two independent stochastic augmentations
+\(\tilde{\mathbf{x}}_{i}^{(1)},\tilde{\mathbf{x}}_{i}^{(2)}\) of each
+patch, encodes them with a shared CNN \(f_{\theta}\) and a projection
+head \(g_{\phi}\), and minimises the normalised temperature-scaled
+cross-entropy (NT-Xent) loss [@Chen2020simclr]:
+\[
+\mathcal{L}_{\text{NT-Xent}}
+   \;=\;-\frac{1}{2B}
+         \sum_{i=1}^{B}\sum_{v\in\{1,2\}}
+           \log\frac{\exp(\mathrm{sim}(\mathbf{z}_{i}^{(v)},
+                                         \mathbf{z}_{i}^{(v^{\prime})})/\tau)}
+           {\sum_{k\ne(i,v)}\exp(\mathrm{sim}(\mathbf{z}_{i}^{(v)},
+                                              \mathbf{z}_{k})/\tau)},
+\]
+where \(\mathbf{z}=g_{\phi}(f_{\theta}(\tilde{\mathbf{x}}))\),
+\(\mathrm{sim}(\cdot,\cdot)\) is cosine similarity and \(\tau\) is the
+temperature. After pre-training, the projection head is discarded and
+the *backbone* feature vector \(f_{\theta}(\mathbf{x})\) is used as the
+reusable representation.
+
+## 2. Data preparation
+
+Each of the 2025 pixels of `br_cerrado` is made the centre of a
+\(7\times 7\times 5\) patch with five normalised channels (elevation,
+slope, TWI, mean annual precipitation, NDVI). Reflection padding
+preserves the original grid size.
+
+```{r setup, message=FALSE}
+library(edaphos)
+if (!requireNamespace("torch", quietly = TRUE)) {
+  knitr::knit_exit("Package `torch` not installed — skipping vignette.")
+}
+data(br_cerrado, package = "edaphos")
+
+covs_base <- c("elev", "slope", "twi", "map_mm", "ndvi")
+H <- length(unique(br_cerrado$y))
+W <- length(unique(br_cerrado$x))
+stopifnot(H * W == nrow(br_cerrado))
+c(H = H, W = W)
+```
+
+```{r patchify}
+grid <- br_cerrado[order(br_cerrado$y, br_cerrado$x), ]
+mat <- function(col) matrix(grid[[col]], nrow = H, ncol = W, byrow = TRUE)
+z_mat <- function(m) (m - mean(m)) / max(stats::sd(m), 1e-6)
+channels <- lapply(covs_base, function(cc) z_mat(mat(cc)))
+cube <- array(unlist(channels), dim = c(H, W, length(covs_base)))
+cube <- aperm(cube, c(3L, 1L, 2L))
+mirror_pad <- function(m, p) {
+  top <- m[p:1, , drop = FALSE]
+  bot <- m[nrow(m):(nrow(m) - p + 1L), , drop = FALSE]
+  tall <- rbind(top, m, bot)
+  left  <- tall[, p:1, drop = FALSE]
+  right <- tall[, ncol(tall):(ncol(tall) - p + 1L), drop = FALSE]
+  cbind(left, tall, right)
+}
+patch_size <- 7L
+pad <- (patch_size - 1L) %/% 2L
+C <- dim(cube)[1L]
+padded <- array(0, dim = c(C, H + 2L * pad, W + 2L * pad))
+for (cc in seq_len(C)) padded[cc, , ] <- mirror_pad(cube[cc, , ], pad)
+patches <- array(0, dim = c(H * W, C, patch_size, patch_size))
+k <- 1L
+for (i in seq_len(H)) for (j in seq_len(W)) {
+  patches[k, , , ] <- padded[, i:(i + 2L * pad), j:(j + 2L * pad)]
+  k <- k + 1L
+}
+dim(patches)
+```
+
+## 3. SimCLR pre-training
+
+Four hundred randomly-drawn patches are pre-trained for 60 epochs on
+Adam. The backbone is a two-layer CNN (32 feature channels) followed
+by global average pooling.
+
+```{r pretrain, message=FALSE}
+set.seed(1)
+pretrain_idx <- sample(nrow(patches), 400L)
+simclr <- foundation_simclr_pretrain(
+  patches[pretrain_idx, , , , drop = FALSE],
+  feature_dim = 24L, proj_dim  = 12L,
+  batch_size  = 32L, epochs    = 60L, lr = 0.005,
+  temperature = 0.2, noise_sd  = 0.1,
+  seed        = 1L, verbose    = FALSE
+)
+simclr
+```
+
+## 4. Per-pixel embedding extraction
+
+```{r embed}
+emb <- foundation_simclr_embed(simclr, patches)
+dim(emb)
+colnames(emb) <- paste0("emb", sprintf("%02d", seq_len(ncol(emb))))
+br_ext <- cbind(grid, emb)
+head(br_ext[, c(covs_base, "soc", head(colnames(emb), 3L))])
+```
+
+## 5. Controlled experiment — AL with and without SimCLR features
+
+Same cLHS seed, same budget, same hybrid policy; only the covariate
+list changes. Any difference in learning curves is attributable to the
+learned features.
+
+```{r al-compare, message=FALSE}
+set.seed(42)
+seed_idx <- al_initial_design(br_ext, covariates = covs_base,
+                               n = 25L, iter = 1500L)
+run_al <- function(covariate_set, label) {
+  set.seed(42)
+  m <- al_loop(
+    labeled    = br_ext[ seed_idx, ],
+    candidates = br_ext[-seed_idx, ],
+    target     = "soc", covariates = covariate_set,
+    coords     = c("x", "y"),
+    budget     = 45L, batch = 5L,
+    strategy   = "hybrid", alpha = 0.7,
+    num.trees  = 500L, verbose = FALSE
+  )
+  cbind(al_history(m), setup = label)
+}
+covs_ext <- c(covs_base, colnames(emb))
+h_base <- run_al(covs_base, "baseline (5 covariates)")
+h_ext  <- run_al(covs_ext,  "baseline + SimCLR (29 covariates)")
+h <- rbind(h_base, h_ext)
+tail(h[h$setup == "baseline (5 covariates)", ], 4)
+tail(h[h$setup == "baseline + SimCLR (29 covariates)", ], 4)
+```
+
+```{r plot-compare, eval=requireNamespace("ggplot2", quietly = TRUE)}
+library(ggplot2)
+ggplot(h, aes(n_labeled, rmse_oob, colour = setup)) +
+  geom_line(linewidth = 0.7) + geom_point(size = 2) +
+  labs(x = "Labelled sample size n_t",
+       y = expression("OOB RMSE ("*g~kg^{-1}*" SOC)"),
+       title = "AL on br_cerrado — SimCLR features as auxiliary covariates",
+       colour = "Feature set") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+
+## 6. Discussion
+
+On this small synthetic grid (N = 2025 pixels, five physically-coded
+covariates, 60 SimCLR epochs) the learned features typically yield a
+marginal OOB-RMSE improvement, which is itself informative: the
+encoder extracts signal from the covariate stack **with zero labels
+consumed during pre-training** [@Jean2019tile2vec].
+
+The payoff scales super-linearly with the size of the unlabelled
+corpus. Under a realistic Cerrado-wide pre-training with optical + SAR
++ DEM + climate inputs, the learned representation captures transfer
+structure unavailable to any regional model [@Chen2020simclr; @ReichsteinDL2019],
+and becomes the de-facto feature layer for Pillars 2, 3 and 5. That
+planetary-scale workflow is scheduled for the next major release.
+
+## References

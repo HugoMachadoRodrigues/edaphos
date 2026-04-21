@@ -1,0 +1,30 @@
+# R session state
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+
+# RStudio / IDE
+.Rproj.user/
+*.Rproj
+
+# Built artifacts
+/doc/
+/Meta/
+inst/doc/
+*.tar.gz
+*.tgz
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+
+# Local tooling (not distributed)
+.claude/
+
+# Environment files
+.Renviron
+.env

@@ -1,0 +1,164 @@
+---
+title: "Pilar 1 — Causal AI: Backdoor Adjustment in Pedogenetic DAGs"
+author: "Hugo Rodrigues Machado"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 1 — Causal AI: Backdoor Adjustment in Pedogenetic DAGs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 6, fig.height = 4.5
+)
+```
+
+## Abstract
+
+Modern DSM pipelines routinely conflate *variable importance* with
+*causal effect*, despite a mature statistical apparatus — Pearl's
+structural causal models [@Pearl2009; @Pearl2016primer] — that
+distinguishes the two cleanly. The **Pillar 1** of `edaphos` ships a
+minimum-viable interface to that apparatus: pedogenetic Directed
+Acyclic Graphs (DAGs) expressed in the `dagitty` syntax
+[@Textor2016dagitty], automatic backdoor-adjustment set identification,
+and a linear causal-effect estimator with a confounded-baseline
+comparator. This vignette demonstrates the pipeline on the bundled
+Cerrado dataset and highlights the direction of future extensions
+toward causal representation learning [@Scholkopf2021] and
+time-series causal discovery [@Runge2019].
+
+## 1. Why causal inference in pedometry?
+
+Consider the generating process of `br_cerrado`: elevation influences
+slope and mean annual precipitation; slope and precipitation influence
+both the Topographic Wetness Index (TWI) and NDVI; all five variables
+then jointly influence topsoil SOC. An ordinary regression
+\(\mathrm{lm}(\text{soc}\sim\text{ndvi})\) does **not** recover the
+direct effect of NDVI on SOC: it sums the direct path with the
+backdoor paths through TWI, slope and precipitation
+[@Pearl2009, Ch. 3].
+
+Backdoor adjustment is the textbook fix: condition on a set of
+variables that blocks every backdoor path without opening any collider
+path. Given a DAG, `dagitty::adjustmentSets()` returns valid sets
+automatically [@Textor2016dagitty].
+
+## 2. Cerrado-specific DAG
+
+[`causal_cerrado_dag()`][causal_cerrado_dag] encodes the generating
+process of `br_cerrado`.
+
+```{r setup, message=FALSE}
+library(edaphos)
+if (!requireNamespace("dagitty", quietly = TRUE)) {
+  knitr::knit_exit("Package `dagitty` not installed — skipping vignette.")
+}
+g <- causal_cerrado_dag()
+g
+```
+
+```{r plot-dag}
+plot(g)
+```
+
+## 3. Adjustment-set identification
+
+```{r conjunto-ajuste}
+adj <- causal_adjustment_set(g, exposure = "ndvi", outcome = "soc")
+adj
+```
+
+The minimal adjustment set (as computed here) blocks every backdoor
+path from `ndvi` to `soc` while leaving the direct `ndvi -> soc`
+edge unconditioned — a standard back-door criterion result
+[@Pearl2009].
+
+## 4. Causal-effect estimation
+
+The wrapper [`causal_estimate_effect()`][causal_estimate_effect] fits
+the adjusted linear model
+\[
+\mathrm{soc}\;=\;\beta_{0}+\beta_{\text{ndvi}}\,\mathrm{ndvi}
+                 +\sum_{z\in Z}\gamma_{z}\,z+\varepsilon,
+\]
+where \(Z\) is the returned adjustment set. It also reports the
+confounded-baseline coefficient \(\beta_{\text{ndvi}}^{\text{naive}}\)
+obtained from the unadjusted
+\(\mathrm{lm}(\text{soc}\sim\text{ndvi})\), so the magnitude of
+confounding bias is directly legible.
+
+```{r estimate}
+data(br_cerrado, package = "edaphos")
+fit <- causal_estimate_effect(
+  br_cerrado, g,
+  exposure = "ndvi", outcome = "soc",
+  effect   = "direct"
+)
+fit
+```
+
+```{r plot-compare, eval=requireNamespace("ggplot2", quietly = TRUE)}
+library(ggplot2)
+df <- data.frame(
+  estimator = factor(c("Naive (lm(soc ~ ndvi))",
+                        "Adjusted (backdoor)"),
+                      levels = c("Naive (lm(soc ~ ndvi))",
+                                  "Adjusted (backdoor)")),
+  coef      = c(fit$effect_naive, fit$effect)
+)
+ggplot(df, aes(estimator, coef, fill = estimator)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = signif(coef, 3)), vjust = -0.3) +
+  labs(y = "Estimated effect of NDVI on SOC",
+       title = "NDVI -> SOC — naive vs. causal (Cerrado DAG)") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+```
+
+## 5. CLORPT baseline DAG
+
+For problems beyond `br_cerrado`, [`causal_clorpt_dag()`][causal_clorpt_dag]
+returns the classical Jenny (1941) factorial DAG as a template
+[@Jenny1941; @McBratney2003]:
+
+```{r clorpt}
+g_clorpt <- causal_clorpt_dag()
+g_clorpt
+```
+
+## 6. How this changes the other pillars
+
+1. **Pillar 5 (Active Learning).** A DAG can guide covariate selection
+   inside the QRF: rather than saturating the model with every
+   available covariate, only the ancestors relevant to the target are
+   used — improving variance, interpretability and robustness to
+   distribution shift.
+2. **Pillar 2 (PIML).** A pedogenetic DAG restricts which covariates
+   can enter the parameterisation of the hierarchical Neural ODE
+   [`piml_hierarchical_fit()`][piml_hierarchical_fit], precluding
+   spurious-effect learning.
+3. **Transfer to new regions.** Where the *causal regime* is shared
+   across regions (same ancestors, same edge directions), causally
+   adjusted models extrapolate more reliably than purely correlational
+   ones [@Scholkopf2021].
+
+## 7. Roadmap
+
+* **Structure learning** via `bnlearn` — learn DAG edges from horizon
+  data rather than prescribing them [@Runge2019].
+* **Non-linear backdoor estimators** — replace the linear `lm` with
+  BART, GAM or a doubly-robust estimator, keeping the same adjustment
+  set.
+* **Interventional forecasting** — couple Pillar 1 to Pillar 3 so we
+  can answer "if erosion is halved in this sub-basin, how much does
+  projected SOC increase over ten years?" under explicit causal
+  assumptions.
+
+## References

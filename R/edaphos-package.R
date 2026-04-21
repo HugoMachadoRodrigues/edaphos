@@ -1,0 +1,66 @@
+#' edaphos: Disruptive Algorithms for Digital Soil Mapping
+#'
+#' From Greek \eqn{\epsilon\delta\alpha\phi o\varsigma} — "soil, ground."
+#'
+#' @description
+#' `edaphos` is a research-oriented R package that implements frontier
+#' algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
+#' state of the art (McBratney, Mendon\enc{ç}{c}a Santos and Minasny,
+#' 2003; Wadoux, Minasny and McBratney, 2020). Its contributions are
+#' organised across **six research pillars**, each confronting a specific
+#' methodological gap of the contemporary literature and equipped with a
+#' vignette that derives the governing object from first principles.
+#'
+#' @section Six research pillars:
+#'
+#' \describe{
+#'   \item{\strong{1. Causal AI.}}{DAG-backed backdoor adjustment via
+#'     `dagitty` — [causal_clorpt_dag()], [causal_cerrado_dag()],
+#'     [causal_adjustment_set()], [causal_estimate_effect()].}
+#'   \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
+#'     Ordinary Differential Equation integrated by `deSolve` —
+#'     [piml_profile_fit()]; Neural ODE with differentiable Runge-Kutta
+#'     integrator on `torch` — [piml_neural_ode_fit()]; hierarchical
+#'     covariate-conditioned Neural ODE jointly fit across pedons —
+#'     [piml_hierarchical_fit()].}
+#'   \item{\strong{3. 4D Pedometry.}}{Multi-layer stacked Convolutional
+#'     LSTM with sequence-to-one and sequence-to-sequence training —
+#'     [temporal_convlstm_fit()]; multi-step rollout forecasting —
+#'     [temporal_convlstm_rollout()]; optional mass-balance physics
+#'     loss; reproducible synthetic SOC dynamics cube generator —
+#'     [temporal_synth_soc_cube()].}
+#'   \item{\strong{4. Foundation Models.}}{SimCLR-style contrastive
+#'     pre-training on unlabelled raster covariate patches —
+#'     [foundation_simclr_pretrain()]; per-patch embedding extraction —
+#'     [foundation_simclr_embed()].}
+#'   \item{\strong{5. Autonomous Active Learning.}}{Closed-loop sampling
+#'     policy combining Quantile-Regression-Forest uncertainty,
+#'     feature-space diversity and logistical cost — [al_loop()],
+#'     [al_query()], [al_initial_design()], [al_fit()],
+#'     [al_update()]; with both global and per-location Physics-
+#'     Informed rejection gates — [al_physics_gate_piml()],
+#'     [al_physics_gate_piml_hierarchical()].}
+#'   \item{\strong{6. Quantum ML.}}{Variational quantum circuits for
+#'     organo-mineral simulation (roadmap).}
+#' }
+#'
+#' @section Vignettes:
+#' Each pillar ships a mathematically-derived vignette with examples on
+#' real or reproducible synthetic data. Entry points:
+#' \code{vignette("pilar1-causal", package = "edaphos")},
+#' \code{vignette("pilar2-piml-profile", package = "edaphos")},
+#' \code{vignette("pilar3-4d-soc", package = "edaphos")},
+#' \code{vignette("pilar4-simclr-embeddings", package = "edaphos")},
+#' \code{vignette("pilar5-active-learning", package = "edaphos")},
+#' \code{vignette("pilar5-soilgrids-br", package = "edaphos")}.
+#'
+#' @references
+#' McBratney, A. B., Mendon\enc{ç}{c}a Santos, M. L. and Minasny, B.
+#' (2003). On digital soil mapping. *Geoderma* **117**, 3-52.
+#'
+#' Wadoux, A. M. J.-C., Minasny, B. and McBratney, A. B. (2020). Machine
+#' learning for digital soil mapping: applications, challenges and
+#' suggested solutions. *Earth-Science Reviews* **210**, 103359.
+#'
+#' @keywords internal
+"_PACKAGE"

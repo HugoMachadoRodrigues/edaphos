@@ -1,0 +1,259 @@
+---
+title: "Pilar 5 — Autonomous Active Learning for Soil Mapping"
+author: "Hugo Rodrigues Machado"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 5 — Autonomous Active Learning for Soil Mapping}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 6, fig.height = 4
+)
+```
+
+## Abstract
+
+Digital Soil Mapping (DSM) has historically decoupled sampling design
+from model fitting: a pre-defined scheme collects observations and a
+model is subsequently trained on the resulting dataset
+[@McBratney2003; @Minasny2016]. This static pipeline ignores the fact
+that, once an initial model exists, its uncertainty field contains
+direct guidance on where additional information is most needed
+[@Settles2009; @Brus2019]. This vignette formalises the Pillar 5
+closed-loop **Active Learning** workflow shipped in `edaphos`: the
+algorithm iteratively (i) fits a Quantile Regression Forest
+[@Meinshausen2006; @Wright2017ranger], (ii) computes per-candidate
+prediction uncertainty and feature-space diversity, (iii) queries the
+most informative batch of new locations and (iv) refits after an
+*oracle* returns the measured values. We illustrate the pipeline on the
+benchmark `meuse` dataset [@Heuvelink2001] and quantify convergence in
+Out-of-Bag RMSE under three query strategies plus a logistically
+cost-aware variant.
+
+## 1. Statistical framework
+
+Let \(\mathcal{S}\subset\mathbb{R}^{2}\) be the study region and let
+\(\mathbf{x}(\mathbf{s})\in\mathbb{R}^{p}\) denote the vector of
+environmental covariates at location \(\mathbf{s}\in\mathcal{S}\).
+Assume a measurable soil property
+\(y(\mathbf{s})=f(\mathbf{x}(\mathbf{s}))+\varepsilon(\mathbf{s})\),
+with heteroscedastic error \(\varepsilon\). Given a labelled dataset
+\(\mathcal{L}_{t}=\{(\mathbf{s}_{i},\mathbf{x}_{i},y_{i})\}_{i=1}^{n_{t}}\)
+and a candidate pool
+\(\mathcal{U}_{t}\subset\mathcal{S}\setminus\mathcal{L}_{t}\) at
+iteration \(t\), we seek a policy \(\pi\) that selects
+\(B_{t}\subset\mathcal{U}_{t}\), \(|B_{t}|=b\), maximising expected
+information gain under a finite sampling budget \(N\).
+
+We adopt a Quantile Regression Forest (QRF) [@Meinshausen2006] for
+\(\hat{f}_{t}\). For a query probability pair
+\((\tau_{\ell},\tau_{u})\in(0,1)^{2}\), the QRF provides a per-pixel
+prediction interval
+\(\bigl[\hat{q}_{\tau_{\ell}}(\mathbf{x}),\hat{q}_{\tau_{u}}(\mathbf{x})\bigr]\);
+the interval width
+\[
+u_{t}(\mathbf{x})\;=\;\hat{q}_{\tau_{u}}(\mathbf{x})
+                    \;-\;\hat{q}_{\tau_{\ell}}(\mathbf{x})
+\]
+is the Pillar 5 *uncertainty score*.
+
+The *diversity score* is
+\[
+d_{t}(\mathbf{x})\;=\;\min_{\mathbf{x}^{\prime}\in\mathcal{L}_{t}\cup B_{t}^{<k}}
+                      \bigl\|\mathbf{z}(\mathbf{x})-\mathbf{z}(\mathbf{x}^{\prime})\bigr\|_{2},
+\]
+where \(\mathbf{z}\) denotes a mean-standardised covariate vector and
+\(B_{t}^{<k}\) are the candidates already greedily chosen within the
+current batch (so the batch is internally diverse).
+
+The **hybrid strategy** combines them through a convex combination of
+0-1 min-max-scaled scores:
+\[
+\pi_{\text{hyb}}(\mathbf{x};\alpha)
+   \;=\;\alpha\,\tilde u_{t}(\mathbf{x})
+       +(1-\alpha)\,\tilde d_{t}(\mathbf{x}),
+\qquad \alpha\in[0,1].
+\]
+For deployment on autonomous samplers (drones, rovers) we add a
+logistical cost term proportional to the Euclidean distance to a base
+\(\mathbf{s}_{0}\):
+\[
+\pi_{\text{cost}}(\mathbf{x};\alpha,\gamma)
+   \;=\;\pi_{\text{hyb}}(\mathbf{x};\alpha)
+       \;-\;\gamma\,\tilde c(\mathbf{x}),
+\qquad c(\mathbf{x})=\|\mathbf{s}(\mathbf{x})-\mathbf{s}_{0}\|_{2}.
+\]
+
+These four policies are dispatched by the `strategy` argument of
+[`al_query()`][al_query] and [`al_loop()`][al_loop].[^greedy]
+
+[^greedy]: Greedy batch selection is a standard approximation of the
+optimal batch policy and is provably near-optimal for submodular
+information criteria [@Settles2009].
+
+## 2. Data and seed design
+
+```{r setup, message=FALSE}
+library(edaphos)
+if (!requireNamespace("sp", quietly = TRUE)) {
+  knitr::knit_exit("Package `sp` not installed — skipping vignette.")
+}
+data(meuse, package = "sp")
+
+d <- stats::na.omit(meuse[, c("x", "y", "dist", "elev", "ffreq",
+                              "soil", "lime", "lead")])
+d$ffreq <- as.numeric(as.character(d$ffreq))
+d$soil  <- as.numeric(as.character(d$soil))
+d$lime  <- as.numeric(as.character(d$lime))
+```
+
+The `meuse` dataset [@Heuvelink2001] holds \(n = 155\) topsoil samples
+from a Dutch floodplain; we use lead concentration (mg kg\(^{-1}\)) as
+target and four ancillary covariates. The initial labelled subset is
+drawn by **conditioned Latin Hypercube Sampling (cLHS)**
+[@Minasny2006clhs], which spreads samples across the joint covariate
+distribution and is a strong baseline for DSM [@Brus2019].
+
+```{r seed}
+covs <- c("dist", "elev", "ffreq", "soil", "lime")
+set.seed(42)
+seed_idx <- al_initial_design(d, covariates = covs,
+                              n = 15, iter = 1000)
+labeled0   <- d[ seed_idx, ]
+candidates <- d[-seed_idx, ]
+c(n_labeled = nrow(labeled0), n_candidates = nrow(candidates))
+```
+
+## 3. Closed-loop fit under the hybrid policy
+
+```{r loop, message=FALSE}
+set.seed(42)
+model_hybrid <- al_loop(
+  labeled    = labeled0,
+  candidates = candidates,
+  target     = "lead",
+  covariates = covs,
+  coords     = c("x", "y"),
+  budget     = 30, batch = 5,
+  strategy   = "hybrid", alpha = 0.7,
+  num.trees  = 500L, verbose = FALSE
+)
+model_hybrid
+```
+
+```{r history}
+h_hyb <- al_history(model_hybrid)
+h_hyb
+```
+
+```{r plot-learning, eval=requireNamespace("ggplot2", quietly = TRUE)}
+library(ggplot2)
+ggplot(h_hyb, aes(n_labeled, rmse_oob)) +
+  geom_line(linewidth = 0.7) + geom_point(size = 2) +
+  labs(x = "Labelled sample size n_t",
+       y = expression("Out-of-Bag RMSE ("*mg~kg^{-1}*" Pb)"),
+       title = "Learning curve under the hybrid policy") +
+  theme_minimal(base_size = 12)
+```
+
+## 4. Policy comparison
+
+We benchmark the three label-dependent policies while fixing the cLHS
+seed and budget (the *ceteris-paribus* principle). Deviation between
+curves is attributable to policy choice alone.
+
+```{r compare, message=FALSE}
+run_one <- function(strategy) {
+  set.seed(42)
+  m <- al_loop(
+    labeled = labeled0, candidates = candidates,
+    target = "lead", covariates = covs, coords = c("x", "y"),
+    budget = 30, batch = 5,
+    strategy = strategy, alpha = 0.7,
+    num.trees = 500L, verbose = FALSE
+  )
+  cbind(al_history(m), strategy = strategy)
+}
+h_all <- rbind(
+  run_one("uncertainty"),
+  run_one("diverse"),
+  run_one("hybrid")
+)
+```
+
+```{r plot-compare, eval=requireNamespace("ggplot2", quietly = TRUE)}
+ggplot(h_all, aes(n_labeled, rmse_oob, colour = strategy)) +
+  geom_line(linewidth = 0.7) + geom_point(size = 2) +
+  labs(x = "Labelled sample size n_t",
+       y = expression("OOB RMSE ("*mg~kg^{-1}*" Pb)"),
+       title = "Query-strategy comparison on meuse (2020 Pb topsoil)",
+       colour = "Strategy") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+
+Uncertainty-only sampling exploits the current model maximally but can
+cluster redundantly around a single high-variance pocket; pure
+diversity explores broadly but wastes budget in regions the model
+already handles well [@Settles2009]. The hybrid policy empirically
+dominates both in our setting.
+
+## 5. Cost-aware sampling for autonomous platforms
+
+When a drone or rover executes the campaign, the marginal cost of an
+observation is *not* uniform. The `"cost"` strategy adds a logistical
+penalty proportional to the distance from a base
+\(\mathbf{s}_{0}=(x_{0},y_{0})\).
+
+```{r cost, message=FALSE}
+set.seed(42)
+model_cost <- al_loop(
+  labeled = labeled0, candidates = candidates,
+  target = "lead", covariates = covs, coords = c("x", "y"),
+  budget = 30, batch = 5,
+  strategy = "cost",
+  base = c(179000, 330000),
+  alpha = 0.7, cost_weight = 0.4,
+  num.trees = 500L, verbose = FALSE
+)
+tail(al_history(model_cost), 4)
+```
+
+The same decision primitive generalises to on-board *Edge-AI* pipelines
+where the oracle is a fielded NIR spectrometer running on the sampler
+and the loop closes in seconds rather than weeks.
+
+## 6. Discussion
+
+Active Learning reframes the DSM pipeline from a "collect, then model"
+sequence to a feedback controller [@Brus2019]. Three points bear
+emphasis:
+
+* **Information-theoretic coherence.** Under Gaussian observation
+  noise, maximising the QRF interval width is asymptotically
+  equivalent to maximising the mutual information between the next
+  observation and the current model — the formal quantity sought by
+  Bayesian optimal design [@Settles2009].
+* **Coupling with Pillar 2.** Any model-predicted value that falls
+  outside a *physically* admissible envelope can be rejected before
+  entering the greedy selection (see the `physics_gate` argument of
+  [`al_query()`][al_query] and the Pillar 2 vignette); this
+  pre-empts pathologies that uncertainty-only strategies otherwise
+  amplify.
+* **Transferability.** The same abstraction scales from benchmark
+  datasets such as `meuse` to planetary-scale products such as
+  SoilGrids250m [@HenglWoSIS]; only the oracle implementation changes.
+
+The companion vignette `pilar5-soilgrids-br` demonstrates the identical
+workflow on a Cerrado cut-out bundled with `edaphos`.
+
+## References

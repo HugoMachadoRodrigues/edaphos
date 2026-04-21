@@ -1,0 +1,252 @@
+---
+title: "Pilar 2 — Physics-Informed ML for Soil Depth Profiles"
+author: "Hugo Rodrigues Machado"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 2 — Physics-Informed ML for Soil Depth Profiles}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 6.5, fig.height = 4.5
+)
+```
+
+## Abstract
+
+Classical Digital Soil Mapping harmonises horizon observations via
+equal-area quadratic splines [@Bishop1999; @Malone2009] — a purely
+mathematical object disconnected from pedogenesis. The **Pillar 2** of
+`edaphos` replaces that spline with two Physics-Informed Machine
+Learning (PIML) [@Raissi2019; @Karniadakis2021; @Willcox2021pinns]
+models of the soil depth profile: a parametric pedogenetic Ordinary
+Differential Equation (ODE) integrated by `deSolve`
+[@Soetaert2010desolve], and a Neural ODE [@Chen2018neuralode] trained
+by back-propagation through a fixed-step Runge-Kutta integrator on
+`torch` [@PichlerRtorch]. Both models are demonstrated on the
+`aqp::sp4` reference pedons and a hierarchical covariate-conditioned
+extension closes the loop with Pillar 5.
+
+## 1. Pedogenetic ODE
+
+Let \(y(z)\) denote a soil property (e.g. clay fraction, SOC) at depth
+\(z\ge 0\). The one-dimensional kinetic model of translocation
+[@Jenny1941; @Minasny2016] assumes a depth-dependent relaxation
+towards a parent-material asymptote \(y_{\infty}\) with rate
+\(\lambda(z)\):
+\[
+\frac{dy}{dz}\;=\;-\lambda(z)\,\bigl(y(z)-y_{\infty}\bigr),\qquad
+\lambda(z)=\lambda_{0}\,e^{-\mu z}.
+\tag{1}
+\]
+Parameters \((\lambda_{0},\mu,y_{\infty},y_{0})\) carry explicit
+physical meaning: \(\lambda_{0}\) is the surface pedogenetic rate;
+\(\mu\) controls how quickly that rate decays with depth; \(y_{0}\) is
+the surface intercept; and \(y_{\infty}\) is the parent-material
+extrapolation. The implementation
+[`piml_profile_fit()`][piml_profile_fit] integrates (1) via
+`deSolve::lsoda` at every loss evaluation and minimises
+\[
+\mathcal{J}(\theta)\;=\;
+\sum_{j}\bigl(y(z_{j};\theta)-y_{j}\bigr)^{2}
+\;+\;\eta\|\theta\|_{2}^{2},\tag{2}
+\]
+with Nelder--Mead and Tikhonov regularisation \(\eta\).[^psn]
+
+[^psn]: Physics is imposed by the *forward model itself* — the
+optimiser cannot produce a profile that violates the exponential
+approach to \(y_{\infty}\), irrespective of data. This is the
+strong-PIML regime sensu [@Karniadakis2021].
+
+## 2. Dataset — `aqp::sp4`
+
+We use the ten reference pedons of `aqp::sp4` with horizon
+concentrations of clay, sand, Ca, Mg, K, CEC and CF.
+
+```{r setup, message=FALSE}
+library(edaphos)
+if (!requireNamespace("aqp", quietly = TRUE)) {
+  knitr::knit_exit("Package `aqp` not installed — skipping vignette.")
+}
+data(sp4, package = "aqp")
+sp4$depth <- (sp4$top + sp4$bottom) / 2
+head(sp4[, c("id", "name", "top", "bottom", "depth", "clay", "K")])
+unique(sp4$id)
+```
+
+## 3. Mono-pedon fit: clay translocation in `napa`
+
+The `napa` pedon is a canonical argillic-horizon case: clay increases
+with depth through illuviation then converges to a plateau in the
+parent material. The ODE (1) captures that dynamics without prescribing
+the sign of \(y_{\infty}-y_{0}\).
+
+```{r single-fit}
+napa <- subset(sp4, id == "napa")
+napa[, c("name", "depth", "clay")]
+fit_napa <- piml_profile_fit(
+  depths = napa$depth,
+  values = napa$clay
+)
+fit_napa
+```
+
+```{r predict-grid}
+grid_z <- seq(0, max(napa$depth) + 10, by = 1)
+pred_napa <- data.frame(depth = grid_z,
+                         clay  = predict(fit_napa, grid_z))
+```
+
+```{r plot-single, eval=requireNamespace("ggplot2", quietly = TRUE)}
+library(ggplot2)
+ggplot() +
+  geom_line(data = pred_napa, aes(clay, depth),
+            linewidth = 1, colour = "steelblue") +
+  geom_point(data = napa, aes(clay, depth),
+             size = 3, colour = "firebrick") +
+  scale_y_reverse() +
+  labs(x = "Clay (%)", y = "Depth (cm)",
+       title = "Napa — pedogenetic ODE vs. observed horizons") +
+  theme_minimal(base_size = 12)
+```
+
+## 4. Multi-pedon diagnostics
+
+Fitting the full `sp4` dataset recovers an interpretable table where
+every row has a direct pedological meaning.
+
+```{r group-fit}
+fits <- piml_profile_fit_group(
+  sp4, id = "id", depth = "depth", value = "clay"
+)
+tab <- do.call(rbind, lapply(names(fits), function(k) {
+  p <- fits[[k]]$params
+  data.frame(
+    pedon   = k,
+    lambda0 = signif(p$lambda0, 3),
+    mu      = signif(p$mu,      3),
+    y_inf   = signif(p$y_inf,   3),
+    y0      = signif(p$y0,      3),
+    rmse    = signif(fits[[k]]$rmse, 3)
+  )
+}))
+tab
+```
+
+## 5. Non-physical baselines
+
+Two baselines bound the improvement claim: the mean predictor and the
+linear-in-depth regression. A meaningful PIML gain should come from
+the physical constraint, *not* from extra parameters.
+
+```{r baseline}
+baseline_rmse <- function(sub, target) {
+  y <- sub[[target]]
+  c(mean   = sqrt(mean((y - mean(y))^2)),
+    linear = sqrt(mean(stats::residuals(
+                     stats::lm(y ~ sub$depth))^2)))
+}
+bench <- do.call(rbind, lapply(split(sp4, sp4$id), function(sub) {
+  bl <- baseline_rmse(sub, "clay")
+  data.frame(pedon = sub$id[1],
+             piml  = fits[[sub$id[1]]]$rmse,
+             mean_baseline = bl["mean"],
+             linear_baseline = bl["linear"])
+}))
+bench
+```
+
+## 6. Neural ODE variant
+
+For profiles where the mono-asymptotic prior is violated — illuviated
+bulges, E horizons beneath A, buried paleosols — `edaphos` offers a
+Neural ODE alternative [@Chen2018neuralode]:
+\[
+\frac{dy}{dz}=f_{\theta}(z,y),\qquad
+f_{\theta}=\text{MLP}(z,y;\,\theta).
+\tag{3}
+\]
+The forward map is a fixed-step RK4 integrator written directly in
+`torch`, so training back-propagates the squared-error loss through
+the whole trajectory:
+\[
+\mathcal{J}_{\text{NODE}}(\theta)
+   \;=\;\sum_{j}\Bigl(
+      \underbrace{\int_{0}^{z_{j}}f_{\theta}(z,y(z))\,dz
+                  +y_{0}}_{\text{RK4 rollout}}
+      \;-\;y_{j}\Bigr)^{2}.
+\]
+
+```{r neural-ode, eval=requireNamespace("torch", quietly = TRUE)}
+nn_fit <- piml_neural_ode_fit(
+  depths  = napa$depth, values = napa$clay,
+  hidden  = c(16L, 16L), epochs = 500L,
+  seed    = 1L, verbose = FALSE
+)
+nn_fit
+pred_nn <- data.frame(depth = grid_z,
+                       clay  = predict(nn_fit, grid_z))
+```
+
+```{r plot-neural, eval=requireNamespace("torch", quietly = TRUE) && requireNamespace("ggplot2", quietly = TRUE)}
+ggplot() +
+  geom_line(data = pred_napa, aes(clay, depth,
+            colour = "Parametric ODE"), linewidth = 1) +
+  geom_line(data = pred_nn,   aes(clay, depth,
+            colour = "Neural ODE"),     linewidth = 1) +
+  geom_point(data = napa, aes(clay, depth),
+             size = 3, colour = "firebrick") +
+  scale_y_reverse() +
+  scale_colour_manual(values = c("Parametric ODE" = "steelblue",
+                                  "Neural ODE"    = "darkgreen")) +
+  labs(x = "Clay (%)", y = "Depth (cm)",
+       colour = NULL,
+       title = "Napa — parametric vs. Neural ODE") +
+  theme_minimal(base_size = 12)
+```
+
+## 7. Pillar 2 × Pillar 5 — the physics gate
+
+Given a PIML fit (parametric or neural), the helper
+[`al_physics_gate_piml()`][al_physics_gate_piml] constructs a
+rejection function: candidates whose predicted target falls outside the
+envelope \([\min(y_{0},y_{\infty}),\,\max(y_{0},y_{\infty})]\) inflated
+by a `safety_factor` are eliminated from the greedy Active-Learning
+selection (see the Pillar 5 vignette).
+
+```{r gate, eval=requireNamespace("torch", quietly = TRUE)}
+gate <- al_physics_gate_piml(fit_napa, safety_factor = 1.2)
+cand_dummy <- data.frame(dummy = 1:4)
+gate(cand_dummy, predicted_mean = c(10, 25, 200, -5))
+```
+
+A hierarchical extension ([`piml_hierarchical_fit()`][piml_hierarchical_fit])
+jointly fits a covariate-conditioned Neural ODE across pedons,
+delivering a **per-location** envelope that
+[`al_physics_gate_piml_hierarchical()`][al_physics_gate_piml_hierarchical]
+feeds back into Pillar 5.
+
+## 8. Discussion and roadmap
+
+The parametric ODE is mono-asymptotic and therefore optimal for
+properties that decay monotonically toward a parent-material value
+(SOC, some nutrients) but suboptimal for bimodal profiles, which the
+Neural ODE handles by construction. Two complementary directions are on
+the roadmap:
+
+* **Mass-conservation soft constraints** — augment the Neural ODE loss
+  with a term penalising deviations from an integrated mass balance
+  [@Minasny2017].
+* **Adjoint-method Neural ODE** — for pedons deeper than 2 m, the
+  back-propagation graph becomes memory-bound; the adjoint method of
+  [@Chen2018neuralode] eliminates that scaling.
+
+## References

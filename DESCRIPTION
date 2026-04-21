@@ -1,0 +1,54 @@
+Package: edaphos
+Title: Disruptive Algorithms for Digital Soil Mapping
+Version: 0.1.0
+Authors@R:
+    person("Hugo", "Rodrigues Machado", , "rodrigues.machado.hugo@gmail.com",
+           role = c("aut", "cre"))
+Description: A research-oriented R package that implements frontier
+    algorithms for Digital Soil Mapping (DSM) beyond the current
+    regression-tree state of the art. The package is organised around
+    six research pillars, each confronting a specific methodological
+    gap of the literature: (1) Causal AI with backdoor-adjusted effect
+    estimation on pedogenetic Directed Acyclic Graphs; (2) Physics-
+    Informed Machine Learning of the soil depth profile via a
+    parametric pedogenetic Ordinary Differential Equation and a
+    differentiable Neural Ordinary Differential Equation, including a
+    covariate-conditioned hierarchical extension across pedons;
+    (3) 4D Pedometry with a multi-layer stacked Convolutional Long
+    Short-Term Memory network, sequence-to-sequence training,
+    multi-step rollout forecasting and an optional physics-informed
+    mass-balance loss; (4) Foundation Models via SimCLR-style
+    contrastive pre-training on unlabelled raster covariate patches;
+    (5) Autonomous Active Learning with a hybrid uncertainty +
+    feature-space-diversity batch policy, logistical cost-aware
+    extension, and Physics-Informed rejection gates; (6) Quantum ML
+    (roadmap). A synthesised Cerrado covariate-and-response cube is
+    bundled so every vignette runs offline and reproducibly.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Language: en-US
+URL: https://github.com/HugoMachadoRodrigues/edaphos
+BugReports: https://github.com/HugoMachadoRodrigues/edaphos/issues
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Suggests:
+    aqp,
+    dagitty,
+    ggplot2,
+    gstat,
+    knitr,
+    rmarkdown,
+    sp,
+    terra,
+    testthat (>= 3.0.0),
+    torch
+Config/testthat/edition: 3
+Imports:
+    clhs,
+    deSolve (>= 1.40),
+    ranger,
+    stats
+VignetteBuilder: knitr
+Depends:
+    R (>= 3.5)
+LazyData: true
