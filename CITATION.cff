@@ -1,0 +1,84 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "edaphos: Disruptive Algorithms for Digital Soil Mapping"
+abstract: >-
+  edaphos is a research-oriented R package implementing frontier
+  algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
+  state of the art. It is organised across six research pillars,
+  each confronting a specific methodological gap of the literature:
+  (1) Causal AI with backdoor-adjusted effect estimation on pedogenetic
+  Directed Acyclic Graphs; (2) Physics-Informed Machine Learning of
+  the soil depth profile via a parametric pedogenetic ODE and a
+  differentiable Neural ODE, including a covariate-conditioned
+  hierarchical extension across pedons; (3) 4D Pedometry with a
+  multi-layer stacked Convolutional LSTM, sequence-to-sequence
+  training, multi-step rollout forecasting and an optional
+  physics-informed mass-balance loss; (4) Foundation Models via
+  SimCLR-style contrastive pre-training on unlabelled raster
+  covariate patches; (5) Autonomous Active Learning with a hybrid
+  uncertainty and feature-space-diversity batch policy, logistical
+  cost-aware extension, and Physics-Informed rejection gates; (6)
+  Quantum ML (roadmap).
+type: software
+version: "0.1.0"
+date-released: "2026-04-21"
+license: MIT
+url: "https://github.com/HugoMachadoRodrigues/edaphos"
+repository-code: "https://github.com/HugoMachadoRodrigues/edaphos"
+authors:
+  - family-names: "Rodrigues Machado"
+    given-names: "Hugo"
+    email: "rodrigues.machado.hugo@gmail.com"
+keywords:
+  - "digital soil mapping"
+  - "pedometry"
+  - "soil science"
+  - "active learning"
+  - "physics-informed machine learning"
+  - "neural ordinary differential equations"
+  - "convolutional LSTM"
+  - "self-supervised learning"
+  - "contrastive learning"
+  - "causal inference"
+  - "R package"
+preferred-citation:
+  type: software
+  title: "edaphos: Disruptive Algorithms for Digital Soil Mapping"
+  authors:
+    - family-names: "Rodrigues Machado"
+      given-names: "Hugo"
+      email: "rodrigues.machado.hugo@gmail.com"
+  year: 2026
+  version: "0.1.0"
+  url: "https://github.com/HugoMachadoRodrigues/edaphos"
+references:
+  - type: article
+    authors:
+      - family-names: "McBratney"
+        given-names: "A. B."
+      - family-names: "Mendonça Santos"
+        given-names: "M. L."
+      - family-names: "Minasny"
+        given-names: "B."
+    title: "On digital soil mapping"
+    journal: "Geoderma"
+    year: 2003
+    volume: 117
+    issue: "1-2"
+    start: 3
+    end: 52
+    doi: "10.1016/S0016-7061(03)00223-4"
+  - type: article
+    authors:
+      - family-names: "Wadoux"
+        given-names: "A. M. J.-C."
+      - family-names: "Minasny"
+        given-names: "B."
+      - family-names: "McBratney"
+        given-names: "A. B."
+    title: "Machine learning for digital soil mapping: applications, challenges and suggested solutions"
+    journal: "Earth-Science Reviews"
+    year: 2020
+    volume: 210
+    start: 103359
+    doi: "10.1016/j.earscirev.2020.103359"

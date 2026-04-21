@@ -73,6 +73,9 @@ concentrations of clay, sand, Ca, Mg, K, CEC and CF.
 
 ```{r setup, message=FALSE}
 library(edaphos)
+.torch_ok <- requireNamespace("torch", quietly = TRUE) &&
+             isTRUE(tryCatch(torch::torch_is_installed(),
+                             error = function(e) FALSE))
 if (!requireNamespace("aqp", quietly = TRUE)) {
   knitr::knit_exit("Package `aqp` not installed — skipping vignette.")
 }
@@ -185,7 +188,7 @@ the whole trajectory:
       \;-\;y_{j}\Bigr)^{2}.
 \]
 
-```{r neural-ode, eval=requireNamespace("torch", quietly = TRUE)}
+```{r neural-ode, eval=.torch_ok}
 nn_fit <- piml_neural_ode_fit(
   depths  = napa$depth, values = napa$clay,
   hidden  = c(16L, 16L), epochs = 500L,
@@ -196,7 +199,7 @@ pred_nn <- data.frame(depth = grid_z,
                        clay  = predict(nn_fit, grid_z))
 ```
 
-```{r plot-neural, eval=requireNamespace("torch", quietly = TRUE) && requireNamespace("ggplot2", quietly = TRUE)}
+```{r plot-neural, eval=.torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
 ggplot() +
   geom_line(data = pred_napa, aes(clay, depth,
             colour = "Parametric ODE"), linewidth = 1) +
@@ -222,7 +225,7 @@ envelope \([\min(y_{0},y_{\infty}),\,\max(y_{0},y_{\infty})]\) inflated
 by a `safety_factor` are eliminated from the greedy Active-Learning
 selection (see the Pillar 5 vignette).
 
-```{r gate, eval=requireNamespace("torch", quietly = TRUE)}
+```{r gate, eval=.torch_ok}
 gate <- al_physics_gate_piml(fit_napa, safety_factor = 1.2)
 cand_dummy <- data.frame(dummy = 1:4)
 gate(cand_dummy, predicted_mean = c(10, 25, 200, -5))

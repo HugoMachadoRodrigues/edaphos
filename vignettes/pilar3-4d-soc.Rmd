@@ -82,8 +82,13 @@ decomposition [@Lehmann2015; @Minasny2017].
 
 ```{r setup, message=FALSE}
 library(edaphos)
-if (!requireNamespace("torch", quietly = TRUE)) {
-  knitr::knit_exit("Package `torch` not installed — skipping vignette.")
+.torch_ok <- requireNamespace("torch", quietly = TRUE) &&
+             isTRUE(tryCatch(torch::torch_is_installed(),
+                             error = function(e) FALSE))
+if (!.torch_ok) {
+  knitr::knit_exit(
+    "torch runtime (libtorch) not available — skipping vignette."
+  )
 }
 cube <- temporal_synth_soc_cube(H = 12L, W = 12L, T_total = 18L,
                                 seed = 7L)
