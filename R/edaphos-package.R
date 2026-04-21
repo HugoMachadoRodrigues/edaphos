@@ -16,7 +16,13 @@
 #' \describe{
 #'   \item{\strong{1. Causal AI.}}{DAG-backed backdoor adjustment via
 #'     `dagitty` — [causal_clorpt_dag()], [causal_cerrado_dag()],
-#'     [causal_adjustment_set()], [causal_estimate_effect()].}
+#'     [causal_adjustment_set()], [causal_estimate_effect()] — plus an
+#'     LLM-driven Knowledge-Graph extraction pipeline on top of
+#'     `httr2`: [causal_kg_new()], [causal_kg_add_edge()],
+#'     [causal_llm_extract()], [causal_llm_ingest_abstract()],
+#'     [causal_llm_ingest_corpus()], [causal_augment_dag()]. Ollama
+#'     (Gemma 4), OpenAI and Anthropic backends are interchangeable
+#'     via a single \code{backend} argument.}
 #'   \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 #'     Ordinary Differential Equation integrated by `deSolve` —
 #'     [piml_profile_fit()]; Neural ODE with differentiable Runge-Kutta

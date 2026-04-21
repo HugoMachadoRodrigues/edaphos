@@ -23,7 +23,13 @@ From Greek \eqn{\epsilon\delta\alpha\phi o\varsigma} — "soil, ground."
 \describe{
 \item{\strong{1. Causal AI.}}{DAG-backed backdoor adjustment via
 \code{dagitty} — \code{\link[=causal_clorpt_dag]{causal_clorpt_dag()}}, \code{\link[=causal_cerrado_dag]{causal_cerrado_dag()}},
-\code{\link[=causal_adjustment_set]{causal_adjustment_set()}}, \code{\link[=causal_estimate_effect]{causal_estimate_effect()}}.}
+\code{\link[=causal_adjustment_set]{causal_adjustment_set()}}, \code{\link[=causal_estimate_effect]{causal_estimate_effect()}} — plus an
+LLM-driven Knowledge-Graph extraction pipeline on top of
+\code{httr2}: \code{\link[=causal_kg_new]{causal_kg_new()}}, \code{\link[=causal_kg_add_edge]{causal_kg_add_edge()}},
+\code{\link[=causal_llm_extract]{causal_llm_extract()}}, \code{\link[=causal_llm_ingest_abstract]{causal_llm_ingest_abstract()}},
+\code{\link[=causal_llm_ingest_corpus]{causal_llm_ingest_corpus()}}, \code{\link[=causal_augment_dag]{causal_augment_dag()}}. Ollama
+(Gemma 4), OpenAI and Anthropic backends are interchangeable
+via a single \code{backend} argument.}
 \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 Ordinary Differential Equation integrated by \code{deSolve} —
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}; Neural ODE with differentiable Runge-Kutta

@@ -133,7 +133,131 @@ g_clorpt <- causal_clorpt_dag()
 g_clorpt
 ```
 
-## 6. How this changes the other pillars
+## 6. LLM-driven Knowledge-Graph augmentation
+
+The expert-written DAG above encodes a single analyst's view of
+pedogenesis. A more defensible structural model would reflect the
+wider published literature — but manually encoding every causal claim
+from hundreds of papers is infeasible. Pillar 1 therefore ships a
+three-stage **LLM + Knowledge-Graph (KG) pipeline** that automates the
+transition from a corpus of abstracts to an augmented DAG:
+
+```
+  abstracts  ->  causal_llm_extract()  ->  tidy claims  ->  causal_kg_*  ->  causal_augment_dag()
+  (corpus)     (Gemma-4 / GPT-5 / Claude)   (data frame)    (KG)          (augmented DAG)
+```
+
+Three interchangeable backends are supported behind a single
+extractor:
+
+* `"ollama"` — local, zero-cost. Default model `"gemma4:latest"`
+  (9.6 GB, e4b); switch to `"gemma4:26b"` for higher extraction
+  fidelity. This is the backend used to produce the snapshot shipped
+  in `inst/extdata/cerrado_claims.jsonl`.
+* `"openai"` — hosted GPT family with JSON mode. Requires
+  `OPENAI_API_KEY`.
+* `"anthropic"` — Claude Messages API. Requires `ANTHROPIC_API_KEY`.
+
+### 6.1 Corpus and cached extractions
+
+Ten curated Cerrado-pedology abstracts ship in
+`inst/extdata/cerrado_abstracts.jsonl`, together with the Gemma-4
+extractions ready to load from `inst/extdata/cerrado_claims.jsonl`.
+Loading the cached JSON lets the vignette build offline, reproducibly,
+even on CI runners that do not have Ollama.
+
+```{r load-corpus, message=FALSE}
+if (!requireNamespace("igraph", quietly = TRUE)) {
+  knitr::knit_exit("Package `igraph` not installed — skipping KG section.")
+}
+abs_path <- system.file("extdata", "cerrado_abstracts.jsonl",
+                        package = "edaphos")
+claim_path <- system.file("extdata", "cerrado_claims.jsonl",
+                          package = "edaphos")
+
+abstracts <- do.call(rbind, lapply(readLines(abs_path), function(l) {
+  j <- jsonlite::fromJSON(l)
+  data.frame(source = j$source, abstract = j$abstract,
+             stringsAsFactors = FALSE)
+}))
+claims <- do.call(rbind, lapply(readLines(claim_path), function(l) {
+  as.data.frame(jsonlite::fromJSON(l), stringsAsFactors = FALSE)
+}))
+nrow(abstracts); nrow(claims)
+head(claims[, c("cause", "effect", "source", "confidence")], 5)
+```
+
+### 6.2 Re-running the live extractor (optional)
+
+When an Ollama server is available at `localhost:11434`, the same
+claims are recovered end-to-end. Guard the chunk so the vignette is
+still reproducible on a machine without Ollama:
+
+```{r live-extract, eval=FALSE}
+kg_live <- causal_kg_new()
+kg_live <- causal_llm_ingest_corpus(
+  kg_live, abstracts,
+  abstract_col = "abstract",
+  source_col   = "source",
+  backend      = "ollama",
+  model        = "gemma4:latest",
+  min_confidence = 0.5,
+  progress = function(i, n, s) message(sprintf("[%d/%d] %s", i, n, s))
+)
+kg_live
+```
+
+### 6.3 Building the KG from the cached claims
+
+```{r build-kg}
+kg <- causal_kg_new()
+for (i in seq_len(nrow(claims))) {
+  kg <- causal_kg_add_edge(
+    kg,
+    cause      = claims$cause[i],
+    effect     = claims$effect[i],
+    source     = claims$source[i],
+    evidence   = claims$evidence[i],
+    confidence = claims$confidence[i]
+  )
+}
+kg
+```
+
+### 6.4 Augmenting the Cerrado DAG
+
+`causal_augment_dag()` takes the expert base DAG and unions it with
+every KG edge whose confidence is `>= min_confidence`. Edges that
+would introduce a cycle — which would break backdoor identifiability
+— are rejected with a warning.
+
+```{r augment-dag}
+g_aug <- causal_augment_dag(g, kg, min_confidence = 0.7)
+diff <- causal_augment_diff(g, g_aug)
+table(diff$origin)
+head(diff[diff$origin == "kg", ], 8)
+```
+
+### 6.5 Re-estimating the effect with the augmented DAG
+
+If the literature agrees that a previously-ignored variable
+(`erosion`, say) confounds `ndvi -> soc`, the augmented DAG will add
+it to the minimal adjustment set, and the point estimate of the
+direct effect may shift materially.
+
+```{r augmented-effect}
+adj_base <- causal_adjustment_set(g,     exposure = "ndvi", outcome = "soc")
+adj_aug  <- tryCatch(
+  causal_adjustment_set(g_aug, exposure = "ndvi", outcome = "soc"),
+  error = function(e) adj_base
+)
+list(base = adj_base, augmented = adj_aug)
+```
+
+The remainder of the analysis — fitting an adjusted model, comparing
+against a naive estimator — is unchanged: the DAG is just richer.
+
+## 7. How this changes the other pillars
 
 1. **Pillar 5 (Active Learning).** A DAG can guide covariate selection
    inside the QRF: rather than saturating the model with every
@@ -149,7 +273,7 @@ g_clorpt
    adjusted models extrapolate more reliably than purely correlational
    ones [@Scholkopf2021].
 
-## 7. Roadmap
+## 8. Roadmap
 
 * **Structure learning** via `bnlearn` — learn DAG edges from horizon
   data rather than prescribing them [@Runge2019].
@@ -160,5 +284,9 @@ g_clorpt
   can answer "if erosion is halved in this sub-basin, how much does
   projected SOC increase over ten years?" under explicit causal
   assumptions.
+* **Scale the LLM extraction** to a SoilPortal-style corpus of tens of
+  thousands of abstracts, with conflict resolution (majority voting
+  across extractors, or Bayesian confidence pooling) and ontology
+  alignment against AGROVOC / ENVO [@Jonquet2023agrovoc].
 
 ## References

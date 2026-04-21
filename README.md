@@ -81,7 +81,7 @@ scientific boundary between pillars explicit.
 
 | Nº  | Pillar                        | Namespace      | Status       | Governing object                                                                                                                                    |
 |---- |------------------------------ |--------------- |--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1   | Causal AI                     | `causal_*`     | scaffold     | Structural causal model $G = (V, E)$ with backdoor-adjusted estimand $\beta_{x \to y}^{\text{do}}$ [[Pearl 2009][pearl2009]]                        |
+| 1   | Causal AI                     | `causal_*`     | implemented  | SCM $G = (V, E)$ + backdoor-adjusted $\beta_{x \to y}^{\text{do}}$ [[Pearl 2009][pearl2009]] **+ LLM-driven Knowledge-Graph ingestion** (Gemma 4 / GPT / Claude) over `httr2`                  |
 | 2   | Physics-Informed ML           | `piml_*`       | implemented  | Pedogenetic ODE $\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)$ and Neural ODE $\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})$                  |
 | 3   | 4D Pedometry                  | `temporal_*`   | implemented  | Stacked Convolutional LSTM [[Shi et al. 2015][shi2015]] with seq-to-seq training, multi-step rollout and optional mass-balance physics loss          |
 | 4   | Foundation Models             | `foundation_*` | scaffold     | NT-Xent contrastive objective [[Chen et al. 2020][chen2020]] on unlabelled raster patches                                                            |
@@ -150,6 +150,57 @@ with `adjustmentSets()` recovers the identified direct effect (18.4,
   <img src="man/figures/pillar1-causal.png" width="620"
        alt="Bar chart comparing naive vs. backdoor-adjusted effect of NDVI on SOC" />
 </p>
+
+### From expert DAGs to LLM-driven Knowledge Graphs
+
+Beyond the hand-specified DAGs, Pillar 1 ships a second pathway that
+turns a corpus of soil-science abstracts into structural knowledge
+automatically. A single uniform extractor talks to three
+interchangeable LLM backends:
+
+- `backend = "ollama"` — local, zero-cost; default model
+  `"gemma4:latest"`, switch to `"gemma4:26b"` for higher fidelity.
+- `backend = "openai"` — hosted GPT, requires `OPENAI_API_KEY`.
+- `backend = "anthropic"` — Claude, requires `ANTHROPIC_API_KEY`.
+
+```r
+kg <- causal_kg_new()
+
+# Extract causal triples from a soil-science abstract and add them
+# as confidence-weighted edges of the Knowledge Graph.
+kg <- causal_llm_ingest_abstract(
+  kg,
+  abstract = "In Cerrado Oxisols, higher mean annual precipitation
+              drives organic-matter accumulation; steeper slopes
+              enhance erosional SOC loss; long-standing native
+              vegetation elevates topsoil nitrogen relative to
+              converted pasture.",
+  source   = "Ferreira 2021",
+  backend  = "ollama",
+  model    = "gemma4:latest"
+)
+
+# Union of the expert Cerrado DAG + the literature-derived KG, with a
+# cycle-safety check on every added edge.
+g_aug <- causal_augment_dag(causal_cerrado_dag(), kg,
+                            min_confidence = 0.7)
+causal_augment_diff(causal_cerrado_dag(), g_aug)
+```
+
+```
+                       cause  effect origin
+1                       elev  map_mm   base
+2                       elev   slope   base
+...
+14  mean_annual_precipitation    soc     kg
+15              steeper_slopes soc_loss   kg
+16          native_vegetation  topsoil_nitrogen   kg
+```
+
+Ten curated Cerrado-pedology abstracts and their Gemma-4-extracted
+claims ship in `inst/extdata/cerrado_abstracts.jsonl` and
+`inst/extdata/cerrado_claims.jsonl` so the vignette builds offline on
+CI and remains fully reproducible.
 
 ---
 

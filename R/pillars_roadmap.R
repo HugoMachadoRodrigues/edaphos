@@ -7,7 +7,7 @@
 #'
 #' | Pillar | Namespace      | Status       | Governing object                                                                                                       |
 #' |--------|----------------|--------------|------------------------------------------------------------------------------------------------------------------------|
-#' | 1. Causal AI                     | `causal_*`     | scaffold    | Structural causal model \eqn{G = (V, E)} with backdoor-adjusted estimand \eqn{\beta_{x \to y}^{\text{do}}} (Pearl, 2009).         |
+#' | 1. Causal AI                     | `causal_*`     | implemented | Structural causal model \eqn{G = (V, E)} with backdoor-adjusted estimand \eqn{\beta_{x \to y}^{\text{do}}} (Pearl, 2009), plus an LLM-driven Knowledge-Graph pipeline ([causal_kg_new()], [causal_llm_extract()], [causal_augment_dag()]) supporting Ollama / OpenAI / Anthropic backends. |
 #' | 2. Physics-Informed ML           | `piml_*`       | implemented | Pedogenetic ODE \eqn{dy/dz = -\lambda_0 e^{-\mu z}(y - y_\infty)} and Neural ODE \eqn{dy/dz = f_\theta(z, y, \mathbf{x})}.         |
 #' | 3. 4D Pedometry                  | `temporal_*`   | implemented | Stacked ConvLSTM (Shi et al., 2015) with seq-to-seq training, multi-step rollout and a mass-balance physics loss.             |
 #' | 4. Foundation Models             | `foundation_*` | scaffold    | NT-Xent contrastive objective (Chen et al., 2020) on unlabelled raster patches.                                                |

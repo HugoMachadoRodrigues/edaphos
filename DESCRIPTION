@@ -1,6 +1,6 @@
 Package: edaphos
 Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 0.2.0
+Version: 0.3.0
 Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
            role = c("aut", "cre"),
@@ -40,6 +40,7 @@ Suggests:
     dagitty,
     ggplot2,
     gstat,
+    igraph,
     knitr,
     rmarkdown,
     sp,
@@ -50,6 +51,8 @@ Config/testthat/edition: 3
 Imports:
     clhs,
     deSolve (>= 1.40),
+    httr2,
+    jsonlite,
     ranger,
     stats
 VignetteBuilder: knitr
