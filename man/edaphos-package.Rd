@@ -23,13 +23,18 @@ From Greek \eqn{\epsilon\delta\alpha\phi o\varsigma} — "soil, ground."
 \describe{
 \item{\strong{1. Causal AI.}}{DAG-backed backdoor adjustment via
 \code{dagitty} — \code{\link[=causal_clorpt_dag]{causal_clorpt_dag()}}, \code{\link[=causal_cerrado_dag]{causal_cerrado_dag()}},
-\code{\link[=causal_adjustment_set]{causal_adjustment_set()}}, \code{\link[=causal_estimate_effect]{causal_estimate_effect()}} — plus an
-LLM-driven Knowledge-Graph extraction pipeline on top of
-\code{httr2}: \code{\link[=causal_kg_new]{causal_kg_new()}}, \code{\link[=causal_kg_add_edge]{causal_kg_add_edge()}},
-\code{\link[=causal_llm_extract]{causal_llm_extract()}}, \code{\link[=causal_llm_ingest_abstract]{causal_llm_ingest_abstract()}},
-\code{\link[=causal_llm_ingest_corpus]{causal_llm_ingest_corpus()}}, \code{\link[=causal_augment_dag]{causal_augment_dag()}}. Ollama
-(Gemma 4), OpenAI and Anthropic backends are interchangeable
-via a single \code{backend} argument.}
+\code{\link[=causal_adjustment_set]{causal_adjustment_set()}}, \code{\link[=causal_estimate_effect]{causal_estimate_effect()}} — with
+an optional non-linear BART estimator via the \code{dbarts} Suggests
+dependency. An LLM-driven Knowledge-Graph extraction pipeline
+on top of \code{httr2} (\code{\link[=causal_kg_new]{causal_kg_new()}}, \code{\link[=causal_llm_extract]{causal_llm_extract()}},
+\code{\link[=causal_llm_ingest_corpus]{causal_llm_ingest_corpus()}}, \code{\link[=causal_augment_dag]{causal_augment_dag()}}) supports
+Ollama (Gemma 4), OpenAI and Anthropic backends. Corpus
+ingestion clients for SciELO (\code{\link[=causal_corpus_scielo]{causal_corpus_scielo()}}) and
+OpenAlex (\code{\link[=causal_corpus_openalex]{causal_corpus_openalex()}}) produce abstract-ready
+data frames for the same pipeline; ontology alignment against
+a curated Cerrado vocabulary (subset of AGROVOC + ENVO) or
+live AGROVOC SPARQL is provided by \code{\link[=causal_kg_alignment]{causal_kg_alignment()}} and
+\code{\link[=causal_kg_rename]{causal_kg_rename()}}.}
 \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 Ordinary Differential Equation integrated by \code{deSolve} —
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}; Neural ODE with differentiable Runge-Kutta

@@ -11,7 +11,10 @@ causal_estimate_effect(
   outcome,
   adjustment = NULL,
   effect = c("direct", "total"),
-  type = c("minimal", "canonical", "all")
+  type = c("minimal", "canonical", "all"),
+  estimator = c("lm", "bart"),
+  delta = NULL,
+  bart_kwargs = list()
 )
 }
 \arguments{
@@ -26,22 +29,57 @@ causal_estimate_effect(
 adjustment set.}
 
 \item{effect, type}{Forwarded to \code{\link[=causal_adjustment_set]{causal_adjustment_set()}}.}
+
+\item{estimator}{One of \code{"lm"} (default) or \code{"bart"} (requires
+\code{dbarts}).}
+
+\item{delta}{Numeric finite-difference step used by the BART
+estimator. Defaults to the interquartile range of \code{exposure}
+divided by two.}
+
+\item{bart_kwargs}{Optional named list of extra arguments forwarded
+to \code{dbarts::bart()} (e.g. \code{ndpost}, \code{nskip}, \code{seed}).}
 }
 \value{
 A \code{edaphos_causal_effect} object with:
 \describe{
-\item{model}{The fitted \code{lm}.}
+\item{model}{The fitted estimator (either an \code{lm} or a
+\code{dbarts::bart} object).}
+\item{estimator}{Character; \code{"lm"} or \code{"bart"}.}
 \item{adjustment}{The adjustment set used.}
-\item{effect}{Numeric coefficient on \code{exposure}.}
-\item{effect_ci}{95\% confidence interval on \code{exposure}.}
-\item{effect_naive}{Coefficient from the \emph{unadjusted} \code{lm(outcome ~ exposure)} for comparison.}
+\item{effect}{Numeric direct effect.}
+\item{effect_ci}{95 \% CI (asymptotic for \code{"lm"}, posterior
+quantile for \code{"bart"}).}
+\item{effect_naive}{Coefficient from the unadjusted
+\code{lm(outcome ~ exposure)} for contrast.}
 }
 }
 \description{
-Fits a linear model
-\code{outcome ~ exposure + adjustment_set} where the adjustment set
-is chosen automatically by \code{\link[=causal_adjustment_set]{causal_adjustment_set()}} from the supplied
-DAG (unless explicitly provided). The regression coefficient on
-\code{exposure} is then a valid estimate of the direct causal effect,
-provided the DAG is correct.
+Identifies a valid backdoor-adjustment set from the supplied DAG
+(unless one is provided manually) and then fits an \strong{adjusted
+outcome model} conditional on that set. Two estimators are
+available:
+}
+\details{
+\itemize{
+\item \code{estimator = "lm"} — closed-form linear regression
+\eqn{Y = \beta_0 + \beta_{\text{exposure}}\,X +
+            \sum_{z\in Z}\gamma_z z + \varepsilon}.
+The regression coefficient on \code{exposure} is the direct causal
+effect. Confidence intervals follow from OLS asymptotics.
+\item \code{estimator = "bart"} — non-linear Bayesian Additive Regression
+Trees (Chipman, George & McCulloch 2010), via the \code{dbarts}
+Suggests dependency. The effect of \code{exposure} is computed as
+the \strong{average partial derivative}
+\eqn{\bar{\partial} = \frac{1}{n}\sum_i
+       \bigl[\widehat{E}[Y\mid X=x_i+\delta, Z=z_i]
+            - \widehat{E}[Y\mid X=x_i, Z=z_i]\bigr] / \delta}
+averaged over the training data. A 95 \% credible interval is
+recovered from the BART posterior draws.
+}
+}
+\references{
+Chipman, H. A., George, E. I., & McCulloch, R. E. (2010). BART:
+Bayesian Additive Regression Trees. \emph{Annals of Applied Statistics}
+\strong{4}, 266-298.
 }

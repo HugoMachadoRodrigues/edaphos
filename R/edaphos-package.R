@@ -16,13 +16,18 @@
 #' \describe{
 #'   \item{\strong{1. Causal AI.}}{DAG-backed backdoor adjustment via
 #'     `dagitty` — [causal_clorpt_dag()], [causal_cerrado_dag()],
-#'     [causal_adjustment_set()], [causal_estimate_effect()] — plus an
-#'     LLM-driven Knowledge-Graph extraction pipeline on top of
-#'     `httr2`: [causal_kg_new()], [causal_kg_add_edge()],
-#'     [causal_llm_extract()], [causal_llm_ingest_abstract()],
-#'     [causal_llm_ingest_corpus()], [causal_augment_dag()]. Ollama
-#'     (Gemma 4), OpenAI and Anthropic backends are interchangeable
-#'     via a single \code{backend} argument.}
+#'     [causal_adjustment_set()], [causal_estimate_effect()] — with
+#'     an optional non-linear BART estimator via the `dbarts` Suggests
+#'     dependency. An LLM-driven Knowledge-Graph extraction pipeline
+#'     on top of `httr2` ([causal_kg_new()], [causal_llm_extract()],
+#'     [causal_llm_ingest_corpus()], [causal_augment_dag()]) supports
+#'     Ollama (Gemma 4), OpenAI and Anthropic backends. Corpus
+#'     ingestion clients for SciELO ([causal_corpus_scielo()]) and
+#'     OpenAlex ([causal_corpus_openalex()]) produce abstract-ready
+#'     data frames for the same pipeline; ontology alignment against
+#'     a curated Cerrado vocabulary (subset of AGROVOC + ENVO) or
+#'     live AGROVOC SPARQL is provided by [causal_kg_alignment()] and
+#'     [causal_kg_rename()].}
 #'   \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 #'     Ordinary Differential Equation integrated by `deSolve` —
 #'     [piml_profile_fit()]; Neural ODE with differentiable Runge-Kutta

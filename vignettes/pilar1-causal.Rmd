@@ -257,7 +257,98 @@ list(base = adj_base, augmented = adj_aug)
 The remainder of the analysis — fitting an adjusted model, comparing
 against a naive estimator — is unchanged: the DAG is just richer.
 
-## 7. How this changes the other pillars
+## 6.6 Ontology alignment
+
+LLM output labels are free-form — one abstract produces
+`steeper_slopes`, another `slope_angle`, a third `slope`. Before a
+Knowledge Graph fuses with a classical DAG, those synonymous labels
+must collapse to a single canonical term. Pillar 1 ships a three-tier
+matcher — exact, substring, fuzzy Levenshtein — against a hand-curated
+Cerrado-pedometry vocabulary (~60 terms, subset of AGROVOC + ENVO):
+
+```{r align, eval=requireNamespace("igraph", quietly = TRUE)}
+mapping <- causal_kg_alignment(kg)
+head(mapping[mapping$method != "exact", ], 8)
+kg_canon <- causal_kg_rename(kg, mapping)
+kg_canon
+```
+
+Live SPARQL queries to the FAO AGROVOC endpoint
+(`causal_ontology_agrovoc()`) and parsing of a local ENVO `.obo` file
+(`causal_ontology_envo()`, via the optional `ontologyIndex`
+Suggests) are exposed for problems whose vocabulary extends beyond
+the Cerrado core.
+
+## 7. Corpus ingestion from SciELO and OpenAlex
+
+Two zero-account clients turn literature search queries into
+abstract-ready data frames that can be piped directly into
+[`causal_llm_ingest_corpus()`][causal_llm_ingest_corpus]:
+
+```{r corpus, eval=FALSE}
+# SciELO — Latin-American scientific literature (keyless)
+scielo_df <- causal_corpus_scielo(
+  query        = "Cerrado soil organic carbon",
+  max_results  = 30L,
+  from_year    = 2015
+)
+
+# OpenAlex — global scholarly graph (keyless; a `mailto=` tier raises the
+# rate limit). Abstracts are reconstructed from OpenAlex's inverted index.
+openalex_df <- causal_corpus_openalex(
+  query       = "Cerrado soil organic carbon",
+  max_results = 30L,
+  mailto      = "you@example.org"
+)
+
+# Feed straight into the LLM pipeline:
+kg_live <- causal_llm_ingest_corpus(
+  causal_kg_new(),
+  rbind(scielo_df, openalex_df),
+  abstract_col = "abstract", source_col = "source",
+  backend = "ollama", model = "gemma4:latest"
+)
+```
+
+Both clients return identical column schemas (`source`, `title`,
+`abstract`, `year`, `doi`, `url`) so downstream code is agnostic to
+the upstream database.
+
+## 8. Non-linear effect estimation via BART
+
+The default `estimator = "lm"` works when the covariate–outcome
+relationship is approximately linear once the adjustment set is
+conditioned on. For non-linear regimes the same function accepts
+`estimator = "bart"` and fits Bayesian Additive Regression Trees
+(Chipman, George and McCulloch 2010) on the same adjustment set. The
+direct effect is computed as the average partial derivative
+
+\[
+\bar\partial = \frac{1}{n}\sum_{i=1}^{n}
+  \frac{\widehat{E}[Y \mid X = x_i + \delta,\, Z = z_i]
+        - \widehat{E}[Y \mid X = x_i,\, Z = z_i]}{\delta},
+\]
+
+averaged over the training data; a 95 % credible interval is
+recovered from the BART posterior.
+
+```{r bart, eval=requireNamespace("dbarts", quietly = TRUE)}
+set.seed(1)
+fit_bart <- causal_estimate_effect(
+  br_cerrado, g,
+  exposure = "ndvi", outcome = "soc",
+  estimator = "bart",
+  bart_kwargs = list(ndpost = 200L, nskip = 100L)
+)
+fit_bart
+```
+
+On the linear-by-construction `br_cerrado` DGP the BART point
+estimate agrees with the OLS backdoor estimate within the posterior
+credible width — a reassuring sanity check that the non-linear
+estimator does not over-fit the adjustment set.
+
+## 9. How this changes the other pillars
 
 1. **Pillar 5 (Active Learning).** A DAG can guide covariate selection
    inside the QRF: rather than saturating the model with every
@@ -273,7 +364,7 @@ against a naive estimator — is unchanged: the DAG is just richer.
    adjusted models extrapolate more reliably than purely correlational
    ones [@Scholkopf2021].
 
-## 8. Roadmap
+## 10. Roadmap
 
 * **Structure learning** via `bnlearn` — learn DAG edges from horizon
   data rather than prescribing them [@Runge2019].

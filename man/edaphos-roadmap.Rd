@@ -12,7 +12,7 @@ mathematical object. Use this together with the package overview —
 \details{
 \tabular{llll}{
    Pillar \tab Namespace \tab Status \tab Governing object \cr
-   1. Causal AI \tab \verb{causal_*} \tab implemented \tab Structural causal model \eqn{G = (V, E)} with backdoor-adjusted estimand \eqn{\beta_{x \to y}^{\text{do}}} (Pearl, 2009), plus an LLM-driven Knowledge-Graph pipeline (\code{\link[=causal_kg_new]{causal_kg_new()}}, \code{\link[=causal_llm_extract]{causal_llm_extract()}}, \code{\link[=causal_augment_dag]{causal_augment_dag()}}) supporting Ollama / OpenAI / Anthropic backends. \cr
+   1. Causal AI \tab \verb{causal_*} \tab implemented \tab Structural causal model \eqn{G = (V, E)} with backdoor-adjusted estimand \eqn{\beta_{x \to y}^{\text{do}}} (Pearl, 2009); LM and BART estimators; LLM-driven Knowledge-Graph pipeline (\code{\link[=causal_kg_new]{causal_kg_new()}}, \code{\link[=causal_llm_extract]{causal_llm_extract()}}, \code{\link[=causal_augment_dag]{causal_augment_dag()}}) supporting Ollama / OpenAI / Anthropic; corpus clients for SciELO / OpenAlex and ontology alignment against a curated AGROVOC + ENVO Cerrado vocabulary. \cr
    2. Physics-Informed ML \tab \verb{piml_*} \tab implemented \tab Pedogenetic ODE \eqn{dy/dz = -\lambda_0 e^{-\mu z}(y - y_\infty)} and Neural ODE \eqn{dy/dz = f_\theta(z, y, \mathbf{x})}. \cr
    3. 4D Pedometry \tab \verb{temporal_*} \tab implemented \tab Stacked ConvLSTM (Shi et al., 2015) with seq-to-seq training, multi-step rollout and a mass-balance physics loss. \cr
    4. Foundation Models \tab \verb{foundation_*} \tab scaffold \tab NT-Xent contrastive objective (Chen et al., 2020) on unlabelled raster patches. \cr
