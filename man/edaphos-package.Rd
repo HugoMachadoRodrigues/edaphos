@@ -47,10 +47,13 @@ LSTM with sequence-to-one and sequence-to-sequence training —
 \code{\link[=temporal_convlstm_rollout]{temporal_convlstm_rollout()}}; optional mass-balance physics
 loss; reproducible synthetic SOC dynamics cube generator —
 \code{\link[=temporal_synth_soc_cube]{temporal_synth_soc_cube()}}.}
-\item{\strong{4. Foundation Models.}}{SimCLR-style contrastive
-pre-training on unlabelled raster covariate patches —
-\code{\link[=foundation_simclr_pretrain]{foundation_simclr_pretrain()}}; per-patch embedding extraction —
-\code{\link[=foundation_simclr_embed]{foundation_simclr_embed()}}.}
+\item{\strong{4. Foundation Models.}}{SimCLR scaffold
+(\code{\link[=foundation_simclr_pretrain]{foundation_simclr_pretrain()}}, \code{\link[=foundation_simclr_embed]{foundation_simclr_embed()}})
+plus a \strong{MoCo v2} upgrade (\code{\link[=foundation_moco_pretrain]{foundation_moco_pretrain()}},
+\code{\link[=foundation_moco_embed]{foundation_moco_embed()}}) with momentum encoder, dictionary
+queue and a raster-specific augmentation stack (channel
+dropout, spatial cutout, per-channel brightness jitter,
+additive noise).}
 \item{\strong{5. Autonomous Active Learning.}}{Closed-loop sampling
 policy combining Quantile-Regression-Forest uncertainty,
 feature-space diversity and logistical cost — \code{\link[=al_loop]{al_loop()}},

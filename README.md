@@ -84,7 +84,7 @@ scientific boundary between pillars explicit.
 | 1   | Causal AI                     | `causal_*`     | implemented  | SCM $G = (V, E)$ + backdoor-adjusted $\beta_{x \to y}^{\text{do}}$ [[Pearl 2009][pearl2009]] **+ LLM-driven Knowledge-Graph ingestion** (Gemma 4 / GPT / Claude) over `httr2`                  |
 | 2   | Physics-Informed ML           | `piml_*`       | implemented  | Pedogenetic ODE $\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)$ and Neural ODE $\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})$                  |
 | 3   | 4D Pedometry                  | `temporal_*`   | implemented  | Stacked Convolutional LSTM [[Shi et al. 2015][shi2015]] with seq-to-seq training, multi-step rollout and optional mass-balance physics loss          |
-| 4   | Foundation Models             | `foundation_*` | scaffold     | NT-Xent contrastive objective [[Chen et al. 2020][chen2020]] on unlabelled raster patches                                                            |
+| 4   | Foundation Models             | `foundation_*` | implemented  | SimCLR scaffold + **MoCo v2** upgrade with momentum encoder and dictionary queue [[He et al. 2020][he2020moco]; [Chen et al. 2020b][chen2020moco2]]  |
 | 5   | Autonomous Active Learning    | `al_*`         | implemented  | Closed-loop hybrid policy $\pi(\mathbf{x}) = \alpha\,\tilde{u}(\mathbf{x}) + (1-\alpha)\,\tilde{d}(\mathbf{x})$ with PIML-backed physics gate  |
 | 6   | Quantum ML                    | `quantum_*`    | scaffold     | ZZFeatureMap quantum kernel $K(\mathbf{x}_i, \mathbf{x}_j) = \lvert\langle\phi(\mathbf{x}_j)\lvert\phi(\mathbf{x}_i)\rangle\rvert^{2}$ [[Havlicek et al. 2019][havlicek2019]]   |
 
@@ -750,6 +750,8 @@ citation("edaphos")
 [brus2019]:      https://doi.org/10.1016/j.geoderma.2018.07.036
 [chen2018]:      https://arxiv.org/abs/1806.07366
 [chen2020]:      https://arxiv.org/abs/2002.05709
+[chen2020moco2]: https://arxiv.org/abs/2003.04297
+[he2020moco]:    https://arxiv.org/abs/1911.05722
 [jean2019]:      https://arxiv.org/abs/1805.02855
 [lehmann2015]:   https://doi.org/10.1038/nature16069
 [mcbratney2003]: https://doi.org/10.1016/S0016-7061(03)00223-4

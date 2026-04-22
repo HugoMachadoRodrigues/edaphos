@@ -197,4 +197,82 @@ structure unavailable to any regional model [@Chen2020simclr; @ReichsteinDL2019]
 and becomes the de-facto feature layer for Pillars 2, 3 and 5. That
 planetary-scale workflow is scheduled for the next major release.
 
+## 7. MoCo v2 — upgraded momentum-contrast encoder
+
+The SimCLR scaffold compares every anchor against `2B - 2` negatives
+drawn from the current mini-batch. That design is simple but couples
+the number of negatives to the mini-batch size, which is the primary
+reason production SSL pipelines since 2020 have switched to
+**Momentum Contrast (MoCo)** [@He2020moco; @Chen2020moco2].
+The edaphos MoCo v2 implementation
+[`foundation_moco_pretrain()`][foundation_moco_pretrain] ships three
+upgrades over the SimCLR scaffold:
+
+1. **Momentum key encoder** updated by exponential moving average
+   \(\theta_k \leftarrow m\,\theta_k + (1-m)\,\theta_q\) — keys are
+   stable across batches.
+2. **Dictionary queue** of past keys — every anchor sees
+   \(K \gg B\) negatives with no additional batch-size cost.
+3. **Wider residual backbone + 2-layer projection head with
+   BatchNorm** — closer to the MoCo v2 recipe than the SimCLR
+   scaffold's shallow CNN.
+
+Augmentations are tailored to multi-channel raster patches: spatial
+random resized crop, horizontal / vertical flip, 90-degree rotations,
+per-channel Bernoulli dropout (missing-band simulation), spatial
+cutout (cloud-mask simulation), per-channel multiplicative
+brightness jitter, and additive Gaussian sensor noise.
+
+```{r moco-pretrain, eval=.torch_ok, message=FALSE}
+set.seed(1)
+moco_fit <- foundation_moco_pretrain(
+  patches[pretrain_idx, , , , drop = FALSE],
+  feature_dim = 32L, proj_dim    = 16L,
+  queue_size  = 128L, batch_size = 32L,
+  momentum    = 0.99,
+  temperature = 0.1,
+  epochs = 30L, lr = 0.01,
+  seed   = 1L, verbose = FALSE
+)
+moco_fit
+```
+
+```{r moco-loss, eval=.torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
+loss_df <- rbind(
+  data.frame(epoch = seq_along(simclr$loss_history),
+             loss  = simclr$loss_history, method = "SimCLR"),
+  data.frame(epoch = seq_along(moco_fit$loss_history),
+             loss  = moco_fit$loss_history, method = "MoCo v2")
+)
+ggplot(loss_df, aes(epoch, loss, colour = method)) +
+  geom_line(linewidth = 0.8) + geom_point(size = 1.4) +
+  labs(x = "Epoch", y = "contrastive loss",
+       title = "SimCLR vs. MoCo v2 on the same br_cerrado patches",
+       colour = "Method") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+```
+
+The MoCo v2 loss uses the same InfoNCE form but against a much larger
+negative pool, so its absolute scale differs from SimCLR's NT-Xent and
+the curves should be compared by their relative downward slope rather
+than their absolute values.
+
+## 8. MoCo embeddings as Pillar 5 covariates
+
+The final step is identical to the SimCLR workflow — extract backbone
+features and pipe them into the Active-Learning loop:
+
+```{r moco-embed, eval=.torch_ok}
+moco_emb <- foundation_moco_embed(moco_fit, patches)
+colnames(moco_emb) <- paste0("mocoemb", sprintf("%02d", seq_len(ncol(moco_emb))))
+br_moco <- cbind(grid, moco_emb)
+```
+
+The `moco_emb` columns can be inspected for spatial coherence (nearby
+pixels should have similar embeddings if the encoder has learned
+anything meaningful about the covariate topology) and added to
+`covariates =` in `al_loop()` alongside or instead of the SimCLR
+columns.
+
 ## References

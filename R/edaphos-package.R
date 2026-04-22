@@ -40,10 +40,13 @@
 #'     [temporal_convlstm_rollout()]; optional mass-balance physics
 #'     loss; reproducible synthetic SOC dynamics cube generator —
 #'     [temporal_synth_soc_cube()].}
-#'   \item{\strong{4. Foundation Models.}}{SimCLR-style contrastive
-#'     pre-training on unlabelled raster covariate patches —
-#'     [foundation_simclr_pretrain()]; per-patch embedding extraction —
-#'     [foundation_simclr_embed()].}
+#'   \item{\strong{4. Foundation Models.}}{SimCLR scaffold
+#'     ([foundation_simclr_pretrain()], [foundation_simclr_embed()])
+#'     plus a **MoCo v2** upgrade ([foundation_moco_pretrain()],
+#'     [foundation_moco_embed()]) with momentum encoder, dictionary
+#'     queue and a raster-specific augmentation stack (channel
+#'     dropout, spatial cutout, per-channel brightness jitter,
+#'     additive noise).}
 #'   \item{\strong{5. Autonomous Active Learning.}}{Closed-loop sampling
 #'     policy combining Quantile-Regression-Forest uncertainty,
 #'     feature-space diversity and logistical cost — [al_loop()],
