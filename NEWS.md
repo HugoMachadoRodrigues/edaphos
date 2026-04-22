@@ -1,3 +1,37 @@
+# edaphos 1.3.0 (in development)
+
+## Honest benchmark on real Brazilian Cerrado data
+
+* **New vignette `case-cerrado-end-to-end`**: an end-to-end
+  reproducible case study on **1212 real WoSIS topsoil profiles**
+  (Batjes et al. 2020) across the full Cerrado biome (IBGE polygon
+  via `geobr`), with a held-out 240-profile test set stratified by
+  2×2 longitude × latitude quadrants.
+* **Three competing stacks** on the same split, covariates and
+  seeds:
+  B1 `ranger` quantile regression forest on the 32-layer
+  SoilGrids + WorldClim + SRTM covariate stack;
+  B2 B1 + `gstat` residual kriging (Hengl-style classical DSM);
+  E B1 + the 64-dim `edaphos-cerrado-moco-v1` MoCo v2 foundation
+  embedding (Zenodo DOI 10.5281/zenodo.19701276).
+* **Honest result**: on this Cerrado benchmark the foundation-model
+  embedding **does not improve** over the raw-covariate ranger
+  (RMSE 12.53 vs 12.28 g/kg). The calibration champion is the plain
+  QRF (PICP = 0.946 at a 0.95 nominal level, interval score 57.5).
+  The README is updated accordingly — the "beyond state of the art"
+  claim is explicitly scoped to the regimes where the raw covariate
+  stack is thinner than SoilGrids + WorldClim + SRTM.
+* **New helper `R/edaphos_metrics.R`**: `edaphos_rmse()`,
+  `edaphos_mae()`, `edaphos_r2()`, `edaphos_bias()`,
+  `edaphos_picp()`, `edaphos_interval_score()`,
+  `edaphos_ece()`, `edaphos_metrics_summary()` — a single
+  namespace for every benchmark in the package. 21 new unit tests.
+
+## New `Suggests`: `geobr`
+
+For the case-study prep script, which pulls the Cerrado biome
+polygon from IBGE via `geobr::read_biomes()`.
+
 # edaphos 1.2.0 (in development)
 
 ## Pillar 4 — Foundation Models

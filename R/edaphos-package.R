@@ -152,6 +152,9 @@
 #' \code{vignette("pilar5-active-learning", package = "edaphos")},
 #' \code{vignette("pilar5-soilgrids-br", package = "edaphos")},
 #' \code{vignette("pilar6-quantum", package = "edaphos")}.
+#' The end-to-end honest benchmark on 1212 real Brazilian WoSIS
+#' Cerrado profiles lives in
+#' \code{vignette("case-cerrado-end-to-end", package = "edaphos")}.
 #'
 #' @references
 #' McBratney, A. B., Mendon\enc{ç}{c}a Santos, M. L. and Minasny, B.

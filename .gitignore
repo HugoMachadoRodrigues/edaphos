@@ -35,6 +35,14 @@ tools/pretrain/*.log
 tools/pretrain/edaphos-cerrado-moco-v1/
 tools/pretrain/zenodo-upload/
 
+# Cerrado case study build tree (large rasters; bundle is rebuildable)
+tools/case_cerrado/geodata_cache/
+tools/case_cerrado/wosis_orgc_cerrado.gml
+tools/case_cerrado/cerrado_covariates.tif
+tools/case_cerrado/case_cerrado_bundle.rds
+tools/case_cerrado/case_cerrado_results.rds
+tools/case_cerrado/*.log
+
 # Environment files
 .Renviron
 .env

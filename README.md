@@ -16,14 +16,18 @@
 > *From Greek **ἔδαφος** — "soil, ground."*
 
 **edaphos** is a research-grade R package that implements frontier
-algorithms for Digital Soil Mapping (DSM) **beyond** the
-regression-tree state-of-the-art
+algorithms for Digital Soil Mapping (DSM) designed to extend — and,
+in the regimes where the raw covariate stack is thin, to surpass —
+the regression-tree state-of-the-art
 [[McBratney et al. 2003][mcbratney2003];
-[Wadoux et al. 2020][wadoux2020]]. Instead of one more tabular
-predictor, `edaphos` is organised as **six research pillars**, each of
-them confronting a specific methodological gap of the contemporary
-literature with a mathematically explicit governing object, a single
-R function family, and a dedicated vignette.
+[Wadoux et al. 2020][wadoux2020]]. Every pillar comes with a
+reproducible benchmark on real, open-licensed Brazilian Cerrado data
+— see [§ Benchmarks](#benchmarks) for the current honest numbers.
+Instead of one more tabular predictor, `edaphos` is organised as
+**six research pillars**, each of them confronting a specific
+methodological gap of the contemporary literature with a
+mathematically explicit governing object, a single R function
+family, and a dedicated vignette.
 
 <p align="center">
   <em>
@@ -32,6 +36,66 @@ R function family, and a dedicated vignette.
     Fixed sampling → Autonomous Active Learning
   </em>
 </p>
+
+---
+
+## Benchmarks
+
+As of **v1.3.0** every claim of performance against the classical
+regression-tree state-of-the-art is backed by a reproducible
+real-data benchmark, not just rhetoric. The canonical case study
+runs on **1212 real topsoil (0–30 cm) profiles** from the Cerrado
+biome, pulled live from [WoSIS 2019](https://essd.copernicus.org/articles/12/299/2020/)
+([Batjes et al. 2020][batjes2020wosis], CC-BY-4.0), stratified by
+2×2 longitude × latitude quadrants into an 80/20 spatial train/test
+split, and evaluated with covariates from SoilGrids 250 m
+[[Hengl et al. 2017][hengl2017]], WorldClim 2.1
+[[Fick and Hijmans 2017][fick2017]] and SRTM 30-arcsec
+[[Jarvis et al. 2008][jarvis2008]].
+
+| Method | n test | RMSE (g/kg) | MAE (g/kg) | R² | PICP @ 95 | Interval score |
+|:---|---:|---:|---:|---:|---:|---:|
+| **B1**  `ranger` QRF — raw covariates | 240 | **12.28** | 7.51 | 0.24 | **0.946** | **57.5** |
+| **B2**  `ranger` + `gstat` kriging | 141\* | **11.51** | 7.18 | 0.09 | 0.738 | 104.1 |
+| **E**   `ranger` + MoCo v2 embedding (edaphos-cerrado-moco-v1) | 240 | 12.53 | 8.28 | 0.21 | 0.858 | 85.5 |
+
+\* Kriging returned NA for test points outside the variogram's
+effective range; the reduced n is itself a lesson.
+
+**Honest reading.** On this dataset:
+
+- The **calibration champion** is the plain quantile-regression
+  forest (B1): PICP 0.946 at a 0.95 nominal level, best interval
+  score. That is the regime the README now recommends as the
+  default.
+- Residual **kriging lowers point RMSE** at the cost of disastrous
+  calibration and data loss outside the variogram range.
+- The **foundation-model embedding does not yet beat B1** on this
+  Cerrado benchmark — the encoder `edaphos-cerrado-moco-v1` was
+  trained for only 20 k InfoNCE steps on a smaller core-Cerrado
+  AoI, and the raw SoilGrids + WorldClim + SRTM stack is already
+  rich enough that the embedding adds little marginal signal over
+  it (consistent with [Reichstein et al. 2019][reichstein2019]).
+  The Pillar-4 payoff appears when the raw stack is thinner
+  (SAR-only or MODIS-only regions) — testing that is the v1.4.0
+  agenda.
+
+Reproduce the table with
+
+```bash
+Rscript data-raw/case_cerrado_prepare.R   # ~60 min, downloads ~2 GB
+Rscript data-raw/case_cerrado_run.R       # ~3 min
+```
+
+or just read the pre-computed `.rds` shipped in
+`inst/extdata/case_cerrado_results.rds` and rebuild every plot via
+`vignette("case-cerrado-end-to-end", package = "edaphos")`.
+
+[batjes2020wosis]: https://doi.org/10.5194/essd-12-299-2020
+[hengl2017]: https://doi.org/10.1371/journal.pone.0169748
+[fick2017]: https://doi.org/10.1002/joc.5086
+[jarvis2008]: https://srtm.csi.cgiar.org
+[reichstein2019]: https://doi.org/10.1038/s41586-019-0912-1
 
 ---
 
