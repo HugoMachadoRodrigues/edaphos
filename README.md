@@ -84,7 +84,7 @@ scientific boundary between pillars explicit.
 | 1   | Causal AI                     | `causal_*`     | implemented  | SCM $G = (V, E)$ + backdoor-adjusted $\beta_{x \to y}^{\text{do}}$ [[Pearl 2009][pearl2009]] **+ LLM-driven Knowledge-Graph ingestion** (Gemma 4 / GPT / Claude) over `httr2`                  |
 | 2   | Physics-Informed ML           | `piml_*`       | implemented  | Pedogenetic ODE $\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)$ and Neural ODE $\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})$                  |
 | 3   | 4D Pedometry                  | `temporal_*`   | implemented  | Stacked Convolutional LSTM [[Shi et al. 2015][shi2015]] with seq-to-seq training, multi-step rollout and optional mass-balance physics loss          |
-| 4   | Foundation Models             | `foundation_*` | implemented  | SimCLR scaffold + **MoCo v2** upgrade with momentum encoder and dictionary queue [[He et al. 2020][he2020moco]; [Chen et al. 2020b][chen2020moco2]]  |
+| 4   | Foundation Models             | `foundation_*` | implemented  | SimCLR + **MoCo v2** + **planetary-scale tile pipeline** (lazy `terra`-backed dataset, SoilGrids/WorldClim/SRTM sources, checkpointing, embed-to-raster) [[He et al. 2020][he2020moco]; [Chen et al. 2020b][chen2020moco2]] |
 | 5   | Autonomous Active Learning    | `al_*`         | implemented  | Closed-loop hybrid policy $\pi(\mathbf{x}) = \alpha\,\tilde{u}(\mathbf{x}) + (1-\alpha)\,\tilde{d}(\mathbf{x})$ with PIML-backed physics gate  |
 | 6   | Quantum ML                    | `quantum_*`    | implemented  | ZZFeatureMap quantum kernel [[Havlicek et al. 2019][havlicek2019]] **+ Qiskit-backed VQE** for toy organo-mineral Hamiltonians [[Peruzzo et al. 2014][peruzzo2014]]                   |
 

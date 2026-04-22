@@ -441,6 +441,286 @@ foundation_moco_embed <- function(object, patches, projection = FALSE) {
   emb
 }
 
+#' Dataset-backed MoCo v2 pre-training for planetary-scale corpora
+#'
+#' Drop-in streaming variant of [foundation_moco_pretrain()] that
+#' reads patches on the fly from an `edaphos_tile_dataset`
+#' (see [foundation_tile_dataset()]). The point is to train on real
+#' multi-source raster mosaics -- SoilGrids, WorldClim, SRTM, MODIS,
+#' ERA5 -- that do not fit in RAM as a single `(N, C, H, W)` array.
+#'
+#' Checkpointing is optional but recommended for long runs: every
+#' `checkpoint_every` epochs the encoder state dicts, the dictionary
+#' queue, the loss history and the configuration are written to
+#' `checkpoint_dir`. Pass `resume = path` to restart from that
+#' checkpoint.
+#'
+#' @param dataset An `edaphos_tile_dataset`.
+#' @param feature_dim,proj_dim,queue_size,momentum,temperature,batch_size,epochs,lr,crop_ratio,flip_prob,rot90_prob,channel_drop_prob,cutout_prob,cutout_size_ratio,brightness_jitter,noise_sd,seed,verbose As in [foundation_moco_pretrain()].
+#' @param checkpoint_dir Optional directory for periodic checkpoints.
+#' @param checkpoint_every Integer -- save a checkpoint every `k`
+#'   epochs.
+#' @param resume Optional path to a checkpoint directory to restart
+#'   from.
+#' @return An `edaphos_foundation_moco` (identical structure to
+#'   [foundation_moco_pretrain()]).
+#' @export
+foundation_moco_pretrain_tiles <- function(dataset,
+                                             feature_dim = 64L,
+                                             proj_dim    = 32L,
+                                             queue_size  = 1024L,
+                                             momentum    = 0.999,
+                                             temperature = 0.07,
+                                             batch_size  = 16L,
+                                             epochs      = 100L,
+                                             lr          = 0.03,
+                                             crop_ratio  = c(0.6, 1.0),
+                                             flip_prob   = 0.5,
+                                             rot90_prob  = 0.75,
+                                             channel_drop_prob = 0.2,
+                                             cutout_prob       = 0.3,
+                                             cutout_size_ratio = 0.2,
+                                             brightness_jitter = 0.2,
+                                             noise_sd          = 0.1,
+                                             seed = NULL, verbose = FALSE,
+                                             checkpoint_dir = NULL,
+                                             checkpoint_every = 10L,
+                                             resume = NULL) {
+  .moco_require_torch()
+  stopifnot(inherits(dataset, "edaphos_tile_dataset"))
+  if (!is.null(seed)) torch::torch_manual_seed(seed)
+
+  C  <- dataset$n_channels
+  batch_size <- as.integer(min(batch_size, dataset$n_patches))
+  queue_size <- as.integer(queue_size)
+
+  EncCtor <- .moco_build_encoder()
+  enc_q   <- EncCtor(in_channels = C,
+                      feature_dim = as.integer(feature_dim),
+                      proj_dim    = as.integer(proj_dim))
+  enc_k   <- EncCtor(in_channels = C,
+                      feature_dim = as.integer(feature_dim),
+                      proj_dim    = as.integer(proj_dim))
+  torch::with_no_grad({
+    params_q <- enc_q$parameters; params_k <- enc_k$parameters
+    for (nm in names(params_q)) params_k[[nm]]$copy_(params_q[[nm]])
+  })
+  for (p in enc_k$parameters) p$requires_grad_(FALSE)
+  optimizer <- torch::optim_adam(enc_q$parameters, lr = lr)
+
+  aug_params <- list(
+    crop_ratio        = crop_ratio,
+    flip_prob         = flip_prob,
+    rot90_prob        = rot90_prob,
+    channel_drop_prob = channel_drop_prob,
+    cutout_prob       = cutout_prob,
+    cutout_size_ratio = cutout_size_ratio,
+    brightness_jitter = brightness_jitter,
+    noise_sd          = noise_sd
+  )
+
+  loss_history <- numeric(0)
+  start_epoch  <- 1L
+
+  # Resume from checkpoint if requested.
+  if (!is.null(resume)) {
+    ck <- readRDS(file.path(resume, "state.rds"))
+    loss_history <- ck$loss_history
+    start_epoch  <- ck$next_epoch
+    enc_q$load_state_dict(torch::torch_load(file.path(resume, "encoder_q.pt")))
+    enc_k$load_state_dict(torch::torch_load(file.path(resume, "encoder_k.pt")))
+    queue <- torch::torch_load(file.path(resume, "queue.pt"))
+    if (verbose) message("Resumed from checkpoint at epoch ", start_epoch)
+  } else {
+    init_batch <- dataset$sample(min(queue_size, batch_size * 4L))
+    init_t <- torch::torch_tensor(init_batch)$to(dtype = torch::torch_float())
+    # If queue > init_batch, tile it.
+    reps <- ceiling(queue_size / nrow(init_batch))
+    init_t <- torch::with_no_grad(enc_k(init_t))$detach()
+    if (init_t$size(1L) < queue_size) {
+      init_t <- init_t$repeat_interleave(reps, dim = 1L)[seq_len(queue_size), ,
+                                                           drop = FALSE]
+    } else {
+      init_t <- init_t[seq_len(queue_size), , drop = FALSE]
+    }
+    queue <- init_t
+  }
+
+  if (!is.null(checkpoint_dir)) {
+    dir.create(checkpoint_dir, showWarnings = FALSE, recursive = TRUE)
+  }
+
+  for (ep in seq.int(start_epoch, epochs)) {
+    batch_arr <- dataset$sample(batch_size)
+    batch <- torch::torch_tensor(batch_arr)$to(dtype = torch::torch_float())
+
+    xq <- .moco_augment(batch, aug_params)
+    xk <- .moco_augment(batch, aug_params)
+
+    optimizer$zero_grad()
+    z_q <- enc_q(xq)
+    z_k <- torch::with_no_grad(enc_k(xk))$detach()
+
+    loss <- .moco_info_nce(z_q, z_k, queue, temperature = temperature)
+    loss$backward()
+    optimizer$step()
+    .moco_momentum_update(enc_q, enc_k, m = momentum)
+
+    torch::with_no_grad({
+      new_k <- z_k$detach()
+      n_new <- new_k$size(1L)
+      queue <- torch::torch_cat(
+        list(queue[(n_new + 1L):queue$size(1L), , drop = FALSE], new_k),
+        dim = 1L
+      )
+    })
+
+    loss_history <- c(loss_history, as.numeric(loss$item()))
+    if (verbose && (ep %% 5L == 0L || ep == start_epoch || ep == epochs)) {
+      message(sprintf("[ep %4d/%d] InfoNCE loss = %.4f",
+                      ep, epochs, loss_history[length(loss_history)]))
+    }
+
+    if (!is.null(checkpoint_dir) && (ep %% checkpoint_every == 0L ||
+                                      ep == epochs)) {
+      torch::torch_save(enc_q$state_dict(),
+                         file.path(checkpoint_dir, "encoder_q.pt"))
+      torch::torch_save(enc_k$state_dict(),
+                         file.path(checkpoint_dir, "encoder_k.pt"))
+      torch::torch_save(queue, file.path(checkpoint_dir, "queue.pt"))
+      saveRDS(list(loss_history = loss_history,
+                    next_epoch   = ep + 1L,
+                    aug_params   = aug_params,
+                    feature_dim  = feature_dim,
+                    proj_dim     = proj_dim),
+               file.path(checkpoint_dir, "state.rds"))
+    }
+  }
+
+  structure(
+    list(
+      encoder_q    = enc_q,
+      encoder_k    = enc_k,
+      in_channels  = C,
+      feature_dim  = as.integer(feature_dim),
+      proj_dim     = as.integer(proj_dim),
+      queue_size   = queue_size,
+      momentum     = momentum,
+      temperature  = temperature,
+      batch_size   = batch_size,
+      loss_history = loss_history,
+      final_loss   = loss_history[length(loss_history)],
+      aug_params   = aug_params
+    ),
+    class = "edaphos_foundation_moco"
+  )
+}
+
+#' Apply a fitted MoCo v2 encoder over a full raster mosaic
+#'
+#' Slides a `patch_size x patch_size` window over the input raster at
+#' stride `stride`, extracts each patch, encodes it with the
+#' backbone of `moco$encoder_q`, and writes the resulting embedding
+#' vector back as a multi-layer `terra::SpatRaster` whose layer count
+#' equals `moco$feature_dim`. Patches whose centre cell is NA in the
+#' input produce an NA row in the output.
+#'
+#' Normalisation uses the global per-layer mean and sd stored in
+#' `dataset`, so the embedding pipeline is consistent between
+#' pretraining and inference.
+#'
+#' @param moco An `edaphos_foundation_moco` returned by
+#'   [foundation_moco_pretrain_tiles()].
+#' @param stack A `terra::SpatRaster` with the **same channel order**
+#'   as the one used at training time.
+#' @param dataset The `edaphos_tile_dataset` used at training time
+#'   (provides the per-channel normalisation statistics).
+#' @param patch_size Integer -- must equal `dataset$patch_size`.
+#' @param stride Integer step size of the sliding window (default
+#'   half of `patch_size`).
+#' @param projection Logical -- if `TRUE` return the L2-normalised
+#'   projection-head outputs instead of the backbone features.
+#' @return A `terra::SpatRaster` with `feature_dim` (or `proj_dim`)
+#'   layers.
+#' @export
+foundation_moco_embed_raster <- function(moco, stack, dataset,
+                                           patch_size = NULL,
+                                           stride = NULL,
+                                           projection = FALSE) {
+  .moco_require_torch()
+  if (!requireNamespace("terra", quietly = TRUE)) {
+    stop("Install `terra` to embed a raster.", call. = FALSE)
+  }
+  stopifnot(inherits(moco, "edaphos_foundation_moco"),
+            inherits(stack, "SpatRaster"),
+            inherits(dataset, "edaphos_tile_dataset"))
+  if (is.null(patch_size)) patch_size <- dataset$patch_size
+  if (is.null(stride))     stride     <- max(1L, patch_size %/% 2L)
+  patch_size <- as.integer(patch_size)
+  stride     <- as.integer(stride)
+  C <- terra::nlyr(stack)
+  stopifnot(C == dataset$n_channels)
+
+  half <- patch_size %/% 2L
+  nrow_r <- terra::nrow(stack); ncol_r <- terra::ncol(stack)
+  centres_r <- seq(half + 1L, nrow_r - half, by = stride)
+  centres_c <- seq(half + 1L, ncol_r - half, by = stride)
+  n_cent    <- length(centres_r) * length(centres_c)
+
+  # Prepare output: same extent and CRS, but `feature_dim` layers and
+  # resolution scaled by stride.
+  out_rows <- length(centres_r)
+  out_cols <- length(centres_c)
+  out_res <- c(terra::xres(stack) * stride, terra::yres(stack) * stride)
+  out_ext <- terra::ext(stack)
+  out_template <- terra::rast(
+    nrows = out_rows, ncols = out_cols,
+    xmin = out_ext$xmin, xmax = out_ext$xmin + out_cols * out_res[1L],
+    ymin = out_ext$ymax - out_rows * out_res[2L], ymax = out_ext$ymax,
+    crs  = terra::crs(stack)
+  )
+  D <- if (projection) moco$proj_dim else moco$feature_dim
+  out <- terra::rast(replicate(D, out_template, simplify = FALSE))
+  names(out) <- paste0("emb_", sprintf("%03d", seq_len(D)))
+
+  means <- dataset$means; sds <- dataset$sds
+  enc <- moco$encoder_q
+  i_out <- 1L
+  for (rc in centres_r) {
+    for (cc in centres_c) {
+      r0 <- rc - half; c0 <- cc - half
+      blk <- terra::values(
+        stack, row = r0, nrows = patch_size,
+        col = c0, ncols = patch_size, mat = TRUE
+      )
+      arr <- aperm(
+        array(blk, dim = c(patch_size, patch_size, C)),
+        c(3L, 1L, 2L)
+      )
+      for (k in seq_len(C)) {
+        v <- (arr[k, , ] - means[k]) / sds[k]
+        v[is.na(v)] <- 0
+        arr[k, , ] <- v
+      }
+      x <- torch::torch_tensor(array(arr, dim = c(1L, C, patch_size,
+                                                    patch_size)))$to(
+        dtype = torch::torch_float()
+      )
+      emb_vec <- torch::with_no_grad({
+        if (projection) enc(x) else enc$backbone_features(x)
+      })$cpu()
+      emb_r <- as.array(emb_vec)[1L, ]
+      cell_idx <- terra::cellFromRowCol(out, match(rc, centres_r),
+                                          match(cc, centres_c))
+      for (d in seq_len(D)) {
+        out[[d]][cell_idx] <- emb_r[d]
+      }
+      i_out <- i_out + 1L
+    }
+  }
+  out
+}
+
 #' @export
 print.edaphos_foundation_moco <- function(x, ...) {
   cat("<edaphos_foundation_moco>  (MoCo v2 -- Pillar 4)\n")

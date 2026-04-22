@@ -44,9 +44,17 @@
 #'     ([foundation_simclr_pretrain()], [foundation_simclr_embed()])
 #'     plus a **MoCo v2** upgrade ([foundation_moco_pretrain()],
 #'     [foundation_moco_embed()]) with momentum encoder, dictionary
-#'     queue and a raster-specific augmentation stack (channel
-#'     dropout, spatial cutout, per-channel brightness jitter,
-#'     additive noise).}
+#'     queue and a raster-specific augmentation stack. A
+#'     **planetary-scale tile pipeline**
+#'     ([foundation_tile_source_soilgrids()],
+#'     [foundation_tile_source_worldclim()],
+#'     [foundation_tile_source_srtm()],
+#'     [foundation_tile_align()],
+#'     [foundation_tile_dataset()]) streams patches lazily from
+#'     multi-source `terra::SpatRaster` mosaics;
+#'     [foundation_moco_pretrain_tiles()] trains with checkpointing
+#'     on that stream, and [foundation_moco_embed_raster()] projects
+#'     the trained encoder over an entire AoI.}
 #'   \item{\strong{5. Autonomous Active Learning.}}{Closed-loop sampling
 #'     policy combining Quantile-Regression-Forest uncertainty,
 #'     feature-space diversity and logistical cost — [al_loop()],

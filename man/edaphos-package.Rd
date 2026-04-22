@@ -51,9 +51,17 @@ loss; reproducible synthetic SOC dynamics cube generator —
 (\code{\link[=foundation_simclr_pretrain]{foundation_simclr_pretrain()}}, \code{\link[=foundation_simclr_embed]{foundation_simclr_embed()}})
 plus a \strong{MoCo v2} upgrade (\code{\link[=foundation_moco_pretrain]{foundation_moco_pretrain()}},
 \code{\link[=foundation_moco_embed]{foundation_moco_embed()}}) with momentum encoder, dictionary
-queue and a raster-specific augmentation stack (channel
-dropout, spatial cutout, per-channel brightness jitter,
-additive noise).}
+queue and a raster-specific augmentation stack. A
+\strong{planetary-scale tile pipeline}
+(\code{\link[=foundation_tile_source_soilgrids]{foundation_tile_source_soilgrids()}},
+\code{\link[=foundation_tile_source_worldclim]{foundation_tile_source_worldclim()}},
+\code{\link[=foundation_tile_source_srtm]{foundation_tile_source_srtm()}},
+\code{\link[=foundation_tile_align]{foundation_tile_align()}},
+\code{\link[=foundation_tile_dataset]{foundation_tile_dataset()}}) streams patches lazily from
+multi-source \code{terra::SpatRaster} mosaics;
+\code{\link[=foundation_moco_pretrain_tiles]{foundation_moco_pretrain_tiles()}} trains with checkpointing
+on that stream, and \code{\link[=foundation_moco_embed_raster]{foundation_moco_embed_raster()}} projects
+the trained encoder over an entire AoI.}
 \item{\strong{5. Autonomous Active Learning.}}{Closed-loop sampling
 policy combining Quantile-Regression-Forest uncertainty,
 feature-space diversity and logistical cost — \code{\link[=al_loop]{al_loop()}},
