@@ -55,13 +55,13 @@
     proj_dim    = c(32L),
     patch_size  = c(16L),
     aoi         = c("Cerrado core (lon -53 to -43, lat -23 to -10)"),
-    url         = c(NA_character_),  # filled in after Zenodo upload
+    url         = c("https://zenodo.org/records/19701276/files/encoder_q.pt"),
     sha256      = c(
       "44ace7f78c658b6028f1cf5ccfa624023295e5576f681d0135db64726c6738e8"
     ),
-    doi         = c(NA_character_),  # filled in after Zenodo upload
+    doi         = c("10.5281/zenodo.19701276"),
     license     = c("CC-BY-4.0"),
-    published_at = c(NA_character_), # filled in after Zenodo upload
+    published_at = c("2026-04-22T21:59:12Z"),
     edaphos_version = c("1.2.0"),
     stringsAsFactors = FALSE
   )

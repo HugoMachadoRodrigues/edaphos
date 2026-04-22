@@ -33,6 +33,7 @@ tools/pretrain/cerrado_dataset.rds
 tools/pretrain/cerrado_dataset_meta.rds
 tools/pretrain/*.log
 tools/pretrain/edaphos-cerrado-moco-v1/
+tools/pretrain/zenodo-upload/
 
 # Environment files
 .Renviron
