@@ -1,6 +1,6 @@
 Package: edaphos
 Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 1.0.0
+Version: 1.1.0
 Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
            role = c("aut", "cre"),
@@ -38,6 +38,7 @@ RoxygenNote: 7.3.3
 Suggests:
     abind,
     aqp,
+    bnlearn,
     dagitty,
     dbarts,
     ecmwfr,

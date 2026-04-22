@@ -52,13 +52,29 @@ reified provenance per edge), \code{\link[=causal_kg_rank_edges]{causal_kg_rank_
 (multi-source ranking by \code{n_sources} +
 \code{mean_confidence} + \code{agrovoc_support}) and a
 \code{summary()} method that reports node / edge / source counts,
-confidence distribution and DAG-ness.}
+confidence distribution and DAG-ness. \strong{Multi-extractor voting}
+(\code{\link[=causal_llm_vote]{causal_llm_vote()}},
+\code{\link[=causal_llm_ingest_abstract_voted]{causal_llm_ingest_abstract_voted()}}) runs N LLM backends on
+the same abstract and resolves disagreements by majority,
+weighted or intersection rules. \strong{Bottom-up structure learning}
+(\code{\link[=causal_structure_learn]{causal_structure_learn()}}) recovers a DAG directly from
+horizon data through a \code{bnlearn} bridge (hc, tabu,
+pc-stable, mmhc) with optional bootstrap edge confidence,
+producing an \code{edaphos_causal_kg} that can be unioned with the
+LLM-derived Knowledge Graph.}
 \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 Ordinary Differential Equation integrated by \code{deSolve} —
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}; Neural ODE with differentiable Runge-Kutta
 integrator on \code{torch} — \code{\link[=piml_neural_ode_fit]{piml_neural_ode_fit()}}; hierarchical
 covariate-conditioned Neural ODE jointly fit across pedons —
-\code{\link[=piml_hierarchical_fit]{piml_hierarchical_fit()}}.}
+\code{\link[=piml_hierarchical_fit]{piml_hierarchical_fit()}}. A \strong{Bayesian posterior} over
+\eqn{(\lambda_0, \mu, y_\infty, y_0)} is returned by
+\code{\link[=piml_profile_fit_bayesian]{piml_profile_fit_bayesian()}} via a Laplace approximation (the
+default) or an adaptive random-walk Metropolis sampler. The
+Neural-ODE variant is paired with
+\code{\link[=piml_neural_ode_fit_ensemble]{piml_neural_ode_fit_ensemble()}}, a deep ensemble whose
+empirical spread approximates the Bayesian predictive
+posterior with no extra torch machinery.}
 \item{\strong{3. 4D Pedometry.}}{Multi-layer stacked Convolutional
 LSTM with sequence-to-one and sequence-to-sequence training —
 \code{\link[=temporal_convlstm_fit]{temporal_convlstm_fit()}}; multi-step rollout forecasting —
@@ -86,7 +102,11 @@ feature-space diversity and logistical cost — \code{\link[=al_loop]{al_loop()}
 \code{\link[=al_query]{al_query()}}, \code{\link[=al_initial_design]{al_initial_design()}}, \code{\link[=al_fit]{al_fit()}},
 \code{\link[=al_update]{al_update()}}; with both global and per-location Physics-
 Informed rejection gates — \code{\link[=al_physics_gate_piml]{al_physics_gate_piml()}},
-\code{\link[=al_physics_gate_piml_hierarchical]{al_physics_gate_piml_hierarchical()}}.}
+\code{\link[=al_physics_gate_piml_hierarchical]{al_physics_gate_piml_hierarchical()}}. Information-theoretic
+batch acquisition is provided by \code{\link[=al_query_batchbald]{al_query_batchbald()}},
+which maximises the mutual information between the batch and
+the model parameters via a greedy log-det submodular objective
+(Kirsch, van Amersfoort and Gal 2019).}
 \item{\strong{6. Quantum ML.}}{Pure-R state-vector simulator of
 the ZZFeatureMap encoding (Havlicek et al., 2019) with a
 quantum-kernel Gram matrix \code{\link[=quantum_kernel]{quantum_kernel()}} and a

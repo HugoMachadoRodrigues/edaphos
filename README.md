@@ -280,6 +280,51 @@ top20 <- causal_kg_rank_edges(kg,
                               alignment = ag, top_n = 20L)
 ```
 
+### Structure learning from horizon data
+
+As of **v1.1.0** Pillar 1 gains a bottom-up counterpart to the
+LLM-driven KG. `causal_structure_learn()` wires four `bnlearn`
+algorithms — hill-climbing (`"hc"`), tabu search (`"tabu"`),
+PC-stable (`"pc-stable"`), and max-min hill-climbing (`"mmhc"`) —
+through a uniform interface that returns an `edaphos_causal_kg`.
+Whitelists and blacklists encode pedological priors ("parent
+material must precede soil chemistry"); a non-parametric bootstrap
+attaches per-edge strengths that can be used as confidence values in
+the returned KG.
+
+```r
+kg_struct <- causal_structure_learn(
+  br_cerrado,
+  variables = c("elev","slope","twi","map_mm","ndvi","soc"),
+  method    = "hc",
+  whitelist = data.frame(from = c("elev","map_mm"),
+                         to   = c("twi","soc")),
+  bootstrap = TRUE, R_boot = 200L, seed = 1L
+)
+```
+
+### Multi-extractor LLM voting
+
+Single-backend LLM extraction inherits that model's idiosyncrasies.
+`causal_llm_vote()` runs N backends on the same abstract and
+resolves disagreements by majority, weighted or intersection rules;
+`causal_llm_ingest_abstract_voted()` combines the vote with KG
+insertion and tags the `source` field with the vote metadata so
+every consensus edge carries both the paper and the backends that
+agreed on it.
+
+```r
+cons <- causal_llm_vote(
+  abstract = "Higher MAP drives SOC in Cerrado...",
+  backends = list(
+    list(backend = "ollama",    model = "gemma4:latest"),
+    list(backend = "openai",    model = "gpt-4o-mini"),
+    list(backend = "anthropic", model = "claude-sonnet-4-6")
+  ),
+  voting   = "majority"
+)
+```
+
 ---
 
 ## Pillar 2 — Physics-Informed ML
@@ -353,6 +398,37 @@ A companion function
 [`al_physics_gate_piml()`](R/active_physics_gate.R) takes any PIML fit
 and turns it into a **rejection gate** consumed by the Pillar 5 Active
 Learning loop — closing the Pillar 2 × Pillar 5 bridge.
+
+### Bayesian posterior over the ODE parameters
+
+As of **v1.1.0** the point estimate is optional:
+`piml_profile_fit_bayesian()` returns the full posterior over
+$(\lambda_0, \mu, y_\infty, y_0)$ through either a **Laplace
+approximation** (default; Gaussian posterior from the MAP +
+observed information) or an **adaptive random-walk Metropolis**
+sampler starting at the Laplace covariance
+[[Haario et al. 2001][haario2001]]. Predictive draws propagate the
+posterior through the forward ODE, and `include_obs_noise = TRUE`
+switches the returned credible interval from "uncertainty on the
+mean function" to "predictive distribution of a future observation."
+
+```r
+fit <- piml_profile_fit_bayesian(depths, values, method = "laplace",
+                                  seed = 1L)
+predict(fit, newdepths = c(10, 20, 40, 80),
+         interval = 0.95, include_obs_noise = TRUE, seed = 1L)
+```
+
+The Neural-ODE analogue is a **deep ensemble** — K independent
+networks trained from different seeds, whose empirical spread
+approximates the Bayesian predictive posterior
+[[Lakshminarayanan et al. 2017][lakshminarayanan2017]].
+`piml_neural_ode_fit_ensemble(depths, values, K = 5L)` returns the
+ensemble and `predict(ens, ..., interval = 0.9)` the tidy credible
+interval.
+
+[haario2001]: https://doi.org/10.2307/3318737
+[lakshminarayanan2017]: https://papers.nips.cc/paper/7219-simple-and-scalable-predictive-uncertainty-estimation-using-deep-ensembles
 
 ---
 
@@ -584,6 +660,42 @@ g kg⁻¹ after nine iterations of 5-sample batches. The queried points
 regimes — precisely where expert pedologists historically placed
 transects; the formalism replaces that judgement with a reproducible,
 model-driven criterion.
+
+### BatchBALD: information-theoretic batch acquisition
+
+As of **v1.1.0** Pillar 5 adds an information-theoretic alternative
+to the hybrid heuristic: `al_query_batchbald()` picks the batch that
+maximises the mutual information between its labels and the model
+parameters [[Kirsch et al. 2019][kirsch2019]]:
+
+$$
+\mathrm{BatchBALD}(B) \;=\; I(y_B; \theta \mid x_B, \mathcal D).
+$$
+
+For a Quantile Regression Forest (our `al_fit()` backbone) the trees
+are the parameter samples, so the joint covariance of the epistemic
+posterior is the per-tree empirical covariance across candidates.
+Under Gaussian aleatoric noise of variance $\sigma_a^2$ the objective
+reduces to a log-determinant, and greedy selection inherits the
+$(1 - 1/e)$ optimality guarantee of submodular maximisation
+[[Nemhauser et al. 1978][nemhauser1978]]. Incremental Cholesky /
+Schur-complement updates make every greedy step
+$O(m^2 \cdot n_{\mathrm{pool}})$.
+
+```r
+batch <- al_query_batchbald(fit, pool, n = 10L)
+```
+
+The failure mode that BatchBALD addresses is the
+**cluster-of-near-duplicates** pathology of top-$n$ BALD: when the
+candidate pool contains several near-identical points, top-$n$
+returns "the same question" $n$ times. BatchBALD's log-det penalises
+adding a candidate whose predictive distribution overlaps strongly
+with the already-selected batch, so the greedy step spreads out
+through covariate space by construction.
+
+[kirsch2019]: https://papers.nips.cc/paper/9357-batchbald-efficient-and-diverse-batch-acquisition-for-deep-bayesian-active-learning
+[nemhauser1978]: https://doi.org/10.1007/BF01588971
 
 ---
 

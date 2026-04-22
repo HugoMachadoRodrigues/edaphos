@@ -237,13 +237,76 @@ delivering a **per-location** envelope that
 [`al_physics_gate_piml_hierarchical()`][al_physics_gate_piml_hierarchical]
 feeds back into Pillar 5.
 
-## 8. Discussion and roadmap
+## 8. Bayesian posterior over the ODE parameters
+
+[`piml_profile_fit()`][piml_profile_fit] returns a single point
+estimate. For any honest downstream use — propagating parametric
+uncertainty into a SOC-stock prediction, tuning a Pillar 5
+Active-Learning acquisition under correct epistemic variance,
+reporting publishable parameter intervals — we need the **posterior**
+\(p(\lambda_0, \mu, y_\infty, y_0 \mid \text{depths}, \text{values})\),
+not just the MAP.
+
+The function
+[`piml_profile_fit_bayesian()`][piml_profile_fit_bayesian] returns
+that posterior through two nested approximations:
+
+1. **Laplace approximation** (default, O(ms) per pedon). Gaussian
+   posterior whose mean is the MAP and whose covariance is the inverse
+   observed Fisher information at the MAP [@Bishop2006PRML, §4.4].
+   Accurate when the posterior is well-identified; every call
+   pre-samples 2 000 draws from \(N(\text{MAP}, \Sigma)\) for
+   predictive convenience.
+2. **Adaptive random-walk Metropolis** [@Haario2001] (~seconds per
+   pedon). Proposal covariance starts at the Laplace covariance,
+   scaled by the Roberts–Gelman–Gilks optimal factor
+   \((2.38)^2 / d\), and is updated online by Haario recursion after a
+   warm-up period — so non-Gaussian or multimodal posteriors are
+   captured faithfully where Laplace would paper over them.
+
+```{r bayes-laplace, eval=TRUE}
+library(edaphos)
+
+depths <- c(5, 15, 30, 60, 100)
+values <- c(25, 18, 12, 8, 6.5)
+
+fit_bayes <- piml_profile_fit_bayesian(depths, values,
+                                         method = "laplace", seed = 1L)
+fit_bayes
+```
+
+```{r bayes-predictive, eval=TRUE}
+predict(fit_bayes,
+         newdepths         = c(10, 20, 40, 80),
+         interval          = 0.95,
+         include_obs_noise = TRUE,
+         seed              = 1L)
+```
+
+`include_obs_noise = TRUE` adds Gaussian observation noise with the
+MAP-estimated \(\sigma\) onto every predictive draw, so the returned
+interval represents the predictive distribution of a *future
+observation* rather than the uncertainty on the mean function alone.
+
+For the Neural-ODE variant the variational analogue is a **deep
+ensemble** [@Lakshminarayanan2017ensemble]: `K` independent networks
+trained from different random seeds produce an empirical posterior
+whose mean and variance approximate the Bayesian predictive posterior
+[@Wilson2020bayesian].
+
+```{r bayes-deep-ensemble, eval=.torch_ok}
+ens <- piml_neural_ode_fit_ensemble(depths, values,
+                                       K = 5L, epochs = 300L, seed = 1L)
+predict(ens, newdepths = c(10, 20, 40, 80), interval = 0.9)
+```
+
+## 9. Discussion and roadmap
 
 The parametric ODE is mono-asymptotic and therefore optimal for
 properties that decay monotonically toward a parent-material value
 (SOC, some nutrients) but suboptimal for bimodal profiles, which the
-Neural ODE handles by construction. Two complementary directions are on
-the roadmap:
+Neural ODE handles by construction. Three complementary directions
+remain on the roadmap:
 
 * **Mass-conservation soft constraints** — augment the Neural ODE loss
   with a term penalising deviations from an integrated mass balance
@@ -251,5 +314,11 @@ the roadmap:
 * **Adjoint-method Neural ODE** — for pedons deeper than 2 m, the
   back-propagation graph becomes memory-bound; the adjoint method of
   [@Chen2018neuralode] eliminates that scaling.
+* **Hierarchical Bayesian pooling** — extending
+  [`piml_hierarchical_fit()`][piml_hierarchical_fit] to the posterior
+  regime that
+  [`piml_profile_fit_bayesian()`][piml_profile_fit_bayesian] already
+  exposes for single pedons, with covariate-conditioned priors over
+  \((\lambda_0, \mu, y_\infty, y_0)\).
 
 ## References

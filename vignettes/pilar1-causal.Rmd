@@ -561,10 +561,113 @@ vocabulary replays every match from disk with ~0 network traffic.
 is the KG-level one-liner that wires the batched resolver through
 the standard alignment output.
 
-## 12. Roadmap
+## 12. Structure learning from horizon data
 
-* **Structure learning** via `bnlearn` — learn DAG edges from horizon
-  data rather than prescribing them [@Runge2019].
+Sections 4–11 build the Knowledge Graph *top-down*: each edge comes
+from a scientific abstract parsed by an LLM. That is powerful as a
+source of prior knowledge but blind to the statistical
+conditional-independence structure that a pedon dataset actually
+has in hand. Classical causal-discovery algorithms close the loop
+from the bottom up: given a data matrix, recover the DAG whose
+conditional independence structure best matches the data under an
+assumed faithfulness [@Spirtes2000causation; @Scutari2010bnlearn].
+
+[`causal_structure_learn()`][causal_structure_learn] wires four of
+the best-tested structure-learning algorithms from `bnlearn` through
+a uniform interface that returns an `edaphos_causal_kg`:
+
+* `"hc"` — Hill-climbing over Gaussian BIC (fastest, deterministic).
+* `"tabu"` — tabu-search variant that escapes local optima.
+* `"pc-stable"` — order-independent PC constraint-based algorithm
+  [@Colombo2014pcstable].
+* `"mmhc"` — Max-Min Hill-Climbing hybrid
+  [@Tsamardinos2006mmhc].
+
+Whitelists and blacklists forward directly to `bnlearn` so
+pedological priors like "parent material must precede soil
+chemistry" are honoured. When `bootstrap = TRUE` a non-parametric
+bootstrap over rows of `data` returns the per-edge frequency, which
+is stored as the edge's `confidence` and becomes comparable to the
+LLM-derived confidences produced by the abstract-level pipeline.
+
+```{r structure-learn, eval=requireNamespace("bnlearn", quietly = TRUE) && requireNamespace("igraph", quietly = TRUE)}
+library(edaphos)
+data(br_cerrado)
+
+wl <- data.frame(
+  from = c("elev",   "map_mm"),
+  to   = c("twi",    "soc")
+)
+bl <- data.frame(from = "soc", to = "elev")
+
+kg_struct <- causal_structure_learn(
+  br_cerrado,
+  variables = c("elev", "slope", "twi", "map_mm", "ndvi", "soc"),
+  method    = "hc",
+  whitelist = wl,
+  blacklist = bl,
+  bootstrap = TRUE,
+  R_boot    = 100L,
+  seed      = 1L
+)
+kg_struct
+```
+
+A natural follow-up is to **union** the structure-learned KG with the
+LLM-derived one: literature-prior edges where they exist, data-driven
+edges where they don't. Since both KGs share the
+`edaphos_causal_kg` class, the union is just
+`causal_kg_add_edge()` applied to every edge of the smaller into the
+larger — or, equivalently,
+[`causal_augment_dag()`][causal_augment_dag] once the
+structure-learned graph is exported to `dagitty`.
+
+## 13. Multi-extractor consensus: voting across LLM backends
+
+Running a single LLM on a corpus inherits that model's idiosyncrasies:
+hallucinated triples, systematic omissions, polarity flips. Running
+`N` backends in parallel and **voting** over their outputs is the
+standard cure [@Marcus2022llmrobust].
+[`causal_llm_vote()`][causal_llm_vote] dispatches the same abstract
+to a user-specified list of LLM configurations, aligns the returned
+triples by (cause, effect), and applies one of three voting rules:
+
+| voting          | keeps edges asserted by                                     | use when                                       |
+|:----------------|:------------------------------------------------------------|:-----------------------------------------------|
+| `"majority"`    | at least `min_support` backends (default `ceil(N/2)`)       | N is odd and you want a balanced precision/recall trade-off |
+| `"weighted"`    | edges with `sum(w_i c_i) >= threshold`                      | one backend is known to be more reliable       |
+| `"intersection"`| edges asserted by **every** backend                         | you need the highest-precision KG possible     |
+
+```{r vote-example, eval=FALSE}
+backends <- list(
+  list(backend = "ollama",    model = "gemma4:latest",
+        host   = "http://localhost:11434"),
+  list(backend = "openai",    model = "gpt-4o-mini"),
+  list(backend = "anthropic", model = "claude-sonnet-4-6")
+)
+
+cons <- causal_llm_vote(
+  abstract = "In Cerrado Oxisols, higher mean annual precipitation
+              drives organic-matter accumulation; steeper slopes
+              enhance erosional SOC loss.",
+  backends = backends,
+  voting   = "majority"
+)
+cons
+```
+
+The companion wrapper
+[`causal_llm_ingest_abstract_voted()`][causal_llm_ingest_abstract_voted]
+combines the vote with edge insertion, producing a KG whose
+`source` field records both the paper and the vote metadata
+(`"Ferreira 2021 | vote(majority,n=3)"`). A failing backend
+(timeout, missing API key) emits a warning and contributes zero
+claims — the vote continues with the remaining backends, so the
+pipeline degrades gracefully rather than crashing an 8-hour corpus
+ingestion.
+
+## 14. Roadmap
+
 * **Non-linear backdoor estimators** — replace the linear `lm` with
   BART, GAM or a doubly-robust estimator, keeping the same adjustment
   set.
@@ -572,9 +675,9 @@ the standard alignment output.
   can answer "if erosion is halved in this sub-basin, how much does
   projected SOC increase over ten years?" under explicit causal
   assumptions.
-* **Conflict-resolved ingestion** — majority voting across multiple
-  LLM extractors (Ollama / OpenAI / Anthropic) or Bayesian
-  confidence pooling to arbitrate disagreeing causal claims over
-  the same abstract.
+* **Bayesian confidence pooling** — replace the hard `min_support`
+  threshold of §13 with a continuous Bayesian aggregation (Dawid and
+  Skene 1979) that estimates each backend's accuracy jointly with
+  the consensus claims.
 
 ## References

@@ -232,7 +232,71 @@ The same decision primitive generalises to on-board *Edge-AI* pipelines
 where the oracle is a fielded NIR spectrometer running on the sampler
 and the loop closes in seconds rather than weeks.
 
-## 6. Discussion
+## 6. Information-theoretic batch acquisition: BatchBALD
+
+The hybrid strategy of §3 scores every candidate by
+`alpha * uncertainty + (1 - alpha) * diversity`. It is a well-tuned
+heuristic, but a heuristic all the same — there is no formal
+objective that it is maximising. **BatchBALD** [@Kirsch2019batchbald]
+replaces the heuristic with an information-theoretic objective: pick
+the batch that maximises the mutual information between its labels
+and the model parameters,
+
+\[
+  \mathrm{BatchBALD}(B) \;=\;
+  I\bigl(y_B ; \theta \mid x_B, \mathcal D\bigr).
+\]
+
+For a regression model with Gaussian aleatoric noise of variance
+\(\sigma_a^2\) and an epistemic posterior represented by `T`
+parameter draws (for a QRF: the `T` trees of the forest), the
+objective reduces to a log-determinant:
+
+\[
+  \mathrm{BatchBALD}(B) \;\propto\;
+  \tfrac{1}{2}\log\det\!\bigl(
+    \mathrm{Cov}_\theta(f_\theta(B)) + \sigma_a^2 I_{|B|}
+  \bigr).
+\]
+
+The log-det is monotone submodular in \(B\), so a greedy argmax
+enjoys the \((1 - 1/e)\) optimality guarantee of
+[@Nemhauser1978submodular]. The
+[`al_query_batchbald()`][al_query_batchbald] implementation uses
+incremental Cholesky / Schur updates so each greedy step is
+\(O(m^2 n_{\mathrm{pool}})\) rather than \(O(m^3 n_{\mathrm{pool}})\).
+
+```{r batchbald, eval=TRUE}
+library(edaphos)
+data(br_cerrado)
+
+covs <- c("elev", "slope", "twi", "map_mm")
+idx  <- al_initial_design(br_cerrado, covs, n = 30L, seed = 1L)
+lab  <- br_cerrado[idx, ]
+pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ]
+
+fit   <- al_fit(lab, target = "soc", covariates = covs)
+batch <- al_query_batchbald(fit, pool, n = 8L)
+head(pool[batch, covs])
+```
+
+The failure mode that BatchBALD specifically addresses is the
+**cluster-of-near-duplicates** pathology of top-\(n\) BALD: when the
+pool contains several candidates that are nearly identical in
+covariate space, a plain uncertainty-sort returns \(n\) copies of
+"the same question." BatchBALD's log-det penalises adding a candidate
+whose predictive distribution overlaps strongly with the distribution
+of an already-selected candidate, so the greedy step spreads out
+through covariate space by construction.
+
+Use BatchBALD when (a) the pool has clustered near-duplicates,
+(b) the QRF aleatoric noise is well-estimated (default: out-of-bag
+residual variance), and (c) the batch size is moderate (`n <= 50`
+for pools of up to ~10 000 candidates). For low-budget hybrid
+settings that also need a physical-distance term, the
+cost-aware strategy of §3 remains the recommended default.
+
+## 7. Discussion
 
 Active Learning reframes the DSM pipeline from a "collect, then model"
 sequence to a feedback controller [@Brus2019]. Three points bear
@@ -255,5 +319,13 @@ emphasis:
 
 The companion vignette `pilar5-soilgrids-br` demonstrates the identical
 workflow on a Cerrado cut-out bundled with `edaphos`.
+
+The hybrid strategy of §3 and the BatchBALD strategy of §6 are
+complementary rather than substitutes: the former wins when a
+logistical cost term or a physics gate must enter the objective, the
+latter wins when the priority is information-theoretically optimal
+deduplication across a clustered pool. Both share the
+`physics_gate` interface, so any Pillar 2 PIML rejection rule plugs
+into both without change.
 
 ## References
