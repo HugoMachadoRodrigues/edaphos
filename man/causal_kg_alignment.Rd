@@ -9,7 +9,9 @@ causal_kg_alignment(
   vocab = NULL,
   method = c("exact", "substring", "fuzzy"),
   max_distance = 4L,
-  agrovoc_cache = NULL
+  agrovoc_cache = NULL,
+  agrovoc_batch = FALSE,
+  agrovoc_max_active = 5L
 )
 }
 \arguments{
@@ -31,6 +33,14 @@ substring / fuzzy.}
 
 \item{agrovoc_cache}{Optional \code{.rds} path used by
 \code{vocab = "agrovoc"} to avoid re-querying the same terms.}
+
+\item{agrovoc_batch}{Logical — when \code{TRUE} and \code{vocab = "agrovoc"},
+uses the parallel-dispatch variant
+\code{\link[=causal_ontology_agrovoc_align_batch]{causal_ontology_agrovoc_align_batch()}} to resolve all nodes in
+flight. Recommended for KGs with more than ~20 unique nodes.}
+
+\item{agrovoc_max_active}{Integer — concurrency for the parallel
+variant. Only consulted when \code{agrovoc_batch = TRUE}.}
 }
 \value{
 A data frame with columns \code{original}, \code{canonical},

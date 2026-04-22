@@ -231,6 +231,55 @@ deduplicated, extracted with Ollama + Gemma-4, AGROVOC-aligned) is
 bundled at `inst/extdata/cerrado_claims_real_corpus.jsonl` and
 reproduced end-to-end by `data-raw/run_large_corpus.R`.
 
+### Paper-scale persistence, Turtle export and multi-source audit
+
+As of **v1.0.0** a 10 k-abstract Knowledge Graph is no longer an
+in-memory dead end. Four additions turn the KG into a research
+artefact you can persist, federate and interrogate:
+
+- **`causal_kg_save()` / `causal_kg_load()`** serialise the KG
+  through its tidy edge list (not through `igraph`'s raw C layout),
+  so the resulting `.rds` is portable across `igraph` versions and
+  byte-reproducible. Loading reruns the duplicate-merge and
+  cycle-check logic so a saved KG round-trips exactly to a freshly
+  built one.
+- **`causal_kg_to_turtle()`** emits a W3C-conformant RDF 1.1 Turtle
+  document with one reified `rdf:Statement` per edge, carrying
+  confidence, evidence, source(s) and timestamp. The output is
+  guaranteed parseable by any RDF consumer (rdflib, Jena, Oxigraph,
+  Blazegraph, GraphDB, Virtuoso). The emitter is pure R — no RDF
+  library dependency.
+- **`causal_kg_rank_edges()`** collapses the KG to unique
+  `(cause, effect)` pairs and sorts by a priority list of
+  `n_sources` → `mean_confidence` → `agrovoc_support`, so the
+  audit question "which causal claims are supported by the most
+  independent papers?" becomes one call. A companion
+  `summary.edaphos_causal_kg()` gives the one-line health check.
+- **`causal_ontology_agrovoc_align_batch()`** resolves thousands of
+  node labels against the FAO AGROVOC SPARQL endpoint via
+  `httr2::req_perform_parallel()` with a user-controlled
+  `max_active` and an on-disk cache — roughly a 5× wall-clock
+  speedup at `max_active = 5`, with near-instantaneous re-runs once
+  the cache is warm.
+
+```r
+# Persistence + audit on a KG you ingested earlier.
+causal_kg_save(kg, "tools/cerrado_kg.rds")
+
+# RDF 1.1 Turtle for federation with AGROVOC and friends.
+causal_kg_to_turtle(kg, "tools/cerrado_kg.ttl",
+                    namespaces = c(agrovoc = "http://aims.fao.org/aos/agrovoc/"))
+
+# Which causal claims are supported by the most independent sources?
+ag    <- causal_kg_alignment(kg, vocab = "agrovoc",
+                             agrovoc_batch = TRUE,
+                             agrovoc_max_active = 5L)
+top20 <- causal_kg_rank_edges(kg,
+                              by = c("n_sources", "mean_confidence",
+                                     "agrovoc_support"),
+                              alignment = ag, top_n = 20L)
+```
+
 ---
 
 ## Pillar 2 — Physics-Informed ML

@@ -41,7 +41,18 @@ Ontology alignment against the curated Cerrado vocabulary or
 \strong{live FAO AGROVOC SPARQL}
 (\code{\link[=causal_ontology_agrovoc_align]{causal_ontology_agrovoc_align()}},
 \code{causal_kg_alignment(vocab = "agrovoc")}) is provided with
-on-disk caching.}
+on-disk caching, and a \strong{concurrent batched alignment}
+(\code{\link[=causal_ontology_agrovoc_align_batch]{causal_ontology_agrovoc_align_batch()}}) dispatches up to
+\code{max_active} parallel HTTP requests so a 10 k-node KG
+resolves in minutes instead of hours. Paper-scale KGs are
+persisted and audited via \code{\link[=causal_kg_save]{causal_kg_save()}} /
+\code{\link[=causal_kg_load]{causal_kg_load()}} (portable RDS edge-list),
+\code{\link[=causal_kg_to_turtle]{causal_kg_to_turtle()}} (W3C RDF 1.1 Turtle export with
+reified provenance per edge), \code{\link[=causal_kg_rank_edges]{causal_kg_rank_edges()}}
+(multi-source ranking by \code{n_sources} +
+\code{mean_confidence} + \code{agrovoc_support}) and a
+\code{summary()} method that reports node / edge / source counts,
+confidence distribution and DAG-ness.}
 \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 Ordinary Differential Equation integrated by \code{deSolve} —
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}; Neural ODE with differentiable Runge-Kutta

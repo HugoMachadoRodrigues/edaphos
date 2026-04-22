@@ -34,7 +34,18 @@
 #'     **live FAO AGROVOC SPARQL**
 #'     ([causal_ontology_agrovoc_align()],
 #'     `causal_kg_alignment(vocab = "agrovoc")`) is provided with
-#'     on-disk caching.}
+#'     on-disk caching, and a **concurrent batched alignment**
+#'     ([causal_ontology_agrovoc_align_batch()]) dispatches up to
+#'     `max_active` parallel HTTP requests so a 10 k-node KG
+#'     resolves in minutes instead of hours. Paper-scale KGs are
+#'     persisted and audited via [causal_kg_save()] /
+#'     [causal_kg_load()] (portable RDS edge-list),
+#'     [causal_kg_to_turtle()] (W3C RDF 1.1 Turtle export with
+#'     reified provenance per edge), [causal_kg_rank_edges()]
+#'     (multi-source ranking by `n_sources` +
+#'     `mean_confidence` + `agrovoc_support`) and a
+#'     `summary()` method that reports node / edge / source counts,
+#'     confidence distribution and DAG-ness.}
 #'   \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 #'     Ordinary Differential Equation integrated by `deSolve` —
 #'     [piml_profile_fit()]; Neural ODE with differentiable Runge-Kutta

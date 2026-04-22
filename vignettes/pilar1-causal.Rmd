@@ -447,7 +447,121 @@ so the resulting KG is directly inter-operable with other AGROVOC-
 aligned pipelines (FAOSTAT, Agrisemantics, the Semantic Agronomy
 project).
 
-## 11. Roadmap
+## 11. Paper-scale audit: persistence, Turtle, ranked edges
+
+Ingesting tens of thousands of abstracts is only useful if the
+resulting Knowledge Graph survives long enough to be interrogated.
+As of **v1.0.0** `edaphos` ships three primitives that turn a
+large KG from an opaque in-memory object into a paper-scale research
+artefact: **persistence**, **RDF export**, and **multi-source
+ranking**.
+
+### 11.1 Persistence
+
+`causal_kg_save()` / `causal_kg_load()` serialise a KG through its
+tidy edge list — not through `igraph`'s raw C-level pointer layout —
+so the resulting `.rds` is portable across `igraph` versions and
+byte-reproducible:
+
+```{r kg-save-roundtrip, eval=requireNamespace("igraph", quietly = TRUE)}
+kg_roundtrip <- causal_kg_new()
+kg_roundtrip <- causal_kg_add_edge(kg_roundtrip, "precipitation", "soc",
+                                     source = "Jenny 1941", confidence = 0.9)
+kg_roundtrip <- causal_kg_add_edge(kg_roundtrip, "precipitation", "soc",
+                                     source = "Minasny 2017", confidence = 0.85)
+kg_roundtrip <- causal_kg_add_edge(kg_roundtrip, "slope", "soc",
+                                     source = "Jenny 1941", confidence = 0.70)
+
+f <- tempfile(fileext = ".rds")
+causal_kg_save(kg_roundtrip, f)
+kg_loaded <- causal_kg_load(f)
+identical(causal_kg_edges(kg_roundtrip), causal_kg_edges(kg_loaded))
+```
+
+### 11.2 RDF 1.1 Turtle export
+
+`causal_kg_to_turtle()` emits a self-contained, W3C-conformant
+RDF 1.1 Turtle document [@Beckett2014turtle] with a reified
+`rdf:Statement` per causal edge. All provenance — confidence,
+evidence, source(s), timestamp — is preserved in a SPARQL-queryable
+form, and each node gets a stable IRI inside a user-controlled
+namespace so the KG can be federated with external vocabularies
+(AGROVOC, ENVO, SKOS thesauri) by a simple `owl:sameAs`:
+
+```{r kg-turtle, eval=requireNamespace("igraph", quietly = TRUE)}
+ttl <- causal_kg_to_turtle(
+  kg_roundtrip,
+  base_uri   = "https://edaphos.io/kg/",
+  namespaces = c(agrovoc = "http://aims.fao.org/aos/agrovoc/")
+)
+cat(substr(ttl, 1, 600))
+```
+
+The emitter is pure R (no RDF library dependency). The output is
+guaranteed parseable by any RDF 1.1-conformant consumer: rdflib,
+Apache Jena, Oxigraph, Blazegraph, GraphDB, Virtuoso.
+
+### 11.3 Multi-source edge ranking
+
+On a KG built from thousands of papers the critical audit question is
+**which causal claims are supported by the most independent
+sources** — an edge asserted by 50 papers with mean confidence 0.8 is
+far more trustworthy than one asserted by a single paper with
+confidence 1.0. `causal_kg_rank_edges()` collapses the KG to unique
+`(cause, effect)` pairs and sorts by a priority list of metrics:
+
+```{r kg-rank, eval=requireNamespace("igraph", quietly = TRUE)}
+causal_kg_rank_edges(
+  kg_roundtrip,
+  by = c("n_sources", "mean_confidence")
+)
+```
+
+When an alignment data frame is supplied, an `agrovoc_support`
+column is attached (0 / 0.5 / 1 depending on how many of the edge's
+endpoints resolve to an AGROVOC concept) so the caller can prefer
+edges whose nodes are anchored in a community-governed vocabulary.
+
+`summary.edaphos_causal_kg()` is the one-line health check — node
+and edge counts, number of unique sources, confidence quartiles and
+a DAG-ness verdict — useful right after a 10 k-abstract
+`causal_llm_ingest_corpus()` run:
+
+```{r kg-summary, eval=requireNamespace("igraph", quietly = TRUE)}
+summary(kg_roundtrip)
+```
+
+### 11.4 Concurrent AGROVOC alignment
+
+Aligning a 10 k-node KG one term at a time against the FAO AGROVOC
+SPARQL endpoint takes hours. v1.0.0 introduces
+`causal_ontology_agrovoc_align_batch()`, which batches at the
+**transport layer** via `httr2::req_perform_parallel()` — we chose
+this approach because AGROVOC's production endpoint rejects genuine
+SPARQL-level batching (`VALUES` + `CONTAINS(?label, ?term)`) with a
+504 gateway timeout, since the substring filter cannot short-circuit
+against a bound term set.
+
+```{r kg-agrovoc-batch, eval=FALSE}
+vocab <- unique(c(causal_kg_edges(kg_big)$cause,
+                  causal_kg_edges(kg_big)$effect))
+ag <- causal_ontology_agrovoc_align_batch(
+  vocab,
+  cache_path = "tools/.agrovoc_cache.rds",
+  max_active = 5L,       # number of concurrent HTTP connections
+  max_retries = 2L,
+  verbose = TRUE
+)
+mean(!is.na(ag$uri))      # AGROVOC resolution rate
+```
+
+The on-disk cache is idempotent: a second call over the same
+vocabulary replays every match from disk with ~0 network traffic.
+`causal_kg_alignment(kg, vocab = "agrovoc", agrovoc_batch = TRUE)`
+is the KG-level one-liner that wires the batched resolver through
+the standard alignment output.
+
+## 12. Roadmap
 
 * **Structure learning** via `bnlearn` — learn DAG edges from horizon
   data rather than prescribing them [@Runge2019].
@@ -458,9 +572,9 @@ project).
   can answer "if erosion is halved in this sub-basin, how much does
   projected SOC increase over ten years?" under explicit causal
   assumptions.
-* **Scale the LLM extraction** to a SoilPortal-style corpus of tens of
-  thousands of abstracts, with conflict resolution (majority voting
-  across extractors, or Bayesian confidence pooling) and ontology
-  alignment against AGROVOC / ENVO [@Jonquet2023agrovoc].
+* **Conflict-resolved ingestion** — majority voting across multiple
+  LLM extractors (Ollama / OpenAI / Anthropic) or Bayesian
+  confidence pooling to arbitrate disagreeing causal claims over
+  the same abstract.
 
 ## References
