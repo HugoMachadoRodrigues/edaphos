@@ -85,9 +85,24 @@ Eigensolver bridge (\code{\link[=quantum_hamiltonian]{quantum_hamiltonian()}},
 \code{\link[=quantum_hamiltonian_h2]{quantum_hamiltonian_h2()}},
 \code{\link[=quantum_hamiltonian_organo_mineral]{quantum_hamiltonian_organo_mineral()}},
 \code{\link[=quantum_vqe_fit]{quantum_vqe_fit()}}, \code{\link[=quantum_vqe_exact]{quantum_vqe_exact()}}) runs on
-\code{qiskit-aer} out of the box, with preflight probes for real
-IBM-Q hardware via \code{\link[=quantum_ibmq_available]{quantum_ibmq_available()}} and
-\code{\link[=quantum_ibmq_backends]{quantum_ibmq_backends()}}.}
+\code{qiskit-aer} out of the box with three interchangeable back
+ends: exact statevector, \strong{shot-based Aer} with SPSA and
+optional noise models, and \strong{full IBM Quantum Runtime
+dispatch} (\code{\link[=quantum_ibmq_submit]{quantum_ibmq_submit()}},
+\code{\link[=quantum_ibmq_available]{quantum_ibmq_available()}},
+\code{\link[=quantum_ibmq_backends]{quantum_ibmq_backends()}},
+\code{\link[=quantum_ibmq_least_busy]{quantum_ibmq_least_busy()}}) with M3 readout and ZNE
+gate-folding mitigation (Kim et al., 2023). A \strong{qiskit-nature
+bridge} (\code{\link[=quantum_hamiltonian_from_pyscf]{quantum_hamiltonian_from_pyscf()}},
+\code{\link[=quantum_hamiltonian_organo_mineral_nature]{quantum_hamiltonian_organo_mineral_nature()}},
+\code{\link[=quantum_nature_total_energy]{quantum_nature_total_energy()}}) lifts a user-supplied XYZ
+geometry through a PySCF RHF reference, frozen-core
+reduction, ActiveSpace projection and a \code{ParityMapper} with
+Z2 tapering, producing a qubit Hamiltonian ready for VQE
+minimisation. Curated presets cover the three canonical
+organo-mineral motifs: the carboxylate (\code{"formic_acid"}), the
+ortho-diol (\code{"methanediol"}), and a monodentate Fe(III)–
+carboxylate coordination complex (\code{"ferric_formate"}).}
 }
 }
 

@@ -9,7 +9,10 @@ quantum_vqe_fit(
   ansatz_reps = 2L,
   optimizer = c("COBYLA", "SPSA", "SLSQP", "L-BFGS-B"),
   max_iter = 200L,
-  backend = "aer_statevector",
+  backend = c("aer_statevector", "aer_shots", "ibmq"),
+  shots = NULL,
+  mitigation = c("none", "m3", "zne"),
+  ibmq_backend = NULL,
   seed = NULL,
   initial_point = NULL
 )
@@ -22,12 +25,27 @@ blocks. More blocks increase expressivity at the cost of more
 variational parameters.}
 
 \item{optimizer}{Character — one of \code{"COBYLA"} (default), \code{"SPSA"},
-\code{"SLSQP"}, \code{"L-BFGS-B"}.}
+\code{"SLSQP"}, \code{"L-BFGS-B"}. Shot-based and hardware runs strongly
+prefer \code{"SPSA"} because it is robust to stochastic cost-function
+evaluations (Spall 1998).}
 
 \item{max_iter}{Integer — maximum classical-optimiser iterations.}
 
-\item{backend}{Character — \code{"aer_statevector"} (default, exact
-noiseless simulation). \code{"ibmq"} is reserved for a future release.}
+\item{backend}{Character — one of \code{"aer_statevector"} (default,
+exact), \code{"aer_shots"} (shot-based simulation), \code{"ibmq"} (real
+IBM Quantum hardware). See Details.}
+
+\item{shots}{Integer — number of circuit shots per energy
+evaluation. Ignored when \code{backend = "aer_statevector"}. Defaults
+to \code{4096} for \code{"aer_shots"} and \code{"ibmq"} when left \code{NULL}.}
+
+\item{mitigation}{Character — one of \code{"none"} (default), \code{"m3"},
+\code{"zne"}. Controls hardware error mitigation; see Details.}
+
+\item{ibmq_backend}{Character — name of the target IBM Quantum
+backend (e.g. \code{"ibm_brisbane"}, \code{"ibm_sherbrooke"}) when
+\code{backend = "ibmq"}. If \code{NULL}, the least-busy operational
+backend available to the account is selected automatically.}
 
 \item{seed}{Optional integer — seeds NumPy / Qiskit RNGs for
 reproducible runs.}
@@ -46,20 +64,81 @@ reference.}
 \item{history}{Numeric vector of energy values, one per
 optimiser iteration (via callback).}
 \item{n_iter}{Integer iteration count.}
+\item{shots, mitigation}{Echo of the execution configuration.}
 \item{hamiltonian,ansatz,optimizer,backend}{Configuration echo.}
 }
 }
 \description{
 Runs the Peruzzo et al. 2014 VQE on the supplied Hamiltonian with
-an \code{EfficientSU2} hardware-efficient ansatz and a classical
-optimiser (default COBYLA). The optimisation trajectory is
-captured by a callback so the energy curve can be plotted or
+a hardware-efficient \code{EfficientSU2} ansatz (Kandala et al. 2017) and
+a classical optimiser (default COBYLA). The optimisation trajectory
+is captured by a callback so the energy curve can be plotted or
 audited after the fact.
 }
+\details{
+Three execution back ends are supported as of \strong{v0.9.0}:
+
+\describe{
+\item{\code{"aer_statevector"} (default)}{Exact noiseless statevector
+simulation via \code{qiskit.primitives.StatevectorEstimator}. The
+ansatz is not transpiled. Deterministic; limited by memory to
+roughly 24 qubits.}
+\item{\code{"aer_shots"}}{Shot-based simulation via
+\code{qiskit_aer.primitives.EstimatorV2}. Each energy evaluation is
+estimated from \code{shots} circuit executions and therefore carries
+a finite-sample noise of order \code{1/sqrt(shots)}. The ansatz is
+transpiled to the standard \verb{\\\{id, rz, sx, x, cx, u\\\}} basis
+gate set so that the Aer primitive can dispatch it.}
+\item{\code{"ibmq"}}{Real hardware via \code{qiskit_ibm_runtime.EstimatorV2}
+inside a Runtime \code{Session}. Requires the \code{qiskit-ibm-runtime}
+Python package and an \code{IBMQ_TOKEN} environment variable. Supports
+two mitigation strategies (Kim et al. 2023, see References):
+\itemize{
+\item \code{mitigation = "m3"} — Matrix-free Measurement
+Mitigation (TREX + M3 readout correction), mapped to
+IBM runtime \code{resilience_level = 1};
+\item \code{mitigation = "zne"} — Zero-Noise Extrapolation over
+gate-folding noise scales, mapped to IBM runtime
+\code{resilience_level = 2}.
+}
+}
+}
+}
+\examples{
+\dontrun{
+  ham <- quantum_hamiltonian_h2()
+
+  # 1) Exact noiseless reference (fast).
+  fit <- quantum_vqe_fit(ham, backend = "aer_statevector", seed = 1L)
+
+  # 2) Shot-based simulation with SPSA (honest to finite sampling).
+  fit_s <- quantum_vqe_fit(ham, backend = "aer_shots",
+                            shots = 4096L, optimizer = "SPSA",
+                            max_iter = 100L, seed = 1L)
+
+  # 3) Real IBM Quantum hardware with M3 readout mitigation.
+  if (quantum_ibmq_available()) {
+    fit_q <- quantum_vqe_fit(ham, backend = "ibmq",
+                              shots = 4096L,
+                              mitigation = "m3",
+                              ibmq_backend = "ibm_brisbane",
+                              optimizer = "SPSA",
+                              max_iter = 50L)
+  }
+}
+}
 \references{
-Peruzzo, A. et al. (2014). A variational eigenvalue
-solver on a photonic quantum processor. \emph{Nature Communications}
-\strong{5}, 4213. McClean, J. R. et al. (2016). The theory of
-variational hybrid quantum-classical algorithms. \emph{New Journal of
-Physics} \strong{18}, 023023.
+Peruzzo, A. et al. (2014). A variational eigenvalue solver on a
+photonic quantum processor. \emph{Nature Communications} \strong{5}, 4213.
+
+Kandala, A. et al. (2017). Hardware-efficient variational quantum
+eigensolver for small molecules and quantum magnets. \emph{Nature}
+\strong{549}, 242–246.
+
+Kim, Y. et al. (2023). Evidence for the utility of quantum
+computing before fault tolerance. \emph{Nature} \strong{618}, 500–505.
+
+Spall, J. C. (1998). Implementation of the simultaneous
+perturbation algorithm for stochastic optimisation. \emph{IEEE
+Transactions on Aerospace and Electronic Systems} \strong{34}, 817–823.
 }

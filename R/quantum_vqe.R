@@ -2,10 +2,13 @@
 #
 # Reticulate + Qiskit implementation of the Peruzzo et al. 2014 VQE
 # algorithm for the ground-state energy of a user-supplied Hamiltonian.
-# Three toy organo-mineral Hamiltonians ship alongside the public
-# quantum_hamiltonian() constructor so the canonical pedometric use
-# cases (clay-humus adsorption, Fe-O cluster exchange, H2 bond as a
-# reference) can be run out of the box.
+# Four Hamiltonian builders ship alongside the public
+# quantum_hamiltonian() constructor: the canonical textbook H2
+# benchmark, the 1-D transverse-field Ising chain, the toy 4-qubit
+# organo-mineral cluster, and -- since v0.9.0 -- the qiskit-nature-
+# backed molecular Hamiltonian derived from an ab initio PySCF run
+# (see R/quantum_nature.R) so that realistic humic-proxy and
+# iron-coordination fragments can be dispatched from R.
 #
 # All Python interop goes through `reticulate` (Suggests). A one-shot
 # module loader caches the imported Qiskit modules in a local
@@ -16,12 +19,17 @@
 # The VQE back end dispatches over three choices:
 #   * "aer_statevector" -- exact noiseless statevector simulation
 #                          (default). Deterministic, analytical.
-#   * "aer_sampler"     -- shot-based simulation with optional
-#                          depolarising / readout noise models.
+#   * "aer_shots"       -- shot-based simulation with the Aer
+#                          EstimatorV2 primitive (finite-sample noise,
+#                          optional depolarising / readout noise
+#                          model). Ansatz is transpiled to a standard
+#                          basis gate set.
 #   * "ibmq"            -- real hardware via the IBM Quantum Runtime
-#                          Estimator primitive. Requires the user to
-#                          install qiskit-ibm-runtime and set an
-#                          IBMQ_TOKEN environment variable.
+#                          EstimatorV2 primitive (see
+#                          R/quantum_ibmq.R). Requires qiskit-ibm-
+#                          runtime and an IBMQ_TOKEN environment
+#                          variable; supports M3 and ZNE mitigation
+#                          through the `mitigation` argument.
 
 .qk_env <- new.env(parent = emptyenv())
 
@@ -43,9 +51,27 @@
                                       delay_load = FALSE)
     .qk_env$qp <- reticulate::import("qiskit.primitives",
                                       delay_load = FALSE)
+    .qk_env$qk <- reticulate::import("qiskit",
+                                      delay_load = FALSE)
     .qk_env$qa <- reticulate::import("qiskit_algorithms",
                                       delay_load = FALSE)
     .qk_env$qo <- reticulate::import("qiskit_algorithms.optimizers",
+                                      delay_load = FALSE)
+  }
+  invisible(TRUE)
+}
+
+# Optional: Aer primitives. Imported lazily on demand because shot-
+# based VQE only needs them when `backend = "aer_shots"`.
+.qk_require_aer <- function() {
+  .qk_require()
+  if (!reticulate::py_module_available("qiskit_aer")) {
+    stop("`qiskit_aer` Python module not found. Install once via\n",
+         "   reticulate::py_install('qiskit-aer', pip = TRUE)\n",
+         "then restart R.", call. = FALSE)
+  }
+  if (is.null(.qk_env$ae)) {
+    .qk_env$ae <- reticulate::import("qiskit_aer.primitives",
                                       delay_load = FALSE)
   }
   invisible(TRUE)
@@ -254,34 +280,127 @@ quantum_vqe_exact <- function(hamiltonian) {
   )
 }
 
-.qk_estimator <- function(backend) {
+# Build the Qiskit EstimatorV2-compatible primitive that VQE will
+# call to evaluate <ansatz(theta) | H | ansatz(theta)> at each
+# optimiser step.
+#
+# `shots`      Integer -- number of circuit shots to request when the
+#              backend is shot-based. Converted to Qiskit's
+#              `default_precision = 1 / sqrt(shots)` convention. Ignored
+#              for the analytic statevector backend.
+# `mitigation` One of "none", "m3" (readout mitigation), "zne" (zero-
+#              noise extrapolation). Maps to `resilience_level`
+#              {0, 1, 2} of the IBM runtime EstimatorV2. Silently a
+#              no-op on "aer_statevector"; emits a note on
+#              "aer_shots" because qiskit-aer's primitive does not
+#              apply hardware-oriented mitigation.
+# `ibmq_backend` Character -- name of the target IBM Quantum backend.
+#              Consulted only when `backend = "ibmq"`.
+.qk_estimator <- function(backend, shots = NULL,
+                            mitigation = "none",
+                            ibmq_backend = NULL) {
   backend <- tolower(backend)
-  switch(
-    backend,
-    aer_statevector = .qk_env$qp$StatevectorEstimator(),
-    stop("Backend '", backend, "' is not wired up in this release. ",
-         "Use 'aer_statevector' for now; 'ibmq' requires ",
-         "qiskit-ibm-runtime and a token.", call. = FALSE)
-  )
+  if (backend == "aer_statevector") {
+    return(.qk_env$qp$StatevectorEstimator())
+  }
+  if (backend == "aer_shots") {
+    .qk_require_aer()
+    shots <- if (is.null(shots)) 4096L else as.integer(shots)
+    precision <- 1 / sqrt(as.numeric(shots))
+    opts <- reticulate::dict(default_precision = precision)
+    if (!identical(mitigation, "none")) {
+      message("note: `mitigation` is a no-op on backend 'aer_shots' ",
+              "(qiskit-aer's primitive has no hardware mitigation). ",
+              "Use backend = 'ibmq' to activate M3 / ZNE.")
+    }
+    return(.qk_env$ae$EstimatorV2(options = opts))
+  }
+  if (backend == "ibmq") {
+    # Delegated to quantum_ibmq.R so that every IBM Quantum Runtime
+    # call lives in one place.
+    return(.ibmq_estimator(shots = shots,
+                            mitigation = mitigation,
+                            backend_name = ibmq_backend))
+  }
+  stop("Unknown backend '", backend,
+       "'. Expected one of 'aer_statevector', 'aer_shots', 'ibmq'.",
+       call. = FALSE)
+}
+
+# Standard basis gate set for transpiling the ansatz. IBM's heavy-hex
+# processors speak (cx, x, rz, sx, id, u); Aer accepts the same.
+.qk_default_basis_gates <- c("id", "rz", "sx", "x", "cx", "u")
+
+# Transpile a QuantumCircuit to `basis_gates` preserving parameter
+# bindings so VQE can still iterate over theta. `backend` is only
+# needed when the caller wants backend-aware optimisation; for the
+# analytic statevector path we skip transpilation entirely.
+.qk_transpile_ansatz <- function(ansatz, basis_gates = .qk_default_basis_gates,
+                                   optimization_level = 1L,
+                                   backend = NULL) {
+  args <- list(ansatz, basis_gates = basis_gates,
+               optimization_level = as.integer(optimization_level))
+  if (!is.null(backend)) args$backend <- backend
+  do.call(.qk_env$qk$transpile, args)
 }
 
 #' Variational Quantum Eigensolver (Pillar 6 main entry point)
 #'
 #' Runs the Peruzzo et al. 2014 VQE on the supplied Hamiltonian with
-#' an `EfficientSU2` hardware-efficient ansatz and a classical
-#' optimiser (default COBYLA). The optimisation trajectory is
-#' captured by a callback so the energy curve can be plotted or
+#' a hardware-efficient `EfficientSU2` ansatz (Kandala et al. 2017) and
+#' a classical optimiser (default COBYLA). The optimisation trajectory
+#' is captured by a callback so the energy curve can be plotted or
 #' audited after the fact.
+#'
+#' Three execution back ends are supported as of **v0.9.0**:
+#'
+#' \describe{
+#'   \item{`"aer_statevector"` (default)}{Exact noiseless statevector
+#'     simulation via `qiskit.primitives.StatevectorEstimator`. The
+#'     ansatz is not transpiled. Deterministic; limited by memory to
+#'     roughly 24 qubits.}
+#'   \item{`"aer_shots"`}{Shot-based simulation via
+#'     `qiskit_aer.primitives.EstimatorV2`. Each energy evaluation is
+#'     estimated from `shots` circuit executions and therefore carries
+#'     a finite-sample noise of order `1/sqrt(shots)`. The ansatz is
+#'     transpiled to the standard `\{id, rz, sx, x, cx, u\}` basis
+#'     gate set so that the Aer primitive can dispatch it.}
+#'   \item{`"ibmq"`}{Real hardware via `qiskit_ibm_runtime.EstimatorV2`
+#'     inside a Runtime `Session`. Requires the `qiskit-ibm-runtime`
+#'     Python package and an `IBMQ_TOKEN` environment variable. Supports
+#'     two mitigation strategies (Kim et al. 2023, see References):
+#'     \itemize{
+#'       \item `mitigation = "m3"` — Matrix-free Measurement
+#'         Mitigation (TREX + M3 readout correction), mapped to
+#'         IBM runtime `resilience_level = 1`;
+#'       \item `mitigation = "zne"` — Zero-Noise Extrapolation over
+#'         gate-folding noise scales, mapped to IBM runtime
+#'         `resilience_level = 2`.
+#'     }
+#'   }
+#' }
 #'
 #' @param hamiltonian An `edaphos_quantum_hamiltonian`.
 #' @param ansatz_reps Integer — number of `EfficientSU2` repetition
 #'   blocks. More blocks increase expressivity at the cost of more
 #'   variational parameters.
 #' @param optimizer Character — one of `"COBYLA"` (default), `"SPSA"`,
-#'   `"SLSQP"`, `"L-BFGS-B"`.
+#'   `"SLSQP"`, `"L-BFGS-B"`. Shot-based and hardware runs strongly
+#'   prefer `"SPSA"` because it is robust to stochastic cost-function
+#'   evaluations (Spall 1998).
 #' @param max_iter Integer — maximum classical-optimiser iterations.
-#' @param backend Character — `"aer_statevector"` (default, exact
-#'   noiseless simulation). `"ibmq"` is reserved for a future release.
+#' @param backend Character — one of `"aer_statevector"` (default,
+#'   exact), `"aer_shots"` (shot-based simulation), `"ibmq"` (real
+#'   IBM Quantum hardware). See Details.
+#' @param shots Integer — number of circuit shots per energy
+#'   evaluation. Ignored when `backend = "aer_statevector"`. Defaults
+#'   to `4096` for `"aer_shots"` and `"ibmq"` when left `NULL`.
+#' @param mitigation Character — one of `"none"` (default), `"m3"`,
+#'   `"zne"`. Controls hardware error mitigation; see Details.
+#' @param ibmq_backend Character — name of the target IBM Quantum
+#'   backend (e.g. `"ibm_brisbane"`, `"ibm_sherbrooke"`) when
+#'   `backend = "ibmq"`. If `NULL`, the least-busy operational
+#'   backend available to the account is selected automatically.
 #' @param seed Optional integer — seeds NumPy / Qiskit RNGs for
 #'   reproducible runs.
 #' @param initial_point Optional numeric vector — custom starting
@@ -297,34 +416,86 @@ quantum_vqe_exact <- function(hamiltonian) {
 #'   \item{history}{Numeric vector of energy values, one per
 #'     optimiser iteration (via callback).}
 #'   \item{n_iter}{Integer iteration count.}
+#'   \item{shots, mitigation}{Echo of the execution configuration.}
 #'   \item{hamiltonian,ansatz,optimizer,backend}{Configuration echo.}
 #' }
-#' @references Peruzzo, A. et al. (2014). A variational eigenvalue
-#'   solver on a photonic quantum processor. *Nature Communications*
-#'   **5**, 4213. McClean, J. R. et al. (2016). The theory of
-#'   variational hybrid quantum-classical algorithms. *New Journal of
-#'   Physics* **18**, 023023.
+#' @references
+#' Peruzzo, A. et al. (2014). A variational eigenvalue solver on a
+#' photonic quantum processor. *Nature Communications* **5**, 4213.
+#'
+#' Kandala, A. et al. (2017). Hardware-efficient variational quantum
+#' eigensolver for small molecules and quantum magnets. *Nature*
+#' **549**, 242–246.
+#'
+#' Kim, Y. et al. (2023). Evidence for the utility of quantum
+#' computing before fault tolerance. *Nature* **618**, 500–505.
+#'
+#' Spall, J. C. (1998). Implementation of the simultaneous
+#' perturbation algorithm for stochastic optimisation. *IEEE
+#' Transactions on Aerospace and Electronic Systems* **34**, 817–823.
+#'
+#' @examples
+#' \dontrun{
+#'   ham <- quantum_hamiltonian_h2()
+#'
+#'   # 1) Exact noiseless reference (fast).
+#'   fit <- quantum_vqe_fit(ham, backend = "aer_statevector", seed = 1L)
+#'
+#'   # 2) Shot-based simulation with SPSA (honest to finite sampling).
+#'   fit_s <- quantum_vqe_fit(ham, backend = "aer_shots",
+#'                             shots = 4096L, optimizer = "SPSA",
+#'                             max_iter = 100L, seed = 1L)
+#'
+#'   # 3) Real IBM Quantum hardware with M3 readout mitigation.
+#'   if (quantum_ibmq_available()) {
+#'     fit_q <- quantum_vqe_fit(ham, backend = "ibmq",
+#'                               shots = 4096L,
+#'                               mitigation = "m3",
+#'                               ibmq_backend = "ibm_brisbane",
+#'                               optimizer = "SPSA",
+#'                               max_iter = 50L)
+#'   }
+#' }
 #' @export
 quantum_vqe_fit <- function(hamiltonian,
                              ansatz_reps = 2L,
                              optimizer   = c("COBYLA", "SPSA",
                                              "SLSQP", "L-BFGS-B"),
                              max_iter    = 200L,
-                             backend     = "aer_statevector",
+                             backend     = c("aer_statevector",
+                                             "aer_shots",
+                                             "ibmq"),
+                             shots       = NULL,
+                             mitigation  = c("none", "m3", "zne"),
+                             ibmq_backend = NULL,
                              seed        = NULL,
                              initial_point = NULL) {
   .qk_require()
   stopifnot(inherits(hamiltonian, "edaphos_quantum_hamiltonian"))
-  optimizer <- match.arg(optimizer)
+  optimizer  <- match.arg(optimizer)
+  backend    <- match.arg(backend)
+  mitigation <- match.arg(mitigation)
   if (!is.null(seed)) {
     np <- reticulate::import("numpy", delay_load = FALSE)
     np$random$seed(as.integer(seed))
   }
 
-  ansatz <- .qk_env$ql$EfficientSU2(num_qubits = hamiltonian$n_qubits,
-                                     reps = as.integer(ansatz_reps))
-  estimator <- .qk_estimator(backend)
-  opt       <- .qk_optimizer(optimizer, max_iter)
+  # Hardware-efficient ansatz. We use the function form introduced in
+  # Qiskit 2.1 (the class form `EfficientSU2` was deprecated).
+  ansatz <- .qk_env$ql$efficient_su2(num_qubits = hamiltonian$n_qubits,
+                                      reps = as.integer(ansatz_reps))
+
+  # Non-statevector back ends need a transpiled circuit that speaks
+  # the basis gate set of the target simulator / hardware.
+  if (backend != "aer_statevector") {
+    ansatz <- .qk_transpile_ansatz(ansatz)
+  }
+
+  estimator <- .qk_estimator(backend,
+                              shots        = shots,
+                              mitigation   = mitigation,
+                              ibmq_backend = ibmq_backend)
+  opt <- .qk_optimizer(optimizer, max_iter)
 
   # Capture the optimisation trajectory via the VQE callback.
   history <- new.env(parent = emptyenv())
@@ -354,16 +525,19 @@ quantum_vqe_fit <- function(hamiltonian,
 
   structure(
     list(
-      hamiltonian = hamiltonian,
-      ansatz_reps = as.integer(ansatz_reps),
-      optimizer   = optimizer,
-      backend     = backend,
-      energy      = energy,
-      exact       = exact,
-      gap         = abs(energy - exact),
-      parameters  = params,
-      history     = history$energies,
-      n_iter      = n_iter
+      hamiltonian  = hamiltonian,
+      ansatz_reps  = as.integer(ansatz_reps),
+      optimizer    = optimizer,
+      backend      = backend,
+      shots        = shots,
+      mitigation   = mitigation,
+      ibmq_backend = ibmq_backend,
+      energy       = energy,
+      exact        = exact,
+      gap          = abs(energy - exact),
+      parameters   = params,
+      history      = history$energies,
+      n_iter       = n_iter
     ),
     class = "edaphos_quantum_vqe"
   )
@@ -377,6 +551,13 @@ print.edaphos_quantum_vqe <- function(x, ...) {
   cat(sprintf("  ansatz      : EfficientSU2(reps = %d)\n", x$ansatz_reps))
   cat(sprintf("  optimizer   : %s    backend : %s\n",
               x$optimizer, x$backend))
+  shot_desc <- if (is.null(x$shots)) "-" else format(as.integer(x$shots))
+  mit_desc  <- x$mitigation %||% "none"
+  cat(sprintf("  shots       : %s    mitigation : %s\n",
+              shot_desc, mit_desc))
+  if (!is.null(x$ibmq_backend) && nzchar(x$ibmq_backend)) {
+    cat(sprintf("  ibmq backend: %s\n", x$ibmq_backend))
+  }
   cat(sprintf("  n params    : %d   n iter : %s\n",
               length(x$parameters),
               if (is.na(x$n_iter)) "-" else format(x$n_iter)))
@@ -384,37 +565,4 @@ print.edaphos_quantum_vqe <- function(x, ...) {
   cat(sprintf("  exact       : %.6f\n", x$exact))
   cat(sprintf("  gap         : %.3e\n", x$gap))
   invisible(x)
-}
-
-# ---- IBMQ bridge ------------------------------------------------------------
-
-#' Check whether an IBM Quantum backend is reachable
-#'
-#' Returns `TRUE` when (i) `reticulate` is installed; (ii) the
-#' `qiskit_ibm_runtime` Python module is importable; and (iii) the
-#' `IBMQ_TOKEN` environment variable is set. The function does not
-#' contact the network; it is a cheap preflight probe.
-#'
-#' @return Logical scalar.
-#' @export
-quantum_ibmq_available <- function() {
-  if (!requireNamespace("reticulate", quietly = TRUE)) return(FALSE)
-  if (!reticulate::py_module_available("qiskit_ibm_runtime")) return(FALSE)
-  nzchar(Sys.getenv("IBMQ_TOKEN", ""))
-}
-
-#' List IBM Quantum backends available to the current account
-#'
-#' Requires [quantum_ibmq_available()] to return `TRUE`. Pulls the
-#' current list via `qiskit_ibm_runtime.QiskitRuntimeService`.
-#'
-#' @return A character vector of backend names, or a length-0
-#'   character vector when the service is unavailable.
-#' @export
-quantum_ibmq_backends <- function() {
-  if (!quantum_ibmq_available()) return(character(0))
-  rt <- reticulate::import("qiskit_ibm_runtime", delay_load = FALSE)
-  service <- rt$QiskitRuntimeService(token = Sys.getenv("IBMQ_TOKEN"))
-  backends <- service$backends()
-  vapply(backends, function(b) b$name, character(1L))
 }

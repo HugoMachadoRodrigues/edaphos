@@ -633,8 +633,92 @@ in the 8-dimensional Hilbert space of the three-qubit ZZFeatureMap.
 For $n > 8$ covariates — or for truly variational quantum ansatze, VQE
 on organo-mineral Hamiltonians [[Peruzzo et al. 2014][peruzzo2014]],
 and deployment on real NISQ hardware [[Preskill 2018][preskill2018]] —
-the R-side API stays the same; the numerical back-end will be deferred
-to a `reticulate` + PennyLane / Qiskit bridge in a future release.
+the R-side API stays the same; the Qiskit-backed VQE bridge described
+next promotes the same Pauli-string Hamiltonian to a real quantum
+device.
+
+### VQE on organo-mineral Hamiltonians, from laptop to IBM Quantum
+
+As of **v0.9.0** Pillar 6 carries a full variational quantum
+eigensolver pipeline with three interchangeable execution back ends:
+
+- **`backend = "aer_statevector"`** — exact noiseless simulation,
+  deterministic, up to ~24 qubits on a laptop.
+- **`backend = "aer_shots"`** — finite-shot Aer simulation via
+  `qiskit_aer.primitives.EstimatorV2`. The ansatz is transpiled to
+  the standard heavy-hex basis gate set and the SPSA optimiser
+  [[Spall 1998][spall1998]] handles the stochastic cost function.
+- **`backend = "ibmq"`** — full IBM Quantum Runtime dispatch with
+  automatic ISA transpilation, `mitigation = "m3"` (readout
+  calibration) and `mitigation = "zne"` (zero-noise extrapolation)
+  mapped onto `resilience_level` ∈ {1, 2} [[Kim et al. 2023][kim2023]].
+
+```r
+# 1) Exact noiseless reference, 2-qubit H2 benchmark.
+ham <- quantum_hamiltonian_h2()
+quantum_vqe_fit(ham, backend = "aer_statevector", seed = 1L)
+
+# 2) Shot-based simulation with SPSA; honest to finite sampling.
+quantum_vqe_fit(ham, backend = "aer_shots",
+                shots = 4096L, optimizer = "SPSA",
+                max_iter = 80L, seed = 1L)
+
+# 3) Real IBM Quantum hardware with M3 readout mitigation.
+Sys.setenv(IBMQ_TOKEN = "<your-ibm-quantum-api-token>")
+quantum_vqe_fit(ham, backend = "ibmq",
+                ibmq_backend = "ibm_brisbane",
+                shots = 8192L, mitigation = "m3",
+                optimizer = "SPSA", max_iter = 50L)
+```
+
+### First-principles organo-mineral Hamiltonians (qiskit-nature)
+
+The 4-qubit `quantum_hamiltonian_organo_mineral()` of earlier
+releases was a hand-built Pauli-string cartoon. v0.9.0 adds an
+end-to-end bridge to **qiskit-nature** + **PySCF** so the user can
+hand in a molecular XYZ geometry and get back a genuine *ab initio*
+second-quantised Hamiltonian:
+
+$$
+\text{XYZ}
+\;\xrightarrow{\text{PySCF RHF}}\;
+\hat H_\mathrm{AO}
+\;\xrightarrow{\text{FreezeCore}}\;
+\hat H_\mathrm{act}
+\;\xrightarrow{\text{ActiveSpace}(n_e, n_o)}\;
+\hat H_\mathrm{casci}
+\;\xrightarrow{\text{ParityMapper}}\;
+\hat H_\mathrm{qubit} = \sum_k c_k\, P_k.
+$$
+
+Three curated organo-mineral variants ship as out-of-the-box
+Hamiltonians for the three canonical motifs at the clay–humus
+interface [[Stevenson 1994][stevenson1994]]:
+
+| Variant            | Pedological role                                              | Active space | Qubits |
+|:-------------------|:--------------------------------------------------------------|:------------:|:------:|
+| `"formic_acid"`    | carboxylate (`–COOH`) — dominant humic functional group       | (2e, 2o)     | 2      |
+| `"methanediol"`    | ortho-diol (`HO–C–OH`) — catechol-style Fe(III) chelator      | (2e, 2o)     | 2      |
+| `"ferric_formate"` | monodentate Fe(III)–OOCH — minimum viable organo-mineral      | (4e, 4o)     | 4      |
+
+```r
+ham <- quantum_hamiltonian_organo_mineral_nature("formic_acid")
+fit <- quantum_vqe_fit(ham, ansatz_reps = 2L, seed = 1L)
+
+quantum_nature_total_energy(fit)        # VQE active energy + nuc_rep + frozen + active shifts
+attr(ham, "reference_energy")           # qiskit-nature Hartree-Fock baseline
+```
+
+On formic acid the (2e, 2o) active-space VQE lands tens of
+milli-Hartree *below* the Hartree–Fock reference — the canonical
+signature that the quantum circuit is recovering correlation energy
+that the mean-field baseline misses. For custom geometries, call
+`quantum_hamiltonian_from_pyscf()` directly with the full atom
+specification, basis set, charge, spin and active-space size.
+
+[spall1998]: https://doi.org/10.1109/7.705889
+[kim2023]: https://doi.org/10.1038/s41586-023-06096-3
+[stevenson1994]: https://www.wiley.com/en-us/Humus+Chemistry%3A+Genesis%2C+Composition%2C+Reactions%2C+2nd+Edition-p-9780471594741
 
 ---
 

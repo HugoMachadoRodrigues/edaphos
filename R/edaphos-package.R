@@ -78,9 +78,24 @@
 #'     [quantum_hamiltonian_h2()],
 #'     [quantum_hamiltonian_organo_mineral()],
 #'     [quantum_vqe_fit()], [quantum_vqe_exact()]) runs on
-#'     `qiskit-aer` out of the box, with preflight probes for real
-#'     IBM-Q hardware via [quantum_ibmq_available()] and
-#'     [quantum_ibmq_backends()].}
+#'     `qiskit-aer` out of the box with three interchangeable back
+#'     ends: exact statevector, **shot-based Aer** with SPSA and
+#'     optional noise models, and **full IBM Quantum Runtime
+#'     dispatch** ([quantum_ibmq_submit()],
+#'     [quantum_ibmq_available()],
+#'     [quantum_ibmq_backends()],
+#'     [quantum_ibmq_least_busy()]) with M3 readout and ZNE
+#'     gate-folding mitigation (Kim et al., 2023). A **qiskit-nature
+#'     bridge** ([quantum_hamiltonian_from_pyscf()],
+#'     [quantum_hamiltonian_organo_mineral_nature()],
+#'     [quantum_nature_total_energy()]) lifts a user-supplied XYZ
+#'     geometry through a PySCF RHF reference, frozen-core
+#'     reduction, ActiveSpace projection and a `ParityMapper` with
+#'     Z2 tapering, producing a qubit Hamiltonian ready for VQE
+#'     minimisation. Curated presets cover the three canonical
+#'     organo-mineral motifs: the carboxylate (`"formic_acid"`), the
+#'     ortho-diol (`"methanediol"`), and a monodentate Fe(III)–
+#'     carboxylate coordination complex (`"ferric_formate"`).}
 #' }
 #'
 #' @section Vignettes:

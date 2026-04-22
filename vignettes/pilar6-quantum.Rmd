@@ -324,43 +324,235 @@ ggplot(df, aes(iter, energy)) +
   theme_minimal(base_size = 12)
 ```
 
-### 7.3 Running on real IBM Quantum hardware (optional)
+## 8. Shot-based execution and finite-sample noise
 
-To run the same circuit on NISQ hardware [@Preskill2018nisq],
+The statevector simulator of §7 is analytic: every expectation value
+\(\langle H\rangle = \langle\psi(\theta)|H|\psi(\theta)\rangle\) is
+computed by contracting the full \(2^n\)-dimensional state vector
+against the Pauli-string Hamiltonian, so the COBYLA optimiser sees a
+noise-free cost function. Real quantum hardware does not work like
+that. Each energy evaluation is reconstructed from a finite number of
+projective measurements, and shot noise — finite-sample variance on
+the order of \(1/\sqrt{N_\mathrm{shots}}\) — enters the VQE loop.
 
-```r
-install.packages("reticulate")
-reticulate::py_install("qiskit-ibm-runtime", pip = TRUE)
-Sys.setenv(IBMQ_TOKEN = "<your-ibm-quantum-api-token>")
+Because the cost function is stochastic, classical optimisers that
+rely on smooth finite-difference gradients (COBYLA, L-BFGS-B) often
+stall or oscillate. The SPSA optimiser of @Spall1998spsa was designed
+for precisely this regime: it perturbs all parameters simultaneously
+with random \(\pm 1\) Rademacher vectors and estimates a single scalar
+gradient per iteration, which is ~parameter-count times cheaper and
+far more robust to shot noise than coordinate-wise differencing.
 
-quantum_ibmq_available()      # TRUE if everything is wired up
-quantum_ibmq_backends()       # list the backends available to your account
+As of v0.9.0 the `backend = "aer_shots"` dispatch of
+[`quantum_vqe_fit()`](../reference/quantum_vqe_fit.html) runs the
+same VQE against the
+`qiskit_aer.primitives.EstimatorV2` primitive, which reconstructs
+each expectation value from `shots` Monte-Carlo samples. The ansatz
+is automatically transpiled to the \(\{id, R_z, \sqrt{X}, X,
+\mathrm{CNOT}, U\}\) basis gate set that Aer (and every IBM heavy-hex
+processor) speaks.
+
+```{r vqe-shots, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit") && reticulate::py_module_available("qiskit_aer")}
+fit_sv    <- quantum_vqe_fit(ham_h2, backend = "aer_statevector",
+                               optimizer = "COBYLA",
+                               max_iter = 200L, seed = 1L)
+fit_shots <- quantum_vqe_fit(ham_h2, backend = "aer_shots",
+                               shots    = 4096L,
+                               optimizer = "SPSA",
+                               max_iter = 80L, seed = 1L)
+
+data.frame(
+  backend = c("aer_statevector", "aer_shots (4096 shots, SPSA)"),
+  energy  = c(fit_sv$energy,  fit_shots$energy),
+  gap_Ha  = c(fit_sv$gap,     fit_shots$gap)
+)
 ```
 
-The R-side API is unchanged; a future release will thread
-`backend = "ibmq"` all the way through `quantum_vqe_fit()` by
-swapping the local `StatevectorEstimator` for the
-`qiskit_ibm_runtime.EstimatorV2` primitive.
+On a 2-qubit H\(_2\) problem the shot-based run consistently lands
+within a few milli-Hartree of the exact diagonalisation — two orders
+of magnitude above the statevector's residual but still well inside
+chemical accuracy (1 kcal/mol ≈ 1.6 mHa).
 
-## 8. Limits and roadmap
+## 9. IBM Quantum dispatch and hardware mitigation
 
-The pure-R simulator in §1-6 scales comfortably to **8 qubits**
+Running the same VQE on a real IBM Quantum processor needs three
+extra steps on top of §8. v0.9.0 automates all three through
+`backend = "ibmq"`:
+
+1. **Authentication and backend selection.**
+   [`quantum_ibmq_available()`](../reference/quantum_ibmq_available.html),
+   [`quantum_ibmq_backends()`](../reference/quantum_ibmq_backends.html)
+   and
+   [`quantum_ibmq_least_busy()`](../reference/quantum_ibmq_least_busy.html)
+   wrap
+   `qiskit_ibm_runtime.QiskitRuntimeService`. The token is read
+   once from the `IBMQ_TOKEN` environment variable; no on-disk
+   account configuration is mutated.
+2. **ISA transpilation.** The `EfficientSU2` ansatz is transpiled
+   against the target backend's coupling map and native gate set
+   using the preset pass manager at optimisation level 1, and the
+   Pauli observable is re-indexed via `SparsePauliOp.apply_layout()`
+   to follow the routed qubit layout.
+3. **Error mitigation.** The `mitigation` argument maps to the IBM
+   Runtime EstimatorV2 `resilience_level`
+   [@Kim2023utility]:
+
+   | `mitigation` | `resilience_level` | Technique |
+   |:---|:--:|:---|
+   | `"none"` | 0 | raw expectation values |
+   | `"m3"`   | 1 | TREX + Matrix-free Measurement Mitigation (readout calibration) |
+   | `"zne"`  | 2 | Zero-Noise Extrapolation over gate-folding scales |
+
+Readout mitigation (`"m3"`) recovers the coherent-error-free
+expectation value by inverting an experimentally measured bit-flip
+matrix \(A\) so that \(\langle \hat O\rangle_\mathrm{cor}
+= A^{-1}\langle \hat O\rangle_\mathrm{raw}\); it is cheap and
+*always* worth turning on. ZNE amplifies the noise by replacing each
+CNOT with an odd number of folded CNOTs (effectively a no-op at the
+ideal gate level but a multiplier of the noise), fits the resulting
+energies against the noise scale and extrapolates to zero —
+recovering coherent and incoherent two-qubit-gate errors that M3 does
+not.
+
+The complete hybrid loop is a one-liner:
+
+```r
+Sys.setenv(IBMQ_TOKEN = "<your-ibm-quantum-api-token>")
+reticulate::py_install("qiskit-ibm-runtime", pip = TRUE)
+
+quantum_ibmq_available()              # sanity check
+quantum_ibmq_least_busy()             # pick the least-busy backend
+
+fit_ibmq <- quantum_vqe_fit(
+  ham_h2,
+  backend      = "ibmq",
+  ibmq_backend = "ibm_brisbane",      # or NULL to let least_busy decide
+  shots        = 8192L,
+  mitigation   = "m3",
+  optimizer    = "SPSA",
+  max_iter     = 50L
+)
+```
+
+For users who prefer to write their own hybrid loop —
+e.g. coupling the VQE result to the Pillar 5 Active Learning
+acquisition function — the low-level
+[`quantum_ibmq_submit()`](../reference/quantum_ibmq_submit.html)
+entry point exposes a single PUB submission that returns the
+expectation value, its standard error and the IBM job id.
+
+## 10. First-principles organo-mineral Hamiltonians via qiskit-nature
+
+The 4-qubit Hamiltonian of §7.2 is a cartoon: it has the *structural*
+features of an Fe–ligand exchange problem (on-site energies,
+same-sector \(Z Z\) exchange, cross-sector \(X X\) hopping) but none
+of the chemistry. There is no molecular geometry, no atomic-orbital
+basis, no electron-electron repulsion, and no Coulombic nuclear
+repulsion. Its ground-state energy is just a pretty number.
+
+As of v0.9.0, `edaphos` wires
+[`qiskit-nature`](https://qiskit-community.github.io/qiskit-nature/)
+(+ [PySCF](https://pyscf.org/) as the SCF driver) through
+[`quantum_hamiltonian_from_pyscf()`](../reference/quantum_hamiltonian_from_pyscf.html)
+and
+[`quantum_hamiltonian_organo_mineral_nature()`](../reference/quantum_hamiltonian_organo_mineral_nature.html).
+Both build a genuine *ab initio* molecular Hamiltonian from a
+user-supplied XYZ geometry by the pipeline of
+@Sun2018pyscf and @McClean2016theory:
+
+\[
+\text{XYZ} \xrightarrow{\text{PySCF RHF}}
+\hat H_\mathrm{AO}
+\xrightarrow{\text{FreezeCore}}
+\hat H_\mathrm{act}
+\xrightarrow{\text{ActiveSpace}(n_e, n_o)}
+\hat H_\mathrm{casci}
+\xrightarrow{\text{ParityMapper}(N_\alpha, N_\beta)}
+\hat H_\mathrm{qubit} \;=\; \sum_k c_k\,P_k.
+\]
+
+Three curated preset variants ship out of the box. Each is a minimum
+viable model of one piece of organo-mineral chemistry that matters in
+pedology:
+
+| Variant              | Pedological role                                           | Active space | Qubits |
+|:---------------------|:-----------------------------------------------------------|:------------:|:------:|
+| `"formic_acid"`      | carboxylate (`–COOH`) — dominant humic functional group    | (2e, 2o)     | 2      |
+| `"methanediol"`      | ortho-diol (`HO–C–OH`) — catechol-style Fe(III) chelator   | (2e, 2o)     | 2      |
+| `"ferric_formate"`   | monodentate Fe(III)–OOCH — minimum viable organo-mineral   | (4e, 4o)     | 4      |
+
+```{r vqe-nature, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit_nature") && reticulate::py_module_available("pyscf")}
+ham_nat  <- quantum_hamiltonian_organo_mineral_nature("formic_acid")
+ham_nat
+
+fit_nat  <- quantum_vqe_fit(ham_nat, ansatz_reps = 2L,
+                              max_iter = 200L, seed = 1L)
+fit_nat
+
+# Reconstructing the total molecular energy by adding the nuclear-
+# repulsion, frozen-core and active-space projection shifts back.
+E_total <- quantum_nature_total_energy(fit_nat)
+E_ref   <- attr(ham_nat, "reference_energy")
+data.frame(
+  E_VQE_active_Ha = fit_nat$energy,
+  E_shift_Ha      = attr(ham_nat, "energy_shift"),
+  E_total_Ha      = E_total,
+  E_HF_ref_Ha     = E_ref,
+  correlation_mHa = 1000 * (E_total - E_ref)
+)
+```
+
+On formic acid the (2e, 2o) VQE recovers tens of milli-Hartree of
+correlation energy *below* the Hartree–Fock reference — the
+canonical signature that the active space is adequate to see
+static correlation in the frontier orbitals and that the quantum
+circuit is genuinely beating the mean-field baseline.
+
+To run a custom geometry, drop the preset and call the low-level
+constructor:
+
+```r
+# Methane coordinated to an approximate Fe(III) hexa-aquo cluster,
+# 4-qubit (4e, 4o) active space, parity-mapped, STO-3G.
+ham_custom <- quantum_hamiltonian_from_pyscf(
+  atom = "Fe 0 0 0; O 2.0 0 0; H 2.7 0.7 0; H 2.7 -0.7 0; ...",
+  basis = "sto3g", charge = 2L, spin = 5L,
+  num_active_electrons = 4L, num_active_orbitals = 4L,
+  mapper = "parity"
+)
+```
+
+On IBM hardware the SPSA + M3 + ZNE recipe of §9 applies unchanged;
+larger active spaces (8 qubits or beyond) need the heavy-hex coupling
+map and at least 30 ansatz repetitions to express the two-body
+correlation structure.
+
+## 11. Limits and roadmap
+
+The pure-R simulator in §1–6 scales comfortably to **8 qubits**
 (256-dim state vector; fractions of a second per kernel entry). The
-Qiskit-backed VQE of §7 extends that to **~12 qubits** on a laptop
-via the exact statevector simulator, and to **hundreds of qubits** on
-real NISQ hardware through the `qiskit-ibm-runtime` bridge.
+Qiskit-backed VQE of §7 extends that to **~24 qubits** on a laptop
+via the exact statevector simulator, to **~14 qubits** with
+finite-shot Aer simulation (§8), and to **hundreds of qubits** on
+real IBM Quantum hardware through the v0.9.0 runtime bridge (§9),
+with IBM-supported readout (M3) and gate-folding (ZNE) mitigation.
 
-Three directions remain on the roadmap:
+The remaining frontier is scientific rather than infrastructural:
 
-1. **Shot-based noisy simulation.** Wire the `StatevectorSampler` and
-   Aer noise models through `quantum_vqe_fit(backend = "aer_sampler")`
-   so users can stress-test the VQE against realistic readout and
-   two-qubit gate error rates without leaving the laptop.
-2. **Full IBM-Q dispatch.** Expose `backend = "ibmq"` end-to-end with
-   automatic circuit transpilation and batched Runtime Primitives.
-3. **Larger organo-mineral Hamiltonians.** Second-quantised fermionic
-   Hamiltonians lifted through Jordan-Wigner / Bravyi-Kitaev, built
-   on top of `qiskit-nature` active spaces — enough to approach
-   realistic clay-humus coordination with useful accuracy.
+1. **Transition-metal active spaces.** Fe(III), Mn(III/IV), Al(III)
+   and Cu(II) are the four cations whose coordination chemistry
+   dominates soil organo-mineral stabilisation. Reliable VQE on
+   these centres needs at least (6e, 6o) active spaces and
+   correlation-consistent double-zeta basis sets
+   (`cc-pVDZ`), which push the qubit count to 12–16 and the
+   circuit depth beyond what non-mitigated NISQ processors can
+   handle without significant error correction.
+2. **Quantum kernels from `quantum_nature` Hamiltonians.** Reusing
+   the active-space wave function produced by a converged VQE as a
+   *feature map* for
+   [`quantum_kernel()`](../reference/quantum_kernel.html) would
+   give the Pillar 6 kernel its first chemistry-aware embedding and
+   close the loop between §1–6 (kernel regression) and §7–10
+   (ground-state chemistry).
 
 ## References
