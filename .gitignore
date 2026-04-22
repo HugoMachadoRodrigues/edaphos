@@ -24,6 +24,7 @@ Thumbs.db
 
 # Local tooling (not distributed)
 .claude/
+tools/.llm_cache/
 
 # Environment files
 .Renviron

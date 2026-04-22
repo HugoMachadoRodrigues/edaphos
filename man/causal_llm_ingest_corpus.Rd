@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal_llm.R
 \name{causal_llm_ingest_corpus}
 \alias{causal_llm_ingest_corpus}
-\title{Ingest a corpus of abstracts into a Knowledge Graph}
+\title{Ingest a corpus of abstracts into a Knowledge Graph (resumable)}
 \usage{
 causal_llm_ingest_corpus(
   kg,
@@ -10,6 +10,8 @@ causal_llm_ingest_corpus(
   abstract_col = "abstract",
   source_col = "source",
   min_confidence = 0.5,
+  cache_dir = NULL,
+  max_retries = 2L,
   progress = NULL,
   ...
 )
@@ -19,23 +21,46 @@ causal_llm_ingest_corpus(
 
 \item{abstracts}{Data frame with one row per abstract.}
 
-\item{abstract_col, source_col}{Column names in \code{abstracts}
-holding the text and the provenance key respectively.}
+\item{abstract_col, source_col}{Column names in \code{abstracts} holding
+the text and the provenance key respectively.}
 
-\item{min_confidence}{Forwarded to \code{\link[=causal_llm_ingest_abstract]{causal_llm_ingest_abstract()}}.}
+\item{min_confidence}{Minimum confidence for an extracted claim to
+be inserted into the KG.}
 
-\item{progress}{Optional \verb{function(i, n, source)} called at each
-step for logging / progress bars.}
+\item{cache_dir}{Optional directory for per-row cached JSON
+responses. Enables resumable runs.}
+
+\item{max_retries}{Integer — how many times to retry a failed LLM
+call before giving up on that row.}
+
+\item{progress}{Optional \verb{function(i, n, source)} callback. When
+\code{NULL}, a \code{txtProgressBar} is shown.}
 
 \item{...}{Forwarded to \code{\link[=causal_llm_extract]{causal_llm_extract()}} (\code{backend},
-\code{model}, \code{host}, ...).}
+\code{model}, \code{host}, \code{temperature}, \code{timeout_sec}, \code{api_key}).}
 }
 \value{
-Updated \code{edaphos_causal_kg}.
+Updated \code{edaphos_causal_kg}. A \code{"failed"} attribute
+lists the rows (if any) that exhausted all retries.
 }
 \description{
-Batched version of \code{\link[=causal_llm_ingest_abstract]{causal_llm_ingest_abstract()}} — iterates over a
-data frame of abstracts and returns the accumulated Knowledge
-Graph. A \code{progress} callback is invoked after each abstract for
-long-running runs.
+Batched variant of \code{\link[=causal_llm_ingest_abstract]{causal_llm_ingest_abstract()}}. Runs the LLM
+extractor sequentially over a data frame of abstracts, optionally
+persisting per-abstract claim tables to a \code{cache_dir} so that
+multi-hour / multi-day ingestion runs can be interrupted and
+resumed without re-spending LLM compute.
+}
+\details{
+Every row's \verb{(source, abstract)} pair is hashed into a stable
+filename; when \code{cache_dir} is supplied and a cached JSON file
+already exists for a row, the LLM call is skipped and the cached
+claims are replayed into the KG. Failed rows (malformed JSON,
+timeouts) are retried up to \code{max_retries} times with exponential
+backoff. Progress reporting uses base R's \code{txtProgressBar} unless
+a custom \code{progress} callback is passed.
+
+At 10 000+ abstracts the cache is what makes the workflow
+operationally possible: re-running the function after any crash
+picks up where the cache left off, and warm re-runs are near-
+instantaneous.
 }

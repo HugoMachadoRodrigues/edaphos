@@ -4,7 +4,12 @@
 \alias{causal_ontology_agrovoc}
 \title{Query the AGROVOC SPARQL endpoint}
 \usage{
-causal_ontology_agrovoc(query, limit = 10L, timeout_sec = 60L)
+causal_ontology_agrovoc(
+  query,
+  limit = 10L,
+  timeout_sec = 60L,
+  endpoint = "https://agrovoc.fao.org/sparql"
+)
 }
 \arguments{
 \item{query}{Character concept label to search for (e.g.
@@ -14,6 +19,9 @@ language tag is applied.}
 \item{limit}{Integer, max number of matches returned.}
 
 \item{timeout_sec}{Request timeout (seconds).}
+
+\item{endpoint}{Override the default AGROVOC SPARQL endpoint URL
+(mirror / proxy).}
 }
 \value{
 A data frame with columns \code{uri} (AGROVOC concept URI) and

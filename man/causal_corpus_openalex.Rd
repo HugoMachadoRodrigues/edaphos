@@ -16,8 +16,10 @@ causal_corpus_openalex(
 \arguments{
 \item{query}{Character search string.}
 
-\item{max_results}{Integer cap on the number of works fetched
-(max 200 per request).}
+\item{max_results}{Integer cap on the total number of works
+fetched. The function transparently pages through the API
+(cursor-based, 200 results per page) until either \code{max_results}
+or the result set is exhausted.}
 
 \item{from_year, to_year}{Optional integer year filters
 (inclusive).}
@@ -41,7 +43,7 @@ LLM-extractor-ready.
 \examples{
 \dontrun{
   oa <- causal_corpus_openalex("Cerrado soil organic carbon",
-                                max_results = 25,
+                                max_results = 2500L,
                                 mailto = "you@example.org")
   head(oa[, c("source", "title", "year")])
 }

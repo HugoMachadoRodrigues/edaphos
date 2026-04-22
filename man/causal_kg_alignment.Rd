@@ -8,23 +8,34 @@ causal_kg_alignment(
   kg,
   vocab = NULL,
   method = c("exact", "substring", "fuzzy"),
-  max_distance = 4L
+  max_distance = 4L,
+  agrovoc_cache = NULL
 )
 }
 \arguments{
 \item{kg}{An \code{edaphos_causal_kg}.}
 
-\item{vocab}{Character vector (or data frame with column \code{term})
-of canonical terms. Defaults to \code{\link[=causal_ontology_cerrado]{causal_ontology_cerrado()}}.}
+\item{vocab}{Either a character vector / data frame of canonical
+terms, the string \code{"cerrado"} (default; uses
+\code{\link[=causal_ontology_cerrado]{causal_ontology_cerrado()}}) or the string \code{"agrovoc"} which
+triggers a \strong{live SPARQL query} to the FAO AGROVOC endpoint
+via \code{\link[=causal_ontology_agrovoc_align]{causal_ontology_agrovoc_align()}}. For AGROVOC the
+alignment type is reported as \code{"agrovoc"} instead of exact /
+substring / fuzzy.}
 
-\item{method}{Which matcher tier(s) to enable. Any combination of
-\code{"exact"}, \code{"substring"}, \code{"fuzzy"}. They are tried in order.}
+\item{method}{Which matcher tier(s) to enable (ignored when
+\code{vocab = "agrovoc"}). Any combination of \code{"exact"},
+\code{"substring"}, \code{"fuzzy"}.}
 
 \item{max_distance}{Fuzzy-matcher Levenshtein cap.}
+
+\item{agrovoc_cache}{Optional \code{.rds} path used by
+\code{vocab = "agrovoc"} to avoid re-querying the same terms.}
 }
 \value{
 A data frame with columns \code{original}, \code{canonical},
-\code{method}, \code{distance} (NA for non-fuzzy tiers).
+\code{method}, \code{distance}. When \code{vocab = "agrovoc"} an extra
+\code{uri} column is attached.
 }
 \description{
 Computes the mapping from node labels currently present in an

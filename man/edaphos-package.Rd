@@ -30,11 +30,18 @@ on top of \code{httr2} (\code{\link[=causal_kg_new]{causal_kg_new()}}, \code{\li
 \code{\link[=causal_llm_ingest_corpus]{causal_llm_ingest_corpus()}}, \code{\link[=causal_augment_dag]{causal_augment_dag()}}) supports
 Ollama (Gemma 4), OpenAI and Anthropic backends. Corpus
 ingestion clients for SciELO (\code{\link[=causal_corpus_scielo]{causal_corpus_scielo()}}) and
-OpenAlex (\code{\link[=causal_corpus_openalex]{causal_corpus_openalex()}}) produce abstract-ready
-data frames for the same pipeline; ontology alignment against
-a curated Cerrado vocabulary (subset of AGROVOC + ENVO) or
-live AGROVOC SPARQL is provided by \code{\link[=causal_kg_alignment]{causal_kg_alignment()}} and
-\code{\link[=causal_kg_rename]{causal_kg_rename()}}.}
+OpenAlex (\code{\link[=causal_corpus_openalex]{causal_corpus_openalex()}}) transparently page
+through their upstream APIs for multi-thousand-abstract pulls,
+deduplicated by DOI / title via
+\code{\link[=causal_corpus_deduplicate]{causal_corpus_deduplicate()}}. Production-grade ingestion
+over corpora of tens of thousands of abstracts is handled by
+\code{\link[=causal_llm_ingest_corpus]{causal_llm_ingest_corpus()}}'s \code{cache_dir} and \code{max_retries}
+arguments (resumable, idempotent, exponential backoff).
+Ontology alignment against the curated Cerrado vocabulary or
+\strong{live FAO AGROVOC SPARQL}
+(\code{\link[=causal_ontology_agrovoc_align]{causal_ontology_agrovoc_align()}},
+\code{causal_kg_alignment(vocab = "agrovoc")}) is provided with
+on-disk caching.}
 \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 Ordinary Differential Equation integrated by \code{deSolve} —
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}; Neural ODE with differentiable Runge-Kutta

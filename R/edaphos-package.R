@@ -23,11 +23,18 @@
 #'     [causal_llm_ingest_corpus()], [causal_augment_dag()]) supports
 #'     Ollama (Gemma 4), OpenAI and Anthropic backends. Corpus
 #'     ingestion clients for SciELO ([causal_corpus_scielo()]) and
-#'     OpenAlex ([causal_corpus_openalex()]) produce abstract-ready
-#'     data frames for the same pipeline; ontology alignment against
-#'     a curated Cerrado vocabulary (subset of AGROVOC + ENVO) or
-#'     live AGROVOC SPARQL is provided by [causal_kg_alignment()] and
-#'     [causal_kg_rename()].}
+#'     OpenAlex ([causal_corpus_openalex()]) transparently page
+#'     through their upstream APIs for multi-thousand-abstract pulls,
+#'     deduplicated by DOI / title via
+#'     [causal_corpus_deduplicate()]. Production-grade ingestion
+#'     over corpora of tens of thousands of abstracts is handled by
+#'     [causal_llm_ingest_corpus()]'s `cache_dir` and `max_retries`
+#'     arguments (resumable, idempotent, exponential backoff).
+#'     Ontology alignment against the curated Cerrado vocabulary or
+#'     **live FAO AGROVOC SPARQL**
+#'     ([causal_ontology_agrovoc_align()],
+#'     `causal_kg_alignment(vocab = "agrovoc")`) is provided with
+#'     on-disk caching.}
 #'   \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
 #'     Ordinary Differential Equation integrated by `deSolve` —
 #'     [piml_profile_fit()]; Neural ODE with differentiable Runge-Kutta

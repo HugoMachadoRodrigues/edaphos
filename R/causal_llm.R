@@ -309,45 +309,142 @@ causal_llm_ingest_abstract <- function(kg, abstract, source,
   kg
 }
 
-#' Ingest a corpus of abstracts into a Knowledge Graph
+.cache_fallback_key <- function(source, abstract) {
+  # Deterministic, filename-safe key for a (source, abstract) pair.
+  # md5sum on a tempfile is CRAN-safe (only uses base + `tools`).
+  txt <- paste0(as.character(source), "|",
+                 as.character(abstract %||% ""))
+  tf  <- tempfile(fileext = ".txt")
+  on.exit(try(unlink(tf), silent = TRUE), add = TRUE)
+  writeLines(txt, tf, useBytes = TRUE)
+  as.character(tools::md5sum(tf))
+}
+
+#' Ingest a corpus of abstracts into a Knowledge Graph (resumable)
 #'
-#' Batched version of [causal_llm_ingest_abstract()] — iterates over a
-#' data frame of abstracts and returns the accumulated Knowledge
-#' Graph. A `progress` callback is invoked after each abstract for
-#' long-running runs.
+#' Batched variant of [causal_llm_ingest_abstract()]. Runs the LLM
+#' extractor sequentially over a data frame of abstracts, optionally
+#' persisting per-abstract claim tables to a `cache_dir` so that
+#' multi-hour / multi-day ingestion runs can be interrupted and
+#' resumed without re-spending LLM compute.
+#'
+#' Every row's `(source, abstract)` pair is hashed into a stable
+#' filename; when `cache_dir` is supplied and a cached JSON file
+#' already exists for a row, the LLM call is skipped and the cached
+#' claims are replayed into the KG. Failed rows (malformed JSON,
+#' timeouts) are retried up to `max_retries` times with exponential
+#' backoff. Progress reporting uses base R's `txtProgressBar` unless
+#' a custom `progress` callback is passed.
+#'
+#' At 10 000+ abstracts the cache is what makes the workflow
+#' operationally possible: re-running the function after any crash
+#' picks up where the cache left off, and warm re-runs are near-
+#' instantaneous.
 #'
 #' @param kg An `edaphos_causal_kg`.
 #' @param abstracts Data frame with one row per abstract.
-#' @param abstract_col,source_col Column names in `abstracts`
-#'   holding the text and the provenance key respectively.
-#' @param min_confidence Forwarded to [causal_llm_ingest_abstract()].
-#' @param progress Optional `function(i, n, source)` called at each
-#'   step for logging / progress bars.
+#' @param abstract_col,source_col Column names in `abstracts` holding
+#'   the text and the provenance key respectively.
+#' @param min_confidence Minimum confidence for an extracted claim to
+#'   be inserted into the KG.
+#' @param cache_dir Optional directory for per-row cached JSON
+#'   responses. Enables resumable runs.
+#' @param max_retries Integer — how many times to retry a failed LLM
+#'   call before giving up on that row.
+#' @param progress Optional `function(i, n, source)` callback. When
+#'   `NULL`, a `txtProgressBar` is shown.
 #' @param ... Forwarded to [causal_llm_extract()] (`backend`,
-#'   `model`, `host`, ...).
-#' @return Updated `edaphos_causal_kg`.
+#'   `model`, `host`, `temperature`, `timeout_sec`, `api_key`).
+#' @return Updated `edaphos_causal_kg`. A `"failed"` attribute
+#'   lists the rows (if any) that exhausted all retries.
 #' @export
 causal_llm_ingest_corpus <- function(kg, abstracts,
                                      abstract_col = "abstract",
                                      source_col   = "source",
                                      min_confidence = 0.5,
-                                     progress = NULL, ...) {
+                                     cache_dir   = NULL,
+                                     max_retries = 2L,
+                                     progress    = NULL, ...) {
   stopifnot(inherits(kg, "edaphos_causal_kg"),
             is.data.frame(abstracts),
             abstract_col %in% names(abstracts),
             source_col %in% names(abstracts))
   n <- nrow(abstracts)
-  for (i in seq_len(n)) {
-    kg <- causal_llm_ingest_abstract(
-      kg,
-      abstract       = abstracts[[abstract_col]][i],
-      source         = abstracts[[source_col]][i],
-      min_confidence = min_confidence,
-      ...
-    )
-    if (!is.null(progress)) {
-      progress(i, n, abstracts[[source_col]][i])
-    }
+  if (!is.null(cache_dir)) {
+    dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
   }
+  pb <- NULL
+  if (is.null(progress) && n >= 5L) {
+    pb <- utils::txtProgressBar(min = 0L, max = n, style = 3L)
+  }
+  failed <- character(0)
+  for (i in seq_len(n)) {
+    src <- abstracts[[source_col]][i]
+    abs <- abstracts[[abstract_col]][i]
+    key <- .cache_fallback_key(src, abs)
+    cache_file <- if (!is.null(cache_dir))
+      file.path(cache_dir, paste0(key, ".json")) else NA_character_
+
+    claims <- NULL
+    # Cache hit -------------------------------------------------------
+    if (!is.na(cache_file) && file.exists(cache_file)) {
+      claims <- tryCatch(
+        jsonlite::fromJSON(cache_file, simplifyDataFrame = TRUE),
+        error = function(e) NULL
+      )
+      if (is.null(claims) || nrow(claims) == 0L) claims <- NULL
+    }
+    # Cache miss -- call LLM with retries -----------------------------
+    if (is.null(claims)) {
+      attempts <- 0L
+      repeat {
+        attempts <- attempts + 1L
+        claims <- tryCatch(
+          causal_llm_extract(abs, ...),
+          error = function(e) {
+            attr(e, "edaphos_error") <- conditionMessage(e)
+            e
+          }
+        )
+        if (!inherits(claims, "error") && nrow(claims) > 0L) break
+        if (attempts >= max_retries) {
+          failed <- c(failed, src)
+          claims <- data.frame(
+            cause = character(0), effect = character(0),
+            evidence = character(0), confidence = numeric(0),
+            stringsAsFactors = FALSE
+          )
+          break
+        }
+        Sys.sleep(2 ^ attempts)   # exponential backoff
+      }
+      # Persist to cache
+      if (!is.na(cache_file)) {
+        try(jsonlite::write_json(claims, cache_file,
+                                   pretty = FALSE, auto_unbox = TRUE),
+            silent = TRUE)
+      }
+    }
+    # Insert into KG --------------------------------------------------
+    if (nrow(claims) > 0L) {
+      keep <- !is.na(claims$confidence) &
+              claims$confidence >= min_confidence
+      claims <- claims[keep, , drop = FALSE]
+      for (j in seq_len(nrow(claims))) {
+        kg <- suppressWarnings(causal_kg_add_edge(
+          kg,
+          cause      = claims$cause[j],
+          effect     = claims$effect[j],
+          source     = src,
+          evidence   = claims$evidence[j],
+          confidence = claims$confidence[j]
+        ))
+      }
+    }
+    if (!is.null(pb)) utils::setTxtProgressBar(pb, i)
+    if (!is.null(progress)) progress(i, n, src)
+  }
+  if (!is.null(pb)) close(pb)
+  attr(kg, "failed") <- failed
   kg
 }

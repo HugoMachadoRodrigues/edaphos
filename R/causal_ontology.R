@@ -91,6 +91,9 @@ causal_ontology_cerrado <- function() {
 #' @param limit Integer, max number of matches returned.
 #' @param timeout_sec Request timeout (seconds).
 #'
+#' @param endpoint Override the default AGROVOC SPARQL endpoint URL
+#'   (mirror / proxy).
+#'
 #' @return A data frame with columns `uri` (AGROVOC concept URI) and
 #'   `term` (canonical lower-snake-case label).
 #' @export
@@ -99,7 +102,9 @@ causal_ontology_cerrado <- function() {
 #'   causal_ontology_agrovoc("soil organic carbon", limit = 5)
 #' }
 causal_ontology_agrovoc <- function(query, limit = 10L,
-                                     timeout_sec = 60L) {
+                                     timeout_sec = 60L,
+                                     endpoint =
+                                       "https://agrovoc.fao.org/sparql") {
   stopifnot(is.character(query), length(query) == 1L, nzchar(query))
   sparql <- sprintf(
     paste(
@@ -114,7 +119,7 @@ causal_ontology_agrovoc <- function(query, limit = 10L,
     ),
     gsub("\"", "'", query), as.integer(limit)
   )
-  req  <- httr2::request("https://agrovoc.fao.org/sparql")
+  req  <- httr2::request(endpoint)
   req  <- httr2::req_method(req, "POST")
   req  <- httr2::req_timeout(req, timeout_sec)
   req  <- httr2::req_headers(req,
@@ -194,6 +199,88 @@ causal_ontology_envo <- function(path) {
   best
 }
 
+#' Live AGROVOC alignment for a vector of free-text terms
+#'
+#' For each input `term`, queries the AGROVOC SPARQL endpoint for
+#' concepts whose `skos:prefLabel` or `skos:altLabel` contains the
+#' term, ranks the matches by Levenshtein distance to the canonical
+#' label, and returns the best hit. Results are cached on disk via
+#' `cache_path` so that repeated runs over the same vocabulary do
+#' not re-query FAO.
+#'
+#' @param terms Character vector of free-text terms (typically the
+#'   nodes of a Knowledge Graph).
+#' @param cache_path Optional `.rds` file path. When supplied, the
+#'   function reads cached matches on entry and writes updated
+#'   matches on exit.
+#' @param max_per_term Integer — how many candidates to request per
+#'   term (AGROVOC query LIMIT). The best one is kept.
+#' @param endpoint Override the SPARQL endpoint URL.
+#' @param timeout_sec Per-query timeout.
+#' @param verbose Logical — print one line per queried term.
+#' @return A data frame with columns `term` (input), `uri`
+#'   (AGROVOC concept), `label` (AGROVOC pref label), `distance`
+#'   (Levenshtein of lowercased label vs term).
+#' @export
+causal_ontology_agrovoc_align <- function(terms,
+                                            cache_path = NULL,
+                                            max_per_term = 5L,
+                                            endpoint =
+                                              "https://agrovoc.fao.org/sparql",
+                                            timeout_sec = 60L,
+                                            verbose = FALSE) {
+  terms <- tolower(trimws(unique(as.character(terms))))
+  terms <- terms[nzchar(terms)]
+  cache <- list()
+  if (!is.null(cache_path) && file.exists(cache_path)) {
+    cache <- tryCatch(readRDS(cache_path), error = function(e) list())
+  }
+
+  rows <- lapply(terms, function(tm) {
+    if (!is.null(cache[[tm]])) return(cache[[tm]])
+    # AGROVOC labels use spaces, not underscores; normalise the query.
+    tm_query <- gsub("_+", " ", tm)
+    q <- tryCatch(
+      causal_ontology_agrovoc(tm_query, limit = max_per_term,
+                               timeout_sec = timeout_sec,
+                               endpoint = endpoint),
+      error = function(e) NULL
+    )
+    if (is.null(q) || nrow(q) == 0L) {
+      hit <- data.frame(
+        term     = tm,
+        uri      = NA_character_,
+        label    = NA_character_,
+        distance = NA_real_,
+        stringsAsFactors = FALSE
+      )
+    } else {
+      d <- vapply(q$label, function(lb)
+        as.integer(utils::adist(tolower(lb), tm_query))[1L], integer(1L))
+      best <- which.min(d)
+      hit <- data.frame(
+        term     = tm,
+        uri      = q$uri[best],
+        label    = q$label[best],
+        distance = d[best],
+        stringsAsFactors = FALSE
+      )
+    }
+    cache[[tm]] <<- hit
+    if (verbose) message(sprintf("[agrovoc] %-30s -> %s  (d=%s)",
+                                   tm,
+                                   if (is.na(hit$uri)) "<none>"
+                                   else hit$label,
+                                   format(hit$distance)))
+    hit
+  })
+  out <- do.call(rbind, rows)
+  if (!is.null(cache_path)) {
+    try(saveRDS(cache, cache_path), silent = TRUE)
+  }
+  out
+}
+
 #' Align Knowledge-Graph node labels to a canonical vocabulary
 #'
 #' Computes the mapping from node labels currently present in an
@@ -204,25 +291,55 @@ causal_ontology_envo <- function(path) {
 #' [causal_kg_rename()].
 #'
 #' @param kg An `edaphos_causal_kg`.
-#' @param vocab Character vector (or data frame with column `term`)
-#'   of canonical terms. Defaults to [causal_ontology_cerrado()].
-#' @param method Which matcher tier(s) to enable. Any combination of
-#'   `"exact"`, `"substring"`, `"fuzzy"`. They are tried in order.
+#' @param vocab Either a character vector / data frame of canonical
+#'   terms, the string `"cerrado"` (default; uses
+#'   [causal_ontology_cerrado()]) or the string `"agrovoc"` which
+#'   triggers a **live SPARQL query** to the FAO AGROVOC endpoint
+#'   via [causal_ontology_agrovoc_align()]. For AGROVOC the
+#'   alignment type is reported as `"agrovoc"` instead of exact /
+#'   substring / fuzzy.
+#' @param method Which matcher tier(s) to enable (ignored when
+#'   `vocab = "agrovoc"`). Any combination of `"exact"`,
+#'   `"substring"`, `"fuzzy"`.
 #' @param max_distance Fuzzy-matcher Levenshtein cap.
+#' @param agrovoc_cache Optional `.rds` path used by
+#'   `vocab = "agrovoc"` to avoid re-querying the same terms.
 #' @return A data frame with columns `original`, `canonical`,
-#'   `method`, `distance` (NA for non-fuzzy tiers).
+#'   `method`, `distance`. When `vocab = "agrovoc"` an extra
+#'   `uri` column is attached.
 #' @export
 causal_kg_alignment <- function(kg, vocab = NULL,
                                  method = c("exact", "substring", "fuzzy"),
-                                 max_distance = 4L) {
+                                 max_distance = 4L,
+                                 agrovoc_cache = NULL) {
   .causal_kg_require_igraph()
   stopifnot(inherits(kg, "edaphos_causal_kg"))
-  if (is.null(vocab)) vocab <- causal_ontology_cerrado()$term
+  method <- match.arg(method, several.ok = TRUE)
+  nodes <- igraph::V(kg$graph)$name %||% character(0)
+
+  # Live AGROVOC short-circuit --------------------------------------
+  if (is.character(vocab) && length(vocab) == 1L &&
+      identical(vocab, "agrovoc")) {
+    ag <- causal_ontology_agrovoc_align(nodes, cache_path = agrovoc_cache)
+    out <- data.frame(
+      original  = ag$term,
+      canonical = ifelse(is.na(ag$label), NA_character_,
+                          gsub("[^a-z0-9_]+", "_",
+                                gsub("\\s+", "_", tolower(ag$label)))),
+      method    = ifelse(is.na(ag$label), "none", "agrovoc"),
+      distance  = ag$distance,
+      uri       = ag$uri,
+      stringsAsFactors = FALSE
+    )
+    return(out)
+  }
+
+  if (is.null(vocab) || (is.character(vocab) && length(vocab) == 1L &&
+                           identical(vocab, "cerrado"))) {
+    vocab <- causal_ontology_cerrado()$term
+  }
   if (is.data.frame(vocab)) vocab <- vocab$term
   vocab <- tolower(as.character(vocab))
-  method <- match.arg(method, several.ok = TRUE)
-
-  nodes <- igraph::V(kg$graph)$name %||% character(0)
   out <- lapply(nodes, function(nd) {
     idx <- NA_integer_; m <- "none"; dist <- NA_real_
     if ("exact" %in% method) {

@@ -364,7 +364,90 @@ estimator does not over-fit the adjustment set.
    adjusted models extrapolate more reliably than purely correlational
    ones [@Scholkopf2021].
 
-## 10. Roadmap
+## 10. Scaling to tens of thousands of abstracts
+
+Section 6 fed the LLM extractor a curated set of ten Cerrado-pedology
+abstracts. Production usage -- e.g. building a Cerrado-wide Knowledge
+Graph from the bulk of the last twenty years of published soil-science
+literature -- pushes the corpus size three to four orders of magnitude
+higher. Pillar 1 therefore ships three production-grade helpers:
+
+### 10.1 Paginated corpus clients
+
+Both [`causal_corpus_openalex()`][causal_corpus_openalex] and
+[`causal_corpus_scielo()`][causal_corpus_scielo] now page transparently
+through the upstream APIs (cursor-based for OpenAlex, limit-offset for
+SciELO) until `max_results` is reached. A multi-thousand pull is a
+single R call:
+
+```{r scale-query, eval=FALSE}
+corpus <- rbind(
+  causal_corpus_openalex("Brazilian Cerrado soil organic carbon",
+                          max_results = 5000L,
+                          mailto      = "you@example.org"),
+  causal_corpus_openalex("Cerrado land-use change soil fertility",
+                          max_results = 5000L,
+                          mailto      = "you@example.org")
+)
+corpus <- causal_corpus_deduplicate(corpus)  # DOI / title dedup
+nrow(corpus)
+```
+
+### 10.2 Resumable, cached LLM ingestion
+
+At 10 000 abstracts and five seconds per LLM call, an unbroken
+ingestion is a half-day run. The `cache_dir` and `max_retries`
+arguments of [`causal_llm_ingest_corpus()`][causal_llm_ingest_corpus]
+make that operationally possible: every `(source, abstract)` pair is
+hashed to a stable filename, and cached JSON responses short-circuit
+the LLM call on re-runs. Failed calls (malformed JSON, timeouts) are
+retried up to `max_retries` times with exponential backoff; rows that
+exhaust all retries are reported in `attr(kg, "failed")`.
+
+```{r scale-ingest, eval=FALSE}
+kg <- causal_kg_new()
+kg <- causal_llm_ingest_corpus(
+  kg, corpus,
+  backend        = "ollama",
+  model          = "gemma4:latest",
+  min_confidence = 0.6,
+  cache_dir      = "~/edaphos-llm-cache",  # survives crashes
+  max_retries    = 2L
+)
+length(attr(kg, "failed"))
+```
+
+A bundled 100-abstract Cerrado run ships with the package as
+`inst/extdata/cerrado_claims_real_corpus.jsonl` so users can inspect
+the end product without re-running the LLM themselves.
+
+### 10.3 Live AGROVOC alignment
+
+Once the KG has grown to several hundred nodes, the curated Cerrado
+vocabulary of [`causal_ontology_cerrado()`][causal_ontology_cerrado]
+stops covering the tail. `causal_kg_alignment()` therefore accepts
+`vocab = "agrovoc"`, which hits the FAO SPARQL endpoint live for
+every unique node, picks the Levenshtein-nearest `skos:prefLabel`,
+and caches the result on disk:
+
+```{r agrovoc-align, eval=FALSE}
+mapping <- causal_kg_alignment(
+  kg,
+  vocab         = "agrovoc",
+  agrovoc_cache = "~/edaphos-agrovoc-cache.rds"
+)
+head(mapping[!is.na(mapping$uri), c("original", "canonical", "uri")])
+
+kg_canonical <- causal_kg_rename(kg, mapping)
+```
+
+The returned data frame has an extra `uri` column pointing at the
+AGROVOC concept URI -- `http://aims.fao.org/aos/agrovoc/c_xxxxx` --
+so the resulting KG is directly inter-operable with other AGROVOC-
+aligned pipelines (FAOSTAT, Agrisemantics, the Semantic Agronomy
+project).
+
+## 11. Roadmap
 
 * **Structure learning** via `bnlearn` — learn DAG edges from horizon
   data rather than prescribing them [@Runge2019].

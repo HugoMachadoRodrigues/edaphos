@@ -202,6 +202,35 @@ claims ship in `inst/extdata/cerrado_abstracts.jsonl` and
 `inst/extdata/cerrado_claims.jsonl` so the vignette builds offline on
 CI and remains fully reproducible.
 
+### Scaling from ten abstracts to tens of thousands
+
+Three additions promote the LLM–KG pipeline from a ten-abstract demo
+to a full literature-scale extractor:
+
+- **Paginated corpus clients.** `causal_corpus_scielo()` and
+  `causal_corpus_openalex()` hit keyless public APIs and transparently
+  page through their cursors, so a single call can return thousands of
+  deduplicated abstracts. `causal_corpus_deduplicate()` collapses the
+  DOI + title overlap between SciELO and OpenAlex.
+- **Resumable cached ingestion.** `causal_llm_ingest_corpus()` now
+  takes `cache_dir` and `max_retries`. Every abstract is hashed
+  (`tools::md5sum`) and its extracted claims written to one JSON file
+  under the cache; re-running over the same corpus short-circuits to
+  the cache, so interrupted jobs resume exactly where they left off.
+  Malformed LLM responses trigger exponential backoff, and any row
+  that exhausts its retries is recorded in `attr(kg, "failed")`.
+- **Live AGROVOC SPARQL alignment.** `causal_ontology_agrovoc_align()`
+  and `causal_kg_alignment(vocab = "agrovoc")` resolve KG labels
+  against FAO's live AGROVOC SPARQL endpoint, picking the
+  Levenshtein-nearest `skos:prefLabel` and caching resolutions to
+  disk — so a 10 k-claim KG can be aligned to a community-governed
+  multilingual vocabulary with a single call.
+
+A 100-abstract Cerrado run (three queries against OpenAlex,
+deduplicated, extracted with Ollama + Gemma-4, AGROVOC-aligned) is
+bundled at `inst/extdata/cerrado_claims_real_corpus.jsonl` and
+reproduced end-to-end by `data-raw/run_large_corpus.R`.
+
 ---
 
 ## Pillar 2 — Physics-Informed ML
