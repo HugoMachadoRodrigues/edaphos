@@ -12,7 +12,7 @@
 #' | 3. 4D Pedometry                  | `temporal_*`   | implemented | Stacked ConvLSTM (Shi et al., 2015) with seq-to-seq training, multi-step rollout and a mass-balance physics loss.             |
 #' | 4. Foundation Models             | `foundation_*` | implemented | SimCLR scaffold ([foundation_simclr_pretrain()]) and a MoCo v2 upgrade ([foundation_moco_pretrain()]) with momentum encoder, dictionary queue and a raster-specific augmentation stack (channel dropout, spatial cutout, per-channel brightness, etc.). |
 #' | 5. Autonomous Active Learning    | `al_*`         | implemented | Hybrid policy \eqn{\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})} with PIML-backed gate.  |
-#' | 6. Quantum ML                    | `quantum_*`    | scaffold    | Pure-R ZZFeatureMap ([quantum_feature_map()]) + quantum-kernel Gram matrix ([quantum_kernel()]) + kernel ridge regression ([quantum_krr_fit()]). VQE for organo-mineral simulation is on the roadmap. |
+#' | 6. Quantum ML                    | `quantum_*`    | implemented | Pure-R ZZFeatureMap ([quantum_feature_map()]) + quantum-kernel Gram matrix ([quantum_kernel()]) + kernel ridge regression ([quantum_krr_fit()]), **and** a Qiskit-backed VQE bridge ([quantum_hamiltonian()], [quantum_hamiltonian_h2()], [quantum_hamiltonian_organo_mineral()], [quantum_vqe_fit()], [quantum_vqe_exact()]) for ground-state energy estimation of toy organo-mineral Hamiltonians with optional IBM-Q hardware preflight ([quantum_ibmq_available()]). |
 #'
 #' @name edaphos-roadmap
 #' @keywords internal

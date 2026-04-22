@@ -1,6 +1,6 @@
 Package: edaphos
 Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 0.5.0
+Version: 0.6.0
 Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
            role = c("aut", "cre"),
@@ -44,6 +44,7 @@ Suggests:
     igraph,
     knitr,
     ontologyIndex,
+    reticulate,
     rmarkdown,
     sp,
     stringdist,

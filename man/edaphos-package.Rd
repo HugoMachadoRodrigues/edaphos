@@ -62,11 +62,17 @@ feature-space diversity and logistical cost — \code{\link[=al_loop]{al_loop()}
 Informed rejection gates — \code{\link[=al_physics_gate_piml]{al_physics_gate_piml()}},
 \code{\link[=al_physics_gate_piml_hierarchical]{al_physics_gate_piml_hierarchical()}}.}
 \item{\strong{6. Quantum ML.}}{Pure-R state-vector simulator of
-the ZZFeatureMap encoding (Havlicek et al., 2019),
-quantum-kernel Gram matrix \code{\link[=quantum_kernel]{quantum_kernel()}}, and a
+the ZZFeatureMap encoding (Havlicek et al., 2019) with a
+quantum-kernel Gram matrix \code{\link[=quantum_kernel]{quantum_kernel()}} and a
 closed-form Kernel Ridge Regression wrapper
-\code{\link[=quantum_krr_fit]{quantum_krr_fit()}}. Variational Quantum Eigensolvers for
-organo-mineral simulation remain on the roadmap.}
+\code{\link[=quantum_krr_fit]{quantum_krr_fit()}}. A full Qiskit-backed Variational Quantum
+Eigensolver bridge (\code{\link[=quantum_hamiltonian]{quantum_hamiltonian()}},
+\code{\link[=quantum_hamiltonian_h2]{quantum_hamiltonian_h2()}},
+\code{\link[=quantum_hamiltonian_organo_mineral]{quantum_hamiltonian_organo_mineral()}},
+\code{\link[=quantum_vqe_fit]{quantum_vqe_fit()}}, \code{\link[=quantum_vqe_exact]{quantum_vqe_exact()}}) runs on
+\code{qiskit-aer} out of the box, with preflight probes for real
+IBM-Q hardware via \code{\link[=quantum_ibmq_available]{quantum_ibmq_available()}} and
+\code{\link[=quantum_ibmq_backends]{quantum_ibmq_backends()}}.}
 }
 }
 

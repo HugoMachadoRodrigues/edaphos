@@ -86,7 +86,7 @@ scientific boundary between pillars explicit.
 | 3   | 4D Pedometry                  | `temporal_*`   | implemented  | Stacked Convolutional LSTM [[Shi et al. 2015][shi2015]] with seq-to-seq training, multi-step rollout and optional mass-balance physics loss          |
 | 4   | Foundation Models             | `foundation_*` | implemented  | SimCLR scaffold + **MoCo v2** upgrade with momentum encoder and dictionary queue [[He et al. 2020][he2020moco]; [Chen et al. 2020b][chen2020moco2]]  |
 | 5   | Autonomous Active Learning    | `al_*`         | implemented  | Closed-loop hybrid policy $\pi(\mathbf{x}) = \alpha\,\tilde{u}(\mathbf{x}) + (1-\alpha)\,\tilde{d}(\mathbf{x})$ with PIML-backed physics gate  |
-| 6   | Quantum ML                    | `quantum_*`    | scaffold     | ZZFeatureMap quantum kernel $K(\mathbf{x}_i, \mathbf{x}_j) = \lvert\langle\phi(\mathbf{x}_j)\lvert\phi(\mathbf{x}_i)\rangle\rvert^{2}$ [[Havlicek et al. 2019][havlicek2019]]   |
+| 6   | Quantum ML                    | `quantum_*`    | implemented  | ZZFeatureMap quantum kernel [[Havlicek et al. 2019][havlicek2019]] **+ Qiskit-backed VQE** for toy organo-mineral Hamiltonians [[Peruzzo et al. 2014][peruzzo2014]]                   |
 
 Every pillar ships with (i) a mathematically explicit governing
 object; (ii) an R function family; and (iii) a vignette that derives

@@ -55,11 +55,17 @@
 #'     Informed rejection gates — [al_physics_gate_piml()],
 #'     [al_physics_gate_piml_hierarchical()].}
 #'   \item{\strong{6. Quantum ML.}}{Pure-R state-vector simulator of
-#'     the ZZFeatureMap encoding (Havlicek et al., 2019),
-#'     quantum-kernel Gram matrix [quantum_kernel()], and a
+#'     the ZZFeatureMap encoding (Havlicek et al., 2019) with a
+#'     quantum-kernel Gram matrix [quantum_kernel()] and a
 #'     closed-form Kernel Ridge Regression wrapper
-#'     [quantum_krr_fit()]. Variational Quantum Eigensolvers for
-#'     organo-mineral simulation remain on the roadmap.}
+#'     [quantum_krr_fit()]. A full Qiskit-backed Variational Quantum
+#'     Eigensolver bridge ([quantum_hamiltonian()],
+#'     [quantum_hamiltonian_h2()],
+#'     [quantum_hamiltonian_organo_mineral()],
+#'     [quantum_vqe_fit()], [quantum_vqe_exact()]) runs on
+#'     `qiskit-aer` out of the box, with preflight probes for real
+#'     IBM-Q hardware via [quantum_ibmq_available()] and
+#'     [quantum_ibmq_backends()].}
 #' }
 #'
 #' @section Vignettes:
