@@ -94,8 +94,21 @@ queue and a raster-specific augmentation stack. A
 \code{\link[=foundation_tile_dataset]{foundation_tile_dataset()}}) streams patches lazily from
 multi-source \code{terra::SpatRaster} mosaics;
 \code{\link[=foundation_moco_pretrain_tiles]{foundation_moco_pretrain_tiles()}} trains with checkpointing
-on that stream, and \code{\link[=foundation_moco_embed_raster]{foundation_moco_embed_raster()}} projects
-the trained encoder over an entire AoI.}
+and on-device dispatch (\code{device = "cpu" | "mps" | "cuda"}),
+and \code{\link[=foundation_moco_embed_raster]{foundation_moco_embed_raster()}} projects the trained
+encoder over an entire AoI. A \strong{downstream fine-tuning API}
+(\code{\link[=foundation_fit_classifier]{foundation_fit_classifier()}},
+\code{\link[=foundation_fit_regressor]{foundation_fit_regressor()}}) wraps the head construction,
+training loop, validation split and target normalisation
+behind a single call and supports both linear probing and
+full fine-tuning with a two-group learning-rate schedule.
+\strong{Public pretrained weights} are distributed via Zenodo:
+\code{\link[=foundation_weights_list]{foundation_weights_list()}} catalogues the registry,
+\code{\link[=foundation_weights_download]{foundation_weights_download()}} fetches the artefact with
+SHA-256 verification and caches it under
+\code{tools::R_user_dir("edaphos")}, and
+\code{\link[=foundation_weights_load]{foundation_weights_load()}} rebuilds the
+\code{edaphos_foundation_moco} wrapper from the saved state dict.}
 \item{\strong{5. Autonomous Active Learning.}}{Closed-loop sampling
 policy combining Quantile-Regression-Forest uncertainty,
 feature-space diversity and logistical cost — \code{\link[=al_loop]{al_loop()}},

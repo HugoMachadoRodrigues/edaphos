@@ -26,6 +26,14 @@ Thumbs.db
 .claude/
 tools/.llm_cache/
 
+# Pillar 4 pretraining artefacts (large; shipped via Zenodo, not git)
+tools/pretrain/geodata_cache/
+tools/pretrain/cerrado_stack.tif
+tools/pretrain/cerrado_dataset.rds
+tools/pretrain/cerrado_dataset_meta.rds
+tools/pretrain/*.log
+tools/pretrain/edaphos-cerrado-moco-v1/
+
 # Environment files
 .Renviron
 .env

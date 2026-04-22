@@ -418,8 +418,113 @@ The same recipe scales to tens of millions of patches on production
 hardware: swap `dataset` for one built on a continental VRT
 (`terra::vrt()` stitches arbitrarily many tiles), raise
 `batch_size`, `queue_size`, and `epochs`, and run the loop on a GPU
-by calling `torch::cuda_is_available()` beforehand. The checkpoint
-protocol is the same, so overnight or multi-day runs can be resumed
-without state loss.
+by setting `device = "mps"` (Apple Silicon) or `device = "cuda"`
+(NVIDIA), both supported by
+[`foundation_moco_pretrain_tiles()`][foundation_moco_pretrain_tiles]
+as of v1.2.0. The checkpoint protocol is the same, so overnight or
+multi-day runs can be resumed without state loss.
+
+## 10. Downstream fine-tuning and pretrained weight distribution
+
+Everything above produces a self-supervised *representation*. Turning
+that representation into a supervised prediction — classifying a
+patch by soil order, regressing a patch into an SOC point estimate —
+needs a task-specific head on top of the encoder and a labelled
+dataset to train it.
+
+v1.2.0 adds two entry points,
+[`foundation_fit_classifier()`][foundation_fit_classifier] and
+[`foundation_fit_regressor()`][foundation_fit_regressor], that wrap
+head construction, training loop, validation split and target
+normalisation behind a single function call. Both support two
+regimes from the transfer-learning literature [@He2019rethinking;
+@Kornblith2019transfer]:
+
+* **Linear probe** (`freeze_backbone = TRUE`, `head = "linear"`) —
+  the encoder is frozen; only a single `nn_linear(feature_dim,
+  n_out)` head is trained. Canonical benchmark for self-supervised
+  representations as fixed feature extractors.
+* **Full fine-tuning** (`freeze_backbone = FALSE`) — encoder and
+  head trained jointly with a two-group learning rate
+  (`lr * backbone_lr_mult` for the backbone, `lr` for the head).
+  Usually the better option once the downstream dataset exceeds
+  ~500 patches per class.
+
+```{r finetune-classifier, eval=FALSE}
+soil_order <- factor(sample(c("Oxisol", "Ultisol", "Inceptisol"),
+                              200L, replace = TRUE))
+fit <- foundation_fit_classifier(
+  encoder         = moco,
+  x               = labelled_patches,
+  y               = soil_order,
+  freeze_backbone = TRUE, head = "linear",
+  epochs = 40L, lr = 1e-3, val_split = 0.2,
+  device = "mps", seed = 1L, verbose = TRUE
+)
+predict(fit, labelled_patches[1:5, , , , drop = FALSE], type = "prob")
+```
+
+For a continuous target the regressor handles target normalisation
+internally and offers a Huber loss that is robust to pedogenic
+outliers:
+
+```{r finetune-regressor, eval=FALSE}
+fit_soc <- foundation_fit_regressor(
+  encoder = moco, x = labelled_patches, y = soc_g_per_kg,
+  freeze_backbone = FALSE, head = "mlp", hidden = c(64L, 32L),
+  epochs = 80L, lr = 1e-3, loss = "huber",
+  val_split = 0.2, device = "mps", seed = 1L
+)
+predict(fit_soc, new_patches)
+```
+
+### 10.1 Published Cerrado MoCo v2 encoder on Zenodo
+
+Self-supervised pretraining on a continental stack is heavy — hours
+of GPU time, gigabytes of raster downloads. Rather than asking every
+user to reproduce that from scratch, `edaphos` **hosts its
+pretrained encoders on Zenodo** under a CC-BY-4.0 licence and ships
+a registry-based download layer:
+
+- [`foundation_weights_list()`][foundation_weights_list] — catalogue
+  of every published encoder.
+- [`foundation_weights_download()`][foundation_weights_download] —
+  fetches from Zenodo, verifies SHA-256, caches under
+  `tools::R_user_dir("edaphos")`.
+- [`foundation_weights_load()`][foundation_weights_load] — rebuilds
+  the in-memory `edaphos_foundation_moco` wrapper with the state
+  dict loaded and shape metadata populated.
+
+The first published encoder, **`edaphos-cerrado-moco-v1`**, was
+pretrained on an Apple M1 Max over 50 000 16×16 tiles of a core
+Cerrado AoI (longitude −53 to −43, latitude −23 to −10). Channels
+are a multi-source stack aligned to a 0.01 degree (~1 km) grid:
+
+| Source                              | Channels                                 |
+|:---|:---|
+| SoilGrids 250m (0–5 cm mean)        | SOC, clay, sand, pH(H₂O), bulk density   |
+| WorldClim 2.1 (Brazil country pack) | 12 monthly precipitation + 12 monthly mean temperature |
+| SRTM 30 arc-second                  | elevation, slope                         |
+
+```{r pretrained-load, eval=FALSE}
+moco_cerrado <- foundation_weights_load("edaphos-cerrado-moco-v1",
+                                          verbose = TRUE)
+emb <- foundation_moco_embed(moco_cerrado, my_patches)
+fit <- foundation_fit_classifier(moco_cerrado, my_patches,
+                                   soil_order, epochs = 30L,
+                                   device = "mps")
+```
+
+Custom encoders produced by the user's own
+[`foundation_moco_pretrain_tiles()`][foundation_moco_pretrain_tiles]
+run consume the same API — pass the local `.pt` path instead of the
+registry name:
+
+```{r pretrained-custom, eval=FALSE}
+my_moco <- foundation_weights_load(
+  "path/to/my_encoder.pt",
+  n_channels = 9L, feature_dim = 64L, proj_dim = 32L
+)
+```
 
 ## References

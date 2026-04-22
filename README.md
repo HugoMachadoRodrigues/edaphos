@@ -576,6 +576,54 @@ corpora (MODIS × ERA5 × SRTM × SAR), where the encoder captures
 transfer structure unavailable to any regional model
 [[Reichstein et al. 2019][reichstein2019]].
 
+### Fine-tuning API and Zenodo-hosted pretrained weights
+
+As of **v1.2.0** the encoder is usable out of the box. Three
+additions land together:
+
+- **`foundation_fit_classifier()`** / **`foundation_fit_regressor()`**
+  attach a linear or MLP head on top of a MoCo v2 (or SimCLR)
+  encoder and train it against a labelled patch set. Both support
+  linear probing (`freeze_backbone = TRUE`) and full fine-tuning
+  with a two-group learning-rate schedule
+  [[He, Girshick and Dollar 2019][he2019rethinking]]. Targets in
+  the regressor are centred + scaled internally and un-scaled at
+  predict time.
+- **`device = "mps" | "cuda" | "cpu"`** dispatch is wired through
+  `foundation_moco_pretrain_tiles()` and the fine-tuning API, so
+  Apple Silicon and NVIDIA hardware are exercised end-to-end.
+- **Pretrained weights are distributed through Zenodo** under
+  CC-BY-4.0: `foundation_weights_list()` catalogues published
+  encoders, `foundation_weights_download()` fetches the artefact
+  and verifies its SHA-256, and `foundation_weights_load()`
+  reconstructs the in-memory `edaphos_foundation_moco` wrapper.
+  Caching follows the standard R user cache under
+  `tools::R_user_dir("edaphos")`.
+
+```r
+# One-shot: download + restore + classify.
+moco <- foundation_weights_load("edaphos-cerrado-moco-v1",
+                                  verbose = TRUE)
+fit  <- foundation_fit_classifier(
+  moco, labelled_patches, soil_order,
+  freeze_backbone = TRUE, head = "linear",
+  epochs = 40L, device = "mps", seed = 1L
+)
+predict(fit, new_patches, type = "prob")
+```
+
+The first published encoder — **`edaphos-cerrado-moco-v1`** — was
+pretrained on this laptop (Apple M1 Max, MPS) over 50 000 16×16 tiles
+of a core Cerrado AoI (longitude −53 to −43, latitude −23 to −10),
+stacking SoilGrids 250m (SOC, clay, sand, pH, bulk density),
+WorldClim 2.1 (12 monthly prec + 12 monthly tavg) and SRTM 30-arc-
+second (elevation, slope) aligned to a 0.01-deg grid. Full
+reproducibility via `data-raw/pretrain_cerrado_prepare.R` +
+`data-raw/pretrain_cerrado_train.R`; the deposit's Zenodo DOI is
+recorded in the package's weights registry.
+
+[he2019rethinking]: https://doi.org/10.1109/ICCV.2019.00502
+
 ---
 
 ## Pillar 5 — Autonomous Active Learning

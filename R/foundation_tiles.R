@@ -62,6 +62,24 @@ foundation_tile_source_soilgrids <- function(variables = c("soc", "clay"),
     stop("Install `geodata` to fetch SoilGrids: ",
          "install.packages(\"geodata\").", call. = FALSE)
   }
+  # `geodata::soil_world()` expects `depth` as an integer (the upper
+  # depth bound in centimetres: one of 5, 15, 30, 60, 100, 200). This
+  # wrapper accepts either that integer form *or* the human-readable
+  # `"0-5cm"`-style string documented in the @param block above and
+  # normalises it on the fly.
+  if (is.character(depth)) {
+    depth_map <- c("0-5cm" = 5L, "5-15cm" = 15L, "15-30cm" = 30L,
+                    "30-60cm" = 60L, "60-100cm" = 100L,
+                    "100-200cm" = 200L)
+    if (!depth %in% names(depth_map)) {
+      stop("Unknown depth string '", depth,
+           "'. Use one of: ", paste(names(depth_map), collapse = ", "),
+           " (or an integer in c(5, 15, 30, 60, 100, 200)).",
+           call. = FALSE)
+    }
+    depth <- unname(depth_map[[depth]])
+  }
+  depth <- as.integer(depth)
   ext <- .tiles_coerce_ext(aoi)
   layers <- lapply(variables, function(v) {
     r <- geodata::soil_world(var = v, depth = depth, stat = stat, path = path)

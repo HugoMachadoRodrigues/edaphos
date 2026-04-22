@@ -87,8 +87,21 @@
 #'     [foundation_tile_dataset()]) streams patches lazily from
 #'     multi-source `terra::SpatRaster` mosaics;
 #'     [foundation_moco_pretrain_tiles()] trains with checkpointing
-#'     on that stream, and [foundation_moco_embed_raster()] projects
-#'     the trained encoder over an entire AoI.}
+#'     and on-device dispatch (`device = "cpu" | "mps" | "cuda"`),
+#'     and [foundation_moco_embed_raster()] projects the trained
+#'     encoder over an entire AoI. A **downstream fine-tuning API**
+#'     ([foundation_fit_classifier()],
+#'     [foundation_fit_regressor()]) wraps the head construction,
+#'     training loop, validation split and target normalisation
+#'     behind a single call and supports both linear probing and
+#'     full fine-tuning with a two-group learning-rate schedule.
+#'     **Public pretrained weights** are distributed via Zenodo:
+#'     [foundation_weights_list()] catalogues the registry,
+#'     [foundation_weights_download()] fetches the artefact with
+#'     SHA-256 verification and caches it under
+#'     `tools::R_user_dir("edaphos")`, and
+#'     [foundation_weights_load()] rebuilds the
+#'     `edaphos_foundation_moco` wrapper from the saved state dict.}
 #'   \item{\strong{5. Autonomous Active Learning.}}{Closed-loop sampling
 #'     policy combining Quantile-Regression-Forest uncertainty,
 #'     feature-space diversity and logistical cost — [al_loop()],

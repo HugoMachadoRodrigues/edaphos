@@ -150,7 +150,7 @@
   mask <- stats::rbinom(B * C, 1L, 1 - drop_prob)
   mask_t <- torch::torch_tensor(matrix(mask, B, C),
                                  dtype = torch::torch_float())
-  mask_t <- mask_t$reshape(c(B, C, 1L, 1L))
+  mask_t <- mask_t$reshape(c(B, C, 1L, 1L))$to(device = x$device)
   x * mask_t
 }
 
@@ -182,7 +182,7 @@
   f <- 1 + stats::runif(B * C, -jitter, jitter)
   f_t <- torch::torch_tensor(matrix(f, B, C),
                               dtype = torch::torch_float())
-  f_t <- f_t$reshape(c(B, C, 1L, 1L))
+  f_t <- f_t$reshape(c(B, C, 1L, 1L))$to(device = x$device)
   x * f_t
 }
 
@@ -227,7 +227,8 @@
   logits <- torch::torch_cat(list(l_pos, l_neg), dim = 2L) / temperature
   B <- z_q$size(1L)
   # Positive is at column index 1 (R torch is 1-based for cross_entropy).
-  labels <- torch::torch_tensor(rep(1L, B), dtype = torch::torch_long())
+  labels <- torch::torch_tensor(rep(1L, B),
+                                  dtype = torch::torch_long())$to(device = logits$device)
   torch::nnf_cross_entropy(logits, labels)
 }
 
@@ -430,6 +431,13 @@ foundation_moco_embed <- function(object, patches, projection = FALSE) {
             length(dim(patches)) == 4L)
   patches_t <- torch::torch_tensor(patches)$to(dtype = torch::torch_float())
   enc <- object$encoder_q
+  # Force eval mode so BatchNorm uses the saved `running_mean` /
+  # `running_var` rather than the per-batch statistics of `patches_t`.
+  # Without this the embedding is non-deterministic (depends on the
+  # current mini-batch composition) and inconsistent across re-loaded
+  # copies of the same encoder — the bug that would otherwise make
+  # `foundation_weights_load()` disagree with its source object.
+  enc$eval()
   emb <- torch::with_no_grad({
     if (projection) {
       z <- enc(patches_t)
@@ -457,6 +465,10 @@ foundation_moco_embed <- function(object, patches, projection = FALSE) {
 #'
 #' @param dataset An `edaphos_tile_dataset`.
 #' @param feature_dim,proj_dim,queue_size,momentum,temperature,batch_size,epochs,lr,crop_ratio,flip_prob,rot90_prob,channel_drop_prob,cutout_prob,cutout_size_ratio,brightness_jitter,noise_sd,seed,verbose As in [foundation_moco_pretrain()].
+#' @param device Backend for the training loop. One of `"cpu"`
+#'   (default), `"mps"` (Apple Silicon GPU via Metal) or `"cuda"`
+#'   (NVIDIA). Requested-but-unavailable backends fall back to `"cpu"`
+#'   with a message. Added in v1.2.0.
 #' @param checkpoint_dir Optional directory for periodic checkpoints.
 #' @param checkpoint_every Integer -- save a checkpoint every `k`
 #'   epochs.
@@ -482,12 +494,26 @@ foundation_moco_pretrain_tiles <- function(dataset,
                                              cutout_size_ratio = 0.2,
                                              brightness_jitter = 0.2,
                                              noise_sd          = 0.1,
+                                             device      = c("cpu", "mps",
+                                                              "cuda"),
                                              seed = NULL, verbose = FALSE,
                                              checkpoint_dir = NULL,
                                              checkpoint_every = 10L,
                                              resume = NULL) {
   .moco_require_torch()
   stopifnot(inherits(dataset, "edaphos_tile_dataset"))
+  device <- match.arg(device)
+  if (device == "mps" && !torch::backends_mps_is_available()) {
+    message("note: 'mps' backend requested but not available; ",
+             "falling back to 'cpu'.")
+    device <- "cpu"
+  }
+  if (device == "cuda" && !torch::cuda_is_available()) {
+    message("note: 'cuda' backend requested but not available; ",
+             "falling back to 'cpu'.")
+    device <- "cpu"
+  }
+  dev <- torch::torch_device(device)
   if (!is.null(seed)) torch::torch_manual_seed(seed)
 
   C  <- dataset$n_channels
@@ -497,10 +523,10 @@ foundation_moco_pretrain_tiles <- function(dataset,
   EncCtor <- .moco_build_encoder()
   enc_q   <- EncCtor(in_channels = C,
                       feature_dim = as.integer(feature_dim),
-                      proj_dim    = as.integer(proj_dim))
+                      proj_dim    = as.integer(proj_dim))$to(device = dev)
   enc_k   <- EncCtor(in_channels = C,
                       feature_dim = as.integer(feature_dim),
-                      proj_dim    = as.integer(proj_dim))
+                      proj_dim    = as.integer(proj_dim))$to(device = dev)
   torch::with_no_grad({
     params_q <- enc_q$parameters; params_k <- enc_k$parameters
     for (nm in names(params_q)) params_k[[nm]]$copy_(params_q[[nm]])
@@ -533,7 +559,8 @@ foundation_moco_pretrain_tiles <- function(dataset,
     if (verbose) message("Resumed from checkpoint at epoch ", start_epoch)
   } else {
     init_batch <- dataset$sample(min(queue_size, batch_size * 4L))
-    init_t <- torch::torch_tensor(init_batch)$to(dtype = torch::torch_float())
+    init_t <- torch::torch_tensor(init_batch)$to(dtype = torch::torch_float(),
+                                                    device = dev)
     # If queue > init_batch, tile it.
     reps <- ceiling(queue_size / nrow(init_batch))
     init_t <- torch::with_no_grad(enc_k(init_t))$detach()
@@ -552,7 +579,8 @@ foundation_moco_pretrain_tiles <- function(dataset,
 
   for (ep in seq.int(start_epoch, epochs)) {
     batch_arr <- dataset$sample(batch_size)
-    batch <- torch::torch_tensor(batch_arr)$to(dtype = torch::torch_float())
+    batch <- torch::torch_tensor(batch_arr)$to(dtype = torch::torch_float(),
+                                                 device = dev)
 
     xq <- .moco_augment(batch, aug_params)
     xk <- .moco_augment(batch, aug_params)
@@ -608,6 +636,7 @@ foundation_moco_pretrain_tiles <- function(dataset,
       momentum     = momentum,
       temperature  = temperature,
       batch_size   = batch_size,
+      device       = device,
       loss_history = loss_history,
       final_loss   = loss_history[length(loss_history)],
       aug_params   = aug_params

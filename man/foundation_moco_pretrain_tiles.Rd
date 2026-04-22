@@ -22,6 +22,7 @@ foundation_moco_pretrain_tiles(
   cutout_size_ratio = 0.2,
   brightness_jitter = 0.2,
   noise_sd = 0.1,
+  device = c("cpu", "mps", "cuda"),
   seed = NULL,
   verbose = FALSE,
   checkpoint_dir = NULL,
@@ -33,6 +34,11 @@ foundation_moco_pretrain_tiles(
 \item{dataset}{An \code{edaphos_tile_dataset}.}
 
 \item{feature_dim, proj_dim, queue_size, momentum, temperature, batch_size, epochs, lr, crop_ratio, flip_prob, rot90_prob, channel_drop_prob, cutout_prob, cutout_size_ratio, brightness_jitter, noise_sd, seed, verbose}{As in \code{\link[=foundation_moco_pretrain]{foundation_moco_pretrain()}}.}
+
+\item{device}{Backend for the training loop. One of \code{"cpu"}
+(default), \code{"mps"} (Apple Silicon GPU via Metal) or \code{"cuda"}
+(NVIDIA). Requested-but-unavailable backends fall back to \code{"cpu"}
+with a message. Added in v1.2.0.}
 
 \item{checkpoint_dir}{Optional directory for periodic checkpoints.}
 
