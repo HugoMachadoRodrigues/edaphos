@@ -6,22 +6,30 @@ abstract: >-
   algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
   state of the art. It is organised across six research pillars,
   each confronting a specific methodological gap of the literature:
-  (1) Causal AI with backdoor-adjusted effect estimation on pedogenetic
-  Directed Acyclic Graphs; (2) Physics-Informed Machine Learning of
-  the soil depth profile via a parametric pedogenetic ODE and a
-  differentiable Neural ODE, including a covariate-conditioned
-  hierarchical extension across pedons; (3) 4D Pedometry with a
-  multi-layer stacked Convolutional LSTM, sequence-to-sequence
-  training, multi-step rollout forecasting and an optional
-  physics-informed mass-balance loss; (4) Foundation Models via
-  SimCLR-style contrastive pre-training on unlabelled raster
-  covariate patches; (5) Autonomous Active Learning with a hybrid
-  uncertainty and feature-space-diversity batch policy, logistical
-  cost-aware extension, and Physics-Informed rejection gates; (6)
-  Quantum ML (roadmap).
+  (1) Causal AI with backdoor-adjusted effect estimation on
+  pedogenetic Directed Acyclic Graphs, demonstrated on 1095 real
+  WoSIS Cerrado profiles (v1.4.0); (2) Physics-Informed Machine
+  Learning of the soil depth profile via a parametric pedogenetic
+  ODE and a differentiable Neural ODE, including a covariate-
+  conditioned hierarchical extension across pedons; (3) 4D
+  Pedometry with a multi-layer stacked Convolutional LSTM,
+  sequence-to-sequence training, multi-step rollout forecasting, an
+  optional physics-informed mass-balance loss and a stochastic
+  Ensemble Kalman Filter with optional Gaspari-Cohn localization
+  for sequential assimilation of new in-situ observations on a
+  real MODIS + NASA POWER Cerrado cube (v1.5.0); (4) Foundation
+  Models via SimCLR / MoCo-v2 contrastive pre-training on
+  unlabelled raster covariate patches; (5) Autonomous Active
+  Learning with a hybrid uncertainty and feature-space-diversity
+  batch policy, logistical cost-aware extension, and Physics-
+  Informed rejection gates; (6) Quantum ML with a pure-R
+  state-vector simulator of the ZZFeatureMap encoding, a quantum
+  kernel Gram matrix and a closed-form Kernel Ridge Regression
+  wrapper, optionally dispatched to IBM Quantum Runtime via
+  qiskit.
 type: software
-version: "0.1.0"
-date-released: "2026-04-21"
+version: "1.5.0"
+date-released: "2026-04-23"
 license: MIT
 doi: "10.5281/zenodo.19683708"
 url: "https://github.com/HugoMachadoRodrigues/edaphos"
@@ -30,9 +38,9 @@ identifiers:
   - description: "Concept DOI (all versions)"
     type: doi
     value: "10.5281/zenodo.19683708"
-  - description: "Version DOI (v0.1.0)"
+  - description: "Version DOI (v1.5.0)"
     type: doi
-    value: "10.5281/zenodo.19683709"
+    value: "10.5281/zenodo.19709560"
 authors:
   - family-names: "Rodrigues"
     given-names: "Hugo"
@@ -59,7 +67,7 @@ preferred-citation:
       email: "rodrigues.machado.hugo@gmail.com"
       orcid: "https://orcid.org/0000-0002-8070-8126"
   year: 2026
-  version: "0.1.0"
+  version: "1.5.0"
   doi: "10.5281/zenodo.19683708"
   url: "https://github.com/HugoMachadoRodrigues/edaphos"
 references:
