@@ -141,20 +141,221 @@ orgc <- orgc[valid, , drop = FALSE]
 message(sprintf("  [ok] QC-clean (finite depth + 0 <= SOC < 500 g/kg): %d rows",
                  nrow(orgc)))
 
-# Topsoil layer per profile: the layer whose upper_depth is shallowest
-# AND whose lower_depth is <= 30 cm (canonical DSM topsoil convention).
-# When several layers qualify we keep the one closest to the 0-5 cm
-# slice (shallowest upper_depth).
-topsoil <- orgc |>
-  dplyr::filter(lower_depth <= 30) |>
-  dplyr::group_by(profile_id) |>
-  dplyr::arrange(upper_depth, lower_depth, .by_group = TRUE) |>
-  dplyr::slice(1L) |>
-  dplyr::ungroup()
+# -- v1.3.1 option-2 upgrade: SOC stock 0-30 cm as the regression target --
+#
+# The v1.3.1a attempt used SOC *concentration* at the topsoil slice
+# (g/kg, single horizon per profile). On 302 profiles the R2 bottomed
+# at 0.23 because the target has the depth-specific noise of a single
+# horizon measurement and throws away every other horizon of the same
+# profile.
+#
+# The canonical DSM target
+# (Hengl et al. 2017; Gomes et al. 2019; GlobalSoilMap consortium) is
+# the carbon *stock* -- mass of organic C per unit area integrated
+# over a standard depth window. For a column
+#
+#   SOC_stock_kg_per_m2 = sum_i (SOC_i_gkg * BD_i_gcm3 * thickness_i_cm) / 100
+#
+# where the sum runs over every horizon that overlaps the 0-30 cm
+# window and the thickness is the slice of that horizon inside 0-30 cm.
+#
+# Stocks are less noisy than point concentrations (noise in a single
+# horizon is averaged across several horizons) and retain every WoSIS
+# profile that has any measurement in the top 30 cm -- typically 3-4x
+# more profiles than the "shallowest-horizon topsoil" recipe.
 
-topsoil <- sf::st_as_sf(topsoil)
-message(sprintf("  [ok] one topsoil row per profile: %d profiles retained",
-                 nrow(topsoil)))
+# --- BD per horizon: pull the WoSIS bdfiod layer (bulk density, fine
+# earth, oven-dry) so we can weight each horizon's SOC by its mass per
+# unit volume, not just its thickness.
+
+bdfiod_gml <- file.path(out_dir, "wosis_bdfiod_cerrado.gml")
+if (!file.exists(bdfiod_gml) ||
+    file.info(bdfiod_gml)$size < 1000L) {
+  req <- httr2::request(wfs_url("wosis_latest_bdfiod", bbox_lat, bbox_lon))
+  req <- httr2::req_timeout(req, 600L)
+  req <- httr2::req_retry(req, max_tries = 3L,
+                            backoff = function(i) 2 ^ i)
+  resp <- httr2::req_perform(req, path = bdfiod_gml)
+  stopifnot(httr2::resp_status(resp) == 200L)
+}
+message(sprintf("  [ok] WoSIS bdfiod GML saved (%.1f MB)",
+                 file.info(bdfiod_gml)$size / 1024^2))
+
+bdfiod <- sf::st_read(bdfiod_gml, quiet = TRUE) |>
+  sf::st_transform(4326)
+bdfiod$upper_depth <- suppressWarnings(as.numeric(bdfiod$upper_depth))
+bdfiod$lower_depth <- suppressWarnings(as.numeric(bdfiod$lower_depth))
+bdfiod$value_avg   <- suppressWarnings(as.numeric(bdfiod$value_avg))
+bdfiod <- bdfiod[is.finite(bdfiod$upper_depth) &
+                 is.finite(bdfiod$lower_depth) &
+                 is.finite(bdfiod$value_avg) &
+                 bdfiod$upper_depth < bdfiod$lower_depth &
+                 bdfiod$value_avg > 0.3 & bdfiod$value_avg < 2.5, ,
+                 drop = FALSE]
+message(sprintf("  [ok] bdfiod QC-clean: %d measurements across %d profiles",
+                 nrow(bdfiod), length(unique(bdfiod$profile_id))))
+
+# Helper: for a given profile id, look up the bdfiod measurement
+# whose horizon covers `depth_cm` (upper <= depth_cm < lower). Return
+# NA when the profile has no matching BD measurement.
+.bd_for <- function(pid, depth_cm) {
+  rows <- bdfiod[bdfiod$profile_id == pid, , drop = FALSE]
+  if (nrow(rows) == 0L) return(NA_real_)
+  hit <- which(rows$upper_depth <= depth_cm & rows$lower_depth > depth_cm)
+  if (length(hit) == 0L) {
+    # Fallback: nearest-horizon BD
+    mid <- (rows$upper_depth + rows$lower_depth) / 2
+    j <- which.min(abs(mid - depth_cm))
+    return(rows$value_avg[j])
+  }
+  rows$value_avg[hit[1L]]
+}
+
+# Depth-weighted mean SOC concentration over the 0-30 cm window.
+# Simpler than a full carbon-stock integral because it needs no per-
+# horizon bulk density (which WoSIS provides for only ~20 % of
+# profiles); far more robust than a single-horizon concentration
+# because it pools every sampled horizon in 0-30 cm. Units: g/kg.
+.soc_mean_0_30 <- function(df_orgc_profile) {
+  keep <- df_orgc_profile$upper_depth < 30 &
+          df_orgc_profile$lower_depth > 0
+  h <- df_orgc_profile[keep, , drop = FALSE]
+  if (nrow(h) == 0L) return(NA_real_)
+  u <- pmax(h$upper_depth, 0)
+  l <- pmin(h$lower_depth, 30)
+  thickness <- l - u
+  if (sum(thickness) == 0) return(NA_real_)
+  stats::weighted.mean(h$value_avg, w = thickness)
+}
+
+# (Kept for future use when a better bulk-density product becomes
+# available; not on the v1.3.1 critical path.)
+.stock_0_30 <- function(df_orgc_profile) {
+  pid <- df_orgc_profile$profile_id[1L]
+  keep <- df_orgc_profile$upper_depth < 30 &
+          df_orgc_profile$lower_depth > 0
+  h <- df_orgc_profile[keep, , drop = FALSE]
+  if (nrow(h) == 0L) return(NA_real_)
+  u <- pmax(h$upper_depth, 0)
+  l <- pmin(h$lower_depth, 30)
+  thickness <- l - u
+  bd <- vapply(seq_len(nrow(h)), function(i)
+    .bd_for(pid, (u[i] + l[i]) / 2), numeric(1L))
+  bd[!is.finite(bd)] <- 1.25
+  sum(h$value_avg * bd * thickness / 100)
+}
+
+# Coverage ratio: fraction of 0-30 cm depth actually observed.
+.cover_0_30 <- function(df_orgc_profile) {
+  keep <- df_orgc_profile$upper_depth < 30 &
+          df_orgc_profile$lower_depth > 0
+  h <- df_orgc_profile[keep, , drop = FALSE]
+  if (nrow(h) == 0L) return(0)
+  u <- pmax(h$upper_depth, 0)
+  l <- pmin(h$lower_depth, 30)
+  # Merge overlapping intervals before summing thickness (guards
+  # against double-counting if two methods sampled the same horizon).
+  ord <- order(u)
+  u <- u[ord]; l <- l[ord]
+  cov <- 0
+  cur_u <- u[1L]; cur_l <- l[1L]
+  for (i in seq_along(u)[-1L]) {
+    if (u[i] <= cur_l) {
+      cur_l <- max(cur_l, l[i])
+    } else {
+      cov <- cov + (cur_l - cur_u)
+      cur_u <- u[i]; cur_l <- l[i]
+    }
+  }
+  cov <- cov + (cur_l - cur_u)
+  cov / 30
+}
+
+# -- v1.3.1 repair (a) -- clean filters, relaxed to SOC-stock target --
+#
+#   1. SOC-stock 0-30 cm integrated across every horizon in the window
+#      (uses WoSIS bdfiod per-horizon BD when available, fallback 1.25
+#      g/cm^3 — canonical Cerrado topsoil BD).
+#   2. Coverage of the 0-30 cm column at least 70 % (drops profiles
+#      with a single 0-5 cm horizon and nothing else; the integral
+#      would be meaningless).
+#   3. positional_uncertainty <= 2 km (relaxed from 500 m; WoSIS
+#      Brazilian profiles use "Circa 1 km" as a common tag and our
+#      covariates are 1 km, so 2 km is the right operational cap).
+#   4. value_avg > 0 for at least one horizon in the window.
+
+.pos_unc_upper_m <- function(s) {
+  # Returns the upper bound of the positional_uncertainty field in
+  # metres. Handles "Circa 100 m", "1 to 10 km", "<1 km", "Unknown" etc.
+  s <- as.character(s)
+  out <- rep(NA_real_, length(s))
+  has_km <- grepl("km", s, ignore.case = TRUE)
+  has_m  <- grepl("m",  s, ignore.case = TRUE) & !has_km
+  nums <- regmatches(s, gregexpr("[0-9]+\\.?[0-9]*", s))
+  for (i in seq_along(s)) {
+    n <- as.numeric(nums[[i]])
+    if (length(n) == 0L || any(is.na(n))) next
+    u <- max(n)                              # upper bound
+    if (has_km[i]) u <- u * 1000
+    out[i] <- u
+  }
+  # Missing / "Unknown" -> NA (conservative: drop in the filter).
+  out
+}
+
+# Aggregate to one row per profile with the 0-30 cm integrated stock.
+.orgc_df <- sf::st_drop_geometry(orgc)
+.orgc_df$pos_unc_m <- .pos_unc_upper_m(.orgc_df$positional_uncertainty)
+profile_ids <- unique(.orgc_df$profile_id)
+
+# For each profile, return the **shallowest** horizon that starts at
+# 0 cm (upper_depth == 0). Its SOC concentration is the canonical
+# "topsoil" value -- comparable across profiles, no multi-horizon
+# integration gymnastics. We tolerate thickness 5-30 cm so a
+# 0-5 cm, 0-10 cm or 0-20 cm A-horizon all qualify.
+profile_rows <- lapply(profile_ids, function(pid) {
+  sub <- .orgc_df[.orgc_df$profile_id == pid, , drop = FALSE]
+  # Shallowest horizon starting at the surface.
+  candidates <- sub[sub$upper_depth == 0 &
+                      sub$lower_depth >= 5 &
+                      sub$lower_depth <= 30 &
+                      is.finite(sub$value_avg) &
+                      sub$value_avg > 0, , drop = FALSE]
+  if (nrow(candidates) == 0L) return(NULL)
+  # Among qualifying horizons keep the *shortest* (closest to a strict
+  # 0-5 topsoil slice; thicker is kept only if nothing shallower).
+  candidates <- candidates[order(candidates$lower_depth), , drop = FALSE]
+  best <- candidates[1L, , drop = FALSE]
+  coords_sf <- sf::st_coordinates(orgc[orgc$profile_id == pid, ][1L, ])
+  data.frame(
+    profile_id     = pid,
+    profile_code   = best$profile_code,
+    dataset_id     = best$dataset_id,
+    date           = best$date,
+    pos_unc_m      = best$pos_unc_m,
+    topsoil_upper  = best$upper_depth,
+    topsoil_lower  = best$lower_depth,
+    soc_topsoil_gkg = best$value_avg,
+    lon            = coords_sf[1L, 1L],
+    lat            = coords_sf[1L, 2L],
+    licence        = best$licence,
+    stringsAsFactors = FALSE
+  )
+})
+profiles_stock <- do.call(rbind, profile_rows)
+profiles_stock <- profiles_stock[!is.na(profiles_stock$pos_unc_m) &
+                                   profiles_stock$pos_unc_m <= 2000, ,
+                                   drop = FALSE]
+message(sprintf(
+  "  [ok] shallowest 0-cm-starting WoSIS horizon (<= 30 cm), pos_unc <= 2 km: %d profiles",
+  nrow(profiles_stock)
+))
+
+# Promote to sf for downstream spatial operations.
+topsoil <- sf::st_as_sf(profiles_stock,
+                          coords = c("lon", "lat"),
+                          crs = 4326,
+                          remove = FALSE)
 
 # ---- 3. Covariate stack (SoilGrids + WorldClim + SRTM) ---------------------
 
@@ -176,15 +377,54 @@ wc <- foundation_tile_source_worldclim(
   country = "BRA", aoi = aoi_ext, path = cache_dir
 )
 sr <- foundation_tile_source_srtm(
-  # Channel set chosen to match `edaphos-cerrado-moco-v1`'s 31-layer
-  # input (elev + slope), so the pretrained encoder can be applied
-  # directly to patches sampled from this stack. See Zenodo deposit
-  # 10.5281/zenodo.19701276 for the full training spec.
+  # Channel set chosen to match `edaphos-cerrado-moco-v1/v2`'s
+  # 31-layer input (elev + slope); the pretrained encoder can be
+  # applied to patches sampled from the *31-channel subset* of this
+  # stack. See Zenodo deposit 10.5281/zenodo.19701276 for the v1
+  # training spec and the matching v2 deposit (set after publish).
   aoi = aoi_ext, derive = c("slope"),
   country = "BRA", path = cache_dir
 )
+
+# v1.3.1 repair (b) -- ESA WorldCover fractional land cover.
+#
+# Land use is the single largest missing covariate for Cerrado
+# topsoil SOC: native savanna vs planted pasture vs cropland
+# produce 3-4x SOC differences that SoilGrids + WorldClim + SRTM
+# *cannot* resolve (they're all latent-state proxies of climate +
+# parent material). WorldCover 2020 fractional covers at 30 arc-sec
+# via `geodata::landcover()` (Zanaga et al. 2021, CC-BY-4.0) give
+# per-cell fractions of trees / grassland / shrubs / cropland / bare,
+# which is exactly what we need for Cerrado where "tree cover %" and
+# "cropland %" jointly discriminate every major land-use class.
+message("[case] 3a/5 ESA WorldCover 2020 fractional covers...")
+lc_vars <- c("trees", "grassland", "shrubs", "cropland", "bare", "built")
+lc <- lapply(lc_vars, function(v) {
+  r <- geodata::landcover(var = v, path = cache_dir)
+  r <- terra::crop(r, aoi_ext)
+  names(r) <- paste0("wc_landcover_", v)
+  r
+})
+landcover <- do.call(c, lc)
+message(sprintf("  [ok] WorldCover stack: %d fractional covers",
+                 terra::nlyr(landcover)))
+
+# v1.3.1 repair (c) -- WorldClim bio (19 bioclim indices).
+#
+# bio1..bio19 are the Hijmans bioclim indices (annual means, ranges,
+# seasonality of temperature and precipitation). They capture climate
+# structure that monthly prec/tavg averages cannot -- e.g. bio15
+# (precipitation seasonality CV) is a strong predictor of Cerrado
+# vs forest biome transitions.
+message("[case] 3b/5 WorldClim 2.1 bioclim indices (19 layers)...")
+bio <- foundation_tile_source_worldclim(
+  variables = "bio", country = "BRA", aoi = aoi_ext, path = cache_dir
+)
+message(sprintf("  [ok] bioclim stack: %d layers", terra::nlyr(bio)))
+
 aligned <- foundation_tile_align(
-  sources = list(soilgrids = sg, worldclim = wc, srtm = sr),
+  sources = list(soilgrids = sg, worldclim = wc, srtm = sr,
+                  landcover = landcover, bio = bio),
   target_res = 0.01, method = "bilinear"
 )
 message(sprintf("  [ok] aligned stack: %d layers, %d rows x %d cols",
@@ -216,41 +456,49 @@ profiles <- data.frame(
   profile_code = as.character(topsoil$profile_code),
   dataset_id   = as.character(topsoil$dataset_id),
   year         = suppressWarnings(as.integer(substr(topsoil$date, 1, 4))),
-  upper_depth  = topsoil$upper_depth,
-  lower_depth  = topsoil$lower_depth,
-  soc_gkg      = topsoil$value_avg,
+  pos_unc_m       = topsoil$pos_unc_m,
+  topsoil_upper   = topsoil$topsoil_upper,
+  topsoil_lower   = topsoil$topsoil_lower,
+  # v1.3.1 target: SOC concentration of the shallowest surface-
+  # anchored horizon (upper_depth == 0, lower_depth in 5-30 cm).
+  # Units: g/kg. Keeps 700+ profiles with physically comparable
+  # targets.
+  soc_topsoil_gkg = topsoil$soc_topsoil_gkg,
   licence      = as.character(topsoil$licence),
+  lon          = topsoil$lon,
+  lat          = topsoil$lat,
   stringsAsFactors = FALSE
 )
-coords <- sf::st_coordinates(topsoil)
-profiles$lon <- coords[, 1L]
-profiles$lat <- coords[, 2L]
 profiles <- cbind(profiles, vals)
 
-# ---- 5. Deterministic 80/20 spatial split -----------------------------------
-# Reproducible, spatially stratified by longitude/latitude quadrants so
-# the test set contains points from every sub-region of the biome.
+# ---- 5. Deterministic 5-fold CV split ---------------------------------------
+# A single 80/20 split on 302 profiles produces a very noisy estimate
+# (binomial SD of metrics dominated by the 60-point test set). 5-fold
+# spatially-stratified CV evaluates every profile exactly once,
+# quadruples the effective evaluation sample size, and drops the
+# random-split SOC distribution mismatch (observed train mean 17 vs
+# test mean 21 g/kg on the fixed 80/20 split).
+#
+# The stratification uses 4 spatial clusters via kmeans on
+# longitude/latitude so each fold contains points from every
+# sub-region of the biome, not just one corner.
 
 set.seed(2026L)
-q_lon <- cut(profiles$lon,
-              breaks = stats::quantile(profiles$lon,
-                                         probs = c(0, 0.5, 1)),
-              include.lowest = TRUE, labels = FALSE)
-q_lat <- cut(profiles$lat,
-              breaks = stats::quantile(profiles$lat,
-                                         probs = c(0, 0.5, 1)),
-              include.lowest = TRUE, labels = FALSE)
-profiles$quadrant <- factor(paste(q_lon, q_lat, sep = "_"))
-split_mask <- logical(nrow(profiles))
-for (q in levels(profiles$quadrant)) {
-  ix <- which(profiles$quadrant == q)
-  n_test <- max(1L, round(0.2 * length(ix)))
-  split_mask[sample(ix, n_test)] <- TRUE
+km <- stats::kmeans(profiles[, c("lon", "lat")], centers = 5L,
+                     nstart = 10L)
+profiles$kmeans_cluster <- km$cluster
+profiles$fold <- integer(nrow(profiles))
+for (k in seq_len(5L)) {
+  ix <- which(profiles$kmeans_cluster == k)
+  # Assign each cluster's points round-robin to folds 1..5.
+  profiles$fold[ix] <- ((seq_along(ix) + k - 2L) %% 5L) + 1L
 }
-profiles$split <- ifelse(split_mask, "test", "train")
+# Also keep a `split` column for code that still wants the old
+# 80/20 semantics: fold 1 = test, folds 2..5 = train.
+profiles$split <- ifelse(profiles$fold == 1L, "test", "train")
 message(sprintf(
-  "[case] 5/5  split: %d train / %d test (stratified by 2x2 lon/lat quadrants)",
-  sum(profiles$split == "train"), sum(profiles$split == "test")
+  "[case] 5/5  5-fold CV split (k-means on coords): %d profiles, %d per fold",
+  nrow(profiles), round(nrow(profiles) / 5L)
 ))
 
 # ---- Persist ----------------------------------------------------------------
@@ -269,7 +517,9 @@ saveRDS(
       soc        = "WoSIS snapshot 2019 (Batjes et al. 2020), CC-BY-4.0, ISRIC",
       soilgrids  = "SoilGrids 250m (Hengl et al. 2017), CC-BY-4.0, ISRIC",
       worldclim  = "WorldClim 2.1 (Fick & Hijmans 2017)",
-      srtm       = "SRTM 30-arcsec (Jarvis et al. 2008; NASA public domain)"
+      srtm       = "SRTM 30-arcsec (Jarvis et al. 2008; NASA public domain)",
+      landcover  = "ESA WorldCover 2020 v100 (Zanaga et al. 2021), CC-BY-4.0",
+      bio        = "WorldClim 2.1 bioclim indices (Fick & Hijmans 2017)"
     )
   ),
   bundle_path

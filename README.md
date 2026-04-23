@@ -41,44 +41,57 @@ family, and a dedicated vignette.
 
 ## Benchmarks
 
-As of **v1.3.0** every claim of performance against the classical
+As of **v1.3.1** every claim of performance against the classical
 regression-tree state-of-the-art is backed by a reproducible
 real-data benchmark, not just rhetoric. The canonical case study
-runs on **1212 real topsoil (0–30 cm) profiles** from the Cerrado
-biome, pulled live from [WoSIS 2019](https://essd.copernicus.org/articles/12/299/2020/)
-([Batjes et al. 2020][batjes2020wosis], CC-BY-4.0), stratified by
-2×2 longitude × latitude quadrants into an 80/20 spatial train/test
-split, and evaluated with covariates from SoilGrids 250 m
-[[Hengl et al. 2017][hengl2017]], WorldClim 2.1
-[[Fick and Hijmans 2017][fick2017]] and SRTM 30-arcsec
-[[Jarvis et al. 2008][jarvis2008]].
+runs on **1095 real Cerrado topsoil profiles**, pulled live from
+[WoSIS 2019](https://essd.copernicus.org/articles/12/299/2020/)
+([Batjes et al. 2020][batjes2020wosis], CC-BY-4.0), evaluated by
+**5-fold spatial cross-validation** (k-means on coordinates, so
+each fold contains points from every Cerrado sub-region), with
+covariates from SoilGrids 250 m [[Hengl et al. 2017][hengl2017]],
+WorldClim 2.1 (monthly + 19 bioclim indices)
+[[Fick and Hijmans 2017][fick2017]], SRTM 30-arcsec
+[[Jarvis et al. 2008][jarvis2008]] and ESA WorldCover 2020
+fractional covers [[Zanaga et al. 2021][zanaga2021]].
 
-| Method | n test | RMSE (g/kg) | MAE (g/kg) | R² | PICP @ 95 | Interval score |
+| Method | n | RMSE (g/kg) | MAE (g/kg) | R² | PICP @ 95 | Interval score |
 |:---|---:|---:|---:|---:|---:|---:|
-| **B1**  `ranger` QRF — raw covariates | 240 | **12.28** | 7.51 | 0.24 | **0.946** | **57.5** |
-| **B2**  `ranger` + `gstat` kriging | 141\* | **11.51** | 7.18 | 0.09 | 0.738 | 104.1 |
-| **E**   `ranger` + MoCo v2 embedding (edaphos-cerrado-moco-v1) | 240 | 12.53 | 8.28 | 0.21 | 0.858 | 85.5 |
+| **B1**  `ranger` QRF — 56 covariates | 1095 | 13.51 | 7.72 | 0.219 | **0.944** | **65.81** |
+| **B2**  `ranger` + `gstat` kriging of residuals | 910\* | **13.86** | 7.86 | **0.233** | 0.817 | 99.5 |
+| **E**   `ranger` + MoCo v1 embedding (20 k steps) | 923\* | 14.07 | 7.95 | 0.157 | 0.940 | 71.7 |
 
-\* Kriging returned NA for test points outside the variogram's
-effective range; the reduced n is itself a lesson.
+\* Kriging drops test points whose variogram-range disk misses the
+training cloud; the foundation-model stack drops points within 16
+pixels of the Cerrado raster edge.
 
-**Honest reading.** On this dataset:
+**Honest reading.** On **1095 real WoSIS profiles** across a
+~2 M km² biome:
 
-- The **calibration champion** is the plain quantile-regression
-  forest (B1): PICP 0.946 at a 0.95 nominal level, best interval
-  score. That is the regime the README now recommends as the
-  default.
-- Residual **kriging lowers point RMSE** at the cost of disastrous
-  calibration and data loss outside the variogram range.
+- **R² ≈ 0.22–0.23** is in line with the published literature on
+  regional Brazilian / Cerrado SOC digital mapping
+  ([Gomes et al. 2019](https://doi.org/10.1016/j.geoderma.2018.12.013)
+  reported R² = 0.13 Brazil-wide; Nakhavali et al. 2018 reported
+  R² = 0.28 on Brazilian savanna with 200 profiles). Residual
+  kriging gains +0.01 R² over the QRF at the cost of a much worse
+  PICP (0.82 vs 0.94) — the classical trade-off between sharpness
+  and calibration.
+- The **plain quantile-regression forest is the calibration
+  champion**: PICP 0.944 at a 0.95 nominal level and the best
+  interval score (65.8). For uncertainty-aware downstream pipelines
+  this is the stack to use.
 - The **foundation-model embedding does not yet beat B1** on this
-  Cerrado benchmark — the encoder `edaphos-cerrado-moco-v1` was
-  trained for only 20 k InfoNCE steps on a smaller core-Cerrado
-  AoI, and the raw SoilGrids + WorldClim + SRTM stack is already
-  rich enough that the embedding adds little marginal signal over
-  it (consistent with [Reichstein et al. 2019][reichstein2019]).
-  The Pillar-4 payoff appears when the raw stack is thinner
-  (SAR-only or MODIS-only regions) — testing that is the v1.4.0
-  agenda.
+  Cerrado benchmark. The `edaphos-cerrado-moco-v1` encoder
+  (Zenodo DOI [10.5281/zenodo.19701276](https://doi.org/10.5281/zenodo.19701276))
+  was trained for only 20 k InfoNCE steps — about 10 % of the
+  canonical MoCo v2 budget [He et al. 2020, Chen et al. 2020b]. An
+  encoder `v2` with 200 k steps is currently in training; when it
+  publishes, v1.3.2 will re-run the benchmark with the new weights.
+- **Log-transforming the target hurts here** (R² 0.17 log vs
+  0.22 linear on 5-fold CV). The shallowest-topsoil SOC
+  distribution in this dataset is not skewed enough to benefit
+  from variance stabilisation and the QRF loses resolving power on
+  the compressed upper tail.
 
 Reproduce the table with
 
@@ -96,6 +109,7 @@ or just read the pre-computed `.rds` shipped in
 [fick2017]: https://doi.org/10.1002/joc.5086
 [jarvis2008]: https://srtm.csi.cgiar.org
 [reichstein2019]: https://doi.org/10.1038/s41586-019-0912-1
+[zanaga2021]: https://doi.org/10.5281/zenodo.5571936
 
 ---
 

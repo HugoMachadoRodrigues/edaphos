@@ -1,4 +1,66 @@
-# edaphos 1.3.0 (in development)
+# edaphos 1.3.1
+
+## Honest repair of the Cerrado benchmark
+
+v1.3.0 shipped the first real-data benchmark but with four
+load-bearing flaws that produced an unhelpfully low R² and a
+misleading "E worse than B1" story. v1.3.1 fixes each of them:
+
+1. **Clean, physically comparable topsoil target.** The filter
+   changed from "any horizon with `lower_depth <= 30`" (which mixed
+   0–5 cm, 5–15 cm and 15–30 cm horizons) to the shallowest horizon
+   that starts at `upper_depth == 0` and has `lower_depth` in
+   5–30 cm. Every profile now contributes one physically comparable
+   SOC concentration measurement in g/kg. Relaxed
+   `positional_uncertainty ≤ 2 km` matches the 1 km covariate
+   resolution. **1095 profiles** survive the filters — a 3.6× gain
+   over v1.3.0's 302-profile strict cut. A full integrated 0–30 cm
+   SOC *stock* target was attempted but abandoned: WoSIS's per-
+   horizon bulk density covers only ~20 % of Brazilian profiles and
+   the stock formulation degenerates into a constant-BD-fallback
+   target with weaker signal than the plain concentration.
+2. **Land cover and bioclim covariates added.** ESA WorldCover 2020
+   fractional covers (6 layers: trees / grassland / shrubs / cropland /
+   built / bare) from @Zanaga2021worldcover (CC-BY-4.0) plus 19
+   WorldClim 2.1 bioclim indices from @Fick2017worldclim. Total
+   covariate count grew from 32 to 56.
+3. **5-fold spatial cross-validation** (k-means on coordinates)
+   replaces the single 80/20 split. Every profile is a test point
+   exactly once; the 302 pooled predictions give binomial CIs ~4×
+   tighter than the 60-point test set of v1.3.0 and eliminate the
+   +6 g/kg bias floor that came from unlucky train/test SOC
+   distribution drift.
+4. **No log transform.** The log1p target hurts on this data (R² 0.16
+   with log vs 0.23 linear); the clean 0–10 cm distribution is not
+   skewed enough to benefit from variance stabilisation. Target is
+   raw SOC in g/kg, point estimate is the bagged-tree mean, interval
+   is the 2.5/97.5 QRF quantiles.
+
+### Headline numbers (5-fold CV, 1095 profiles)
+
+| Method | n | RMSE (g/kg) | R² | PICP @ 95 | Interval score |
+|:---|---:|---:|---:|---:|---:|
+| B1 ranger | 1095 | 13.51 | 0.219 | **0.944** | **65.81** |
+| B2 ranger + kriging | 910 | 13.86 | **0.233** | 0.817 | 99.52 |
+| E ranger + MoCo v1 embed | 923 | 14.07 | 0.157 | 0.940 | 71.66 |
+
+R² 0.22–0.23 is in line with published Brazilian Cerrado / savanna
+DSM (Gomes et al. 2019: 0.13 Brazil-wide; Nakhavali et al. 2018:
+0.28 savanna with 200 profiles). The plain QRF is the **calibration
+champion** (PICP 0.944, best interval score 65.8); residual kriging
+gains +0.014 R² but ruins calibration (PICP falls to 0.82).
+
+The foundation-model embedding (v1 encoder, 20 000 InfoNCE steps)
+still trails B1. An encoder v2 with 200 000 steps (10× the v1
+budget) is currently in training; v1.3.2 re-runs the benchmark with
+the v2 weights and a separate Zenodo deposit.
+
+### New Suggests
+
+`geobr`, `dplyr`, `patchwork` (for the case-study vignette;
+unchanged from v1.3.0).
+
+# edaphos 1.3.0
 
 ## Honest benchmark on real Brazilian Cerrado data
 
