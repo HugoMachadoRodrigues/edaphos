@@ -79,6 +79,77 @@ causal_cerrado_dag <- function() {
   }')
 }
 
+#' Real-data Cerrado pedogenetic DAG
+#'
+#' Structural causal model over the exact covariate column names that
+#' appear in the v1.3.1 case-study bundle (WoSIS 0-10 cm topsoil SOC +
+#' SoilGrids + WorldClim + SRTM + WorldCover). Unlike
+#' [causal_cerrado_dag()], which uses short schematic labels
+#' (`elev`, `slope`, `twi`, `map_mm`, `ndvi`, `soc`), this DAG is
+#' wired against `bio1`, `bio12`, `soilgrids_clay`,
+#' `wc_landcover_trees` etc. so that `causal_estimate_effect()` can
+#' consume the real profiles data frame without renaming.
+#'
+#' The edges encode six classes of Cerrado pedogenetic relations:
+#'
+#' \describe{
+#'   \item{Relief -> climate}{Elevation modulates temperature
+#'     (adiabatic lapse) and precipitation (orographic forcing) via
+#'     `elev -> bio1`, `elev -> bio12`, `elev -> slope`.}
+#'   \item{Climate -> vegetation / land cover}{Bio1 (mean annual
+#'     temperature) and bio12 (mean annual precipitation) drive the
+#'     fraction of land covered by trees, grassland and cropland.}
+#'   \item{Relief -> texture}{Steep slopes export fine fractions
+#'     (`slope -> soilgrids_clay`) and accumulate coarse fractions
+#'     downslope (`slope -> soilgrids_sand`).}
+#'   \item{Texture -> bulk density}{Fine-textured soils compact
+#'     differently (`soilgrids_clay -> soilgrids_bdod`).}
+#'   \item{Climate + texture -> SOC (direct)}{Both sides drive
+#'     decomposition vs mineral protection.}
+#'   \item{Land cover -> SOC}{Native savanna vs. pasture vs. cropland
+#'     produce 3-4x SOC differences in Cerrado topsoil; the
+#'     land-cover fractions are the dominant single factor.}
+#' }
+#'
+#' @return A `dagitty` DAG whose nodes match the column names of the
+#'   `profiles` data frame in
+#'   `inst/extdata/case_cerrado_results.rds`.
+#' @seealso [causal_cerrado_dag()] for the short-label schematic
+#'   version; [causal_adjustment_set()] and
+#'   [causal_estimate_effect()] for identification + estimation.
+#' @export
+causal_cerrado_real_dag <- function() {
+  .causal_require_dagitty()
+  # Node names match the column names in the v1.3.1 case-study
+  # bundle (profiles data frame). Note wc_bio_01 = mean annual
+  # temperature; wc_bio_12 = mean annual precipitation (the Hijmans
+  # bioclim numbering).
+  dagitty::dagitty('dag {
+    elev  -> wc_bio_01
+    elev  -> wc_bio_12
+    elev  -> slope
+    wc_bio_01 -> wc_landcover_trees
+    wc_bio_12 -> wc_landcover_trees
+    wc_bio_01 -> wc_landcover_grassland
+    wc_bio_12 -> wc_landcover_grassland
+    wc_bio_01 -> wc_landcover_cropland
+    wc_bio_12 -> wc_landcover_cropland
+    slope -> soilgrids_clay
+    slope -> soilgrids_sand
+    soilgrids_clay -> soilgrids_bdod
+    soilgrids_sand -> soilgrids_bdod
+    wc_bio_01 -> soc_topsoil_gkg
+    wc_bio_12 -> soc_topsoil_gkg
+    soilgrids_clay -> soc_topsoil_gkg
+    soilgrids_sand -> soc_topsoil_gkg
+    soilgrids_bdod -> soc_topsoil_gkg
+    slope -> soc_topsoil_gkg
+    wc_landcover_trees     -> soc_topsoil_gkg
+    wc_landcover_grassland -> soc_topsoil_gkg
+    wc_landcover_cropland  -> soc_topsoil_gkg
+  }')
+}
+
 #' Suggest a backdoor-adjustment set from a DAG
 #'
 #' Wraps `dagitty::adjustmentSets()` and returns the adjustment set as a

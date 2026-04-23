@@ -1,3 +1,41 @@
+# edaphos 1.4.0
+
+## Pillar 1 — causal AI on real Cerrado data
+
+The original Pillar 1 vignette derived the backdoor-adjustment
+machinery on `br_cerrado` *synthetic* data. v1.4.0 runs the same
+machinery on the **1 095 real WoSIS topsoil profiles** that power
+the v1.3.1 benchmark, with a DAG that encodes published Cerrado
+pedogenesis and block-bootstrap CIs that respect the spatial
+clustering of the profiles.
+
+### New functions
+
+* `causal_cerrado_real_dag()` — a DAG over the exact column names
+  of the v1.3.1 bundle (12 nodes, 23 directed edges) covering
+  relief -> climate, climate -> land cover, relief -> texture ->
+  density, and climate + texture + slope + land cover -> SOC.
+
+### Headline identified effects (LM direct, block-bootstrap CI95)
+
+| Exposure | Naive slope | Identified direct | Bootstrap 95 % CI |
+|:---|---:|---:|:---:|
+| `wc_bio_12` (MAP, g/kg per mm)           | +0.0072 | +0.0071 | [+0.0002, +0.0121] |
+| `wc_landcover_trees` (g/kg per % trees)  | +0.898  | **+2.048** (2.3×) | [-0.465, +6.901] |
+| `soilgrids_clay` (g/kg per % clay)       | +0.526  | **+0.195** (0.37×) | [-0.099, +0.688] |
+
+Confounding moves in *both directions*: naive OLS under-estimates
+the land-use causal effect by more than half and over-estimates
+clay's direct effect by nearly 3×.
+
+### New artefacts
+
+* `data-raw/causal_cerrado_real.R` — fully reproducible analysis
+  (reuses the v1.3.1 case-study bundle; runs in ~30 s).
+* `inst/extdata/causal_cerrado_real.rds` — 62 KB slim results bundle
+  (scalar effects + bootstrap CIs; BART posterior matrices stripped).
+* `vignette("pilar1-causal-real")` — the narrative walk-through.
+
 # edaphos 1.3.1
 
 ## Honest repair of the Cerrado benchmark

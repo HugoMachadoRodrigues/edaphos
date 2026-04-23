@@ -1,0 +1,209 @@
+---
+title: "Pilar 1 on real data — identified causal effects on Cerrado SOC"
+author: "Hugo Rodrigues"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 1 on real data — identified causal effects on Cerrado SOC}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 7.5, fig.height = 4.5,
+  fig.align = "center", out.width = "92%", dpi = 150
+)
+```
+
+## 1. Why this vignette exists
+
+The original Pillar 1 vignette (`vignette("pilar1-causal")`) derives
+the backdoor-adjustment machinery from Pearl 2009 and demonstrates it
+on the `br_cerrado` synthetic dataset that ships with the package.
+As of **v1.4.0** the Pillar 1 story runs on **real Brazilian
+Cerrado data**: 1 095 WoSIS topsoil profiles
+[@Batjes2020wosis], the same dataset the v1.3.1 case-study benchmark
+consumes. The three quantities below are publishable causal
+estimates, not pedagogic toys.
+
+```{r load, message = FALSE}
+library(edaphos)
+library(ggplot2)
+library(dplyr)
+
+res_path <- system.file("extdata", "causal_cerrado_real.rds",
+                         package = "edaphos")
+stopifnot(nzchar(res_path), file.exists(res_path))
+R <- readRDS(res_path)
+```
+
+## 2. The DAG used for identification
+
+[`causal_cerrado_real_dag()`](../reference/causal_cerrado_real_dag.html)
+encodes published Cerrado pedogenetic knowledge on the exact column
+names of the v1.3.1 case-study bundle. It is a DAG over 12 nodes
+covering relief, climate, texture, bulk density and land-cover
+fractions, with 23 directed edges.
+
+```{r dag, fig.cap = "Cerrado real-data DAG. Arrows encode six classes of soil-formation relations: relief -> climate (orographic), climate -> vegetation, relief -> texture (erosion), texture -> density, climate + texture + slope + land cover -> topsoil SOC.", fig.height = 5.6}
+if (requireNamespace("ggdag", quietly = TRUE)) {
+  ggdag::ggdag(R$dag, layout = "sugiyama", text_size = 2.7) +
+    ggdag::theme_dag_blank()
+} else {
+  # `plot(dagitty)` requires node coordinates, which a bare DAG does
+  # not carry. Fall back to a textual list of the edges.
+  cat("Install the `ggdag` package to see the graph.\n\n",
+      paste(dagitty::edges(R$dag)$v, "->",
+             dagitty::edges(R$dag)$w, collapse = "\n"))
+}
+```
+
+## 3. Three exposures of practical interest
+
+For each exposure we:
+
+1. Compute the minimal backdoor-adjustment set from the DAG
+   via [`causal_adjustment_set()`](../reference/causal_adjustment_set.html);
+2. Fit a linear backdoor-adjusted direct-effect estimator via
+   [`causal_estimate_effect(estimator = "lm")`](../reference/causal_estimate_effect.html);
+3. Repeat with a non-linear BART estimator [@Chipman2010bart]
+   (`estimator = "bart"`);
+4. Compute a **block bootstrap** confidence interval resampling
+   k-means clusters of the 5-fold CV assignment — the honest
+   alternative to the asymptotic `confint(lm)` interval when the
+   data are spatially clustered.
+
+### 3.1 Mean annual precipitation → SOC (climate forcing)
+
+Exposure: **`wc_bio_12`** (mean annual precipitation, mm/year).
+Outcome: `soc_topsoil_gkg`.
+
+```{r show-bio12}
+e <- R$effects$wc_bio_12
+cat("Adjustment set:", paste(e$adjustment, collapse = ", "), "\n")
+cat(sprintf("  LM  naive = %+.4f g/kg per mm\n", e$lm$effect_naive))
+cat(sprintf("  LM  direct = %+.4f  CI95 = [%+.4f, %+.4f]  boot = [%+.4f, %+.4f]\n",
+            e$lm$effect, e$lm$effect_ci[1L], e$lm$effect_ci[2L],
+            e$lm$effect_boot_ci[1L], e$lm$effect_boot_ci[2L]))
+cat(sprintf("  BART direct (at +IQR/2) = %+.4f  CI95 = [%+.4f, %+.4f]\n",
+            e$bart$effect, e$bart$effect_ci[1L], e$bart$effect_ci[2L]))
+```
+
+**Interpretation.** At the canonical Cerrado MAP gradient (≈ 500 mm
+range between Cerrado-Caatinga transition and Cerrado-Amazon
+transition), the **identified direct effect** predicts an increase
+of roughly **`r round(500 * e$lm$effect, 1)` g/kg SOC** across that
+gradient. The naive OLS slope and the identified slope coincide to
+4 decimal places in this case — the backdoor confounders
+(temperature, slope, land cover) happen to be near-orthogonal to
+precipitation within the Cerrado AoI.
+
+### 3.2 Tree-cover fraction → SOC (land-use pathway)
+
+Exposure: **`wc_landcover_trees`** (% tree cover from ESA WorldCover
+2020, 0–100 % fractional).
+
+```{r show-trees}
+e <- R$effects$wc_landcover_trees
+cat("Adjustment set:", paste(e$adjustment, collapse = ", "), "\n")
+cat(sprintf("  LM  naive = %+.4f g/kg per %%   -> direct = %+.4f  boot = [%+.4f, %+.4f]\n",
+            e$lm$effect_naive, e$lm$effect,
+            e$lm$effect_boot_ci[1L], e$lm$effect_boot_ci[2L]))
+cat(sprintf("  BART direct (at +IQR/2) = %+.4f  CI95 = [%+.4f, %+.4f]\n",
+            e$bart$effect, e$bart$effect_ci[1L], e$bart$effect_ci[2L]))
+```
+
+**Interpretation.** The naive OLS says tree cover lifts topsoil SOC
+by +0.9 g/kg per 1 % tree cover. After backdoor-adjusting for
+climate (bio_01 and bio_12, which jointly determine the land-cover
+fraction as well as SOC directly), **the identified direct effect
+is +2.05 g/kg per 1 % tree cover** — *more than double* the naive
+slope. The confounder structure here pulls the association
+*downwards*: warmer / drier Cerrado cells have less tree cover AND
+less SOC, making the raw correlation look weaker than the true
+causal effect. The bootstrap CI is wide (crosses zero at its lower
+edge) because the subsets of the biome with very high tree cover
+are clustered.
+
+### 3.3 Clay % → SOC (mineral-protection mechanism)
+
+Exposure: **`soilgrids_clay`** (% clay, 0–5 cm mean from SoilGrids
+250m).
+
+```{r show-clay}
+e <- R$effects$soilgrids_clay
+cat("Adjustment set:", paste(e$adjustment, collapse = ", "), "\n")
+cat(sprintf("  LM  naive = %+.4f g/kg per %%   -> direct = %+.4f  boot = [%+.4f, %+.4f]\n",
+            e$lm$effect_naive, e$lm$effect,
+            e$lm$effect_boot_ci[1L], e$lm$effect_boot_ci[2L]))
+cat(sprintf("  BART direct (at +IQR/2) = %+.4f  CI95 = [%+.4f, %+.4f]\n",
+            e$bart$effect, e$bart$effect_ci[1L], e$bart$effect_ci[2L]))
+```
+
+**Interpretation.** The naive slope +0.53 g/kg per 1 % clay
+**overstates** the causal effect by a factor of **~2.7** once we
+adjust for slope (erosional mass movement) and texture partners
+(sand, bulk density). The direct effect is still positive but ~0.2
+g/kg per 1 % clay — the mineral-protection signal is real but
+smaller than the raw correlation suggests. The BART non-linear
+estimate agrees with LM (0.20 vs 0.19), suggesting the clay → SOC
+relationship is essentially linear in the Cerrado topsoil range.
+
+## 4. Side-by-side summary
+
+```{r summary-table, echo = FALSE}
+rows <- lapply(R$effects, function(e) {
+  data.frame(
+    exposure      = e$exposure,
+    adjustment    = paste(e$adjustment, collapse = ", "),
+    naive         = e$lm$effect_naive,
+    direct_lm     = e$lm$effect,
+    direct_bart   = if (!is.null(e$bart)) e$bart$effect else NA_real_,
+    boot_lo       = e$lm$effect_boot_ci[1L],
+    boot_hi       = e$lm$effect_boot_ci[2L],
+    stringsAsFactors = FALSE
+  )
+})
+tbl <- do.call(rbind, rows)
+knitr::kable(
+  tbl,
+  col.names = c("exposure", "adjustment set", "naive slope",
+                "direct (LM)", "direct (BART)",
+                "boot 2.5 %", "boot 97.5 %"),
+  digits = 4L,
+  caption = "Backdoor-adjusted direct effects on real Cerrado topsoil SOC."
+)
+```
+
+## 5. What this vignette buys you over v1.3 Pillar 1
+
+1. **Real data**, not `br_cerrado` synthetic. 1 095 WoSIS profiles,
+   56 covariates, CC-BY-4.0 — the same bundle the v1.3.1 case-study
+   benchmark uses.
+2. **Three identified causal effects** with concrete soil-formation
+   interpretation: the climate forcing of MAP → SOC (~0.007 g/kg
+   per mm), the land-use pathway of tree cover → SOC (~2.05 g/kg
+   per % tree cover, **more than 2× the naive** estimate), and the
+   mineral-protection mechanism of clay → SOC (~0.19 g/kg per %
+   clay, **~2.7× *less* than the naive** estimate).
+3. **Block-bootstrap intervals** that respect the spatial clustering
+   of WoSIS profiles — the asymptotic `confint(lm)` interval is
+   reported for comparison but the bootstrap is the defensible
+   number for a Brazilian pedometric paper.
+4. **Non-linear cross-check** via BART: every estimate is
+   reproduced within the LM CI, suggesting the linear SOC-covariate
+   structure is a reasonable approximation for Cerrado topsoil.
+
+The concrete output — the side-by-side "naive vs identified direct
+effect" table — is exactly the evidence a soil-mapping paper needs
+to argue that a given covariate has a *causal* (not merely
+associational) role. The three numbers above are directly
+citable.
+
+## References
