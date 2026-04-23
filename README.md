@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-1.7.1-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.7.1)
+[![Version](https://img.shields.io/badge/version-1.7.2-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.7.2)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -229,7 +229,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v1.7.1",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v1.7.2",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -533,8 +533,30 @@ block-bootstrap sample (B = 500) or a native BART posterior — so
 `uncertainty_calibrate()` applies uniformly (see
 [§9](#unified-uncertainty-api-v160)).
 
+### 🆕 v1.7.2 — Causal-discovery trio: expert × LLM × data-driven
+
+`vignette("causal-discovery-trio")` asks a harder question: **do the
+three DAG-construction strategies in Pillar 1 agree?** Running all
+five methods on the same 1 095 WoSIS profiles:
+
+| Comparison | Structural Hamming Distance |
+|:---|---:|
+| Expert ↔ LLM-augmented (Gemma 4) | **2** |
+| bnlearn `hc` ↔ bnlearn `tabu`    | **0** |
+| bnlearn `pc-stable` ↔ `hc`       | 12 |
+| Expert ↔ bnlearn `hc`             | **29** |
+
+The **major scientific finding** is that the choice of DAG changes
+the backdoor adjustment set for MAP → SOC from **6 covariates**
+(LLM-augmented) to **0 covariates** (bnlearn mmhc) — a difference of
+an order of magnitude that directly changes the identified effect. The
+three strategies are **complementary**, not substitutable. The
+vignette recommends using all three and reporting sensitivity as the
+causal-analog of observational uncertainty.
+
 📖 Vignettes: `vignette("pilar1-causal")`,
-`vignette("pilar1-causal-real")`.
+`vignette("pilar1-causal-real")`,
+`vignette("causal-discovery-trio")`.
 
 ---
 
@@ -1192,6 +1214,7 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `temporal_cerrado_results.rds`                | ~195 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis                | `pilar3-4d-real`                  |
 | `capstone_campaign_results.rds`               | ~543 KB | 6-pillar integrated bundle for the v1.7.0 capstone                          | `capstone-cerrado-campaign`       |
 | `capstone_native_calibration.rds`             | ~741 KB | Native-query calibration per pillar (v1.7.1 hotfix)                         | `capstone-cerrado-campaign` §10   |
+| `causal_discovery_results.rds`                |  ~2 KB  | Expert × LLM × data-driven DAG benchmark (v1.7.2)                           | `causal-discovery-trio`           |
 | `cerrado_abstracts.jsonl`                     |  ~40 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
 | `cerrado_claims_real_corpus.jsonl`            | ~400 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
@@ -1219,6 +1242,7 @@ browseVignettes("edaphos")
 | `pilar6-quantum`                  | Pure-R ZZFeatureMap simulator + quantum-kernel Gram matrix + Quantum KRR on binary SOC classification.   |
 | `uncertainty-unified`             | Unified `edaphos_posterior` class + single calibration diagnostic applied to all six pillars (v1.6.0).  |
 | 🏆 `capstone-cerrado-campaign`    | **v1.7.0 capstone**: all six pillars integrated in a Cerrado sampling-campaign decision.               |
+| `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
 Each vignette is written in the style of a short methods paper —
@@ -1252,6 +1276,7 @@ bibliography (`vignettes/references.bib`).
 | v1.6.0  | Unified `edaphos_posterior` + `uncertainty_calibrate()` |   ✅    |
 | v1.7.0  | Capstone vignette integrating all six pillars          |   ✅    |
 | v1.7.1  | Native-query calibration (honest per-pillar domain)    |   ✅    |
+| v1.7.2  | Causal-discovery trio: expert × LLM × data-driven      |   ✅    |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧      |
 | v1.8.0  | Scale LLM-KG to 10 000-abstract literature dump        | 📝      |
 | v1.9.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
@@ -1266,7 +1291,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 1.7.1) [Software]. Zenodo.
+> Soil Mapping* (Version 1.7.2) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1274,7 +1299,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {1.7.1},
+  version   = {1.7.2},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
