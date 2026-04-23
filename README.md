@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-1.8.1-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.8.1)
+[![Version](https://img.shields.io/badge/version-1.8.2-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.8.2)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -229,7 +229,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v1.8.1",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v1.8.2",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -594,7 +594,7 @@ published profiles for each backend. For real API runs, set
 
 📖 Vignette: `vignette("llm-kg-benchmark")`.
 
-### 🆕 v1.8.1 — Annotation tool: pre-annotation + Shiny review UI
+### v1.8.1 — Annotation tool: pre-annotation + Shiny review UI
 
 The v1.8.0 benchmark runs on a 72-claim seed; a publication-grade
 paper needs ~300 claims with statistical power. v1.8.1 ships the
@@ -630,6 +630,40 @@ The Shiny app has keyboard shortcuts (`n` = next, `a` = accept all,
 interrupted sessions resume exactly where they left off.
 
 📖 Vignette: `vignette("llm-annotation-workflow")`.
+
+### 🆕 v1.8.2 — App polish, OpenAlex corpus fetcher, Zenodo bundler
+
+Four quality-of-life upgrades on top of the v1.8.1 skeleton:
+
+1. **Real-corpus fetcher** — `data-raw/cerrado_corpus_v2_fetch.R`
+   hits 6 orthogonal OpenAlex queries on Cerrado pedogenesis,
+   deduplicates (DOI + title), applies length and year filters, and
+   writes a JSONL corpus of up to 150 real abstracts in the
+   schema that `llm_preannotate()` consumes. `EDAPHOS_CORPUS_MAILTO`
+   env-var lands you in OpenAlex's polite pool (~10 req/s) for free.
+2. **DAG preview tab** — the Shiny reviewer now has a live
+   `DiagrammeR`-rendered DAG of all accepted claims, with a
+   `min_support` slider, edge colour by polarity (green/red), edge
+   width by mean confidence, and an optional labels toggle. You see
+   the KG emerging as you annotate.
+3. **Dark mode** — a `bslib` theme toggle in the sidebar (uses the
+   native `input_dark_mode()` control, switches between Flatly and
+   Darkly bootswatch themes). Respects your OS preference and
+   repaints the whole UI on change, including the claim-row status
+   colours.
+4. **Zenodo packager** — new tab "Publish" + exported function
+   `llm_annotation_to_zenodo()` that builds a deposit-ready bundle:
+   ```
+   zenodo_package/
+     ├── gold_standard.jsonl    (cleaned JSONL)
+     ├── kg.ttl                 (RDF 1.1 Turtle)
+     ├── metadata.json          (DataCite-compatible)
+     └── README.md              (provenance + citation)
+   zenodo_package.zip           (upload-ready archive)
+   ```
+   Upload to [zenodo.org/deposit/new](https://zenodo.org/deposit/new)
+   and mint your own DOI for the KG as a standalone research
+   artefact.
 
 ---
 
@@ -1320,7 +1354,7 @@ browseVignettes("edaphos")
 | 🏆 `capstone-cerrado-campaign`    | **v1.7.0 capstone**: all six pillars integrated in a Cerrado sampling-campaign decision.               |
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
 | 📊 `llm-kg-benchmark`             | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen's κ, cost / 1k claims, latency, 10k-abstract scaling. |
-| 🛠️ `llm-annotation-workflow`      | **v1.8.1**: pre-annotation + Shiny review workflow to scale gold-standard from 72 to 300+ claims. |
+| 🛠️ `llm-annotation-workflow`      | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
 Each vignette is written in the style of a short methods paper —
@@ -1357,8 +1391,9 @@ bibliography (`vignettes/references.bib`).
 | v1.7.2  | Causal-discovery trio: expert × LLM × data-driven      |   ✅    |
 | v1.8.0  | LLM extraction benchmark (Gemma 4 × GPT × Claude)      |   ✅    |
 | v1.8.1  | Annotation tool: pre-annotation + Shiny review UI      |   ✅    |
+| v1.8.2  | DAG preview + dark mode + OpenAlex fetcher + Zenodo export |  ✅  |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧      |
-| v1.8.2  | Expand gold-standard to 300 real claims (via v1.8.1 tool) | 📝    |
+| v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝    |
 | v1.9.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
 | v2.0.0  | CRAN submission                                         | 📝      |
 
@@ -1371,7 +1406,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 1.8.1) [Software]. Zenodo.
+> Soil Mapping* (Version 1.8.2) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1379,7 +1414,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {1.8.1},
+  version   = {1.8.2},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}

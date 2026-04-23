@@ -1,4 +1,4 @@
-## edaphos gold-standard annotation reviewer (v1.8.1)
+## edaphos gold-standard annotation reviewer (v1.8.2)
 ##
 ## Launched via `edaphos::llm_annotation_launch()`, which sets these
 ## options before calling `shiny::runApp()`:
@@ -6,9 +6,7 @@
 ##   - edaphos.annotation.output    path to reviewed JSONL (write)
 ##   - edaphos.annotation.keyboard  logical, enable shortcuts
 ##
-## The app is resume-safe: every "Save & Next" writes the entire
-## reviewed JSONL to disk, so crashes / accidental browser closes
-## never lose more than one abstract of work.
+## v1.8.2 adds: dark mode toggle, DAG preview tab, Zenodo bundle tab.
 
 suppressPackageStartupMessages({
   library(shiny)
@@ -40,7 +38,6 @@ VOCAB <- c(
   "erosion", "weathering"
 )
 POLARITY <- c("+", "-")
-STATUS   <- c("draft", "accepted", "edited", "added", "rejected")
 
 # Read JSONL
 read_records <- function(path) {
@@ -82,6 +79,8 @@ coerce_claims <- function(cl) {
           "rationale", "status")]
 }
 
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
 # ─────────────────────────────────────────────────────────────────────────────
 # UI
 # ─────────────────────────────────────────────────────────────────────────────
@@ -93,25 +92,37 @@ css_rules <- "
   .claim-row.edited     { background: #e6f0ff; }
   .claim-row.added      { background: #fff4d6; }
   .claim-row.draft      { background: #fafafa; }
+  [data-bs-theme='dark'] .claim-row.accepted { background: #1f3d2a; }
+  [data-bs-theme='dark'] .claim-row.rejected { background: #3d1f1f; opacity: 0.5; }
+  [data-bs-theme='dark'] .claim-row.edited   { background: #1f2d3d; }
+  [data-bs-theme='dark'] .claim-row.added    { background: #3d341f; }
+  [data-bs-theme='dark'] .claim-row.draft    { background: #2a2a2a; }
   .claim-buttons .btn   { margin-right: 4px; margin-bottom: 4px; }
   .progress-line        { font-size: 1.0em; margin-top: 4px; color: #444; }
+  [data-bs-theme='dark'] .progress-line { color: #bbb; }
   .abstract-box         { background: #f7f7f7; border-left: 4px solid #2ECC71;
                           padding: 10px 14px; font-size: 0.98em;
                           line-height: 1.45; }
+  [data-bs-theme='dark'] .abstract-box { background: #1e1e1e; color: #eee; }
   .meta-line            { color: #888; font-size: 0.88em; }
+  [data-bs-theme='dark'] .meta-line { color: #aaa; }
   .kbd                  { background: #eee; border: 1px solid #ccc;
                           border-radius: 3px; padding: 1px 5px;
                           font-family: monospace; font-size: 0.88em; }
+  [data-bs-theme='dark'] .kbd { background: #333; border-color: #555; color: #eee; }
+  .theme-toggle-wrap    { position: relative; top: 2px; padding: 0 10px; }
 "
 
 ui <- bslib::page_navbar(
-  title = "edaphos · gold-standard annotation (v1.8.1)",
+  id    = "nav",
+  title = "edaphos · gold-standard annotation (v1.8.2)",
   theme = bslib::bs_theme(version = 5, bootswatch = "flatly"),
   header = tagList(
     shinyjs::useShinyjs(),
     tags$style(HTML(css_rules))
   ),
 
+  ## ── Tab 1: Review ─────────────────────────────────────────────────
   nav_panel(
     title = "Review",
     fluidRow(
@@ -156,12 +167,17 @@ ui <- bslib::page_navbar(
           '<p><span class="kbd">1</span>…<span class="kbd">9</span> Toggle accept on claim</p>'
         )),
         tags$hr(),
+        h6("Theme"),
+        input_dark_mode(id = "dark_mode", mode = "light"),
+        tags$hr(),
         h6("Output"),
         p(tags$code(.output_path),
            style = "font-size: 0.85em; word-break: break-all;")
       )
     )
   ),
+
+  ## ── Tab 2: Stats ───────────────────────────────────────────────────
   nav_panel(
     title = "Stats",
     fluidRow(
@@ -173,17 +189,89 @@ ui <- bslib::page_navbar(
       )
     )
   ),
+
+  ## ── Tab 3: DAG preview ─────────────────────────────────────────────
+  nav_panel(
+    title = "DAG",
+    fluidRow(
+      column(12,
+        h4("Aggregated DAG (accepted claims only)"),
+        p("Each arrow is an edge that appears in at least",
+          tags$code("min_support"), "accepted claims (across abstracts).",
+          "Polarity is shown by edge colour: ",
+          tags$span(style = "color:#27AE60;", "green"),
+          " = positive, ",
+          tags$span(style = "color:#C0392B;", "red"),
+          " = negative.  Edge width encodes the mean confidence."),
+        fluidRow(
+          column(3, sliderInput("min_support",
+                                  "min_support (occurrences)",
+                                  min = 1, max = 10, value = 1, step = 1)),
+          column(3, checkboxInput("show_labels",
+                                    "Show vocabulary labels", TRUE)),
+          column(6, verbatimTextOutput("dag_summary"))
+        ),
+        tags$div(style = "overflow-x: auto; text-align: center;",
+                   DiagrammeR::grVizOutput("dag_plot", height = "680px"))
+      )
+    )
+  ),
+
+  ## ── Tab 4: Export ──────────────────────────────────────────────────
   nav_panel(
     title = "Export",
     fluidRow(
       column(12,
-        h4("Final gold-standard"),
-        p("Click below to validate and write the final gold-standard",
-          "JSONL (draft / rejected claims removed)."),
+        h4("Validate and write the cleaned gold-standard"),
+        p("Drops rejected / untouched-draft claims, strips the internal",
+          tags$code("status"), "field, and validates against the",
+          "canonical vocabulary."),
         actionButton("btn_export", "Validate & export",
                       class = "btn-primary btn-lg"),
         tags$hr(),
         verbatimTextOutput("export_log")
+      )
+    )
+  ),
+
+  ## ── Tab 5: Zenodo package ─────────────────────────────────────────
+  nav_panel(
+    title = "Publish",
+    fluidRow(
+      column(12,
+        h4("Build a Zenodo-ready deposit bundle"),
+        p("Packages the reviewed gold-standard into a directory ready",
+          "to upload to",
+          tags$a(href = "https://zenodo.org/deposit/new",
+                   "zenodo.org/deposit/new", target = "_blank"),
+          ". Contents: ",
+          tags$code("gold_standard.jsonl"), ", ",
+          tags$code("kg.ttl"), " (RDF 1.1 Turtle), ",
+          tags$code("metadata.json"), " (DataCite), ",
+          tags$code("README.md"), "."),
+        fluidRow(
+          column(6, textInput("z_title",
+                                "Deposit title",
+                                value = "Cerrado gold-standard KG (edaphos)",
+                                width = "100%")),
+          column(6, textInput("z_version",
+                                "Version",
+                                value = as.character(Sys.Date()),
+                                width = "100%"))
+        ),
+        textAreaInput("z_description",
+                       "Description (HTML allowed, auto-generated if empty)",
+                       value = "", rows = 4, width = "100%"),
+        textInput("z_output_dir",
+                   "Output directory",
+                   value = file.path(dirname(.output_path),
+                                       "zenodo_package"),
+                   width = "100%"),
+        checkboxInput("z_zip", "Also create .zip archive", TRUE),
+        actionButton("btn_publish", "Build Zenodo bundle",
+                      class = "btn-primary btn-lg"),
+        tags$hr(),
+        verbatimTextOutput("publish_log")
       )
     )
   )
@@ -196,16 +284,15 @@ server <- function(input, output, session) {
 
   # ── Reactive state ─────────────────────────────────────────────────────
   rv <- reactiveValues(
-    records = NULL,   # full list of records with (possibly reviewed) claims
-    idx     = 1L,     # current abstract index (1-based)
-    current_claims = NULL  # data.frame for the current abstract (editable)
+    records = NULL,
+    idx     = 1L,
+    current_claims = NULL
   )
 
   # Initial load — use output JSONL if it exists (resume), else draft
   isolate({
     path0 <- if (file.exists(.output_path)) .output_path else .draft_path
     rv$records <- read_records(path0)
-    # Find first abstract with any "draft" claim (resume point)
     first_draft <- integer(0)
     for (i in seq_along(rv$records)) {
       cl <- coerce_claims(rv$records[[i]]$claims)
@@ -216,7 +303,17 @@ server <- function(input, output, session) {
     rv$current_claims <- coerce_claims(rv$records[[rv$idx]]$claims)
   })
 
-  # ── Navigation + load current abstract ──────────────────────────────────
+  # ── Dark mode ─────────────────────────────────────────────────────────
+  observe({
+    new_theme <- if (isTRUE(input$dark_mode == "dark")) {
+      bslib::bs_theme(version = 5, bootswatch = "darkly")
+    } else {
+      bslib::bs_theme(version = 5, bootswatch = "flatly")
+    }
+    session$setCurrentTheme(new_theme)
+  })
+
+  # ── Load current abstract ──────────────────────────────────────────────
   observe({
     i <- rv$idx
     rec <- rv$records[[i]]
@@ -233,6 +330,7 @@ server <- function(input, output, session) {
     parts <- c(
       if (!is.null(rec$year))  paste("Year:", rec$year) else NULL,
       if (!is.null(rec$topic)) paste("Topic:", rec$topic) else NULL,
+      if (!is.null(rec$doi))   paste("DOI:", rec$doi) else NULL,
       if (!is.null(rec$backend) && !is.null(rec$model))
         sprintf("Drafted by: %s / %s", rec$backend, rec$model) else NULL
     )
@@ -249,7 +347,7 @@ server <- function(input, output, session) {
                nrow(coerce_claims(r$claims)), integer(1L))))
   })
 
-  # ── Render per-claim editor rows ────────────────────────────────────────
+  # ── Claim editor rows ──────────────────────────────────────────────────
   output$claims_ui <- renderUI({
     cl <- rv$current_claims
     if (nrow(cl) == 0L)
@@ -309,7 +407,7 @@ server <- function(input, output, session) {
     }))
   })
 
-  # ── Harvest UI inputs back into rv$current_claims ───────────────────────
+  # Harvest
   harvest_current <- function() {
     cl <- rv$current_claims
     if (nrow(cl) == 0L) return(cl)
@@ -319,12 +417,11 @@ server <- function(input, output, session) {
       cl$polarity[i]   <- input[[paste0("polarity_", i)]]   %||% cl$polarity[i]
       cl$confidence[i] <- as.numeric(input[[paste0("confidence_", i)]] %||% cl$confidence[i])
       cl$rationale[i]  <- input[[paste0("rationale_", i)]]  %||% cl$rationale[i]
-      # Promote to "edited" if still "draft" and content changed? Skip for now.
     }
     cl
   }
 
-  # ── Per-claim accept/reject buttons (dynamic observers) ─────────────────
+  # Per-claim buttons (dynamic)
   observe({
     cl <- rv$current_claims
     for (i in seq_len(nrow(cl))) {
@@ -342,7 +439,6 @@ server <- function(input, output, session) {
     }
   })
 
-  # ── "+ Add claim" ───────────────────────────────────────────────────────
   observeEvent(input$btn_add, {
     rv$current_claims <- harvest_current()
     rv$current_claims <- rbind(rv$current_claims, data.frame(
@@ -352,7 +448,6 @@ server <- function(input, output, session) {
     ))
   })
 
-  # ── Save & Next ─────────────────────────────────────────────────────────
   save_current_to_records <- function() {
     cl <- harvest_current()
     rv$records[[rv$idx]]$claims <- cl
@@ -376,7 +471,7 @@ server <- function(input, output, session) {
     showNotification("Accepted all ✓", duration = 1.5, type = "message")
   })
 
-  # ── Sidebar session stats ───────────────────────────────────────────────
+  # ── Sidebar counters ───────────────────────────────────────────────────
   output$n_abstracts_done <- renderText({
     done <- sum(vapply(rv$records, function(r) {
       cl <- coerce_claims(r$claims)
@@ -392,7 +487,7 @@ server <- function(input, output, session) {
     sprintf("Claims accepted: %d", acc)
   })
 
-  # ── Stats tab ───────────────────────────────────────────────────────────
+  # ── Stats tab ──────────────────────────────────────────────────────────
   output$progress_table <- DT::renderDataTable({
     df <- do.call(rbind, lapply(rv$records, function(r) {
       cl <- coerce_claims(r$claims)
@@ -423,11 +518,79 @@ server <- function(input, output, session) {
              main = "Canonical vocabulary coverage (accepted claims)")
   })
 
-  # ── Export tab ──────────────────────────────────────────────────────────
+  # ── DAG tab ────────────────────────────────────────────────────────────
+  aggregate_claims <- reactive({
+    all_claims <- do.call(rbind, lapply(rv$records,
+                                          function(r) coerce_claims(r$claims)))
+    acc <- all_claims[all_claims$status %in%
+                         c("accepted", "edited", "added"), ]
+    if (nrow(acc) == 0L) return(NULL)
+    acc$edge <- paste(acc$cause, "->", acc$effect)
+    stats::aggregate(
+      cbind(support = 1L, confidence = acc$confidence) ~ edge + polarity,
+      data = acc,
+      FUN = function(x) if (length(x) == 0L) 0 else mean(x)
+    ) -> agg_mean
+    # aggregate support as sum (count of occurrences)
+    sup <- stats::aggregate(
+      support ~ edge, data = acc, FUN = length
+    )
+    agg_mean$support <- sup$support[match(agg_mean$edge, sup$edge)]
+    agg_mean$cause   <- sub(" -> .*", "", agg_mean$edge)
+    agg_mean$effect  <- sub(".* -> ", "", agg_mean$edge)
+    agg_mean
+  })
+
+  output$dag_summary <- renderText({
+    agg <- aggregate_claims()
+    if (is.null(agg)) return("No accepted claims yet — accept some claims to see the DAG.")
+    keep <- agg[agg$support >= (input$min_support %||% 1L), , drop = FALSE]
+    nodes <- unique(c(keep$cause, keep$effect))
+    sprintf(
+      "Showing %d edges on %d nodes (min_support=%d).\nTotal accepted edges: %d.",
+      nrow(keep), length(nodes),
+      input$min_support %||% 1L,
+      nrow(agg)
+    )
+  })
+
+  output$dag_plot <- DiagrammeR::renderGrViz({
+    agg <- aggregate_claims()
+    if (is.null(agg)) {
+      return(DiagrammeR::grViz("digraph empty { empty [label=\"No accepted claims yet\"] }"))
+    }
+    keep <- agg[agg$support >= (input$min_support %||% 1L), , drop = FALSE]
+    if (nrow(keep) == 0L) {
+      return(DiagrammeR::grViz("digraph empty { empty [label=\"No edges at this support threshold\"] }"))
+    }
+    show_lbl <- isTRUE(input$show_labels)
+    nodes <- unique(c(keep$cause, keep$effect))
+    node_defs <- vapply(nodes, function(n)
+      sprintf("  \"%s\" [label=%s, shape=ellipse, style=filled, fillcolor=\"#E8F4FD\", color=\"#2980B9\"]",
+              n, if (show_lbl) sprintf("\"%s\"", n) else "\"\""),
+      character(1L))
+    edge_defs <- vapply(seq_len(nrow(keep)), function(i) {
+      col <- if (keep$polarity[i] == "+") "#27AE60" else "#C0392B"
+      w <- 0.7 + 4 * (keep$confidence[i] %||% 0.5)
+      lab <- sprintf("%.2f × %d", keep$confidence[i], keep$support[i])
+      sprintf("  \"%s\" -> \"%s\" [color=\"%s\", penwidth=%.2f, label=\"%s\"]",
+              keep$cause[i], keep$effect[i], col, w, lab)
+    }, character(1L))
+    dot <- paste0(
+      "digraph dag {\n",
+      "  graph [layout=dot, rankdir=LR, bgcolor=\"transparent\"]\n",
+      "  node  [fontname=\"Helvetica\", fontsize=11]\n",
+      "  edge  [fontname=\"Helvetica\", fontsize=9, arrowsize=0.8]\n",
+      paste(node_defs, collapse = "\n"), "\n",
+      paste(edge_defs, collapse = "\n"), "\n}"
+    )
+    DiagrammeR::grViz(dot)
+  })
+
+  # ── Export tab ─────────────────────────────────────────────────────────
   observeEvent(input$btn_export, {
     save_current_to_records()
     out_final <- sub("\\.jsonl$", "_final.jsonl", .output_path)
-    # Mirror the logic in llm_annotation_export()
     records_out <- lapply(rv$records, function(r) {
       cl <- coerce_claims(r$claims)
       keep <- !(cl$status %in% c("rejected", "draft"))
@@ -438,7 +601,6 @@ server <- function(input, output, session) {
     })
     write_records(records_out, out_final)
 
-    # Validate
     n_claims_total <- sum(vapply(records_out, function(x) nrow(x$claims),
                                   integer(1L)))
     n_vocab_ok <- sum(vapply(records_out, function(x) {
@@ -453,13 +615,63 @@ server <- function(input, output, session) {
       sprintf("  In-vocabulary : %d / %d",
               n_vocab_ok, n_claims_total),
       "\nReady for benchmark ingestion:",
-      sprintf("  Rscript data-raw/llm_benchmark_run.R  (point GOLD_PATH to the file above)"),
+      "  Rscript data-raw/llm_benchmark_run.R",
       sep = "\n"
     ))
     showNotification("Exported ✓", duration = 3, type = "message")
   })
 
-  # ── Keyboard shortcuts ──────────────────────────────────────────────────
+  # ── Publish tab (Zenodo bundle) ────────────────────────────────────────
+  observeEvent(input$btn_publish, {
+    save_current_to_records()
+    # First export a clean version alongside
+    out_final <- sub("\\.jsonl$", "_final.jsonl", .output_path)
+    records_out <- lapply(rv$records, function(r) {
+      cl <- coerce_claims(r$claims)
+      keep <- !(cl$status %in% c("rejected", "draft"))
+      cl <- cl[keep, , drop = FALSE]
+      cl$status <- NULL
+      r$claims <- cl
+      r
+    })
+    write_records(records_out, out_final)
+
+    res <- tryCatch(
+      edaphos::llm_annotation_to_zenodo(
+        reviewed_path = out_final,
+        output_dir    = input$z_output_dir,
+        title         = input$z_title %||% "Cerrado gold-standard KG (edaphos)",
+        description   = if (nzchar(input$z_description %||% "")) input$z_description else NULL,
+        version       = input$z_version %||% as.character(Sys.Date()),
+        zip           = isTRUE(input$z_zip)
+      ),
+      error = function(e) conditionMessage(e)
+    )
+    zip_path <- paste0(input$z_output_dir, ".zip")
+    has_zip <- isTRUE(input$z_zip) && file.exists(zip_path)
+
+    output$publish_log <- renderText(paste(
+      sprintf("=== Bundle built at %s ===",
+              if (is.character(res)) res else input$z_output_dir),
+      "",
+      "Files in the bundle:",
+      paste(" -",
+            list.files(input$z_output_dir, full.names = FALSE)),
+      "",
+      if (has_zip) sprintf("Zip archive: %s (%.1f KB)",
+                            zip_path, file.size(zip_path) / 1024) else "",
+      "",
+      "Next steps:",
+      "  1. Open https://zenodo.org/deposit/new in a browser.",
+      "  2. Drag-and-drop the files (or the .zip) into the form.",
+      "  3. Copy the metadata from metadata.json into the Zenodo form.",
+      "  4. Publish; record the minted DOI in your paper.",
+      sep = "\n"
+    ))
+    showNotification("Zenodo bundle ready ✓", duration = 4, type = "message")
+  })
+
+  # ── Keyboard shortcuts ─────────────────────────────────────────────────
   if (isTRUE(.keyboard_on)) {
     shinyjs::runjs("
       $(document).on('keydown', function(e) {

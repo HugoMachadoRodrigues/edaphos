@@ -1,14 +1,14 @@
-# Pillar 1 — Gold-standard annotation tooling (v1.8.1).
+# Pillar 1 -- Gold-standard annotation tooling (v1.8.1).
 #
 # Two-phase workflow for scaling the Cerrado gold-standard beyond the
 # 72-claim seed shipped in v1.8.0:
 #
-#   Phase 1 (pre-annotation)  — the LLM (Gemma 4 by default) reads each
+#   Phase 1 (pre-annotation)  -- the LLM (Gemma 4 by default) reads each
 #     abstract and produces a draft set of (cause, effect, polarity,
 #     confidence) claims.  A deterministic simulator fallback keeps
 #     the pipeline usable without Ollama.
 #
-#   Phase 2 (human review)    — a Shiny app presents one abstract at a
+#   Phase 2 (human review)    -- a Shiny app presents one abstract at a
 #     time, lets the annotator accept / edit / reject each draft
 #     claim, and lets them add claims that the LLM missed.  Every
 #     abstract save writes to disk, so interrupted sessions resume
@@ -377,6 +377,11 @@ llm_annotation_export <- function(reviewed_path, output_path,
   out <- lapply(records, function(r) {
     cl <- r$claims
     if (is.data.frame(cl) && nrow(cl) > 0L) {
+      # Back-compat: claims with no `status` column (e.g. v1 hand-
+      # annotated gold-standard) are treated as already-accepted.
+      if (!"status" %in% names(cl)) {
+        cl$status <- "accepted"
+      }
       keep <- !(cl$status %in% c("rejected", "draft"))
       # "draft" means the user left it untouched -- conservative:
       # exclude these from the final gold standard.
@@ -401,6 +406,237 @@ llm_annotation_export <- function(reviewed_path, output_path,
 }
 
 # ---------------------------------------------------------------------------
+# Zenodo packaging
+# ---------------------------------------------------------------------------
+
+#' Package a reviewed gold-standard into a Zenodo-ready deposit bundle
+#'
+#' Generates a self-contained directory (and optionally a zip archive)
+#' that can be uploaded to Zenodo to mint a permanent DOI for the
+#' gold-standard.  Bundle contents:
+#'
+#' - `gold_standard.jsonl`   -- cleaned gold-standard (drafts / rejected
+#'                              removed, identical to
+#'                              [`llm_annotation_export()`] output).
+#' - `kg.ttl`                -- RDF 1.1 Turtle representation of the
+#'                              aggregated KG built by treating each
+#'                              accepted claim as a directed edge.
+#' - `metadata.json`         -- DataCite-compatible metadata ready for
+#'                              the Zenodo REST API.  Also usable as
+#'                              a source for a manual upload via the
+#'                              Zenodo web UI.
+#' - `README.md`             -- Human-readable description with schema,
+#'                              annotator, extractor, date, counts,
+#'                              citation.
+#'
+#' The function does NOT upload to Zenodo automatically (Zenodo requires
+#' a personal access token which should never be hard-coded).  After the
+#' bundle is built the user uploads the zip / files manually at
+#' <https://zenodo.org/deposit/new> and records the minted DOI back
+#' into the package's CITATION.cff / .zenodo.json.
+#'
+#' @param reviewed_path Path to the reviewed JSONL.
+#' @param output_dir Directory to create.  Will be made if it doesn't
+#'   exist.  Existing contents are overwritten.
+#' @param title Deposit title (will appear on Zenodo).
+#' @param authors Data frame with `family_name`, `given_name`,
+#'   optional `orcid`, optional `affiliation` per row.  Defaults to a
+#'   single-author entry using `utils::maintainer()` on the package.
+#' @param description Free-text description (HTML allowed).  Defaults
+#'   to a short summary including abstract / claim counts.
+#' @param keywords Character vector of keyword tags.
+#' @param license Licence identifier (default `"CC-BY-4.0"`).
+#' @param version Optional version string to embed in metadata.json.
+#' @param zip Logical; when `TRUE` (default), also produce a
+#'   `<output_dir>.zip` alongside the directory.
+#' @return Invisibly, the path to the created directory.
+#' @export
+llm_annotation_to_zenodo <- function(reviewed_path,
+                                       output_dir,
+                                       title = "Cerrado gold-standard KG (edaphos)",
+                                       authors = NULL,
+                                       description = NULL,
+                                       keywords = c("soil science",
+                                                     "pedometrics",
+                                                     "causal inference",
+                                                     "knowledge graph",
+                                                     "Cerrado"),
+                                       license = "CC-BY-4.0",
+                                       version = NULL,
+                                       zip = TRUE) {
+  stopifnot(file.exists(reviewed_path))
+  if (dir.exists(output_dir)) unlink(output_dir, recursive = TRUE)
+  dir.create(output_dir, recursive = TRUE)
+
+  # -- 1. Cleaned gold-standard ----------------------------------------
+  gs_path <- file.path(output_dir, "gold_standard.jsonl")
+  llm_annotation_export(reviewed_path, gs_path)
+  records <- .jsonl_read(gs_path)
+
+  # -- 2. Aggregate KG -> Turtle ----------------------------------------
+  ttl_path <- file.path(output_dir, "kg.ttl")
+  .write_kg_ttl(records, ttl_path, title)
+
+  # -- 3. DataCite metadata --------------------------------------------
+  if (is.null(authors)) {
+    authors <- data.frame(
+      family_name = "Rodrigues", given_name = "Hugo",
+      orcid       = "0000-0002-8070-8126",
+      affiliation = NA_character_,
+      stringsAsFactors = FALSE
+    )
+  }
+  n_abs <- length(records)
+  n_cl  <- sum(vapply(records, function(r) nrow(r$claims) %||% 0L,
+                       integer(1L)))
+  if (is.null(description)) {
+    description <- sprintf(
+      paste0("Causal-claim knowledge graph extracted from %d pedology ",
+              "abstracts covering the Brazilian Cerrado biome. ",
+              "%d expert-annotated claims in canonical pedometric ",
+              "vocabulary (precipitation, temperature, clay, soc, ...). ",
+              "Produced with the edaphos R package (Pillar 1) combining ",
+              "LLM pre-annotation and human review. Schema: each claim ",
+              "is a tuple (cause, effect, polarity, confidence, ",
+              "rationale) grounded in a quoted fragment of the source ",
+              "abstract."),
+      n_abs, n_cl
+    )
+  }
+  metadata <- list(
+    metadata = list(
+      title              = title,
+      upload_type        = "dataset",
+      description        = description,
+      creators           = lapply(seq_len(nrow(authors)), function(i) {
+        cr <- list(name = sprintf("%s, %s",
+                                    authors$family_name[i],
+                                    authors$given_name[i]))
+        if (!is.na(authors$orcid[i]))        cr$orcid       <- authors$orcid[i]
+        if (!is.na(authors$affiliation[i])) cr$affiliation <- authors$affiliation[i]
+        cr
+      }),
+      keywords           = as.list(keywords),
+      access_right       = "open",
+      license            = tolower(license),
+      related_identifiers = list(
+        list(relation = "isSupplementTo",
+             identifier = "10.5281/zenodo.19683708",
+             resource_type = "software",
+             scheme = "doi")
+      ),
+      version            = version %||% as.character(Sys.Date())
+    )
+  )
+  jsonlite::write_json(metadata,
+                        file.path(output_dir, "metadata.json"),
+                        pretty = TRUE, auto_unbox = TRUE)
+
+  # -- 4. README.md ----------------------------------------------------
+  readme_lines <- c(
+    sprintf("# %s", title),
+    "",
+    sprintf("**Abstracts:** %d  |  **Claims:** %d  |  **Date:** %s",
+            n_abs, n_cl, as.character(Sys.Date())),
+    "",
+    "## Files",
+    "- `gold_standard.jsonl` -- one JSON object per abstract with annotated",
+    "  causal claims.",
+    "- `kg.ttl` -- RDF 1.1 Turtle representation of the aggregated KG",
+    "  (each claim is a reified `rdf:Statement` with confidence and",
+    "  polarity predicates).",
+    "- `metadata.json` -- DataCite-compatible metadata for the Zenodo API.",
+    "",
+    "## How to cite",
+    "",
+    "> Rodrigues, H. (2026). *Cerrado gold-standard KG (edaphos)*.",
+    "> Zenodo.  [DOI to be assigned on deposit]",
+    "",
+    "## Provenance",
+    "",
+    sprintf("Generated on %s via the edaphos R package (Pillar 1,",
+            format(Sys.time(), "%Y-%m-%d %H:%M UTC")),
+    "`llm_preannotate` + `llm_annotation_launch` + `llm_annotation_to_zenodo`).",
+    "Schema, vocabulary and export logic are reproducible from the",
+    "edaphos source at https://github.com/HugoMachadoRodrigues/edaphos.",
+    "",
+    "## Licence",
+    sprintf("This dataset is released under **%s**.", license)
+  )
+  writeLines(readme_lines, file.path(output_dir, "README.md"))
+
+  # -- 5. Zip (optional) -----------------------------------------------
+  if (isTRUE(zip)) {
+    zip_path <- paste0(output_dir, ".zip")
+    if (file.exists(zip_path)) file.remove(zip_path)
+    # Use utils::zip via the parent dir so paths inside zip are relative
+    old_wd <- getwd()
+    on.exit(setwd(old_wd), add = TRUE)
+    setwd(dirname(output_dir))
+    utils::zip(basename(zip_path), basename(output_dir),
+                flags = "-r9Xq")
+  }
+
+  message(sprintf("=== Zenodo bundle ready: %s ===", output_dir))
+  invisible(output_dir)
+}
+
+# Helper: write Turtle RDF from a list of annotated records
+.write_kg_ttl <- function(records, path, title) {
+  prefixes <- c(
+    "@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .",
+    "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .",
+    "@prefix dct:  <http://purl.org/dc/terms/> .",
+    "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .",
+    "@prefix eda:  <https://edaphos.org/ns/> .",
+    "@prefix ped:  <https://edaphos.org/ns/pedometry/> .",
+    ""
+  )
+  doc <- c(prefixes, sprintf('<> dct:title "%s" .', title), "")
+  stmt_id <- 0L
+  for (r in records) {
+    cl <- r$claims
+    if (is.null(cl) || !is.data.frame(cl) || nrow(cl) == 0L) next
+    for (i in seq_len(nrow(cl))) {
+      stmt_id <- stmt_id + 1L
+      s <- sprintf("eda:stmt_%06d", stmt_id)
+      abs <- sprintf("eda:abs_%s", r$abstract_id)
+      cause  <- sprintf("ped:%s", cl$cause[i])
+      effect <- sprintf("ped:%s", cl$effect[i])
+      rationale <- gsub('"', '\\\\"', cl$rationale[i] %||% "", fixed = TRUE)
+      doc <- c(doc,
+        sprintf("%s a rdf:Statement ;", s),
+        sprintf("  rdf:subject %s ;", cause),
+        sprintf("  rdf:predicate eda:causes ;"),
+        sprintf("  rdf:object %s ;", effect),
+        sprintf("  eda:polarity \"%s\" ;", cl$polarity[i] %||% "+"),
+        sprintf("  eda:confidence \"%.3f\"^^xsd:decimal ;",
+                as.numeric(cl$confidence[i] %||% 0.5)),
+        sprintf("  dct:source %s ;", abs),
+        sprintf("  rdfs:comment \"%s\" .", rationale),
+        ""
+      )
+    }
+    if (!is.null(r$abstract_id)) {
+      safe_title <- gsub('"', '\\\\"', r$title %||% "", fixed = TRUE)
+      doc <- c(doc,
+        sprintf("eda:abs_%s a eda:Abstract ;", r$abstract_id),
+        sprintf("  dct:title \"%s\" ;", safe_title),
+        if (!is.null(r$year))
+          sprintf("  dct:issued \"%d\"^^xsd:gYear ;", as.integer(r$year))
+          else NULL,
+        if (!is.null(r$doi))
+          sprintf("  dct:identifier \"%s\" .", r$doi)
+          else "  .",
+        ""
+      )
+    }
+  }
+  writeLines(doc, path)
+  invisible(path)
+}
+
+# ---------------------------------------------------------------------------
 # Shiny launcher
 # ---------------------------------------------------------------------------
 
@@ -413,8 +649,8 @@ llm_annotation_export <- function(reviewed_path, output_path,
 #' they left off.
 #'
 #' **Keyboard shortcuts** (when `keyboard_shortcuts = TRUE`):
-#' `a` — accept all and next · `r` — reject all · `n` — next abstract
-#' (save) · `p` — previous · `+` — add claim · `1..9` — toggle
+#' `a` -- accept all and next | `r` -- reject all | `n` -- next abstract
+#' (save) | `p` -- previous | `+` -- add claim | `1..9` -- toggle
 #' accept on claim *n*.
 #'
 #' @param draft_path Path to the draft JSONL produced by

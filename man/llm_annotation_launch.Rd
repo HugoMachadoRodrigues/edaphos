@@ -35,7 +35,7 @@ they left off.
 }
 \details{
 \strong{Keyboard shortcuts} (when \code{keyboard_shortcuts = TRUE}):
-\code{a} — accept all and next · \code{r} — reject all · \code{n} — next abstract
-(save) · \code{p} — previous · \code{+} — add claim · \verb{1..9} — toggle
+\code{a} -- accept all and next | \code{r} -- reject all | \code{n} -- next abstract
+(save) | \code{p} -- previous | \code{+} -- add claim | \verb{1..9} -- toggle
 accept on claim \emph{n}.
 }

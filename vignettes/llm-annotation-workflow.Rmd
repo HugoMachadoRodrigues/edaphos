@@ -251,14 +251,79 @@ gold-standard):
 
 ---
 
-## Próximas sessões (v1.8.2 → v1.8.3)
+## v1.8.2 upgrades
 
-- **v1.8.2**: scripts de publicação do gold-standard v2 no Zenodo
-  (DOI próprio) + re-benchmark dos três backends com a versão real.
-- **v1.8.3**: integrar voting ponderado (Gemma + Claude) como default
+### Corpus fetcher em produção
+
+```r
+# Exige rede. Gratuito. ~40s para 6 queries × 60 results.
+Sys.setenv(EDAPHOS_CORPUS_MAILTO = "rodrigues.machado.hugo@gmail.com")
+source("data-raw/cerrado_corpus_v2_fetch.R")
+# -> inst/extdata/cerrado_corpus_openalex_v2.jsonl  (~150 abstracts)
+```
+
+### DAG preview ao vivo
+
+No app, a aba **DAG** renderiza um `DiagrammeR::grViz()` do grafo
+agregado de todas as claims com `status` = *accepted | edited |
+added*:
+
+- Slider **min_support** filtra arestas por número de ocorrências
+  (útil quando o corpus é grande e você quer só as arestas
+  confirmadas por múltiplos abstracts).
+- Cores de aresta: **verde** = +, **vermelha** = −.
+- Largura de aresta ∝ confidence médio.
+- Toggle de labels para visualizar estrutura sem nomes (útil para
+  figuras de paper).
+
+### Dark mode
+
+Toggle no sidebar (usa `bslib::input_dark_mode()`). Respeita a
+preferência do sistema operacional.
+
+### Publicação no Zenodo
+
+A aba **Publish** empacota tudo num diretório Zenodo-ready:
+
+```r
+# Mesma coisa programaticamente
+edaphos::llm_annotation_to_zenodo(
+  reviewed_path = "reviewed_gold_v2_final.jsonl",
+  output_dir    = "~/Desktop/zenodo_cerrado_kg",
+  title         = "Cerrado Pedogenesis KG (edaphos, v2, 2026-04)",
+  authors       = data.frame(
+    family_name = "Rodrigues", given_name = "Hugo",
+    orcid       = "0000-0002-8070-8126",
+    affiliation = "University of São Paulo"
+  ),
+  keywords      = c("Cerrado", "pedometrics", "soil organic carbon",
+                     "knowledge graph", "causal inference"),
+  license       = "CC-BY-4.0",
+  zip           = TRUE
+)
+```
+
+Conteúdo do bundle:
+
+| Arquivo | Papel |
+|:---|:---|
+| `gold_standard.jsonl` | Gold-standard limpo (draft/rejected removidos) |
+| `kg.ttl` | Grafo serializado em RDF 1.1 Turtle (cada claim vira um `rdf:Statement` reificado com predicados `eda:polarity`, `eda:confidence`, `dct:source`) |
+| `metadata.json` | DataCite-compatible; pronto para a Zenodo REST API |
+| `README.md` | Descrição, contagens, provenance, citação |
+
+Upload manual em <https://zenodo.org/deposit/new>, cola os campos do
+`metadata.json` no formulário, publica, registra o DOI mintado no
+`CITATION.cff` do seu paper.
+
+## Próximas sessões (v1.8.3 → v1.8.4)
+
+- **v1.8.3**: production run completo — fetcher → Gemma 4 →
+  anotação humana → Zenodo deposit com DOI real. ~3 horas do
+  pedólogo + ~40 min de máquina.
+- **v1.8.4**: integrar voting ponderado (Gemma + Claude) como default
   de `causal_llm_ingest_abstract_voted()`, calibrado pelo κ
   backend-vs-gold derivado do benchmark.
-- **v1.8.4**: corpus scaling para 10 000 abstracts reais.
 
 ---
 
