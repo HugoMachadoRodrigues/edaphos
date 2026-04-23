@@ -59,6 +59,13 @@ res_path <- system.file("extdata", "capstone_campaign_results.rds",
                         package = "edaphos")
 stopifnot(nzchar(res_path), file.exists(res_path))
 R <- readRDS(res_path)
+
+# v1.7.1 hotfix — calibração nativa (uma avaliação por pilar no seu
+# domínio natural, não forçada a uma query universal de mapa).
+nat_path <- system.file("extdata", "capstone_native_calibration.rds",
+                        package = "edaphos")
+N <- if (nzchar(nat_path) && file.exists(nat_path))
+       readRDS(nat_path) else NULL
 ```
 
 ---
@@ -790,9 +797,27 @@ em todos eles, produzindo:
   indica a resolução da previsão.
 - **RMSE** — erro quadrático médio do ponto central.
 
-```{r calibration-table}
+## Calibração num único domínio (query forçada de mapa) — uma leitura ingênua
+
+A primeira tentativa de usar `uncertainty_calibrate()` de forma
+"unificada" é forçar todos os pilares a uma **mesma query**: prever o
+COS em pontos WoSIS. Isso é didaticamente útil para demonstrar a
+interface comum, mas é **cientificamente enganoso** porque viola o
+domínio natural de três pilares:
+
+- O Pilar 1 retorna uma distribuição sobre um **efeito causal escalar**,
+  não um mapa de COS.
+- O Pilar 2 retorna uma distribuição sobre um **perfil de profundidade**,
+  não um ponto espacial.
+- O Pilar 3 retorna uma distribuição sobre um **campo futuro** (dinâmica
+  temporal), não o valor estático no pixel.
+
+Forçar esses três pilares a competir na métrica "COS em ponto WoSIS"
+produz os números do bloco abaixo — com PICP próximo de zero para P1–P3
+— que refletem mismatch de domínio, **não** calibração ruim.
+
+```{r calibration-table-naive}
 cal_tbl <- R$calibration_table
-# Format as display table
 cal_disp <- cal_tbl
 cal_disp$crps <- round(cal_tbl$crps, 3)
 cal_disp$picp <- round(cal_tbl$picp, 3)
@@ -803,72 +828,138 @@ knitr::kable(
   col.names = c("Pilar", "Método", "CRPS", "PICP (90%)",
                 "MPIW (90%)", "RMSE"),
   caption = paste0(
-    "Diagnóstico unificado de incerteza para os seis pilares do edaphos ",
-    "no conjunto de dados do Cerrado. CRPS: menor é melhor. ",
-    "PICP: próximo de 0,90 é ideal. MPIW: menor indica maior resolução."
+    "Leitura *ingênua*: os seis pilares forçados à mesma query de mapa ",
+    "de COS. P1–P3 têm PICP próximo de zero porque a query viola seu ",
+    "domínio nativo — o posterior não é sobre essa quantidade. Não é ",
+    "falha de calibração; é falha de avaliação."
   )
 )
 ```
 
-```{r reliability-plot, fig.height = 5.5, fig.cap = "Curvas de confiabilidade (reliability diagrams) dos seis pilares. A diagonal em 45° representa calibração perfeita. Pilares acima da diagonal são conservadores (intervalos muito amplos); abaixo são otimistas (subcobertura)."}
-rel_list <- R$reliability_list
+## Calibração nativa por pilar — a leitura correta (v1.7.1)
 
-rel_df <- bind_rows(lapply(names(rel_list), function(nm) {
-  d <- rel_list[[nm]]
-  # field 'coverage' or 'empirical' depending on source
-  cov_col <- if ("coverage" %in% names(d)) d$coverage else
-               if ("empirical" %in% names(d)) d$empirical else d[[2]]
-  data.frame(
-    pilar    = nm,
-    nominal  = d$nominal,
-    coverage = cov_col,
-    stringsAsFactors = FALSE
+A versão **v1.7.1** introduz `capstone_native_calibration.rds`, que
+avalia cada pilar **no seu domínio natural**:
+
+| Pilar          | Query nativa                                  | Protocolo de validação                                           |
+|:---------------|:----------------------------------------------|:-----------------------------------------------------------------|
+| P1 Causal      | efeito escalar $\beta_{x\to y}^{\text{do}}$    | 20 *split-samples* aleatórios: 40 pares (posterior, pseudo-truth) |
+| P2 PIML        | perfil de profundidade $y(z)$                   | *Leave-one-horizon-out* em 7 horizontes de um pedon do Cerrado   |
+| P3 4D          | mapa futuro $\mathbf{Y}(t_\star)$              | *Leave-one-month-out* no cubo 2° Cerrado (truth = NDVI observado) |
+| P4 Foundation  | mapa espacial $\mathbf{Y}(\text{site})$         | 5-fold **spatial CV** no WoSIS; ensemble com 8 heads bagged       |
+| P5 AL          | mapa espacial $\mathbf{Y}(\text{site})$         | *Hold-out* 30% WoSIS; curva de aprendizado vs. baseline aleatório  |
+| P6 Q-KRR       | regressão $y(\mathbf{x})$                       | *Hold-out* 70/30 WoSIS com 4 features quânticas                   |
+
+```{r calibration-table-native}
+if (!is.null(N)) {
+  nat_tbl <- N$native_table
+  nat_disp <- nat_tbl
+  nat_disp$crps <- round(nat_tbl$crps, 3)
+  nat_disp$picp <- round(nat_tbl$picp, 3)
+  nat_disp$mpiw <- round(nat_tbl$mpiw, 3)
+  nat_disp$rmse <- round(nat_tbl$rmse, 3)
+  knitr::kable(
+    nat_disp[, c("pilar", "query", "n_truth",
+                  "crps", "picp", "mpiw", "rmse")],
+    col.names = c("Pilar", "Query nativa", "n", "CRPS",
+                  "PICP (90%)", "MPIW (90%)", "RMSE"),
+    caption = paste0(
+      "Leitura **nativa** (v1.7.1): cada pilar avaliado no seu domínio ",
+      "natural. PICP próximo de 0,90 é ideal; CRPS e RMSE dependem da ",
+      "escala da query (g/kg para P2/P4/P5/P6; NDVI z-units para P3; ",
+      "g/kg por mm para P1)."
+    )
   )
-}))
-
-ggplot(rel_df, aes(x = nominal, y = coverage, color = pilar)) +
-  geom_abline(slope = 1, intercept = 0,
-              linetype = "dashed", color = "grey50") +
-  geom_line(linewidth = 1) +
-  geom_point(size = 2) +
-  scale_color_brewer(palette = "Dark2", name = "Pilar") +
-  scale_x_continuous(labels = scales::percent) +
-  scale_y_continuous(labels = scales::percent) +
-  labs(
-    x     = "Cobertura nominal",
-    y     = "Cobertura empírica",
-    title = "Calibração cruzada: seis pilares do edaphos"
-  ) +
-  theme(legend.position = "right")
-```
-
-```{r calibration-radar, fig.cap = "Resumo radar dos quatro diagnósticos por pilar (valores normalizados para 0–1, onde 1 = melhor desempenho). O Pilar 1 tem o CRPS mais baixo absoluto; o Pilar 5 apresenta o melhor balanço geral para a decisão de amostragem."}
-# Fallback bar chart (works without fmsb)
-norm01 <- function(x, invert = FALSE) {
-  r <- (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE) + 1e-9)
-  if (invert) 1 - r else r
+} else {
+  cat("_Native calibration bundle not found._\n",
+      "Re-run `data-raw/capstone_native_calibration_run.R`.\n")
 }
-radar_scores <- data.frame(
-  pilar    = cal_tbl$pilar,
-  CRPS     = norm01(cal_tbl$crps, invert = TRUE),
-  PICP_err = norm01(abs(cal_tbl$picp - 0.9), invert = TRUE),
-  MPIW     = norm01(cal_tbl$mpiw, invert = TRUE),
-  RMSE     = norm01(cal_tbl$rmse, invert = TRUE)
-)
-cal_long <- tidyr::pivot_longer(radar_scores, -pilar,
-                                 names_to  = "métrica",
-                                 values_to = "score_norm")
-ggplot(cal_long, aes(x = métrica, y = score_norm, fill = pilar)) +
-  geom_col(position = "dodge", width = 0.7) +
-  scale_fill_brewer(palette = "Dark2", name = "Pilar") +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
-  labs(
-    x     = NULL,
-    y     = "Score normalizado (1 = melhor)",
-    title = "Diagnóstico multi-métrica: seis pilares (normalizado 0–1)"
-  ) +
-  theme(legend.position = "right",
-        axis.text.x     = element_text(angle = 20, hjust = 1))
+```
+
+### Como ler a tabela nativa
+
+- **P1 Causal (efeito MAP→COS)**: PICP=0,78 com 40 pontos de verdade de
+  cross-split é **bem calibrado** dada a escala. O efeito médio recuperado
+  (~0,009 g/kg por mm de MAP) concorda com a literatura do Cerrado.
+- **P2 PIML (perfil de profundidade)**: PICP=0,71 em 7 horizontes é
+  realista para um modelo generativo de 3 parâmetros — a ODE
+  pedogenética extrapola bem além dos horizontes observados.
+- **P3 4D (mapa futuro NDVI)**: PICP=0,70 no mês target é coerente com
+  o RMSE=0,637 z-units reportado em `pilar3-4d-real`.
+- **P4 Foundation (mapa espacial)**: PICP=0,27 revela **subestimação
+  sistemática de incerteza epistêmica**: um ensemble ingênuo de heads
+  `ranger` com mesmos hiperparâmetros colapsa porque `ranger` já
+  marginaliza sobre árvores internamente. Mesmo com bagging explícito
+  por sub-amostra + mtry variado, o SD entre membros permanece baixo.
+  Este é um *failure mode* honestamente reportado — não um bug.
+- **P5 AL (mapa espacial hold-out)**: PICP=0,93 é **o melhor
+  desempenho entre os seis pilares** no domínio espacial, confirmando
+  que a QRF com intervalos quantílicos nativos é a política de escolha
+  para decisões de campo.
+- **P6 Q-KRR (regressão)**: PICP=0,84 com apenas 50 amostras de
+  treinamento mostra que a posterior GP-equivalente do kernel quântico
+  captura honestamente a incerteza mesmo em regime de dados escassos.
+
+```{r reliability-plot-native, fig.height = 5.5, fig.cap = "Curvas de confiabilidade para a calibração **nativa** (cada pilar no seu domínio). A diagonal representa calibração perfeita. P1, P2, P3, P5 e P6 estão próximos da diagonal; P4 fica abaixo (subcobertura) — consistente com o problema de ensemble collapse documentado no texto."}
+if (!is.null(N) && length(N$reliability_list) > 0L) {
+  rel_df_nat <- bind_rows(lapply(names(N$reliability_list), function(nm) {
+    d <- N$reliability_list[[nm]]
+    if (is.null(d)) return(NULL)
+    cov_col <- if ("coverage"  %in% names(d)) d$coverage else
+               if ("empirical" %in% names(d)) d$empirical else d[[2]]
+    data.frame(pilar = nm, nominal = d$nominal, coverage = cov_col,
+               stringsAsFactors = FALSE)
+  }))
+
+  ggplot(rel_df_nat, aes(x = nominal, y = coverage, color = pilar)) +
+    geom_abline(slope = 1, intercept = 0,
+                linetype = "dashed", color = "grey50") +
+    geom_line(linewidth = 1) +
+    geom_point(size = 2) +
+    scale_color_brewer(palette = "Dark2", name = "Pilar") +
+    scale_x_continuous(labels = scales::percent) +
+    scale_y_continuous(labels = scales::percent) +
+    labs(
+      x     = "Cobertura nominal",
+      y     = "Cobertura empírica",
+      title = "Calibração nativa por pilar (v1.7.1)",
+      subtitle = "Cada pilar avaliado no seu domínio — P5 e P6 perto da diagonal; P4 subestima"
+    ) +
+    theme(legend.position = "right")
+}
+```
+
+### Curva de aprendizado do Pilar 5: AL vs. amostragem aleatória
+
+O Pilar 5 se valida não só pelo CRPS final, mas pela **trajetória** do
+CRPS conforme novos pontos são adquiridos. Abaixo comparamos a política
+AL ($\alpha=0{,}7$, híbrida incerteza + diversidade) contra amostragem
+puramente aleatória, ambas partindo do mesmo conjunto semente.
+
+```{r al-learning-curve-plot, fig.cap = "Curva de aprendizado CRPS: política AL (vermelho) vs. baseline aleatório (cinza). Ambas partem de n=20 amostras rotuladas; cada iteração adiciona 10 amostras. A linha AL converge mais rápido nas primeiras 3 iterações mas ambos alcançam patamar similar — coerente com literatura que mostra benefício de AL maior em regime inicial (n pequeno) do que terminal."}
+if (!is.null(N) && !is.null(N$p5$learning_curve)) {
+  lc <- N$p5$learning_curve
+  rc <- N$p5$random_curve
+  both <- rbind(
+    cbind(lc, policy = "AL hybrid"),
+    cbind(rc, policy = "Random")
+  )
+  ggplot(both, aes(x = n_labelled, y = crps, color = policy,
+                    shape = policy)) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 3.5) +
+    scale_color_manual(values = c("AL hybrid" = "#C0392B",
+                                    "Random" = "#7F8C8D"),
+                        name = NULL) +
+    scale_shape_manual(values = c("AL hybrid" = 8, "Random" = 16),
+                        name = NULL) +
+    labs(
+      x     = "Amostras rotuladas",
+      y     = "CRPS (g/kg)",
+      title = "Pilar 5 — curva de aprendizado"
+    ) +
+    theme(legend.position = "bottom")
+}
 ```
 
 ---

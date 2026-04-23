@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-1.7.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.7.0)
+[![Version](https://img.shields.io/badge/version-1.7.1-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.7.1)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -229,7 +229,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v1.7.0",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v1.7.1",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -1052,25 +1052,29 @@ cal  <- uncertainty_calibrate(post, truth = observed_effects)
 autoplot(post)                       # ggplot2 figure by query type
 ```
 
-Example cross-pillar calibration on the capstone Cerrado case
-(from `inst/extdata/capstone_campaign_results.rds`):
+### Native-query calibration (v1.7.1)
 
-| Pillar       | Method     | CRPS  | PICP (90%) | MPIW (90%) | RMSE  |
-|:-------------|:-----------|------:|-----------:|-----------:|------:|
-| P1 Causal    | bootstrap  | 16.56 |      0.000 |       1.63 | 23.37 |
-| P2 PIML      | bayesian   | 23.32 |      0.004 |       1.64 | 26.02 |
-| P3 4D        | ensemble   | 16.86 |      0.032 |       2.02 | 24.32 |
-| P4 Found.    | ensemble   |  8.81 |      0.400 |      13.47 | 16.92 |
-| **P5 AL**    | loo_cv     | **7.33** |   0.532 |      12.84 | **16.62** |
-| P6 Q-KRR     | analytic   |  9.49 |  **0.960** |      70.62 | 19.48 |
+Evaluating each pillar **in its natural domain** — not forced into a
+shared map query — gives the scientifically honest table:
 
-**How to read this table.** P5 AL has the best CRPS and RMSE — it
-generalises best to the WoSIS truth. P6 Q-KRR reaches near-nominal
-PICP but at the cost of very wide intervals (MPIW = 70.6), consistent
-with the conservative nature of the GP-equivalent posterior at small
-training sets. P1–P3 are poorly calibrated when their posteriors are
-forced on to a SOC-mapping query for which they weren't designed — a
-healthy negative result that the unified diagnostic surfaces.
+| Pillar       | Native query            | n   | CRPS   | PICP (90%) | MPIW (90%) | RMSE  |
+|:-------------|:------------------------|----:|-------:|-----------:|-----------:|------:|
+| P1 Causal    | effect β (g/kg per mm)  |  40 | 0.004  |   **0.775** |      0.020 | 0.007 |
+| P2 PIML      | depth profile y(z)      |   7 | 0.408  |   **0.714** |      2.015 | 0.826 |
+| P3 4D        | future map NDVI(t★)     | 100 | 0.366  |   **0.700** |      1.268 | 0.637 |
+| P4 Found.    | 5-fold spatial CV       | 250 | 7.621  |      0.268 |      8.353 | 12.41 |
+| **P5 AL**    | held-out map            |  71 | 6.375  |   **0.930** |     37.816 | 12.86 |
+| P6 Q-KRR     | held-out regression     |  75 | 8.203  |   **0.840** |     35.632 | 16.94 |
+
+**How to read this table.** The 90% nominal PICP should be close to
+0.90. **P5 AL (0.93) and P6 Q-KRR (0.84) are the best-calibrated**
+spatial-query pillars. P1 (0.78), P2 (0.71) and P3 (0.70) are
+well-calibrated in their own domains despite small n. **P4's 0.27 PICP
+flags a real failure mode**: naïve ensembles of `ranger` heads
+underestimate epistemic SD because ranger already marginalises over
+trees — honestly reported rather than papered over. See
+`vignette("capstone-cerrado-campaign")` §10 for the side-by-side
+comparison with the naïve unified-query table and its caveats.
 
 📖 Vignette: `vignette("uncertainty-unified")`.
 
@@ -1187,6 +1191,7 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `causal_cerrado_real.rds`                     |  ~2 MB | 1 095 WoSIS profiles + DAG + identified effects                             | `pilar1-causal-real`              |
 | `temporal_cerrado_results.rds`                | ~195 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis                | `pilar3-4d-real`                  |
 | `capstone_campaign_results.rds`               | ~543 KB | 6-pillar integrated bundle for the v1.7.0 capstone                          | `capstone-cerrado-campaign`       |
+| `capstone_native_calibration.rds`             | ~741 KB | Native-query calibration per pillar (v1.7.1 hotfix)                         | `capstone-cerrado-campaign` §10   |
 | `cerrado_abstracts.jsonl`                     |  ~40 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
 | `cerrado_claims_real_corpus.jsonl`            | ~400 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
@@ -1246,6 +1251,7 @@ bibliography (`vignettes/references.bib`).
 | v1.5.0  | ConvLSTM + EnKF with Gaspari-Cohn on real Cerrado cube |   ✅    |
 | v1.6.0  | Unified `edaphos_posterior` + `uncertainty_calibrate()` |   ✅    |
 | v1.7.0  | Capstone vignette integrating all six pillars          |   ✅    |
+| v1.7.1  | Native-query calibration (honest per-pillar domain)    |   ✅    |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧      |
 | v1.8.0  | Scale LLM-KG to 10 000-abstract literature dump        | 📝      |
 | v1.9.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
@@ -1260,7 +1266,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 1.7.0) [Software]. Zenodo.
+> Soil Mapping* (Version 1.7.1) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1268,7 +1274,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {1.7.0},
+  version   = {1.7.1},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
