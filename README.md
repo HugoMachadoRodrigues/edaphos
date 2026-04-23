@@ -954,10 +954,7 @@ Gaussian-process regression [Rasmussen & Williams 2006 §2.3], the
 Q-KRR's predictive variance is analytic:
 
 $$
-\sigma_\epsilon^2(\mathbf{x}_*) \;=\;
-  \underbrace{k(\mathbf{x}_*, \mathbf{x}_*)}_{\text{aleatoric}}
-  - \underbrace{k(\mathbf{x}_*, X)\,(K + \lambda I)^{-1}\,k(X, \mathbf{x}_*)}_{\text{epistemic}}
-  + \sigma_n^2,
+\sigma_\epsilon^2(\mathbf{x}_\star) = \underbrace{k(\mathbf{x}_\star, \mathbf{x}_\star)}_{\text{aleatoric}} - \underbrace{k(\mathbf{x}_\star, X)\,(K + \lambda I)^{-1}\,k(X, \mathbf{x}_\star)}_{\text{epistemic}} + \sigma_n^2
 $$
 
 where $\sigma_n^2$ is the leave-one-out residual variance.
