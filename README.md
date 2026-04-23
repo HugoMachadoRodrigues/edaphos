@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-1.8.2-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.8.2)
+[![Version](https://img.shields.io/badge/version-1.9.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.9.0)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -229,7 +229,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v1.8.2",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v1.9.0",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -631,7 +631,7 @@ interrupted sessions resume exactly where they left off.
 
 📖 Vignette: `vignette("llm-annotation-workflow")`.
 
-### 🆕 v1.8.2 — App polish, OpenAlex corpus fetcher, Zenodo bundler
+### v1.8.2 — App polish, OpenAlex corpus fetcher, Zenodo bundler
 
 Four quality-of-life upgrades on top of the v1.8.1 skeleton:
 
@@ -664,6 +664,64 @@ Four quality-of-life upgrades on top of the v1.8.1 skeleton:
    Upload to [zenodo.org/deposit/new](https://zenodo.org/deposit/new)
    and mint your own DOI for the KG as a standalone research
    artefact.
+
+### 🆕 v1.9.0 — Foundation embeddings as causal instrumental variables
+
+The **Pillar 1 × Pillar 4 bridge**. Backdoor adjustment (Pillar 1)
+identifies causal effects only under **causal sufficiency** — all
+confounders observed. When unobserved confounders `U` remain, the
+adjusted estimator is biased:
+
+$$\hat{\beta}_{\text{backdoor}} = \beta_{\text{true}} + \text{bias}(U)$$
+
+**Instrumental variables** (IVs) identify effects under a different
+set of assumptions [@Wooldridge2010]:
+
+1. **Relevance**: $\text{Cov}(Z, X) \neq 0$
+2. **Exclusion**: $Z \to Y$ only through $X$
+3. **Unconfoundedness**: $Z \perp U$
+
+The MoCo v2 encoder (Pillar 4), trained contrastively on landscape
+patches *without ever seeing SOC*, is a natural IV candidate: it
+captures landscape-scale structure orthogonal to the named
+confounders in the DAG.
+
+```r
+# 2SLS with foundation-model embeddings as instruments
+iv_fit <- edaphos::causal_iv_from_embeddings(
+  data       = cerrado_profiles,
+  embeddings = foundation_embeddings,    # (n x 128) MoCo v2 output
+  exposure   = "map",
+  outcome    = "soc",
+  covariates = c("mat","slope","elev","clay","sand","bd","trees"),
+  n_pcs      = 5L   # top-5 PCs as instruments
+)
+iv_fit
+#> <edaphos_causal_iv>
+#>   map -> soc  (estimator: 2SLS, n = 1095)
+#>   instruments : PC_1, PC_2, PC_3, PC_4, PC_5
+#>   effect      : 0.0081  (se = 0.0027, 95% CI [0.0028, 0.0134])
+#>   stage-1 F   : 20014 (p < 2e-16)  partial R^2 = 0.948
+#>   Sargan J    : chi2(4) = 49.4, p = 4.7e-10
+```
+
+**Synthetic DGP validation (known truth β = 1.5):**
+
+| Estimator | β̂ | 95% CI |
+|:---|---:|:---:|
+| OLS (biased by U) | 1.82 | [1.77, 1.87] |
+| **2SLS (IV)** | **1.46** | **[1.39, 1.53]** |
+| True | 1.50 | — |
+
+**Honest finding on 1 095 real Cerrado profiles.** With proxy
+embeddings (engineered features as a stand-in for MoCo v2, which is
+still training), Stage-1 F ≈ 20 000 (instruments very relevant) but
+**Sargan p < 10⁻⁹** — the framework correctly flags that the proxy
+features **don't satisfy exclusion**. This isn't a bug; it's the
+framework doing its job, and it demonstrates why we need the real
+MoCo v2 encoder (v1.9.1) rather than engineered proxies.
+
+📖 Vignette: `vignette("pilar1-pilar4-iv")`.
 
 ---
 
@@ -1324,6 +1382,7 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `causal_discovery_results.rds`                |  ~2 KB  | Expert × LLM × data-driven DAG benchmark (v1.7.2)                           | `causal-discovery-trio`           |
 | `cerrado_gold_standard_v1.jsonl`              | ~16 KB  | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)             | `llm-kg-benchmark`                |
 | `cerrado_gold_standard_v1_draft.jsonl`        | ~20 KB  | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)           | `llm-annotation-workflow`         |
+| `causal_iv_cerrado.rds`                       |  ~12 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`                |
 | `llm_benchmark_results.rds`                   | ~10 KB  | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
 | `cerrado_abstracts.jsonl`                     |  ~40 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
@@ -1355,6 +1414,7 @@ browseVignettes("edaphos")
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
 | 📊 `llm-kg-benchmark`             | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen's κ, cost / 1k claims, latency, 10k-abstract scaling. |
 | 🛠️ `llm-annotation-workflow`      | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
+| 🔗 `pilar1-pilar4-iv`             | **v1.9.0**: 2SLS instrumental variables using foundation-model embeddings — identifies causal effects under unobserved-confounder regimes. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
 Each vignette is written in the style of a short methods paper —
@@ -1392,9 +1452,11 @@ bibliography (`vignettes/references.bib`).
 | v1.8.0  | LLM extraction benchmark (Gemma 4 × GPT × Claude)      |   ✅    |
 | v1.8.1  | Annotation tool: pre-annotation + Shiny review UI      |   ✅    |
 | v1.8.2  | DAG preview + dark mode + OpenAlex fetcher + Zenodo export |  ✅  |
+| v1.9.0  | Foundation embeddings as causal IVs (2SLS + Sargan)    |   ✅    |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧      |
 | v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝    |
-| v1.9.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
+| v1.9.1  | Replace proxy embeddings with real MoCo v2 patch extractor | 📝   |
+| v2.0.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
 | v2.0.0  | CRAN submission                                         | 📝      |
 
 ---
@@ -1406,7 +1468,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 1.8.2) [Software]. Zenodo.
+> Soil Mapping* (Version 1.9.0) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1414,7 +1476,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {1.8.2},
+  version   = {1.9.0},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}

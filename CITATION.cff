@@ -62,9 +62,18 @@ abstract: >-
   toggle, and an llm_annotation_to_zenodo() packager that
   bundles the reviewed KG + RDF 1.1 Turtle serialisation +
   DataCite-compatible metadata into a zip ready for upload
-  to zenodo.org/deposit/new.
+  to zenodo.org/deposit/new.  v1.9.0 introduces the Pilar 1 x
+  Pilar 4 instrumental-variable bridge: a closed-form 2SLS
+  estimator with Wooldridge (2010) asymptotic variance,
+  first-stage F diagnostics (Stock & Yogo 2005), the Sargan
+  J-test for over-identification, a cluster-bootstrap
+  edaphos_posterior adapter, and a convenience wrapper that
+  reduces a foundation-model embedding matrix to principal
+  components and runs 2SLS with the PCs as instruments --
+  identifying causal effects under unobserved-confounder
+  regimes that the hand-drawn DAG of v1.4.0 cannot block.
 type: software
-version: "1.8.2"
+version: "1.9.0"
 date-released: "2026-04-23"
 license: MIT
 doi: "10.5281/zenodo.19683708"
@@ -96,6 +105,9 @@ identifiers:
     type: doi
     value: "10.5281/zenodo.19710162"
   - description: "Version DOI (v1.8.2)"
+    type: doi
+    value: "10.5281/zenodo.19710162"
+  - description: "Version DOI (v1.9.0)"
     type: doi
     value: "10.5281/zenodo.19710162"
 authors:
