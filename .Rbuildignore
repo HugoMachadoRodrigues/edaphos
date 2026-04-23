@@ -10,3 +10,4 @@
 ^CITATION\.cff$
 ^\.zenodo\.json$
 ^tools$
+^DESIGN-v[0-9\.]+\.md$

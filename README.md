@@ -1083,6 +1083,7 @@ browseVignettes("edaphos")
 | `pilar2-piml-profile`             | Parametric ODE and Neural ODE of the depth profile on `aqp::sp4`, plus the Pillar 2 × 5 physics gate. |
 | `pilar3-4d-soc`                   | Stacked ConvLSTM forecasting of the synthetic SOC cube; optional mass-balance physics loss.            |
 | `pilar3-4d-real`                  | ConvLSTM forecast of MODIS NDVI over a Cerrado 2° × 2° AoI (2010 – 2023) + stochastic EnKF assimilation of in-situ observations (v1.5.0). |
+| `uncertainty-unified`             | Unified `edaphos_posterior` class + single calibration diagnostic applied to all six pillars with a headline CRPS / PICP@95 / MPIW@95 / RMSE table (v1.6.0). |
 | `pilar4-simclr-embeddings`        | Contrastive pre-training on raster patches; embeddings as auxiliary AL covariates.                     |
 | `pilar5-active-learning`          | Formal derivation of the hybrid query policy on the classic `meuse` dataset.                           |
 | `pilar5-soilgrids-br`             | The same AL loop on a Cerrado recorte; migration path to live SoilGrids data.                           |

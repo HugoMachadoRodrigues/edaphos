@@ -465,9 +465,9 @@ autoplot.edaphos_posterior <- function(object, ...) {
     # query position.
     mu <- as.numeric(object$mean)
     q_lo <- as.numeric(
-      object$quantiles[[head(names(object$quantiles), 1L)]] %||% (mu - object$sd))
+      object$quantiles[[utils::head(names(object$quantiles), 1L)]] %||% (mu - object$sd))
     q_hi <- as.numeric(
-      object$quantiles[[tail(names(object$quantiles), 1L)]] %||% (mu + object$sd))
+      object$quantiles[[utils::tail(names(object$quantiles), 1L)]] %||% (mu + object$sd))
     df <- data.frame(i = seq_along(mu), mean = mu, lo = q_lo, hi = q_hi)
     ggplot2$ggplot(df, ggplot2$aes(x = .data$i, y = .data$mean)) +
       ggplot2$geom_ribbon(ggplot2$aes(ymin = .data$lo, ymax = .data$hi),
@@ -520,3 +520,9 @@ uncertainty_plot_reliability <- function(calib, ...) {
 # ---------------------------------------------------------------------------
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
+
+# Silence the R CMD check note on the tidy-eval `.data` pronoun used
+# inside the autoplot / reliability-plot aes() calls: the pronoun is
+# evaluated lazily by ggplot2 at plot time and has no package-level
+# binding we should tie here.
+utils::globalVariables(c(".data"))

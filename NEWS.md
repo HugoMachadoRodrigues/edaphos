@@ -1,3 +1,68 @@
+# edaphos 1.6.0
+
+## Unified uncertainty across the six pillars
+
+Every pillar's uncertainty output is now expressible as the same
+S3 object — **`edaphos_posterior`** — and admits the same
+calibration diagnostic, plotting routine and `as_edaphos_posterior()`
+adapter protocol. Calibrating the six pillars against their
+natural ground truth now takes three lines of code.
+
+### New infrastructure
+
+* `edaphos_posterior()` — constructor accepting either a
+  `(n_samples, query_shape)` array of draws or a Gaussian
+  `(mean, sd)` summary; pre-computes quantile arrays and prints a
+  compact summary.
+* `uncertainty_calibrate(post, truth, probs)` — CRPS (via the
+  Gini-mean-difference Monte-Carlo formula of Gneiting & Raftery
+  2007), PICP and MPIW at each `probs` level, reliability data
+  frame and point RMSE.
+* `autoplot.edaphos_posterior()` — single `ggplot2` entry point
+  that dispatches on the posterior's `query_type` (effect / map /
+  sample / feature / etc.).
+* `uncertainty_plot_reliability()` — reliability-diagram plot from
+  a `uncertainty_calibrate()` result.
+* `as_edaphos_posterior()` — S3 generic with per-pillar methods
+  that wrap the native fit outputs.
+
+### Per-pillar adapters + new APIs
+
+* **Pillar 1** — `causal_effect_posterior()` (LM cluster-block
+  bootstrap **or** BART native posterior) and
+  `causal_effect_bootstrap()` (block-bootstrap helper previously
+  inlined in `data-raw/`).
+* **Pillar 2** — `piml_neural_ode_posterior()` (deep ensemble
+  predictive) and `piml_bayes_posterior()` (Laplace or MCMC
+  predictive).
+* **Pillar 3** — `temporal_convlstm_ensemble_fit()` (K-seed
+  deep ensemble, formalising the hand-rolled loop from the v1.5.0
+  runner), `temporal_convlstm_ensemble_rollout()`,
+  `temporal_convlstm_mcdropout_predict()`, plus adapters for the
+  ensemble object and the `temporal_kalman_update()` output.
+* **Pillar 4** — `foundation_finetune_ensemble()` (K heads with
+  different seeds on the same encoder, for regression or
+  classification) and `foundation_mcdropout_predict()` (MC-dropout
+  inside the MLP head, bypassing the `head$eval()` of the standard
+  predict methods).
+* **Pillar 5** — `active_learning_posterior()` (full QRF
+  conditional distribution via an equally-spaced quantile grid).
+* **Pillar 6** — `quantum_krr_posterior()` (GP-equivalent
+  predictive posterior of the Quantum Kernel Ridge Regression with
+  analytic epistemic + leave-one-out aleatoric decomposition).
+
+### New vignette
+
+`vignette("uncertainty-unified")` — end-to-end calibration table
+across all six pillars (CRPS, PICP@95, MPIW@95, point RMSE) plus a
+reliability-diagram facet.
+
+### Testing
+
+126 new tests across six `test-*-posterior.R` files pin every
+constructor, adapter, predict method and calibration routine.
+R CMD check: 0 errors / 0 warnings.
+
 # edaphos 1.5.0
 
 ## Pillar 3 — 4D pedometry on real data + sequential Bayesian assimilation
