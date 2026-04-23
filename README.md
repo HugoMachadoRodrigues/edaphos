@@ -579,6 +579,41 @@ months forward using only the known precipitation drivers; the hidden
 state carries the soil memory of the past twelve months and the
 predicted trajectory tracks the unseen ground truth within noise.
 
+**Sequential Bayesian assimilation (v1.5.0).** In a real DSM pipeline
+new in-situ observations keep arriving after the ConvLSTM was
+trained — a soil-sampling campaign returns 30 new WoSIS profiles,
+a flux tower reports a year of NDVI. `temporal_kalman_update()`
+nudges the trained forecast toward those new observations with a
+stochastic Ensemble Kalman Filter [[Evensen 1994][evensen1994];
+[Burgers, van Leeuwen and Evensen 1998][burgers1998]] — a gain
+matrix is estimated directly from the ensemble sample covariance
+and applied per-member, so the posterior ensemble reflects the new
+evidence without retraining the network.
+
+```r
+# Ensemble forecast at one month from K independent ConvLSTM seeds:
+fc_ens <- array(..., dim = c(K, H, W))   # (K = 10, 10, 10)
+
+assim <- temporal_kalman_update(
+  forecast_ensemble   = fc_ens,
+  obs_value           = c(0.62, 0.58, 0.51), # 3 new NDVI observations
+  obs_row             = c(5L, 10L, 15L),
+  obs_col             = c(5L, 10L, 15L),
+  obs_sd              = 0.02,
+  localization_radius = 2                    # Gaspari-Cohn taper
+)
+assim$analysis_mean        # posterior mean field
+assim$analysis_sd          # posterior SD field
+assim$gain_row_norm        # per-observation Kalman-gain norm
+```
+
+See `vignette("pilar3-4d-real")` for the full walk-through on a real
+Cerrado 2° × 2° AoI cube (MODIS NDVI + NASA POWER precipitation +
+NASA POWER T2M air temperature, 168 monthly steps).
+
+[evensen1994]: https://doi.org/10.1029/94JC00572
+[burgers1998]: https://doi.org/10.1175/1520-0493(1998)126%3C1719:ASITEK%3E2.0.CO;2
+
 ---
 
 ## Pillar 4 — Foundation Models
@@ -1044,8 +1079,10 @@ browseVignettes("edaphos")
 | Vignette                          | Scope                                                                                                 |
 |---------------------------------- |------------------------------------------------------------------------------------------------------ |
 | `pilar1-causal`                   | Backdoor adjustment in a pedogenetic DAG; naive vs. causal estimator on `br_cerrado`.                  |
+| `pilar1-causal-real`              | Backdoor-adjusted direct effects on **1 095 real WoSIS Cerrado profiles** (v1.4.0).                    |
 | `pilar2-piml-profile`             | Parametric ODE and Neural ODE of the depth profile on `aqp::sp4`, plus the Pillar 2 × 5 physics gate. |
 | `pilar3-4d-soc`                   | Stacked ConvLSTM forecasting of the synthetic SOC cube; optional mass-balance physics loss.            |
+| `pilar3-4d-real`                  | ConvLSTM forecast of MODIS NDVI over a Cerrado 2° × 2° AoI (2010 – 2023) + stochastic EnKF assimilation of in-situ observations (v1.5.0). |
 | `pilar4-simclr-embeddings`        | Contrastive pre-training on raster patches; embeddings as auxiliary AL covariates.                     |
 | `pilar5-active-learning`          | Formal derivation of the hybrid query policy on the classic `meuse` dataset.                           |
 | `pilar5-soilgrids-br`             | The same AL loop on a Cerrado recorte; migration path to live SoilGrids data.                           |

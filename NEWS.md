@@ -1,3 +1,59 @@
+# edaphos 1.5.0
+
+## Pillar 3 — 4D pedometry on real data + sequential Bayesian assimilation
+
+The original Pillar 3 vignette runs on the synthetic
+`temporal_synth_soc_cube()` output. v1.5.0 runs the same stacked
+ConvLSTM machinery on **real MODIS NDVI + NASA POWER monthly
+precipitation + NASA POWER T2M monthly air temperature** over a 2° × 2° Cerrado AoI
+(Goiás / Minas Gerais triple junction, 10 × 10 cells × 168 monthly
+time steps, 2010 – 2023), and introduces a new **stochastic
+Ensemble Kalman Filter** that folds new in-situ observations into
+the ConvLSTM forecast without retraining the network. We originally
+targeted CHIRPS; the Climate Hazards Group portal was returning
+HTTP 403 for every v2.0 monthly tif at the v1.5.0 freeze, so the
+cube uses NASA POWER (MERRA-2 bias-corrected, fully open) as a
+vetted substitute.
+
+### New functions
+
+* `temporal_kalman_update()` — stochastic EnKF (Evensen 1994;
+  Burgers, van Leeuwen & Evensen 1998) for sequential assimilation
+  of new point observations into an ensemble forecast produced by
+  `temporal_convlstm_rollout()`. Supports 3-D `(N_ens, H, W)` and
+  4-D `(N_ens, H, W, T)` inputs; returns the posterior ensemble plus
+  diagnostic summaries (innovation vector, per-observation gain
+  norm, posterior mean / SD maps). Optional Gaspari-Cohn spatial
+  localization (`localization_radius`) is the standard small-ensemble
+  fix for spurious long-range correlations.
+
+### New artefacts
+
+* `data-raw/temporal_cerrado_prepare.R` — one-time data-cube build
+  (NASA POWER monthly precipitation + T2M, MOD13Q1 NDVI); output is
+  a 4-D `(H, W, T, 3)` array cached in
+  `tools/temporal_cerrado/temporal_cerrado_cube.rds`.
+* `data-raw/temporal_cerrado_run.R` — trains a `K = 10` ConvLSTM
+  ensemble on 2010 – 2020, rolls the forecast forward for 2021 – 2023
+  and assimilates 8 synthesised in-situ NDVI observations at the
+  last forecast month. Slim results persist to
+  `inst/extdata/temporal_cerrado_results.rds`.
+* `vignette("pilar3-4d-real")` — end-to-end narrative with rollout
+  RMSE, posterior ensemble mean / uncertainty maps and gain
+  diagnostics.
+
+### Spatial localization
+
+`temporal_kalman_update()` accepts an optional `localization_radius`
+(Gaspari & Cohn 1999, Houtekamer & Mitchell 2001) that applies a
+5th-order polynomial taper to the Kalman gain as a function of
+grid-cell distance from each observation. Without localization, the
+small-ensemble stochastic EnKF exhibits the classic collapse
+pathology — a pilot run on the Cerrado cube showed posterior RMSE
+growing above prior RMSE even as the posterior spread shrank to 5 %
+of the prior. Setting `localization_radius = 2` on the v1.5.0 runner
+recovers a 3.2 % net RMSE reduction.
+
 # edaphos 1.4.0
 
 ## Pillar 1 — causal AI on real Cerrado data

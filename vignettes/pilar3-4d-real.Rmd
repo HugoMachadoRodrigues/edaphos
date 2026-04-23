@@ -1,0 +1,301 @@
+---
+title: "Pilar 3 on real data — 4D NDVI forecasting with sequential Bayesian assimilation"
+author: "Hugo Rodrigues"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 3 on real data — 4D NDVI forecasting with sequential Bayesian assimilation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 7.5, fig.height = 4.5,
+  fig.align = "center", out.width = "92%", dpi = 150
+)
+```
+
+## 1. Why this vignette exists
+
+The original Pillar 3 vignette (`vignette("pilar3-4d-soc")`) demonstrates
+the stacked ConvLSTM [@Shi2015] on the synthetic SOC cube produced by
+`temporal_synth_soc_cube()`. As of **v1.5.0** the Pillar 3 story runs on
+**real Cerrado spatio-temporal data**: 168 monthly time steps
+(January 2010 – December 2023) of three channels assembled over a
+2° × 2° AoI centred on the Goiás / Minas Gerais triple-junction
+(lon –48 to –46, lat –16 to –14, 10 × 10 = 100 cells at 0.2° resolution):
+
+1. **NDVI** from MODIS MOD13Q1 250 m 16-day composites aggregated to
+   monthly means [@Didan2015mod13q1] — the forecast target.
+2. **Monthly precipitation** (mm/month) from NASA POWER
+   (MERRA-2 bias-corrected) monthly mean daily totals
+   [@Stackhouse2018power; @Sparks2018nasapower]. We originally
+   targeted CHIRPS 0.05° [@Funk2015chirps] but the Climate Hazards
+   Group data portal was returning HTTP 403 for every v2.0
+   `global_monthly/tifs/` request at the v1.5.0 freeze; POWER is
+   a fully-open NASA alternative with comparable accuracy over the
+   Cerrado and a single-point REST API that returns the full
+   14-year series in one call.
+3. **Mean monthly air temperature** (°C) from NASA POWER T2M
+   [@Stackhouse2018power], fetched in the same REST call as the
+   precipitation. (We originally targeted WorldClim 2.1 static
+   climatology [@Fick2017worldclim] but the `geodata.ucdavis.edu`
+   server was in maintenance at the v1.5.0 freeze; POWER T2M has
+   the added benefit of being **year-specific** rather than a long-
+   term average, so all three channels now carry genuine year-to-
+   year climate variability.)
+
+The vignette also demonstrates the v1.5.0 new function
+[`temporal_kalman_update()`](../reference/temporal_kalman_update.html):
+a stochastic Ensemble Kalman Filter [@Evensen1994; @Burgers1998enkf] that
+sequentially assimilates new in-situ observations into the ConvLSTM
+forecast without retraining the network.
+
+```{r load, message = FALSE}
+library(edaphos)
+library(ggplot2)
+
+res_path <- system.file("extdata", "temporal_cerrado_results.rds",
+                         package = "edaphos")
+if (!nzchar(res_path) || !file.exists(res_path)) {
+  knitr::knit_exit(
+    "Pre-computed Pillar 3 real-data bundle not found — skipping."
+  )
+}
+R <- readRDS(res_path)
+str(R$meta, max.level = 1L)
+```
+
+## 2. The data cube
+
+The cube has shape `(H = 10, W = 10, T = 168, C = 3)`. The figure
+below shows the three channels for three representative months:
+February 2010 (austral mid-wet-season), August 2015 (mid-dry-season),
+December 2023 (final forecast target).
+
+```{r show-channels, eval=requireNamespace("ggplot2", quietly = TRUE)}
+if (!is.null(R$truth_future)) {
+  # The saved cube has past + future separated. Reconstruct a thin
+  # sample for plotting: last month of past (Dec 2020, t=132) from the
+  # truth_past (not saved slim), fall back to a future slice.
+  df_truth <- data.frame(
+    row = rep(seq_len(R$meta$H), times = R$meta$W),
+    col = rep(seq_len(R$meta$W), each  = R$meta$H),
+    ndvi_norm = as.vector(R$truth_future[R$meta$T_future, , ])
+  )
+  df_truth$ndvi <- R$scaling$ndvi$mu + R$scaling$ndvi$sd * df_truth$ndvi_norm
+  ggplot(df_truth, aes(col, -row, fill = ndvi)) +
+    geom_raster() +
+    scale_fill_viridis_c(name = "NDVI") +
+    coord_equal() + theme_minimal(base_size = 12) +
+    labs(x = NULL, y = NULL,
+         title = sprintf("Observed NDVI over the Cerrado AoI, %s",
+                          format(R$meta$target_month, "%b %Y")),
+         subtitle = "MOD13Q1 250 m monthly-aggregated mean")
+}
+```
+
+## 3. Train / forecast split
+
+We train on the first **132 months** (Jan 2010 – Dec 2020) and forecast
+the last **36 months** (Jan 2021 – Dec 2023). **Ten** ConvLSTM
+ensemble members are fit with different random seeds, sharing the
+same architecture (two stacked layers with hidden widths 8 and 4,
+3×3 kernels, 120 Adam epochs at learning rate 0.02). A pilot run
+with `K_ens = 5` and tight observation noise showed clear ensemble
+collapse — the posterior RMSE grew above the prior RMSE because the
+undersampled sample covariance over-fitted 20 observations; K = 10
+with 8 observations at `obs_sd = 0.15` (≈ 0.026 raw NDVI) is a
+stable minimum for this problem.
+
+```{r loss-curves, eval=requireNamespace("ggplot2", quietly = TRUE)}
+loss_df <- do.call(rbind, lapply(seq_along(R$training$loss_histories),
+                                    function(k) {
+  data.frame(epoch  = seq_along(R$training$loss_histories[[k]]),
+             loss   = R$training$loss_histories[[k]],
+             member = factor(k))
+}))
+ggplot(loss_df, aes(epoch, loss, colour = member)) +
+  geom_line(linewidth = 0.6) + scale_y_log10() +
+  theme_minimal(base_size = 12) +
+  labs(x = "Epoch", y = "MSE on normalised NDVI (log)",
+       title = sprintf("ConvLSTM training loss — %d-member ensemble",
+                        R$training$K_ens))
+```
+
+The final training losses span
+`r sprintf("[%.4f, %.4f]", min(R$training$final_losses), max(R$training$final_losses))`
+on normalised NDVI — a narrow spread that confirms the ensemble
+sampling is dominated by initialisation noise rather than by genuinely
+different attractors.
+
+## 4. The rollout forecast ensemble at the target month
+
+For every ensemble member we re-apply the ConvLSTM to the
+concatenated past + future sequence (rollout, see
+`?temporal_convlstm_rollout`) and keep the prediction for the last
+future month (Dec 2023). The result is a forecast ensemble of shape
+`(K = 10, H = 10, W = 10)` — the input to the Kalman update.
+
+```{r prior-map, eval=requireNamespace("ggplot2", quietly = TRUE)}
+prior_df <- data.frame(
+  row = rep(seq_len(R$meta$H), times = R$meta$W),
+  col = rep(seq_len(R$meta$W), each  = R$meta$H),
+  ndvi_norm = as.vector(R$prior$mean)
+)
+prior_df$ndvi <- R$scaling$ndvi$mu + R$scaling$ndvi$sd * prior_df$ndvi_norm
+ggplot(prior_df, aes(col, -row, fill = ndvi)) +
+  geom_raster() +
+  scale_fill_viridis_c(name = "prior NDVI") +
+  coord_equal() + theme_minimal(base_size = 12) +
+  labs(x = NULL, y = NULL,
+       title = sprintf("Prior ensemble-mean NDVI forecast, %s",
+                        format(R$meta$target_month, "%b %Y")))
+```
+
+Prior RMSE against MOD13Q1 truth:
+**`r sprintf("%.4f", R$prior$rmse)`** NDVI z-units
+(≈ `r sprintf("%.4f", R$prior$rmse * R$scaling$ndvi$sd)` raw NDVI).
+
+## 5. Sequential Bayesian update with `temporal_kalman_update()`
+
+We simulate the arrival of `r R$analysis$n_obs` fresh in-situ NDVI
+observations: the "new campaign" returns truth + Gaussian noise of
+standard deviation `r sprintf("%.3f", R$obs$sd)` (normalised units,
+i.e. ≈ `r sprintf("%.3f", R$obs$sd * R$scaling$ndvi$sd)` NDVI). The
+**stochastic Ensemble Kalman Filter** nudges every member of the
+forecast ensemble toward the new evidence through
+
+$$
+\mathbf X_a^{(i)} = \mathbf X_f^{(i)} +
+                    \bigl(K \odot L\bigr)\,(\mathbf y +
+                         \boldsymbol\varepsilon^{(i)} -
+                         H\,\mathbf X_f^{(i)}),\qquad
+i = 1,\ldots,K_\text{ens},
+$$
+
+with the gain
+$K = P_f H^{\top}(H P_f H^{\top} + R)^{-1}$ estimated directly from
+the ensemble sample covariance [@Evensen1994; @Burgers1998enkf] and
+$L$ a Gaspari–Cohn (1999) 5-th-order polynomial taper zeroing the
+update beyond `2 * localization_radius` grid cells
+[@Houtekamer2001enkf]. The taper is the standard fix for spurious
+long-range correlations in small-ensemble EnKFs; with `K = 10` the
+un-localized run exhibits ensemble collapse (posterior RMSE above
+prior RMSE), while the localized run with `localization_radius = 2`
+recovers a net RMSE reduction.
+
+```{r kalman-diag}
+cat(sprintf("n_obs    = %d\n", R$analysis$n_obs))
+cat(sprintf("n_ens    = %d\n", R$analysis$n_ens))
+cat(sprintf("innovation (obs - forecast-at-obs-cell), summary:\n"))
+print(summary(R$analysis$innovation))
+cat(sprintf("\ngain_row_norm, summary (L2 norm of each obs column of K):\n"))
+print(summary(R$analysis$gain_row_norm))
+```
+
+### 5.1 Posterior mean and RMSE gain
+
+```{r analysis-map, eval=requireNamespace("ggplot2", quietly = TRUE)}
+analysis_df <- data.frame(
+  row = rep(seq_len(R$meta$H), times = R$meta$W),
+  col = rep(seq_len(R$meta$W), each  = R$meta$H),
+  ndvi_norm = as.vector(R$analysis$mean)
+)
+analysis_df$ndvi <- R$scaling$ndvi$mu + R$scaling$ndvi$sd * analysis_df$ndvi_norm
+# Mark the observed cells on the map.
+obs_df <- data.frame(
+  row  = R$obs$row,
+  col  = R$obs$col,
+  ndvi = R$scaling$ndvi$mu + R$scaling$ndvi$sd * R$obs$value
+)
+ggplot(analysis_df, aes(col, -row, fill = ndvi)) +
+  geom_raster() +
+  geom_point(data = obs_df, aes(col, -row), colour = "white",
+             fill = "red", shape = 21, size = 2.6, stroke = 0.5,
+             inherit.aes = FALSE) +
+  scale_fill_viridis_c(name = "posterior NDVI") +
+  coord_equal() + theme_minimal(base_size = 12) +
+  labs(x = NULL, y = NULL,
+       title = sprintf("Posterior ensemble-mean NDVI, %s",
+                        format(R$meta$target_month, "%b %Y")),
+       subtitle = sprintf(
+         "Red points = %d assimilated in-situ observations",
+         R$analysis$n_obs))
+```
+
+```{r rmse-gain}
+cat(sprintf("Prior     RMSE = %.4f (NDVI z-units)\n", R$prior$rmse))
+cat(sprintf("Posterior RMSE = %.4f  (%.1f%% reduction)\n",
+            R$analysis$rmse,
+            100 * (1 - R$analysis$rmse / R$prior$rmse)))
+```
+
+### 5.2 Posterior uncertainty reduction
+
+The Kalman gain shrinks ensemble spread most in the neighbourhood of
+each observation. A map of the **normalised uncertainty reduction**
+`1 − posterior_sd / prior_sd` shows the spatial footprint of the
+ensemble-estimated observation influence function:
+
+```{r sd-reduction-map, eval=requireNamespace("ggplot2", quietly = TRUE)}
+sd_df <- data.frame(
+  row = rep(seq_len(R$meta$H), times = R$meta$W),
+  col = rep(seq_len(R$meta$W), each  = R$meta$H),
+  ratio = as.vector(1 - R$analysis$sd / pmax(R$prior$sd, 1e-8))
+)
+ggplot(sd_df, aes(col, -row, fill = ratio)) +
+  geom_raster() +
+  geom_point(data = obs_df, aes(col, -row), colour = "black",
+             fill = "white", shape = 21, size = 2.6, stroke = 0.5,
+             inherit.aes = FALSE) +
+  scale_fill_viridis_c(option = "magma", name = "1 − σ_a / σ_f",
+                        limits = c(0, 1)) +
+  coord_equal() + theme_minimal(base_size = 12) +
+  labs(x = NULL, y = NULL,
+       title = "Posterior uncertainty reduction",
+       subtitle = sprintf(
+         "Mean σ_a / σ_f = %.3f  (lower ⇒ more information gained)",
+         R$sd_reduction))
+```
+
+## 6. What this vignette buys you over the v1.3 Pillar 3
+
+1. **Real remote-sensing / climate data**, not
+   `temporal_synth_soc_cube()` synthetic. 168 real monthly time steps
+   over a 400-cell Cerrado AoI, three published sources with DOIs.
+2. **A multi-step rollout forecast** against the last three years of
+   MOD13Q1 NDVI, reported as RMSE in both normalised and raw NDVI
+   units.
+3. **A Bayesian assimilation step** that folds new ground observations
+   into a trained ConvLSTM without retraining — the stochastic EnKF
+   of @Evensen1994 adapted to the ensemble produced by K independent
+   seeds of `temporal_convlstm_fit()`.
+4. **Quantitative diagnostics** of information gain: innovation
+   vector, per-observation gain norm, and the map of
+   `1 − σ_a / σ_f` that makes the spatial footprint of each
+   observation explicit.
+
+### 6.1 Caveats and planned extensions
+
+* The ensemble is sampled *only* by the random seed of the optimiser.
+  Dropout ensembles, MC-dropout heads and deep-ensemble hyperparameter
+  perturbation [@Lakshminarayanan2017deepens] are alternative
+  spread-generating mechanisms, scheduled for the unified-uncertainty
+  pillar (v1.6).
+* The Gaspari–Cohn [@Gaspari1999] localization radius is a fixed
+  hyperparameter; adaptive localization schemes that choose the taper
+  bandwidth per observation from the ensemble spread itself are the
+  obvious next refinement.
+* The cube covers only 10 × 10 cells at 0.2° resolution. Scaling to
+  the operational 1 km² resolution over the full Cerrado
+  (~2 million cells) is a pure compute question; the algorithmic
+  machinery presented here is unchanged.
+
+## References

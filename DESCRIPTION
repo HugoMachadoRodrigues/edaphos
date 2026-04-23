@@ -1,6 +1,6 @@
 Package: edaphos
 Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 1.4.0
+Version: 1.5.0
 Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
            role = c("aut", "cre"),
@@ -17,8 +17,9 @@ Description: A research-oriented R package that implements frontier
     covariate-conditioned hierarchical extension across pedons;
     (3) 4D Pedometry with a multi-layer stacked Convolutional Long
     Short-Term Memory network, sequence-to-sequence training,
-    multi-step rollout forecasting and an optional physics-informed
-    mass-balance loss; (4) Foundation Models via SimCLR-style
+    multi-step rollout forecasting, an optional physics-informed
+    mass-balance loss and a stochastic Ensemble Kalman Filter for
+    sequential assimilation of new in-situ observations; (4) Foundation Models via SimCLR-style
     contrastive pre-training on unlabelled raster covariate patches;
     (5) Autonomous Active Learning with a hybrid uncertainty +
     feature-space-diversity batch policy, logistical cost-aware
