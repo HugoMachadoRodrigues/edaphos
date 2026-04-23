@@ -253,13 +253,33 @@ temporal_kalman_update <- function(forecast_ensemble,
   gain_row_norm <- sqrt(colSums(K_reduced^2))
   innovation    <- obs_value - X_mean[obs_lin]
 
-  list(
-    analysis_ensemble = out_ensemble,
-    analysis_mean     = analysis_mean,
-    analysis_sd       = analysis_sd,
-    gain_row_norm     = gain_row_norm,
-    innovation        = innovation,
-    n_obs             = n_obs,
-    n_ens             = N_ens
+  structure(
+    list(
+      analysis_ensemble = out_ensemble,
+      analysis_mean     = analysis_mean,
+      analysis_sd       = analysis_sd,
+      gain_row_norm     = gain_row_norm,
+      innovation        = innovation,
+      n_obs             = n_obs,
+      n_ens             = N_ens
+    ),
+    class = "edaphos_temporal_kalman"
   )
+}
+
+#' @export
+print.edaphos_temporal_kalman <- function(x, ...) {
+  cat("<edaphos_temporal_kalman>\n")
+  cat(sprintf("  n_ens  : %d\n", x$n_ens))
+  cat(sprintf("  n_obs  : %d\n", x$n_obs))
+  cat(sprintf("  innovation : mean=%+.4f  |max|=%.4f\n",
+              mean(x$innovation, na.rm = TRUE),
+              max(abs(x$innovation), na.rm = TRUE)))
+  cat(sprintf("  gain_row_norm : mean=%.4f  max=%.4f\n",
+              mean(x$gain_row_norm, na.rm = TRUE),
+              max(x$gain_row_norm, na.rm = TRUE)))
+  cat(sprintf("  analysis_sd   : mean=%.4f  max=%.4f\n",
+              mean(x$analysis_sd, na.rm = TRUE),
+              max(x$analysis_sd, na.rm = TRUE)))
+  invisible(x)
 }
