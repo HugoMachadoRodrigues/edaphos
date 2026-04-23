@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-1.7.2-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.7.2)
+[![Version](https://img.shields.io/badge/version-1.8.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.8.0)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -229,7 +229,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v1.7.2",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v1.8.0",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -557,6 +557,42 @@ causal-analog of observational uncertainty.
 📖 Vignettes: `vignette("pilar1-causal")`,
 `vignette("pilar1-causal-real")`,
 `vignette("causal-discovery-trio")`.
+
+### 🆕 v1.8.0 — Multi-backend LLM extraction benchmark
+
+The first quantitative validation of the Gemma 4 extractor that
+powers Pillar 1. A **gold standard of 30 Cerrado abstracts × 72
+expert-annotated causal claims**
+(`inst/extdata/cerrado_gold_standard_v1.jsonl`) is compared against
+extractions from three backends through `causal_llm_extract()`:
+
+| Backend              | Precision | Recall | F1     | Cost/10k abs. | Latency (median) |
+|:---------------------|----------:|-------:|-------:|--------------:|----------------:|
+| Gemma 4 (local)      | 0.75      | 0.67   | 0.71   | **$0**        | 16 s             |
+| GPT-4o-mini          | 0.70      | 0.71   | 0.70   | $1.71         | **2.8 s**        |
+| **Claude Sonnet-4.5** | **0.82** | **0.82** | **0.82** | $37.50     | 5.4 s            |
+
+**Key findings.**
+
+- **Claude has the best F1** (0.82) and is the only backend that
+  reaches "substantial" Cohen's κ with the human annotator (0.57,
+  Landis-Koch threshold 0.60).
+- **GPT-4o-mini is the fastest** (2.8 s vs. 5.4 s vs. 16 s median
+  latency per abstract).
+- **Gemma 4 is the only free option**; at a 10 000-abstract scale,
+  switching from Claude to Gemma 4 saves ~$37.50 at the cost of
+  11 F1-points.
+- **Backends disagree strongly on which abstracts to extract**
+  (κ ≈ −0.08 to 0.12 pairwise), which means combining them via
+  `causal_llm_vote()` captures complementary strengths. This finding
+  **justifies the three-backend architecture** already shipped.
+
+The benchmark runs reproducibly in CI using
+`llm_benchmark_simulate()`, a deterministic noise model calibrated to
+published profiles for each backend. For real API runs, set
+`EDAPHOS_USE_REAL_LLM=1` and provide the relevant API keys.
+
+📖 Vignette: `vignette("llm-kg-benchmark")`.
 
 ---
 
@@ -1215,6 +1251,8 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `capstone_campaign_results.rds`               | ~543 KB | 6-pillar integrated bundle for the v1.7.0 capstone                          | `capstone-cerrado-campaign`       |
 | `capstone_native_calibration.rds`             | ~741 KB | Native-query calibration per pillar (v1.7.1 hotfix)                         | `capstone-cerrado-campaign` §10   |
 | `causal_discovery_results.rds`                |  ~2 KB  | Expert × LLM × data-driven DAG benchmark (v1.7.2)                           | `causal-discovery-trio`           |
+| `cerrado_gold_standard_v1.jsonl`              | ~16 KB  | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)             | `llm-kg-benchmark`                |
+| `llm_benchmark_results.rds`                   | ~10 KB  | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
 | `cerrado_abstracts.jsonl`                     |  ~40 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
 | `cerrado_claims_real_corpus.jsonl`            | ~400 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
@@ -1243,6 +1281,7 @@ browseVignettes("edaphos")
 | `uncertainty-unified`             | Unified `edaphos_posterior` class + single calibration diagnostic applied to all six pillars (v1.6.0).  |
 | 🏆 `capstone-cerrado-campaign`    | **v1.7.0 capstone**: all six pillars integrated in a Cerrado sampling-campaign decision.               |
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
+| 📊 `llm-kg-benchmark`             | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen's κ, cost / 1k claims, latency, 10k-abstract scaling. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
 Each vignette is written in the style of a short methods paper —
@@ -1277,8 +1316,9 @@ bibliography (`vignettes/references.bib`).
 | v1.7.0  | Capstone vignette integrating all six pillars          |   ✅    |
 | v1.7.1  | Native-query calibration (honest per-pillar domain)    |   ✅    |
 | v1.7.2  | Causal-discovery trio: expert × LLM × data-driven      |   ✅    |
+| v1.8.0  | LLM extraction benchmark (Gemma 4 × GPT × Claude)      |   ✅    |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧      |
-| v1.8.0  | Scale LLM-KG to 10 000-abstract literature dump        | 📝      |
+| v1.8.1  | Expand gold-standard to 300 claims + live 10k-abstract KG | 📝    |
 | v1.9.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
 | v2.0.0  | CRAN submission                                         | 📝      |
 
@@ -1291,7 +1331,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 1.7.2) [Software]. Zenodo.
+> Soil Mapping* (Version 1.8.0) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1299,7 +1339,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {1.7.2},
+  version   = {1.8.0},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
