@@ -2,36 +2,52 @@
 % Please edit documentation in R/causal_4d_bridge.R
 \name{causal_effect_time_varying}
 \alias{causal_effect_time_varying}
-\title{Estimate a time-varying causal effect beta(t) (scaffold, v2.2.1)}
+\title{Time-varying causal effect beta(t) over a sliding window}
 \usage{
 causal_effect_time_varying(
-  cube,
+  frame,
   dag,
   exposure,
   outcome,
   window = 24L,
   step = 6L,
-  ...
+  adjustment = NULL,
+  B = 200L,
+  min_n = 30L,
+  seed = NULL
 )
 }
 \arguments{
-\item{cube}{A temporal cube (dimnames \verb{(t, h, w)}) plus a
-coordinate frame -- same schema as \code{\link[=temporal_cube_to_tensor]{temporal_cube_to_tensor()}}.}
+\item{frame}{A data frame with columns \code{t}, \code{lon}, \code{lat}, the
+\code{exposure}, \code{outcome} and any \code{adjustment} columns.}
 
-\item{dag}{A \code{dagitty} DAG.}
+\item{dag}{A \code{dagitty} DAG.  Used only to derive the adjustment
+set when \code{adjustment = NULL}.}
 
-\item{exposure, outcome}{Character column names of the causal query.}
+\item{exposure, outcome}{Character column names.}
 
-\item{window}{Integer; number of time-slices per window.}
+\item{window}{Integer; number of distinct \code{t} values per window.}
 
-\item{step}{Integer; window stride.}
+\item{step}{Integer; how many \code{t} values to advance the window.}
 
-\item{...}{Reserved for backend-specific options.}
+\item{adjustment}{Optional character vector of adjustment columns.}
+
+\item{B}{Integer bootstrap replicates per window.  \code{0} disables
+CI estimation (just a point estimate per window).}
+
+\item{min_n}{Minimum in-window sample size to fit a window.
+Windows smaller than this yield \code{NA} estimates.}
+
+\item{seed}{Optional RNG seed for bootstrap reproducibility.}
 }
 \value{
-(When implemented) A data frame with columns \code{t_centre},
-\code{beta_hat}, \code{ci_lo}, \code{ci_hi}, suitable for \code{ggplot2::geom_line}.
+A \code{data.frame} of class \code{edaphos_causal_4d} with columns
+\code{t_start}, \code{t_end}, \code{t_centre}, \code{n}, \code{beta_hat}, \code{se}, \code{ci_lo},
+\code{ci_hi}.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.2.1.
+Closes the Pilar 1 x Pilar 3 loop: the v1.4.0 backdoor-adjusted
+estimator is applied within non-overlapping (or overlapping)
+windows of the temporal frame, producing a beta_hat(t) trajectory
+with bootstrap CIs.  Mann-Kendall tests for a significant trend.
 }

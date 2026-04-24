@@ -1,3 +1,29 @@
+# edaphos 2.2.1
+
+## Pilar 1 x Pilar 3 bridge -- Causal 4D (time-varying effects)
+
+Activates the v2.1.0 scaffold.  Estimates beta_hat(t) on a sliding
+window over a temporal data frame, with bootstrap CIs per window and
+a non-parametric Mann-Kendall trend test.
+
+* **`causal_effect_time_varying(frame, dag, exposure, outcome, window,
+  step, adjustment, B, min_n, seed)`** -- returns an
+  `edaphos_causal_4d` data frame with columns `t_start`, `t_end`,
+  `t_centre`, `n`, `beta_hat`, `se`, `ci_lo`, `ci_hi`.
+  Adjustment set is auto-derived from the DAG (Pilar 1 machinery)
+  or taken from `adjustment` directly.
+* **`causal_effect_trend_test(beta_df)`** -- Mann-Kendall S statistic,
+  Kendall tau, normal-approximation p-value, categorical
+  `trend_direction` in {increasing, decreasing, none}.
+* **`causal_4d_plot(object)`** -- ggplot2 plot of the beta(t)
+  trajectory with CI ribbon and trend-test summary in the subtitle.
+
+Tests: 5 expectations covering the frame schema, monotonic-increase
+detection under a strong linear-rise beta, flat-trend behaviour,
+error on missing columns, and ggplot2 return class.
+
+---
+
 # edaphos 2.2.0
 
 ## Pilar 2 x Pilar 6 bridge -- Physics-Informed Quantum Kernels
