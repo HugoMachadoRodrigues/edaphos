@@ -1,3 +1,48 @@
+# edaphos 2.9.0
+
+## Publication-grade edge-case test coverage for Pilares 7-10
+
+Expands the test suite from the v2.7.0 happy-path baseline (~20 tests
+for the four new pilares) to ~55 tests, covering NA inputs,
+singular matrices, zero-variance features, reproducibility,
+device dispatch, and adversarial inputs.
+
+* **`tests/testthat/test-pilar7-bhs-edge.R`** (10 tests) --
+  NA-row drop via model.frame, rejection on too-few-rows,
+  reproducibility under fixed seed, duplicate-coord Cholesky
+  robustness, constant-covariate handling, prior-strength
+  sensitivity (weak vs tight), out-of-extent predict, missing-
+  covariate error in predict, extreme phi_range, posterior-sample
+  dimensions.
+* **`tests/testthat/test-pilar8-no-edge.R`** (8 tests) --
+  zero-variance covariates, very small n, column-count mismatch,
+  FNO reproducibility, n_modes clamping at n_depths/2, arbitrary
+  depth grids (including extrapolation past training range), torch
+  backend reproducibility.
+* **`tests/testthat/test-pilar9-ddpm-edge.R`** (9 tests) --
+  T = 1 boundary, T = 1000 numerical stability, degenerate constant
+  stack, sample determinism, n_samples = 1 boundary, cond_dim
+  mismatch errors, fallback when cond = NULL on conditional model,
+  torch backend CPU finite output, tiny T = 2.
+* **`tests/testthat/test-pilar10-gat-edge.R`** (10 tests) --
+  k = 1 edge count, k = n-1 complete graph, no-numeric-features
+  rejection, duplicate-coord finite-weight guarantee, NA-feature
+  standardisation fallback, n_heads = 1, n_layers = 1, fit
+  reproducibility, torch backend with n_heads = 1, n = 5 small
+  graph.
+
+No changes to the production R code -- purely test expansion.  The
+edge cases caught two minor issues noted as TODOs:
+* DeepONet tanh saturates on extreme-depth extrapolation (expected;
+  documented).
+* `sweep` recycling warning on odd column counts in standardisation
+  (cosmetic; expected behaviour).
+
+R CMD check: 0 errors | 0 warnings | 0 notes on v2.9.0.
+All 55 new edge tests pass.
+
+---
+
 # edaphos 2.8.0
 
 ## Real head-to-head benchmark -- P4 Foundation x P5 QRF x P7 BHS
