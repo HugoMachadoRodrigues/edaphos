@@ -1,0 +1,243 @@
+---
+title: "Getting started with edaphos"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{Getting started with edaphos}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  fig.width  = 6,
+  fig.height = 4,
+  out.width  = "90%"
+)
+```
+
+```{r setup}
+library(edaphos)
+set.seed(1L)
+```
+
+## What this vignette is for
+
+edaphos is organised around **ten research pillars**.  This vignette
+is the 200-line orientation tour: one minimal, self-contained
+example per pillar and per cross-pillar bridge, all running on
+synthetic Cerrado-like data that ships with the package.
+
+Every function called here runs offline in seconds.  For the full
+treatment of each pillar -- real WoSIS datasets, MCMC diagnostics,
+head-to-head benchmarks -- see the per-pillar vignettes in the
+sidebar.
+
+## A shared toy dataset
+
+A 60-profile synthetic data frame with pedological covariates and
+topsoil soil-organic-carbon (SOC) as the regression target.  Every
+pillar below consumes this same object.
+
+```{r toy-data}
+n <- 60L
+dat <- data.frame(
+  lon   = runif(n, -50, -48),
+  lat   = runif(n, -16, -14),
+  map   = runif(n, 900, 1500),   # mean annual precipitation
+  mat   = runif(n, 21, 27),      # mean annual temperature
+  clay  = runif(n, 10, 50),
+  sand  = runif(n, 20, 70),
+  trees = runif(n, 0, 50)
+)
+dat$soc <- with(dat,
+  8 + 0.02 * map + 0.10 * clay - 0.15 * trees + rnorm(n, 0, 2))
+head(dat)
+```
+
+Train / test split we will reuse throughout:
+
+```{r split}
+tr_ix <- sample.int(n, 45L)
+tr    <- dat[tr_ix,  ]
+te    <- dat[-tr_ix, ]
+cov_cols <- c("map", "mat", "clay", "sand", "trees")
+```
+
+## Pilar 1 -- Causal AI with backdoor adjustment
+
+A pedogenetic DAG gives the minimally sufficient set of adjustment
+variables; `benchmark_fit_p1_causal()` then runs a bootstrap OLS
+restricted to that set and produces a predictive posterior.
+
+```{r p1}
+post_p1 <- benchmark_fit_p1_causal(tr, te, cov_cols,
+                                       dag = NULL, n_boot = 100L)
+uncertainty_calibrate(post_p1, truth = te$soc)$crps
+```
+
+## Pilar 2 -- Physics-Informed profile ODE
+
+The pedogenetic ODE `dy/dz = -lambda0 exp(-mu z) (y - y_inf)` is
+fit to a single pedon's SOC profile with `piml_profile_fit()`.
+
+```{r p2}
+depths <- c(5, 15, 30, 60, 100)
+values <- c(25, 18, 12, 8, 6.5)
+ode_fit <- piml_profile_fit(depths, values)
+ode_fit$params
+```
+
+## Pilar 3 -- Temporal 4D cube (ConvLSTM)
+
+```{r p3, eval = FALSE}
+# Skipped in the getting-started tour -- ConvLSTM training needs
+# a temporal raster stack, covered in `pilar3-4d-soc.Rmd`.
+```
+
+## Pilar 4 -- Foundation models (SimCLR / MoCo)
+
+```{r p4, eval = FALSE}
+# Pre-trained MoCo weights live on Zenodo and are pulled by
+# `foundation_weights_load()`; see `pilar4-simclr-embeddings.Rmd`.
+```
+
+## Pilar 5 -- Active Learning
+
+A hybrid uncertainty + diversity acquisition function selects the
+next 3 profiles to sample from a pool of candidates.
+
+```{r p5}
+al_mod <- al_fit(labeled    = tr,
+                   target     = "soc",
+                   covariates = cov_cols,
+                   coords     = c("lon", "lat"),
+                   num.trees  = 200L)
+pool <- dat[sample.int(n, 20L), c(cov_cols, "lon", "lat")]
+picks <- al_query(al_mod, pool, n = 3L, strategy = "hybrid")
+picks
+```
+
+## Pilar 6 -- Quantum KRR
+
+A 6-qubit ZZFeatureMap kernel ridge regression trained on the PCA
+of the covariates, with a bootstrap-ensemble posterior.
+
+```{r p6}
+post_p6 <- benchmark_fit_p6_quantum(tr, te, cov_cols,
+                                         n_pcs = 4L, reps = 1L,
+                                         n_boot = 5L, lambda = 0.5)
+uncertainty_calibrate(post_p6, truth = te$soc)$crps
+```
+
+## Pilar 7 -- Bayesian Hierarchical Spatial
+
+```{r p7}
+fit7 <- bhs_fit(tr, soc ~ map + mat + clay + sand + trees,
+                  coords = c("lon", "lat"),
+                  nmcmc = 200L, burn = 100L,
+                  phi_range = c(0.1, 5), verbose = FALSE)
+pr7 <- predict(fit7, te, n_draws = 80L)
+head(pr7[, c("mean", "sd")])
+```
+
+## Pilar 8 -- Neural operators
+
+```{r p8}
+depth_grid <- seq(5, 120, length.out = 8L)
+targets   <- t(apply(tr[, cov_cols], 1L, function(r)
+  10 + 5 * r[1] + 2 * runif(length(depth_grid))))
+no_fit <- no_deeponet_fit(depth_grid, targets,
+                              as.matrix(tr[, cov_cols]),
+                              epochs = 50L, seed = 1L)
+no_pred <- predict(no_fit, as.matrix(te[, cov_cols]))
+dim(no_pred)
+```
+
+## Pilar 9 -- Diffusion models
+
+A conditional DDPM trained on synthetic 6x6 patches; `dm_sample()`
+draws 4 posterior maps.
+
+```{r p9}
+patches <- array(rnorm(16L * 6L * 6L), dim = c(16L, 6L, 6L))
+dm <- dm_fit(patches, T = 8L, epochs = 10L,
+               hidden = 8L, lr = 0.05, seed = 1L)
+samps <- dm_sample(dm, n_samples = 4L, seed = 1L)
+dim(samps)
+```
+
+## Pilar 10 -- Graph Attention Network
+
+A k-NN co-location graph on (lon, lat) with covariates as node
+features, fit via `gnn_fit()`.
+
+```{r p10}
+g <- gnn_build_graph(dat, k = 5L, feature_cols = cov_cols)
+gat <- gnn_fit(g, targets = dat$soc,
+                 hidden = 8L, n_heads = 2L, n_layers = 1L,
+                 epochs = 30L, lr = 0.03, seed = 1L)
+gat$history[c(1, 30)]
+```
+
+## Cross-pillar bridges (v3.0.0)
+
+The **bridges** compose two pillars into a single API.  Here we
+show a representative pair per cluster.
+
+### P10 x P1 -- GAT embeddings as causal nuisance
+
+```{r bridge-p10-p1, eval = FALSE}
+# Requires `bnlearn`; run when that Suggests dependency is installed.
+feat_df <- dat[, c(cov_cols, "soc")]
+kg <- gnn_causal_discovery(gat, feat_df, method = "hc",
+                              n_emb_cols = 3L, seed = 1L)
+head(kg$edges_feature_only)
+```
+
+### P7 x P5 -- Thompson-sampling AL
+
+Posterior-sampling active learning over the BHS fit.
+
+```{r bridge-p7-p5}
+pool_df <- dat[1:8, c(cov_cols, "lon", "lat")]
+q <- al_query_bhs(fit7, pool_df, n_select = 3L, n_draws = 50L)
+q
+```
+
+## Head-to-head: unified uncertainty scoring
+
+All six methods producing `edaphos_posterior` objects can be
+scored side-by-side through `uncertainty_calibrate()`.
+
+```{r head-to-head}
+crps <- c(
+  P1_Causal   = uncertainty_calibrate(post_p1, te$soc)$crps,
+  P6_Quantum  = uncertainty_calibrate(post_p6, te$soc)$crps
+)
+crps
+```
+
+For the full 1 095-profile WoSIS Cerrado benchmark comparing all
+six "static point regression" methods, load
+`inst/extdata/benchmark_wosis_6pilar.rds` and inspect
+`cv_aggregate` (v3.1.0 vignette: `case-cerrado-end-to-end.Rmd`).
+
+## Next steps
+
+* **Per-pillar deep dives** -- 17 vignettes, one per pillar + key
+  case studies, cover the full feature surface.
+* **`?edaphos`** -- package-level help page with the complete
+  function index.
+* **Cross-pillar bridges** -- see `causal-discovery-trio.Rmd` for
+  how P1, P5 and P7 combine to run a DAG-driven AL loop.
+
+## Citation
+
+Please cite edaphos as:
+
+> Rodrigues, H. (2026).  *edaphos: Disruptive algorithms for digital
+> soil mapping.*  R package version `r as.character(utils::packageVersion("edaphos"))`.
+> <https://github.com/HugoMachadoRodrigues/edaphos>

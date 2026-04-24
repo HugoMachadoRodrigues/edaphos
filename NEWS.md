@@ -1,3 +1,41 @@
+# edaphos 3.3.0
+
+## Getting-started vignette
+
+Adds `vignettes/getting-started.Rmd` -- a ~200-line orientation
+tour that walks through all ten research pillars plus three
+cross-pillar bridges on a single 60-profile synthetic Cerrado
+data frame.  Every chunk runs in seconds offline and uses only the
+core package API; no Zenodo downloads, no MCMC diagnostics, no
+external services.  Intended as the entry point for new users
+before diving into the per-pillar deep dives.
+
+Concretely, the vignette demonstrates:
+
+* **Pilar 1** - `benchmark_fit_p1_causal()` -> `edaphos_posterior`
+* **Pilar 2** - `piml_profile_fit()` on a single pedon
+* **Pilar 3, 4** - pointer to full vignettes (need cubes / Zenodo weights)
+* **Pilar 5** - `al_fit()` + `al_query(strategy = "hybrid")`
+* **Pilar 6** - `benchmark_fit_p6_quantum()` -> `edaphos_posterior`
+* **Pilar 7** - `bhs_fit()` + `predict()` posterior summary
+* **Pilar 8** - `no_deeponet_fit()` on synthetic depth targets
+* **Pilar 9** - `dm_fit()` + `dm_sample()` on synthetic patches
+* **Pilar 10** - `gnn_build_graph()` + `gnn_fit()` on a k-NN graph
+* **Bridges** - `al_query_bhs()` (P7 x P5), `gnn_causal_discovery()`
+  (P10 x P1, eval = FALSE pending bnlearn Suggests)
+* **Unified scoring** - `uncertainty_calibrate()` across all
+  `edaphos_posterior` outputs.
+
+The vignette closes with a CRPS-table comparison of P1 and P6 on
+the shared test split, pointing users to
+`inst/extdata/benchmark_wosis_6pilar.rds` for the full 1 095-
+profile WoSIS head-to-head.
+
+R CMD check: 0 errors | 2 warnings (pre-existing inst/doc) | 0 notes.
+1 239 tests pass.
+
+---
+
 # edaphos 3.2.0
 
 ## Performance: Gibbs fast path + batched DDPM training
