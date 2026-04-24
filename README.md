@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-2.6.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v2.6.0)
+[![Version](https://img.shields.io/badge/version-2.8.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v2.8.0)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -225,6 +225,38 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ---
 
+## 🆕 v2.7.0 – v2.8.0 — Torch autograd ports + honest head-to-head WoSIS benchmark
+
+Two new releases complete the v2.x arc:
+
+**v2.7.0 — Torch autograd backends for Pilares 8, 9 and 10.**
+Replaces the ELM-style (hidden layers frozen, gradient only on the
+head) pure-R fits with full-backprop `torch::optim_adam` training.
+Each `*_fit()` gains `backend = c("r", "torch")` and
+`device = c("cpu", "mps", "cuda")`; pure-R remains the default
+fallback for users without libtorch. A proper 2-D conditional
+U-Net replaces the MLP denoiser in DDPM, and the GAT layer uses
+`torch::index_add` scatter for softmax-per-source attention.
+
+**v2.8.0 — Real head-to-head benchmark on 1 095 WoSIS profiles.**
+First honest cross-pillar comparison:
+
+| Method | RMSE | R² | PICP@90 | MPIW@90 | CRPS |
+|:---|---:|---:|---:|---:|---:|
+| P4 Foundation+QRF | 14.1 | 0.034 | **0.889** | 37.6 | 5.93 |
+| **P5 QRF** | 14.1 | 0.064 | 0.879 | 37.2 | **5.85** |
+| **P7 BHS** | 14.1 | **0.070** | 0.812 | **36.7** | 6.97 |
+
+All three tie at ~14.1 g/kg RMSE. P5 wins on CRPS, P7 on R² and
+MPIW (but under-covers), P4 best-calibrated at 0.89 ≈ nominal 0.90.
+Runner: `data-raw/benchmark_wosis_p4_p5_p7.R`; bundle:
+`inst/extdata/benchmark_wosis_p4_p5_p7.rds`.
+
+An important **P7 BHS row-alignment bug** was found and fixed in the
+process (details in NEWS.md v2.8.0).
+
+---
+
 ## 🆕 v2.1.3 – v2.6.0 — Seven releases: polish + bridges + four new pillars
 
 One batched session shipped **seven** full releases, each with 0/0/0
@@ -238,7 +270,7 @@ R CMD check and a dedicated test suite:
 | **v2.3.0** | **Pilar 7 BHS** — Bayesian hierarchical spatial model via self-contained Gibbs sampler + optional `spBayes::spLM` backend. Profile-MLE phi for closed-form conditionals. |
 | **v2.4.0** | **Pilar 8 Neural Operators** — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021) in pure R. Learn `u(z) → y(z)` across sites without torch. |
 | **v2.5.0** | **Pilar 9 DDPM** — first pedometric diffusion-model for generative soil maps. Cosine-schedule (Nichol & Dhariwal 2021) + score-matching loss + ancestral sampling. |
-| **v2.6.0** | **Pilar 10 GAT** — first pedometric Graph Attention Network (Velickovic et al. 2018) over WoSIS k-NN co-location graphs. |
+| **v2.8.0** | **Pilar 10 GAT** — first pedometric Graph Attention Network (Velickovic et al. 2018) over WoSIS k-NN co-location graphs. |
 
 **Tooling now in place**: `src/` compiled Rcpp, `LinkingTo: Rcpp`,
 `Dockerfile`, `_pkgdown.yml`, `cran-comments.md`,
@@ -262,7 +294,7 @@ Consolidation release aimed at CRAN / rOpenSci readiness:
   plus new tests for the v2.1.1 and v2.1.2 bridges below).
 - **CRAN / rOpenSci prep** — `cran-comments.md`,
   `inst/rosc/submission.md` (pre-submission inquiry), `NEWS.md`
-  catch-up covering v1.7.0 → v2.6.0.
+  catch-up covering v1.7.0 → v2.8.0.
 - **Zenodo release helper** — new `edaphos_zenodo_release()`
   builds a deposit-ready bundle (package tarball + bundles + DataCite
   JSON + SHA-256 manifest + README).
@@ -280,7 +312,7 @@ bootstrap-exact mode.
 norm after the latest assimilation step, with three combine modes
 (`gain`, `gain × SD`, percentile-normalised).
 
-### Scaffolds for v2.2.0 → v2.6.0
+### Scaffolds for v2.2.0 → v2.8.0
 
 Six additional bridges + pillars ship as **API-stable stubs**
 (functions defined, signatures finalised, bodies raise an
@@ -291,7 +323,7 @@ informative `stop()` pointing to the scheduled release):
 - `bhs_fit()`                     → v2.3.0 (Pilar 7 Bayesian hierarchical)
 - `no_fno_fit() / no_deeponet_fit()` → v2.4.0 (Pilar 8 Neural operators)
 - `dm_fit() / dm_sample()`        → v2.5.0 (Pilar 9 Diffusion models)
-- `gnn_build_graph() / gnn_fit()` → v2.6.0 (Pilar 10 Graph NNs)
+- `gnn_build_graph() / gnn_fit()` → v2.8.0 (Pilar 10 Graph NNs)
 
 Each scaffold file includes the full scientific motivation, architecture
 plan and TODO checklist.
@@ -302,7 +334,7 @@ plan and TODO checklist.
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v2.6.0",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v2.8.0",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -1675,7 +1707,7 @@ bibliography (`vignettes/references.bib`).
 | v2.3.0  | **Pilar 7** — Bayesian hierarchical spatial (Gibbs + spBayes)   | ✅ |
 | v2.4.0  | **Pilar 8** — Neural operators (FNO + DeepONet) for pedogenetic PDEs | ✅ |
 | v2.5.0  | **Pilar 9** — Diffusion models for generative soil maps (DDPM)  | ✅ |
-| v2.6.0  | **Pilar 10** — Graph Attention Networks on WoSIS co-location network | ✅ |
+| v2.8.0  | **Pilar 10** — Graph Attention Networks on WoSIS co-location network | ✅ |
 | v1.9.3  | Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit    | 📝   |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧   |
 | v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝    |
@@ -1690,7 +1722,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 2.6.0) [Software]. Zenodo.
+> Soil Mapping* (Version 2.8.0) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1698,7 +1730,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {2.6.0},
+  version   = {2.8.0},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}

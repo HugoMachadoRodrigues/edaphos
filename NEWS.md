@@ -1,3 +1,51 @@
+# edaphos 2.8.0
+
+## Real head-to-head benchmark -- P4 Foundation x P5 QRF x P7 BHS
+
+First honest cross-pillar benchmark of three independent pillars on
+the **1 095 real WoSIS Cerrado topsoil profiles**, evaluated by
+5-fold spatial CV (k-means on lon/lat).  Methods share the v1.6.0
+`edaphos_posterior` + `uncertainty_calibrate()` infrastructure for
+apples-to-apples comparison.
+
+* **`data-raw/benchmark_wosis_p4_p5_p7.R`** -- end-to-end runner:
+  loads 1 095 profiles, builds 5 spatial folds, fits each method
+  per fold, produces a unified posterior, scores with
+  `uncertainty_calibrate()`.
+* **`inst/extdata/benchmark_wosis_p4_p5_p7.rds`** (1.9 MB) --
+  reproducible bundle.
+
+### Cross-fold aggregate (mean across 5 folds)
+
+| Method            | RMSE | R²    | PICP @ 90 | MPIW @ 90 | CRPS |
+|:---|---:|---:|---:|---:|---:|
+| P4 Foundation+QRF | 14.1 | 0.034 | 0.889     | 37.6      | 5.93 |
+| **P5 QRF**        | 14.1 | 0.064 | 0.879     | 37.2      | **5.85** |
+| **P7 BHS**        | 14.1 | **0.070** | 0.812     | **36.7**      | 6.97 |
+
+**Honest reading**: all three tied at ~14.1 g/kg RMSE.  P5 wins on
+CRPS (best probabilistic score); P7 wins on R² and MPIW (tightest
+intervals) but under-covers at 81% vs 90% nominal; P4 Foundation is
+best calibrated (PICP 0.89 very close to 0.90) but has the lowest R².
+The Foundation+QRF uses a synthetic-stack encoder fallback in this
+CI-safe version; the v1.9.3 real-geodata upgrade should favour P4
+more.
+
+### P7 BHS bug fix
+
+While running the benchmark we found a row-alignment bug in
+`bhs_fit()`: when `data` had a reset rowname sequence (the typical
+dplyr case), `model.frame()` preserved the original integer
+rownames and `data[as.integer(rownames(mf)), ]` indexed past the
+end of `data`, silently returning `NA` coordinates.  Fixed by
+carrying an internal `.row_id` integer column through
+`model.frame()` instead of relying on rownames; an explicit finite-
+coordinate filter was added as belt-and-suspenders.
+
+Existing Pilar 7 test suite (5 tests) still passes.
+
+---
+
 # edaphos 2.7.0
 
 ## Torch/autograd backends for Pilares 8, 9 and 10

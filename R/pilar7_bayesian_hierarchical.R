@@ -94,17 +94,27 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
   if (is.null(burn)) burn <- nmcmc %/% 2L
   stopifnot(burn >= 0L, burn < nmcmc, thin >= 1L)
 
-  # Build the model matrix and coordinate matrix
-  mf <- stats::model.frame(formula, data, na.action = stats::na.omit)
-  if (nrow(mf) < nrow(data)) {
-    message("[bhs_fit] dropped ", nrow(data) - nrow(mf),
-             " rows with NAs in the model frame.")
+  # Build the model matrix and coordinate matrix.  Use an internal
+  # integer row-id column to avoid the frequent dplyr-style rowname
+  # reset bug that breaks `data[as.integer(rownames(mf)), ]`.
+  data_ <- data
+  data_$.row_id <- seq_len(nrow(data_))
+  mf <- stats::model.frame(stats::update(formula, ~ . + .row_id),
+                             data_, na.action = stats::na.omit)
+  # Additionally require coord columns to be present and finite.
+  coord_df <- data_[mf$.row_id, coords, drop = FALSE]
+  keep_coord <- stats::complete.cases(coord_df) &
+                  apply(coord_df, 1L, function(r) all(is.finite(r)))
+  mf       <- mf[keep_coord, , drop = FALSE]
+  coord_df <- coord_df[keep_coord, , drop = FALSE]
+  if (nrow(mf) < nrow(data_)) {
+    message("[bhs_fit] dropped ", nrow(data_) - nrow(mf),
+             " rows with NAs in the model frame / coords.")
   }
+  mf$.row_id <- NULL
   y <- stats::model.response(mf)
   X <- stats::model.matrix(formula, mf)
-  # Align coords with mf rows
-  rn <- as.integer(rownames(mf))
-  S  <- as.matrix(data[rn, coords, drop = FALSE])
+  S <- as.matrix(coord_df)
   n  <- length(y); p <- ncol(X)
   if (n < p + 5L) stop("Too few complete rows for BHS.", call. = FALSE)
 
@@ -193,23 +203,36 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
 
   prior_prec <- 1 / prior_var_beta
 
+  # Robust Cholesky with jitter
+  .chol_jitter <- function(M, tries = 8L) {
+    jit <- 0
+    for (k in seq_len(tries)) {
+      L <- tryCatch(chol(M + diag(jit, nrow(M))),
+                     error = function(e) NULL)
+      if (!is.null(L)) return(L)
+      jit <- if (jit == 0) 1e-8 else jit * 10
+    }
+    # Final fallback: ridge-regularise heavily
+    chol(M + diag(1e-2 * mean(diag(M)), nrow(M)))
+  }
+
   for (iter in seq_len(nmcmc)) {
     # Update w | beta, sigma2, tau2
     # w ~ N(mu_w, V_w) where
     #   V_w = (Rinv/sigma2 + I/tau2)^-1
     #   mu_w = V_w (y - X beta) / tau2
     prec_w <- Rinv / sigma2 + diag(1 / tau2, n)
-    L_w <- tryCatch(chol(prec_w),
-                     error = function(e) chol(prec_w + diag(1e-6, n)))
+    L_w <- .chol_jitter(prec_w)
     V_w <- chol2inv(L_w)
     mu_w <- as.numeric(V_w %*% ((y - as.numeric(X %*% beta)) / tau2))
-    w_cur <- as.numeric(mu_w + t(chol(V_w)) %*% stats::rnorm(n))
+    L_Vw <- .chol_jitter(V_w)
+    w_cur <- as.numeric(mu_w + t(L_Vw) %*% stats::rnorm(n))
 
     # Update beta | w, tau2
     prec_beta <- crossprod(X) / tau2 + prior_prec * diag(p)
-    V_beta    <- chol2inv(chol(prec_beta))
+    V_beta    <- chol2inv(.chol_jitter(prec_beta))
     mu_beta   <- as.numeric(V_beta %*% crossprod(X, y - w_cur) / tau2)
-    beta      <- as.numeric(mu_beta + t(chol(V_beta)) %*% stats::rnorm(p))
+    beta      <- as.numeric(mu_beta + t(.chol_jitter(V_beta)) %*% stats::rnorm(p))
 
     # Update sigma^2 | w
     shape_s <- prior_ig_a + n / 2
