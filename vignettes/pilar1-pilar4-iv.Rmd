@@ -449,6 +449,98 @@ baixando os ~200 MB de rasters reais) deve elevar F para a faixa
 20-100, retendo o ganho em Sargan.  Esta é a agenda explícita do
 v1.9.2.
 
+# Sensibilidade v1.9.2 — Cinelli & Hazlett (2020)
+
+Sargan testa a **validade** dos instrumentos, mas assume que eles
+satisfazem as condições IV.  Cinelli & Hazlett (2020) oferecem uma
+pergunta complementar em linguagem de **robustness**: *quão forte
+precisaria ser um confundidor latente $U$ — em termos de
+$R^2$ parcial com $X$ e $Y$ — para zerar o efeito estimado?*
+
+A fórmula-chave:
+
+$$
+|\mathrm{bias}|_{\max} = \mathrm{SE}(\hat\beta) \cdot
+  \sqrt{\frac{R^2_{Y\sim U | X, Z} \cdot R^2_{X\sim U | Z}}{1 - R^2_{X\sim U | Z}}}
+  \cdot \sqrt{\mathrm{df}}
+$$
+
+O **Robustness Value (RV)** é o $R^2_{U} = R^2_{Y\sim U} = R^2_{X\sim U}$
+que, assumindo *equal confounding* na ambas as pontas, zeraria o
+efeito.  **RV baixo = efeito frágil**.
+
+```{r sens-load, eval = FALSE}
+res_path <- system.file("extdata", "causal_sensitivity_cerrado.rds",
+                         package = "edaphos")
+S <- readRDS(res_path)
+```
+
+## Tabela de sensibilidade por estimador
+
+Running `data-raw/causal_sensitivity_run.R` on all four estimators
+for the three Cerrado exposures:
+
+```
+ Exposure        Estimator               effect      RV     RV_alpha
+ MAP (mm/a)      Naive OLS               0.00720   9.2 %   3.7 %
+ MAP (mm/a)      Backdoor OLS            0.00769   8.3 %   2.6 %
+ MAP (mm/a)      Proxy IV (v1.9.0)       0.00809   8.6 %   3.0 %
+ MAP (mm/a)      Real MoCo IV (v1.9.1)   0.01694   3.9 %   0.0 %
+ Tree cover (%)  Backdoor OLS            6.54      6.3 %   0.5 %
+ Tree cover (%)  Proxy IV (v1.9.0)       5.08      4.9 %   0.0 %
+ Tree cover (%)  Real MoCo IV (v1.9.1)   4.98      0.9 %   0.0 %
+ Clay (%)        Naive OLS               0.526    24.4 %  19.8 %
+ Clay (%)        Backdoor OLS            0.192     5.0 %   0.0 %
+ Clay (%)        Real MoCo IV (v1.9.1)   0.858     3.9 %   0.0 %
+```
+
+## Leitura científica
+
+1. **Clay → SOC na OLS naïve é o único efeito robusto** (RV = 24%)
+   — um confundidor latente precisaria explicar um quarto da
+   variância residual de ambos Clay e SOC para zerar esse efeito.
+   Consistente com a literatura: clay é o preditor mais direto de SOC
+   e pouco confundido.
+2. **MAP → SOC tem RV ≈ 8-9% sob OLS/Backdoor/Proxy-IV** — robusto a
+   confundimentos moderados, vulnerável a qualquer variável latente
+   explicando mais de ~9% da variância residual em ambas as pontas.
+3. **Os IV estimates (real MoCo v1.9.1) têm RVs pequenos (0.9-3.9%)**
+   porque a SE é cerca de 5× maior que a do backdoor (instrumentos
+   fracos no modo CI-stack).  Quando a v1.9.2 roda com
+   `EDAPHOS_IV_REAL_STACK=1`, a F-stage-1 deve subir e a SE cair —
+   reestabilizando o RV.
+
+## Bias contour: o MAP → SOC sob backdoor
+
+O bloco abaixo produz o plot clássico de @CinelliHazlett2020 — um
+grid 2-D com $R^2_{X\sim U | Z}$ no eixo-x, $R^2_{Y\sim U | X, Z}$
+no eixo-y, e contornos do efeito ajustado pelo viés:
+
+```{r sens-contour, eval = FALSE}
+grid <- causal_sensitivity_grid(
+  effect = 0.00769, se = 0.00271, df = 1084,
+  grid_size = 61L, r2_max = 0.30
+)
+library(ggplot2)
+ggplot(grid, aes(x = r2_xu_z, y = r2_yu_xz,
+                   z = adjusted_estimate)) +
+  geom_contour_filled(breaks = seq(0, 0.012, length.out = 11)) +
+  geom_contour(breaks = c(0), color = "red", linewidth = 1) +
+  scale_x_continuous(labels = scales::percent, name =
+    expression(R^2 ~ of ~ U ~ on ~ X ~ given ~ Z)) +
+  scale_y_continuous(labels = scales::percent, name =
+    expression(R^2 ~ of ~ U ~ on ~ Y ~ given ~ X ~ and ~ Z)) +
+  labs(title = "Cinelli-Hazlett bias-adjusted β for MAP→SOC",
+        subtitle = "Red contour = β adjusted to zero")
+```
+
+O contorno vermelho marca o conjunto de $(R^2_{X\sim U}, R^2_{Y\sim U})$
+para os quais o efeito ajustado é zero.  Qualquer combinação
+**abaixo** dessa curva é seguro; acima, o confundidor latente é
+suficiente para extinguir o efeito.
+
+---
+
 # Implicações para a visão generativa de @Zhang2026causal
 
 O IV é um complemento, não um substituto, do ajuste *backdoor*:
@@ -484,10 +576,13 @@ que o framework de Pearl idealiza.
   `data-raw/causal_iv_benchmark_real.R`.  Com encoder v1 + stack
   sintético, **Sargan não rejeita** (p = 0.28-0.42) — teste
   decisivo passado.
-- **v1.9.2**: análise de sensibilidade à la @CinelliHazlett2020 —
-  quão forte precisaria ser a violação para mudar a conclusão? +
-  download real de SoilGrids/WorldClim/SRTM para reforçar o
-  Stage-1 F.
+- **v1.9.2 (atual)**: análise de sensibilidade à la
+  @CinelliHazlett2020 via `causal_sensitivity_*` — RV e RV_alpha
+  por estimador, bias-contour grid.  Descoberta: o único efeito
+  *robusto* no Cerrado sob qualquer estimador é Clay → SOC na OLS
+  naïve (RV = 24%); MAP → SOC tem RV ≈ 8% (backdoor), 4% (MoCo-IV).
+  + runner `data-raw/causal_sensitivity_run.R`.  Agenda para o
+  encoder v2: lift do Stage-1 F (requer `EDAPHOS_IV_REAL_STACK=1`).
 - **v2.0.0**: encoder MoCo v2 (200 k InfoNCE, em treinamento) +
   re-benchmark; adicionar quantum kernel (Pilar 6) sobre os
   embeddings (Pilar 4 × Pilar 6).

@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-1.9.1-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.9.1)
+[![Version](https://img.shields.io/badge/version-1.9.2-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.9.2)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -229,7 +229,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v1.9.1",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v1.9.2",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -723,7 +723,7 @@ MoCo v2 encoder (v1.9.1) rather than engineered proxies.
 
 📖 Vignette: `vignette("pilar1-pilar4-iv")`.
 
-### 🆕 v1.9.1 — Real MoCo v2 patch extraction passes the Sargan test
+### v1.9.1 — Real MoCo v2 patch extraction passes the Sargan test
 
 Two new functions close the loop from the v1.9.0 thesis to real
 empirical evidence:
@@ -756,6 +756,54 @@ proxies) because the synthetic CI-mode raster stack lacks the real
 spatial autocorrelation of SoilGrids. Running with
 `EDAPHOS_IV_REAL_STACK=1` + the full 200 MB download lifts F back
 into a practically-useful range (work scoped for v1.9.2).
+
+### 🆕 v1.9.2 — Cinelli & Hazlett (2020) sensitivity analysis
+
+The Sargan test validates instrument *exclusion*; sensitivity
+analysis quantifies *robustness to residual confounding* after the
+fact.  Following [@CinelliHazlett2020] we compute the **Robustness
+Value (RV)**: the minimum partial R² that an unobserved confounder
+would need to have with *both* X and Y to zero out the estimate.
+
+```r
+# Any of the following produces a RV summary
+s <- edaphos::causal_sensitivity_summary(effect = 0.00769,
+                                           se     = 0.00271,
+                                           df     = 1084)
+s$rv         # -> 0.083   (8.3% of residual variance)
+s$rv_alpha   # -> 0.026   (threshold for significance loss)
+
+# Or wrap an `lm` / `edaphos_causal_iv`:
+edaphos::causal_sensitivity_from_lm(fit, exposure = "map")
+edaphos::causal_sensitivity_from_iv(iv_fit)
+```
+
+**Robustness table on the 1 095 Cerrado profiles:**
+
+| Exposure | Estimator | β̂ | **RV** | RV @ 5% |
+|:---|:---|---:|---:|---:|
+| MAP (mm/a) | Naive OLS | 0.0072 | **9.2%** | 3.7% |
+| MAP (mm/a) | Backdoor OLS | 0.0077 | **8.3%** | 2.6% |
+| MAP (mm/a) | Proxy IV (v1.9.0) | 0.0081 | **8.6%** | 3.0% |
+| MAP (mm/a) | Real MoCo IV (v1.9.1) | 0.0169 | **3.9%** | 0.0% |
+| Tree cover | Backdoor OLS | 6.54 | **6.3%** | 0.5% |
+| Tree cover | Real MoCo IV | 4.98 | **0.9%** | 0.0% |
+| **Clay (%)** | Naive OLS | 0.526 | **24.4%** | 19.8% |
+| Clay (%) | Backdoor OLS | 0.192 | **5.0%** | 0.0% |
+| Clay (%) | Real MoCo IV | 0.858 | **3.9%** | 0.0% |
+
+**Scientific finding.** *The only robust causal claim in the Cerrado
+stack is Clay → SOC under Naive OLS* (RV = 24%): no plausible
+confounder explaining less than a quarter of the residual variance
+could zero it out.  MAP → SOC under Backdoor OLS is moderately
+robust (RV ≈ 8%); under real-encoder IV it drops to ≈ 4%, because
+the synthetic-stack mode yields weak instruments (Stage-1 F ≈ 10) and
+an inflated SE.  Running with `EDAPHOS_IV_REAL_STACK=1` on the full
+geodata download should lift F and reduce the SE, restoring RV.
+
+The package was validated against the published Cinelli-Hazlett
+Theorem 4.4 example to four decimal places (RV = 0.1810 expected,
+0.1810 computed).
 
 ---
 
@@ -1418,6 +1466,7 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `cerrado_gold_standard_v1_draft.jsonl`        | ~20 KB  | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)           | `llm-annotation-workflow`         |
 | `causal_iv_cerrado.rds`                       |  ~12 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`                |
 | `causal_iv_cerrado_real.rds`                  |   ~1 KB | Real-encoder IV benchmark (v1.9.1): 1 081 embeddings + Sargan passes         | `pilar1-pilar4-iv` §7             |
+| `causal_sensitivity_cerrado.rds`              | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2)                             | `pilar1-pilar4-iv` §8             |
 | `llm_benchmark_results.rds`                   | ~10 KB  | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
 | `cerrado_abstracts.jsonl`                     |  ~40 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
@@ -1449,7 +1498,7 @@ browseVignettes("edaphos")
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
 | 📊 `llm-kg-benchmark`             | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen's κ, cost / 1k claims, latency, 10k-abstract scaling. |
 | 🛠️ `llm-annotation-workflow`      | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
-| 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`) where the Sargan test empirically passes. |
+| 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.2 adds real-encoder extraction (`foundation_embed_at_coords`) where the Sargan test empirically passes. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
 Each vignette is written in the style of a short methods paper —
@@ -1488,10 +1537,11 @@ bibliography (`vignettes/references.bib`).
 | v1.8.1  | Annotation tool: pre-annotation + Shiny review UI      |   ✅    |
 | v1.8.2  | DAG preview + dark mode + OpenAlex fetcher + Zenodo export |  ✅  |
 | v1.9.0  | Foundation embeddings as causal IVs (2SLS + Sargan)    |   ✅    |
-| v1.9.1  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`)  — Sargan passes empirically | ✅ |
+| v1.9.2  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`)  — Sargan passes empirically | ✅ |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧      |
 | v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝    |
-| v1.9.2  | Cinelli & Hazlett sensitivity analysis + real geodata download | 📝   |
+| v1.9.2  | Cinelli & Hazlett sensitivity analysis (`causal_sensitivity_*`) | ✅   |
+| v1.9.3  | Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit    | 📝   |
 | v2.0.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
 | v2.0.0  | CRAN submission                                         | 📝      |
 
@@ -1504,7 +1554,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 1.9.1) [Software]. Zenodo.
+> Soil Mapping* (Version 1.9.2) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1512,7 +1562,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {1.9.1},
+  version   = {1.9.2},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
