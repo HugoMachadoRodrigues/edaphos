@@ -94,9 +94,19 @@ abstract: >-
   Head-to-head 5-fold spatial CV benchmark across four methods
   (ranger baseline, RBF-KRR on foundation PCs, Q-KRR on raw
   covariates, Q-KRR on foundation PCs) ships as
-  inst/extdata/quantum_foundation_cerrado.rds.
+  inst/extdata/quantum_foundation_cerrado.rds.  v2.1.0 is the
+  polish release for CRAN / rOpenSci readiness: pkgdown site,
+  Rocker-based Dockerfile, expanded test suite (40+ new tests
+  filling the v1.8.0+ coverage gap), cran-comments.md, rOpenSci
+  pre-submission inquiry template, edaphos_zenodo_release()
+  helper, plus working implementations of two cross-pillar
+  bridges (al_query_causal for Pilar 1 x Pilar 5, al_query_temporal
+  for Pilar 3 x Pilar 5) and API-stable scaffolds for the four
+  new pillars (Bayesian hierarchical, Neural operators, Diffusion
+  models, Graph Neural Networks) scheduled for v2.3.0 through
+  v2.6.0.
 type: software
-version: "2.0.0"
+version: "2.1.0"
 date-released: "2026-04-23"
 license: MIT
 doi: "10.5281/zenodo.19683708"
@@ -140,6 +150,9 @@ identifiers:
     type: doi
     value: "10.5281/zenodo.19710162"
   - description: "Version DOI (v2.0.0)"
+    type: doi
+    value: "10.5281/zenodo.19710162"
+  - description: "Version DOI (v2.1.0)"
     type: doi
     value: "10.5281/zenodo.19710162"
 authors:

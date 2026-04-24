@@ -1,0 +1,14 @@
+.git
+.github
+.claude
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+doc
+Meta
+docs
+*.Rcheck
+*.tar.gz
+data-raw/*.cache
+inst/shiny-apps/*/node_modules

@@ -1,0 +1,192 @@
+url: https://hugomachadorodrigues.github.io/edaphos
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#2ECC71"
+    navbar-bg: "#27AE60"
+  opengraph:
+    image:
+      src: man/figures/logo.png
+      alt: "edaphos — Disruptive algorithms for Digital Soil Mapping"
+    twitter:
+      creator: "@Hugo_MRodrigues"
+      card: summary_large_image
+
+development:
+  mode: auto
+
+home:
+  title: edaphos — Frontier algorithms for Digital Soil Mapping
+  description: >
+    Six research pillars confronting specific methodological gaps in
+    DSM: Causal AI (with LLM-driven KG), Physics-Informed ML, 4D
+    Pedometry, Foundation Models, Autonomous Active Learning, and
+    Quantum ML. Unified uncertainty API + cross-pillar bridges.
+  links:
+  - text: Pedometrics community
+    href: https://pedometrics.org
+  - text: Zhang & Wadoux (2026) — Causal DSM
+    href: https://doi.org/10.1111/ejss.70284
+
+authors:
+  Hugo Rodrigues:
+    href: https://orcid.org/0000-0002-8070-8126
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+  components:
+    articles:
+      text: Vignettes
+      menu:
+      - text: "Capstone — six pillars integrated"
+      - text: Cross-pillar campaign
+        href: articles/capstone-cerrado-campaign.html
+      - text: -------
+      - text: "Pilar 1 — Causal AI"
+      - text: Causal backdoor on br_cerrado
+        href: articles/pilar1-causal.html
+      - text: Causal on 1 095 real WoSIS profiles
+        href: articles/pilar1-causal-real.html
+      - text: Causal-discovery trio (expert × LLM × data-driven)
+        href: articles/causal-discovery-trio.html
+      - text: LLM-KG benchmark (Gemma 4 × GPT × Claude)
+        href: articles/llm-kg-benchmark.html
+      - text: Annotation workflow (pre-annotation + Shiny review)
+        href: articles/llm-annotation-workflow.html
+      - text: -------
+      - text: "Pilar 2 — Physics-Informed ML"
+      - text: Parametric ODE + Neural ODE
+        href: articles/pilar2-piml-profile.html
+      - text: -------
+      - text: "Pilar 3 — 4D Pedometry"
+      - text: ConvLSTM on synthetic cube
+        href: articles/pilar3-4d-soc.html
+      - text: Real MODIS + NASA POWER + EnKF
+        href: articles/pilar3-4d-real.html
+      - text: -------
+      - text: "Pilar 4 — Foundation Models"
+      - text: SimCLR / MoCo embeddings
+        href: articles/pilar4-simclr-embeddings.html
+      - text: -------
+      - text: "Pilar 5 — Active Learning"
+      - text: Hybrid policy + physics gate
+        href: articles/pilar5-active-learning.html
+      - text: SoilGrids-BR live
+        href: articles/pilar5-soilgrids-br.html
+      - text: -------
+      - text: "Pilar 6 — Quantum ML"
+      - text: ZZFeatureMap + Q-KRR
+        href: articles/pilar6-quantum.html
+      - text: -------
+      - text: "Cross-pillar bridges"
+      - text: Pilar 1 × Pilar 4 — Foundation IVs
+        href: articles/pilar1-pilar4-iv.html
+      - text: Pilar 4 × Pilar 6 — Quantum-foundation kernel
+        href: articles/pilar4-pilar6-quantum.html
+      - text: -------
+      - text: "Unified infrastructure"
+      - text: Unified uncertainty API
+        href: articles/uncertainty-unified.html
+      - text: Case — end-to-end Cerrado benchmark
+        href: articles/case-cerrado-end-to-end.html
+
+reference:
+- title: "Pilar 1 — Causal AI"
+  desc: "Backdoor adjustment, LLM-driven Knowledge Graphs, causal discovery, effect posteriors."
+  contents:
+  - has_concept("pilar1")
+  - starts_with("causal_")
+  - starts_with("llm_annotation_")
+  - starts_with("llm_benchmark_")
+  - starts_with("llm_preannotate")
+
+- title: "Pilar 2 — Physics-Informed ML"
+  desc: "Pedogenetic ODE, Bayesian posterior, Neural ODE + ensemble."
+  contents:
+  - starts_with("piml_")
+
+- title: "Pilar 3 — 4D Pedometry"
+  desc: "ConvLSTM, rollout, mass-balance physics loss, stochastic EnKF."
+  contents:
+  - starts_with("temporal_")
+
+- title: "Pilar 4 — Foundation Models"
+  desc: "SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction."
+  contents:
+  - starts_with("foundation_")
+
+- title: "Pilar 5 — Active Learning"
+  desc: "Hybrid policy, BatchBALD, physics gate, posterior calibration."
+  contents:
+  - starts_with("al_")
+  - starts_with("active_")
+
+- title: "Pilar 6 — Quantum ML"
+  desc: "ZZFeatureMap, Quantum KRR, Qiskit VQE, organo-mineral Hamiltonians."
+  contents:
+  - starts_with("quantum_")
+
+- title: "Cross-pillar bridges (v1.9.x + v2.0.0)"
+  desc: "Foundation embeddings as causal instruments; quantum kernels over foundation embeddings."
+  contents:
+  - starts_with("qf_")
+
+- title: "Unified uncertainty API (v1.6.0)"
+  desc: "Common edaphos_posterior class + single calibration diagnostic."
+  contents:
+  - starts_with("uncertainty_")
+  - edaphos_posterior
+  - as_edaphos_posterior
+
+- title: "Bundled datasets"
+  contents:
+  - br_cerrado
+
+- title: "Package roadmap"
+  contents:
+  - pillars_roadmap
+
+articles:
+- title: "Getting started"
+  navbar: ~
+  contents:
+  - capstone-cerrado-campaign
+  - uncertainty-unified
+
+- title: "Pilar 1 — Causal AI"
+  contents:
+  - pilar1-causal
+  - pilar1-causal-real
+  - causal-discovery-trio
+  - llm-kg-benchmark
+  - llm-annotation-workflow
+
+- title: "Pilares 2–6"
+  contents:
+  - pilar2-piml-profile
+  - pilar3-4d-soc
+  - pilar3-4d-real
+  - pilar4-simclr-embeddings
+  - pilar5-active-learning
+  - pilar5-soilgrids-br
+  - pilar6-quantum
+
+- title: "Cross-pillar bridges"
+  contents:
+  - pilar1-pilar4-iv
+  - pilar4-pilar6-quantum
+
+- title: "End-to-end"
+  contents:
+  - case-cerrado-end-to-end
+
+news:
+  releases:
+  - text: "v2.0.0 — Quantum kernel × Foundation (Pilar 4 × Pilar 6)"
+  - text: "v1.9.x — Foundation embeddings as causal IVs + Sargan/Cinelli-Hazlett"
+  - text: "v1.8.x — LLM benchmark infrastructure + Shiny annotation tool"
+  - text: "v1.7.x — Capstone vignette + native-query calibration + causal discovery"

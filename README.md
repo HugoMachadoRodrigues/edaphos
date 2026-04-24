@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-2.0.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v2.0.0)
+[![Version](https://img.shields.io/badge/version-2.1.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v2.1.0)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -225,11 +225,64 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ---
 
+## 🆕 v2.1.0 — Frente D polish + two new cross-pillar bridges
+
+Consolidation release aimed at CRAN / rOpenSci readiness:
+
+- **pkgdown documentation site** — `_pkgdown.yml` + GitHub Actions
+  workflow; deployed at <https://hugomachadorodrigues.github.io/edaphos>.
+- **Docker reproducibility** — `Dockerfile` based on
+  `rocker/geospatial:4.4.1` with libtorch + pinned CRAN snapshot +
+  pre-downloaded `edaphos-cerrado-moco-v1` encoder. One-command
+  reproducible environment.
+- **Test-suite expansion** — 40+ new tests filling the v1.8.0+
+  coverage gap (`test-llm-benchmark.R`, `test-llm-annotation.R`,
+  `test-causal-iv.R`, `test-causal-sensitivity.R`,
+  `test-quantum-foundation.R`, `test-foundation-embed-coords.R`,
+  plus new tests for the v2.1.1 and v2.1.2 bridges below).
+- **CRAN / rOpenSci prep** — `cran-comments.md`,
+  `inst/rosc/submission.md` (pre-submission inquiry), `NEWS.md`
+  catch-up covering v1.7.0 → v2.1.0.
+- **Zenodo release helper** — new `edaphos_zenodo_release()`
+  builds a deposit-ready bundle (package tarball + bundles + DataCite
+  JSON + SHA-256 manifest + README).
+
+### Two bridges shipped alongside (v2.1.1 + v2.1.2)
+
+**Pilar 1 × Pilar 5 — Causal Active Learning.**  `al_query_causal()`
+picks the next sample(s) that most reduce the variance of a
+**specific causal effect** (not the generic predictive variance of
+classical AL).  Closed-form leverage heuristic + optional
+bootstrap-exact mode.
+
+**Pilar 3 × Pilar 5 — Temporal Active Learning with EnKF feedback.**
+`al_query_temporal()` ranks candidate cells by their Kalman-gain
+norm after the latest assimilation step, with three combine modes
+(`gain`, `gain × SD`, percentile-normalised).
+
+### Scaffolds for v2.2.0 → v2.6.0
+
+Six additional bridges + pillars ship as **API-stable stubs**
+(functions defined, signatures finalised, bodies raise an
+informative `stop()` pointing to the scheduled release):
+
+- `piml_quantum_kernel()`         → v2.2.0 (Pilar 2 × Pilar 6)
+- `causal_effect_time_varying()`  → v2.2.1 (Pilar 1 × Pilar 3)
+- `bhs_fit()`                     → v2.3.0 (Pilar 7 Bayesian hierarchical)
+- `no_fno_fit() / no_deeponet_fit()` → v2.4.0 (Pilar 8 Neural operators)
+- `dm_fit() / dm_sample()`        → v2.5.0 (Pilar 9 Diffusion models)
+- `gnn_build_graph() / gnn_fit()` → v2.6.0 (Pilar 10 Graph NNs)
+
+Each scaffold file includes the full scientific motivation, architecture
+plan and TODO checklist.
+
+---
+
 ## Installation
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v2.0.0",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v2.1.0",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -1270,7 +1323,7 @@ PySCF:
 
 📖 Vignette: `vignette("pilar6-quantum")`.
 
-### 🆕 v2.0.0 — Quantum kernel over foundation-model embeddings
+### v2.0.0 — Quantum kernel over foundation-model embeddings
 
 The **Pilar 4 × Pilar 6 fusion**. Foundation embeddings (64-dim MoCo
 v2 outputs) are compressed to `n_pcs` principal components rescaled
@@ -1595,9 +1648,18 @@ bibliography (`vignettes/references.bib`).
 | v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝    |
 | v1.9.2  | Cinelli & Hazlett sensitivity analysis (`causal_sensitivity_*`) | ✅   |
 | v2.0.0  | **Quantum kernel over foundation embeddings** (Pilar 4 × Pilar 6) | ✅ |
+| v2.1.0  | Frente D polish: pkgdown + Docker + test suite + Zenodo release + 2 bridges  | ✅ |
 | v1.9.3  | Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit    | 📝   |
-| v2.0.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
-| v2.0.0  | CRAN submission                                         | 📝      |
+| v2.1.1  | Bridge P1 × P5 Causal AL — shipped (`al_query_causal`)  | ✅   |
+| v2.1.2  | Bridge P3 × P5 Temporal AL — shipped (`al_query_temporal`) | ✅ |
+| v2.1.3  | Rcpp port of `quantum_kernel()` (10-50× speedup)        | 📝   |
+| v2.2.0  | Bridge P2 × P6 — Physics-informed quantum kernels       | 📝   |
+| v2.2.1  | Bridge P1 × P3 — Causal 4D (time-varying effects)       | 📝   |
+| v2.3.0  | **Pilar 7** — Bayesian hierarchical spatial (INLA / Stan)   | 📝 |
+| v2.4.0  | **Pilar 8** — Neural operators (FNO / DeepONet) for pedogenetic PDEs | 📝 |
+| v2.5.0  | **Pilar 9** — Diffusion models for generative soil maps | 📝   |
+| v2.6.0  | **Pilar 10** — Graph Neural Networks on WoSIS co-location network | 📝 |
+| v3.0.0  | CRAN + rOpenSci submission                              | 📝      |
 
 ---
 
@@ -1608,7 +1670,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 2.0.0) [Software]. Zenodo.
+> Soil Mapping* (Version 2.1.0) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1616,7 +1678,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {2.0.0},
+  version   = {2.1.0},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}

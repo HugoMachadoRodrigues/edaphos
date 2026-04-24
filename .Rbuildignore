@@ -11,3 +11,8 @@
 ^\.zenodo\.json$
 ^tools$
 ^DESIGN-v[0-9\.]+\.md$
+^Dockerfile$
+^\.dockerignore$
+^_pkgdown\.yml$
+^docs$
+^\.claude$
