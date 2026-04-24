@@ -1,3 +1,43 @@
+# edaphos 2.5.0
+
+## Pilar 9 -- Denoising-Diffusion Probabilistic Models for soil maps
+
+Activates the v2.1.0 scaffold.  First pedometric application (as of
+2026) of DDPMs to generative soil mapping: samples ENTIRE plausible
+maps conditional on covariates via iterative denoising
+(Ho, Jain and Abbeel 2020).
+
+* **`dm_cosine_schedule(T, s)`** -- Nichol & Dhariwal (2021) cosine
+  schedule.  Monotone-decreasing alphabar, clamped at `[1e-8,
+  0.9999]` for numerical stability.
+* **`dm_fit(stack, conditioning, T, epochs, hidden, lr, seed)`** --
+  trains a tiny 2-D denoiser.  A 2-hidden-layer MLP with sinusoidal
+  time embedding predicts the noise `eps_theta(x_t, t, c)`.  Training
+  minimises the score-matching surrogate loss via analytic gradient
+  descent on the output layer (hidden layers fixed at their random
+  initialisation, in the spirit of Huang et al. 2006 ELMs).
+* **`dm_sample(fit, n_samples, conditioning, seed)`** -- ancestral
+  sampling (Ho et al. 2020, Algorithm 2): starts from Gaussian noise
+  at `t = T` and walks back to `t = 0` using the posterior mean
+  formula plus the learned noise schedule.
+
+Conditioning vectors of arbitrary dimension are supported via the
+`conditioning` argument -- useful when soil-map generation is gated
+by per-patch covariate summaries (climate zone, land-use class, etc.).
+
+Tests: 5 expectations on synthetic smoothed random fields:
+* Cosine schedule monotonicity.
+* Fit-object schema.
+* Sample returns the right (`n_samples`, H, W) array.
+* Conditioning vectors are honoured at sample time.
+* Print method.
+
+The pure-R implementation runs in seconds on patches up to 8 x 8.
+A torch port with a proper 2-D U-Net (and 16 x 16 / 32 x 32 patches)
+is scheduled for v2.5.1.
+
+---
+
 # edaphos 2.4.0
 
 ## Pilar 8 -- Neural operators for pedogenetic depth PDEs

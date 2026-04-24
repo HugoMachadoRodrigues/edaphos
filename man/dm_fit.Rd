@@ -2,26 +2,40 @@
 % Please edit documentation in R/pilar9_diffusion_models.R
 \name{dm_fit}
 \alias{dm_fit}
-\title{Train a conditional DDPM on a covariate raster stack (scaffold,
-v2.5.0)}
+\title{Train a tiny DDPM on a collection of soil-map patches}
 \usage{
-dm_fit(stack, obs, epochs = 100L, T = 1000L, ...)
+dm_fit(
+  stack,
+  conditioning = NULL,
+  T = 50L,
+  epochs = 100L,
+  hidden = 32L,
+  lr = 0.01,
+  seed = NULL
+)
 }
 \arguments{
-\item{stack}{A \code{terra::SpatRaster} of covariates (C channels).}
+\item{stack}{A 3-D array of shape \verb{(n_patches, H, W)} of soil-
+property patches (e.g. SOC at each pixel, already standardised
+to zero mean / unit variance).}
 
-\item{obs}{Data frame with columns \code{row}, \code{col}, \code{value} for the
-labelled points.}
+\item{conditioning}{Optional matrix of shape \verb{(n_patches, cond_dim)}
+giving a per-patch covariate summary fed to the denoising
+network as conditioning.  Default \code{NULL}.}
+
+\item{T}{Integer; number of diffusion timesteps.}
 
 \item{epochs}{Integer; training epochs.}
 
-\item{T}{Integer; diffusion timesteps.}
+\item{hidden}{Integer; hidden width of the denoising MLP.}
 
-\item{...}{Additional torch / optimisation arguments.}
+\item{lr}{Numeric; learning rate.}
+
+\item{seed}{Optional RNG seed.}
 }
 \value{
-(When implemented) An \code{edaphos_dm_fit} S3 object.
+An \code{edaphos_dm_fit} fit.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.5.0.
+Train a tiny DDPM on a collection of soil-map patches
 }

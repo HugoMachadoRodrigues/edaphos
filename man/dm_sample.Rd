@@ -2,19 +2,26 @@
 % Please edit documentation in R/pilar9_diffusion_models.R
 \name{dm_sample}
 \alias{dm_sample}
-\title{Sample soil maps from a trained diffusion model (scaffold, v2.5.0)}
+\title{Sample new soil-map patches from a trained DDPM}
 \usage{
-dm_sample(fit, n_samples = 4L, conditioning = NULL, guidance_scale = 1)
+dm_sample(fit, n_samples = 4L, conditioning = NULL, seed = NULL)
 }
 \arguments{
-\item{fit}{An \code{edaphos_dm_fit} object.}
+\item{fit}{An \code{edaphos_dm_fit} from \code{\link[=dm_fit]{dm_fit()}}.}
 
 \item{n_samples}{Integer; number of independent map draws.}
 
-\item{conditioning}{Optional covariate stack + observation mask.}
+\item{conditioning}{Optional \verb{(n_samples, cond_dim)} matrix.
+Default: zero vector for every sample (unconditional).}
 
-\item{guidance_scale}{Numeric; classifier-free guidance strength.}
+\item{seed}{Optional RNG seed.}
+}
+\value{
+3-D array \verb{(n_samples, H, W)} of generated patches.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.5.0.
+Ancestral sampling (Ho et al. 2020 Algorithm 2): start from
+Gaussian noise at t=T, iteratively apply the denoising network to
+walk back to t=0.  Optional conditioning vector c is passed in at
+every step.
 }
