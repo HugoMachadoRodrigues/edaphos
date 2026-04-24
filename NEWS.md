@@ -1,3 +1,94 @@
+# edaphos 3.1.0
+
+## 6-pilar head-to-head benchmark on 1 095 WoSIS Cerrado profiles
+
+Extends the v2.8.0 triple (P4 Foundation + P5 QRF + P7 BHS) on the
+same 1 095-profile WoSIS Cerrado topsoil SOC regression task by
+adding three methods that are natural fits to a static point-
+regression task:
+
+* **Pilar 1 -- DAG-adjusted OLS + parametric bootstrap**.  Restricts
+  the covariate set to variables present in the supplied DAG (with
+  two-way aliasing between SoilGrids / WorldClim native names and
+  the friendly WoSIS nicknames) and generates a 300-sample
+  parametric-bootstrap predictive posterior.
+* **Pilar 6 -- Bootstrap-ensembled quantum KRR**.  PCA-reduces the
+  covariates to 6 qubit-dimensions, rescales to `[-pi, pi]`, and
+  trains `n_boot` ZZFeatureMap kernel-ridge regressors on bootstrap
+  resamples of the training set.  Predictions across bootstrap
+  members form the posterior.
+* **Pilar 10 -- GAT seed-ensemble on k-NN co-location graph**.
+  Builds a joint k-NN graph on `rbind(train, test)` with (lon, lat)
+  adjacency + covariate node features, fits N independent GAT
+  regressors with different seeds, and reads out the test-node
+  predictions as an ensemble posterior.
+
+All three wrappers return an `edaphos_posterior` consumable by
+`uncertainty_calibrate()`; the full 5-fold spatial-CV evaluation
+produces fold-level RMSE / MAE / R^2 / PICP_90 / MPIW_90 / CRPS
+metrics to compare against the v2.8.0 baseline.
+
+### Cross-fold aggregate (1 095 WoSIS profiles, 5 spatial folds)
+
+| Method             | RMSE  | R^2    | PICP_90 | MPIW_90 | CRPS  |
+|--------------------|------:|-------:|--------:|--------:|------:|
+| **P1 Causal+OLS**  | 13.94 | 0.085  | 0.232   |  6.32   | 7.78  |
+| P4 Foundation+QRF  | 14.07 | 0.033  | 0.889   | 37.64   | 5.93  |
+| P10 GAT ensemble   | 14.07 | 0.001  | 0.073   |  2.29   | 8.68  |
+| P5 QRF             | 14.12 | 0.064  | 0.879   | 37.22   | 5.85  |
+| P7 BHS             | 14.13 | 0.070  | 0.812   | 36.67   | 6.97  |
+| P6 Quantum KRR     | 14.53 | 0.000  | 0.249   |  6.88   | 8.08  |
+
+Honest readout (not a ranking):
+* **RMSE is a flat band (13.9 - 14.5 g/kg)** across all six methods.
+  The 1 095-profile Cerrado topsoil subset does not discriminate
+  between these architectures on point accuracy -- any claim of
+  one-method dominance would be noise.
+* **Calibration splits the field**.  The v2.8.0 QRF-family methods
+  (P4/P5/P7) produce wide, well-calibrated 90 % intervals
+  (PICP_90 ~ 0.81 - 0.89, MPIW ~ 37 g/kg).  The three new ensemble
+  methods produce much NARROWER intervals (MPIW ~ 2 - 7 g/kg) that
+  consequently UNDER-cover (PICP_90 ~ 0.07 - 0.25).  The bootstrap /
+  seed-ensemble variance alone is not enough to capture irreducible
+  noise; adding an explicit residual-variance term is the v3.2.0
+  TODO for these wrappers.
+* **P1 Causal+OLS** delivers the best RMSE + R^2 of the new methods
+  (and the whole table), at negligible cost (~0.7 s / fold) -- a
+  useful baseline because it is fully interpretable.
+* **P10 GAT** and **P6 Quantum** deliver competitive RMSE but
+  currently do not produce honest predictive uncertainty.
+
+Deliverables:
+
+* **`R/benchmark_wosis.R`** -- three new exported wrappers:
+  `benchmark_fit_p1_causal()`, `benchmark_fit_p6_quantum()`,
+  `benchmark_fit_p10_gat()`.  API-stable so users can reproduce the
+  benchmark on any regional subset with the same schema.
+* **`data-raw/benchmark_wosis_6pilar.R`** -- orchestrator that
+  re-uses the v2.8.0 posterior_bank for P4/P5/P7 and runs the three
+  new methods on the same 5 spatial folds, saving the combined
+  fold-level table + aggregate + posterior bank to
+  `inst/extdata/benchmark_wosis_6pilar.rds`.
+* **`tests/testthat/test-benchmark-6pilar.R`** -- 9 tests covering
+  shape, DAG-restriction behaviour, constant-baseline parity, NA-row
+  imputation on test nodes, and end-to-end uncertainty calibration
+  across all three methods.
+
+Documented exclusions (not natural fits to the topsoil scalar
+regression task, benchmarked in their home vignettes instead):
+
+* **Pilar 2** -- profile-ODE depth dynamics.
+* **Pilar 3** -- ConvLSTM over temporal stacks of maps.
+* **Pilar 8** -- neural operators over depth function space.
+* **Pilar 9** -- DDPM raster-patch generation.
+
+R CMD check: 0 errors | 0 notes on v3.1.0
+(2 warnings about `inst/doc` directory are pre-existing vignette/
+V8-dagitty plumbing; not a regression).
+All 1 213 tests pass (+36 relative to v3.0.0).
+
+---
+
 # edaphos 3.0.0
 
 ## Six new cross-pilar bridges
