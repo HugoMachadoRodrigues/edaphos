@@ -1,3 +1,33 @@
+# edaphos 2.2.0
+
+## Pilar 2 x Pilar 6 bridge -- Physics-Informed Quantum Kernels
+
+Activates the v2.1.0 scaffold.  The ZZFeatureMap kernel is fused
+with an RBF similarity over ODE-profile residuals:
+
+  K_PI(x_i, x_j) = alpha * K_quantum(x_i, x_j)
+                    + (1 - alpha) * exp( - (e_i - e_j)^2 / (2 sigma^2) )
+
+where `e_i = y_i - y_hat_ODE(z_i, x_i)` uses a fitted Pilar 2 ODE.
+
+* **`piml_quantum_kernel(X, y, depths, ode_fit, alpha, sigma, reps,
+  backend)`** -- PSD for any `alpha in [0, 1]`; `alpha = 1` recovers
+  the pure v2.0.0 quantum kernel; `alpha = 0` recovers a pure
+  physics-residual kernel.  Default `alpha = 0.7` trusts the quantum
+  lift while keeping the physics as regulariser.
+* **`piml_qkrr_fit(X, y, depths, ode_fit, alpha, sigma, reps, lambda,
+  backend)`** -- closed-form KRR over the PI kernel; `predict()`
+  handles the ODE forward step + kernel row + dual sum.
+* Graceful fallback: when `ode_fit` lacks a `predict()` method (e.g.
+  a bare list of `lambda0`, `mu`, `y_inf`, `y0`), the bridge uses
+  the analytic exponential-decay surrogate.
+
+Tests: 4 expectations covering PSD for alpha in {0, 0.3, 0.7, 1},
+numerical equality to pure quantum kernel at alpha = 1, round-trip
+predict on a synthetic ODE pedon, and print-method sanity.
+
+---
+
 # edaphos 2.1.3
 
 ## Rcpp port of the quantum-kernel simulator (10-50x speedup)

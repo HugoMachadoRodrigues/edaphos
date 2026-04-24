@@ -2,26 +2,64 @@
 % Please edit documentation in R/piml_quantum_bridge.R
 \name{piml_quantum_kernel}
 \alias{piml_quantum_kernel}
-\title{Physics-informed quantum kernel over ODE-trajectory distance
-(scaffold, v2.2.0)}
+\title{Physics-informed quantum kernel via ODE-residual fusion}
 \usage{
-piml_quantum_kernel(X, ode_fit, reps = 2L)
+piml_quantum_kernel(
+  X,
+  y,
+  depths,
+  ode_fit,
+  alpha = 0.7,
+  sigma = NULL,
+  reps = 2L,
+  backend = c("rcpp", "r")
+)
 }
 \arguments{
-\item{X}{Feature matrix (n x p) whose rows contain depth + state
-\itemize{
-\item covariates.
-}}
+\item{X}{Numeric matrix (rows = samples, columns = features to
+encode through the ZZFeatureMap).  Features should already be in
+\verb{[0, pi]} -- use \code{\link[=quantum_scale]{quantum_scale()}} if needed.}
 
-\item{ode_fit}{A fit from \code{\link[=piml_profile_fit_bayesian]{piml_profile_fit_bayesian()}} or
-\code{\link[=piml_neural_ode_fit]{piml_neural_ode_fit()}} that supplies the shared drift
-function f_theta.}
+\item{y}{Numeric response vector (one per row of \code{X}) used to
+compute residuals against the ODE fit.}
 
-\item{reps}{Integer; ZZFeatureMap repetitions.}
+\item{depths}{Numeric vector of depths (same length as \code{y}) at
+which observations were taken.}
+
+\item{ode_fit}{A fitted object from \code{\link[=piml_profile_fit]{piml_profile_fit()}} or
+\code{\link[=piml_profile_fit_bayesian]{piml_profile_fit_bayesian()}} providing a \code{predict()} method.}
+
+\item{alpha}{Numeric in \verb{[0, 1]}; mixing weight.  Default \code{0.7}
+(quantum-heavy, physics-informed but not physics-dominated).}
+
+\item{sigma}{Numeric; RBF bandwidth on the residual scale.
+Default: median absolute residual over the training set
+(Silverman's rule of thumb).}
+
+\item{reps}{Integer; ZZFeatureMap repetitions (forwarded to
+\code{\link[=quantum_kernel]{quantum_kernel()}}).}
+
+\item{backend}{Forwarded to \code{\link[=quantum_kernel]{quantum_kernel()}}; \code{"rcpp"} by
+default.}
 }
 \value{
-(When implemented) An \verb{n x n} kernel matrix.
+A PSD matrix of shape \verb{(n, n)}.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.2.0.
+Builds a physics-informed Gram matrix by combining the Pilar 6
+ZZFeatureMap kernel over raw features with an RBF similarity over
+the depth-profile residuals of a fitted Pilar 2 ODE:
+}
+\details{
+\deqn{K_{PI}(x_i, x_j) = \alpha\, K_{quantum}(x_i, x_j) + (1 - \alpha)\,
+      \exp\!\Bigl(-\frac{(e_i - e_j)^2}{2\,\sigma^2}\Bigr)}
+
+where \eqn{e_i = y_i - \hat y_{ODE}(z_i, x_i)} is the residual
+between the observed \eqn{y_i} and the ODE-predicted value at
+depth \eqn{z_i}.  The output is PSD for any \eqn{\alpha \in [0, 1]}.
+}
+\references{
+Bishop, T. F. A. et al. (1999). Modelling soil attribute depth
+functions with equal-area quadratic smoothing splines.
+\emph{Geoderma} \strong{91}, 27-45.
 }
