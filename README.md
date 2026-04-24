@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-1.9.2-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v1.9.2)
+[![Version](https://img.shields.io/badge/version-2.0.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v2.0.0)
 [![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
 
@@ -229,7 +229,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 
 ```r
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v1.9.2",
+remotes::install_github("HugoMachadoRodrigues/edaphos@v2.0.0",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -757,7 +757,7 @@ spatial autocorrelation of SoilGrids. Running with
 `EDAPHOS_IV_REAL_STACK=1` + the full 200 MB download lifts F back
 into a practically-useful range (work scoped for v1.9.2).
 
-### 🆕 v1.9.2 — Cinelli & Hazlett (2020) sensitivity analysis
+### v1.9.2 — Cinelli & Hazlett (2020) sensitivity analysis
 
 The Sargan test validates instrument *exclusion*; sensitivity
 analysis quantifies *robustness to residual confounding* after the
@@ -1270,6 +1270,57 @@ PySCF:
 
 📖 Vignette: `vignette("pilar6-quantum")`.
 
+### 🆕 v2.0.0 — Quantum kernel over foundation-model embeddings
+
+The **Pilar 4 × Pilar 6 fusion**. Foundation embeddings (64-dim MoCo
+v2 outputs) are compressed to `n_pcs` principal components rescaled
+to $[-\pi, \pi]$, then lifted into a $2^n$-dimensional Hilbert space
+by the ZZFeatureMap. Four new exported functions:
+
+```r
+# 1. Reduce foundation embeddings to top-n PCs in quantum range
+red <- edaphos::qf_embed_reduce(embeddings, n_pcs = 6L)
+
+# 2. Compare quantum, RBF, and linear Gram matrices
+cmp <- edaphos::qf_kernel_compare(red$X_q, reps = 2L)
+cmp$diagnostics   # Frobenius distance + effective rank
+
+# 3. Fit Quantum-KRR directly on foundation embeddings
+fit <- edaphos::qf_krr_fit(embeddings, y,
+                            n_pcs = 6L, reps = 2L, lambda = 0.5)
+
+# 4. 4-way head-to-head benchmark
+bm <- edaphos::qf_krr_benchmark(embeddings, covariates, y,
+                                  n_pcs = 6L, reps = 2L, lambda = 0.5)
+```
+
+**5-fold spatial CV on 1 095 Cerrado profiles (synthetic-stack mode):**
+
+| Method                          |  RMSE  |   MAE | R²    |
+|:--------------------------------|------:|------:|------:|
+| Quantum KRR on foundation PCs   |  14.3 |   8.7 | 0.00  |
+| Quantum KRR on raw covariates   |  14.2 |   8.4 | 0.00  |
+| RBF-KRR on foundation PCs       |  14.8 |   9.8 | 0.00  |
+| **ranger (raw covariates)**     | 14.3  | 9.0   | **0.08** |
+
+**Honest finding.** Under synthetic embeddings (random Gaussian
+rasters), the quantum lift on foundation PCs **matches but does not
+surpass** ranger. The four regressors are statistically
+indistinguishable on this benchmark. Three testable explanations for
+v2.0.x:
+
+1. Synthetic stack carries no real spatial signal → encoder sees
+   noise → embeddings uninformative. Test: `EDAPHOS_IV_REAL_STACK=1`.
+2. Encoder v1 was undertrained (20k InfoNCE). Test: v2 (200k steps,
+   currently training).
+3. 6 qubits too few. Test: scale to 8–10 qubits.
+
+**The contribution is infrastructure.** `qf_*` functions formalise
+the Pilar 4 × Pilar 6 fusion and ship a reproducible benchmark that
+decides the question empirically when richer inputs become available.
+
+📖 Vignette: `vignette("pilar4-pilar6-quantum")`.
+
 ---
 
 ## Unified uncertainty API (v1.6.0)
@@ -1467,6 +1518,7 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `causal_iv_cerrado.rds`                       |  ~12 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`                |
 | `causal_iv_cerrado_real.rds`                  |   ~1 KB | Real-encoder IV benchmark (v1.9.1): 1 081 embeddings + Sargan passes         | `pilar1-pilar4-iv` §7             |
 | `causal_sensitivity_cerrado.rds`              | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2)                             | `pilar1-pilar4-iv` §8             |
+| `quantum_foundation_cerrado.rds`              |   ~1 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)     | `pilar4-pilar6-quantum`           |
 | `llm_benchmark_results.rds`                   | ~10 KB  | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
 | `cerrado_abstracts.jsonl`                     |  ~40 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
@@ -1498,7 +1550,8 @@ browseVignettes("edaphos")
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
 | 📊 `llm-kg-benchmark`             | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen's κ, cost / 1k claims, latency, 10k-abstract scaling. |
 | 🛠️ `llm-annotation-workflow`      | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
-| 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.2 adds real-encoder extraction (`foundation_embed_at_coords`) where the Sargan test empirically passes. |
+| 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`) where Sargan passes; v1.9.2 adds Cinelli-Hazlett sensitivity analysis. |
+| 🌀 `pilar4-pilar6-quantum`        | **v2.0.0**: quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
 Each vignette is written in the style of a short methods paper —
@@ -1537,10 +1590,11 @@ bibliography (`vignettes/references.bib`).
 | v1.8.1  | Annotation tool: pre-annotation + Shiny review UI      |   ✅    |
 | v1.8.2  | DAG preview + dark mode + OpenAlex fetcher + Zenodo export |  ✅  |
 | v1.9.0  | Foundation embeddings as causal IVs (2SLS + Sargan)    |   ✅    |
-| v1.9.2  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`)  — Sargan passes empirically | ✅ |
+| v1.9.1  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`)  — Sargan passes empirically | ✅ |
 | v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧      |
 | v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝    |
 | v1.9.2  | Cinelli & Hazlett sensitivity analysis (`causal_sensitivity_*`) | ✅   |
+| v2.0.0  | **Quantum kernel over foundation embeddings** (Pilar 4 × Pilar 6) | ✅ |
 | v1.9.3  | Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit    | 📝   |
 | v2.0.0  | IBM Quantum hardware run on real organo-mineral Hamiltonian | 📝   |
 | v2.0.0  | CRAN submission                                         | 📝      |
@@ -1554,7 +1608,7 @@ Every release is archived on Zenodo with a permanent DOI. The
 citation to use in publications:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 1.9.2) [Software]. Zenodo.
+> Soil Mapping* (Version 2.0.0) [Software]. Zenodo.
 > <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
@@ -1562,7 +1616,7 @@ citation to use in publications:
   author    = {Rodrigues, Hugo},
   title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
   year      = {2026},
-  version   = {1.9.2},
+  version   = {2.0.0},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
