@@ -1,3 +1,45 @@
+# edaphos 2.6.0
+
+## Pilar 10 -- Graph Attention Networks on WoSIS co-location graphs
+
+Activates the v2.1.0 scaffold.  First pedometric application
+(as of 2026) of attention-weighted message-passing over soil-profile
+graphs: profiles are nodes, k-NN geographic co-location defines
+edges with inverse-distance weights, and a Graph Attention Network
+(Velickovic et al. 2018) propagates covariate information between
+neighbouring sites.
+
+* **`gnn_build_graph(profiles, k, feature_cols)`** -- constructs the
+  k-NN co-location graph.  Returns an `edaphos_gnn_graph` S3 object
+  with standardised node features, dense `edge_index` (n*k rows),
+  soft-normalised `edge_weight`, and the spatial coordinates.
+* **`gnn_fit(graph, targets, hidden, n_heads, n_layers, epochs, lr,
+  seed)`** -- trains a multi-head GAT.  Each layer's per-head output
+  uses the attention rule
+    alpha_ij = softmax_j( LeakyReLU( a' [Wh_i || Wh_j] ) )
+  and head outputs are concatenated at layer boundaries.  Final
+  node embeddings are mapped to the target by a linear head with
+  ridge regularisation, trained by analytic gradient descent
+  (hidden layers fixed at random init, ELM-style).
+* **`gnn_embed(fit)`** -- returns the `(n, hidden * n_heads)` node
+  embedding matrix -- directly comparable in dimensionality to the
+  MoCo v2 Pilar 4 embeddings, which enables the 2026-novel
+  "classical-geospatial vs foundation-model" embedding comparison.
+* **`predict.edaphos_gnn_gat(fit)`** -- per-node target predictions
+  on the native target scale (un-standardised).
+
+Tests: 6 expectations covering:
+* Graph schema: n*k edges, per-node soft-normalised weights.
+* Auto-selection of numeric feature columns when `feature_cols =
+  NULL`.
+* Fit output dimensionality (`emb_dim = hidden * n_heads`).
+* Training MSE strictly decreases.
+* Predictions on native scale, length n, positively correlated with
+  truth.
+* Print methods for both graph and fit.
+
+---
+
 # edaphos 2.5.0
 
 ## Pilar 9 -- Denoising-Diffusion Probabilistic Models for soil maps

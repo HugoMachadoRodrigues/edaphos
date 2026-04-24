@@ -2,21 +2,29 @@
 % Please edit documentation in R/pilar10_graph_nn.R
 \name{gnn_build_graph}
 \alias{gnn_build_graph}
-\title{Build a k-NN co-location graph from a WoSIS-style profile frame
-(scaffold, v2.6.0)}
+\title{Build a k-NN co-location graph from a profile frame}
 \usage{
-gnn_build_graph(profiles, k = 8L, ...)
+gnn_build_graph(profiles, k = 8L, feature_cols = NULL)
 }
 \arguments{
-\item{profiles}{Data frame with \code{lon}, \code{lat} columns.}
+\item{profiles}{Data frame with numeric columns \code{lon}, \code{lat} and
+additional node-feature columns selected by \code{feature_cols}.}
 
-\item{k}{Integer; number of nearest neighbours per node.}
+\item{k}{Integer; number of nearest neighbours per node.
+Default \code{8L}.}
 
-\item{...}{Reserved for backend-specific options.}
+\item{feature_cols}{Character vector of column names to use as
+node features.  Default: every numeric column except \code{lon},
+\code{lat}.}
 }
 \value{
-(When implemented) An \code{edaphos_gnn_graph} S3 object.
+An \code{edaphos_gnn_graph} list with \code{features}, \code{edge_index},
+\code{edge_weight}, \code{coords}, \code{feature_names}.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.6.0.
+Each profile is a node; each node connects to its \code{k} spatially
+nearest neighbours via an inverse-distance-weighted edge.  Returns
+an \code{edaphos_gnn_graph} S3 object carrying the node-feature matrix,
+the sparse adjacency (edge_index + edge_weight), and the spatial
+coordinates used.
 }

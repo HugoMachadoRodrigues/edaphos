@@ -2,20 +2,40 @@
 % Please edit documentation in R/pilar10_graph_nn.R
 \name{gnn_fit}
 \alias{gnn_fit}
-\title{Fit a Graph Attention Network on the profile graph (scaffold,
-v2.6.0)}
+\title{Fit a Graph Attention Network on a WoSIS-style co-location graph}
 \usage{
-gnn_fit(graph, targets, epochs = 200L, ...)
+gnn_fit(
+  graph,
+  targets,
+  hidden = 16L,
+  n_heads = 4L,
+  n_layers = 2L,
+  epochs = 200L,
+  lr = 0.01,
+  seed = NULL
+)
 }
 \arguments{
 \item{graph}{An \code{edaphos_gnn_graph} from \code{\link[=gnn_build_graph]{gnn_build_graph()}}.}
 
-\item{targets}{Numeric vector (one per node).}
+\item{targets}{Numeric vector, one value per node.}
 
-\item{epochs}{Integer; training epochs.}
+\item{hidden}{Integer; output dimension of each GAT layer.
+Default \code{16L}.}
 
-\item{...}{Forwarded to the torch optimiser.}
+\item{n_heads}{Integer; number of attention heads.  Default \code{4L}.}
+
+\item{n_layers}{Integer; number of stacked GAT layers.  Default \code{2L}.}
+
+\item{epochs}{Integer; training epochs for the final linear head.}
+
+\item{lr}{Numeric; learning rate.}
+
+\item{seed}{RNG seed.}
+}
+\value{
+An \code{edaphos_gnn_gat} fit.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.6.0.
+Fit a Graph Attention Network on a WoSIS-style co-location graph
 }
