@@ -2,15 +2,41 @@
 % Please edit documentation in R/pilar8_neural_operators.R
 \name{no_deeponet_fit}
 \alias{no_deeponet_fit}
-\title{Fit a DeepONet for pedogenetic profile operators (scaffold, v2.4.0)}
+\title{Fit a DeepONet for depth-profile operators}
 \usage{
-no_deeponet_fit(depths, targets, covariates, ...)
+no_deeponet_fit(
+  depths,
+  targets,
+  covariates,
+  branch_hidden = 16L,
+  trunk_hidden = 16L,
+  output_dim = 8L,
+  epochs = 300L,
+  lr = 0.02,
+  seed = NULL
+)
 }
 \arguments{
-\item{depths, targets, covariates}{See \code{\link[=no_fno_fit]{no_fno_fit()}}.}
+\item{depths}{Numeric vector of depths (length \code{n_depths}).}
 
-\item{...}{Passed to the torch training loop (epochs, lr, etc.).}
+\item{targets}{Matrix of targets, shape \verb{(n_obs, n_depths)}.}
+
+\item{covariates}{Matrix of per-site summary covariates, shape
+\verb{(n_obs, p)} -- NOT a depth-dependent trajectory; each site is
+represented by a vector of static covariates.  This is the
+canonical DeepONet setup where the branch input is a fixed-
+length vector.}
+
+\item{branch_hidden, trunk_hidden}{Integer hidden sizes for the
+branch and trunk MLPs.}
+
+\item{output_dim}{Integer; dimension of the inner-product space
+(\code{p} in the notes above).}
+
+\item{epochs, lr}{Training hyperparameters.}
+
+\item{seed}{RNG seed.}
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.4.0.
+Fit a DeepONet for depth-profile operators
 }

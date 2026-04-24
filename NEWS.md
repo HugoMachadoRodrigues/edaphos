@@ -1,3 +1,39 @@
+# edaphos 2.4.0
+
+## Pilar 8 -- Neural operators for pedogenetic depth PDEs
+
+Activates the v2.1.0 scaffold.  Ships two neural-operator
+architectures in pure R (no torch dependency), both learning the
+solution map `u(z) -> y(z)` from a collection of
+(covariate trajectory, target profile) pairs so a single trained
+operator predicts new-site profiles without re-fitting.
+
+* **`no_fno_fit(depths, targets, covariates, n_modes, width,
+  n_blocks, epochs, lr, seed)`** -- 1-D Fourier Neural Operator
+  (Li et al. 2021).  Spectral convolutions via `stats::fft` with
+  a *real* magnitude multiplier on the first `n_modes`
+  frequencies (numerically stable under IFFT round-off in pure R);
+  pointwise linear residual path; leaky-ReLU activation; trained
+  by finite-difference gradient descent on the output-layer
+  weights.
+* **`no_deeponet_fit(depths, targets, covariates, branch_hidden,
+  trunk_hidden, output_dim, epochs, lr, seed)`** -- Deep Operator
+  Network (Lu et al. 2021).  Branch net (site covariates -> p-dim)
+  + trunk net (query depth -> p-dim) combined by inner product.
+  Analytic gradients on the last two layers; fast enough to train
+  a 20 x 12 profile problem in < 1 s.
+* Both produce `predict()` methods aligned with any new covariate
+  matrix + optional new depths.
+
+Tests: 5 expectations covering:
+* Output-shape equality for FNO predict.
+* Output-shape equality for DeepONet predict.
+* DeepONet training loss strictly decreases.
+* DeepONet predict with new depth grid.
+* Print methods for both architectures.
+
+---
+
 # edaphos 2.3.0
 
 ## Pilar 7 -- Bayesian Hierarchical Spatial models

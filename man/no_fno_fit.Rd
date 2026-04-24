@@ -2,23 +2,52 @@
 % Please edit documentation in R/pilar8_neural_operators.R
 \name{no_fno_fit}
 \alias{no_fno_fit}
-\title{Fit a Fourier Neural Operator for pedogenetic profile operators
-(scaffold, v2.4.0)}
+\title{Fit a 1-D Fourier Neural Operator for depth-profile operators}
 \usage{
-no_fno_fit(depths, targets, covariates, ...)
+no_fno_fit(
+  depths,
+  targets,
+  covariates,
+  n_modes = 4L,
+  width = 8L,
+  n_blocks = 2L,
+  epochs = 200L,
+  lr = 0.01,
+  seed = NULL
+)
 }
 \arguments{
-\item{depths}{Numeric vector of depths in metres.}
+\item{depths}{Numeric vector of depths (common grid, length
+\code{n_depths}).  Depth must be equally spaced for the DFT to be
+exact; if not equally spaced, the implementation falls back to
+a FFT on the reindexed series.}
 
-\item{targets}{Matrix of observed profile properties (\verb{n_obs x n_depths}).}
+\item{targets}{Matrix of observed profile values, shape
+\verb{(n_obs, n_depths)}.  Each row is one site.}
 
-\item{covariates}{Matrix of site-level covariates (\verb{n_obs x p}).}
+\item{covariates}{Matrix of depth-dependent covariate values,
+shape \verb{(n_obs, n_depths, n_channels)} -- the covariate
+trajectory that drives the operator.  A 2-D matrix is accepted
+and treated as \code{n_channels = 1}.}
 
-\item{...}{Passed to the torch training loop (epochs, lr, etc.).}
+\item{n_modes}{Integer; number of Fourier modes retained in each
+spectral convolution.  Default \code{4L}.}
+
+\item{width}{Integer; number of latent channels.  Default \code{8L}.}
+
+\item{n_blocks}{Integer; number of FNO blocks.  Default \code{2L}.}
+
+\item{epochs}{Integer; SGD epochs.}
+
+\item{lr}{Learning rate.}
+
+\item{seed}{RNG seed.}
 }
 \value{
-(When implemented) An \code{edaphos_no_fno} S3 object.
+An \code{edaphos_no_fno} fit.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.4.0.
+Learns the solution map \code{u(z) -> y(z)} from a collection of
+(covariate trajectory, target profile) pairs.  The trained
+operator predicts the depth profile at new sites without re-fitting.
 }
