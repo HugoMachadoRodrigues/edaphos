@@ -1,6 +1,6 @@
 Package: edaphos
 Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 2.2.1
+Version: 2.3.0
 Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
            role = c("aut", "cre"),
@@ -70,6 +70,7 @@ Suggests:
     shiny,
     shinyjs,
     sp,
+    spBayes,
     stringdist,
     terra,
     testthat (>= 3.0.0),

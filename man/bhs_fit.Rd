@@ -2,35 +2,61 @@
 % Please edit documentation in R/pilar7_bayesian_hierarchical.R
 \name{bhs_fit}
 \alias{bhs_fit}
-\title{Fit a Bayesian hierarchical spatial model (scaffold, v2.3.0)}
+\title{Fit a Bayesian hierarchical spatial linear model (Pilar 7)}
 \usage{
 bhs_fit(
   data,
   formula,
   coords = c("lon", "lat"),
-  backend = c("inla", "stan", "spBayes"),
-  ...
+  backend = c("gibbs", "spBayes"),
+  nmcmc = 2000L,
+  burn = NULL,
+  thin = 1L,
+  prior_var_beta = 1000,
+  prior_ig_a = 2,
+  prior_ig_b = 1,
+  phi_range = c(0.01, 10),
+  seed = NULL,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{data}{Data frame with the response + covariates.}
+\item{data}{A data frame with the response + covariates + spatial
+coordinates.}
 
 \item{formula}{A \code{response ~ covariates} formula.}
 
-\item{coords}{Character vector \code{c("lon", "lat")} giving the
-coordinate columns used to build the spatial random effect.}
+\item{coords}{Character length-2 (default \code{c("lon", "lat")}) giving
+the coordinate columns.}
 
-\item{backend}{One of \code{"inla"} (default), \code{"stan"}, \code{"spBayes"}.}
+\item{backend}{One of \code{"gibbs"} (pure-R Gibbs sampler, default,
+no external deps), \code{"spBayes"} (dispatches to \code{spBayes::spLM}
+when available).}
 
-\item{...}{Forwarded to the chosen backend (priors, chains, etc.).}
+\item{nmcmc}{Integer; number of MCMC iterations.  Default \code{2000L}.}
+
+\item{burn}{Integer; burn-in to discard.  Default \code{nmcmc \%/\% 2}.}
+
+\item{thin}{Integer; keep every \code{thin}-th post-burn draw.  Default \code{1L}.}
+
+\item{prior_var_beta}{Numeric; Gaussian prior variance on \code{beta}.}
+
+\item{prior_ig_a, prior_ig_b}{Shape and scale of the inverse-Gamma
+priors on \code{sigma^2} and \code{tau^2}.}
+
+\item{phi_range}{Numeric length-2; bracket for the profile-MLE of
+the GP rate parameter \code{phi}.  Default \code{c(0.01, 10)}.}
+
+\item{seed}{Optional RNG seed.}
+
+\item{verbose}{Logical.}
 }
 \value{
-(When implemented) An \code{edaphos_bhs} S3 object carrying the
-fitted posterior, ready for \code{predict()} and
-\code{as_edaphos_posterior()}.
+An \code{edaphos_bhs} S3 object.
 }
 \description{
-\strong{Not yet implemented.}  Scheduled for v2.3.0.  The function
-signature below is stable and may be called to inspect the planned
-API; invoking it today raises an informative error.
+The v2.3.0 activation of the Pilar 7 scaffold.  Fits a Bayesian
+spatial linear model \verb{y_i = x_i' beta + w_i + eps_i} with a latent
+exponential-correlation Gaussian process on the residual field
+and returns full posterior draws.
 }

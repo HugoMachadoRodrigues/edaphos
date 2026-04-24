@@ -1,3 +1,43 @@
+# edaphos 2.3.0
+
+## Pilar 7 -- Bayesian Hierarchical Spatial models
+
+Activates the v2.1.0 scaffold with a full pure-R Gibbs sampler for the
+Bayesian spatial linear model
+
+    y_i = x_i' beta + w_i + eps_i,     eps_i ~ N(0, tau^2)
+    w   ~ N_n(0, sigma^2 R(phi)),      R_{ij} = exp(-phi d_ij)
+
+with inverse-Gamma priors on sigma^2 and tau^2 and a Gaussian prior
+on beta.  Phi is estimated by profile-MLE (empirical Bayes) to keep
+every conditional posterior closed-form.
+
+* **`bhs_fit(data, formula, coords, backend, nmcmc, burn, thin,
+  prior_var_beta, prior_ig_a, prior_ig_b, phi_range, seed)`** -- two
+  backends:
+  - `"gibbs"` (default, no external deps): self-contained Gibbs
+    sampler that updates beta (multivariate Gaussian), sigma^2 and
+    tau^2 (inverse-Gamma), and the latent spatial field w (sparse
+    precision-form Gaussian).  ~2000 iters in ~1 s on n = 80.
+  - `"spBayes"`: dispatches to `spBayes::spLM` (Finley, Banerjee and
+    Carlin 2007) when the Suggests-only package is installed -- full
+    MCMC over phi, sigma.sq, tau.sq, beta.
+* **`predict.edaphos_bhs(object, newdata, quantiles, n_draws)`** --
+  Bayesian kriging at new sites via posterior-draw mean + sd + user-
+  specified quantiles.
+* **`as_edaphos_posterior.edaphos_bhs(x)`** -- v1.6.0 integration;
+  exposes the fitted-value posterior as a `map`-type
+  `edaphos_posterior`.
+* `print.edaphos_bhs` -- posterior summary of beta, sigma^2, tau^2.
+
+Tests: 5 expectations on a synthetic spatial dataset (n = 80) --
+recovery of true beta within 3 posterior sds, phi inside user bracket,
+predict frame schema, edaphos_posterior adapter, print method.
+
+`spBayes` added to Suggests.
+
+---
+
 # edaphos 2.2.1
 
 ## Pilar 1 x Pilar 3 bridge -- Causal 4D (time-varying effects)
