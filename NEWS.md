@@ -1,3 +1,72 @@
+# edaphos 3.0.0
+
+## Six new cross-pilar bridges
+
+Six new scientifically motivated bridge functions that compose two of
+the ten research pillars into a single API.  All six follow the
+v2.1.1 `*_query_*` signature pattern (or the established
+`*_fit` / `*_loss` convention) so they drop into existing loops
+with no boilerplate.
+
+**Active-learning bridges** (feed Pilar 5's query step with
+posterior-like uncertainty from the neighbouring pilares):
+
+* `al_query_neural_operator()` **(P8 x P5)** -- ranks candidate sites
+  by the disagreement between a DeepONet / FNO operator prediction
+  and the Pilar 2 pedogenetic ODE, normalised by a per-site
+  perturbation-spread uncertainty.  Returns an
+  `edaphos_al_neural_operator_query` data frame.
+* `al_query_diffusion()` **(P9 x P5)** -- Monte Carlo posterior-
+  sampling from a conditional DDPM, ranks candidate cells by per-
+  cell standard deviation across draws.  Optional `combine`
+  argument weights SD by absolute posterior mean.  Returns an
+  `edaphos_al_diffusion_query`.
+* `al_query_bhs()` **(P7 x P5)** -- Settles (2009, Sec. 3.3) style
+  Thompson-sampling AL driven by the BHS posterior MCMC draws.
+  Computes `s2 * (1 - k' R_inv k) + t2` averaged across draws so
+  selected sites have high predictive variance for MANY plausible
+  posterior parameterisations.
+
+**Structural bridges** (compose one pilar's representation into
+another's learning step):
+
+* `gnn_causal_discovery()` **(P10 x P1)** -- augments a feature
+  data frame with GAT node embeddings as nuisance conditioners and
+  runs `causal_structure_learn()` on the extended frame.  The
+  returned DAG is restricted to edges between user-named variables
+  via `kg$edges_feature_only`; embeddings only do their job as
+  absorbers of spatial dependence the expert does not enumerate.
+* `temporal_piml_loss()` **(P2 x P3)** -- factory returning a
+  callable `function(y_pred, y_true, driver)` closure suitable as
+  the `physics_loss_fn` of `temporal_convlstm_fit()`.  Penalises
+  deviations of predicted temporal increments from
+  `-lambda0 * (y - y_inf)` -- a site-specific rate drawn from the
+  fitted Pilar 2 ODE rather than a hard-coded scalar.  Dispatches
+  between torch-tensor and R-array inputs via duck-typing.
+* `qf_krr_on_gat_embeddings()` **(P6 x P10)** -- composes
+  `qf_krr_fit()` over GAT node embeddings through PCA reduction;
+  a strict generalisation of the v2.0.0 foundation-quantum fusion
+  that now bakes network structure into the quantum kernel's
+  input representation.
+
+## Tests and docs
+
+* `tests/testthat/test-bridges-v3.R` -- 17 new tests covering all
+  six bridges (output schema, ranking invariants, attribute carry-
+  through, error messages on malformed inputs, parameter extraction
+  from both `edaphos_piml_profile` and `edaphos_piml_bayes` fit
+  classes).
+* `.piml_extract_params()` internal helper centralises the
+  class-dependent access to `(lambda0, mu, y_inf, y0)` so bridges
+  consistently pull ODE parameters from `$params` on profile fits
+  and `$map` on Bayesian fits.
+* Roxygen docs regenerated; six new `man/*.Rd` pages shipped.
+
+R CMD check: 0 errors | 0 warnings | 0 notes on v3.0.0.
+All 1177 tests pass (+53 relative to v2.9.1).
+
+---
+
 # edaphos 2.9.1
 
 ## Public-release artefact pack
