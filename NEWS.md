@@ -1,3 +1,34 @@
+# edaphos 2.9.1
+
+## Public-release artefact pack
+
+No code changes.  Administrative prep for CRAN + rOpenSci + Zenodo +
+GitHub Pages publication.
+
+* **`RELEASE.md`** -- single-page checklist of the four remaining
+  manual maintainer actions (Zenodo new-version deposit, GH Pages
+  enable, CRAN `devtools::submit_cran()`, rOpenSci pre-submission).
+  Copy-paste instructions with exact URLs and code snippets.
+* **`tools/zenodo_release/` + `tools/zenodo_release.zip`** (5.2 MB)
+  regenerated for v2.9.1 via `edaphos_zenodo_release()`:
+    - All 22 `inst/extdata/*.{rds,jsonl}` bundles with SHA-256
+      checksums in `manifest.csv`.
+    - `CITATION.cff` + `NEWS.md` + `README.md` snapshots.
+    - DataCite-compatible `metadata.json` with the concept-DOI
+      `isNewVersionOf` link.
+    - `ZENODO-README.md` with the canonical file list + citation
+      template.
+* **pkgdown site builds locally** (`pkgdown::init_site()` verified).
+  GH-Pages deploy is gated only by the repo Pages setting change
+  (step #2 in `RELEASE.md`).
+* `.Rbuildignore` expanded to exclude `RELEASE.md` and the
+  auto-generated `pkgdown/` assets directory from the package
+  tarball.
+
+R CMD check: 0 errors | 0 warnings | 0 notes on v2.9.1.
+
+---
+
 # edaphos 2.9.0
 
 ## Publication-grade edge-case test coverage for Pilares 7-10

@@ -58,3 +58,8 @@ src/*.o
 src/*.so
 src/*.dll
 src/symbols.rds
+
+# pkgdown local build artifacts (auto-generated)
+pkgdown/
+tools/zenodo_release/
+tools/zenodo_release.zip
