@@ -13,7 +13,9 @@ no_fno_fit(
   n_blocks = 2L,
   epochs = 200L,
   lr = 0.01,
-  seed = NULL
+  seed = NULL,
+  backend = c("r", "torch"),
+  device = c("cpu", "mps", "cuda")
 )
 }
 \arguments{
@@ -42,6 +44,13 @@ spectral convolution.  Default \code{4L}.}
 \item{lr}{Learning rate.}
 
 \item{seed}{RNG seed.}
+
+\item{backend}{\code{"r"} (default, pure-R ELM-style) or \code{"torch"}
+(full autograd via \code{torch::optim_adam}; requires the \code{torch}
+Suggests dependency).  v2.7.0 upgrade.}
+
+\item{device}{\code{"cpu"} (default), \code{"mps"} (Apple Silicon) or
+\code{"cuda"} when \code{backend = "torch"}.}
 }
 \value{
 An \code{edaphos_no_fno} fit.

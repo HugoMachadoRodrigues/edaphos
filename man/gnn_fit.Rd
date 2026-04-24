@@ -12,7 +12,9 @@ gnn_fit(
   n_layers = 2L,
   epochs = 200L,
   lr = 0.01,
-  seed = NULL
+  seed = NULL,
+  backend = c("r", "torch"),
+  device = c("cpu", "mps", "cuda")
 )
 }
 \arguments{
@@ -32,6 +34,13 @@ Default \code{16L}.}
 \item{lr}{Numeric; learning rate.}
 
 \item{seed}{RNG seed.}
+
+\item{backend}{\code{"r"} (default, ELM-style) or \code{"torch"} (full
+autograd with multi-head attention; requires the \code{torch}
+Suggests dependency).  v2.7.0 upgrade.}
+
+\item{device}{\code{"cpu"} (default), \code{"mps"}, or \code{"cuda"} when
+\code{backend = "torch"}.}
 }
 \value{
 An \code{edaphos_gnn_gat} fit.

@@ -90,11 +90,27 @@
 #' @param epochs Integer; SGD epochs.
 #' @param lr Learning rate.
 #' @param seed RNG seed.
+#' @param backend `"r"` (default, pure-R ELM-style) or `"torch"`
+#'   (full autograd via `torch::optim_adam`; requires the `torch`
+#'   Suggests dependency).  v2.7.0 upgrade.
+#' @param device `"cpu"` (default), `"mps"` (Apple Silicon) or
+#'   `"cuda"` when `backend = "torch"`.
 #' @return An `edaphos_no_fno` fit.
 #' @export
 no_fno_fit <- function(depths, targets, covariates,
                          n_modes = 4L, width = 8L, n_blocks = 2L,
-                         epochs = 200L, lr = 0.01, seed = NULL) {
+                         epochs = 200L, lr = 0.01, seed = NULL,
+                         backend = c("r", "torch"),
+                         device = c("cpu", "mps", "cuda")) {
+  backend <- match.arg(backend)
+  device  <- match.arg(device)
+  if (backend == "torch") {
+    if (!requireNamespace("torch", quietly = TRUE))
+      stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
+    return(.torch_fno_fit(depths, targets, covariates,
+                            n_modes, width, n_blocks,
+                            epochs, lr, seed, device))
+  }
   stopifnot(is.numeric(depths),
              is.matrix(targets),
              ncol(targets) == length(depths),
@@ -241,6 +257,7 @@ no_fno_fit <- function(depths, targets, covariates,
   }
 
   structure(list(
+    backend = "r",
     depths = depths,
     targets = targets,
     covariates = covariates,
@@ -256,6 +273,26 @@ no_fno_fit <- function(depths, targets, covariates,
 
 #' @export
 predict.edaphos_no_fno <- function(object, newcovariates, ...) {
+  # Torch-backend dispatch
+  if (identical(object$backend, "torch")) {
+    if (is.matrix(newcovariates))
+      newcovariates <- array(newcovariates,
+                               dim = c(nrow(newcovariates), ncol(newcovariates), 1L))
+    n_new <- dim(newcovariates)[1L]
+    cov_flat <- matrix(newcovariates, nrow = n_new * object$n_depths,
+                         ncol = object$C_in)
+    cov_std <- .no_apply_standardise(cov_flat,
+                                        object$cov_std$center,
+                                        object$cov_std$scale)
+    cov_z   <- array(cov_std, dim = c(n_new, object$n_depths, object$C_in))
+    dev <- torch::torch_device(object$device)
+    x_t <- torch::torch_tensor(cov_z, dtype = torch::torch_float(),
+                                  device = dev)
+    pred_t <- object$torch_module(x_t)$detach()$to(device = "cpu")
+    pred <- as.matrix(as.array(pred_t))
+    return(pred * object$tgt_std$scale[1L] + object$tgt_std$center[1L])
+  }
+
   # Standardise new covariates with the training stats
   if (is.matrix(newcovariates)) {
     newcovariates <- array(newcovariates,
@@ -351,12 +388,26 @@ print.edaphos_no_fno <- function(x, ...) {
 #'   (`p` in the notes above).
 #' @param epochs,lr Training hyperparameters.
 #' @param seed RNG seed.
+#' @param backend `"r"` (default) or `"torch"` (full autograd).
+#' @param device `"cpu"`, `"mps"`, or `"cuda"` when
+#'   `backend = "torch"`.
 #' @export
 no_deeponet_fit <- function(depths, targets, covariates,
                               branch_hidden = 16L,
                               trunk_hidden  = 16L,
                               output_dim    = 8L,
-                              epochs = 300L, lr = 0.02, seed = NULL) {
+                              epochs = 300L, lr = 0.02, seed = NULL,
+                              backend = c("r", "torch"),
+                              device = c("cpu", "mps", "cuda")) {
+  backend <- match.arg(backend)
+  device  <- match.arg(device)
+  if (backend == "torch") {
+    if (!requireNamespace("torch", quietly = TRUE))
+      stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
+    return(.torch_deeponet_fit(depths, targets, covariates,
+                                   branch_hidden, trunk_hidden,
+                                   output_dim, epochs, lr, seed, device))
+  }
   stopifnot(is.numeric(depths),
              is.matrix(targets),
              ncol(targets) == length(depths),
@@ -449,6 +500,7 @@ no_deeponet_fit <- function(depths, targets, covariates,
   }
 
   structure(list(
+    backend = "r",
     depths = depths,
     targets = targets,
     covariates = covariates,
@@ -466,6 +518,23 @@ no_deeponet_fit <- function(depths, targets, covariates,
 #' @export
 predict.edaphos_no_deeponet <- function(object, newcovariates,
                                           newdepths = NULL, ...) {
+  if (identical(object$backend, "torch")) {
+    cov_z <- .no_apply_standardise(as.matrix(newcovariates),
+                                      object$cov_std$center,
+                                      object$cov_std$scale)
+    z_in  <- if (is.null(newdepths)) object$depths else newdepths
+    z_z   <- .no_apply_standardise(matrix(z_in, ncol = 1L),
+                                      object$depth_std$center,
+                                      object$depth_std$scale)
+    dev <- torch::torch_device(object$device)
+    u_t <- torch::torch_tensor(cov_z, dtype = torch::torch_float(),
+                                  device = dev)
+    z_t <- torch::torch_tensor(z_z, dtype = torch::torch_float(),
+                                  device = dev)
+    pred_t <- object$torch_module(u_t, z_t)$detach()$to(device = "cpu")
+    pred <- as.matrix(as.array(pred_t))
+    return(pred * object$tgt_std$scale[1L] + object$tgt_std$center[1L])
+  }
   # Standardise new inputs with training stats
   cov_z <- .no_apply_standardise(as.matrix(newcovariates),
                                    object$cov_std$center,

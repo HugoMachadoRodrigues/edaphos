@@ -140,11 +140,26 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL) {
 #' @param epochs Integer; training epochs for the final linear head.
 #' @param lr Numeric; learning rate.
 #' @param seed RNG seed.
+#' @param backend `"r"` (default, ELM-style) or `"torch"` (full
+#'   autograd with multi-head attention; requires the `torch`
+#'   Suggests dependency).  v2.7.0 upgrade.
+#' @param device `"cpu"` (default), `"mps"`, or `"cuda"` when
+#'   `backend = "torch"`.
 #' @return An `edaphos_gnn_gat` fit.
 #' @export
 gnn_fit <- function(graph, targets,
                       hidden = 16L, n_heads = 4L, n_layers = 2L,
-                      epochs = 200L, lr = 0.01, seed = NULL) {
+                      epochs = 200L, lr = 0.01, seed = NULL,
+                      backend = c("r", "torch"),
+                      device = c("cpu", "mps", "cuda")) {
+  backend <- match.arg(backend)
+  device  <- match.arg(device)
+  if (backend == "torch") {
+    if (!requireNamespace("torch", quietly = TRUE))
+      stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
+    return(.torch_gnn_fit(graph, targets, hidden, n_heads, n_layers,
+                             epochs, lr, seed, device))
+  }
   stopifnot(inherits(graph, "edaphos_gnn_graph"),
              length(targets) == graph$n)
   if (!is.null(seed)) set.seed(seed)
@@ -219,6 +234,7 @@ gnn_fit <- function(graph, targets,
   }
 
   structure(list(
+    backend  = "r",
     graph    = graph,
     targets  = targets,
     emb      = emb,
@@ -243,6 +259,21 @@ gnn_embed <- function(object) {
 
 #' @export
 predict.edaphos_gnn_gat <- function(object, ...) {
+  if (identical(object$backend, "torch")) {
+    dev <- torch::torch_device(object$device)
+    h_t <- torch::torch_tensor(object$graph$features,
+                                  dtype = torch::torch_float(),
+                                  device = dev)
+    ei_t <- torch::torch_tensor(object$graph$edge_index,
+                                   dtype = torch::torch_long(),
+                                   device = dev)
+    ew_t <- torch::torch_tensor(object$graph$edge_weight,
+                                   dtype = torch::torch_float(),
+                                   device = dev)
+    object$torch_module$eval()
+    pred_t <- object$torch_module(h_t, ei_t, ew_t)$detach()$to(device = "cpu")
+    return(as.numeric(pred_t) * object$y_sigma + object$y_mu)
+  }
   y_z <- as.numeric(object$emb %*% object$W_head + object$b_head)
   # Un-standardise
   y_z * object$y_sigma + object$y_mu

@@ -11,7 +11,9 @@ dm_fit(
   epochs = 100L,
   hidden = 32L,
   lr = 0.01,
-  seed = NULL
+  seed = NULL,
+  backend = c("r", "torch"),
+  device = c("cpu", "mps", "cuda")
 )
 }
 \arguments{
@@ -32,6 +34,13 @@ network as conditioning.  Default \code{NULL}.}
 \item{lr}{Numeric; learning rate.}
 
 \item{seed}{Optional RNG seed.}
+
+\item{backend}{\code{"r"} (default, ELM-style MLP denoiser) or \code{"torch"}
+(autograd U-Net denoiser via \code{torch::optim_adam}; requires the
+\code{torch} Suggests dependency).  v2.7.0 upgrade.}
+
+\item{device}{\code{"cpu"} (default), \code{"mps"}, or \code{"cuda"} when
+\code{backend = "torch"}.}
 }
 \value{
 An \code{edaphos_dm_fit} fit.

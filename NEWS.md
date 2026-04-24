@@ -1,3 +1,65 @@
+# edaphos 2.7.0
+
+## Torch/autograd backends for Pilares 8, 9 and 10
+
+Replaces the v2.4.0 / v2.5.0 / v2.6.0 "ELM-style" (hidden layers
+fixed at random init, analytic gradient only on the output head)
+with full `torch` autograd.  Each pilar gains a
+`backend = c("r", "torch")` argument; the pure-R path is preserved
+as default fallback so users without the torch runtime still get
+working baselines.
+
+### Pilar 8 (v2.4.0 upgrade)
+* New `R/pilar8_neural_operators_torch.R`.
+* `.torch_fno_module` -- FNO with 1-D spectral convolution via
+  `torch_fft_rfft` + truncated real magnitude multiplier +
+  `torch_fft_irfft`, residual pointwise linear path, leaky-ReLU.
+  Full backprop through every FNO block.
+* `.torch_deeponet_module` -- branch + trunk MLPs with tanh
+  activation; inner-product output.  Trained by `optim_adam` with
+  MSE loss.
+* Both functions accept `device = c("cpu", "mps", "cuda")` so MPS
+  dispatch works on Apple Silicon.
+
+### Pilar 9 (v2.5.0 upgrade)
+* New `R/pilar9_diffusion_torch.R`.
+* `.torch_ddpm_unet` -- proper 2-D conditional U-Net:
+    - Encoder: Conv2d(1 -> base_ch) x2 + pool, Conv2d(base_ch
+      -> 2 base_ch) x2 + pool.
+    - Bottleneck: Conv2d(2 base_ch -> 4 base_ch) + sinusoidal
+      time-embedding bias.
+    - Decoder with skip connections via upsample-nearest +
+      Conv2d + concat.
+    - Final 1x1 Conv to predict noise eps_theta(x_t, t, c).
+* Classifier-free guidance style: conditioning vector is dropped
+  with probability 0.1 during training so the same model supports
+  unconditional sampling at inference.
+* `.torch_ddpm_sample` -- ancestral sampling identical to the
+  v2.5.0 pure-R formula but using the autograd-trained U-Net.
+
+### Pilar 10 (v2.6.0 upgrade)
+* New `R/pilar10_graph_nn_torch.R`.
+* `.torch_gat_layer` -- multi-head Graph Attention layer:
+    - `nn_linear` projects input to `(n_heads, d_out)`.
+    - Per-head attention logits `a_l^T W h_src + a_r^T W h_dst`
+      with leaky-ReLU, softmax-normalised per source via
+      `index_add` scatter.
+    - Head outputs concatenated at non-final layers, averaged at
+      the final layer.
+* `.torch_gat_module` -- stack of attention layers + linear head.
+* Weight decay `1e-4` on the Adam optimiser; full backprop through
+  every attention weight.
+
+All three pilares record `backend = "r"` or `backend = "torch"`
+on the fit object; predict / sample methods dispatch accordingly.
+
+Tests: 10 new expectations across
+`test-pilar8-torch.R`, `test-pilar9-torch.R`, `test-pilar10-torch.R`.
+Each file `skip_if_not_installed("torch")`-gated so the base CI
+continues to pass without torch.
+
+---
+
 # edaphos 2.6.0
 
 ## Pilar 10 -- Graph Attention Networks on WoSIS co-location graphs

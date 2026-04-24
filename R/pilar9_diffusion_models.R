@@ -129,11 +129,26 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #' @param hidden Integer; hidden width of the denoising MLP.
 #' @param lr Numeric; learning rate.
 #' @param seed Optional RNG seed.
+#' @param backend `"r"` (default, ELM-style MLP denoiser) or `"torch"`
+#'   (autograd U-Net denoiser via `torch::optim_adam`; requires the
+#'   `torch` Suggests dependency).  v2.7.0 upgrade.
+#' @param device `"cpu"` (default), `"mps"`, or `"cuda"` when
+#'   `backend = "torch"`.
 #' @return An `edaphos_dm_fit` fit.
 #' @export
 dm_fit <- function(stack, conditioning = NULL,
                      T = 50L, epochs = 100L,
-                     hidden = 32L, lr = 0.01, seed = NULL) {
+                     hidden = 32L, lr = 0.01, seed = NULL,
+                     backend = c("r", "torch"),
+                     device = c("cpu", "mps", "cuda")) {
+  backend <- match.arg(backend)
+  device  <- match.arg(device)
+  if (backend == "torch") {
+    if (!requireNamespace("torch", quietly = TRUE))
+      stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
+    return(.torch_ddpm_fit(stack, conditioning, T, epochs, hidden,
+                              lr, seed, device))
+  }
   stopifnot(is.array(stack), length(dim(stack)) == 3L)
   n_patches <- dim(stack)[1L]; H <- dim(stack)[2L]; W <- dim(stack)[3L]
   if (!is.null(conditioning)) {
@@ -191,6 +206,7 @@ dm_fit <- function(stack, conditioning = NULL,
   }
 
   structure(list(
+    backend = "r",
     net = net, schedule = sched,
     H = H, W = W, n_patches = n_patches, cond_dim = cond_dim,
     mu = mu, sd = sd_,
@@ -216,6 +232,9 @@ dm_fit <- function(stack, conditioning = NULL,
 dm_sample <- function(fit, n_samples = 4L,
                         conditioning = NULL, seed = NULL) {
   stopifnot(inherits(fit, "edaphos_dm_fit"))
+  if (identical(fit$backend, "torch")) {
+    return(.torch_ddpm_sample(fit, n_samples, conditioning, seed))
+  }
   if (!is.null(seed)) set.seed(seed)
   H <- fit$H; W <- fit$W
   T <- fit$schedule$T

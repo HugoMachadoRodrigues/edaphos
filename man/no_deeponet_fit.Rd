@@ -13,7 +13,9 @@ no_deeponet_fit(
   output_dim = 8L,
   epochs = 300L,
   lr = 0.02,
-  seed = NULL
+  seed = NULL,
+  backend = c("r", "torch"),
+  device = c("cpu", "mps", "cuda")
 )
 }
 \arguments{
@@ -36,6 +38,11 @@ branch and trunk MLPs.}
 \item{epochs, lr}{Training hyperparameters.}
 
 \item{seed}{RNG seed.}
+
+\item{backend}{\code{"r"} (default) or \code{"torch"} (full autograd).}
+
+\item{device}{\code{"cpu"}, \code{"mps"}, or \code{"cuda"} when
+\code{backend = "torch"}.}
 }
 \description{
 Fit a DeepONet for depth-profile operators
