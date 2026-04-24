@@ -1,6 +1,6 @@
 Package: edaphos
 Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 2.1.0
+Version: 2.1.3
 Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
            role = c("aut", "cre"),
@@ -82,7 +82,10 @@ Imports:
     httr2,
     jsonlite,
     ranger,
+    Rcpp (>= 1.0.0),
     stats
+LinkingTo:
+    Rcpp
 VignetteBuilder: knitr
 Depends:
     R (>= 3.5)

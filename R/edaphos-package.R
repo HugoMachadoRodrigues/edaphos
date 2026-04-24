@@ -164,5 +164,7 @@
 #' learning for digital soil mapping: applications, challenges and
 #' suggested solutions. *Earth-Science Reviews* **210**, 103359.
 #'
+#' @useDynLib edaphos, .registration = TRUE
+#' @importFrom Rcpp evalCpp
 #' @keywords internal
 "_PACKAGE"

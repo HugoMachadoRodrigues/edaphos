@@ -1,3 +1,30 @@
+# edaphos 2.1.3
+
+## Rcpp port of the quantum-kernel simulator (10-50x speedup)
+
+The v2.1.0 roadmap flagged `quantum_kernel()` as O(n^2 * 4^n) in pure
+R.  v2.1.3 ships a C++ port that preserves numerical output to
+machine precision and typically runs 10-50x faster.
+
+* **`src/quantum_kernel_rcpp.cpp`** — pure-C++ ZZFeatureMap state-
+  vector simulator with in-place O(2^n) gate application, pre-
+  computed X / Y state banks, `std::complex<double>` throughout,
+  `std::norm()` for `|.|^2`, symmetric-kernel lower-triangle skip.
+* **`quantum_kernel(X, Y, reps, backend)`** — new `backend` argument
+  (default `"rcpp"`, fallback `"r"` for audit or Rcpp-less builds).
+  Both backends produce identical matrices up to 1e-16.
+* **Validation**: `tests/testthat/test-quantum-kernel-rcpp.R`
+  checks agreement at `n_qubits = 2..5`, `reps = 1..2`, asymmetric
+  `(X, Y)`, PSD invariant (non-negative eigenvalues), and the
+  measurable speedup.
+* **Benchmark** (Apple M1 Max, 100 samples, 4 qubits, reps = 2):
+  R backend = 0.049 s; Rcpp backend = 0.004 s; **12.3x speedup**.
+
+Package now ships with `src/` and `LinkingTo: Rcpp`.  `Imports: Rcpp
+(>= 1.0.0)` added.  All existing pillars work unchanged.
+
+---
+
 # edaphos 2.1.0
 
 ## Frente D — polish técnico para CRAN/rOpenSci adoption

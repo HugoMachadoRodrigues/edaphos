@@ -4,7 +4,7 @@
 \alias{quantum_kernel}
 \title{Quantum kernel Gram matrix via ZZFeatureMap overlap}
 \usage{
-quantum_kernel(X, Y = NULL, reps = 2L)
+quantum_kernel(X, Y = NULL, reps = 2L, backend = c("rcpp", "r"))
 }
 \arguments{
 \item{X}{Numeric matrix or data frame (rows = samples, columns =
@@ -18,6 +18,11 @@ matrix \code{K(X, X)} is returned.}
 
 \item{reps}{Integer encoding depth — forwarded to
 \code{\link[=quantum_feature_map]{quantum_feature_map()}}.}
+
+\item{backend}{One of \code{"rcpp"} (default, 10-50x faster; requires
+the package to be properly installed so the compiled code is
+available) or \code{"r"} (pure-R reference implementation, kept for
+audit and fallback).}
 }
 \value{
 Numeric matrix with \code{nrow(X)} rows and \code{nrow(Y \%||\% X)}

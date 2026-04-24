@@ -52,3 +52,9 @@ tools/pretrain/edaphos-cerrado-moco-v2/
 .Renviron
 .env
 inst/doc
+
+# compiled C++ artifacts
+src/*.o
+src/*.so
+src/*.dll
+src/symbols.rds
