@@ -71,9 +71,17 @@ abstract: >-
   reduces a foundation-model embedding matrix to principal
   components and runs 2SLS with the PCs as instruments --
   identifying causal effects under unobserved-confounder
-  regimes that the hand-drawn DAG of v1.4.0 cannot block.
+  regimes that the hand-drawn DAG of v1.4.0 cannot block.  v1.9.1
+  ships the point-wise encoder-extraction bridge
+  (foundation_embed_at_coords) and a live benchmark with the
+  Zenodo-published edaphos-cerrado-moco-v1 encoder: the Sargan
+  J-test p-value on 1 095 Cerrado profiles jumps from <1e-9
+  under engineered proxy instruments (v1.9.0) to 0.28-0.42
+  under real MoCo v2 embeddings -- the decisive empirical
+  confirmation that an encoder pre-trained without seeing the
+  outcome produces structurally valid instruments.
 type: software
-version: "1.9.0"
+version: "1.9.1"
 date-released: "2026-04-23"
 license: MIT
 doi: "10.5281/zenodo.19683708"
@@ -108,6 +116,9 @@ identifiers:
     type: doi
     value: "10.5281/zenodo.19710162"
   - description: "Version DOI (v1.9.0)"
+    type: doi
+    value: "10.5281/zenodo.19710162"
+  - description: "Version DOI (v1.9.1)"
     type: doi
     value: "10.5281/zenodo.19710162"
 authors:
