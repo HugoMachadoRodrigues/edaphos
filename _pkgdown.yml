@@ -198,25 +198,22 @@ articles:
 - title: "Getting started"
   navbar: ~
   contents:
+  - getting-started
   - capstone-cerrado-campaign
   - uncertainty-unified
 
 - title: "Pilar 1 — Causal AI"
   contents:
   - pilar1-causal
-  - pilar1-causal-real
   - causal-discovery-trio
-  - llm-kg-benchmark
   - llm-annotation-workflow
 
 - title: "Pilares 2–6"
   contents:
   - pilar2-piml-profile
   - pilar3-4d-soc
-  - pilar3-4d-real
   - pilar4-simclr-embeddings
   - pilar5-active-learning
-  - pilar5-soilgrids-br
   - pilar6-quantum
 
 - title: "Cross-pillar bridges"
