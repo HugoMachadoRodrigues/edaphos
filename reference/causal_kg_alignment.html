@@ -9,7 +9,25 @@ edaphos_causal_kg onto their canonical counterparts in a target
 vocabulary (causal_ontology_cerrado() by default). Three matchers
 are tried in order — exact, substring, fuzzy — and the first hit
 wins. The mapping is returned as a tidy data frame; apply it with
-causal_kg_rename()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"></head><body>
+causal_kg_rename()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script><script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // pkgdown wraps fenced ```mermaid blocks as
+    // <pre><code class="language-mermaid">...</code></pre>.
+    // Convert them in-place to <pre class="mermaid"> which
+    // mermaid.run() picks up.
+    document.querySelectorAll("pre > code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.parentElement;
+      var div = document.createElement("pre");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      window.mermaid.initialize({ startOnLoad: false, theme: "default" });
+      window.mermaid.run();
+    }
+  });
+</script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 

@@ -7,7 +7,25 @@ of the hosted artefact."><meta property="og:description" content="Returns a data
 by the edaphos project: its name, the Zenodo DOI, the raster
 AoI it was trained on, the number of input channels it expects,
 the feature dimension of its embeddings, and the SHA-256 digest
-of the hosted artefact."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"></head><body>
+of the hosted artefact."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script><script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // pkgdown wraps fenced ```mermaid blocks as
+    // <pre><code class="language-mermaid">...</code></pre>.
+    // Convert them in-place to <pre class="mermaid"> which
+    // mermaid.run() picks up.
+    document.querySelectorAll("pre > code.language-mermaid").forEach(function (codeEl) {
+      var pre = codeEl.parentElement;
+      var div = document.createElement("pre");
+      div.className = "mermaid";
+      div.textContent = codeEl.textContent;
+      pre.replaceWith(div);
+    });
+    if (window.mermaid) {
+      window.mermaid.initialize({ startOnLoad: false, theme: "default" });
+      window.mermaid.run();
+    }
+  });
+</script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 

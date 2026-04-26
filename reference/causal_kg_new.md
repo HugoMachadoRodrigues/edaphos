@@ -36,6 +36,6 @@ An `edaphos_causal_kg` object (S3) containing an empty directed
 #>                                                    evidence confidence
 #> 1 Higher precipitation favours organic-matter accumulation.        0.9
 #>              timestamp
-#> 1 2026-04-26T13:32:19Z
+#> 1 2026-04-26T22:26:21Z
 # }
 ```
