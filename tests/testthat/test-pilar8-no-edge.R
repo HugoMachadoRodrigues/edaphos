@@ -37,9 +37,15 @@ test_that("no_deeponet predict: column count mismatch still returns result or in
   fit <- no_deeponet_fit(d$depths, d$targets, d$covariates,
                             branch_hidden = 4L, trunk_hidden = 4L,
                             output_dim = 2L, epochs = 10L, seed = 1L)
-  # newdata with wrong number of columns
+  # newdata with wrong number of columns -- the internal sweep()
+  # call emits a cosmetic "STATS does not recycle exactly across
+  # MARGIN" warning on Windows + R CMD check `error_on: warning`,
+  # which we suppress because the contract being tested is the
+  # OUTPUT shape, not the warning.
   wrong <- matrix(stats::rnorm(6 * 10), 6L, 10L)
-  out <- tryCatch(predict(fit, wrong), error = function(e) "error")
+  out <- suppressWarnings(
+    tryCatch(predict(fit, wrong), error = function(e) "error")
+  )
   # Either errors cleanly (expected) or silently matches by position
   expect_true(is.character(out) || is.matrix(out))
 })
