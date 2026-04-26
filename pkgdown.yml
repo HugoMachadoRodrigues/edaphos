@@ -1,0 +1,22 @@
+pandoc: 3.1.11
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  capstone-cerrado-campaign: capstone-cerrado-campaign.html
+  case-cerrado-end-to-end: case-cerrado-end-to-end.html
+  causal-discovery-trio: causal-discovery-trio.html
+  getting-started: getting-started.html
+  llm-annotation-workflow: llm-annotation-workflow.html
+  pilar1-causal: pilar1-causal.html
+  pilar1-pilar4-iv: pilar1-pilar4-iv.html
+  pilar2-piml-profile: pilar2-piml-profile.html
+  pilar3-4d-soc: pilar3-4d-soc.html
+  pilar4-pilar6-quantum: pilar4-pilar6-quantum.html
+  pilar4-simclr-embeddings: pilar4-simclr-embeddings.html
+  pilar5-active-learning: pilar5-active-learning.html
+  pilar6-quantum: pilar6-quantum.html
+  uncertainty-unified: uncertainty-unified.html
+last_built: 2026-04-26T12:53Z
+urls:
+  reference: https://hugomachadorodrigues.github.io/edaphos/reference
+  article: https://hugomachadorodrigues.github.io/edaphos/articles
