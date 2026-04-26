@@ -49,17 +49,29 @@
 #'   `edge_weight`, `coords`, `feature_names`.
 #' @export
 gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL) {
-  stopifnot(is.data.frame(profiles),
-             all(c("lon", "lat") %in% names(profiles)),
-             k >= 1L)
+  .assert_type(is.data.frame(profiles), "profiles", "a data frame",
+                  paste0("an object of class '", class(profiles)[1L], "'"))
+  missing_lonlat <- setdiff(c("lon", "lat"), names(profiles))
+  if (length(missing_lonlat) > 0L) {
+    .stopf("`profiles` is missing coordinate column(s): %s.",
+            paste(missing_lonlat, collapse = ", "),
+            hint = "Rename your coords to 'lon'/'lat' before calling gnn_build_graph().")
+  }
+  if (!is.numeric(k) || length(k) != 1L || k < 1L) {
+    .stopf("`k` must be a positive integer scalar, got %s of length %d.",
+            class(k)[1L], length(k),
+            hint = "Try k = 8L for a typical WoSIS-Cerrado workload.")
+  }
   coords <- as.matrix(profiles[, c("lon", "lat")])
   n <- nrow(coords)
   if (is.null(feature_cols)) {
     numeric_cols <- names(profiles)[vapply(profiles, is.numeric, logical(1L))]
     feature_cols <- setdiff(numeric_cols, c("lon", "lat"))
   }
-  if (length(feature_cols) == 0L)
-    stop("No numeric feature columns found.", call. = FALSE)
+  if (length(feature_cols) == 0L) {
+    .stopf("No numeric feature columns found in `profiles`.",
+            hint = "Either pass `feature_cols = c(\"col1\", ...)` explicitly, or convert at least one covariate column to numeric.")
+  }
   feats <- as.matrix(profiles[, feature_cols, drop = FALSE])
   # Standardise features
   mu    <- colMeans(feats, na.rm = TRUE)

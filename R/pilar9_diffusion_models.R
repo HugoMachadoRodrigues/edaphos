@@ -175,11 +175,25 @@ dm_fit <- function(stack, conditioning = NULL,
     return(.torch_ddpm_fit(stack, conditioning, T, epochs, hidden,
                               lr, seed, device))
   }
-  stopifnot(is.array(stack), length(dim(stack)) == 3L)
+  if (!is.array(stack) || length(dim(stack)) != 3L) {
+    .stopf("`stack` must be a 3-D array (n_patches, H, W), got %s of dim %s.",
+            class(stack)[1L],
+            if (is.null(dim(stack))) "NULL"
+            else paste(dim(stack), collapse = " x "),
+            hint = "Use `array(your_data, dim = c(n_patches, H, W))`.")
+  }
   n_patches <- dim(stack)[1L]; H <- dim(stack)[2L]; W <- dim(stack)[3L]
   if (!is.null(conditioning)) {
-    stopifnot(is.matrix(conditioning),
-               nrow(conditioning) == n_patches)
+    if (!is.matrix(conditioning)) {
+      .stopf("`conditioning` must be a matrix when supplied, got %s.",
+              class(conditioning)[1L],
+              hint = "Wrap your data with `as.matrix(...)`.")
+    }
+    if (nrow(conditioning) != n_patches) {
+      .stopf("`conditioning` must have one row per patch (n=%d), got %d.",
+              n_patches, nrow(conditioning),
+              hint = "The order of `conditioning` rows must match the first dim of `stack`.")
+    }
     cond_dim <- ncol(conditioning)
   } else {
     conditioning <- matrix(0, n_patches, 0L)

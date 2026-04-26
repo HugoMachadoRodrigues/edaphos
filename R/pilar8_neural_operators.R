@@ -408,11 +408,24 @@ no_deeponet_fit <- function(depths, targets, covariates,
                                    branch_hidden, trunk_hidden,
                                    output_dim, epochs, lr, seed, device))
   }
-  stopifnot(is.numeric(depths),
-             is.matrix(targets),
-             ncol(targets) == length(depths),
-             is.matrix(covariates),
-             nrow(covariates) == nrow(targets))
+  .assert_type(is.numeric(depths), "depths", "numeric",
+                  class(depths)[1L])
+  .assert_type(is.matrix(targets), "targets", "a matrix",
+                  class(targets)[1L],
+                  hint = "Each row is one observation; each column is one depth.")
+  if (ncol(targets) != length(depths)) {
+    .stopf("`targets` has %d columns but `depths` has %d entries.",
+            ncol(targets), length(depths),
+            hint = "Each column of `targets` must correspond to one depth.")
+  }
+  .assert_type(is.matrix(covariates), "covariates", "a matrix",
+                  class(covariates)[1L],
+                  hint = "Use `as.matrix(your_dataframe)` to coerce.")
+  if (nrow(covariates) != nrow(targets)) {
+    .stopf("`covariates` (%d rows) and `targets` (%d rows) disagree.",
+            nrow(covariates), nrow(targets),
+            hint = "Each row of both must describe the same observation.")
+  }
   if (!is.null(seed)) set.seed(seed)
   n_obs    <- nrow(targets)
   n_depths <- length(depths)

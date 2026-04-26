@@ -1,3 +1,62 @@
+# edaphos 3.8.0
+
+## Friendly error messages at high-traffic entry points
+
+Replaces the cryptic `stopifnot()` failures at four major user-
+facing entry points with self-diagnosing messages that include:
+
+  * the calling function's name (`[bhs_fit] ...`),
+  * a clear description of what went wrong with the actual vs
+    expected values, and
+  * a `Hint:` line with a concrete fix.
+
+### New internal helpers (`R/core_utils.R`)
+
+* `.stopf(msg, ..., hint = NULL)` -- sprintf-formatted error with an
+  optional `Hint:` line.
+* `.assert_type(cond, name, expected, actual, hint = NULL)` --
+  one-liner type assertion that fires `.stopf` with a uniform
+  "must be X, got Y" wording.
+
+### Surface area improved
+
+* **`bhs_fit()`** -- non-data.frame, non-formula, malformed
+  `coords`, missing coord columns, and invalid MCMC schedule.
+* **`gnn_build_graph()`** -- non-data.frame `profiles`, missing
+  `lon`/`lat`, invalid `k`, no numeric feature columns.
+* **`dm_fit()`** -- non-3D `stack`, non-matrix `conditioning`,
+  conditioning row count != n_patches.
+* **`no_deeponet_fit()`** -- non-numeric depths, non-matrix targets,
+  depth/target dimension mismatch, non-matrix covariates,
+  covariate/target row mismatch.
+
+### Examples
+
+Before:
+
+  Error in stopifnot(is.data.frame(data), inherits(formula, "formula"), :
+    is.data.frame(data) is not TRUE
+
+After:
+
+  Error: [bhs_fit] `data` must be a data frame, got an object of
+  class 'list'.
+    Hint: Convert with `as.data.frame(your_object)`.
+
+### Tests
+
+`tests/testthat/test-error-messages.R` -- 20 tests:
+
+  * Helper unit tests for `.stopf` and `.assert_type` (caller name,
+    Hint suffix, no-hint short form, success no-op).
+  * Specific user-error reproductions for each of the four entry
+    points listed above.
+
+R CMD check: 0 errors / 0 notes.
+1 308 tests pass overall (+20 vs v3.7.0).
+
+---
+
 # edaphos 3.7.0
 
 ## Two new regional synthetic datasets

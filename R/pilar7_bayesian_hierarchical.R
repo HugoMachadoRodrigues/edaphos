@@ -88,11 +88,23 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
                       phi_range = c(0.01, 10),
                       seed = NULL, verbose = FALSE) {
   backend <- match.arg(backend)
-  stopifnot(is.data.frame(data),
-             inherits(formula, "formula"),
-             is.character(coords), length(coords) == 2L)
+  .assert_type(is.data.frame(data), "data", "a data frame",
+                  paste0("an object of class '", class(data)[1L], "'"),
+                  hint = "Convert with `as.data.frame(your_object)`.")
+  .assert_type(inherits(formula, "formula"), "formula",
+                  "a formula", class(formula)[1L],
+                  hint = "Use the standard `response ~ x1 + x2 + ...` form.")
+  .assert_type(is.character(coords) && length(coords) == 2L,
+                  "coords", "a length-2 character vector",
+                  paste0(class(coords)[1L], " of length ", length(coords)),
+                  hint = "e.g. `c(\"lon\", \"lat\")` matching column names in `data`.")
+  .assert_coords(data, coords)
   if (is.null(burn)) burn <- nmcmc %/% 2L
-  stopifnot(burn >= 0L, burn < nmcmc, thin >= 1L)
+  if (!(burn >= 0L && burn < nmcmc && thin >= 1L)) {
+    .stopf("MCMC schedule invalid: burn=%d, nmcmc=%d, thin=%d.",
+            burn, nmcmc, thin,
+            hint = "Need 0 <= burn < nmcmc and thin >= 1.")
+  }
 
   # Build the model matrix and coordinate matrix.  Use an internal
   # integer row-id column to avoid the frequent dplyr-style rowname
