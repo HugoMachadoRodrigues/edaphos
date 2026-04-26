@@ -6,9 +6,10 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-2.8.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v2.8.0)
-[![Pillars](https://img.shields.io/badge/pillars-6%2F6%20shipped-success)](#the-six-pillars-at-a-glance)
-[![Vignettes](https://img.shields.io/badge/vignettes-11-9cf)](#vignettes)
+[![Version](https://img.shields.io/badge/version-3.10.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v3.10.0)
+[![Pillars](https://img.shields.io/badge/pillars-10%2F10%20shipped-success)](#the-six-pillars-at-a-glance)
+[![Vignettes](https://img.shields.io/badge/vignettes-14-9cf)](#vignettes)
+[![Tests](https://img.shields.io/badge/tests-1345%20pass-brightgreen)](#testing-and-continuous-integration)
 
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--8070--8126-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-8070-8126)
 [![Google Scholar](https://img.shields.io/badge/Google%20Scholar-profile-4285F4?logo=google-scholar&logoColor=white)](https://scholar.google.com/citations?hl=en&user=vu-Ka7wAAAAJ)
