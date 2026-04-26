@@ -1,7 +1,7 @@
 ## Tests for the v2.7.0 torch backend of Pilar 8.
 
 test_that("no_fno_fit(backend='torch'): fits and predicts with autograd", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   set.seed(1L)
   n_obs <- 12L; n_depths <- 8L
   depths <- seq(5, 120, length.out = n_depths)
@@ -24,7 +24,7 @@ test_that("no_fno_fit(backend='torch'): fits and predicts with autograd", {
 })
 
 test_that("no_deeponet_fit(backend='torch'): training loss decreases", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   set.seed(1L)
   n_obs <- 20L; n_depths <- 10L
   depths <- seq(5, 120, length.out = n_depths)
@@ -47,7 +47,7 @@ test_that("no_deeponet_fit(backend='torch'): training loss decreases", {
 })
 
 test_that("backend='r' and backend='torch' both produce valid output", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   set.seed(1L)
   n <- 12L; d <- 8L
   depths <- seq(5, 100, length.out = d)

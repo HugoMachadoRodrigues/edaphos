@@ -11,7 +11,7 @@
 }
 
 test_that("gnn_fit(backend='torch'): fits GAT with autograd", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   dat <- .mk_torch_network(n = 30L)
   g <- gnn_build_graph(dat, k = 5L,
                          feature_cols = c("x1", "x2", "x3"))
@@ -28,7 +28,7 @@ test_that("gnn_fit(backend='torch'): fits GAT with autograd", {
 })
 
 test_that("torch GAT: training loss decreases", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   dat <- .mk_torch_network(n = 40L, seed = 2L)
   g <- gnn_build_graph(dat, k = 5L,
                          feature_cols = c("x1", "x2", "x3"))
@@ -40,7 +40,7 @@ test_that("torch GAT: training loss decreases", {
 })
 
 test_that("predict.edaphos_gnn_gat (torch): produces a length-n vector", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   dat <- .mk_torch_network(n = 30L)
   g <- gnn_build_graph(dat, k = 5L,
                          feature_cols = c("x1", "x2", "x3"))
@@ -55,7 +55,7 @@ test_that("predict.edaphos_gnn_gat (torch): produces a length-n vector", {
 })
 
 test_that("torch GAT handles multi-head concatenation correctly", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   dat <- .mk_torch_network(n = 20L, seed = 3L)
   g <- gnn_build_graph(dat, k = 3L,
                          feature_cols = c("x1", "x2", "x3"))

@@ -1,7 +1,7 @@
 ## Tests for foundation_embed_at_coords (v1.9.1).
 
 test_that("foundation_embed_at_coords: patch extraction + encoder forward", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   skip_if_not_installed("terra")
   suppressMessages({
     library(torch); library(terra)
@@ -54,7 +54,7 @@ test_that("foundation_embed_at_coords: patch extraction + encoder forward", {
 })
 
 test_that("foundation_embed_at_coords: out-of-extent coords produce NA rows", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   skip_if_not_installed("terra")
   suppressMessages({ library(torch); library(terra) })
 
@@ -92,7 +92,7 @@ test_that("foundation_embed_at_coords: out-of-extent coords produce NA rows", {
 })
 
 test_that("foundation_embed_at_coords: patch_size = NULL falls back to dataset", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   skip_if_not_installed("terra")
   suppressMessages({ library(torch); library(terra) })
 
@@ -126,7 +126,7 @@ test_that("foundation_embed_at_coords: patch_size = NULL falls back to dataset",
 })
 
 test_that("foundation_embed_at_coords: errors on NULL patch_size without dataset fallback", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   skip_if_not_installed("terra")
   suppressMessages({ library(torch); library(terra) })
 

@@ -15,7 +15,7 @@
 }
 
 test_that("dm_fit(backend='torch'): fits U-Net and returns valid schema", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   stack <- .mk_torch_patches(n = 4L, H = 8L, W = 8L)
   fit <- dm_fit(stack, T = 10L, epochs = 3L, hidden = 8L,
                   lr = 0.01, seed = 1L,
@@ -28,7 +28,7 @@ test_that("dm_fit(backend='torch'): fits U-Net and returns valid schema", {
 })
 
 test_that("dm_sample(backend='torch'): returns the expected shape", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   stack <- .mk_torch_patches(n = 4L, H = 8L, W = 8L)
   fit <- dm_fit(stack, T = 6L, epochs = 2L, hidden = 8L,
                   lr = 0.01, seed = 1L, backend = "torch")
@@ -38,7 +38,7 @@ test_that("dm_sample(backend='torch'): returns the expected shape", {
 })
 
 test_that("torch DDPM: conditioning vector is accepted end-to-end", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   stack <- .mk_torch_patches(n = 4L, H = 8L, W = 8L)
   cond <- matrix(stats::rnorm(4 * 3), 4L, 3L)
   fit <- dm_fit(stack, conditioning = cond,

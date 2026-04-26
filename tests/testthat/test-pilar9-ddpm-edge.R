@@ -65,7 +65,7 @@ test_that("dm_sample: unconditional when model was conditional returns zeros-con
 })
 
 test_that("dm_fit(backend='torch'): device='cpu' produces finite output", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   stack <- .mk_patches(n = 4L, H = 6L, W = 6L)
   fit <- dm_fit(stack, T = 4L, epochs = 2L, hidden = 8L,
                   seed = 1L, backend = "torch", device = "cpu")

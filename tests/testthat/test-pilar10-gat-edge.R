@@ -88,7 +88,7 @@ test_that("gnn_fit: reproducibility with same seed", {
 })
 
 test_that("gnn_fit(backend='torch'): n_heads = 1 still works", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   d <- .mk_net(n = 15L)
   g <- gnn_build_graph(d, k = 3L,
                          feature_cols = c("x1", "x2", "x3"))

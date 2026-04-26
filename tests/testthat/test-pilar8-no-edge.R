@@ -87,7 +87,7 @@ test_that("no_deeponet_fit: trunk accepts arbitrary depth grids without crashing
 })
 
 test_that("no_fno_fit(backend='torch'): reproducibility with torch_manual_seed", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   d <- .mk_op_data(n = 8L, nd = 8L, p = 1L)
   cov3 <- array(d$covariates, dim = c(8L, 8L, 1L))
   f1 <- no_fno_fit(d$depths, d$targets, cov3,
@@ -103,7 +103,7 @@ test_that("no_fno_fit(backend='torch'): reproducibility with torch_manual_seed",
 })
 
 test_that("no_deeponet predict(backend='torch'): survives empty newdepths", {
-  skip_if_not_installed("torch")
+  .skip_if_no_torch()
   d <- .mk_op_data(n = 10L, nd = 8L, p = 2L)
   fit <- no_deeponet_fit(d$depths, d$targets, d$covariates,
                             branch_hidden = 4L, trunk_hidden = 4L,
