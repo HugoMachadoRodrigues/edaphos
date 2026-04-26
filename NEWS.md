@@ -1,3 +1,50 @@
+# edaphos 3.7.0
+
+## Two new regional synthetic datasets
+
+`br_amazon` and `br_pantanal` join `br_cerrado` as bundled offline
+fixtures.  All three share the SAME 8-column schema
+(`x`, `y`, `elev`, `slope`, `twi`, `map_mm`, `ndvi`, `soc`) so any
+pillar / vignette that runs on `br_cerrado` runs on the new
+datasets unchanged.
+
+The three regional contrasts exercise different parts of every
+pillar's parameter space:
+
+  Region    Elev (m)   MAP (mm/y)   NDVI       Slope     SOC (g/kg)
+  -------   --------   ----------   --------   -------   ----------
+  Cerrado   800-1200   1300-1700    0.20-0.90  0-20 deg   5-38
+  Pantanal   80-150    1100-1400    0.30-0.85  0-3  deg  18-83 (bimodal)
+  Amazon     50-300    2200-3000    0.75-0.95  0-8  deg  49-90
+
+Median SOC ordering: `br_cerrado$soc < br_pantanal$soc < br_amazon$soc`.
+
+Generation scripts:
+
+* `data-raw/prepare_br_amazon.R` -- 45 x 45 grid near Manaus.
+* `data-raw/prepare_br_pantanal.R` -- 45 x 45 grid in MS Pantanal.
+
+Both scripts mirror the structure of `prepare_br_cerrado.R` so a
+user can swap distributions, regenerate the .rda, and ship a
+custom region-specific fixture in three lines of code.
+
+### Tests
+
+`tests/testthat/test-data-regional.R` -- 7 tests:
+
+  1. `br_amazon` schema matches `br_cerrado`.
+  2. `br_pantanal` schema matches `br_cerrado`.
+  3. Median-SOC regional ordering Cerrado < Pantanal < Amazon.
+  4. `br_amazon` numeric columns finite + within bbox.
+  5. `br_pantanal` numeric columns finite + within bbox.
+  6. End-to-end `al_fit()` smoke test on `br_amazon`.
+  7. End-to-end `al_fit()` smoke test on `br_pantanal`.
+
+R CMD check: 0 errors / 0 notes.
+1 282 tests pass (+7 vs v3.6.0).
+
+---
+
 # edaphos 3.6.0
 
 ## Pilar 10 -- sparse-matrix GAT layer
