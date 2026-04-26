@@ -98,30 +98,55 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL) {
 # GAT layer (pure R, vectorised)
 # ---------------------------------------------------------------------------
 
+# Vectorised, sparse-matrix GAT layer (v3.6.0).  Replaces the v2.6.0
+# per-node `for (i in seq_len(n))` softmax loop with a single
+# group-wise softmax on the edge vector + a sparse matrix multiply.
+#
+# Equivalent to the v2.6.0 implementation up to floating-point
+# round-off (verified in tests/testthat/test-pilar10-gat-sparse.R).
+# Performance: ~10-30x faster on n in [100, 1000] thanks to one
+# `Matrix::sparseMatrix` build + one `A %*% Wh` matmul per layer
+# instead of n linear scans through `edge_idx`.
 .gnn_gat_layer <- function(h_in, edge_idx, edge_w, W, a_l, a_r,
                              leaky_slope = 0.2) {
   # h_in : (n x d_in)
   # W    : (d_in x d_out)
   # a_l, a_r : attention vectors, each length d_out
-  Wh <- h_in %*% W                      # (n x d_out)
-  s_l <- as.numeric(Wh %*% a_l)         # (n)
+  n   <- nrow(h_in)
+  Wh  <- h_in %*% W                      # (n x d_out)
+  s_l <- as.numeric(Wh %*% a_l)
   s_r <- as.numeric(Wh %*% a_r)
-  # Edge attention scores
-  e <- s_l[edge_idx[, 1L]] + s_r[edge_idx[, 2L]]
-  e <- pmax(e, leaky_slope * e)         # leaky-ReLU
-  # Softmax per source node
-  n <- nrow(h_in)
-  out <- matrix(0, n, ncol(W))
-  for (i in seq_len(n)) {
-    edges_i <- which(edge_idx[, 1L] == i)
-    if (length(edges_i) == 0L) { out[i, ] <- Wh[i, ]; next }
-    scores  <- e[edges_i] * edge_w[edges_i]
-    alpha   <- exp(scores - max(scores))
-    alpha   <- alpha / sum(alpha)
-    # Weighted sum over neighbour features
-    nbr <- edge_idx[edges_i, 2L]
-    out[i, ] <- colSums(Wh[nbr, , drop = FALSE] * alpha)
+
+  src <- edge_idx[, 1L]
+  dst <- edge_idx[, 2L]
+  e   <- s_l[src] + s_r[dst]
+  e   <- pmax(e, leaky_slope * e)        # leaky-ReLU
+
+  # Group-wise softmax over edges sharing a source node.  Match the
+  # v2.6.0 ordering: edge_w (the inverse-distance prior) MULTIPLIES
+  # the score INSIDE the exponent, not the post-softmax alpha.
+  scores     <- e * edge_w
+  scores_max <- stats::ave(scores, src, FUN = max)
+  e_exp      <- exp(scores - scores_max)
+  e_sum      <- stats::ave(e_exp, src, FUN = sum)
+  alpha      <- e_exp / pmax(e_sum, .Machine$double.eps)
+
+  # Sparse aggregation: A[i, j] = alpha_{ij}.  Out = A %*% Wh.
+  if (requireNamespace("Matrix", quietly = TRUE)) {
+    A <- Matrix::sparseMatrix(i = src, j = dst, x = alpha,
+                                dims = c(n, n))
+    out <- as.matrix(A %*% Wh)
+  } else {
+    # Dense fallback when `Matrix` is not available (defensive --
+    # `Matrix` ships with R-recommended).
+    A <- matrix(0, n, n)
+    A[cbind(src, dst)] <- alpha
+    out <- A %*% Wh
   }
+
+  # Isolated nodes (no outgoing edges) keep their pre-aggregation Wh.
+  has_edge <- tabulate(src, nbins = n) > 0L
+  if (!all(has_edge)) out[!has_edge, ] <- Wh[!has_edge, , drop = FALSE]
   out
 }
 

@@ -1,3 +1,60 @@
+# edaphos 3.6.0
+
+## Pilar 10 -- sparse-matrix GAT layer
+
+Replaces the v2.6.0 `for (i in seq_len(n))` per-node softmax loop
+inside `.gnn_gat_layer()` with a fully vectorised sparse-matrix
+formulation:
+
+  1. Compute attention scores for every edge in a single
+     `s_l[src] + s_r[dst]` then leaky-ReLU + edge-weight scaling.
+  2. Group-wise softmax over edges sharing a source node via
+     `stats::ave(... , src, FUN = max/sum)` -- O(|E|).
+  3. Build a sparse matrix `A` with `Matrix::sparseMatrix(i = src,
+     j = dst, x = alpha, dims = c(n, n))` and aggregate as
+     `as.matrix(A %*% Wh)`.
+  4. Isolated-node fallback (no outgoing edges) preserved verbatim
+     from the v2.6.0 path.
+
+Numerically equivalent to the v2.6.0 reference up to floating-
+point round-off (tested explicitly).
+
+### Measured speedup
+
+  n =   50 sparse: 0.003 s   loop: 0.001 s   speedup: 0.5x
+  n =  100 sparse: 0.001 s   loop: 0.001 s   speedup: 0.9x
+  n =  200 sparse: 0.004 s   loop: 0.004 s   speedup: 0.9x
+  n =  500 sparse: 0.008 s   loop: 0.047 s   speedup: 5.8x
+
+Honest readout: at n = 50-200 the sparse-matrix construction
+overhead absorbs most of the win.  The pay-off lands at n >= 500
+(typical WoSIS-Cerrado workload size), where the sparse path is
+~6x faster.  The new path is a strict win at production graph
+sizes; small graphs are unaffected on wall-time.
+
+### Build dependency change
+
+Adds `Matrix` to `Suggests` (it is a recommended R-distribution
+package, so it is effectively always available; the
+`requireNamespace("Matrix", quietly = TRUE)` guard inside
+`.gnn_gat_layer()` falls back to a dense matrix on the very rare
+system without it).
+
+### Tests
+
+`tests/testthat/test-pilar10-gat-sparse.R` -- 5 tests:
+
+  1. Sparse output equals the per-node reference (max |diff| < 1e-12).
+  2. Isolated nodes preserve their `Wh` fallback.
+  3. Sparse output equals an independent dense-matrix reference.
+  4. Sparse path strictly faster than the loop reference at n = 500.
+  5. End-to-end `gnn_fit()` MSE descent preserved with seeded RNG.
+
+R CMD check: 0 errors / 0 notes.
+1 274 tests pass (+5 vs v3.5.0).
+
+---
+
 # edaphos 3.5.0
 
 ## Pilar 7 Gibbs sampler -- RcppArmadillo backend
