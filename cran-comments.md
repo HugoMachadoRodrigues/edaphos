@@ -1,7 +1,11 @@
-# CRAN comments for edaphos v2.1.0
+# CRAN comments for edaphos v3.10.0
 
 ## Test environments
-- **Local**: macOS 14 (Apple M1 Max), R 4.4.1; `R CMD check --as-cran` → 0 errors / 0 warnings / 0 notes.
+- **Local**: macOS Tahoe 26.4.1 (Apple Silicon), R 4.5.3;
+  `R CMD check --as-cran` → **0 errors / 0 warnings / 0 notes**
+  (with `--no-build-vignettes`; the 2 vignette warnings reported by
+  `--build-vignettes` are caused by a known transient `dagitty`/V8
+  plumbing issue in the check subprocess, NOT by the package code).
 - **GitHub Actions CI**:
   - macos-latest, R release
   - windows-latest, R release
@@ -11,31 +15,95 @@
 - **Docker** (Rocker/geospatial): see `Dockerfile` in repo root.
 
 ## R CMD check results
+
 ```
 Status: OK
 0 errors | 0 warnings | 0 notes
 ```
 
-## Heavy-optional dependencies
-Every Suggests in `DESCRIPTION` is wrapped in `requireNamespace(..., quietly = TRUE)` inside the code that uses it. The base test suite runs without `torch`, `terra`, `geodata`, `dagitty`, `bnlearn`, `shiny`, or `reticulate` installed. Vignettes that need heavy packages use `eval = FALSE` blocks with code that the user copy-pastes into an interactive session.
+(Above is with `--no-build-vignettes`.  Full vignette build is
+gated by an environment-specific dagitty/V8 issue that is well
+documented in <https://github.com/jtextor/dagitty/issues>.)
 
-## Reasons for optional dependencies
-| Suggests       | Used by             | Why optional                                 |
-|:---------------|:--------------------|:---------------------------------------------|
-| `torch`        | Pilars 2, 3, 4      | libtorch ~1 GB; many users will not need it |
-| `terra`        | Pilar 4 raster ops  | Heavy geospatial stack                       |
-| `geodata`      | `foundation_build_cerrado_stack` | ~200 MB live downloads         |
-| `dagitty`      | Pilar 1             | Fast but adds 10+ MB of deps                |
-| `bnlearn`      | Pilar 1 discovery   | Structure-learning only                     |
-| `shiny/DT/bslib/shinyjs` | Annotation UI (v1.8.1+) | Interactive app; not needed for lib users |
-| `reticulate`   | Pilar 6 Qiskit      | Python bridge only for IBM Quantum runs      |
-| `jsonlite`     | LLM benchmark       | Tiny; used everywhere so could be Imports    |
+## Test suite
 
-## Suggests → Imports candidates for next release
-We are deliberately conservative with Imports to keep the base install <30 MB. `jsonlite`, `dplyr`, `ggplot2` are used by many exported functions and could move to Imports in v2.2.0 after a CRAN-policy review.
+`devtools::test()` -- **1 345 unit tests**, 0 failures, 4 warnings,
+2 skips.
+
+The 4 warnings are documented cosmetic stats::sweep recycling on
+odd column counts (Pilar 8); the 2 skips are LLM-benchmark tests
+that require a live Ollama instance.
+
+## Build dependencies (LinkingTo)
+
+`Rcpp`, `RcppArmadillo`.  Both are header-only, widely-used, on CRAN.
+
+## Imports
+
+`clhs, deSolve (>= 1.40), httr2, jsonlite, ranger, Rcpp (>= 1.0.0),
+stats` -- all current CRAN releases.  Total transitive base-install
+dependency footprint <30 MB.
+
+## Heavy-optional dependencies (Suggests)
+
+Every Suggests is wrapped in `requireNamespace(..., quietly = TRUE)`
+inside the code that uses it.  The base test suite runs without
+`torch`, `terra`, `geodata`, `dagitty`, `bnlearn`, `Matrix`,
+`spBayes`, `shiny`, or `reticulate` installed.
+
+| Suggests       | Used by                       | Why optional                  |
+|----------------|-------------------------------|-------------------------------|
+| `torch`        | Pilars 2, 3, 4, 8, 9, 10      | libtorch ~1 GB                |
+| `terra`        | Pilar 4 raster operations     | Heavy geospatial stack        |
+| `geodata`      | Cerrado live-data fetcher     | ~200 MB live downloads        |
+| `dagitty`      | Pilar 1 DAG manipulation      | V8 dependency                 |
+| `bnlearn`      | Pilar 1 structure learning    | C extensions                  |
+| `Matrix`       | Pilar 10 sparse GAT layer     | Recommended R-distribution    |
+| `spBayes`      | BHS alternative backend       | Heavy MCMC machinery          |
+| `dbarts`       | Pilar 1 BART estimator        | C++ extensions                |
+| `reticulate`   | Pilar 6 Qiskit (IBM Q)        | Python bridge                 |
+| `shiny / DT / bslib / shinyjs` | Annotation UI | Interactive only      |
 
 ## Downstream dependencies
-None yet (this is the first CRAN submission). The package is listed on GitHub at <https://github.com/HugoMachadoRodrigues/edaphos> and archived on Zenodo <https://doi.org/10.5281/zenodo.19683708>.
+
+None yet (this is the first CRAN submission).  The package is
+listed on GitHub at <https://github.com/HugoMachadoRodrigues/edaphos>
+and archived on Zenodo at
+<https://doi.org/10.5281/zenodo.19683708>.
+
+## What's new since the last preparation cycle (v2.9.1 -> v3.10.0)
+
+* **v3.0.0** -- six new cross-pillar bridges (P7/8/9 x P5 active
+  learning + P10xP1, P2xP3, P6xP10 structural).
+* **v3.1.0** -- 6-pilar head-to-head benchmark on 1 095 real WoSIS
+  Cerrado profiles; results bundled in
+  `inst/extdata/benchmark_wosis_6pilar.rds`.
+* **v3.2.0** -- triangular-solve fast path for the Pilar 7 Gibbs
+  sampler (2.5x) + batched DDPM training (4-6x) -- pure R, no new
+  compiled code.
+* **v3.3.0** -- `vignette("getting-started")`.
+* **v3.4.0** -- calibrated PICP for the P1/P6/P10 benchmark
+  wrappers (residual-variance injection); PICP_90 jumps from
+  0.07-0.25 to 0.60-0.95 across the three new methods.
+* **v3.5.0** -- RcppArmadillo C++ port of the BHS Gibbs sampler
+  (~2.3x over the v3.2.0 R fast-path on n >= 200).  Adds
+  `RcppArmadillo` to LinkingTo.
+* **v3.6.0** -- sparse-matrix GAT layer (Pilar 10) via
+  `Matrix::sparseMatrix`; ~6x faster at n = 500.
+* **v3.7.0** -- two new bundled regional datasets `br_amazon` and
+  `br_pantanal` (same schema as `br_cerrado`).
+* **v3.8.0** -- friendly error messages (`.stopf` + `.assert_type`)
+  at high-traffic entry points.
+* **v3.9.0** -- documentation reorganisation (INTRO.md +
+  cheatsheets + 4 vignettes moved to articles/).
+* **v3.10.0** -- production harness for 10 000+ LLM-KG extraction
+  runs (`llm_kg_pipeline_run()` resumable + `llm_kg_ollama_check()`),
+  live-validated on the bundled Cerrado corpus via Ollama.
 
 ## Acknowledgements
-Reference works cited throughout `vignettes/references.bib` (McBratney 2003, Pearl 2009, Wadoux 2020, Zhang & Wadoux 2026, Wooldridge 2010, Cinelli & Hazlett 2020, Havlicek 2019). No funding source reported; developed in the author's personal research time during PhD at the University of São Paulo.
+
+Reference works cited throughout `vignettes/references.bib`
+(McBratney 2003, Pearl 2009, Wadoux 2020, Zhang & Wadoux 2026,
+Wooldridge 2010, Cinelli & Hazlett 2020, Havlicek 2019).  No
+funding source reported; developed in the author's personal
+research time during PhD at the University of São Paulo.

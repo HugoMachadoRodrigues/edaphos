@@ -537,21 +537,17 @@ ggplot(plot_df, aes(x = lon, y = lat, fill = COS_norm)) +
   theme(legend.position = "right")
 ```
 
-```{r kalman-gain, fig.cap = "Ganho de Kalman médio (média sobre as oito observações). Células com ganho mais alto recebem a maior correção — essas são as regiões onde novas observações teriam mais impacto."}
-gain_df <- data.frame(
-  lon  = grid_df$lon,
-  lat  = grid_df$lat,
-  gain = as.numeric(temp_res$mean_gain)
-)
+```{r kalman-gain, fig.cap = "Ganho de Kalman médio em cada uma das oito observações assimiladas. Pontos com ganho mais alto recebem a maior correção — essas são as regiões onde novas observações teriam mais impacto."}
+# `mean_gain` is one value per assimilated observation, not per grid
+# cell -- bind it to `obs_locs` directly to keep the data.frame
+# rectangular (v3.10.0 fix).
+gain_df <- cbind(obs_locs,
+                   gain = as.numeric(temp_res$mean_gain))
 
-ggplot(gain_df, aes(x = lon, y = lat, fill = gain)) +
-  geom_tile() +
-  geom_point(
-    data = obs_locs,
-    aes(x = lon, y = lat, fill = NULL),
-    color = "white", shape = 4, size = 3, stroke = 1.2
-  ) +
-  scale_fill_viridis_c(option = "C", name = "Ganho\nKalman") +
+ggplot(gain_df, aes(x = lon, y = lat, color = gain)) +
+  geom_point(size = 5, shape = 19) +
+  scale_color_viridis_c(option = "C", name = "Ganho\nKalman") +
+  coord_fixed() +
   labs(
     x     = "Longitude",
     y     = "Latitude",
@@ -688,7 +684,7 @@ knitr::kable(
 )
 ```
 
-```{r al-posterior-plot, fig.cap = "Distribuições a posteriori (QRF quantile grid, n_quantiles = 99) de COS nos 8 candidatos selecionados. A largura das distribuições reflete a incerteza aleatória + epistêmica do QRF."}
+```{r al-posterior-plot, eval = requireNamespace("ggridges", quietly = TRUE), fig.cap = "Distribuições a posteriori (QRF quantile grid, n_quantiles = 99) de COS nos 8 candidatos selecionados. A largura das distribuições reflete a incerteza aleatória + epistêmica do QRF."}
 al_posts <- R$al_posteriors  # lista de edaphos_posterior por candidato
 
 posts_df <- bind_rows(lapply(seq_along(al_posts), function(i) {
@@ -988,7 +984,7 @@ knitr::kable(
 )
 ```
 
-```{r decision-map-final, fig.height = 5.2, fig.cap = "Mapa final da campanha. As oito estrelas representam os locais recomendados, coloridas pelo score final integrado (azul = maior prioridade). O mapa de fundo é a previsão do Foundation Model."}
+```{r decision-map-final, eval = requireNamespace("ggnewscale", quietly = TRUE), fig.height = 5.2, fig.cap = "Mapa final da campanha. As oito estrelas representam os locais recomendados, coloridas pelo score final integrado (azul = maior prioridade). O mapa de fundo é a previsão do Foundation Model."}
 final_sel <- R$final_selection  # lon, lat, final_score
 
 ggplot() +
@@ -1113,11 +1109,11 @@ knitr::kable(
 ---
 
 ```{r session-info, echo = FALSE, results = "asis"}
-si <- utils::sessionInfo()
 cat(
-  "_Construído com_ **edaphos**",
-  utils::packageVersion("edaphos"),
-  "·",
-  R.version$version.string, "\n"
+  "_Construído com_ **edaphos** ",
+  as.character(utils::packageVersion("edaphos")),
+  " · ",
+  R.version$version.string, "\n",
+  sep = ""
 )
 ```
