@@ -40,6 +40,15 @@ jobs:
         with:
           extra-packages: |
             any::pkgdown
+            any::DiagrammeR
+            any::ggdag
+            any::ggridges
+            any::ggnewscale
+            any::patchwork
+            any::RColorBrewer
+            any::scales
+            any::tidyr
+            any::dplyr
             local::.
           needs: website
 
