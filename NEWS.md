@@ -1,3 +1,78 @@
+# edaphos 3.10.0
+
+## Pilar 1 -- production harness for 10k+ LLM-KG extraction runs
+
+`causal_llm_extract()` (the per-abstract LLM primitive shipped in
+v1.4) is now joined by a multi-hour, multi-thousand-abstract
+ORCHESTRATOR with resumable JSONL checkpointing, throttle/retry,
+and pre-flight backend validation:
+
+* **`llm_kg_pipeline_run(corpus_path, output_path, backend, ...)`**
+  -- production-grade pipeline driver:
+    - Reads a JSONL corpus (`{"source": ..., "abstract": ...}` per
+      line).
+    - Calls `causal_llm_extract()` per abstract with the supplied
+      backend (Ollama / OpenAI / Anthropic).
+    - Streams per-abstract claims to `output_path`.
+    - Maintains `output_path.done` as a sorted set of completed
+      source IDs -- on re-run, already-done sources are skipped
+      (RESUMABLE).
+    - On transient errors (HTTP 5xx, timeouts, JSON parse
+      failures) retries up to `max_retries` times with exponential
+      back-off (1s, 2s, 4s).  Persistent errors are logged to
+      `output_path.errors` without halting the run.
+    - Builds an in-memory `edaphos_causal_kg` ready for
+      `causal_kg_to_dagitty()` / `causal_kg_to_turtle()`.
+* **`llm_kg_ollama_check(host, model)`** -- pre-flight gate that
+  HEAD-pings the Ollama server, lists installed models, and
+  reports whether a named model is present.
+
+### Live smoke test (this commit)
+
+End-to-end run on the bundled 10-abstract Cerrado corpus
+(`inst/extdata/cerrado_abstracts.jsonl`) using a local Ollama
+server with `gemma4:latest`:
+
+  Pre-flight check     :  reachable=TRUE, model_present=TRUE
+  Abstracts processed  :  10 / 10
+  Errors               :   0
+  Knowledge Graph      :  41 nodes, 30 edges
+  Output JSONL claims  :  inst/extdata/llm_kg_smoke_claims.jsonl
+
+### 10k orchestrator
+
+`data-raw/llm_kg_10k_pipeline.R` is the ready-to-run end-to-end
+orchestrator for a 10 000+ abstract production extraction.  Usage:
+
+  $ ollama serve
+  $ ollama pull gemma3:12b   # or any other model
+  $ Rscript data-raw/llm_kg_10k_pipeline.R [corpus_path] [output_path]
+
+Performance budget (Gemma 3 12B on a modern Apple Silicon laptop):
+~2-4 s / abstract -> 6-11 hours for 10 000 abstracts.  Disk usage
+~50 MB JSONL output for ~5 claims / abstract.  The pipeline is
+killable / resumable so a run can be paused, the laptop closed,
+and resumed by re-invoking the same command.
+
+### Tests
+
+`tests/testthat/test-llm-kg-pipeline.R` -- 6 tests, all using
+`testthat::with_mocked_bindings()` to stub out `causal_llm_extract`
+and `llm_kg_ollama_check` (no live LLM call in CI):
+
+  1. `llm_kg_ollama_check` reports unreachable on a closed port.
+  2. `llm_kg_pipeline_run` errors helpfully on a missing corpus.
+  3. End-to-end on a 5-abstract mock corpus: writes JSONL +
+     `.done`, builds a non-empty KG.
+  4. Re-run skips already-done sources (resumability).
+  5. Persistent extract failure logs to `.errors` without halting.
+  6. `max_abstracts` caps the run at the requested count.
+
+R CMD check: 0 errors / 0 notes.
+1 345 tests pass (+17 vs v3.9.0).
+
+---
+
 # edaphos 3.9.0
 
 ## Documentation reorganisation
