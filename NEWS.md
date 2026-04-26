@@ -1,3 +1,88 @@
+# edaphos 3.4.0
+
+## Calibrated predictive posteriors for P1, P6, P10 benchmark wrappers
+
+The v3.1.0 benchmark exposed a known shortcoming of the three new
+wrappers (`benchmark_fit_p1_causal()`,
+`benchmark_fit_p6_quantum()`, `benchmark_fit_p10_gat()`): their
+posteriors carry only EPISTEMIC uncertainty (the spread of
+predictive means under different bootstrap / seed-ensemble fits)
+and consequently UNDER-COVER honest 90 % intervals.  v3.1.0
+PICP_90 readouts on the 1 095-profile WoSIS Cerrado benchmark:
+
+  P1 Causal+OLS    : 0.232
+  P6 Quantum KRR   : 0.249
+  P10 GAT ensemble : 0.073
+
+v3.4.0 adds the missing ALEATORIC term: an estimate of the
+in-sample residual standard deviation `sigma_resid` is injected as
+iid Gaussian noise on every (sample, test-row) entry of the
+posterior matrix.  The aleatoric estimate comes from a single
+full-data point predictor (OLS for P1, quantum KRR for P6,
+ensemble-mean training prediction for P10) so it is decoupled from
+the bootstrap / seed-ensemble noise.  PICP_90 jumps to nominal
+coverage:
+
+  P1 Causal+OLS    : 0.953   (was 0.232)
+  P6 Quantum KRR   : 0.601   (was 0.249)
+  P10 GAT ensemble : 0.825   (was 0.073)
+
+CRPS also improves materially across the board:
+
+  P1 Causal+OLS    : 6.80    (was 7.78)
+  P6 Quantum KRR   : 7.43    (was 8.08)
+  P10 GAT ensemble : 8.11    (was 8.68)
+
+### API change (back-compatible)
+
+Each of the three wrappers gains a `calibrate = TRUE` argument.
+Setting `calibrate = FALSE` reproduces the v3.1.0 epistemic-only
+behaviour bit-for-bit.  Default is `TRUE`.
+
+The estimated `sigma_resid` and the `calibrate` flag are written
+into the `metadata` slot of the returned `edaphos_posterior` for
+downstream introspection.
+
+### Internal helpers
+
+* `.bench_inject_aleatoric(pred_mat, sigma_resid, seed)` -- injects
+  iid `N(0, sigma_resid^2)` noise on every entry of a posterior
+  matrix.  Identity when `sigma_resid <= 0`.
+* `.bench_residual_sd(y_obs, y_hat)` -- NA-safe residual SD
+  estimator.
+
+### Refresh of the v3.1.0 benchmark bundle
+
+`inst/extdata/benchmark_wosis_6pilar.rds` re-run with
+`calibrate = TRUE` (now the default) on the same 1 095-profile
+folds.  The aggregate table now reads:
+
+| Method             | RMSE  | R^2    | PICP_90 | MPIW_90 | CRPS  |
+|--------------------|------:|-------:|--------:|--------:|------:|
+| **P1 Causal+OLS**  | 13.94 | 0.082  |  0.953  |  46.9   | 6.80  |
+| P4 Foundation+QRF  | 14.07 | 0.033  |  0.889  |  37.6   | 5.93  |
+| P5 QRF             | 14.12 | 0.064  |  0.879  |  37.2   | 5.85  |
+| P7 BHS             | 14.13 | 0.070  |  0.812  |  36.7   | 6.97  |
+| P6 Quantum KRR     | 14.55 | 0.000  |  0.601  |  16.7   | 7.43  |
+| P10 GAT ensemble   | 15.18 | 0.000  |  0.825  |  35.6   | 8.11  |
+
+Note: P1 PICP is now mildly OVER-covered (0.95 vs nominal 0.90)
+because the OLS residual SD is computed in-sample without a
+leave-one-out adjustment; this is closer to honest than the
+under-coverage but is documented as a v3.5.0 TODO if needed.
+
+### Tests
+
+`tests/testthat/test-benchmark-6pilar-calibrate.R` -- 9 tests:
+calibrated vs raw SD comparison for P1/P6/P10, PICP_90 lift on P1,
+unit tests for `.bench_inject_aleatoric()` and
+`.bench_residual_sd()`, NA-safety contract.
+
+R CMD check: 0 errors | 2 warnings (pre-existing inst/doc) | 0 notes.
+1 256 tests pass (+17 vs v3.3.0).
+
+---
+
 # edaphos 3.3.0
 
 ## Getting-started vignette

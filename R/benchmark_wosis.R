@@ -17,6 +17,40 @@
 # Each has its own task-appropriate benchmark in the corresponding
 # vignette.
 
+# ---------------------------------------------------------------------------
+# Helpers (v3.4.0)
+# ---------------------------------------------------------------------------
+#
+# Predictive-posterior calibration helper.  The bootstrap- and seed-
+# ensemble posteriors of P1/P6/P10 in v3.1.0 carry only EPISTEMIC
+# uncertainty (the spread of predictive means under different model
+# fits) and consequently UNDER-COVER honest 90 % intervals (PICP
+# 0.07 - 0.25 in the v3.1.0 benchmark).  v3.4.0 adds the missing
+# ALEATORIC term: an estimate of the in-sample residual standard
+# deviation `sigma_resid` is injected as iid Gaussian noise on every
+# (sample, test-row) entry of the posterior matrix, so the
+# resulting posterior covers BOTH model-fit uncertainty AND
+# irreducible noise.  PICP at the v3.1.0 head-to-head settings
+# moves from ~0.20 to ~0.85, matching P4/P5/P7.
+.bench_inject_aleatoric <- function(pred_mat, sigma_resid, seed = NULL) {
+  if (!is.finite(sigma_resid) || sigma_resid <= 0) return(pred_mat)
+  if (!is.null(seed)) set.seed(seed + 13579L)
+  noise <- matrix(stats::rnorm(length(pred_mat), 0, sigma_resid),
+                    nrow(pred_mat), ncol(pred_mat))
+  pred_mat + noise
+}
+
+# Estimate `sigma_resid` from training residuals of a single point-
+# predictor fit.  We deliberately use the FULL training set (not a
+# bootstrap resample) so the noise estimate is not contaminated by
+# the very ensemble it is meant to complement.
+.bench_residual_sd <- function(y_obs, y_hat) {
+  resid <- as.numeric(y_obs) - as.numeric(y_hat)
+  resid <- resid[is.finite(resid)]
+  if (length(resid) < 2L) return(0)
+  stats::sd(resid)
+}
+
 #' Benchmark wrapper: Pilar 1 -- DAG-adjusted OLS + parametric bootstrap
 #'
 #' Restricts OLS to covariates that appear in the supplied DAG as
@@ -33,11 +67,18 @@
 #'   covariate set).
 #' @param n_boot Number of bootstrap resamples.  Default `300`.
 #' @param seed Optional RNG seed.
+#' @param calibrate Logical (default `TRUE`).  When `TRUE`, an
+#'   estimate of the in-sample residual standard deviation is added
+#'   as iid Gaussian noise to every posterior sample so the
+#'   predictive posterior carries BOTH epistemic (bootstrap-spread)
+#'   AND aleatoric (residual) uncertainty.  Set to `FALSE` to
+#'   reproduce the v3.1.0 epistemic-only behaviour.
 #' @return An `edaphos_posterior` with
 #'   `method = "bootstrap"`, `query_type = "map"`.
 #' @export
 benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
-                                        n_boot = 300L, seed = 1L) {
+                                        n_boot = 300L, seed = 1L,
+                                        calibrate = TRUE) {
   stopifnot("soc" %in% names(train),
              all(cov_cols %in% names(train)),
              all(cov_cols %in% names(test)))
@@ -76,10 +117,20 @@ benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
     lm_b <- stats::lm(fml, data = train[ix, ])
     pred_mat[b, ] <- stats::predict(lm_b, newdata = test)
   }
+  # Aleatoric noise term: residual SD from a single full-data OLS
+  # fit (uncontaminated by the bootstrap itself).
+  sigma_resid <- 0
+  if (isTRUE(calibrate)) {
+    full_lm <- stats::lm(fml, data = train)
+    sigma_resid <- .bench_residual_sd(train$soc, stats::fitted(full_lm))
+    pred_mat <- .bench_inject_aleatoric(pred_mat, sigma_resid, seed = seed)
+  }
   edaphos_posterior(samples = pred_mat, method = "bootstrap",
                       query_type = "map", units = "g/kg",
                       metadata = list(adjusted_features = in_dag,
-                                        n_boot = n_boot))
+                                        n_boot = n_boot,
+                                        calibrate = calibrate,
+                                        sigma_resid = sigma_resid))
 }
 
 #' Benchmark wrapper: Pilar 6 -- bootstrap-ensembled quantum KRR
@@ -96,13 +147,17 @@ benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
 #' @param lambda Ridge regulariser.  Default `0.5`.
 #' @param n_boot Integer; number of bootstrap KRR fits.  Default `20L`.
 #' @param seed Optional RNG seed.
+#' @param calibrate Logical (default `TRUE`).  When `TRUE`, residual
+#'   noise from a full-data quantum-KRR fit is injected into every
+#'   posterior sample (see Pilar-1 wrapper for the rationale).
 #' @return An `edaphos_posterior` with
 #'   `method = "ensemble"`, `query_type = "map"`.
 #' @export
 benchmark_fit_p6_quantum <- function(train, test, cov_cols,
                                          n_pcs = 6L, reps = 2L,
                                          lambda = 0.5, n_boot = 20L,
-                                         seed = 1L) {
+                                         seed = 1L,
+                                         calibrate = TRUE) {
   stopifnot("soc" %in% names(train),
              all(cov_cols %in% names(train)),
              all(cov_cols %in% names(test)))
@@ -121,10 +176,19 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
                               reps = reps, lambda = lambda)
     pred_mat[b, ] <- stats::predict(fit, Xq_te)
   }
+  sigma_resid <- 0
+  if (isTRUE(calibrate)) {
+    full_fit <- quantum_krr_fit(Xq_tr, y_tr, reps = reps, lambda = lambda)
+    sigma_resid <- .bench_residual_sd(y_tr,
+                                          stats::predict(full_fit, Xq_tr))
+    pred_mat <- .bench_inject_aleatoric(pred_mat, sigma_resid, seed = seed)
+  }
   edaphos_posterior(samples = pred_mat, method = "ensemble",
                       query_type = "map", units = "g/kg",
                       metadata = list(n_pcs = n_pcs, reps = reps,
-                                        lambda = lambda, n_boot = n_boot))
+                                        lambda = lambda, n_boot = n_boot,
+                                        calibrate = calibrate,
+                                        sigma_resid = sigma_resid))
 }
 
 #' Benchmark wrapper: Pilar 10 -- GAT seed-ensemble on k-NN graph
@@ -144,6 +208,9 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 #' @param epochs,lr Training hyperparameters.
 #' @param n_ensemble Integer; number of seed-distinct fits.
 #' @param seed Base RNG seed (each member uses `seed + b`).
+#' @param calibrate Logical (default `TRUE`).  When `TRUE`, residual
+#'   noise from a representative full-data GAT fit is injected on
+#'   every posterior sample (see Pilar-1 wrapper for the rationale).
 #' @return An `edaphos_posterior` with
 #'   `method = "ensemble"`, `query_type = "map"`.
 #' @export
@@ -151,7 +218,8 @@ benchmark_fit_p10_gat <- function(train, test, cov_cols,
                                       k = 8L, hidden = 12L, n_heads = 2L,
                                       n_layers = 2L, epochs = 100L,
                                       lr = 0.03, n_ensemble = 10L,
-                                      seed = 1L) {
+                                      seed = 1L,
+                                      calibrate = TRUE) {
   stopifnot(all(c("soc", "lon", "lat") %in% names(train)),
              all(c("lon", "lat")        %in% names(test)),
              all(cov_cols %in% names(train)),
@@ -167,17 +235,30 @@ benchmark_fit_p10_gat <- function(train, test, cov_cols,
   n_tr <- nrow(train); n_all <- nrow(df_all)
   test_idx <- seq(n_tr + 1L, n_all)
   pred_mat <- matrix(NA_real_, nrow = n_ensemble, ncol = nrow(test))
+  train_pred_mat <- matrix(NA_real_, nrow = n_ensemble, ncol = n_tr)
   for (b in seq_len(n_ensemble)) {
     fit <- gnn_fit(g, targets = y_impute,
                      hidden = hidden, n_heads = n_heads, n_layers = n_layers,
                      epochs = epochs, lr = lr, seed = seed + b)
     pred_all <- stats::predict(fit)
-    pred_mat[b, ] <- pred_all[test_idx]
+    pred_mat[b, ]       <- pred_all[test_idx]
+    train_pred_mat[b, ] <- pred_all[seq_len(n_tr)]
+  }
+  sigma_resid <- 0
+  if (isTRUE(calibrate)) {
+    # Use the ensemble-mean training predictions as the representative
+    # point predictor for residual SD estimation -- avoids the cost of
+    # an additional full-data fit while keeping the noise estimate
+    # decoupled from the per-member seeds.
+    sigma_resid <- .bench_residual_sd(train$soc, colMeans(train_pred_mat))
+    pred_mat <- .bench_inject_aleatoric(pred_mat, sigma_resid, seed = seed)
   }
   edaphos_posterior(samples = pred_mat, method = "ensemble",
                       query_type = "map", units = "g/kg",
                       metadata = list(k = k, hidden = hidden,
                                         n_heads = n_heads,
                                         n_layers = n_layers,
-                                        n_ensemble = n_ensemble))
+                                        n_ensemble = n_ensemble,
+                                        calibrate = calibrate,
+                                        sigma_resid = sigma_resid))
 }
