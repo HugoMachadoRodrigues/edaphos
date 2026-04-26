@@ -1,3 +1,67 @@
+# edaphos 3.9.0
+
+## Documentation reorganisation
+
+The package's narrative documentation has grown organically from
+v0.1 to v3.8 into a 1 869-line README + 18 vignettes.  v3.9.0
+introduces three navigational primitives that complement -- but
+do not replace -- the README:
+
+### 1. `INTRO.md`
+
+A single, dense narrative file at the top of the repository (NOT
+shipped in the CRAN tarball; `.Rbuildignore`-d) covering:
+
+  * The Zhang & Wadoux (2026) scientific motivation for a generative
+    DSM paradigm.
+  * The 10-pilar taxonomy in a single table.
+  * The 6 cross-pilar bridges (v3.0.0) in a single table.
+  * The unified `edaphos_posterior` contract.
+  * The latest 1 095-profile WoSIS Cerrado benchmark numbers
+    (calibrated, v3.4.0).
+  * Where-to-go-next pointers.
+
+### 2. `cheatsheets/`
+
+Ten one-page markdown references, one per pilar
+(`cheatsheets/pilar1.md` through `cheatsheets/pilar10.md`), each
+documenting:
+
+  * The core API surface (3-5 functions).
+  * The v3.0.0 cross-pilar bridges.
+  * 1-2 key references.
+  * Pointers to the per-pilar vignette and any case-study articles.
+
+These are also `.Rbuildignore`-d so they live on the GitHub repo +
+pkgdown site, not in the package tarball.
+
+### 3. Vignette consolidation (18 -> 14 + 4 articles)
+
+Four vignettes that overlapped substantively with the pilar*
+mainline tutorials were moved to a top-level `articles/` directory
+(`.Rbuildignore`-d) where they live as standalone .Rmd files.  No
+content lost; pkgdown picks them up as articles separately:
+
+  * `articles/pilar1-causal-real.Rmd` (case study; complements
+    `vignette("pilar1-causal")`).
+  * `articles/pilar3-4d-real.Rmd` (real-cube case study;
+    complements `vignette("pilar3-4d-soc")`).
+  * `articles/pilar5-soilgrids-br.Rmd` (region-specific demo;
+    complements `vignette("pilar5-active-learning")`).
+  * `articles/llm-kg-benchmark.Rmd` (P1 LLM-KG benchmark;
+    complements `vignette("llm-annotation-workflow")`).
+
+Vignette count drops from 18 to 14 -- closer to the user-requested
+8-10 ceiling without destructive content merging.
+
+### Tests
+
+No code changes; documentation-only release.
+
+devtools::test: 0 fails / 1328 pass.
+
+---
+
 # edaphos 3.8.0
 
 ## Friendly error messages at high-traffic entry points

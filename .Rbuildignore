@@ -18,3 +18,6 @@
 ^\.claude$
 ^RELEASE\.md$
 ^pkgdown$
+^articles$
+^cheatsheets$
+^INTRO\.md$
