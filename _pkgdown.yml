@@ -103,11 +103,14 @@ reference:
   - starts_with("llm_annotation_")
   - starts_with("llm_benchmark_")
   - starts_with("llm_preannotate")
+  - summary.edaphos_causal_kg
 
 - title: "Pilar 2 — Physics-Informed ML"
   desc: "Pedogenetic ODE, Bayesian posterior, Neural ODE + ensemble."
   contents:
   - starts_with("piml_")
+  - predict.edaphos_piml_bayes
+  - predict.edaphos_piml_neural_ode_ensemble
 
 - title: "Pilar 3 — 4D Pedometry"
   desc: "ConvLSTM, rollout, mass-balance physics loss, stochastic EnKF."
@@ -118,6 +121,9 @@ reference:
   desc: "SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction."
   contents:
   - starts_with("foundation_")
+  - predict.edaphos_foundation_classifier
+  - predict.edaphos_foundation_regressor
+  - predict.edaphos_foundation_ensemble
 
 - title: "Pilar 5 — Active Learning"
   desc: "Hybrid policy, BatchBALD, physics gate, posterior calibration."
@@ -130,10 +136,34 @@ reference:
   contents:
   - starts_with("quantum_")
 
-- title: "Cross-pillar bridges (v1.9.x + v2.0.0)"
-  desc: "Foundation embeddings as causal instruments; quantum kernels over foundation embeddings."
+- title: "Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)"
+  desc: "Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes)."
+  contents:
+  - starts_with("bhs_")
+  - predict.edaphos_bhs
+
+- title: "Pilar 8 — Neural Operators (v2.4.0+)"
+  desc: "DeepONet + FNO over depth function space."
+  contents:
+  - starts_with("no_")
+
+- title: "Pilar 9 — Diffusion Models (v2.5.0+)"
+  desc: "DDPM with cosine schedule + ancestral sampling."
+  contents:
+  - starts_with("dm_")
+
+- title: "Pilar 10 — Graph Attention Networks (v2.6.0+)"
+  desc: "k-NN co-location graphs + multi-head attention; v3.6.0 sparse."
+  contents:
+  - starts_with("gnn_")
+
+- title: "Cross-pillar bridges (v1.9.x + v2.0.0 + v3.0.0)"
+  desc: "Foundation embeddings as causal instruments; quantum kernels over foundation embeddings; six v3.0.0 bridges (P7/8/9 x P5 + P10 x P1 + P2 x P3 + P6 x P10)."
   contents:
   - starts_with("qf_")
+  - starts_with("al_query_")
+  - gnn_causal_discovery
+  - temporal_piml_loss
 
 - title: "Unified uncertainty API (v1.6.0)"
   desc: "Common edaphos_posterior class + single calibration diagnostic."
@@ -141,10 +171,24 @@ reference:
   - starts_with("uncertainty_")
   - edaphos_posterior
   - as_edaphos_posterior
+  - autoplot.edaphos_posterior
+  - starts_with("edaphos_")
+
+- title: "Benchmark wrappers (v3.1.0)"
+  desc: "Plug-and-play wrappers for the 6-pilar WoSIS Cerrado benchmark."
+  contents:
+  - starts_with("benchmark_fit_")
+
+- title: "LLM-KG production pipeline (v3.10.0)"
+  desc: "Resumable 10k+ abstract orchestrator + Ollama pre-flight."
+  contents:
+  - starts_with("llm_kg_")
 
 - title: "Bundled datasets"
   contents:
   - br_cerrado
+  - br_amazon
+  - br_pantanal
 
 - title: "Package roadmap"
   contents:
