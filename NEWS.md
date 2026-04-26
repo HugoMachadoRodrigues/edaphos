@@ -1,3 +1,62 @@
+# edaphos 3.5.0
+
+## Pilar 7 Gibbs sampler -- RcppArmadillo backend
+
+The v3.2.0 R fast path (triangular-solve MVN sampling, 2.5x over
+the v2.3.0 dense-inverse path) is now joined by a full
+RcppArmadillo C++ port:
+
+  bhs_fit(..., backend = "rcpp")
+
+The C++ implementation is a faithful translation of the v3.2.0 R
+fast path:
+
+  * Single upper-triangular Cholesky of the precision matrix per
+    update, drawn via `arma::chol(M, "upper")`.
+  * MVN sampling via two `arma::solve(arma::trimatu/l(L), ...)`
+    triangular solves -- never forms the dense covariance.
+  * Robust jitter retries (1e-8 -> 1e-2 over 8 escalations,
+    matching the R `.chol_jitter()` helper).
+  * RNG drawn from R's `R::rnorm` / `R::rgamma` so seed-equivalence
+    with R is preserved.
+
+### Measured speedup (300 MCMC iters, exponential-correlation GP)
+
+  n =  100   R fast path: 0.11 s   Rcpp: 0.16 s   speedup: 0.7x
+  n =  200   R fast path: 0.78 s   Rcpp: 0.34 s   speedup: 2.3x
+  n =  300   R fast path: 1.84 s   Rcpp: 0.85 s   speedup: 2.2x
+  n =  500   R fast path: 7.66 s   Rcpp: 3.27 s   speedup: 2.3x
+
+Honest readout: the speedup plateaus around 2-3x, not the 10-15x
+the v3.2.0 NEWS speculated.  The Gibbs loop is dominated by the
+O(n^3) Cholesky + triangular solves on the n x n precision matrix,
+which are LAPACK calls in both backends -- the C++ version only
+saves the R-loop overhead, not the linear-algebra cost.  Below
+n = 100 the R fast path is faster because the JIT-compiled R-side
+loop avoids the call/dispatch overhead of `Rcpp` argument
+marshalling.  For n = 200+ the C++ version is uniformly preferable.
+
+### Build dependency change
+
+Adds `RcppArmadillo` to `LinkingTo`.  This is a header-only library
+already used by hundreds of CRAN packages; no runtime link.
+
+### Tests
+
+`tests/testthat/test-pilar7-bhs-rcpp.R` -- 5 tests:
+
+  1. `backend = "rcpp"` recovers the true beta (5-sigma band).
+  2. R vs Rcpp posterior MEANS agree to within 0.2 on a long chain.
+  3. `predict()` produces well-shaped posterior summaries.
+  4. `as_edaphos_posterior()` wraps the Rcpp fit cleanly.
+  5. Performance ceiling: Rcpp not strictly slower than R fast path
+     at n = 200.
+
+R CMD check: 0 errors | 2 warnings (pre-existing inst/doc) | 0 notes.
+1 269 tests pass (+13 vs v3.4.0).
+
+---
+
 # edaphos 3.4.0
 
 ## Calibrated predictive posteriors for P1, P6, P10 benchmark wrappers

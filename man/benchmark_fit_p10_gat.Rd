@@ -15,7 +15,8 @@ benchmark_fit_p10_gat(
   epochs = 100L,
   lr = 0.03,
   n_ensemble = 10L,
-  seed = 1L
+  seed = 1L,
+  calibrate = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,10 @@ features.}
 \item{n_ensemble}{Integer; number of seed-distinct fits.}
 
 \item{seed}{Base RNG seed (each member uses \code{seed + b}).}
+
+\item{calibrate}{Logical (default \code{TRUE}).  When \code{TRUE}, residual
+noise from a representative full-data GAT fit is injected on
+every posterior sample (see Pilar-1 wrapper for the rationale).}
 }
 \value{
 An \code{edaphos_posterior} with

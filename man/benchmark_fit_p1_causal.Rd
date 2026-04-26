@@ -10,7 +10,8 @@ benchmark_fit_p1_causal(
   cov_cols,
   dag = NULL,
   n_boot = 300L,
-  seed = 1L
+  seed = 1L,
+  calibrate = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,13 @@ covariate set).}
 \item{n_boot}{Number of bootstrap resamples.  Default \code{300}.}
 
 \item{seed}{Optional RNG seed.}
+
+\item{calibrate}{Logical (default \code{TRUE}).  When \code{TRUE}, an
+estimate of the in-sample residual standard deviation is added
+as iid Gaussian noise to every posterior sample so the
+predictive posterior carries BOTH epistemic (bootstrap-spread)
+AND aleatoric (residual) uncertainty.  Set to \code{FALSE} to
+reproduce the v3.1.0 epistemic-only behaviour.}
 }
 \value{
 An \code{edaphos_posterior} with

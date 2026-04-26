@@ -8,7 +8,7 @@ bhs_fit(
   data,
   formula,
   coords = c("lon", "lat"),
-  backend = c("gibbs", "spBayes"),
+  backend = c("gibbs", "rcpp", "spBayes"),
   nmcmc = 2000L,
   burn = NULL,
   thin = 1L,

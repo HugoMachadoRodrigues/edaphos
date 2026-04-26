@@ -12,7 +12,8 @@ benchmark_fit_p6_quantum(
   reps = 2L,
   lambda = 0.5,
   n_boot = 20L,
-  seed = 1L
+  seed = 1L,
+  calibrate = TRUE
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ benchmark_fit_p6_quantum(
 \item{n_boot}{Integer; number of bootstrap KRR fits.  Default \code{20L}.}
 
 \item{seed}{Optional RNG seed.}
+
+\item{calibrate}{Logical (default \code{TRUE}).  When \code{TRUE}, residual
+noise from a full-data quantum-KRR fit is injected into every
+posterior sample (see Pilar-1 wrapper for the rationale).}
 }
 \value{
 An \code{edaphos_posterior} with
