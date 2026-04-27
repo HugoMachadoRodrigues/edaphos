@@ -46,23 +46,40 @@
   # package consumer sees a clear "no published URL yet" error until
   # the next maintenance release wires them up.
   data.frame(
-    name = c("edaphos-cerrado-moco-v1"),
+    name = c(
+      "edaphos-cerrado-moco-v1",
+      "edaphos-cerrado-moco-v2"
+    ),
     description = c(
-      "MoCo v2 encoder pretrained on 50k 16x16 Cerrado tiles (SoilGrids 250m soc/clay/sand/phh2o/bdod + WorldClim 2.1 monthly prec/tavg + SRTM elev/slope), aligned to a 0.01-deg grid. 31 channels in, 64-dim feature embedding out. 20000 InfoNCE steps on an Apple M1 Max MPS; final InfoNCE loss ~1.64."
+      "MoCo v2 encoder pretrained on 50k 16x16 Cerrado tiles (SoilGrids 250m soc/clay/sand/phh2o/bdod + WorldClim 2.1 monthly prec/tavg + SRTM elev/slope), aligned to a 0.01-deg grid. 31 channels in, 64-dim feature embedding out. 20000 InfoNCE steps on an Apple M1 Max MPS; final InfoNCE loss ~1.64.",
+      "MoCo v2 encoder, same dataset / hyperparameters as v1 but 200000 InfoNCE steps (10x v1's budget).  Targets the v1.3.2 roadmap promise of a fair benchmark of the contrastive representation against an undertrained baseline.  Final InfoNCE loss expected ~0.4 at step 200000 (was ~1.64 at v1's step 20000).  31 channels in, 64-dim out."
     ),
-    n_channels  = c(31L),
-    feature_dim = c(64L),
-    proj_dim    = c(32L),
-    patch_size  = c(16L),
-    aoi         = c("Cerrado core (lon -53 to -43, lat -23 to -10)"),
-    url         = c("https://zenodo.org/records/19701276/files/encoder_q.pt"),
+    n_channels  = c(31L, 31L),
+    feature_dim = c(64L, 64L),
+    proj_dim    = c(32L, 32L),
+    patch_size  = c(16L, 16L),
+    aoi         = c(
+      "Cerrado core (lon -53 to -43, lat -23 to -10)",
+      "Cerrado core (lon -53 to -43, lat -23 to -10)"
+    ),
+    url         = c(
+      "https://zenodo.org/records/19701276/files/encoder_q.pt",
+      NA_character_           # filled after the user's Zenodo upload
+    ),
     sha256      = c(
-      "44ace7f78c658b6028f1cf5ccfa624023295e5576f681d0135db64726c6738e8"
+      "44ace7f78c658b6028f1cf5ccfa624023295e5576f681d0135db64726c6738e8",
+      NA_character_           # filled by tools/pretrain/package_v2_for_zenodo.R
     ),
-    doi         = c("10.5281/zenodo.19701276"),
-    license     = c("CC-BY-4.0"),
-    published_at = c("2026-04-22T21:59:12Z"),
-    edaphos_version = c("1.2.0"),
+    doi         = c(
+      "10.5281/zenodo.19701276",
+      NA_character_           # filled after the user's Zenodo upload
+    ),
+    license     = c("CC-BY-4.0", "CC-BY-4.0"),
+    published_at = c(
+      "2026-04-22T21:59:12Z",
+      NA_character_
+    ),
+    edaphos_version = c("1.2.0", "3.11.0"),
     stringsAsFactors = FALSE
   )
 }

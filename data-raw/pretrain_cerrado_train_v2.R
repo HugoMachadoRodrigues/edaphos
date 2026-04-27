@@ -36,6 +36,21 @@ message(sprintf("[train-v2] rebuilt dataset: %d patches x %d channels",
 out_dir <- "tools/pretrain/edaphos-cerrado-moco-v2"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
+# v3.11.0 -- resume support.  If a partial checkpoint exists at
+# `out_dir/checkpoints/state.rds`, replay training from the last
+# completed epoch instead of restarting at zero.  This makes the
+# 200000-step run killable / resumable across multiple sessions
+# (typically 2-3 hours total on Apple Silicon MPS).
+ck_dir     <- file.path(out_dir, "checkpoints")
+resume_arg <- NULL
+if (file.exists(file.path(ck_dir, "state.rds"))) {
+  ck_state <- readRDS(file.path(ck_dir, "state.rds"))
+  message(sprintf("[train-v2] resuming from epoch %d (loss %.3f)",
+                   ck_state$next_epoch - 1L,
+                   tail(ck_state$loss_history, 1L)))
+  resume_arg <- ck_dir
+}
+
 t0 <- Sys.time()
 fit <- foundation_moco_pretrain_tiles(
   dataset      = ds,
@@ -58,8 +73,9 @@ fit <- foundation_moco_pretrain_tiles(
   device           = "mps",
   seed             = 2026L,
   verbose          = TRUE,
-  checkpoint_dir   = file.path(out_dir, "checkpoints"),
-  checkpoint_every = 10000L         # checkpoint every 5 %
+  checkpoint_dir   = ck_dir,
+  checkpoint_every = 10000L,        # checkpoint every 5 %
+  resume           = resume_arg
 )
 dt <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
 message(sprintf("[train-v2] done in %.1f min  (final InfoNCE = %.4f)",
