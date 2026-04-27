@@ -556,6 +556,19 @@ foundation_moco_pretrain_tiles <- function(dataset,
     enc_q$load_state_dict(torch::torch_load(file.path(resume, "encoder_q.pt")))
     enc_k$load_state_dict(torch::torch_load(file.path(resume, "encoder_k.pt")))
     queue <- torch::torch_load(file.path(resume, "queue.pt"))
+    # `torch_load()` materialises tensors on CPU regardless of where
+    # they were saved.  When resuming on MPS / CUDA, every parameter
+    # of both encoders + the queue must be moved to the training
+    # device, otherwise the first matmul in .moco_info_nce() raises:
+    #   "Tensor for argument #2 'mat2' is on CPU, but expected to be on GPU"
+    enc_q$to(device = dev)
+    enc_k$to(device = dev)
+    queue <- queue$to(device = dev)
+    # Re-freeze key encoder grads (load_state_dict re-enables them).
+    for (p in enc_k$parameters) p$requires_grad_(FALSE)
+    # Rebuild the optimizer over the device-moved parameters of enc_q
+    # so its internal state tensors live on `dev` too.
+    optimizer <- torch::optim_adam(enc_q$parameters, lr = lr)
     if (verbose) message("Resumed from checkpoint at epoch ", start_epoch)
   } else {
     init_batch <- dataset$sample(min(queue_size, batch_size * 4L))
