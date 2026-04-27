@@ -252,7 +252,8 @@ ConvLSTM, rollout, mass-balance physics loss, stochastic EnKF.
 SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction.
 
 - [`foundation_build_cerrado_stack()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_build_cerrado_stack.md)
-  : Build a minimal Cerrado raster stack for the v1.9.1 IV benchmark
+  : Build the Cerrado raster stack for IV / quantum-foundation
+  benchmarks
 
 - [`foundation_embed_at_coords()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_embed_at_coords.md)
   : Extract foundation-model embeddings at a set of query coordinates
