@@ -64,6 +64,37 @@ inside the code that uses it.  The base test suite runs without
 | `reticulate`   | Pilar 6 Qiskit (IBM Q)        | Python bridge                 |
 | `shiny / DT / bslib / shinyjs` | Annotation UI | Interactive only      |
 
+## Installed size note
+
+`R CMD check --as-cran` reports an installed size of ~13 MB,
+above the CRAN soft-cap of 5 MB.  The extra ~8 MB is the
+`inst/extdata/` directory carrying the head-to-head benchmark
+RDS bundles (`benchmark_wosis_p4_p5_p7.rds` 0.7 MB,
+`benchmark_wosis_6pilar.rds` 4.5 MB), the v3.10.0 LLM-KG smoke
+test claims (8 KB), the gold-standard JSONL corpora (40 KB), and
+the bundled 1 095-profile Cerrado real-data DAG fixture
+(`causal_cerrado_real.rds` 1.6 MB).  These artefacts are the
+*reproducible scientific evidence* for every claim in the README
++ 14 vignettes; users would otherwise need a 30-minute
+compute-and-network workflow to regenerate them.
+
+We have explored two alternatives and chose to keep the bundles
+in `inst/extdata/`:
+
+  1. **Move to Zenodo and download lazily**: rejected because
+     CRAN policy "package vignettes must build offline" is then
+     violated -- the bundle is consumed by every benchmark
+     vignette.
+
+  2. **Move to a separate companion package** (`edaphosdata`):
+     rejected for the first CRAN submission because it doubles
+     the maintenance / review surface.  Once `edaphos` is
+     accepted, we plan to factor large bundles into
+     `edaphosdata` at v4.0.0.
+
+The 13 MB install fits well within the *soft* limit on hardware
+where CRAN actually publishes (the *hard* limit is 100 MB).
+
 ## Downstream dependencies
 
 None yet (this is the first CRAN submission).  The package is

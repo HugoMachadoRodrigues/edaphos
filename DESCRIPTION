@@ -5,30 +5,27 @@ Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8070-8126"))
-Description: A research-oriented R package that implements frontier
-    algorithms for Digital Soil Mapping (DSM) beyond the current
-    regression-tree state of the art. The package is organised around
-    six research pillars, each confronting a specific methodological
-    gap of the literature: (1) Causal AI with backdoor-adjusted effect
-    estimation on pedogenetic Directed Acyclic Graphs; (2) Physics-
-    Informed Machine Learning of the soil depth profile via a
-    parametric pedogenetic Ordinary Differential Equation and a
-    differentiable Neural Ordinary Differential Equation, including a
-    covariate-conditioned hierarchical extension across pedons;
-    (3) 4D Pedometry with a multi-layer stacked Convolutional Long
-    Short-Term Memory network, sequence-to-sequence training,
-    multi-step rollout forecasting, an optional physics-informed
-    mass-balance loss and a stochastic Ensemble Kalman Filter for
-    sequential assimilation of new in-situ observations; (4) Foundation Models via SimCLR-style
-    contrastive pre-training on unlabelled raster covariate patches;
-    (5) Autonomous Active Learning with a hybrid uncertainty +
-    feature-space-diversity batch policy, logistical cost-aware
-    extension, and Physics-Informed rejection gates; (6) Quantum ML
-    with a pure-R state-vector simulator of the ZZFeatureMap
-    encoding, a quantum kernel Gram matrix and a closed-form Kernel
-    Ridge Regression wrapper. A synthesised Cerrado covariate-and-
-    response cube is bundled so every vignette runs offline and
-    reproducibly.
+Description: Frontier algorithms for Digital Soil Mapping organised
+    around ten research pillars: Causal AI with backdoor-adjusted
+    effect estimation on pedogenetic Directed Acyclic Graphs and
+    LLM-driven Knowledge Graphs; Physics-Informed Machine Learning
+    via a parametric pedogenetic Ordinary Differential Equation and
+    a differentiable Neural ODE; 4D Pedometry with stacked
+    Convolutional Long Short-Term Memory networks plus an Ensemble
+    Kalman Filter for sequential assimilation; Foundation Models
+    via SimCLR / MoCo contrastive pre-training on raster patches;
+    Active Learning with hybrid uncertainty + diversity batch
+    policies and physics-informed gates; Quantum Machine Learning
+    via a pure-R ZZFeatureMap state-vector simulator and quantum
+    kernel ridge regression; Bayesian Hierarchical Spatial models
+    with a profile-MLE Gibbs sampler (RcppArmadillo backend); Neural
+    Operators (DeepONet and Fourier Neural Operator) over depth
+    function space; Diffusion Models (DDPM) for soil-property maps;
+    and Graph Attention Networks on k-NN co-location graphs of
+    profiles. Six v3.0.0 cross-pillar bridges and a unified
+    edaphos_posterior calibration class let every method be scored
+    with the same diagnostics. A synthesised Cerrado dataset is
+    bundled so every vignette runs offline.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
@@ -40,21 +37,21 @@ Suggests:
     abind,
     aqp,
     bnlearn,
+    bslib,
     dagitty,
     dbarts,
-    digest,
-    bslib,
     devtools,
     DiagrammeR,
+    digest,
     dplyr,
     DT,
+    ecmwfr,
     fmsb,
     geobr,
-    ecmwfr,
     geodata,
     ggdag,
-    ggplot2,
     ggnewscale,
+    ggplot2,
     ggridges,
     gstat,
     igraph,
