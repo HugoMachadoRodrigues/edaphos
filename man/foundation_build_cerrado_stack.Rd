@@ -2,19 +2,20 @@
 % Please edit documentation in R/foundation_embed_coords.R
 \name{foundation_build_cerrado_stack}
 \alias{foundation_build_cerrado_stack}
-\title{Build a minimal Cerrado raster stack for the v1.9.1 IV benchmark}
+\title{Build the Cerrado raster stack for IV / quantum-foundation benchmarks}
 \usage{
 foundation_build_cerrado_stack(
   bbox = c(-50, -16, -48, -14),
   cache_dir = tools::R_user_dir("edaphos", which = "cache"),
   target_res = 0.01,
-  force = FALSE
+  force = FALSE,
+  schema = c("v1_encoder", "minimal")
 )
 }
 \arguments{
 \item{bbox}{Numeric length-4 vector \code{c(xmin, ymin, xmax, ymax)} in
 decimal degrees.  Defaults to a central Cerrado quadrant around
-Brasília: \code{c(-50, -16, -48, -14)}.}
+Brasilia: \code{c(-50, -16, -48, -14)}.}
 
 \item{cache_dir}{Directory to write the assembled stack(s) to.
 Defaults to the user R cache under \code{tools::R_user_dir("edaphos")}.}
@@ -24,22 +25,38 @@ to \code{0.01} (~ 1 km at the equator, matching the encoder training
 resolution).}
 
 \item{force}{Logical; re-download even if a cached stack exists.}
+
+\item{schema}{One of \code{"v1_encoder"} (default; 31-channel encoder-
+compatible stack) or \code{"minimal"} (10-channel legacy stack used
+pre-v3.11.0).  Pass \code{"minimal"} to reproduce the older bundles.}
 }
 \value{
-A \code{terra::SpatRaster} with 10 aligned layers named
-\code{c("soc", "clay", "sand", "ph", "bdod", "bio1", "bio12", "elev", "slope", "ndvi")}.
+A \code{terra::SpatRaster} with the requested number of aligned
+layers.
 }
 \description{
 Downloads / assembles the covariate raster stack that the
-\code{edaphos-cerrado-moco-v1} encoder was pretrained on.  The stack has
-10 channels: 5 SoilGrids 250 m layers (soc, clay, sand, ph, bdod),
-2 WorldClim 2.1 bioclim layers (bio1 = MAT, bio12 = MAP), 1 SRTM
-30-arc-second elevation, 1 derived slope, and 1 placeholder NDVI.
-All layers are resampled to a common 0.01-deg grid and clipped to
-the bounding box \code{bbox}.
+\code{edaphos-cerrado-moco-v1} encoder was pretrained on.  As of v3.11.0
+the stack matches the v1 encoder's 31-channel input schema:
 }
 \details{
-\strong{Heavy download.}  A 2-deg x 2-deg Cerrado AoI produces roughly
-200 MB of raster data after alignment.  The first call populates
-\code{cache_dir}; subsequent calls read from disk instantly.
+\itemize{
+\item 5 SoilGrids 250 m layers
+(\code{soc}, \code{clay}, \code{sand}, \code{phh2o}, \code{bdod})
+\item 12 monthly WorldClim 2.1 precipitation layers
+(\code{wc_prec_01} ... \code{wc_prec_12})
+\item 12 monthly WorldClim 2.1 mean-temperature layers
+(\code{wc_tavg_01} ... \code{wc_tavg_12})
+\item 2 SRTM 30-arc-second topography layers
+(\code{elev}, \code{slope})
+}
+
+All 31 layers are resampled to a common \code{target_res}-degree grid
+and clipped to \code{bbox}.  Earlier versions assembled only a 10-channel
+subset, which forced the IV benchmark
+(\code{data-raw/causal_iv_benchmark_real.R}) to fall back to a synthetic
+31-channel stack -- the v3.11.0 rewrite closes that gap.
+
+\strong{Heavy download.}  A 2-deg x 2-deg Cerrado AoI lands in
+\~80-110 MB after alignment (cache_dir hit on subsequent calls).
 }

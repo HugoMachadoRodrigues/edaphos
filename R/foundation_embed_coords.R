@@ -180,46 +180,63 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 # Minimal raster-stack helper
 # ---------------------------------------------------------------------------
 
-#' Build a minimal Cerrado raster stack for the v1.9.1 IV benchmark
+#' Build the Cerrado raster stack for IV / quantum-foundation benchmarks
 #'
 #' Downloads / assembles the covariate raster stack that the
-#' `edaphos-cerrado-moco-v1` encoder was pretrained on.  The stack has
-#' 10 channels: 5 SoilGrids 250 m layers (soc, clay, sand, ph, bdod),
-#' 2 WorldClim 2.1 bioclim layers (bio1 = MAT, bio12 = MAP), 1 SRTM
-#' 30-arc-second elevation, 1 derived slope, and 1 placeholder NDVI.
-#' All layers are resampled to a common 0.01-deg grid and clipped to
-#' the bounding box `bbox`.
+#' `edaphos-cerrado-moco-v1` encoder was pretrained on.  As of v3.11.0
+#' the stack matches the v1 encoder's 31-channel input schema:
 #'
-#' **Heavy download.**  A 2-deg x 2-deg Cerrado AoI produces roughly
-#' 200 MB of raster data after alignment.  The first call populates
-#' `cache_dir`; subsequent calls read from disk instantly.
+#' \itemize{
+#'   \item 5 SoilGrids 250 m layers
+#'         (`soc`, `clay`, `sand`, `phh2o`, `bdod`)
+#'   \item 12 monthly WorldClim 2.1 precipitation layers
+#'         (`wc_prec_01` ... `wc_prec_12`)
+#'   \item 12 monthly WorldClim 2.1 mean-temperature layers
+#'         (`wc_tavg_01` ... `wc_tavg_12`)
+#'   \item 2 SRTM 30-arc-second topography layers
+#'         (`elev`, `slope`)
+#' }
+#'
+#' All 31 layers are resampled to a common `target_res`-degree grid
+#' and clipped to `bbox`.  Earlier versions assembled only a 10-channel
+#' subset, which forced the IV benchmark
+#' (`data-raw/causal_iv_benchmark_real.R`) to fall back to a synthetic
+#' 31-channel stack -- the v3.11.0 rewrite closes that gap.
+#'
+#' **Heavy download.**  A 2-deg x 2-deg Cerrado AoI lands in
+#' \~80-110 MB after alignment (cache_dir hit on subsequent calls).
 #'
 #' @param bbox Numeric length-4 vector `c(xmin, ymin, xmax, ymax)` in
 #'   decimal degrees.  Defaults to a central Cerrado quadrant around
-#'   Brasília: `c(-50, -16, -48, -14)`.
+#'   Brasilia: `c(-50, -16, -48, -14)`.
 #' @param cache_dir Directory to write the assembled stack(s) to.
 #'   Defaults to the user R cache under `tools::R_user_dir("edaphos")`.
 #' @param target_res Numeric; target resolution in degrees.  Defaults
 #'   to `0.01` (~ 1 km at the equator, matching the encoder training
 #'   resolution).
 #' @param force Logical; re-download even if a cached stack exists.
-#' @return A `terra::SpatRaster` with 10 aligned layers named
-#'   `c("soc", "clay", "sand", "ph", "bdod", "bio1", "bio12",
-#'      "elev", "slope", "ndvi")`.
+#' @param schema One of `"v1_encoder"` (default; 31-channel encoder-
+#'   compatible stack) or `"minimal"` (10-channel legacy stack used
+#'   pre-v3.11.0).  Pass `"minimal"` to reproduce the older bundles.
+#' @return A `terra::SpatRaster` with the requested number of aligned
+#'   layers.
 #' @export
 foundation_build_cerrado_stack <- function(
     bbox       = c(-50, -16, -48, -14),
     cache_dir  = tools::R_user_dir("edaphos", which = "cache"),
     target_res = 0.01,
-    force      = FALSE) {
+    force      = FALSE,
+    schema     = c("v1_encoder", "minimal")) {
   if (!requireNamespace("terra", quietly = TRUE))
     stop("Install `terra` to build raster stacks.", call. = FALSE)
   if (!requireNamespace("geodata", quietly = TRUE))
     stop("Install `geodata` to download SoilGrids / WorldClim / SRTM.",
           call. = FALSE)
+  schema <- match.arg(schema)
 
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
-  tag <- sprintf("cerrado_stack_%s.tif",
+  tag <- sprintf("cerrado_stack_%s_%s.tif",
+                  schema,
                   digest::digest(c(bbox, target_res), algo = "md5"))
   stack_path <- file.path(cache_dir, tag)
   if (!force && file.exists(stack_path)) {
@@ -227,7 +244,7 @@ foundation_build_cerrado_stack <- function(
     return(terra::rast(stack_path))
   }
 
-  message("  Building Cerrado stack ...")
+  message(sprintf("  Building Cerrado stack (schema = %s) ...", schema))
 
   ext_bbox <- terra::ext(bbox[1], bbox[3], bbox[2], bbox[4])
   template <- terra::rast(
@@ -239,15 +256,17 @@ foundation_build_cerrado_stack <- function(
 
   layers <- list()
 
-  # SoilGrids
+  # ---- 5 SoilGrids layers -------------------------------------------
   sg_vars <- c(soc = "soc", clay = "clay", sand = "sand",
-                ph = "phh2o", bdod = "bdod")
+                phh2o = "phh2o", bdod = "bdod")
   for (nm in names(sg_vars)) {
     message(sprintf("    SoilGrids  %s ...", nm))
     r <- tryCatch(
       geodata::soil_world(var = sg_vars[[nm]], depth = 5,
                            path = cache_dir),
-      error = function(e) { message("      [warn] ", conditionMessage(e)); NULL })
+      error = function(e) {
+        message("      [warn] ", conditionMessage(e)); NULL
+      })
     if (!is.null(r)) {
       r <- terra::crop(r, ext_bbox)
       r <- terra::resample(r, template, method = "bilinear")
@@ -256,24 +275,69 @@ foundation_build_cerrado_stack <- function(
     }
   }
 
-  # WorldClim bio1, bio12
-  message("    WorldClim  bio1, bio12 ...")
-  bio <- tryCatch(
-    geodata::worldclim_global(var = "bio", res = 10, path = cache_dir),
-    error = function(e) { message("      [warn] ", conditionMessage(e)); NULL })
-  if (!is.null(bio)) {
-    b1 <- terra::resample(terra::crop(bio[[1]],  ext_bbox), template)
-    b12 <- terra::resample(terra::crop(bio[[12]], ext_bbox), template)
-    names(b1) <- "bio1"; names(b12) <- "bio12"
-    layers$bio1  <- b1
-    layers$bio12 <- b12
+  if (schema == "v1_encoder") {
+    # ---- 12 monthly WorldClim precip layers -------------------------
+    message("    WorldClim  prec (12 monthly layers) ...")
+    prec <- tryCatch(
+      geodata::worldclim_country("BRA", var = "prec", path = cache_dir),
+      error = function(e) {
+        message("      [warn] ", conditionMessage(e)); NULL
+      })
+    if (!is.null(prec)) {
+      prec <- terra::resample(terra::crop(prec, ext_bbox), template,
+                                method = "bilinear")
+      names(prec) <- sprintf("wc_prec_%02d", seq_len(terra::nlyr(prec)))
+      for (i in seq_len(terra::nlyr(prec))) {
+        layers[[names(prec)[i]]] <- prec[[i]]
+      }
+    }
+
+    # ---- 12 monthly WorldClim tavg layers ---------------------------
+    message("    WorldClim  tavg (12 monthly layers) ...")
+    tavg <- tryCatch(
+      geodata::worldclim_country("BRA", var = "tavg", path = cache_dir),
+      error = function(e) {
+        message("      [warn] ", conditionMessage(e)); NULL
+      })
+    if (!is.null(tavg)) {
+      tavg <- terra::resample(terra::crop(tavg, ext_bbox), template,
+                                method = "bilinear")
+      names(tavg) <- sprintf("wc_tavg_%02d", seq_len(terra::nlyr(tavg)))
+      for (i in seq_len(terra::nlyr(tavg))) {
+        layers[[names(tavg)[i]]] <- tavg[[i]]
+      }
+    }
+  } else {
+    # legacy 10-channel "minimal" schema: bio1 + bio12 only
+    message("    WorldClim  bio1, bio12 ...")
+    bio <- tryCatch(
+      geodata::worldclim_global(var = "bio", res = 10, path = cache_dir),
+      error = function(e) {
+        message("      [warn] ", conditionMessage(e)); NULL
+      })
+    if (!is.null(bio)) {
+      b1  <- terra::resample(terra::crop(bio[[1]],  ext_bbox), template)
+      b12 <- terra::resample(terra::crop(bio[[12]], ext_bbox), template)
+      names(b1) <- "bio1"; names(b12) <- "bio12"
+      layers$bio1  <- b1
+      layers$bio12 <- b12
+    }
   }
 
-  # SRTM elevation
-  message("    SRTM elev + slope ...")
+  # ---- 2 SRTM layers ------------------------------------------------
+  message("    SRTM  elev + slope ...")
   elev <- tryCatch(
-    geodata::elevation_global(res = 0.5, path = cache_dir),
-    error = function(e) { message("      [warn] ", conditionMessage(e)); NULL })
+    geodata::elevation_30s(country = "BRA", path = cache_dir),
+    error = function(e) {
+      # elevation_30s can fail if country tile is unavailable; try
+      # the global-coarse fallback so downstream code still has elev.
+      tryCatch(
+        geodata::elevation_global(res = 0.5, path = cache_dir),
+        error = function(e2) {
+          message("      [warn] elev fetch failed: ",
+                   conditionMessage(e2)); NULL
+        })
+    })
   if (!is.null(elev)) {
     e <- terra::resample(terra::crop(elev, ext_bbox), template)
     s <- terra::terrain(e, v = "slope", unit = "degrees")
@@ -282,21 +346,24 @@ foundation_build_cerrado_stack <- function(
     layers$slope <- s
   }
 
-  # NDVI placeholder from MOD13Q1 would go here
-  # (not wired by default -- adds a full MODIS fetch step).
-  # Use a simple function of bio12 + bio1 as a proxy for now.
-  if (!is.null(layers$bio12) && !is.null(layers$bio1)) {
-    ndvi_proxy <- (layers$bio12 / 3000) - (layers$bio1 / 300)
-    ndvi_proxy <- terra::clamp(ndvi_proxy, 0, 1)
-    names(ndvi_proxy) <- "ndvi"
-    layers$ndvi <- ndvi_proxy
+  if (schema == "minimal") {
+    # legacy ndvi proxy for the 10-channel stack
+    if (!is.null(layers$bio12) && !is.null(layers$bio1)) {
+      ndvi_proxy <- (layers$bio12 / 3000) - (layers$bio1 / 300)
+      ndvi_proxy <- terra::clamp(ndvi_proxy, 0, 1)
+      names(ndvi_proxy) <- "ndvi"
+      layers$ndvi <- ndvi_proxy
+    }
   }
 
   if (length(layers) == 0L)
     stop("No layers could be built. Check network + geodata cache.",
           call. = FALSE)
 
-  stk <- do.call(c, layers)
+  # `do.call(c, layers)` falls through to base::c when terra isn't
+  # attached.  `terra::rast(list_of_spatrasters)` is the canonical
+  # multi-layer constructor and dispatches reliably.
+  stk <- terra::rast(layers)
   terra::writeRaster(stk, stack_path, overwrite = TRUE)
   message(sprintf("  Wrote %s (%.1f MB, %d layers)",
                    stack_path, file.size(stack_path) / 1024^2,
