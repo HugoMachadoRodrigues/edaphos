@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@Hugo_MRodrigues">
 <meta name="twitter:site" content="@Hugo_MRodrigues">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script><script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -223,10 +223,10 @@
     POST --&gt; CAL
     CAL --&gt; DEC
 
-    P1 -.DAG → ODE constraint.-&gt; P2
-    P2 -.physics gate.-&gt; P5
-    P3 -.EnKF priority.-&gt; P5
-    P4 -.embeddings.-&gt; P5
+    P1 -. "DAG -&gt; ODE constraint" .-&gt; P2
+    P2 -. "physics gate" .-&gt; P5
+    P3 -. "EnKF priority" .-&gt; P5
+    P4 -. "embeddings" .-&gt; P5
 
     style P1 fill:#D5E8D4,stroke:#27AE60
     style P2 fill:#D5E8D4,stroke:#27AE60
@@ -249,27 +249,27 @@
 </blockquote>
 <pre class="mermaid"><code>sequenceDiagram
     autonumber
-    participant 📝 as Literature
-    participant 🧠 as P1 Causal
-    participant ⚛️ as P2 PIML
-    participant 🕓 as P3 4D
-    participant 🖼️ as P4 Foundation
-    participant 🎯 as P5 AL
-    participant ⚛️ as P6 Quantum
-    participant 🎬 as Decision
+    participant LIT as Literature
+    participant P1 as P1 Causal
+    participant P2 as P2 PIML
+    participant P3 as P3 4D
+    participant P4 as P4 Foundation
+    participant P5 as P5 AL
+    participant P6 as P6 Quantum
+    participant DEC as Decision
 
-    📝-&gt;&gt;🧠: Gemma 4 extracts causal edges
-    🧠-&gt;&gt;🧠: Backdoor adjustment on DAG
-    🧠-&gt;&gt;⚛️: Identify exposures (MAP, cover, clay)
-    ⚛️-&gt;&gt;⚛️: Fit pedogenetic ODE (Laplace)
-    ⚛️-&gt;&gt;🎯: Physics gate: exclude implausible sites
-    🕓-&gt;&gt;🎯: Kalman gain priorities
-    🖼️-&gt;&gt;🎯: Encoder embeddings (128D)
-    🎯-&gt;&gt;🎯: Greedy hybrid selection
-    🎯-&gt;&gt;⚛️: Q-KRR second opinion
-    ⚛️-&gt;&gt;🎬: Epistemic + aleatoric SD
-    🎬-&gt;&gt;🎬: Weighted final score
-    Note over 🎬: 8 sites with CI-explicit ranking</code></pre>
+    LIT-&gt;&gt;P1: Gemma 4 extracts causal edges
+    P1-&gt;&gt;P1: Backdoor adjustment on DAG
+    P1-&gt;&gt;P2: Identify exposures (MAP, cover, clay)
+    P2-&gt;&gt;P2: Fit pedogenetic ODE (Laplace)
+    P2-&gt;&gt;P5: Physics gate -- exclude implausible sites
+    P3-&gt;&gt;P5: Kalman gain priorities
+    P4-&gt;&gt;P5: Encoder embeddings (128D)
+    P5-&gt;&gt;P5: Greedy hybrid selection
+    P5-&gt;&gt;P6: Q-KRR second opinion
+    P6-&gt;&gt;DEC: Epistemic + aleatoric SD
+    DEC-&gt;&gt;DEC: Weighted final score
+    Note over DEC: 8 sites with CI-explicit ranking</code></pre>
 <p>The vignette produces a weighted decision matrix integrating:</p>
 <ul>
 <li>

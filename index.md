@@ -106,10 +106,10 @@ flowchart TB
     POST --> CAL
     CAL --> DEC
 
-    P1 -.DAG → ODE constraint.-> P2
-    P2 -.physics gate.-> P5
-    P3 -.EnKF priority.-> P5
-    P4 -.embeddings.-> P5
+    P1 -. "DAG -> ODE constraint" .-> P2
+    P2 -. "physics gate" .-> P5
+    P3 -. "EnKF priority" .-> P5
+    P4 -. "embeddings" .-> P5
 
     style P1 fill:#D5E8D4,stroke:#27AE60
     style P2 fill:#D5E8D4,stroke:#27AE60
@@ -145,27 +145,27 @@ It answers a single question with all six pillars acting together:
 ``` mermaid
 sequenceDiagram
     autonumber
-    participant 📝 as Literature
-    participant 🧠 as P1 Causal
-    participant ⚛️ as P2 PIML
-    participant 🕓 as P3 4D
-    participant 🖼️ as P4 Foundation
-    participant 🎯 as P5 AL
-    participant ⚛️ as P6 Quantum
-    participant 🎬 as Decision
+    participant LIT as Literature
+    participant P1 as P1 Causal
+    participant P2 as P2 PIML
+    participant P3 as P3 4D
+    participant P4 as P4 Foundation
+    participant P5 as P5 AL
+    participant P6 as P6 Quantum
+    participant DEC as Decision
 
-    📝->>🧠: Gemma 4 extracts causal edges
-    🧠->>🧠: Backdoor adjustment on DAG
-    🧠->>⚛️: Identify exposures (MAP, cover, clay)
-    ⚛️->>⚛️: Fit pedogenetic ODE (Laplace)
-    ⚛️->>🎯: Physics gate: exclude implausible sites
-    🕓->>🎯: Kalman gain priorities
-    🖼️->>🎯: Encoder embeddings (128D)
-    🎯->>🎯: Greedy hybrid selection
-    🎯->>⚛️: Q-KRR second opinion
-    ⚛️->>🎬: Epistemic + aleatoric SD
-    🎬->>🎬: Weighted final score
-    Note over 🎬: 8 sites with CI-explicit ranking
+    LIT->>P1: Gemma 4 extracts causal edges
+    P1->>P1: Backdoor adjustment on DAG
+    P1->>P2: Identify exposures (MAP, cover, clay)
+    P2->>P2: Fit pedogenetic ODE (Laplace)
+    P2->>P5: Physics gate -- exclude implausible sites
+    P3->>P5: Kalman gain priorities
+    P4->>P5: Encoder embeddings (128D)
+    P5->>P5: Greedy hybrid selection
+    P5->>P6: Q-KRR second opinion
+    P6->>DEC: Epistemic + aleatoric SD
+    DEC->>DEC: Weighted final score
+    Note over DEC: 8 sites with CI-explicit ranking
 ```
 
 The vignette produces a weighted decision matrix integrating:
