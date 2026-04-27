@@ -134,18 +134,25 @@ local <code>.pt</code> path directly to <code><a href="foundation_weights_load.h
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">foundation_weights_list</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      name</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 edaphos-cerrado-moco-v1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                                                                                                                                                                                                            description</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 MoCo v2 encoder pretrained on 50k 16x16 Cerrado tiles (SoilGrids 250m soc/clay/sand/phh2o/bdod + WorldClim 2.1 monthly prec/tavg + SRTM elev/slope), aligned to a 0.01-deg grid. 31 channels in, 64-dim feature embedding out. 20000 InfoNCE steps on an Apple M1 Max MPS; final InfoNCE loss ~1.64.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 edaphos-cerrado-moco-v2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                                                                                                                                                                                                                                                   description</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                        MoCo v2 encoder pretrained on 50k 16x16 Cerrado tiles (SoilGrids 250m soc/clay/sand/phh2o/bdod + WorldClim 2.1 monthly prec/tavg + SRTM elev/slope), aligned to a 0.01-deg grid. 31 channels in, 64-dim feature embedding out. 20000 InfoNCE steps on an Apple M1 Max MPS; final InfoNCE loss ~1.64.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 MoCo v2 encoder, same dataset / hyperparameters as v1 but 200000 InfoNCE steps (10x v1's budget).  Targets the v1.3.2 roadmap promise of a fair benchmark of the contrastive representation against an undertrained baseline.  Final InfoNCE loss expected ~0.4 at step 200000 (was ~1.64 at v1's step 20000).  31 channels in, 64-dim out.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_channels feature_dim proj_dim patch_size</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1         31          64       32         16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         31          64       32         16</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                             aoi</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 Cerrado core (lon -53 to -43, lat -23 to -10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Cerrado core (lon -53 to -43, lat -23 to -10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                      url</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 https://zenodo.org/records/19701276/files/encoder_q.pt</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                                   &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                             sha256</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 44ace7f78c658b6028f1cf5ccfa624023295e5576f681d0135db64726c6738e8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                                             &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       doi   license         published_at edaphos_version</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 10.5281/zenodo.19701276 CC-BY-4.0 2026-04-22T21:59:12Z           1.2.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    &lt;NA&gt; CC-BY-4.0                 &lt;NA&gt;          3.11.0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
