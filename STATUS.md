@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `272b378` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `3.10.0` — **measured** 2026-07-26T15:03:06Z
+**Commit** `7abe507` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `3.10.0` — **measured** 2026-07-26T15:29:25Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,20 +18,20 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 82 |
-| First → last commit | 2026-04-20 → 2026-04-27 (6.8 calendar days, 8 with commits) |
-| Days since last commit | 90 |
+| Commits | 83 |
+| First → last commit | 2026-04-20 → 2026-07-26 (96.5 calendar days, 9 with commits) |
+| Days since last commit | 0 |
 | NEWS release sections | 43 |
 | Git tags | 18 |
 | NEWS versions with no tag | 32 |
-| R/ source lines | 19 700 |
+| R/ source lines | 19 750 |
 | Exported functions | 169 |
-| Test blocks | 460 |
-| Tests passing | 1 117 |
+| Test blocks | 461 |
+| Tests passing | 1 123 |
 | Tests skipped | 75 |
-| Test failures + errors | 2 |
-| R CMD check status | Status: 2 ERRORs, 1 WARNING, 6 NOTEs |
-| Shipped bytes | 13.77 MB |
+| Test failures + errors | 0 |
+| R CMD check status | Status: 3 NOTEs |
+| Shipped bytes | 14.00 MB |
 | Findings open (blocker/high) | 27 |
 
 ### Stage assessment
@@ -90,7 +90,7 @@ are a floor, not a total.
 
 ## 3. The git clock
 
-`272b378` — 82 commits across 8 active days.
+`7abe507` — 83 commits across 9 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -102,10 +102,11 @@ are a floor, not a total.
 | 2026-04-25 | 7 |
 | 2026-04-26 | 9 |
 | 2026-04-27 | 8 |
+| 2026-07-26 | 1 |
 
 Releases declared in `NEWS.md`: **43**. Git tags: **18**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`.
-Commits since the newest tag (`v3.10.0`): **16**.
+Commits since the newest tag (`v3.10.0`): **17**.
 
 `NEWS.md` versions with **no git tag** (32): `3.9.0`, `3.8.0`, `3.7.0`, `3.6.0`, `3.5.0`, `3.4.0`, `3.3.0`, `3.2.0`, `3.1.0`, `3.0.0`, `2.9.1`, `2.9.0`, `2.8.0`, `2.7.0`, `2.6.0`, `2.5.0`, `2.4.0`, `2.3.0`, `2.2.1`, `2.2.0`, `2.1.3`, `2.1.0`, `2.0.0`, `1.9.2`, `1.9.1`, `1.9.0`, `1.8.2`, `1.8.1`, `1.8.0`, `1.7.2`, `1.7.1`, `1.7.0`.
 
@@ -115,7 +116,7 @@ Commits since the newest tag (`v3.10.0`): **16**.
 | --- | --- |
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `3.10.0`, NEWS `3.10.0`) |
 | DESCRIPTION version has a git tag | ✅ (`v3.10.0`) |
-| HEAD is the tagged release commit | ❌ (16 commits past `v3.10.0`) |
+| HEAD is the tagged release commit | ❌ (17 commits past `v3.10.0`) |
 | Every NEWS release is tagged | ❌ (32 of 43 untagged) |
 
 Version strings each artefact claims for the package:
@@ -160,29 +161,17 @@ Git refs the README tells users to install:
 
 | Result | Value |
 | --- | --- |
-| Status | Status: 2 ERRORs, 1 WARNING, 6 NOTEs |
-| ERRORs | 2 |
-| WARNINGs | 1 |
-| NOTEs | 6 |
+| Status | Status: 3 NOTEs |
+| ERRORs | 0 |
+| WARNINGs | 0 |
+| NOTEs | 3 |
 
 Counts are taken from R's own `Status:` line; an independent walk of the log agrees.
-
-**ERRORS:**
-
-- `checking tests`
-- `checking PDF version of manual without index`
-
-**WARNINGS:**
-
-- `checking PDF version of manual`
 
 **NOTES:**
 
 - `checking CRAN incoming feasibility`
-- `checking for hidden files and directories`
-- `checking Rd files`
 - `checking HTML version of manual`
-- `checking for non-standard things in the check directory`
 - `checking for detritus in the temp directory`
 
 **INFOS:**
@@ -196,48 +185,41 @@ Counts are taken from R's own `Status:` line; an independent walk of the log agr
 | --- | --- |
 | Maintainer | `Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>` |
 | CRAN status | **New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN |
-| Tarball size | 15.01 MB (CRAN guidance: 5.00 MB) |
-| URLs flagged as invalid | 2 |
-
-```
-https://github.com/ipeaGIT/geobr (moved to https://github.com/ipea/geobr)
-https://hugomachadorodrigues.github.io/edaphos (moved to https://hugomachadorodrigues.github.io/edaphos/)
-```
-
-Test summary as the check itself reported it: `[ FAIL 2 | WARN 2 | SKIP 76 | PASS 1116 ]`.
+| Tarball size | 15.02 MB (CRAN guidance: 5.00 MB) |
+| URLs flagged as invalid | 0 |
 
 Suggests unavailable to the check (so their tests and vignette chunks were skipped): 'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'geodata', 'ggdag', 'ggridges', 'ontologyIndex', 'spBayes', 'torch'.
 
 Installed size, verbatim from the log:
 
 ```
-  installed size is 18.4Mb
+  installed size is 18.5Mb
   sub-directories of 1Mb or more:
-    doc       4.6Mb
+    doc       4.7Mb
     extdata   9.6Mb
     help      2.9Mb
 ```
 
-Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/baseline-check-272b378.log` (177 lines, sha256 `f6486bcce0ca8b3a`). Verbatim tail:
+Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/check.log` (124 lines, sha256 `fbfd37b75cfad09e`). Verbatim tail:
 
 ```
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
-* checking PDF version of manual without index ... ERROR
+ [49s/31s] OK
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes ... OK
+* checking re-building of vignette outputs ... [50s/37s] OK
+* checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
 Please obtain a recent version of HTML Tidy by downloading a binary
 release or compiling the source code from <https://www.html-tidy.org/>.
-* checking for non-standard things in the check directory ... NOTE
-Found the following files/directories:
-  edaphos-manual.tex
+* checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  tmpl_pg5ehe
+  tmpspsyky6e
 * DONE
-Status: 2 ERRORs, 1 WARNING, 6 NOTEs
+Status: 3 NOTEs
 See
-  <CHECKDIR>/check3/edaphos.Rcheck/00check.log
+  <CHECKDIR>/check4/edaphos.Rcheck/00check.log
 for details.
 ```
 
@@ -248,7 +230,7 @@ source attribution are editorial and live in [`tools/status/check-classification
 
 | Item | Level | Class | Blocks CRAN | Source |
 | --- | --- | --- | --- | --- |
-| `checking CRAN incoming feasibility` | NOTE | **defect** | no | README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr). Tarball is 15734027 bytes. |
+| `checking CRAN incoming feasibility` | NOTE | environment | no | README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr). Tarball is 15734027 bytes. |
 | `checking tests` | ERROR | **defect** | yes | tests/testthat/test-foundation-weights.R:33 and tests/testthat/test-active-quantum-posterior.R:34 |
 | `checking PDF version of manual` | WARNING | **defect** | yes | R/foundation_finetune.R:165 (U+2265 GREATER-THAN OR EQUAL) and R/foundation_finetune.R:436 (U+2208 ELEMENT OF); man/*.Rd is roxygen-generated so the fix must land in R/ and be re-documented. |
 | `checking PDF version of manual without index` | ERROR | **defect** | yes | R/foundation_finetune.R:165,436 |
@@ -258,14 +240,15 @@ source attribution are editorial and live in [`tools/status/check-classification
 | `checking top-level files` | NOTE | environment | no | removed from the worktree before the clean baseline run |
 | `checking HTML version of manual` | NOTE | environment | no | measuring machine |
 | `checking for non-standard things in the check directory` | NOTE | environment | no | consequence of the PDF-manual failure above |
-| `checking for detritus in the temp directory` | NOTE | environment | no | consequence of the PDF-manual failure above |
+| `checking for detritus in the temp directory` | NOTE | **defect** | no | Not the LaTeX run, as first assumed: the NOTE persists after the PDF manual builds cleanly. The directory is named tmp<8 chars> and differs on every run (tmph7u64pdz, tmpl_pg5ehe, tmpspsyky6e), which is Python's tempfile.mkdtemp() pattern, not R's file<hex>. It comes from the optional qiskit / PySCF bridge reached through reticulate in R/quantum_vqe.R, R/quantum_nature.R and R/quantum_ibmq.R. |
 | `R CMD build (vignettes)` | ERROR | **defect** | no | vignettes/pilar1-causal.Rmd:58-65 |
+| `checking package dependencies` | INFO | environment | no | measuring machine; see the Test environments section |
 
-Of 12 reported items, **8 are package defects** and 4 are artefacts of this measuring environment. 3 block CRAN acceptance.
+Of 13 reported items, **8 are package defects** and 4 are artefacts of this measuring environment. 3 block CRAN acceptance.
 
 Fixes, per item:
 
-- `checking CRAN incoming feasibility` — Add the trailing slash in README.md and update the geobr URL in vignettes/case-cerrado-end-to-end.Rmd. The 'New submission' line is not fixable and not a defect in itself -- it is recorded here because it contradicts every artefact that implies the package is released.
+- `checking CRAN incoming feasibility` — Nothing to fix: 'New submission' is accurate. Recorded because it is R's own confirmation that nothing named edaphos exists on CRAN, which contradicts every artefact implying the package is released.
 - `checking tests` — See findings FC68E1D (move .moco_require_torch below the argument validation in R/foundation_weights.R) and FAEC54C (validate num.trees in R/active_fit.R, seed the test).
 - `checking PDF version of manual` — Replace with \eqn{\ge} / \eqn{\in} or ASCII, then roxygen2::roxygenise(). The 165 em-dashes and 18 en-dashes in Rd are safe -- R's Rd-to-LaTeX pass maps them.
 - `checking PDF version of manual without index` — Resolved by the same change.
@@ -275,8 +258,9 @@ Fixes, per item:
 - `checking top-level files` — None. Absent from the clean baseline.
 - `checking HTML version of manual` — None needed in the package.
 - `checking for non-standard things in the check directory` — Disappears once the Unicode fix lands.
-- `checking for detritus in the temp directory` — Disappears once the Unicode fix lands.
+- `checking for detritus in the temp directory` — Have the Python bridge clean up the directories it creates (or create them under tempdir() and remove them on.exit). Only appears on machines where the optional Python stack is installed, so it would not fire on CRAN, where reticulate-gated tests skip.
 - `R CMD build (vignettes)` — Guard the chunk with requireNamespace('dagitty') (the pattern the R/ code already uses via .causal_require_dagitty), or set eval=FALSE with a precomputed result, as the other heavy vignettes do.
+- `checking package dependencies` — None needed in the package. CRAN installs Suggests, so this INFO does not appear there.
 
 > **checking CRAN incoming feasibility**: 'New submission' is R's own confirmation that nothing named edaphos exists on CRAN, at version 3.10.0 with 43 NEWS releases behind it.
 
@@ -291,40 +275,28 @@ Fixes, per item:
 | <U+2014> | `U+2014` | 165 | ❌ |
 | <U+2013> | `U+2013` | 18 | ❌ |
 | <U+2026> | `U+2026` | 1 | ❌ |
-| <U+2208> | `U+2208` | 1 | ✅ |
-| <U+2265> | `U+2265` | 1 | ✅ |
-
-`man/` is roxygen-generated, so the fix belongs in `R/`. Exact source lines:
-
-| Source | Line |
-| --- | --- |
-| `R/foundation_finetune.R:165` | #'     large enough (<U+2265> ~500 patches per class).} |
-| `R/foundation_finetune.R:436` | #' `device <U+2208> {"cpu", "mps", "cuda"}` dispatch. |
-| `R/foundation_embed_coords.R:207` | #' \~80-110 MB after alignment (cache_dir hit on subsequent calls). |
 
 ## 6. Test suite
 
 | Measure | Value |
 | --- | --- |
 | Test files | 68 |
-| `test_that` blocks | 460 |
-| `expect_*` calls | 1 085 |
-| `skip_if_not_installed` gates | 73 |
+| `test_that` blocks | 461 |
+| `expect_*` calls | 1 088 |
+| `skip_if_not_installed` gates | 74 |
 | `skip_on_cran` gates | 1 |
-| `set.seed` calls | 112 |
+| `set.seed` calls | 114 |
 
 Live run in this environment:
 
 | Outcome | Count |
 | --- | --- |
-| Passed | 1 117 |
+| Passed | 1 123 |
 | Skipped | 75 |
 | Failed | 0 |
-| Errored | 2 |
+| Errored | 0 |
 | Warnings | 2 |
-| Wall clock (s) | 31.6 |
-
-Files with failures or errors: `test-active-quantum-posterior.R`, `test-foundation-weights.R`.
+| Wall clock (s) | 29.8 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -357,7 +329,7 @@ Exported functions never named in any test (**12**): `causal_ontology_agrovoc`, 
 | Vignettes | 14 |
 | Root `articles/` | 4 |
 | Cheatsheets | 11 |
-| README size | 82 KB |
+| README size | 83 KB |
 
 "six pillars" vs "ten pillars", counted per file:
 
@@ -366,7 +338,7 @@ Exported functions never named in any test (**12**): `causal_ontology_agrovoc`, 
 | DESCRIPTION | 0 | 1 |
 | R/pillars_roadmap.R | 1 | 0 |
 | R/edaphos-package.R | 2 | 0 |
-| README.md | 12 | 0 |
+| README.md | 11 | 0 |
 
 Occurrences of `getting-started` in README.md: **0**.
 
@@ -378,19 +350,19 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 | --- | --: | :-: |
 | `inst` | 9.57 MB | ✅ |
 | `man` | 2.58 MB | ✅ |
-| `R` | 789 KB | ✅ |
-| `tests` | 299 KB | ✅ |
+| `R` | 791 KB | ✅ |
+| `tools` | 618 KB | ❌ |
+| `<root>` | 463 KB | ✅ |
+| `tests` | 300 KB | ✅ |
 | `data-raw` | 289 KB | ❌ |
 | `vignettes` | 264 KB | ✅ |
-| `<root>` | 238 KB | ✅ |
 | `data` | 64 KB | ✅ |
 | `articles` | 42 KB | ❌ |
-| `tools` | 40 KB | ❌ |
 | `cheatsheets` | 16 KB | ❌ |
 | `src` | 15 KB | ✅ |
 | `.github` | 8 KB | ❌ |
 
-Total shipped: **13.77 MB** against the CRAN 5 MB soft cap (5.00 MB) — **over, so an installed-size NOTE is unavoidable**.
+Total shipped: **14.00 MB** against the CRAN 5 MB soft cap (5.00 MB) — **over, so an installed-size NOTE is unavoidable**.
 
 Largest shipped files:
 
@@ -402,10 +374,10 @@ Largest shipped files:
 | `inst/extdata/case_cerrado_results.rds` | 1.40 MB |
 | `inst/extdata/capstone_native_calibration.rds` | 741 KB |
 | `inst/extdata/capstone_campaign_results.rds` | 543 KB |
+| `tools/status/findings.json` | 439 KB |
+| `STATUS.md` | 227 KB |
 | `inst/extdata/temporal_cerrado_results.rds` | 194 KB |
 | `inst/extdata/causal_sensitivity_cerrado.rds` | 142 KB |
-| `man/figures/pillar6-quantum.png` | 121 KB |
-| `inst/extdata/cerrado_claims_real_corpus.jsonl` | 94 KB |
 
 ## 9. CI and infrastructure
 

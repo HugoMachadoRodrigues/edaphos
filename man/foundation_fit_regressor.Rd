@@ -47,7 +47,7 @@ a scalar-output head (linear or MLP) on top of a self-supervised
 encoder and trains it against a numeric target \code{y}. Supports the
 same two regimes — linear probing with a frozen backbone or full
 fine-tuning with a two-group learning rate — and the same
-\verb{device ∈ \{"cpu", "mps", "cuda"\}} dispatch.
+\code{device} dispatch over \code{"cpu"}, \code{"mps"} and \code{"cuda"}.
 }
 \details{
 Target normalisation is handled internally: \code{y} is centred and

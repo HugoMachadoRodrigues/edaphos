@@ -166,8 +166,8 @@
 #' For a regression model with Gaussian aleatoric noise of variance
 #' \eqn{\sigma_a^2} and an epistemic posterior represented by `T`
 #' parameter draws \eqn{f_\theta^{(1)}, \ldots, f_\theta^{(T)}}, the
-#' objective reduces to a log-determinant [see the source comment at
-#' the top of `R/active_batchbald.R` for the derivation]:
+#' objective reduces to a log-determinant (see the source comment at
+#' the top of `R/active_batchbald.R` for the derivation):
 #'
 #' \deqn{
 #'   \mathrm{BatchBALD}(B) \;\propto\;

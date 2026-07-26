@@ -38,8 +38,7 @@
 # --- device / module utilities ----------------------------------------------
 
 .ft_require_torch <- function() {
-  if (!requireNamespace("reticulate", quietly = TRUE) ||
-      !requireNamespace("torch", quietly = TRUE)) {
+  if (!requireNamespace("torch", quietly = TRUE)) {
     stop("Install the `torch` package (and its MPS / CUDA backend) to use ",
          "the fine-tuning API.", call. = FALSE)
   }
@@ -162,7 +161,7 @@
 #'     and the head are trained jointly, with a two-group learning
 #'     rate (`lr * backbone_lr_mult` for the backbone, `lr` for the
 #'     head). Usually the better option when the downstream dataset is
-#'     large enough (≥ ~500 patches per class).}
+#'     large enough (\eqn{\ge} about 500 patches per class).}
 #' }
 #'
 #' @param encoder An `edaphos_foundation_moco` or
@@ -433,7 +432,7 @@ predict.edaphos_foundation_classifier <- function(object, x,
 #' encoder and trains it against a numeric target `y`. Supports the
 #' same two regimes — linear probing with a frozen backbone or full
 #' fine-tuning with a two-group learning rate — and the same
-#' `device ∈ {"cpu", "mps", "cuda"}` dispatch.
+#' `device` dispatch over `"cpu"`, `"mps"` and `"cuda"`.
 #'
 #' Target normalisation is handled internally: `y` is centred and
 #' scaled before training and un-scaled at `predict()` time so the

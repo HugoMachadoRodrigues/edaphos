@@ -203,8 +203,8 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #' (`data-raw/causal_iv_benchmark_real.R`) to fall back to a synthetic
 #' 31-channel stack -- the v3.11.0 rewrite closes that gap.
 #'
-#' **Heavy download.**  A 2-deg x 2-deg Cerrado AoI lands in
-#' \~80-110 MB after alignment (cache_dir hit on subsequent calls).
+#' **Heavy download.**  A 2-deg x 2-deg Cerrado AoI lands in about
+#' 80-110 MB after alignment (cache_dir hit on subsequent calls).
 #'
 #' @param bbox Numeric length-4 vector `c(xmin, ymin, xmax, ymax)` in
 #'   decimal degrees.  Defaults to a central Cerrado quadrant around

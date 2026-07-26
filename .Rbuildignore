@@ -26,3 +26,4 @@
 ^CODE_OF_CONDUCT\.md$
 ^SECURITY\.md$
 ^STATUS\.md$
+^\.git$

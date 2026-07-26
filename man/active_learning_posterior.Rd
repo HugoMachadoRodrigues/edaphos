@@ -29,7 +29,7 @@ Samples the conditional distribution of the target at every row of
 \code{candidates} by asking the underlying Quantile Regression Forest
 (ranger) for a grid of quantiles. The returned
 \code{edaphos_posterior} carries those quantile samples directly, so
-\code{\link[=uncertainty_calibrate]{uncertainty_calibrate()}} and \code{\link[ggplot2:autoplot]{ggplot2::autoplot()}} work without changes.
+\code{\link[=uncertainty_calibrate]{uncertainty_calibrate()}} and \code{\link[ggplot2:autoplot]{autoplot()}} work without changes.
 }
 \references{
 Meinshausen, N. (2006). Quantile regression forests. \emph{Journal of

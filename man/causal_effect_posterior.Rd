@@ -51,7 +51,7 @@ An \code{edaphos_posterior} with \code{query_type = "effect"} and
 Unified v1.6.0 entry point for Pillar 1. Returns an
 \code{\link[=edaphos_posterior]{edaphos_posterior()}} with posterior draws over the identified
 direct effect, ready for \code{\link[=uncertainty_calibrate]{uncertainty_calibrate()}} and
-\code{\link[ggplot2:autoplot]{ggplot2::autoplot()}}. For the LM estimator the draws are a
+\code{\link[ggplot2:autoplot]{autoplot()}}. For the LM estimator the draws are a
 cluster-block bootstrap; for BART the draws are the native Markov-
 chain posterior.
 }

@@ -1,7 +1,7 @@
 {
   "schema": "edaphos-status-facts/1",
   "environment": {
-    "measured_at_utc": "2026-07-26T15:03:06Z",
+    "measured_at_utc": "2026-07-26T15:29:25Z",
     "r_version": "4.6.1",
     "r_nickname": "Happy Hop",
     "platform": "aarch64-apple-darwin23",
@@ -9,17 +9,17 @@
     "os_release": "25.5.0"
   },
   "git": {
-    "head_sha": "272b378a188a3cb85a02c075b64d58cd42439267",
-    "head_sha_short": "272b378",
+    "head_sha": "7abe5071470e221ffddc79fdc71fcb1223454b83",
+    "head_sha_short": "7abe507",
     "branch": "Hugo/edaphos-dev-status-222f14",
     "remote_url": "https://github.com/HugoMachadoRodrigues/edaphos.git",
-    "commit_count": 82,
+    "commit_count": 83,
     "first_commit": "2026-04-20T23:44:43-04:00",
     "first_subject": "Initial release of edaphos 0.1.0",
-    "last_commit": "2026-04-27T17:49:50-04:00",
-    "last_subject": "fix(moco): resume on MPS / CUDA -- move loaded tensors to training device",
-    "span_days": 6.75355324074074,
-    "active_days": 8,
+    "last_commit": "2026-07-26T11:04:30-04:00",
+    "last_subject": "docs(status): add generated STATUS.md + the machinery that measures it",
+    "span_days": 96.4720717592593,
+    "active_days": 9,
     "commits_per_day": {
       "2026-04-20": 1,
       "2026-04-21": 10,
@@ -28,23 +28,24 @@
       "2026-04-24": 15,
       "2026-04-25": 7,
       "2026-04-26": 9,
-      "2026-04-27": 8
+      "2026-04-27": 8,
+      "2026-07-26": 1
     },
-    "days_since_last": 89.7175577527533,
+    "days_since_last": 0.0173091114809116,
     "tags": ["v0.1.0", "v0.2.0", "v0.3.0", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0", "v0.8.0", "v0.9.0", "v1.0.0", "v1.1.0", "v1.2.0", "v1.3.0", "v1.3.1", "v1.4.0", "v1.5.0", "v1.6.0", "v3.10.0"],
     "tag_count": 18,
     "worktree_clean": false,
     "ahead_behind_origin_main": "0\t0",
     "remote_tag_count": 18,
-    "commits_since_last_tag": 16,
+    "commits_since_last_tag": 17,
     "last_tag": "v3.10.0"
   },
   "description": {
     "version": "3.10.0",
     "depends": "R",
-    "imports": ["clhs", "deSolve", "httr2", "jsonlite", "ranger", "Rcpp", "stats"],
+    "imports": ["clhs", "deSolve", "httr2", "jsonlite", "ranger", "Rcpp", "stats", "tools", "utils"],
     "suggests": ["abind", "aqp", "bnlearn", "bslib", "dagitty", "dbarts", "devtools", "DiagrammeR", "digest", "dplyr", "DT", "ecmwfr", "fmsb", "geobr", "geodata", "ggdag", "ggnewscale", "ggplot2", "ggridges", "gstat", "igraph", "knitr", "MASS", "Matrix", "ontologyIndex", "patchwork", "RColorBrewer", "reticulate", "rmarkdown", "scales", "sf", "shiny", "shinyjs", "sp", "spBayes", "stringdist", "terra", "testthat", "tidyr", "torch"],
-    "n_imports": 7,
+    "n_imports": 9,
     "n_suggests": 40,
     "linkingto": ["Rcpp", "RcppArmadillo"],
     "license": "MIT + file LICENSE",
@@ -83,7 +84,7 @@
   },
   "code": {
     "r_file_count": 70,
-    "r_loc": 19700,
+    "r_loc": 19750,
     "src_file_count": 3,
     "src_loc": 401,
     "largest_r_files": [
@@ -101,7 +102,7 @@
       },
       {
         "file": "foundation_finetune.R",
-        "lines": 646
+        "lines": 645
       },
       {
         "file": "causal_kg_io.R",
@@ -135,18 +136,9 @@
     "files_saying_pillar": ["causal_posterior.R", "core_utils.R", "data.R", "edaphos_zenodo_release.R", "edaphos-package.R", "pilar10_graph_nn.R", "pilar8_neural_operators.R", "pilar9_diffusion_models.R", "pillars_roadmap.R", "uncertainty.R"],
     "raw_stop_calls": 136,
     "raw_warning_calls": 6,
-    "stopf_calls": 14,
+    "stopf_calls": 15,
     "not_implemented": "R/pilar7_bayesian_hierarchical.R:356",
-    "undeclared_base_namespaces": [
-      {
-        "namespace": "utils",
-        "source_lines_using_it": 35
-      },
-      {
-        "namespace": "tools",
-        "source_lines_using_it": 8
-      }
-    ]
+    "undeclared_base_namespaces": []
   },
   "docs": {
     "rd_count": 182,
@@ -180,11 +172,11 @@
       },
       {
         "file": "README.md",
-        "says_six": 12,
+        "says_six": 11,
         "says_ten": 0
       }
     ],
-    "readme_bytes": 84288,
+    "readme_bytes": 84798,
     "readme_mentions_getting_started": 0
   },
   "rd_portability": {
@@ -205,66 +197,12 @@
         "char": "<U+2026>",
         "codepoint": "U+2026",
         "occurrences": 1
-      },
-      {
-        "char": "<U+2208>",
-        "codepoint": "U+2208",
-        "occurrences": 1
-      },
-      {
-        "char": "<U+2265>",
-        "codepoint": "U+2265",
-        "occurrences": 1
       }
     ],
-    "latex_breaking_chars": [
-      {
-        "char": "<U+2208>",
-        "codepoint": "U+2208",
-        "occurrences": 1
-      },
-      {
-        "char": "<U+2265>",
-        "codepoint": "U+2265",
-        "occurrences": 1
-      }
-    ],
-    "latex_breaking_sites": [
-      {
-        "file": "man/foundation_fit_classifier.Rd",
-        "line": 100,
-        "text": "large enough (<U+2265> ~500 patches per class).}"
-      },
-      {
-        "file": "man/foundation_fit_regressor.Rd",
-        "line": 50,
-        "text": "\\verb{device <U+2208> \\{\"cpu\", \"mps\", \"cuda\"\\}} dispatch."
-      }
-    ],
-    "escaped_latex_specials": [
-      {
-        "file": "man/foundation_build_cerrado_stack.Rd",
-        "line": 61,
-        "text": "\\~80-110 MB after alignment (cache_dir hit on subsequent calls)."
-      }
-    ],
-    "roxygen_sources_to_fix": [
-      {
-        "file": "R/foundation_finetune.R",
-        "line": 165,
-        "text": "#'     large enough (<U+2265> ~500 patches per class).}"
-      },
-      {
-        "file": "R/foundation_finetune.R",
-        "line": 436,
-        "text": "#' `device <U+2208> {\"cpu\", \"mps\", \"cuda\"}` dispatch."
-      },
-      {
-        "file": "R/foundation_embed_coords.R",
-        "line": 207,
-        "text": "#' \\~80-110 MB after alignment (cache_dir hit on subsequent calls)."
-      }
-    ]
+    "latex_breaking_chars": [],
+    "latex_breaking_sites": null,
+    "escaped_latex_specials": null,
+    "roxygen_sources_to_fix": null
   },
   "version_drift": {
     "versions_asserted_in_code": [
@@ -948,11 +886,11 @@
   },
   "tests_static": {
     "test_file_count": 68,
-    "test_that_blocks": 460,
-    "expect_calls": 1085,
-    "skip_if_not_installed": 73,
+    "test_that_blocks": 461,
+    "expect_calls": 1088,
+    "skip_if_not_installed": 74,
     "skip_on_cran": 1,
-    "set_seed_calls": 112,
+    "set_seed_calls": 114,
     "gate_counts": [
       {
         "dependency": "torch",
@@ -1004,14 +942,15 @@
     "exports_never_in_tests": ["causal_ontology_agrovoc", "causal_ontology_envo", "edaphos_zenodo_release", "foundation_build_cerrado_stack", "foundation_tile_source_era5", "foundation_tile_source_modis", "foundation_tile_source_soilgrids", "foundation_tile_source_srtm", "foundation_tile_source_worldclim", "llm_annotation_launch", "piml_neural_ode_predict", "temporal_convlstm_predict"]
   },
   "tests_run": {
-    "passed": 1117,
+    "passed": 1123,
     "failed": 0,
-    "errored": 2,
+    "errored": 0,
     "skipped": 75,
     "warnings": 2,
-    "files": 460,
-    "real_seconds": 31.6,
-    "failing_files": ["test-active-quantum-posterior.R", "test-foundation-weights.R"]
+    "files": 68,
+    "results": 461,
+    "real_seconds": 29.8,
+    "failing_files": []
   },
   "dependencies": {
     "suggests_installed": ["abind", "aqp", "bnlearn", "bslib", "dagitty", "dbarts", "devtools", "digest", "dplyr", "DT", "ggnewscale", "ggplot2", "gstat", "igraph", "knitr", "MASS", "Matrix", "patchwork", "RColorBrewer", "reticulate", "rmarkdown", "scales", "sf", "shiny", "shinyjs", "sp", "stringdist", "terra", "testthat", "tidyr"],
@@ -1019,19 +958,19 @@
     "n_missing": 10
   },
   "check": {
-    "log_path": "/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/baseline-check-272b378.log",
-    "log_lines": 177,
-    "log_sha256": "f6486bcce0ca8b3a86697e81583cbd479618ac7ca7fc769a93889b13fd00920d",
-    "status_line": "Status: 2 ERRORs, 1 WARNING, 6 NOTEs",
-    "n_errors": 2,
-    "n_warnings": 1,
-    "n_notes": 6,
+    "log_path": "/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/check.log",
+    "log_lines": 124,
+    "log_sha256": "fbfd37b75cfad09e9df28721b936d91fe65d51de42b26755ef36a4b40e537425",
+    "status_line": "Status: 3 NOTEs",
+    "n_errors": 0,
+    "n_warnings": 0,
+    "n_notes": 3,
     "parsed_counts": {
-      "ERROR": 2,
-      "WARNING": 1,
-      "NOTE": 6,
+      "ERROR": 0,
+      "WARNING": 0,
+      "NOTE": 3,
       "INFO": 2,
-      "OK": 56
+      "OK": 61
     },
     "counts_reconcile": true,
     "items": [
@@ -1043,7 +982,7 @@
       {
         "step": "checking CRAN incoming feasibility",
         "level": "NOTE",
-        "detail": "  cannot open URL 'https://bioconductor.org/packages/3.23/bioc/src/contrib/PACKAGES' | Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/annotation/src/contrib: |   cannot open URL 'https://bioconductor.org/packages/3.23/data/annotation/src/contrib/PACKAGES' | Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/experiment/src/contrib: |   cannot open URL 'https://bioconductor.org/packages/3.23/data/experiment/src/contrib/PACKAGES' |  [4s/256s] NOTE | Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com> | New submission"
+        "detail": "  cannot open URL 'https://bioconductor.org/packages/3.23/bioc/src/contrib/PACKAGES' | Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/annotation/src/contrib: |   cannot open URL 'https://bioconductor.org/packages/3.23/data/annotation/src/contrib/PACKAGES' | Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/experiment/src/contrib: |   cannot open URL 'https://bioconductor.org/packages/3.23/data/experiment/src/contrib/PACKAGES' |  [3s/333s] NOTE | Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com> | New submission"
       },
       {
         "step": "checking package namespace information",
@@ -1072,8 +1011,8 @@
       },
       {
         "step": "checking for hidden files and directories",
-        "level": "NOTE",
-        "detail": "Found the following hidden files and directories: |   .git | These were most likely included in error. See section Package | structure in the Writing R Extensions manual. | CRAN-pack does not know about |   .git"
+        "level": "OK",
+        "detail": ""
       },
       {
         "step": "checking for portable file names",
@@ -1093,7 +1032,7 @@
       {
         "step": "checking installed package size",
         "level": "INFO",
-        "detail": "  installed size is 18.4Mb |   sub-directories of 1Mb or more: |     doc       4.6Mb |     extdata   9.6Mb |     help      2.9Mb"
+        "detail": "  installed size is 18.5Mb |   sub-directories of 1Mb or more: |     doc       4.7Mb |     extdata   9.6Mb |     help      2.9Mb"
       },
       {
         "step": "checking package directory",
@@ -1207,8 +1146,8 @@
       },
       {
         "step": "checking Rd files",
-        "level": "NOTE",
-        "detail": "checkRd: (-1) foundation_build_cerrado_stack.Rd:61: Escaped LaTeX specials: \\~"
+        "level": "OK",
+        "detail": ""
       },
       {
         "step": "checking Rd metadata",
@@ -1327,8 +1266,8 @@
       },
       {
         "step": "checking tests",
-        "level": "ERROR",
-        "detail": "  Running testthat.R [46s/31s] |  [46s/31s] ERROR | Running the tests in tests/testthat.R failed. | Last 13 lines of output: |   Backtrace: |       <U+2586> |    1. <U+251C><U+2500>testthat::expect_error(foundation_weights_load(f), regexp = \"requires.*n_channels\") at test-foundation-weights.R:33:3 |    2. <U+2502> <U+2514><U+2500>testthat:::expect_condition_matching_(...)"
+        "level": "OK",
+        "detail": "  Running testthat.R [49s/31s] |  [49s/31s] OK"
       },
       {
         "step": "checking for unstated dependencies in vignettes",
@@ -1347,12 +1286,7 @@
       },
       {
         "step": "checking PDF version of manual",
-        "level": "WARNING",
-        "detail": "LaTeX errors when creating PDF version. | This typically indicates Rd problems. | LaTeX errors found: | ! LaTeX Error: Unicode character <U+2265> (U+2265) |                not set up for use with LaTeX. | See the LaTeX manual or LaTeX Companion for explanation. | Type  H <return>  for immediate help. | ! LaTeX Error: Unicode character <U+2208> (U+2208)"
-      },
-      {
-        "step": "checking PDF version of manual without index",
-        "level": "ERROR",
+        "level": "OK",
         "detail": ""
       },
       {
@@ -1362,35 +1296,35 @@
       },
       {
         "step": "checking for non-standard things in the check directory",
-        "level": "NOTE",
-        "detail": "Found the following files/directories: |   edaphos-manual.tex"
+        "level": "OK",
+        "detail": ""
       },
       {
         "step": "checking for detritus in the temp directory",
         "level": "NOTE",
-        "detail": "Found the following files/directories: |   tmpl_pg5ehe | * DONE | Status: 2 ERRORs, 1 WARNING, 6 NOTEs | See |   <CHECKDIR>/check3/edaphos.Rcheck/00check.log | for details."
+        "detail": "Found the following files/directories: |   tmpspsyky6e | * DONE | Status: 3 NOTEs | See |   <CHECKDIR>/check4/edaphos.Rcheck/00check.log | for details."
       }
     ],
-    "errors": ["checking tests", "checking PDF version of manual without index"],
-    "warnings": "checking PDF version of manual",
-    "notes": ["checking CRAN incoming feasibility", "checking for hidden files and directories", "checking Rd files", "checking HTML version of manual", "checking for non-standard things in the check directory", "checking for detritus in the temp directory"],
+    "errors": [],
+    "warnings": [],
+    "notes": ["checking CRAN incoming feasibility", "checking HTML version of manual", "checking for detritus in the temp directory"],
     "infos": ["checking package dependencies", "checking installed package size"],
-    "installed_size": ["  installed size is 18.4Mb", "  sub-directories of 1Mb or more:", "    doc       4.6Mb", "    extdata   9.6Mb", "    help      2.9Mb"],
+    "installed_size": ["  installed size is 18.5Mb", "  sub-directories of 1Mb or more:", "    doc       4.7Mb", "    extdata   9.6Mb", "    help      2.9Mb"],
     "cran_incoming": {
       "is_new_submission": true,
       "maintainer": "Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>",
-      "invalid_urls": ["https://github.com/ipeaGIT/geobr (moved to https://github.com/ipea/geobr)", "https://hugomachadorodrigues.github.io/edaphos (moved to https://hugomachadorodrigues.github.io/edaphos/)"],
-      "n_invalid_urls": 2,
-      "tarball_bytes": 15734027,
-      "block": [" [4s/256s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission", "", "Found the following (possibly) invalid URLs:", "  URL: https://github.com/ipeaGIT/geobr (moved to https://github.com/ipea/geobr)", "    From: inst/doc/case-cerrado-end-to-end.html", "    Status: 301", "    Message: Moved Permanently", "  URL: https://hugomachadorodrigues.github.io/edaphos (moved to https://hugomachadorodrigues.github.io/edaphos/)", "    From: README.md", "    Status: 301", "    Message: Moved Permanently", "For content that is 'Moved Permanently', please change http to https,", "add trailing slashes, or replace the old by the new URL.", "", "Size of tarball: 15734027 bytes"]
+      "invalid_urls": [],
+      "n_invalid_urls": 0,
+      "tarball_bytes": 15745796,
+      "block": [" [3s/333s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission", "", "Size of tarball: 15745796 bytes"]
     },
-    "test_summary": "  [ FAIL 2 | WARN 2 | SKIP 76 | PASS 1116 ]",
+    "test_summary": [],
     "suggests_unavailable": ["'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'geodata', 'ggdag',", "'ggridges', 'ontologyIndex', 'spBayes', 'torch'"],
-    "tail": ["See the LaTeX manual or LaTeX Companion for explanation.", "Type  H <return>  for immediate help.", "* checking PDF version of manual without index ... ERROR", "* checking HTML version of manual ... NOTE", "Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.", "Please obtain a recent version of HTML Tidy by downloading a binary", "release or compiling the source code from <https://www.html-tidy.org/>.", "* checking for non-standard things in the check directory ... NOTE", "Found the following files/directories:", "  edaphos-manual.tex", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmpl_pg5ehe", "* DONE", "", "Status: 2 ERRORs, 1 WARNING, 6 NOTEs", "See", "  <CHECKDIR>/check3/edaphos.Rcheck/00check.log", "for details.", ""]
+    "tail": [" [49s/31s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [50s/37s] OK", "* checking PDF version of manual ... OK", "* checking HTML version of manual ... NOTE", "Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.", "Please obtain a recent version of HTML Tidy by downloading a binary", "release or compiling the source code from <https://www.html-tidy.org/>.", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmpspsyky6e", "* DONE", "", "Status: 3 NOTEs", "See", "  <CHECKDIR>/check4/edaphos.Rcheck/00check.log", "for details.", ""]
   },
   "size": {
     "measured_over": "git-tracked files only (build artefacts excluded)",
-    "tracked_file_count": 452,
+    "tracked_file_count": 459,
     "by_dir": [
       {
         "dir": "inst",
@@ -1399,17 +1333,27 @@
       },
       {
         "dir": "man",
-        "bytes": 2704250,
+        "bytes": 2704819,
         "ships_in_tarball": true
       },
       {
         "dir": "R",
-        "bytes": 807587,
+        "bytes": 810144,
+        "ships_in_tarball": true
+      },
+      {
+        "dir": "tools",
+        "bytes": 633264,
+        "ships_in_tarball": false
+      },
+      {
+        "dir": "<root>",
+        "bytes": 474217,
         "ships_in_tarball": true
       },
       {
         "dir": "tests",
-        "bytes": 305897,
+        "bytes": 306767,
         "ships_in_tarball": true
       },
       {
@@ -1419,12 +1363,7 @@
       },
       {
         "dir": "vignettes",
-        "bytes": 270115,
-        "ships_in_tarball": true
-      },
-      {
-        "dir": "<root>",
-        "bytes": 243940,
+        "bytes": 270503,
         "ships_in_tarball": true
       },
       {
@@ -1435,11 +1374,6 @@
       {
         "dir": "articles",
         "bytes": 43479,
-        "ships_in_tarball": false
-      },
-      {
-        "dir": "tools",
-        "bytes": 41215,
         "ships_in_tarball": false
       },
       {
@@ -1458,8 +1392,8 @@
         "ships_in_tarball": false
       }
     ],
-    "shipped_bytes": 14443973,
-    "repo_bytes": 14848624,
+    "shipped_bytes": 14678634,
+    "repo_bytes": 15675334,
     "cran_soft_cap_bytes": 5242880,
     "largest_shipped_files": [
       {
@@ -1493,6 +1427,16 @@
         "ships": true
       },
       {
+        "file": "tools/status/findings.json",
+        "bytes": 449415,
+        "ships": false
+      },
+      {
+        "file": "STATUS.md",
+        "bytes": 232019,
+        "ships": true
+      },
+      {
         "file": "inst/extdata/temporal_cerrado_results.rds",
         "bytes": 198786,
         "ships": true
@@ -1501,19 +1445,9 @@
         "file": "inst/extdata/causal_sensitivity_cerrado.rds",
         "bytes": 145528,
         "ships": true
-      },
-      {
-        "file": "man/figures/pillar6-quantum.png",
-        "bytes": 124299,
-        "ships": true
-      },
-      {
-        "file": "inst/extdata/cerrado_claims_real_corpus.jsonl",
-        "bytes": 95831,
-        "ships": true
       }
     ],
-    "untracked_files": ["STATUS.md", "tools/status/"]
+    "untracked_files": ["tools/status/check.log", "tools/status/patch-readme-metrics.R", "tools/status/render-cran-comments.R"]
   },
   "ci": {
     "workflows": ["pkgdown.yaml", "R-CMD-check.yaml", "test-coverage.yaml"],

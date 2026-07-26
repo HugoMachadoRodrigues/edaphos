@@ -1,3 +1,44 @@
+# Smallest `num.trees` that makes out-of-bag quantile regression reliable.
+#
+# `ranger` requires every observation to be out-of-bag in at least 10 trees
+# (it errors with "Too few trees for out-of-bag quantile regression" when
+# `min(rowSums(inbag.counts == 0)) < 10`).  Under bootstrap sampling of n
+# from n with replacement an observation is out-of-bag in a given tree with
+# probability `(1 - 1/n)^n`, so the per-observation out-of-bag count is
+# Binomial(num.trees, p).  Return the smallest number of trees for which the
+# chance that ANY of the n observations falls short is at most `tol`.
+#
+# The threshold is computed rather than hard-coded because it grows with n:
+# 88 trees at n = 30, 103 at n = 10 000.
+.al_min_trees_for_quantreg <- function(n, tol = 1e-6, cap = 5000L) {
+  if (!is.finite(n) || n < 2L) return(10L)
+  p <- (1 - 1 / n)^n
+  n_trees <- 10L
+  while (n_trees < cap && n * stats::pbinom(9L, n_trees, p) > tol)
+    n_trees <- n_trees + 1L
+  n_trees
+}
+
+.assert_num_trees <- function(num.trees, n, call = sys.call(-1L)) {
+  .assert_type(is.numeric(num.trees) && length(num.trees) == 1L &&
+                 !is.na(num.trees) && num.trees >= 1,
+               "num.trees", "a single positive integer",
+               sprintf("%s of length %d", class(num.trees)[1L],
+                       length(num.trees)),
+               call = call)
+  need <- .al_min_trees_for_quantreg(n)
+  if (num.trees < need)
+    .stopf(paste("num.trees = %d is too small for out-of-bag quantile",
+                 "regression on %d labeled rows: ranger needs every",
+                 "observation to be out-of-bag in at least 10 trees, which",
+                 "requires at least %d trees here."),
+           as.integer(num.trees), as.integer(n), as.integer(need),
+           hint = sprintf("Use num.trees >= %d (the al_fit() default is 500).",
+                          need),
+           call = call)
+  invisible(TRUE)
+}
+
 .fit_core <- function(labeled, target, covariates, num.trees, ...) {
   form <- stats::reformulate(covariates, response = target)
   fit <- ranger::ranger(
@@ -26,7 +67,12 @@
 #' @param covariates Character vector of covariate column names.
 #' @param coords Optional length-2 character vector naming the x/y
 #'   coordinate columns. Required by the `"cost"` query strategy.
-#' @param num.trees Integer, number of trees (default 500).
+#' @param num.trees Integer, number of trees (default 500). Because the
+#'   forest is fit with `quantreg = TRUE`, `ranger` requires every
+#'   observation to be out-of-bag in at least 10 trees; `al_fit()`
+#'   rejects a value too small to make that reliable for
+#'   `nrow(labeled)` rows (about 88 trees for 30 rows, rising slowly
+#'   with n) rather than letting `ranger` fail on some random seeds.
 #' @param ... Additional arguments forwarded to `ranger::ranger()`.
 #'
 #' @return A `edaphos_al_model` object.
@@ -53,6 +99,7 @@ al_fit <- function(labeled, target, covariates, coords = NULL,
                    num.trees = 500L, ...) {
   .assert_covariates(labeled, c(target, covariates))
   .assert_coords(labeled, coords)
+  .assert_num_trees(num.trees, nrow(labeled))
   core <- .fit_core(labeled, target, covariates, num.trees, ...)
   new_active_soil_model(
     labeled    = labeled,

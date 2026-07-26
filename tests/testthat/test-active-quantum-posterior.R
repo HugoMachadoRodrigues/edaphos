@@ -29,10 +29,34 @@ test_that("active_learning_posterior() returns a sample posterior with QRF quant
 
 test_that("as_edaphos_posterior.edaphos_al_model requires newdata", {
   skip_if_not_installed("ranger")
+  set.seed(11L)
   df <- data.frame(x = stats::rnorm(40L),
                      y = stats::rnorm(40L))
-  fit <- al_fit(df, target = "y", covariates = "x", num.trees = 50L)
+  # num.trees must clear .al_min_trees_for_quantreg(nrow(df)); 50 does not,
+  # which made this test fail on roughly one seed in seven.
+  fit <- al_fit(df, target = "y", covariates = "x", num.trees = 100L)
   expect_error(as_edaphos_posterior(fit), regexp = "newdata")
+})
+
+test_that("al_fit rejects a num.trees too small for OOB quantile regression", {
+  skip_if_not_installed("ranger")
+  set.seed(12L)
+  df <- data.frame(x = stats::rnorm(40L), y = stats::rnorm(40L))
+  need <- edaphos:::.al_min_trees_for_quantreg(nrow(df))
+  expect_gt(need, 50L)
+  expect_error(
+    al_fit(df, target = "y", covariates = "x", num.trees = need - 1L),
+    regexp = "out-of-bag quantile"
+  )
+  expect_error(
+    al_fit(df, target = "y", covariates = "x", num.trees = c(100L, 200L)),
+    regexp = "single positive integer"
+  )
+  # and the computed floor is enough for ranger to accept the fit
+  expect_s3_class(
+    al_fit(df, target = "y", covariates = "x", num.trees = need),
+    "edaphos_al_model"
+  )
 })
 
 test_that("calibrate works on the AL posterior", {

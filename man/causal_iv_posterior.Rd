@@ -47,6 +47,6 @@ An \code{edaphos_posterior} with \code{query_type = "effect"} and
 Wraps \code{\link[=causal_iv_fit_2sls]{causal_iv_fit_2sls()}} in a nonparametric bootstrap over
 rows (or over clusters if \code{cluster} is supplied) and packages the
 resulting vector of effect estimates as an \code{\link[=edaphos_posterior]{edaphos_posterior()}}
-so that \code{\link[=uncertainty_calibrate]{uncertainty_calibrate()}} and \code{\link[ggplot2:autoplot]{ggplot2::autoplot()}} apply
+so that \code{\link[=uncertainty_calibrate]{uncertainty_calibrate()}} and \code{\link[ggplot2:autoplot]{autoplot()}} apply
 uniformly.
 }

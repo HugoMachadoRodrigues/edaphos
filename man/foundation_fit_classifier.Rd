@@ -97,7 +97,7 @@ representations as fixed feature extractors
 and the head are trained jointly, with a two-group learning
 rate (\code{lr * backbone_lr_mult} for the backbone, \code{lr} for the
 head). Usually the better option when the downstream dataset is
-large enough (≥ ~500 patches per class).}
+large enough (\eqn{\ge} about 500 patches per class).}
 }
 }
 \examples{

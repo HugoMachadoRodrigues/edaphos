@@ -32,7 +32,6 @@ Language: en-US
 URL: https://github.com/HugoMachadoRodrigues/edaphos
 BugReports: https://github.com/HugoMachadoRodrigues/edaphos/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Suggests:
     abind,
     aqp,
@@ -82,11 +81,14 @@ Imports:
     jsonlite,
     ranger,
     Rcpp (>= 1.0.0),
-    stats
+    stats,
+    tools,
+    utils
 LinkingTo:
     Rcpp,
     RcppArmadillo
 VignetteBuilder: knitr
 Depends:
-    R (>= 3.5)
+    R (>= 4.0)
 LazyData: true
+Config/roxygen2/version: 8.0.0

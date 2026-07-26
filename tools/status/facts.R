@@ -448,7 +448,8 @@ test_run <- if (!run_test) list(skipped = "--no-test") else safe({
     errored  = sum(df$error),
     skipped  = sum(df$skipped),
     warnings = sum(df$warning),
-    files    = nrow(df),
+    files    = length(unique(df$file)),
+    results  = nrow(df),
     real_seconds = round(sum(df$real, na.rm = TRUE), 1),
     failing_files = df$file[df$failed > 0 | df$error > 0]
   )
@@ -469,7 +470,10 @@ dep_facts <- safe({
 # 7. R CMD check --as-cran (parsed from a real log, never asserted)
 # ---------------------------------------------------------------------------
 if (is.na(check_log_path)) {
-  default_log <- file.path(root, "tools", "status", "baseline-check-272b378.log")
+  # most recent check first, falling back to the frozen pre-remediation baseline
+  default_log <- file.path(root, "tools", "status", "check.log")
+  if (!file.exists(default_log))
+    default_log <- file.path(root, "tools", "status", "baseline-check-272b378.log")
   if (file.exists(default_log)) check_log_path <- default_log
 }
 check_facts <- if (is.na(check_log_path) || !file.exists(check_log_path)) {

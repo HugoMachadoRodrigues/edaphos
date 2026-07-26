@@ -57,9 +57,18 @@ process of `br_cerrado`.
 
 ```{r setup, message=FALSE}
 library(edaphos)
+```
+
+```{r dagitty-gate, echo=FALSE}
+# knitr::knit_exit() stops knitting AFTER the current chunk finishes, so the
+# guard has to be the last thing in its own chunk -- otherwise the code it is
+# meant to protect still runs and R CMD build fails outright.
 if (!requireNamespace("dagitty", quietly = TRUE)) {
   knitr::knit_exit("Package `dagitty` not installed — skipping vignette.")
 }
+```
+
+```{r cerrado-dag}
 g <- causal_cerrado_dag()
 g
 ```
@@ -166,10 +175,14 @@ extractions ready to load from `inst/extdata/cerrado_claims.jsonl`.
 Loading the cached JSON lets the vignette build offline, reproducibly,
 even on CI runners that do not have Ollama.
 
-```{r load-corpus, message=FALSE}
+```{r igraph-gate, echo=FALSE}
+# Same reason as the dagitty gate above: knit_exit() must end its own chunk.
 if (!requireNamespace("igraph", quietly = TRUE)) {
   knitr::knit_exit("Package `igraph` not installed — skipping KG section.")
 }
+```
+
+```{r load-corpus, message=FALSE}
 abs_path <- system.file("extdata", "cerrado_abstracts.jsonl",
                         package = "edaphos")
 claim_path <- system.file("extdata", "cerrado_claims.jsonl",

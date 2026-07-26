@@ -39,10 +39,10 @@ Length determines depth. Default \code{c(4L)} (single-layer).}
 mass-balance regulariser. When \verb{> 0} (and \code{return_sequence = TRUE}),
 the loss becomes
 \deqn{\mathrm{MSE}(\hat y, y) + \lambda_{\text{phys}}\,
-         \mathrm{MSE}\!\left(\Delta\hat y_t,\,
-         k_{\text{in}} P_t - k_{\text{out}} \hat y_t P_t / \bar P\right),}
+       \mathrm{MSE}\!\left(\Delta\hat y_t,\,
+       k_{\text{in}} P_t - k_{\text{out}} \hat y_t P_t / \bar P\right),}
 i.e. the predicted per-step change \eqn{\Delta\hat y_t =
-  \hat y_{t+1} - \hat y_t} is pushed towards the mass-balance increment
+\hat y_{t+1} - \hat y_t} is pushed towards the mass-balance increment
 implied by the driver channel. This is the Pillar 2 × Pillar 3 fusion
 — a Physics-Informed ConvLSTM.}
 

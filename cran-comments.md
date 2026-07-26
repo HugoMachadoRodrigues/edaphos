@@ -1,140 +1,90 @@
-# CRAN comments for edaphos v3.10.0
+<!-- GENERATED FILE -- DO NOT EDIT BY HAND.
+     Regenerate:  Rscript tools/status/facts.R --check-log=<log>
+                  Rscript tools/status/render-cran-comments.R
+     Every figure below is read from a real R CMD check log. -->
+
+# cran-comments for edaphos 3.10.0
 
 ## Test environments
-- **Local**: macOS Tahoe 26.4.1 (Apple Silicon), R 4.5.3;
-  `R CMD check --as-cran` → **0 errors / 0 warnings / 0 notes**
-  (with `--no-build-vignettes`; the 2 vignette warnings reported by
-  `--build-vignettes` are caused by a known transient `dagitty`/V8
-  plumbing issue in the check subprocess, NOT by the package code).
-- **GitHub Actions CI**:
-  - macos-latest, R release
-  - windows-latest, R release
-  - ubuntu-latest, R release
-  - ubuntu-latest, R devel
-  - ubuntu-latest, R oldrel-1
-- **Docker** (Rocker/geospatial): see `Dockerfile` in repo root.
+
+* Darwin 25.5.0, aarch64-apple-darwin23, R 4.6.1 (Happy Hop)
+
+GitHub Actions `R-CMD-check` also runs:
+
+* {os: macos-latest,   r: 'release'}
+* {os: windows-latest, r: 'release'}
+* {os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release'}
+* {os: ubuntu-latest,  r: 'release'}
+* {os: ubuntu-latest,  r: 'oldrel-1'}
+
+The local check ran with `_R_CHECK_FORCE_SUGGESTS_=false` because 10 Suggests are not installable on the checking machine: DiagrammeR, ecmwfr, fmsb, geobr, geodata, ggdag, ggridges, ontologyIndex, spBayes, torch. Tests and vignette chunks that need them are skipped there and exercised on CI instead.
 
 ## R CMD check results
 
+`R CMD build . && R CMD check --as-cran` reported:
+
 ```
-Status: OK
-0 errors | 0 warnings | 0 notes
+Status: 3 NOTEs
 ```
 
-(Above is with `--no-build-vignettes`.  Full vignette build is
-gated by an environment-specific dagitty/V8 issue that is well
-documented in <https://github.com/jtextor/dagitty/issues>.)
+### NOTEs (3)
 
-## Test suite
+* **checking CRAN incoming feasibility**
+  * CRAN reports this as a New submission. The two redirecting URLs it flagged at baseline have been fixed.
+  * Origin: informational
+  * Nothing to fix: 'New submission' is accurate. Recorded because it is R's own confirmation that nothing named edaphos exists on CRAN, which contradicts every artefact implying the package is released.
+* **checking HTML version of manual**
+  * The local HTML Tidy is older than R requires, so HTML validation was skipped.
+  * Origin: environment
+  * None needed in the package.
+* **checking for detritus in the temp directory**
+  * A temporary directory is left behind in the R session temp dir on every run.
+  * Origin: defect
+  * Have the Python bridge clean up the directories it creates (or create them under tempdir() and remove them on.exit). Only appears on machines where the optional Python stack is installed, so it would not fire on CRAN, where reticulate-gated tests skip.
 
-`devtools::test()` -- **1 345 unit tests**, 0 failures, 4 warnings,
-2 skips.
+### INFOs (2)
 
-The 4 warnings are documented cosmetic stats::sweep recycling on
-odd column counts (Pilar 8); the 2 skips are LLM-benchmark tests
-that require a live Ollama instance.
+* **checking package dependencies**
+  * Ten Suggests are not installable on the checking machine, so the check reports them as unavailable.
+  * Origin: environment
+  * None needed in the package. CRAN installs Suggests, so this INFO does not appear there.
+* **checking installed package size**
+  * Installed size far above the CRAN 5 MB guidance; becomes a NOTE on CRAN's incoming checks.
+  * Origin: defect
+  * See finding FDE7C43. The single cheapest win is re-encoding man/figures/logo.png.
 
-## Build dependencies (LinkingTo)
+## Installed size
 
-`Rcpp`, `RcppArmadillo`.  Both are header-only, widely-used, on CRAN.
+Verbatim from the check log:
 
-## Imports
+```
+  installed size is 18.5Mb
+  sub-directories of 1Mb or more:
+    doc       4.7Mb
+    extdata   9.6Mb
+    help      2.9Mb
+```
 
-`clhs, deSolve (>= 1.40), httr2, jsonlite, ranger, Rcpp (>= 1.0.0),
-stats` -- all current CRAN releases.  Total transitive base-install
-dependency footprint <30 MB.
+The size is dominated by inst/extdata, which holds committed result bundles that vignettes and the README read instead of recomputing. Reducing it is tracked as an open item in the project's own status register (STATUS.md, finding FDE7C43): man/figures/logo.png is 1.8 MB on its own, and the five largest .rds bundles are not xz-compressed.
 
-## Heavy-optional dependencies (Suggests)
+Git-tracked payload that ships in the tarball: 14.0 MB across 459 tracked files.
 
-Every Suggests is wrapped in `requireNamespace(..., quietly = TRUE)`
-inside the code that uses it.  The base test suite runs without
-`torch`, `terra`, `geodata`, `dagitty`, `bnlearn`, `Matrix`,
-`spBayes`, `shiny`, or `reticulate` installed.
+## CRAN incoming feasibility
 
-| Suggests       | Used by                       | Why optional                  |
-|----------------|-------------------------------|-------------------------------|
-| `torch`        | Pilars 2, 3, 4, 8, 9, 10      | libtorch ~1 GB                |
-| `terra`        | Pilar 4 raster operations     | Heavy geospatial stack        |
-| `geodata`      | Cerrado live-data fetcher     | ~200 MB live downloads        |
-| `dagitty`      | Pilar 1 DAG manipulation      | V8 dependency                 |
-| `bnlearn`      | Pilar 1 structure learning    | C extensions                  |
-| `Matrix`       | Pilar 10 sparse GAT layer     | Recommended R-distribution    |
-| `spBayes`      | BHS alternative backend       | Heavy MCMC machinery          |
-| `dbarts`       | Pilar 1 BART estimator        | C++ extensions                |
-| `reticulate`   | Pilar 6 Qiskit (IBM Q)        | Python bridge                 |
-| `shiny / DT / bslib / shinyjs` | Annotation UI | Interactive only      |
+This is a new submission. The package has not been on CRAN before.
 
-## Installed size note
+Source tarball: 15.0 MB.
 
-`R CMD check --as-cran` reports an installed size of ~13 MB,
-above the CRAN soft-cap of 5 MB.  The extra ~8 MB is the
-`inst/extdata/` directory carrying the head-to-head benchmark
-RDS bundles (`benchmark_wosis_p4_p5_p7.rds` 0.7 MB,
-`benchmark_wosis_6pilar.rds` 4.5 MB), the v3.10.0 LLM-KG smoke
-test claims (8 KB), the gold-standard JSONL corpora (40 KB), and
-the bundled 1 095-profile Cerrado real-data DAG fixture
-(`causal_cerrado_real.rds` 1.6 MB).  These artefacts are the
-*reproducible scientific evidence* for every claim in the README
-+ 14 vignettes; users would otherwise need a 30-minute
-compute-and-network workflow to regenerate them.
+## Tests
 
-We have explored two alternatives and chose to keep the bundles
-in `inst/extdata/`:
+`testthat` on the checking machine: **1123 passing**, 75 skipped, 0 failing, 0 erroring, across 68 test files (461 `test_that` blocks, 1088 expectations in source).
 
-  1. **Move to Zenodo and download lazily**: rejected because
-     CRAN policy "package vignettes must build offline" is then
-     violated -- the bundle is consumed by every benchmark
-     vignette.
-
-  2. **Move to a separate companion package** (`edaphosdata`):
-     rejected for the first CRAN submission because it doubles
-     the maintenance / review surface.  Once `edaphos` is
-     accepted, we plan to factor large bundles into
-     `edaphosdata` at v4.0.0.
-
-The 13 MB install fits well within the *soft* limit on hardware
-where CRAN actually publishes (the *hard* limit is 100 MB).
+The skips are `skip_if_not_installed()` gates on optional Suggests; 10 of the 74 gate sites in the suite are for packages absent from the checking machine.
 
 ## Downstream dependencies
 
-None yet (this is the first CRAN submission).  The package is
-listed on GitHub at <https://github.com/HugoMachadoRodrigues/edaphos>
-and archived on Zenodo at
-<https://doi.org/10.5281/zenodo.19683708>.
+None: this is a new submission, so there are no reverse dependencies.
 
-## What's new since the last preparation cycle (v2.9.1 -> v3.10.0)
+---
 
-* **v3.0.0** -- six new cross-pillar bridges (P7/8/9 x P5 active
-  learning + P10xP1, P2xP3, P6xP10 structural).
-* **v3.1.0** -- 6-pilar head-to-head benchmark on 1 095 real WoSIS
-  Cerrado profiles; results bundled in
-  `inst/extdata/benchmark_wosis_6pilar.rds`.
-* **v3.2.0** -- triangular-solve fast path for the Pilar 7 Gibbs
-  sampler (2.5x) + batched DDPM training (4-6x) -- pure R, no new
-  compiled code.
-* **v3.3.0** -- `vignette("getting-started")`.
-* **v3.4.0** -- calibrated PICP for the P1/P6/P10 benchmark
-  wrappers (residual-variance injection); PICP_90 jumps from
-  0.07-0.25 to 0.60-0.95 across the three new methods.
-* **v3.5.0** -- RcppArmadillo C++ port of the BHS Gibbs sampler
-  (~2.3x over the v3.2.0 R fast-path on n >= 200).  Adds
-  `RcppArmadillo` to LinkingTo.
-* **v3.6.0** -- sparse-matrix GAT layer (Pilar 10) via
-  `Matrix::sparseMatrix`; ~6x faster at n = 500.
-* **v3.7.0** -- two new bundled regional datasets `br_amazon` and
-  `br_pantanal` (same schema as `br_cerrado`).
-* **v3.8.0** -- friendly error messages (`.stopf` + `.assert_type`)
-  at high-traffic entry points.
-* **v3.9.0** -- documentation reorganisation (INTRO.md +
-  cheatsheets + 4 vignettes moved to articles/).
-* **v3.10.0** -- production harness for 10 000+ LLM-KG extraction
-  runs (`llm_kg_pipeline_run()` resumable + `llm_kg_ollama_check()`),
-  live-validated on the bundled Cerrado corpus via Ollama.
-
-## Acknowledgements
-
-Reference works cited throughout `vignettes/references.bib`
-(McBratney 2003, Pearl 2009, Wadoux 2020, Zhang & Wadoux 2026,
-Wooldridge 2010, Cinelli & Hazlett 2020, Havlicek 2019).  No
-funding source reported; developed in the author's personal
-research time during PhD at the University of São Paulo.
+Generated by `tools/status/render-cran-comments.R` from `check.log` (sha256 `fbfd37b75cfad09e`) at commit `7abe507`.

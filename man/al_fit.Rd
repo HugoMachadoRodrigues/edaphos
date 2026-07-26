@@ -17,7 +17,12 @@ al_fit(labeled, target, covariates, coords = NULL, num.trees = 500L, ...)
 \item{coords}{Optional length-2 character vector naming the x/y
 coordinate columns. Required by the \code{"cost"} query strategy.}
 
-\item{num.trees}{Integer, number of trees (default 500).}
+\item{num.trees}{Integer, number of trees (default 500). Because the
+forest is fit with \code{quantreg = TRUE}, \code{ranger} requires every
+observation to be out-of-bag in at least 10 trees; \code{al_fit()}
+rejects a value too small to make that reliable for
+\code{nrow(labeled)} rows (about 88 trees for 30 rows, rising slowly
+with n) rather than letting \code{ranger} fail on some random seeds.}
 
 \item{...}{Additional arguments forwarded to \code{ranger::ranger()}.}
 }

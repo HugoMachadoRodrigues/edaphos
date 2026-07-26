@@ -185,5 +185,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Hugo Rodrigues \email{rodrigues.machado.hugo@gmail.com} (\href{https://orcid.org/0000-0002-8070-8126}{ORCID})
 
+Authors:
+\itemize{
+  \item Hugo Rodrigues \email{rodrigues.machado.hugo@gmail.com} (\href{https://orcid.org/0000-0002-8070-8126}{ORCID})
+}
+
 }
 \keyword{internal}

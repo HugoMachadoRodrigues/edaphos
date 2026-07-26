@@ -291,8 +291,10 @@ foundation_weights_load <- function(source,
                                       cache_dir   = NULL,
                                       overwrite   = FALSE,
                                       verbose     = FALSE) {
-  .moco_require_torch()
-
+  # `torch` is required only to instantiate the encoder.  Resolving the
+  # registry, downloading and verifying the artefact, and validating the
+  # caller's arguments are all pure R, so they run first: a user without
+  # torch gets the error that actually describes what they did wrong.
   if (is.character(source) && length(source) == 1L &&
       !file.exists(source)) {
     loc <- foundation_weights_download(source, cache_dir = cache_dir,
@@ -321,6 +323,8 @@ foundation_weights_load <- function(source,
   n_channels  <- as.integer(n_channels)
   feature_dim <- as.integer(feature_dim)
   proj_dim    <- as.integer(proj_dim)
+
+  .moco_require_torch()
 
   EncCtor <- .moco_build_encoder()
   enc_q <- EncCtor(in_channels = n_channels,
