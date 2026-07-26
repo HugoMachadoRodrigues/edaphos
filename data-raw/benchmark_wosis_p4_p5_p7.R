@@ -241,9 +241,10 @@ for (fd in 1:5) {
     abs_err    <- abs(point_pred - truth)
     mae_val    <- mean(abs_err, na.rm = TRUE)
     rmse_val   <- sqrt(mean((point_pred - truth)^2, na.rm = TRUE))
-    r2_val     <- max(0, 1 -
-                           mean((point_pred - truth)^2, na.rm = TRUE) /
-                           mean((truth - mean(truth))^2))
+    # Unclamped on purpose: a negative R2 means the model does worse than
+    # predicting the mean, which is the informative result.  Clamping it at
+    # zero used to report that as "explains none of the variance".
+    r2_val     <- edaphos_r2(truth, point_pred)
     data.frame(
       method    = name, fold = fd, n_test = n_te,
       rmse      = rmse_val, mae = mae_val, r2 = r2_val,

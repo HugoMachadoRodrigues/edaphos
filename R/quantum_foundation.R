@@ -270,14 +270,18 @@ qf_krr_benchmark <- function(embeddings, covariates, y,
     test_ix  <- sort(idx[seq(cut + 1L, n)])
   }
 
+  # Use the package's own metric definitions rather than a local copy.  The
+  # previous inline version clamped R2 at zero, which silently converted
+  # "worse than predicting the mean" into "explains none of the variance" --
+  # two very different findings.  edaphos_r2() is deliberately unclamped
+  # (it is the Nash-Sutcliffe efficiency), so a negative value now survives
+  # into the benchmark table where it belongs.
   metrics <- function(name, pred, truth) {
-    err <- pred - truth
     data.frame(
       method = name,
-      rmse   = sqrt(mean(err^2, na.rm = TRUE)),
-      mae    = mean(abs(err), na.rm = TRUE),
-      r2     = max(0, 1 - sum(err^2, na.rm = TRUE) /
-                          sum((truth - mean(truth, na.rm = TRUE))^2)),
+      rmse   = edaphos_rmse(truth, pred),
+      mae    = edaphos_mae(truth, pred),
+      r2     = edaphos_r2(truth, pred),
       n_train = length(train_ix),
       n_test  = length(test_ix),
       stringsAsFactors = FALSE

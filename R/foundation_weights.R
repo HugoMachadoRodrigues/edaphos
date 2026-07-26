@@ -80,6 +80,25 @@
       NA_character_
     ),
     edaphos_version = c("1.2.0", "3.11.0"),
+    # Path to an RDS holding the per-channel training mean / sd vectors the
+    # encoder was standardised with.  WITHOUT THESE THE ENCODER CANNOT BE
+    # USED CORRECTLY: feeding it raw geophysical magnitudes kills roughly
+    # half of its 64 backbone channels (measured), and any downstream result
+    # is then produced by half a network.
+    #
+    # v1 was published before this field existed and its training statistics
+    # were never written down, so they are unrecoverable.  Consumers must
+    # standardise over their own area of interest and say so.  Every future
+    # encoder MUST populate this; tools/pretrain/package_v2_for_zenodo.R is
+    # responsible for writing the file next to the weights.
+    norm_stats_url = c(
+      NA_character_,          # v1: never persisted, unrecoverable
+      NA_character_           # v2: to be written by the packaging script
+    ),
+    norm_stats_status = c(
+      "unrecoverable",
+      "pending"
+    ),
     stringsAsFactors = FALSE
   )
 }

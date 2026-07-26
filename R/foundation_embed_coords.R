@@ -179,6 +179,24 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 # ---------------------------------------------------------------------------
 # Minimal raster-stack helper
 # ---------------------------------------------------------------------------
+# The channel contract of each stack schema.  `foundation_build_cerrado_stack()`
+# asserts against these before writing anything to the cache, because the
+# encoder's input layer is fixed and a short stack is not a smaller stack --
+# it is the wrong stack.
+.stack_layer_names <- function(schema = c("v1_encoder", "minimal")) {
+  schema <- match.arg(schema)
+  sg <- c("soc", "clay", "sand", "phh2o", "bdod")
+  if (schema == "v1_encoder")
+    c(sg, sprintf("wc_prec_%02d", 1:12), sprintf("wc_tavg_%02d", 1:12),
+      "elev", "slope")
+  else
+    c(sg, "bio1", "bio12", "elev", "slope", "ndvi")
+}
+
+.stack_expected_layers <- function(schema = c("v1_encoder", "minimal")) {
+  length(.stack_layer_names(match.arg(schema)))
+}
+
 
 #' Build the Cerrado raster stack for IV / quantum-foundation benchmarks
 #'
@@ -265,7 +283,8 @@ foundation_build_cerrado_stack <- function(
       geodata::soil_world(var = sg_vars[[nm]], depth = 5,
                            path = cache_dir),
       error = function(e) {
-        message("      [warn] ", conditionMessage(e)); NULL
+        warning(sprintf("layer fetch failed: %s", conditionMessage(e)),
+                call. = FALSE); NULL
       })
     if (!is.null(r)) {
       r <- terra::crop(r, ext_bbox)
@@ -281,7 +300,8 @@ foundation_build_cerrado_stack <- function(
     prec <- tryCatch(
       geodata::worldclim_country("BRA", var = "prec", path = cache_dir),
       error = function(e) {
-        message("      [warn] ", conditionMessage(e)); NULL
+        warning(sprintf("layer fetch failed: %s", conditionMessage(e)),
+                call. = FALSE); NULL
       })
     if (!is.null(prec)) {
       prec <- terra::resample(terra::crop(prec, ext_bbox), template,
@@ -297,7 +317,8 @@ foundation_build_cerrado_stack <- function(
     tavg <- tryCatch(
       geodata::worldclim_country("BRA", var = "tavg", path = cache_dir),
       error = function(e) {
-        message("      [warn] ", conditionMessage(e)); NULL
+        warning(sprintf("layer fetch failed: %s", conditionMessage(e)),
+                call. = FALSE); NULL
       })
     if (!is.null(tavg)) {
       tavg <- terra::resample(terra::crop(tavg, ext_bbox), template,
@@ -313,7 +334,8 @@ foundation_build_cerrado_stack <- function(
     bio <- tryCatch(
       geodata::worldclim_global(var = "bio", res = 10, path = cache_dir),
       error = function(e) {
-        message("      [warn] ", conditionMessage(e)); NULL
+        warning(sprintf("layer fetch failed: %s", conditionMessage(e)),
+                call. = FALSE); NULL
       })
     if (!is.null(bio)) {
       b1  <- terra::resample(terra::crop(bio[[1]],  ext_bbox), template)
@@ -334,8 +356,8 @@ foundation_build_cerrado_stack <- function(
       tryCatch(
         geodata::elevation_global(res = 0.5, path = cache_dir),
         error = function(e2) {
-          message("      [warn] elev fetch failed: ",
-                   conditionMessage(e2)); NULL
+          warning(sprintf("elevation fetch failed: %s",
+                          conditionMessage(e2)), call. = FALSE); NULL
         })
     })
   if (!is.null(elev)) {
@@ -360,10 +382,28 @@ foundation_build_cerrado_stack <- function(
     stop("No layers could be built. Check network + geodata cache.",
           call. = FALSE)
 
+  # Every source fetch above degrades to NULL on failure and is merely
+  # skipped, so a partial network failure used to yield a silently
+  # truncated stack that was then written to the schema-keyed cache and
+  # reused for good.  A schema is a contract about channel count: assert
+  # it before anything is cached.
+  expected <- .stack_expected_layers(schema)
+  if (terra::nlyr(stk_n <- terra::rast(layers)) != expected) {
+    got <- names(layers)
+    stop(sprintf(paste0(
+      "schema '%s' requires %d layers but only %d could be built (%s).\n",
+      "  Missing: %s\n",
+      "  Nothing has been cached. Re-run when every source is reachable, ",
+      "or pass schema = \"minimal\" for the 10-channel stack."),
+      schema, expected, length(got), paste(got, collapse = ", "),
+      paste(setdiff(.stack_layer_names(schema), got), collapse = ", ")),
+      call. = FALSE)
+  }
+
   # `do.call(c, layers)` falls through to base::c when terra isn't
   # attached.  `terra::rast(list_of_spatrasters)` is the canonical
   # multi-layer constructor and dispatches reliably.
-  stk <- terra::rast(layers)
+  stk <- stk_n
   terra::writeRaster(stk, stack_path, overwrite = TRUE)
   message(sprintf("  Wrote %s (%.1f MB, %d layers)",
                    stack_path, file.size(stack_path) / 1024^2,

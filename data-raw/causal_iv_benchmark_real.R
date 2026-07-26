@@ -61,15 +61,20 @@ message(sprintf(
   moco$feature_dim, moco$n_channels, ENCODER_PATCH_SIZE
 ))
 
-# Canonical training-time means / sds.  For the synthetic-stack mode
-# we use zero-mean unit-sd; for the real-stack mode a future v1.9.2
-# release will persist the real per-channel stats alongside the weights.
-dataset_meta <- list(
-  patch_size = ENCODER_PATCH_SIZE,
-  n_channels = moco$n_channels,
-  means      = rep(0, moco$n_channels),
-  sds        = rep(1, moco$n_channels)
-)
+# NORMALISATION.  The v1 encoder's training means / sds were never
+# persisted -- the weights registry has no such fields -- so the exact
+# training normalisation is unrecoverable, by anyone, including the
+# author.  Passing means = 0 / sds = 1, as this script did through
+# v1.9.3, feeds raw geophysical magnitudes (SoilGrids g/kg, WorldClim
+# mm, SRTM m) straight into a network trained on standardised inputs.
+# Measured consequence: ~46 % of the 64 backbone channels die (post-ReLU
+# average-pooled output is exactly zero), against ~5 % for correctly
+# standardised input.  Half the encoder's capacity is switched off.
+#
+# We therefore standardise each channel over the AoI itself.  This is an
+# APPROXIMATION of the training normalisation, not a reconstruction of
+# it, and the bundle records that fact so no reader can mistake the two.
+dataset_meta <- NULL   # filled in section 2, once the stack exists
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 2. Build (or load) the raster stack
@@ -92,21 +97,27 @@ message(sprintf("  AoI bbox: [%.2f, %.2f, %.2f, %.2f]", bbox[1], bbox[2],
 
 if (USE_REAL) {
   message("  EDAPHOS_IV_REAL_STACK=1 -- building real SoilGrids/WorldClim/SRTM stack ...")
+  # 0.01 deg is the grid the v1 encoder was trained on (see its registry
+  # description); 0.05 fed it patches at 5x the training scale.
   stack_real <- foundation_build_cerrado_stack(
-    bbox = bbox, target_res = 0.05
+    bbox = bbox, target_res = 0.01,
+    cache_dir = if (nzchar(Sys.getenv("EDAPHOS_GEOCACHE")))
+      Sys.getenv("EDAPHOS_GEOCACHE") else
+      tools::R_user_dir("edaphos", which = "cache")
   )
   if (terra::nlyr(stack_real) != moco$n_channels) {
-    message(sprintf(
-      "  [warn] real stack has %d layers; encoder expects %d.",
-      terra::nlyr(stack_real), moco$n_channels
-    ))
-    message("  Falling back to synthetic 31-channel stack ...")
-    stack_to_use <- NULL
-  } else {
-    stack_to_use <- stack_real
+    # Reachable only if the schema assertion in
+    # foundation_build_cerrado_stack() is ever relaxed.  Do not fall back
+    # silently: a synthetic stack answers a different question.
+    stop(sprintf(
+      "real stack has %d layers; encoder expects %d. Refusing to fall back to a synthetic stack -- that would silently change what this benchmark measures.",
+      terra::nlyr(stack_real), moco$n_channels), call. = FALSE)
   }
+  stack_to_use <- stack_real
+  STACK_SOURCE <- "real"
 } else {
   stack_to_use <- NULL
+  STACK_SOURCE <- "synthetic-fallback"
 }
 
 # Synthetic fallback: 31-channel random raster stack.  Structural
@@ -163,6 +174,25 @@ if (is.null(stack_to_use)) {
                    terra::nrow(stk), terra::ncol(stk),
                    terra::nlyr(stk), res_deg))
 }
+
+# Per-channel standardisation computed over the AoI (see the note above).
+ch_stats <- terra::global(stack_to_use, fun = c("mean", "sd"), na.rm = TRUE)
+dataset_meta <- list(
+  patch_size = ENCODER_PATCH_SIZE,
+  n_channels = moco$n_channels,
+  means      = as.numeric(ch_stats[, "mean"]),
+  sds        = pmax(as.numeric(ch_stats[, "sd"]), .Machine$double.eps),
+  normalisation_source = "aoi",   # NOT the encoder's training statistics
+  normalisation_note   = paste(
+    "Per-channel mean/sd computed over this AoI. The v1 encoder's training",
+    "statistics were never persisted and cannot be recovered, so these",
+    "embeddings are not bit-identical to the ones the encoder saw in",
+    "training and the results are not directly comparable to any figure",
+    "published before this note existed.")
+)
+message(sprintf("  Normalisation: AoI-derived, %d channels, mean range [%.3g, %.3g]",
+                length(dataset_meta$means),
+                min(dataset_meta$means), max(dataset_meta$means)))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Extract embeddings at WoSIS coords
@@ -275,7 +305,18 @@ R_out <- list(
   encoder_tag            = ENCODER_TAG,
   encoder_feature_dim    = moco$feature_dim,
   encoder_n_channels     = moco$n_channels,
-  used_real_stack        = USE_REAL,
+  # What actually happened, not what was requested.  Through v1.9.3 this
+  # field recorded the environment variable, so a run that silently fell
+  # back to a synthetic stack still reported used_real_stack = TRUE.
+  stack_source           = STACK_SOURCE,
+  used_real_stack        = identical(STACK_SOURCE, "real"),
+  requested_real_stack   = USE_REAL,
+  normalisation_source   = dataset_meta$normalisation_source,
+  normalisation_note     = dataset_meta$normalisation_note,
+  dead_channel_share     = mean(emb_k == 0),
+  encoder_training_aoi   = "lon -53 to -43, lat -23 to -10",
+  aoi_exceeds_training   = !(bbox[1] >= -53 && bbox[3] <= -43 &&
+                              bbox[2] >= -23 && bbox[4] <= -10),
   stack_nlyr             = terra::nlyr(stack_to_use),
   stack_res_deg          = terra::xres(stack_to_use),
   stack_bbox             = bbox,

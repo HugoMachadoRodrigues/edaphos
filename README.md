@@ -665,39 +665,35 @@ causal-analog of observational uncertainty.
 `vignette("pilar1-causal-real")`,
 `vignette("causal-discovery-trio")`.
 
-### v1.8.0 — Multi-backend LLM extraction benchmark
+### Multi-backend LLM extraction: harness, not vendor comparison
 
-The first quantitative validation of the Gemma 4 extractor that
-powers Pillar 1. A **gold standard of 30 Cerrado abstracts × 72
-expert-annotated causal claims**
-(`inst/extdata/cerrado_gold_standard_v1.jsonl`) is compared against
-extractions from three backends through `causal_llm_extract()`:
+Pillar 1's extractor can be driven by three backends (local Ollama,
+OpenAI, Anthropic) through `causal_llm_extract()`, and
+`causal_llm_vote()` combines them. A gold standard of **30 Cerrado
+abstracts × 72 expert-annotated causal claims**
+(`inst/extdata/cerrado_gold_standard_v1.jsonl`) is shipped so the
+scoring harness can be exercised offline.
 
-| Backend              | Precision | Recall | F1     | Cost/10k abs. | Latency (median) |
-|:---------------------|----------:|-------:|-------:|--------------:|----------------:|
-| Gemma 4 (local)      | 0.75      | 0.67   | 0.71   | **$0**        | 16 s             |
-| GPT-4o-mini          | 0.70      | 0.71   | 0.70   | $1.71         | **2.8 s**        |
-| **Claude Sonnet-4.5** | **0.82** | **0.82** | **0.82** | $37.50     | 5.4 s            |
+**No measured vendor comparison is published here.** The shipped
+bundle `inst/extdata/llm_benchmark_results.rds` carries
+`mode = "simulated"`: it is the output of `llm_benchmark_simulate()`,
+a deterministic noise model whose precision, recall, latency and cost
+are *inputs* supplied by the caller (see the `sim_args` list in
+`data-raw/llm_benchmark_run.R`). Earlier releases of this README
+presented those inputs as a measured head-to-head table of Gemma,
+GPT-4o-mini and Claude scores. No API was ever called to produce them,
+so the table has been withdrawn.
 
-**Key findings.**
+What the simulated bundle legitimately demonstrates is that the
+harness works end to end: scoring against the gold standard, pairwise
+agreement, cost and latency accounting, and the voting rules all run
+deterministically in CI without network access or API keys.
 
-- **Claude has the best F1** (0.82) and is the only backend that
-  reaches "substantial" Cohen's κ with the human annotator (0.57,
-  Landis-Koch threshold 0.60).
-- **GPT-4o-mini is the fastest** (2.8 s vs. 5.4 s vs. 16 s median
-  latency per abstract).
-- **Gemma 4 is the only free option**; at a 10 000-abstract scale,
-  switching from Claude to Gemma 4 saves ~$37.50 at the cost of
-  11 F1-points.
-- **Backends disagree strongly on which abstracts to extract**
-  (κ ≈ −0.08 to 0.12 pairwise), which means combining them via
-  `causal_llm_vote()` captures complementary strengths. This finding
-  **justifies the three-backend architecture** already shipped.
-
-The benchmark runs reproducibly in CI using
-`llm_benchmark_simulate()`, a deterministic noise model calibrated to
-published profiles for each backend. For real API runs, set
-`EDAPHOS_USE_REAL_LLM=1` and provide the relevant API keys.
+To produce a real comparison, set `EDAPHOS_USE_REAL_LLM=1`, provide the
+API keys, and re-run `data-raw/llm_benchmark_run.R`; the bundle it
+writes will carry `mode = "real"`, and
+`tests/testthat/test-headline-claims.R` will then permit a
+vendor-attributed table in this section.
 
 📖 Vignette: `vignette("llm-kg-benchmark")`.
 
@@ -830,39 +826,73 @@ MoCo v2 encoder (v1.9.1) rather than engineered proxies.
 
 📖 Vignette: `vignette("pilar1-pilar4-iv")`.
 
-### v1.9.1 — Real MoCo v2 patch extraction passes the Sargan test
+### Foundation-model embeddings as instruments: what the Sargan test actually says
 
-Two new functions close the loop from the v1.9.0 thesis to real
+Two functions close the loop from the identification argument to
 empirical evidence:
 
 - **`foundation_embed_at_coords(moco, coords, stack, dataset, ...)`**
   extracts one embedding per query coordinate by cutting a
   `patch_size x patch_size` window, normalising, and running the
-  encoder forward — O(minutes) for 1 095 WoSIS profiles on Apple M1
-  Max MPS.
+  encoder forward — 17 s for 1 095 WoSIS profiles on Apple M1 Max MPS.
 - **`foundation_build_cerrado_stack(bbox, ...)`** assembles the
-  SoilGrids + WorldClim + SRTM raster stack the encoder was trained
-  on (optional live `geodata` download, ~200 MB cached to disk).
+  31-channel SoilGrids + WorldClim + SRTM stack the encoder was
+  trained on (measured: 1.84 GB downloaded, 3.0 min, cached to disk).
 
 Using the Zenodo-published `edaphos-cerrado-moco-v1` encoder on the
-1 095 Cerrado profiles:
+1 095 Cerrado profiles, at the encoder's native 0.01-deg grid:
 
-| Exposure | v1.9.0 Sargan p (proxy) | **v1.9.1 Sargan p (real MoCo)** |
-|:---|---:|---:|
-| MAP → SOC | < 10⁻¹² ❌ | **0.343** ✅ |
-| Tree cover → SOC | < 10⁻⁹ ❌ | **0.283** ✅ |
-| Clay → SOC | < 10⁻¹² ❌ | **0.424** ✅ |
+| Exposure | Stage-1 F | Sargan p | Over-identification |
+|:---|---:|---:|:---|
+| MAP → SOC        | **862** | **0.250** | not rejected |
+| Tree cover → SOC | 8.4     | 0.042     | rejected |
+| Clay → SOC       | 11.0    | 0.0030    | rejected |
 
-**The decisive test passes.** An encoder pretrained by contrastive
-self-supervision *without seeing SOC* produces structurally valid
-instruments where any feature engineered from observed X fails
-exclusion. This is the central empirical contribution of v1.9.1.
+**The result is partial, and that is the finding.** For mean annual
+precipitation the instruments are strong (F = 862) and the
+over-identification restriction is not rejected: an encoder pretrained
+by contrastive self-supervision *without ever seeing SOC* does yield
+structurally valid instruments for that exposure, and the 2SLS estimate
+(β = 0.0126) is 64 % larger than the backdoor-OLS estimate
+(β = 0.0077), the direction expected when attenuation from covariate
+measurement error is corrected.
 
-**Honest caveat.** Stage-1 F drops to 7-10 (from ~20 000 under
-proxies) because the synthetic CI-mode raster stack lacks the real
-spatial autocorrelation of SoilGrids. Running with
-`EDAPHOS_IV_REAL_STACK=1` + the full 200 MB download lifts F back
-into a practically-useful range (work scoped for v1.9.2).
+For tree cover and clay the same instruments fail. Tree cover also has
+a first-stage F of 8.4, below the conventional threshold of 10, so its
+2SLS estimate should not be read as identified at all. Clay's Sargan
+p = 0.003 rejects exclusion outright.
+
+**Three limitations that bound every number above.**
+
+1. *The encoder's training normalisation was never persisted.* The
+   weights registry has no per-channel mean/sd for
+   `edaphos-cerrado-moco-v1`, so the exact standardisation it was
+   trained under is unrecoverable. The figures above use per-channel
+   statistics computed over this area of interest, which is an
+   approximation, not a reconstruction. The bundle records this as
+   `normalisation_source = "aoi"`. Every future encoder must publish
+   its statistics; the registry now carries a `norm_stats_status`
+   field so the gap is visible rather than assumed away.
+2. *The area of interest exceeds the training region.* The WoSIS
+   profiles span 18.4° × 21.9°; the encoder was trained on the Cerrado
+   core, 10° × 13°. The bundle records `aoi_exceeds_training = TRUE`.
+   21.8 % of the encoder's 64 backbone channels are dead (exactly zero
+   after post-ReLU average pooling) on this input, against roughly 5 %
+   for input drawn from the distribution it was trained on.
+3. *These are single-run values.* Sargan p = 0.042 for tree cover sits
+   close enough to 0.05 that it should not be treated as a sharp
+   verdict without a resampling study.
+
+Earlier releases of this README reported Sargan p of 0.343 / 0.283 /
+0.424 for the three exposures and concluded that the test passed for
+all of them. Those figures were produced with the normalisation
+placeholder `means = 0`, `sds = 1`, which fed raw geophysical
+magnitudes into a network trained on standardised inputs and killed
+about half its channels. They have been withdrawn and replaced by the
+table above. `tests/testthat/test-headline-claims.R` now asserts every
+figure in this section against the shipped
+`inst/extdata/causal_iv_cerrado_real.rds`, so the two cannot drift
+apart again.
 
 ### v1.9.2 — Cinelli & Hazlett (2020) sensitivity analysis
 

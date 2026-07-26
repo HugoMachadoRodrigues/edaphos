@@ -158,3 +158,36 @@ test_that("foundation_embed_at_coords: errors on NULL patch_size without dataset
     regexp = "patch_size"
   )
 })
+
+## ---------------------------------------------------------------------------
+## Stack schema contract.  A partial network failure used to yield a silently
+## truncated stack that was written to the schema-keyed cache and reused for
+## good; the encoder then ran on the wrong number of channels.
+## ---------------------------------------------------------------------------
+
+test_that("stack schemas declare an exact channel count", {
+  expect_equal(edaphos:::.stack_expected_layers("v1_encoder"), 31L)
+  expect_equal(edaphos:::.stack_expected_layers("minimal"), 10L)
+  expect_length(edaphos:::.stack_layer_names("v1_encoder"), 31L)
+  expect_length(edaphos:::.stack_layer_names("minimal"), 10L)
+  # the v1 encoder registry row must agree with the schema it is fed
+  reg <- foundation_weights_list()
+  v1  <- reg[reg$name == "edaphos-cerrado-moco-v1", ]
+  expect_equal(v1$n_channels, edaphos:::.stack_expected_layers("v1_encoder"))
+  # names are unique, so a duplicated layer cannot pad the count
+  expect_false(anyDuplicated(edaphos:::.stack_layer_names("v1_encoder")) > 0L)
+})
+
+test_that("the weights registry records whether normalisation stats exist", {
+  reg <- foundation_weights_list()
+  expect_true(all(c("norm_stats_url", "norm_stats_status") %in% names(reg)))
+  expect_true(all(reg$norm_stats_status %in%
+                    c("unrecoverable", "pending", "published")))
+  # v1's training statistics were never persisted; the registry must say so
+  # rather than leave a consumer to assume mean 0 / sd 1.
+  v1 <- reg[reg$name == "edaphos-cerrado-moco-v1", ]
+  expect_identical(v1$norm_stats_status, "unrecoverable")
+  # a row claiming "published" must carry a URL
+  pub <- reg[reg$norm_stats_status == "published", ]
+  if (nrow(pub)) expect_true(all(!is.na(pub$norm_stats_url)))
+})

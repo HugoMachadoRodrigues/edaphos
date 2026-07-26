@@ -154,9 +154,8 @@ for (fd in 1:5) {
                   else post$mean
     mae_val    <- mean(abs(point_pred - truth), na.rm = TRUE)
     rmse_val   <- sqrt(mean((point_pred - truth)^2, na.rm = TRUE))
-    r2_val     <- max(0, 1 -
-                          mean((point_pred - truth)^2, na.rm = TRUE) /
-                          mean((truth - mean(truth))^2))
+    # Unclamped on purpose -- see the note in benchmark_wosis_p4_p5_p7.R.
+    r2_val     <- edaphos_r2(truth, point_pred)
     data.frame(method = name, fold = fd, n_test = n_te,
                  rmse = rmse_val, mae = mae_val, r2 = r2_val,
                  crps = cal$crps, picp90 = picp90, mpiw90 = mpiw90,
