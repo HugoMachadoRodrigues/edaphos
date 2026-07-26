@@ -1,0 +1,121 @@
+{
+ "schema": "edaphos-status-check-classification/1",
+ "provenance": {
+  "purpose": "Classify each item a real `R CMD check --as-cran` run reports as either a package DEFECT or an artefact of the MEASURING ENVIRONMENT. The item names, counts and verbatim text are read from the check log by tools/status/facts.R; only the classification and the source attribution below are editorial.",
+  "measured_on_commit": "272b378a188a3cb85a02c075b64d58cd42439267",
+  "check_command": "R CMD build . && R CMD check --as-cran edaphos_3.10.0.tar.gz",
+  "environment_note": "_R_CHECK_FORCE_SUGGESTS_=false was required because 10 Suggests are not installable in this environment. qpdf is absent; HTML Tidy is older than R expects."
+ },
+ "items": [
+  {
+   "check": "checking CRAN incoming feasibility",
+   "level": "NOTE",
+   "class": "defect",
+   "summary": "CRAN reports this as a New submission -- the package has never been on CRAN -- and flags 2 URLs that redirect 301.",
+   "source": "README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr). Tarball is 15734027 bytes.",
+   "fix": "Add the trailing slash in README.md and update the geobr URL in vignettes/case-cerrado-end-to-end.Rmd. The 'New submission' line is not fixable and not a defect in itself -- it is recorded here because it contradicts every artefact that implies the package is released.",
+   "blocks_cran": false,
+   "note": "'New submission' is R's own confirmation that nothing named edaphos exists on CRAN, at version 3.10.0 with 43 NEWS releases behind it."
+  },
+  {
+   "check": "checking tests",
+   "level": "ERROR",
+   "class": "defect",
+   "summary": "The test suite fails: 2 errors.",
+   "source": "tests/testthat/test-foundation-weights.R:33 and tests/testthat/test-active-quantum-posterior.R:34",
+   "fix": "See findings FC68E1D (move .moco_require_torch below the argument validation in R/foundation_weights.R) and FAEC54C (validate num.trees in R/active_fit.R, seed the test).",
+   "blocks_cran": true
+  },
+  {
+   "check": "checking PDF version of manual",
+   "level": "WARNING",
+   "class": "defect",
+   "summary": "pdflatex cannot typeset two raw Unicode characters used in Rd text.",
+   "source": "R/foundation_finetune.R:165 (U+2265 GREATER-THAN OR EQUAL) and R/foundation_finetune.R:436 (U+2208 ELEMENT OF); man/*.Rd is roxygen-generated so the fix must land in R/ and be re-documented.",
+   "fix": "Replace with \\eqn{\\ge} / \\eqn{\\in} or ASCII, then roxygen2::roxygenise(). The 165 em-dashes and 18 en-dashes in Rd are safe -- R's Rd-to-LaTeX pass maps them.",
+   "blocks_cran": true
+  },
+  {
+   "check": "checking PDF version of manual without index",
+   "level": "ERROR",
+   "class": "defect",
+   "summary": "Same root cause as the PDF-manual WARNING.",
+   "source": "R/foundation_finetune.R:165,436",
+   "fix": "Resolved by the same change.",
+   "blocks_cran": true
+  },
+  {
+   "check": "checking Rd files",
+   "level": "NOTE",
+   "class": "defect",
+   "summary": "Escaped LaTeX special \\~ in Rd text.",
+   "source": "R/foundation_embed_coords.R:207",
+   "fix": "Use \\eqn{\\sim} or the word 'about'.",
+   "blocks_cran": false
+  },
+  {
+   "check": "checking installed package size",
+   "level": "INFO",
+   "class": "defect",
+   "summary": "Installed size far above the CRAN 5 MB guidance; becomes a NOTE on CRAN's incoming checks.",
+   "source": "inst/extdata (result bundles) and man/figures/logo.png",
+   "fix": "See finding FDE7C43. The single cheapest win is re-encoding man/figures/logo.png.",
+   "blocks_cran": false
+  },
+  {
+   "check": "checking for hidden files and directories",
+   "level": "NOTE",
+   "class": "defect",
+   "summary": ".git was included in the tarball because .Rbuildignore has no ^\\.git$ entry.",
+   "source": ".Rbuildignore",
+   "fix": "Add ^\\.git$. Note this surfaces here because the build ran from a git worktree, where .git is a plain file rather than a directory; adding the pattern makes the build correct from either layout.",
+   "blocks_cran": false
+  },
+  {
+   "check": "checking top-level files",
+   "level": "NOTE",
+   "class": "environment",
+   "summary": "GATEOUT.rds at top level -- a byproduct of the audit tooling, not of the package.",
+   "source": "removed from the worktree before the clean baseline run",
+   "fix": "None. Absent from the clean baseline.",
+   "blocks_cran": false
+  },
+  {
+   "check": "checking HTML version of manual",
+   "level": "NOTE",
+   "class": "environment",
+   "summary": "The local HTML Tidy is older than R requires, so HTML validation was skipped.",
+   "source": "measuring machine",
+   "fix": "None needed in the package.",
+   "blocks_cran": false
+  },
+  {
+   "check": "checking for non-standard things in the check directory",
+   "level": "NOTE",
+   "class": "environment",
+   "summary": "edaphos-manual.tex left behind by the failed LaTeX run.",
+   "source": "consequence of the PDF-manual failure above",
+   "fix": "Disappears once the Unicode fix lands.",
+   "blocks_cran": false
+  },
+  {
+   "check": "checking for detritus in the temp directory",
+   "level": "NOTE",
+   "class": "environment",
+   "summary": "Temporary directory left by the failed LaTeX run.",
+   "source": "consequence of the PDF-manual failure above",
+   "fix": "Disappears once the Unicode fix lands.",
+   "blocks_cran": false
+  },
+  {
+   "check": "R CMD build (vignettes)",
+   "level": "ERROR",
+   "class": "defect",
+   "summary": "The tarball cannot be built at all when the Suggests package dagitty is absent: the vignette's setup chunk calls causal_cerrado_dag() with no availability guard, so build aborts. DESCRIPTION claims 'A synthesised Cerrado dataset is bundled so every vignette runs offline'.",
+   "source": "vignettes/pilar1-causal.Rmd:58-65",
+   "fix": "Guard the chunk with requireNamespace('dagitty') (the pattern the R/ code already uses via .causal_require_dagitty), or set eval=FALSE with a precomputed result, as the other heavy vignettes do.",
+   "blocks_cran": false,
+   "note": "CRAN installs Suggests, so this would not block CRAN itself -- but it does block every contributor and any reproduction attempt on a lean machine, and it falsifies the offline claim."
+  }
+ ]
+}

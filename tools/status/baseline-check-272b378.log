@@ -1,0 +1,177 @@
+# Verbatim `R CMD check --as-cran` log for edaphos at commit 272b378.
+# Produced by: R CMD build . && R CMD check --as-cran edaphos_3.10.0.tar.gz
+# _R_CHECK_FORCE_SUGGESTS_=false (10 Suggests unavailable in the measuring environment).
+# Absolute scratch paths replaced by <CHECKDIR>.  Parsed by tools/status/facts.R.
+# ---------------------------------------------------------------------------
+* using log directory ‘<CHECKDIR>/check3/edaphos.Rcheck’
+* using R version 4.6.1 (2026-06-24)
+* using platform: aarch64-apple-darwin23
+* R was compiled by
+    Apple clang version 17.0.0 (clang-1700.3.19.1)
+    GNU Fortran (GCC) 14.2.0
+* running under: macOS Tahoe 26.5.2
+* using session charset: UTF-8
+* current time: 2026-07-26 14:46:00 UTC
+* using option ‘--as-cran’
+* checking for file ‘edaphos/DESCRIPTION’ ... OK
+* this is package ‘edaphos’ version ‘3.10.0’
+* package encoding: UTF-8
+* checking CRAN incoming feasibility ...Warning: unable to access index for repository https://bioconductor.org/packages/3.23/bioc/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/bioc/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/annotation/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/annotation/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/experiment/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/experiment/src/contrib/PACKAGES'
+ [4s/256s] NOTE
+Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
+
+New submission
+
+Found the following (possibly) invalid URLs:
+  URL: https://github.com/ipeaGIT/geobr (moved to https://github.com/ipea/geobr)
+    From: inst/doc/case-cerrado-end-to-end.html
+    Status: 301
+    Message: Moved Permanently
+  URL: https://hugomachadorodrigues.github.io/edaphos (moved to https://hugomachadorodrigues.github.io/edaphos/)
+    From: README.md
+    Status: 301
+    Message: Moved Permanently
+For content that is 'Moved Permanently', please change http to https,
+add trailing slashes, or replace the old by the new URL.
+
+Size of tarball: 15734027 bytes
+* checking package namespace information ... OK
+* checking package dependencies ...Warning: unable to access index for repository https://bioconductor.org/packages/3.23/bioc/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/bioc/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/annotation/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/annotation/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/experiment/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/experiment/src/contrib/PACKAGES'
+ INFO
+Packages suggested but not available for checking:
+  'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'geodata', 'ggdag',
+  'ggridges', 'ontologyIndex', 'spBayes', 'torch'
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... NOTE
+Found the following hidden files and directories:
+  .git
+These were most likely included in error. See section ‘Package
+structure’ in the ‘Writing R Extensions’ manual.
+
+CRAN-pack does not know about
+  .git
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘edaphos’ can be installed ... [11s/11s] OK
+* used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.1.1.101)’
+* used SDK: ‘MacOSX26.5.sdk’
+* checking installed package size ... INFO
+  installed size is 18.4Mb
+  sub-directories of 1Mb or more:
+    doc       4.6Mb
+    extdata   9.6Mb
+    help      2.9Mb
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking ‘build’ directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking use of S3 registration ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... NOTE
+checkRd: (-1) foundation_build_cerrado_stack.Rd:61: Escaped LaTeX specials: \~
+* checking Rd metadata ... OK
+* checking Rd line widths ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking LazyData ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking use of PKG_*FLAGS in Makefiles ... OK
+* checking use of SHLIB_OPENMP_*FLAGS in Makefiles ... OK
+* checking pragmas in C/C++ headers and code ... OK
+* checking compilation flags used ... OK
+* checking compiled code ... OK
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... OK
+* checking examples with --run-donttest ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘testthat.R’ [46s/31s]
+ [46s/31s] ERROR
+Running the tests in ‘tests/testthat.R’ failed.
+Last 13 lines of output:
+  Backtrace:
+      ▆
+   1. ├─testthat::expect_error(foundation_weights_load(f), regexp = "requires.*n_channels") at test-foundation-weights.R:33:3
+   2. │ └─testthat:::expect_condition_matching_(...)
+   3. │   └─testthat:::quasi_capture(...)
+   4. │     ├─testthat (local) .capture(...)
+   5. │     │ └─base::withCallingHandlers(...)
+   6. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+   7. └─edaphos::foundation_weights_load(f)
+   8.   └─edaphos:::.moco_require_torch()
+  
+  [ FAIL 2 | WARN 2 | SKIP 76 | PASS 1116 ]
+  Error:
+  ! Test failures.
+  Execution halted
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes ... OK
+* checking re-building of vignette outputs ... [50s/39s] OK
+* checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
+LaTeX errors found:
+! LaTeX Error: Unicode character ≥ (U+2265)
+               not set up for use with LaTeX.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+! LaTeX Error: Unicode character ∈ (U+2208)
+               not set up for use with LaTeX.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+* checking PDF version of manual without index ... ERROR
+* checking HTML version of manual ... NOTE
+Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
+Please obtain a recent version of HTML Tidy by downloading a binary
+release or compiling the source code from <https://www.html-tidy.org/>.
+* checking for non-standard things in the check directory ... NOTE
+Found the following files/directories:
+  ‘edaphos-manual.tex’
+* checking for detritus in the temp directory ... NOTE
+Found the following files/directories:
+  ‘tmpl_pg5ehe’
+* DONE
+
+Status: 2 ERRORs, 1 WARNING, 6 NOTEs
+See
+  ‘<CHECKDIR>/check3/edaphos.Rcheck/00check.log’
+for details.
+
