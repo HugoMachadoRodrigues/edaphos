@@ -20,8 +20,22 @@ of the hosted artefact.
 New encoders are added by the \code{edaphos} maintainers on each minor
 release and propagated through the package. Users with bespoke
 pretrained encoders can bypass the registry entirely by passing a
-local \code{.pt} path directly to \code{\link[=foundation_weights_load]{foundation_weights_load()}}.
+local \code{.pt} path to \code{\link[=foundation_weights_load]{foundation_weights_load()}} — but a bare state
+dict carries no shape metadata, so that route additionally requires
+\code{n_channels}, \code{feature_dim} and \code{proj_dim}. For registered
+encoders those three come from the columns below.
 }
 \examples{
-foundation_weights_list()
+reg <- foundation_weights_list()
+print(reg[, c("name", "n_channels", "feature_dim", "proj_dim",
+              "norm_stats_status")])
+
+# Only rows with a non-NA `url` can actually be fetched; the rest
+# are placeholders for a future release and error on download.
+print(reg$name[!is.na(reg$url)])
+
+# `norm_stats_status` is not cosmetic. v1's per-channel training
+# mean / sd were never written down and are unrecoverable, so an
+# exact reproduction of its training-time inputs is not possible:
+# standardise over your own area of interest, and say that you did.
 }

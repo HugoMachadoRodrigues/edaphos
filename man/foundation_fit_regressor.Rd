@@ -57,16 +57,52 @@ user never has to think about the numerical range of the head.
 \examples{
 \dontrun{
   moco <- foundation_weights_load("edaphos-cerrado-moco-v1")
-  ds   <- readRDS("tools/pretrain/cerrado_dataset.rds")
-  patches <- array(rnorm(300 * ds$n_channels * 16 * 16),
-                   dim = c(300, ds$n_channels, 16, 16))
-  soc <- rnorm(300, mean = 15, sd = 6)
+  n_ch <- moco$n_channels
+
+  # SYNTHETIC PATCHES, NOT A SOIL SURVEY -- as in
+  # foundation_fit_classifier(), the signal is planted by hand.
+  # Each patch gets its own offset in channel 1 and `soc` is a
+  # linear function of that offset plus noise, so the target really
+  # does depend on the patch it is paired with.
+  set.seed(2)
+  level   <- rnorm(300)
+  patches <- array(rnorm(300 * n_ch * 16 * 16),
+                   dim = c(300, n_ch, 16, 16))
+  patches[, 1, , ] <- patches[, 1, , ] + level
+  soc <- 15 + 6 * level + rnorm(300, sd = 2)   # stands in for g/kg
+
   fit <- foundation_fit_regressor(
     moco, patches, soc,
     freeze_backbone = TRUE, head = "linear",
     epochs = 40L, device = "mps", seed = 1L
   )
-  predict(fit, patches[1:10, , , , drop = FALSE])
+
+  # An RMSE means nothing on its own: compare it with the RMSE of
+  # predicting mean(soc) for every patch, which is sd(soc). A local
+  # encoder of the same architecture cuts it to about two fifths of
+  # that -- and that ratio is a property of the planted signal, not
+  # evidence that the encoder knows anything about carbon.
+  print(c(best_val_rmse       = min(fit$val_rmse_history, na.rm = TRUE),
+          intercept_only_rmse = stats::sd(soc)))
+
+  pred <- predict(fit, patches)
+  print(c(cor_pred_soc = stats::cor(pred, soc)))
+  print(round(utils::head(pred, 10), 2))
+
+  # Delete the line that adds `level` into `patches` -- i.e. make
+  # `soc` independent of the input, as an earlier version of this
+  # example did -- and the only attainable model is the intercept:
+  # `cor_pred_soc` goes to ~0, the ten printed predictions bunch up
+  # near mean(soc) instead of tracking it, and the held-out RMSE
+  # stops beating sd(soc) (it lands slightly worse, since the head
+  # still fits the training noise). Printing predictions from that
+  # fit, as the earlier example did, shows an intercept dressed up
+  # as a soil map.
+
+  # Nothing here maps SOC. That needs patches cut from real
+  # covariate rasters (foundation_tile_align() ->
+  # foundation_tile_dataset()), standardised over your own area of
+  # interest, and measured SOC at those same locations.
 }
 }
 \seealso{

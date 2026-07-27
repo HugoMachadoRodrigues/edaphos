@@ -114,11 +114,25 @@
 #' New encoders are added by the `edaphos` maintainers on each minor
 #' release and propagated through the package. Users with bespoke
 #' pretrained encoders can bypass the registry entirely by passing a
-#' local `.pt` path directly to [foundation_weights_load()].
+#' local `.pt` path to [foundation_weights_load()] — but a bare state
+#' dict carries no shape metadata, so that route additionally requires
+#' `n_channels`, `feature_dim` and `proj_dim`. For registered
+#' encoders those three come from the columns below.
 #'
 #' @return A data frame; one row per registered encoder.
 #' @examples
-#' foundation_weights_list()
+#' reg <- foundation_weights_list()
+#' print(reg[, c("name", "n_channels", "feature_dim", "proj_dim",
+#'               "norm_stats_status")])
+#'
+#' # Only rows with a non-NA `url` can actually be fetched; the rest
+#' # are placeholders for a future release and error on download.
+#' print(reg$name[!is.na(reg$url)])
+#'
+#' # `norm_stats_status` is not cosmetic. v1's per-channel training
+#' # mean / sd were never written down and are unrecoverable, so an
+#' # exact reproduction of its training-time inputs is not possible:
+#' # standardise over your own area of interest, and say that you did.
 #' @export
 foundation_weights_list <- function() {
   .foundation_weights_registry()
@@ -189,10 +203,33 @@ foundation_weights_list <- function() {
 #' }
 #' @seealso [foundation_weights_load()], [foundation_weights_list()].
 #' @examples
+#' # Needs network access to Zenodo, so it is not run here.
 #' \dontrun{
 #'   loc <- foundation_weights_download("edaphos-cerrado-moco-v1",
-#'                                        verbose = TRUE)
-#'   moco <- foundation_weights_load(loc$path)
+#'                                      verbose = TRUE)
+#'
+#'   # This function only fetches and SHA-256-verifies the file; it
+#'   # builds no encoder. `loc$path` is a bare state dict, and loading
+#'   # from a *path* cannot infer the encoder geometry, so the three
+#'   # shapes are mandatory. They live in the registry row that came
+#'   # back alongside the file:
+#'   moco <- foundation_weights_load(loc$path,
+#'                                   n_channels  = loc$entry$n_channels,
+#'                                   feature_dim = loc$entry$feature_dim,
+#'                                   proj_dim    = loc$entry$proj_dim)
+#'
+#'   # Equivalent, and the idiomatic route: pass the registry *name*
+#'   # and the download (or cache hit) and the shape lookup both happen
+#'   # for you. Call foundation_weights_download() directly only when
+#'   # you want the file itself — to stage it on an offline machine, or
+#'   # to pre-warm a shared cache_dir.
+#'   moco <- foundation_weights_load("edaphos-cerrado-moco-v1")
+#'
+#'   # Check what you got before you trust it. v1 predates the
+#'   # normalisation-statistics field, so its training mean / sd are
+#'   # unrecoverable: standardise your own inputs over your AoI and
+#'   # report that you did so.
+#'   print(loc$entry$norm_stats_status)   # "unrecoverable"
 #' }
 #' @export
 foundation_weights_download <- function(name,
@@ -285,12 +322,16 @@ foundation_weights_download <- function(name,
 #' @param source Either a character name registered in
 #'   [foundation_weights_list()] — in which case the encoder is
 #'   downloaded (cached) via [foundation_weights_download()] — or a
-#'   path to a local `.pt` file. For the local path case, pass the
-#'   matching metadata as `n_channels` / `feature_dim` / etc.
-#' @param n_channels,feature_dim,proj_dim Optional integers; when
-#'   `source` is a local path these must describe the shape the
-#'   `.pt` file was saved from. When `source` is a registry name they
-#'   are pulled from the registry.
+#'   path to a local `.pt` file. The local-path branch is taken
+#'   whenever `file.exists(source)`, and there is then no registry row
+#'   to consult, so `n_channels`, `feature_dim` and `proj_dim` must
+#'   all be supplied; omitting any of them is an error.
+#' @param n_channels,feature_dim,proj_dim Integers. **Required** when
+#'   `source` is a local path, where they must describe the shape the
+#'   `.pt` file was saved from — a mismatch surfaces as a tensor-size
+#'   error from `load_state_dict()`, not as a silent reshape. Optional
+#'   when `source` is a registry name, in which case each unsupplied
+#'   value defaults to the registry row.
 #' @param cache_dir,overwrite,verbose Forwarded to
 #'   [foundation_weights_download()] when `source` is a registry
 #'   name.
@@ -298,9 +339,54 @@ foundation_weights_download <- function(name,
 #'   `$encoder_q` (the query encoder; the momentum encoder is not
 #'   restored because it is only needed during training).
 #' @examples
+#' # The registry route needs a network download from Zenodo, so it is
+#' # not run here. It fills the three shapes from the registry row, so
+#' # they are the one thing you do not have to pass.
 #' \dontrun{
 #'   moco <- foundation_weights_load("edaphos-cerrado-moco-v1")
-#'   emb  <- foundation_moco_embed(moco, patches)
+#'   # v1 expects 31 channels in the registry's band order; `patches`
+#'   # must be a numeric (N, 31, 16, 16) array, standardised over your
+#'   # own AoI (v1's training mean / sd are unrecoverable — see
+#'   # foundation_weights_list()$norm_stats_status).
+#'   emb <- foundation_moco_embed(moco, patches)
+#' }
+#'
+#' # The local-path route is offline, and is also how you reload your
+#' # own encoders. It is shown here end to end on a throwaway model.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'
+#' # A 3-step fit on random noise. This is plumbing, not a model: it
+#' # has learned nothing and its embeddings are meaningless. A usable
+#' # encoder needs a real tile corpus and thousands of steps — see
+#' # foundation_moco_pretrain_tiles().
+#' set.seed(42)
+#' patches <- array(stats::rnorm(24L * 5L * 8L * 8L), dim = c(24L, 5L, 8L, 8L))
+#' set.seed(1)
+#' fit <- foundation_moco_pretrain(patches, feature_dim = 16L, proj_dim = 8L,
+#'                                 batch_size = 8L, epochs = 3L, seed = 1L)
+#' pt <- tempfile(fileext = ".pt")
+#' torch::torch_save(fit$encoder_q$state_dict(), pt)
+#'
+#' # A `.pt` is a bare state dict: it fixes the tensor sizes but records
+#' # nothing about what they mean, so all three shapes are mandatory here
+#' # and must match what was saved.
+#' moco <- foundation_weights_load(pt, n_channels = 5L,
+#'                                 feature_dim = 16L, proj_dim = 8L)
+#' print(c(n_channels = moco$n_channels, feature_dim = moco$feature_dim,
+#'         proj_dim = moco$proj_dim))
+#'
+#' # Only encoder_q is restored, and it comes back in eval() mode, so the
+#' # reloaded copy reproduces the source object's embeddings exactly.
+#' print(all.equal(foundation_moco_embed(moco, patches),
+#'                 foundation_moco_embed(fit, patches)))
+#'
+#' # Omitting the shapes is a refusal, not a default. Note that this is
+#' # what `foundation_weights_load(loc$path)` would hit after a
+#' # foundation_weights_download() — pass loc$entry's shapes, or skip
+#' # the download and load by name.
+#' print(tryCatch(foundation_weights_load(pt), error = conditionMessage))
+#' unlink(pt)
 #' }
 #' @export
 foundation_weights_load <- function(source,

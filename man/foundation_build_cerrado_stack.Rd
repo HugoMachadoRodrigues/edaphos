@@ -21,8 +21,9 @@ Brasilia: \code{c(-50, -16, -48, -14)}.}
 Defaults to the user R cache under \code{tools::R_user_dir("edaphos")}.}
 
 \item{target_res}{Numeric; target resolution in degrees.  Defaults
-to \code{0.01} (~ 1 km at the equator, matching the encoder training
-resolution).}
+to \code{0.01} (about 1.1 km at the equator), the grid the v1 encoder
+was trained on and close to the 30 arc-second (0.00833 deg) grid
+every source arrives on.}
 
 \item{force}{Logical; re-download even if a cached stack exists.}
 
@@ -41,22 +42,144 @@ the stack matches the v1 encoder's 31-channel input schema:
 }
 \details{
 \itemize{
-\item 5 SoilGrids 250 m layers
+\item 5 SoilGrids layers for the 0-5 cm interval
 (\code{soc}, \code{clay}, \code{sand}, \code{phh2o}, \code{bdod})
 \item 12 monthly WorldClim 2.1 precipitation layers
 (\code{wc_prec_01} ... \code{wc_prec_12})
 \item 12 monthly WorldClim 2.1 mean-temperature layers
 (\code{wc_tavg_01} ... \code{wc_tavg_12})
-\item 2 SRTM 30-arc-second topography layers
-(\code{elev}, \code{slope})
+\item \code{elev}, the 30-arc-second SRTM aggregation, plus \code{slope}
+derived from it locally with \code{terra::terrain()} -- \code{slope}
+is computed, not downloaded
 }
 
-All 31 layers are resampled to a common \code{target_res}-degree grid
-and clipped to \code{bbox}.  Earlier versions assembled only a 10-channel
-subset, which forced the IV benchmark
-(\code{data-raw/causal_iv_benchmark_real.R}) to fall back to a synthetic
-31-channel stack -- the v4.0.0 rewrite closes that gap.
+Every source arrives at 30 arc-seconds (roughly 1 km), so this is a
+~1 km stack throughout.  \code{geodata::soil_world()} serves the 30
+arc-second aggregation of SoilGrids -- it rewrites its own URL to
+\verb{soc_0-5cm_mean_30s.tif} and friends -- not SoilGrids' native 250 m;
+WorldClim 2.1 country tiles are 30 arc-second; and
+\code{geodata::elevation_30s()} is the 30 arc-second aggregation of the
+90 m CGIAR-SRTM.  All 31 layers are resampled to a common
+\code{target_res}-degree grid and clipped to \code{bbox}.  That grid is finer
+than the data it carries: resampling onto it does not restore
+detail the sources never had.
 
-\strong{Heavy download.}  A 2-deg x 2-deg Cerrado AoI lands in about
-80-110 MB after alignment (cache_dir hit on subsequent calls).
+Earlier versions assembled only a 10-channel subset, which forced
+the IV benchmark (\code{data-raw/causal_iv_benchmark_real.R}) to fall
+back to a synthetic 31-channel stack -- the v4.0.0 rewrite closes
+that gap.
+
+\strong{Heavy download.}  Not because of the file it writes: the default
+2-deg x 2-deg AoI at 0.01 deg is 200 x 200 cells x 31 \code{FLT4S}
+layers, single-digit megabytes on disk.  The cost is what \code{geodata}
+fetches in order to build it and leaves behind in \code{cache_dir} --
+five global SoilGrids rasters and the whole-Brazil WorldClim \code{prec}
+and \code{tavg} tiles, all cropped only after they land.  Shrinking
+\code{bbox} does not shrink the download.  The example measures both.
+}
+\examples{
+\dontrun{
+# Needs `terra`, `geodata` and `digest` installed, and a network.
+
+# The default call assembles the 31-layer "v1_encoder" stack over a
+# 2 deg x 2 deg quadrant around Brasilia at 0.01 deg.  What actually
+# crosses the wire: five GLOBAL SoilGrids rasters for the 0-5 cm
+# interval, the whole Brazil WorldClim 2.1 country tiles for `prec`
+# and `tavg` (12 monthly layers each, cropped only after download --
+# this is the dominant cost), and the Brazil SRTM elevation tile.
+# `slope` is not downloaded: it is derived locally from `elev` with
+# terra::terrain().
+stk <- foundation_build_cerrado_stack()
+terra::nlyr(stk)             # 31
+names(stk)[c(1:5, 30:31)]    # soc clay sand phh2o bdod elev slope
+
+# Every one of those sources is a 30 arc-second (roughly 1 km)
+# product -- geodata rewrites the SoilGrids URL to end in
+# "_30s.tif", so the native 250 m SoilGrids never enters this
+# package.  The 0.01 deg output grid is finer than the data on it;
+# the resample that put it there is interpolation, not detail.
+terra::res(stk)              # 0.01 0.01
+sg <- geodata::soil_world(var = "soc", depth = 5, vsi = TRUE)
+terra::sources(sg)           # .../soc_0-5cm_mean_30s.tif
+terra::res(sg)               # 0.008333333 = 1/120 deg = 30 arc-sec
+
+# The written file is small; the download is not, and both live in
+# cache_dir.  Measure them instead of trusting either intuition.
+cache_dir <- tools::R_user_dir("edaphos", which = "cache")
+assembled <- list.files(cache_dir, pattern = "cerrado_stack_",
+                        full.names = TRUE)
+round(file.size(assembled) / 1024^2, 1)   # 200 x 200 x 31 FLT4S: a few MB
+round(sum(file.size(list.files(cache_dir, recursive = TRUE,
+                               full.names = TRUE)),
+          na.rm = TRUE) / 1024^2, 1)      # the raw sources: far larger
+
+# The cache key is (schema, bbox, target_res): `schema` goes into
+# the file name verbatim and the other two are md5-hashed after it,
+# giving cerrado_stack_<schema>_<md5>.tif.  A repeat of the same
+# call touches no network at all and reports "Using cached stack:".
+stk_again <- foundation_build_cerrado_stack()
+basename(terra::sources(stk_again))
+
+# A different AoI or resolution is a different key, hence a fresh
+# download that lands beside the first one rather than replacing it.
+# `force = TRUE` is the only way to re-fetch and overwrite the file
+# for a key you have already built; it leaves the other keys alone.
+stk_small <- foundation_build_cerrado_stack(bbox = c(-49, -15, -48, -14))
+stk_fresh <- foundation_build_cerrado_stack(force = TRUE)
+
+# `cache_dir` is handed to geodata as its own download `path`, so
+# the directory ends up holding the raw SoilGrids / WorldClim / SRTM
+# rasters as well as the assembled .tif.  Point it at a disk with
+# room, and reuse the same one across sessions.
+stk_tmp <- foundation_build_cerrado_stack(
+  cache_dir = file.path(tempdir(), "edaphos-stacks"))
+
+# "minimal" is not a smaller stack, it is a different one: 10 layers
+# (soc, clay, sand, phh2o, bdod, bio1, bio12, elev, slope, ndvi) and
+# no monthly climate at all.  The published v1 encoder's input layer
+# is fixed at 31 channels -- `foundation_weights_list()` reports
+# `n_channels` -- so a minimal stack cannot feed it.  It exists to
+# reproduce the pre-v4.0.0 bundles.
+legacy <- foundation_build_cerrado_stack(schema = "minimal")
+terra::nlyr(legacy)          # 10
+
+# If any single source is unreachable, that layer is skipped with a
+# warning and the function then stops with the list of missing
+# names, having written nothing: a partially downloaded stack never
+# reaches the cache, so a failed run cannot be silently inherited by
+# the next one.
+
+# One exception to that loudness. `elev` is fetched with
+# geodata::elevation_30s(country = "BRA"), which masks to the
+# Brazilian border, so an AoI crossing into a neighbour comes back
+# NA on the far side -- and `slope`, derived from it, with it.  If
+# that call errors the code falls back to
+# geodata::elevation_global(res = 0.5): the same 30 arc-seconds, but
+# WorldClim's elevation product rather than SRTM, and unmasked.  No
+# warning marks the substitution, and the layer is called `elev`
+# either way.
+terra::global(stk[[c("elev", "slope")]], "isNA")
+
+# Downstream: the stack feeds a tile dataset, and the dataset plus a
+# pretrained encoder give one instrument row per soil profile.  Note
+# that foundation_tile_dataset() derives the normalisation
+# statistics from the stack you just built, not from the encoder's
+# training run -- v1's training means / sds were never persisted
+# (`foundation_weights_list()` reports `norm_stats_status` as
+# "unrecoverable"), so this is the documented substitute, not a
+# match.
+tiles <- foundation_tile_dataset(stk, patch_size = 16L,
+                                 n_patches = 2000L, seed = 1)
+moco  <- foundation_weights_load("edaphos-cerrado-moco-v1")
+profiles <- data.frame(lon = c(-49.5, -48.7), lat = c(-15.4, -14.6))
+emb <- foundation_embed_at_coords(moco, profiles, stk, tiles)
+dim(emb)                     # 2 x 64 = registry feature_dim for v1
+
+# Unlike foundation_moco_pretrain(), foundation_weights_load() calls
+# $eval() before handing the encoder over, so the BatchNorm /
+# batch_size interaction documented in the
+# foundation_embed_at_coords() example does not apply here.  Check
+# rather than assume if you built the encoder some other way.
+moco$encoder_q$training      # FALSE
+}
 }

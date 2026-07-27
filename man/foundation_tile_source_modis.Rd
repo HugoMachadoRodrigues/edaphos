@@ -24,3 +24,35 @@ Users who already have a MODIS mosaic on disk can skip this
 function entirely and pass their raster straight to
 \code{\link[=foundation_tile_align]{foundation_tile_align()}}.
 }
+\examples{
+\dontrun{
+# The stub always errors, whatever you pass it. It exists so that
+# downstream code has one canonical MODIS entry point to name.
+foundation_tile_source_modis()
+
+# The supported route is to pre-process outside edaphos -- MODIStsp,
+# rgee or the AppEEARS service all work -- write a GeoTIFF mosaic,
+# and read it back with terra. Nothing downstream cares where a
+# raster came from.
+ndvi <- terra::rast("modis/MOD13Q1_NDVI_2020_cerrado.tif")
+
+# MOD13Q1 stores NDVI as int16 with a 1e-4 scale factor and -3000 as
+# the fill value, and both survive terra::rast() untouched. Drop the
+# fill and rescale before stacking, otherwise the "ndvi" channel is a
+# mixture of index values and sentinels.
+ndvi[ndvi < -2000] <- NA
+ndvi <- ndvi * 1e-4
+names(ndvi) <- "ndvi"
+
+aoi  <- c(-50, -48, -16, -14)
+soil <- foundation_tile_source_soilgrids(variables = "soc", aoi = aoi)
+stack <- foundation_tile_align(list(soil = soil, modis = ndvi),
+                                 target_res = 0.0025, aoi = aoi)
+ds <- foundation_tile_dataset(stack, patch_size = 32L,
+                                n_patches = 5000L, seed = 1L)
+
+# A 16-day composite is not a snapshot: neighbouring pixels of
+# MOD13Q1 can come from different days. Treat it as one channel of a
+# pretraining stack, not as a same-date observation of the soil.
+}
+}

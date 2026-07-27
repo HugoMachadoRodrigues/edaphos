@@ -88,13 +88,38 @@ batch size is moderate (\code{n <= 50} for laptop-scale pools of up to
 ~10 000 candidates).
 }
 \examples{
-\dontrun{
-  al <- al_initial_design(br_cerrado, c("elev","slope","twi"),
-                           n = 20L, seed = 1L)
-  fit <- al_fit(al, target = "soc")
-  pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), al$idx), ]
-  batch <- al_query_batchbald(fit, pool, n = 10L)
-}
+# `al_initial_design()` returns a bare integer vector of row indices
+# into the pool -- not a list, so there is no `$idx` to pull out.
+covs <- c("elev", "slope", "twi", "map_mm")
+idx  <- al_initial_design(br_cerrado, covs, n = 30L, seed = 1L,
+                          iter = 500L)
+lab  <- br_cerrado[idx, ]
+pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ]
+
+# `al_fit()` requires `covariates`; `seed` is forwarded to ranger, so
+# the forest -- and hence the batch selected below -- is reproducible.
+fit <- al_fit(lab, target = "soc", covariates = covs, seed = 42)
+
+batch <- al_query_batchbald(fit, pool, n = 8L)
+batch                       # row indices into `pool`, in greedy order
+head(pool[batch, covs])
+
+# What BatchBALD buys over a plain uncertainty sort: the top-n
+# strategy will happily return near-duplicate neighbours, while the
+# log-det penalises them. Compare the *closest pair* inside each
+# batch in standardised covariate space -- bigger is better spread.
+greedy <- al_query(fit, pool, n = 8L, strategy = "uncertainty")
+Z <- scale(pool[, covs])
+closest_pair <- function(rows) min(stats::dist(Z[rows, , drop = FALSE]))
+c(batchbald = closest_pair(batch), uncertainty = closest_pair(greedy))
+
+# This 30-point fit is a runnable demonstration, not a usable model:
+# its out-of-bag RMSE beats simply predicting the mean of the 30
+# labels by well under a factor of two. A model worth acting on needs
+# hundreds of labeled sites and spatially blocked validation; use
+# al_loop() to grow the labeled set before trusting any batch.
+c(oob_rmse  = fit$history[[1]]$rmse_oob,
+  mean_only = sqrt(mean((lab$soc - mean(lab$soc))^2)))
 }
 \references{
 Kirsch, A., van Amersfoort, J. and Gal, Y. (2019). BatchBALD:

@@ -29,6 +29,136 @@ Monte-Carlo sample of the predictive posterior (Gal & Ghahramani
 2016). The fit must have been trained with an MLP head and a
 non-zero \code{dropout} for the draws to be non-degenerate.
 }
+\examples{
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  # Same 8 x 8 br_cerrado patches as foundation_finetune_ensemble().
+  g <- 45L; p <- 8L
+  cov4 <- lapply(br_cerrado[c("elev", "slope", "twi", "ndvi")],
+                 function(v) matrix(scale(v)[, 1L], g, g))
+  soc_m <- matrix(br_cerrado$soc, g, g)
+  ij <- expand.grid(i = seq(1L, g - p + 1L, by = 6L),
+                    j = seq(1L, g - p + 1L, by = 6L))
+  x <- array(0, dim = c(nrow(ij), 4L, p, p))
+  y <- numeric(nrow(ij))
+  for (k in seq_len(nrow(ij))) {
+    rr <- ij$i[k] + 0:(p - 1L); cc <- ij$j[k] + 0:(p - 1L)
+    for (ch in 1:4) x[k, ch, , ] <- cov4[[ch]][rr, cc]
+    y[k] <- mean(soc_m[rr, cc])
+  }
+  set.seed(2024)
+  test  <- sample(nrow(ij), 12L)
+  train <- setdiff(seq_len(nrow(ij)), test)
+  enc <- foundation_moco_pretrain(
+    x[train, , , , drop = FALSE], feature_dim = 16L, proj_dim = 8L,
+    queue_size = 16L, batch_size = 8L, epochs = 5L, seed = 42L)
+
+  # Same warning as in foundation_finetune_ensemble(). `epochs`
+  # counts optimiser steps, not passes over the data, so `enc` is
+  # five gradient steps on batches of 8. Read its final InfoNCE loss
+  # against log1p(queue_size), the loss of an encoder whose logits
+  # are all equal -- one that cannot pick the positive key out of
+  # its queue_size negatives. The trace is noise around that line
+  # rather than a descent, and it moves with the ambient R seed:
+  # `seed=` fixes only the torch RNG.
+  print(round(enc$loss_history, 3))
+  print(round(c(final_infonce    = enc$final_loss,
+                all_logits_equal = log1p(enc$queue_size),
+                patch_draws      = length(enc$loss_history) *
+                                     enc$batch_size), 3))
+
+  # freeze_backbone defaults to TRUE, so the head below is fit on
+  # that frozen, effectively random feature map. Read the rest as a
+  # demonstration of the MC-DROPOUT MACHINERY -- what `seed`
+  # controls, how the draws differ from predict(), and when the
+  # "posterior" is secretly a point mass -- not as an uncertainty
+  # statement about soil carbon.
+
+  # MC-dropout can only sample if the head carries a stochastic
+  # layer: head = "mlp" with dropout > 0. See the trap below.
+  fit <- foundation_fit_regressor(
+    enc, x = x[train, , , , drop = FALSE], y = y[train],
+    head = "mlp", hidden = 8L, dropout = 0.2,
+    epochs = 20L, batch_size = 16L, lr = 0.01,
+    device = "cpu", seed = 301L)
+
+  # n_draws = 20 is small for speed; a draw sd you report wants 100+.
+  newx  <- x[test, , , , drop = FALSE]
+  draws <- foundation_mcdropout_predict(fit, x = newx, n_draws = 20L,
+                                        seed = 7L)
+  print(dim(draws))
+
+  # The dropout masks are resampled on every call, so `seed` is what
+  # makes a reported posterior reproducible.
+  print(c(seeded_same = isTRUE(all.equal(
+            draws, foundation_mcdropout_predict(fit, x = newx,
+                                                n_draws = 20L,
+                                                seed = 7L))),
+          unseeded_differs = !isTRUE(all.equal(
+            draws, foundation_mcdropout_predict(fit, x = newx,
+                                                n_draws = 20L)))))
+
+  # The MC mean is not predict(): predict() switches dropout off and
+  # runs the whole head, while the draws average thinned copies.
+  point <- as.numeric(predict(fit, x = newx))
+  print(round(c(predict_1    = point[1L],
+                mc_mean_1    = colMeans(draws)[1L],
+                mean_abs_gap = mean(abs(point - colMeans(draws)))), 3))
+
+  # TRAP: with no dropout layer the "posterior" silently collapses
+  # to a point. A linear head -- and equally head = "mlp" with
+  # dropout = 0 -- still returns n_draws rows, but they are
+  # identical and their sd is exactly 0.
+  fit_lin <- foundation_fit_regressor(
+    enc, x = x[train, , , , drop = FALSE], y = y[train],
+    head = "linear", epochs = 20L, batch_size = 16L, lr = 0.01,
+    device = "cpu", seed = 301L)
+  print(max(apply(foundation_mcdropout_predict(fit_lin, x = newx,
+                                               n_draws = 5L, seed = 7L),
+                  2L, stats::sd)))
+
+  # What the spread does not contain: it is the variation of ONE
+  # network's units, conditional on the single optimisation run that
+  # produced `fit`. Refit under another seed and it moves. That
+  # second source of variance is what foundation_finetune_ensemble()
+  # covers instead -- the two are not estimates of the same thing.
+  # This point does not depend on the backbone being any good: it is
+  # a statement about which sources of variation each estimator
+  # integrates over, and it would hold identically for an encoder
+  # pretrained on a million patches.
+  fit2 <- foundation_fit_regressor(
+    enc, x = x[train, , , , drop = FALSE], y = y[train],
+    head = "mlp", hidden = 8L, dropout = 0.2,
+    epochs = 20L, batch_size = 16L, lr = 0.01,
+    device = "cpu", seed = 302L)
+  draws2 <- foundation_mcdropout_predict(fit2, x = newx,
+                                         n_draws = 20L, seed = 7L)
+  print(round(c(
+    median_sd_seed301 = stats::median(apply(draws,  2L, stats::sd)),
+    median_sd_seed302 = stats::median(apply(draws2, 2L, stats::sd))), 3))
+
+  # And neither route is calibrated by construction: score the band
+  # before reporting it. Nominal coverage here is 0.95. Print the
+  # mean half-width next to the RMSE the band would have to span.
+  # The dropout masks are the only thing that varies across draws,
+  # so the interval is centred on a point estimate whose own error
+  # it cannot see. Read the three numbers together: the mean
+  # half-width (1.53) is WIDER than the RMSE (1.29), and coverage is
+  # still only 0.58 against a nominal 0.95. A wide interval that
+  # under-covers is the signature of a centre that is off, not of a
+  # spread that is too small -- widening it further would not fix
+  # the problem, because MC-dropout never samples the bias of the
+  # frozen backbone it sits on. At length(test) = 12, and on a
+  # backbone this untrained, read the direction and not the digits.
+  mu <- colMeans(draws); s <- apply(draws, 2L, stats::sd)
+  print(round(c(
+    picp = edaphos_picp(y[test], mu - 1.96 * s, mu + 1.96 * s),
+    mean_half_width = mean(1.96 * s),
+    rmse            = sqrt(mean((y[test] - point)^2)),
+    interval_score = edaphos_interval_score(y[test], mu - 1.96 * s,
+                                            mu + 1.96 * s)), 3))
+}
+}
 \references{
 Gal, Y. and Ghahramani, Z. (2016). Dropout as a Bayesian
 approximation: representing model uncertainty in deep learning.

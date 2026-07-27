@@ -39,3 +39,78 @@ resolutions (SoilGrids at 250 m, WorldClim at 30 arc-sec, SRTM at
 30 arc-sec, MODIS at 250 m, ERA5 at 0.1 degree) so MoCo v2
 pretraining can consume a single multi-channel tensor.
 }
+\examples{
+if (requireNamespace("terra", quietly = TRUE)) {
+  # Two Cerrado covariates on deliberately mismatched grids: soil at
+  # 0.05 degrees, terrain at 0.10, on extents that only partly
+  # overlap.
+  set.seed(1)
+  soc <- terra::rast(nrows = 40, ncols = 40,
+                     xmin = -50, xmax = -48, ymin = -16, ymax = -14,
+                     crs = "EPSG:4326")
+  terra::values(soc) <- stats::rnorm(terra::ncell(soc), 22, 4)
+  names(soc) <- "soc"
+
+  elev <- terra::rast(nrows = 20, ncols = 20,
+                      xmin = -49.5, xmax = -47.5,
+                      ymin = -15.5, ymax = -13.5, crs = "EPSG:4326")
+  terra::values(elev) <- stats::rnorm(terra::ncell(elev), 900, 80)
+  names(elev) <- "elev"
+
+  fused <- foundation_tile_align(list(soil = soc, topo = elev),
+                                   target_res = 0.05)
+  print(terra::res(fused))    # both sources now on the 0.05 grid
+  print(names(fused))         # names come from the rasters, not from
+                              # the names of `sources`
+
+  # The template is the UNION of the source extents, not their
+  # intersection, so each layer is NA wherever its own source did not
+  # reach -- 36 percent of the grid here, for both layers.
+  print(terra::global(fused, "isNA") / terra::ncell(fused))
+
+  # `aoi` cuts the template back to ground both sources cover, and
+  # that is what removes the NA frame.
+  inner <- foundation_tile_align(list(soil = soc, topo = elev),
+                                   target_res = 0.05,
+                                   aoi = c(-49.5, -48, -15.5, -14))
+  print(terra::global(inner, "isNA"))
+
+  # Mixed CRS is handled, but the union is taken AFTER reprojection.
+  # A UTM 23S tile several degrees east of the soil tile produces a
+  # mosaic that is 73 and 98 percent NA -- and a contrastive encoder
+  # will train on it perfectly happily.
+  utm <- terra::rast(nrows = 30, ncols = 30,
+                     xmin = 700000, xmax = 760000,
+                     ymin = 8250000, ymax = 8310000,
+                     crs = "EPSG:31983")
+  terra::values(utm) <- stats::rnorm(terra::ncell(utm), 14, 3)
+  names(utm) <- "clay"
+  far <- foundation_tile_align(list(soil = soc, clay = utm),
+                                 target_res = 0.05)
+  print(dim(far))
+  print(round(terra::global(far, "isNA") / terra::ncell(far), 2))
+
+  # `target_res` is in the units of `target_crs`. The 0.005 default is
+  # degrees; carrying it over to a metre-based CRS asks for 5 mm
+  # cells. Give metres -- and read the realised resolution off the
+  # result, because terra fits a whole number of cells into the
+  # extent instead of honouring `target_res` exactly.
+  polyconic <- foundation_tile_align(list(soil = soc),
+                                       target_res = 5000,
+                                       target_crs = "EPSG:5880")
+  print(terra::res(polyconic))   # near 5000 m, not exactly 5000
+
+  # Two sources that each carry a layer called "soc" give a stack with
+  # two layers called "soc", and [["soc"]] then returns both of them
+  # with only a warning. Rename before aligning, not after.
+  dup <- foundation_tile_align(list(a = soc, b = soc), target_res = 0.05)
+  print(names(dup))                  # "soc" "soc"
+  print(terra::nlyr(dup[["soc"]]))   # 2, after a warning that reads
+                                     # "[subset] using a name that is
+                                     # not unique"
+
+  # method = "bilinear" is for continuous covariates. Use "near" for
+  # anything categorical -- interpolating soil-class codes invents
+  # classes that do not exist.
+}
+}

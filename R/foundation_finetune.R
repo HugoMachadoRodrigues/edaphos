@@ -212,21 +212,57 @@
 #' models transfer better? *CVPR 2019*.
 #' @examples
 #' \dontrun{
-#'   ds <- readRDS("tools/pretrain/cerrado_dataset.rds")
+#'   # The loaded object carries the shapes the encoder was trained
+#'   # with: 31 standardised channels of 16 x 16 patches for v1.
 #'   moco <- foundation_weights_load("edaphos-cerrado-moco-v1")
+#'   n_ch <- moco$n_channels
 #'
-#'   # Label a subset of patches by soil order (synthetic example).
-#'   patches <- array(rnorm(200 * ds$n_channels * 16 * 16),
-#'                    dim = c(200, ds$n_channels, 16, 16))
-#'   soil_order <- factor(sample(c("Oxisol", "Ultisol", "Inceptisol"),
-#'                                200, replace = TRUE))
+#'   # SYNTHETIC PATCHES, NOT A SOIL SURVEY. The patches below are
+#'   # standard normal noise, so the signal has to be planted by hand:
+#'   # each soil order gets a different mean level in channel 1. The
+#'   # label then genuinely depends on the patch it is paired with and
+#'   # the probe has something real to find -- but what it finds is the
+#'   # offset planted three lines down, not pedology.
+#'   set.seed(1)
+#'   soil_order <- factor(rep(c("Oxisol", "Ultisol", "Inceptisol"),
+#'                             each = 70L))
+#'   patches <- array(rnorm(210 * n_ch * 16 * 16),
+#'                    dim = c(210, n_ch, 16, 16))
+#'   patches[, 1, , ] <- patches[, 1, , ] +
+#'     c(Oxisol = -1.5, Ultisol = 0,
+#'       Inceptisol = 1.5)[as.character(soil_order)]
 #'
 #'   fit <- foundation_fit_classifier(
 #'     moco, patches, soil_order,
 #'     freeze_backbone = TRUE, head = "linear",
 #'     epochs = 40L, device = "mps", seed = 1L
 #'   )
-#'   pred <- predict(fit, patches, type = "class")
+#'
+#'   # Read the accuracy against what a constant predictor would score,
+#'   # which is the majority-class rate -- 1/3 for these balanced
+#'   # labels. The planted offset is 1.5 sd wide, so a linear probe
+#'   # should land far above it (a local encoder of the same
+#'   # architecture separates the three groups completely).
+#'   print(c(best_val_acc  = max(fit$val_accuracy_history, na.rm = TRUE),
+#'           final_val_acc = utils::tail(fit$val_accuracy_history, 1L),
+#'           majority_rate = max(table(soil_order)) / length(soil_order)))
+#'
+#'   pred <- predict(fit, patches, type = "class")   # in-sample labels
+#'   prob <- predict(fit, patches[1:5, , , , drop = FALSE], type = "prob")
+#'
+#'   # Delete the two lines that add the offset into `patches` -- i.e.
+#'   # draw the labels independently of the patches, as an earlier
+#'   # version of this example did -- and `final_val_acc` falls back
+#'   # onto the majority rate: there is then nothing to learn, and any
+#'   # apparent skill is memorisation of 210 noise vectors. Note that
+#'   # `best_val_acc` stays visibly above the baseline even in that
+#'   # no-signal case; a maximum over 40 noisy epochs is an optimistic
+#'   # statistic, so quote the final epoch, not the best one.
+#'
+#'   # None of this is a soil-order model. That needs patches cut from
+#'   # real covariate rasters (foundation_tile_align() ->
+#'   # foundation_tile_dataset()), standardised over your own area of
+#'   # interest, and soil orders observed at those same locations.
 #' }
 #' @export
 foundation_fit_classifier <- function(encoder, x, y,
@@ -452,16 +488,52 @@ predict.edaphos_foundation_classifier <- function(object, x,
 #' @examples
 #' \dontrun{
 #'   moco <- foundation_weights_load("edaphos-cerrado-moco-v1")
-#'   ds   <- readRDS("tools/pretrain/cerrado_dataset.rds")
-#'   patches <- array(rnorm(300 * ds$n_channels * 16 * 16),
-#'                    dim = c(300, ds$n_channels, 16, 16))
-#'   soc <- rnorm(300, mean = 15, sd = 6)
+#'   n_ch <- moco$n_channels
+#'
+#'   # SYNTHETIC PATCHES, NOT A SOIL SURVEY -- as in
+#'   # foundation_fit_classifier(), the signal is planted by hand.
+#'   # Each patch gets its own offset in channel 1 and `soc` is a
+#'   # linear function of that offset plus noise, so the target really
+#'   # does depend on the patch it is paired with.
+#'   set.seed(2)
+#'   level   <- rnorm(300)
+#'   patches <- array(rnorm(300 * n_ch * 16 * 16),
+#'                    dim = c(300, n_ch, 16, 16))
+#'   patches[, 1, , ] <- patches[, 1, , ] + level
+#'   soc <- 15 + 6 * level + rnorm(300, sd = 2)   # stands in for g/kg
+#'
 #'   fit <- foundation_fit_regressor(
 #'     moco, patches, soc,
 #'     freeze_backbone = TRUE, head = "linear",
 #'     epochs = 40L, device = "mps", seed = 1L
 #'   )
-#'   predict(fit, patches[1:10, , , , drop = FALSE])
+#'
+#'   # An RMSE means nothing on its own: compare it with the RMSE of
+#'   # predicting mean(soc) for every patch, which is sd(soc). A local
+#'   # encoder of the same architecture cuts it to about two fifths of
+#'   # that -- and that ratio is a property of the planted signal, not
+#'   # evidence that the encoder knows anything about carbon.
+#'   print(c(best_val_rmse       = min(fit$val_rmse_history, na.rm = TRUE),
+#'           intercept_only_rmse = stats::sd(soc)))
+#'
+#'   pred <- predict(fit, patches)
+#'   print(c(cor_pred_soc = stats::cor(pred, soc)))
+#'   print(round(utils::head(pred, 10), 2))
+#'
+#'   # Delete the line that adds `level` into `patches` -- i.e. make
+#'   # `soc` independent of the input, as an earlier version of this
+#'   # example did -- and the only attainable model is the intercept:
+#'   # `cor_pred_soc` goes to ~0, the ten printed predictions bunch up
+#'   # near mean(soc) instead of tracking it, and the held-out RMSE
+#'   # stops beating sd(soc) (it lands slightly worse, since the head
+#'   # still fits the training noise). Printing predictions from that
+#'   # fit, as the earlier example did, shows an intercept dressed up
+#'   # as a soil map.
+#'
+#'   # Nothing here maps SOC. That needs patches cut from real
+#'   # covariate rasters (foundation_tile_align() ->
+#'   # foundation_tile_dataset()), standardised over your own area of
+#'   # interest, and measured SOC at those same locations.
 #' }
 #' @export
 foundation_fit_regressor <- function(encoder, x, y,

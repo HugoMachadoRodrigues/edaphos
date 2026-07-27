@@ -287,6 +287,94 @@
 #'   fitted query encoder (use [foundation_moco_embed()] to extract
 #'   embeddings), the key encoder, the training loss history and the
 #'   configuration.
+#' @examples
+#' # `requireNamespace("torch")` is TRUE as soon as the R package is
+#' # installed, but the libtorch/lantern shared libraries are a separate
+#' # separate binary download that CI and CRAN machines routinely lack
+#' # (about 0.45 GB installed here). Both halves
+#' # of the guard are needed.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'
+#' # MoCo v2 consumes (N, C, H, W). `br_cerrado` is a complete 45 x 45
+#' # grid, so every covariate reshapes into a surface and the 8 x 8
+#' # windows cut out of it are genuine soil-landscape patches.
+#' # Standardise the surfaces first: the augmentation stack adds noise
+#' # of a fixed sd and jitters brightness multiplicatively, so map_mm
+#' # (millimetres) and ndvi (a unitless index) would otherwise be
+#' # perturbed by wildly different relative amounts.
+#' g <- 45L
+#' cube <- vapply(c("elev", "slope", "twi", "map_mm", "ndvi"),
+#'                function(v) {
+#'                  m <- matrix(br_cerrado[[v]], g, g)
+#'                  (m - mean(m)) / stats::sd(m)
+#'                }, matrix(0, g, g))
+#' set.seed(42)
+#' top  <- sample(g - 7L, 24L, replace = TRUE)
+#' left <- sample(g - 7L, 24L, replace = TRUE)
+#' patches <- array(0, dim = c(24L, 5L, 8L, 8L))
+#' for (i in 1:24) {
+#'   patches[i, , , ] <- aperm(cube[top[i]:(top[i] + 7L),
+#'                                  left[i]:(left[i] + 7L), ], c(3, 1, 2))
+#' }
+#'
+#' set.seed(1)
+#' fit <- foundation_moco_pretrain(patches, feature_dim = 16L,
+#'                                 proj_dim = 8L, queue_size = 1024L,
+#'                                 batch_size = 8L, epochs = 8L,
+#'                                 seed = 1L)
+#' print(fit)
+#'
+#' # `queue_size` is a request, not a setting: it is silently clamped
+#' # to N - batch_size, so the 1024-key dictionary asked for above is
+#' # 16 keys wide over 24 patches. Always read it back off the object.
+#' print(c(requested = 1024, actual = fit$queue_size))
+#'
+#' # Worse, the loss at step t is computed against the queue as it stood
+#' # at the END of step t - 1, and the FIFO first drops the oldest
+#' # batch_size rows, then appends the current keys. Halve the corpus and
+#' # the clamp leaves queue_size equal to batch_size, so the drop empties
+#' # the queue and the append refills it: the dictionary in force at step
+#' # t is exactly the keys of step t - 1. Every negative is then a key of
+#' # the PREVIOUS mini-batch under the previous momentum encoder, none
+#' # come from the current one (the current batch supplies only the
+#' # positive), and no key older than a single step ever survives --
+#' # which is MoCo's whole advantage over SimCLR. `retained` is how many
+#' # pre-existing keys outlive a step; keep N well above 2 * batch_size
+#' # to make it positive.
+#' tiny <- foundation_moco_pretrain(patches[1:16, , , , drop = FALSE],
+#'                                  feature_dim = 8L, proj_dim = 4L,
+#'                                  batch_size = 8L, epochs = 2L,
+#'                                  seed = 1L)
+#' print(c(queue = tiny$queue_size, batch = tiny$batch_size,
+#'         retained = tiny$queue_size - tiny$batch_size))
+#'
+#' # `epochs` counts optimiser steps, not passes over `patches`: one
+#' # mini-batch is drawn per epoch, so a short trace reports which
+#' # patches were sampled at least as much as it reports learning.
+#' # Read its tail next to log1p(queue_size) -- the InfoNCE value of a
+#' # model whose logits are all equal -- before concluding anything.
+#' print(round(fit$loss_history, 3))
+#' print(c(final = fit$final_loss,
+#'         all_logits_equal = log1p(fit$queue_size)))
+#'
+#' # Reproducibility needs BOTH generators. `seed=` only sets the torch
+#' # RNG (weight init, additive sensor noise); the mini-batch draw and
+#' # the crop / flip / rotation / channel-drop / cutout / brightness
+#' # augmentations are all drawn from R's RNG. The same `seed=` under a
+#' # different R seed is a different run.
+#' set.seed(99)
+#' a <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
+#'                               batch_size = 8L, epochs = 3L, seed = 1L)
+#' set.seed(123)
+#' b <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
+#'                               batch_size = 8L, epochs = 3L, seed = 1L)
+#' set.seed(99)
+#' d <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
+#'                               batch_size = 8L, epochs = 3L, seed = 1L)
+#' print(c(other_R_seed = identical(a$loss_history, b$loss_history),
+#'         same_R_seed  = identical(a$loss_history, d$loss_history)))
+#' }
 #' @export
 foundation_moco_pretrain <- function(patches,
                                       feature_dim = 64L,
@@ -424,6 +512,65 @@ foundation_moco_pretrain <- function(patches,
 #'   rather than backbone features.
 #' @return Numeric matrix `(N, D)` where `D = feature_dim` (or
 #'   `proj_dim` if `projection = TRUE`).
+#' @examples
+#' # The installed-package check is not enough on its own: libtorch /
+#' # lantern is a separate binary download, and torch_is_installed() is
+#' # what tells you it is actually there.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'
+#' # The same 8 x 8 Cerrado patch corpus used by
+#' # foundation_moco_pretrain().
+#' g <- 45L
+#' cube <- vapply(c("elev", "slope", "twi", "map_mm", "ndvi"),
+#'                function(v) {
+#'                  m <- matrix(br_cerrado[[v]], g, g)
+#'                  (m - mean(m)) / stats::sd(m)
+#'                }, matrix(0, g, g))
+#' set.seed(42)
+#' top  <- sample(g - 7L, 24L, replace = TRUE)
+#' left <- sample(g - 7L, 24L, replace = TRUE)
+#' patches <- array(0, dim = c(24L, 5L, 8L, 8L))
+#' for (i in 1:24) {
+#'   patches[i, , , ] <- aperm(cube[top[i]:(top[i] + 7L),
+#'                                  left[i]:(left[i] + 7L), ], c(3, 1, 2))
+#' }
+#' set.seed(1)
+#' fit <- foundation_moco_pretrain(patches, feature_dim = 16L,
+#'                                 proj_dim = 8L, batch_size = 8L,
+#'                                 epochs = 8L, seed = 1L)
+#'
+#' # Default: the reusable backbone representation, feature_dim wide.
+#' emb <- foundation_moco_embed(fit, patches)
+#' print(dim(emb))
+#'
+#' # The two outputs live in different spaces and must never be mixed
+#' # in one distance calculation. Backbone features leave a ReLU, so
+#' # they are non-negative and of arbitrary length; the projection head
+#' # L2-normalises, so its rows sit on the unit sphere and may be
+#' # negative. Regress on the backbone, do cosine geometry on the
+#' # projection.
+#' z <- foundation_moco_embed(fit, patches, projection = TRUE)
+#' print(c(backbone_cols = ncol(emb), proj_cols = ncol(z),
+#'         backbone_min = min(emb), proj_min = min(z)))
+#' print(range(round(sqrt(rowSums(z^2)), 6)))
+#'
+#' # The encoder is switched to eval() inside, so BatchNorm uses its
+#' # stored running statistics rather than the statistics of whatever
+#' # you happened to pass. That is what makes an embedding a property
+#' # of the patch instead of a property of the batch: encoding three
+#' # patches alone reproduces the corresponding rows of the full run
+#' # (to float32 precision), and a repeated call is bit-identical.
+#' chunk <- foundation_moco_embed(fit, patches[1:3, , , , drop = FALSE])
+#' print(c(chunked  = isTRUE(all.equal(chunk, emb[1:3, , drop = FALSE],
+#'                                     tolerance = 1e-4)),
+#'         repeated = identical(foundation_moco_embed(fit, patches),
+#'                              emb)))
+#'
+#' # Only the query encoder is read here. `fit$encoder_k` is the
+#' # momentum copy that built the dictionary during training and is
+#' # never consulted by this function.
+#' }
 #' @export
 foundation_moco_embed <- function(object, patches, projection = FALSE) {
   .moco_require_torch()
@@ -476,6 +623,105 @@ foundation_moco_embed <- function(object, patches, projection = FALSE) {
 #'   from.
 #' @return An `edaphos_foundation_moco` (identical structure to
 #'   [foundation_moco_pretrain()]).
+#' @examples
+#' # torch_is_installed() is the half of the guard that matters on a
+#' # fresh machine: the R package installs in seconds, the libtorch /
+#' # lantern binaries behind it are a separate download.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed()) &&
+#'     requireNamespace("terra", quietly = TRUE)) {
+#'
+#' # A tile dataset streams patches out of a raster instead of holding
+#' # an (N, C, H, W) array in RAM. The mosaic here is small enough to
+#' # build in memory from `br_cerrado`, but the call sequence is the
+#' # one you use for a SoilGrids + WorldClim + SRTM stack that is not.
+#' covs <- terra::rast(br_cerrado[, c("x", "y", "elev", "slope", "twi",
+#'                                    "map_mm", "ndvi")], type = "xyz")
+#' ds <- foundation_tile_dataset(covs, patch_size = 8L, n_patches = 64L,
+#'                               seed = 7L)
+#'
+#' set.seed(11)
+#' mt <- foundation_moco_pretrain_tiles(ds, feature_dim = 16L,
+#'                                      proj_dim = 8L, queue_size = 32L,
+#'                                      batch_size = 8L, epochs = 6L,
+#'                                      seed = 11L, device = "cpu")
+#' print(mt)
+#'
+#' # Unlike foundation_moco_pretrain(), `queue_size` is honoured here
+#' # rather than clamped to the corpus size. The FIFO still only
+#' # retains queue_size - batch_size old keys per step, so this is the
+#' # knob that decides how much of a dictionary you actually have.
+#' print(c(queue = mt$queue_size, batch = mt$batch_size,
+#'         retained = mt$queue_size - mt$batch_size))
+#'
+#' # The queue is warmed by drawing min(queue_size, 4 * batch_size)
+#' # patches in a single call, and foundation_tile_dataset() refuses a
+#' # draw larger than `n_patches`. So the dataset must satisfy
+#' # n_patches >= min(queue_size, 4 * batch_size); below, min(256, 32)
+#' # is 32 and the dataset only holds 20.
+#' small <- foundation_tile_dataset(covs, patch_size = 8L,
+#'                                  n_patches = 20L, seed = 3L)
+#' try(foundation_moco_pretrain_tiles(small, feature_dim = 8L,
+#'                                    proj_dim = 4L, queue_size = 256L,
+#'                                    batch_size = 8L, epochs = 2L,
+#'                                    seed = 3L))
+#'
+#' # `device` is resolved, not obeyed: an unavailable backend prints a
+#' # note and the run silently continues on CPU. Read the resolved
+#' # value back rather than trusting the argument you passed -- a
+#' # "GPU run" that took CPU wall-clock is usually this.
+#' set.seed(11)
+#' gpu <- foundation_moco_pretrain_tiles(ds, feature_dim = 8L,
+#'                                       proj_dim = 4L, queue_size = 32L,
+#'                                       batch_size = 8L, epochs = 2L,
+#'                                       seed = 11L, device = "cuda")
+#' print(identical(gpu$device,
+#'                 if (torch::cuda_is_available()) "cuda" else "cpu"))
+#'
+#' # Checkpointing is what makes a multi-day run restartable. Four
+#' # epochs at checkpoint_every = 2 leave both encoders, the dictionary
+#' # queue and the loss history on disk; `resume=` restores them and
+#' # carries on at the stored next_epoch, so run2 holds run1's four
+#' # losses verbatim plus the two new ones.
+#' ck <- file.path(tempdir(), "moco_ck")
+#' set.seed(21)
+#' run1 <- foundation_moco_pretrain_tiles(ds, feature_dim = 8L,
+#'                                        proj_dim = 4L, queue_size = 32L,
+#'                                        batch_size = 8L, epochs = 4L,
+#'                                        seed = 21L, checkpoint_dir = ck,
+#'                                        checkpoint_every = 2L)
+#' print(list.files(ck))
+#' set.seed(22)
+#' run2 <- foundation_moco_pretrain_tiles(ds, feature_dim = 8L,
+#'                                        proj_dim = 4L, queue_size = 32L,
+#'                                        batch_size = 8L, epochs = 6L,
+#'                                        seed = 22L, resume = ck)
+#' print(length(run2$loss_history))
+#' print(identical(run2$loss_history[1:4], run1$loss_history))
+#' unlink(ck, recursive = TRUE)
+#' }
+#'
+#' \dontrun{
+#' # The real target: a multi-source mosaic that does not fit in RAM.
+#' # Every source below downloads, so this block is never run by
+#' # examples -- but it is the working pipeline.
+#' aoi  <- c(-48.5, -47.0, -16.5, -15.0)   # xmin, xmax, ymin, ymax
+#' srtm <- foundation_tile_source_srtm(aoi, derive = c("slope", "TPI"),
+#'                                     country = "BRA")
+#' clim <- foundation_tile_source_worldclim(c("prec", "tavg"),
+#'                                          country = "BRA", aoi = aoi)
+#' soil <- foundation_tile_source_soilgrids(c("soc", "clay"),
+#'                                          depth = "0-5cm", aoi = aoi)
+#' mosaic <- foundation_tile_align(
+#'   list(srtm = srtm, clim = clim, soil = soil),
+#'   target_res = 0.005, aoi = aoi)
+#' ds_big <- foundation_tile_dataset(mosaic, patch_size = 32L,
+#'                                   n_patches = 20000L, seed = 1L)
+#' moco <- foundation_moco_pretrain_tiles(
+#'   ds_big, queue_size = 4096L, batch_size = 64L, epochs = 20000L,
+#'   device = "mps", checkpoint_dir = "moco_ck", checkpoint_every = 500L,
+#'   verbose = TRUE)
+#' }
 #' @export
 foundation_moco_pretrain_tiles <- function(dataset,
                                              feature_dim = 64L,
@@ -684,6 +930,90 @@ foundation_moco_pretrain_tiles <- function(dataset,
 #'   projection-head outputs instead of the backbone features.
 #' @return A `terra::SpatRaster` with `feature_dim` (or `proj_dim`)
 #'   layers.
+#' @examples
+#' # Guard on the libtorch binaries as well as on the R package --
+#' # requireNamespace() alone is TRUE on machines that cannot run a
+#' # single tensor operation.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed()) &&
+#'     requireNamespace("terra", quietly = TRUE)) {
+#'
+#' covs <- terra::rast(br_cerrado[, c("x", "y", "elev", "slope", "twi",
+#'                                    "map_mm", "ndvi")], type = "xyz")
+#' ds <- foundation_tile_dataset(covs, patch_size = 8L, n_patches = 64L,
+#'                               seed = 7L)
+#' set.seed(11)
+#' moco <- foundation_moco_pretrain_tiles(ds, feature_dim = 8L,
+#'                                        proj_dim = 4L, queue_size = 32L,
+#'                                        batch_size = 8L, epochs = 6L,
+#'                                        seed = 11L)
+#'
+#' # One output layer per backbone feature, on a grid coarsened by
+#' # `stride`. Pass the same `dataset` you trained on: its per-channel
+#' # means and sds are the normalisation, and a different dataset would
+#' # feed the encoder a differently-scaled raster.
+#' emb <- foundation_moco_embed_raster(moco, covs, ds, stride = 8L)
+#' print(c(layers = terra::nlyr(emb), feature_dim = moco$feature_dim))
+#' print(terra::res(emb) / terra::res(covs))
+#'
+#' # TRAP: the output is not co-registered with the input. The grid is
+#' # anchored at the input's top-left corner and is ncol(emb) * stride
+#' # input columns wide, so with 45 columns and stride 8 the last five
+#' # columns -- and the last five rows -- of `covs` are not covered.
+#' print(terra::ncol(covs) - 8L * terra::ncol(emb))
+#' print(rbind(covs = as.vector(terra::ext(covs)),
+#'             emb  = as.vector(terra::ext(emb))))
+#'
+#' # It overshoots just as happily in the other direction: stride 24
+#' # gives two columns of 24 cells, i.e. 48 > 45, and the embedding
+#' # raster sticks out past the input. Always crop or resample to a
+#' # reference grid before overlaying anything on it.
+#' emb24 <- foundation_moco_embed_raster(moco, covs, ds, stride = 24L)
+#' print(c(covered = 24L * terra::ncol(emb24),
+#'         input = terra::ncol(covs),
+#'         overshoots = terra::xmax(emb24) > terra::xmax(covs)))
+#'
+#' # TRAP: missing data is imputed, not propagated. NA cells are set to
+#' # the channel mean before encoding, so a patch that is entirely
+#' # no-data -- all five channels blank, below -- still gets a finite
+#' # embedding. The output cannot be used to find gaps: carry a separate
+#' # mask.
+#' blank <- terra::cellFromRowCol(covs, rep(1:8, each = 8), rep(1:8, 8))
+#' gap <- terra::deepcopy(covs)
+#' for (k in 1:5) gap[[k]][blank] <- NA
+#' emb_gap <- foundation_moco_embed_raster(moco, gap, ds, stride = 24L)
+#' print(colSums(is.na(terra::values(gap))))
+#' print(c(na_in_output = sum(is.na(terra::values(emb_gap)))))
+#'
+#' # Rows 1:8 / columns 1:8 are exactly the window of the first stride-24
+#' # patch, so row 1 of the gapped output is the all-NA patch. Finite it
+#' # is; "close to an average patch" it is not, and nothing in the
+#' # encoder pulls it there. The line below prints its distance to the
+#' # mean of the four real embeddings, then how far the real patches
+#' # themselves sit from that same mean, on average and at worst. The
+#' # blank patch comes out FARTHER from the average than the average
+#' # real patch is -- the opposite of reassuring. Read the printed
+#' # values, do not quote a number from this comment: they move with the
+#' # fit, and this one is 6 optimiser steps on 64 patches. Nor is the
+#' # gap recoverable this way in general; the load-bearing number is the
+#' # NA count above -- zero NA reaches the output, so carry a mask.
+#' real <- terra::values(emb24)
+#' ctr  <- colMeans(real)
+#' print(round(c(blank_to_mean = sqrt(sum((terra::values(emb_gap)[1, ] -
+#'                                           ctr)^2)),
+#'               real_to_mean_mean = mean(sqrt(rowSums(sweep(real, 2,
+#'                                                           ctr)^2))),
+#'               real_to_mean_max  = max(sqrt(rowSums(sweep(real, 2,
+#'                                                          ctr)^2)))), 3))
+#'
+#' # `projection = TRUE` swaps in the L2-normalised head, so each cell
+#' # of the output has unit length across layers: a ready-made cosine
+#' # similarity space, and a useless magnitude map.
+#' embp <- foundation_moco_embed_raster(moco, covs, ds, stride = 24L,
+#'                                      projection = TRUE)
+#' print(c(layers = terra::nlyr(embp), proj_dim = moco$proj_dim))
+#' print(range(round(sqrt(rowSums(terra::values(embp)^2)), 6)))
+#' }
 #' @export
 foundation_moco_embed_raster <- function(moco, stack, dataset,
                                            patch_size = NULL,

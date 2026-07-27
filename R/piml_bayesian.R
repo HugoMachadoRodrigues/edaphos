@@ -300,8 +300,16 @@
 #' @param start Optional starting vector. Defaults to
 #'   [piml_profile_fit()]'s point-estimate theta for the MAP search.
 #' @param control `optim` control list for the MAP step.
-#' @param n_iter,n_burn,thin,seed MCMC settings. Only consulted when
+#' @param n_iter,n_burn,thin MCMC settings. Only consulted when
 #'   `method = "mcmc"`.
+#' @param seed Optional integer seed. Consulted by *both* methods, not
+#'   only by MCMC: with `method = "laplace"` it seeds the 2000 Gaussian
+#'   draws taken from the Laplace posterior, and with `method = "mcmc"`
+#'   it seeds the Metropolis chain. Because every entry of the returned
+#'   `summary` (and of any downstream `predict()`) is a Monte-Carlo
+#'   average over those draws, leaving `seed = NULL` makes the reported
+#'   posterior means, SDs and quantiles change on every call. Set it
+#'   whenever you intend to quote or compare the numbers.
 #' @param verbose Logical — print one progress line per 10% of MCMC
 #'   iterations.
 #' @return An `edaphos_piml_bayes` object with:
@@ -335,9 +343,20 @@
 #' @examples
 #' depths <- c(5, 15, 30, 60, 100)
 #' values <- c(25, 18, 12, 8, 6.5)
-#' fit_bayes <- piml_profile_fit_bayesian(depths, values)
+#' # The posterior summary is a Monte-Carlo average over 2000 draws from
+#' # the Laplace posterior, so `seed` is required for it to be
+#' # reproducible. Drop the seed and the printed means and quantiles
+#' # change in the 4th significant figure on every call.
+#' fit_bayes <- piml_profile_fit_bayesian(depths, values, seed = 1)
 #' fit_bayes
 #' summary(fit_bayes)
+#'
+#' # With seed = 1 this profile gives a lambda0 posterior mean of 0.0493
+#' # and a 95% credible interval of [0.04434, 0.05456] -- a relative
+#' # width of 21%, so the decay rate is identified to roughly +/- 10%
+#' # and the point estimate alone would overstate what 5 horizons buy.
+#' round(subset(summary(fit_bayes), parameter == "lambda0",
+#'              c("mean", "q2.5", "q97.5")), 5)
 #' @export
 piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
                                         method  = c("laplace", "mcmc"),
@@ -470,14 +489,28 @@ summary.edaphos_piml_bayes <- function(object, ...) object$summary
 #'   observation*. If `FALSE` (default), the interval represents the
 #'   uncertainty on the *mean function* \eqn{g(z; \theta)} alone.
 #' @param seed Optional integer seed for the sub-sampling of draws.
+#'   Every returned number is a Monte-Carlo summary over the sub-sample,
+#'   so without a seed the `mean`, `sd`, `lower` and `upper` columns
+#'   move between calls. Note that this seed only controls *which*
+#'   posterior draws are propagated — reproducing a result end-to-end
+#'   also requires seeding [piml_profile_fit_bayesian()] itself.
 #' @param ... Unused; present for S3 `predict` generic compatibility.
 #' @return Either a matrix (when `interval` is NULL) or a data frame
 #'   with columns `depth`, `mean`, `sd`, `lower`, `upper`.
 #' @examples
 #' depths <- c(5, 15, 30, 60, 100)
 #' values <- c(25, 18, 12, 8, 6.5)
-#' fit <- piml_profile_fit_bayesian(depths, values)
-#' predict(fit, newdepths = c(10, 20, 40, 80), interval = 0.95)
+#' # BOTH seeds are needed for a reproducible interval: one for the 2000
+#' # posterior draws, one for the 500 of them that predict() propagates.
+#' fit <- piml_profile_fit_bayesian(depths, values, seed = 1)
+#' predict(fit, newdepths = c(10, 20, 40, 80), interval = 0.95, seed = 1)
+#'
+#' # At depth 10 that prints mean 21.00 with a 95% interval of
+#' # [20.75, 21.24] for the mean function. `include_obs_noise = TRUE`
+#' # widens it to [20.58, 21.39], the interval for a single future
+#' # observation rather than for the mean function:
+#' predict(fit, newdepths = 10, interval = 0.95, seed = 1,
+#'         include_obs_noise = TRUE)
 #' @export
 predict.edaphos_piml_bayes <- function(object, newdepths,
                                           n_draws = NULL,

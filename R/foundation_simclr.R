@@ -114,6 +114,92 @@
 #' @param seed,verbose As elsewhere.
 #'
 #' @return A `edaphos_foundation_simclr` object (S3).
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   data(br_cerrado)
+#'
+#'   # `noise_sd` is additive in the units of `patches`, so standardise
+#'   # every channel first. The default noise is a fixed 0.1 while the
+#'   # raw covariates are on wildly different scales; take the ratio of
+#'   # the two and the augmentation turns out to be about a thousandth
+#'   # of elevation's spread, yet 1.19 times the whole spread of NDVI.
+#'   chan <- c("elev", "twi", "ndvi")
+#'   nsd  <- formals(foundation_simclr_pretrain)$noise_sd
+#'   sds  <- sapply(br_cerrado[chan], sd)
+#'   print(round(c(noise_sd = nsd, sds), 3))
+#'   # noise_sd     elev      twi     ndvi
+#'   #    0.100  109.380    2.862    0.084
+#'   print(round(nsd / sds, 4))
+#'   #   elev    twi   ndvi
+#'   # 0.0009 0.0349 1.1871
+#'
+#'   # br_cerrado is a complete 45 x 45 grid with x cycling fastest, so
+#'   # each covariate reshapes straight into an image.
+#'   grids <- lapply(chan, function(v) {
+#'     m <- matrix(br_cerrado[[v]], nrow = 45, ncol = 45)
+#'     (m - mean(m)) / sd(m)
+#'   })
+#'
+#'   # `patches` must be 4-D, (N, C, H, W): twelve 8 x 8 tiles here. A
+#'   # 3-D (N, H, W) array is rejected even for a single covariate --
+#'   # the channel axis is never inferred for you.
+#'   patches <- array(0, dim = c(12L, 3L, 8L, 8L))
+#'   k <- 0L
+#'   for (r0 in c(0L, 8L, 16L)) for (c0 in c(0L, 8L, 16L, 24L)) {
+#'     k <- k + 1L
+#'     for (j in seq_along(grids)) {
+#'       patches[k, j, , ] <- grids[[j]][r0 + 1:8, c0 + 1:8]
+#'     }
+#'   }
+#'   print(dim(patches))
+#'
+#'   # The first torch call of a session is what loads the libtorch
+#'   # backend, and a `seed` handed to that same call does not stick.
+#'   # Touch torch once before you rely on `seed`.
+#'   invisible(torch::torch_manual_seed(11L))
+#'
+#'   set.seed(1)
+#'   fit <- foundation_simclr_pretrain(patches, epochs = 40L,
+#'                                     batch_size = 6L, seed = 11L)
+#'   print(fit)
+#'
+#'   # One mini-batch per epoch, so `loss_history` is a noisy trace and
+#'   # `final_loss` is its last draw rather than its best. Read both
+#'   # against the NT-Xent chance level log(2 * batch_size - 1) -- the
+#'   # loss of an encoder that cannot pick the matching view at all.
+#'   print(round(c(first  = fit$loss_history[1],
+#'                 min    = min(fit$loss_history),
+#'                 final  = fit$final_loss,
+#'                 chance = log(2 * fit$batch_size - 1)), 3))
+#'
+#'   # `batch_size` is silently clamped to the number of patches, and
+#'   # the chance level moves with it: losses obtained under different
+#'   # batch sizes are not comparable numbers.
+#'   set.seed(2)
+#'   wide <- foundation_simclr_pretrain(patches, epochs = 10L,
+#'                                      batch_size = 64L, seed = 11L)
+#'   print(c(requested = 64, used = wide$batch_size,
+#'           chance = round(log(2 * wide$batch_size - 1), 3)))
+#'
+#'   # Reproducibility needs BOTH seeds: `seed` reaches only torch
+#'   # (weight init, Gaussian noise), while the mini-batch draw, the
+#'   # flips and the channel dropout come from R's own RNG.
+#'   set.seed(1)
+#'   a <- foundation_simclr_pretrain(patches, epochs = 3L,
+#'                                   batch_size = 6L, seed = 11L)
+#'   set.seed(1)
+#'   b <- foundation_simclr_pretrain(patches, epochs = 3L,
+#'                                   batch_size = 6L, seed = 11L)
+#'   print(identical(a$loss_history, b$loss_history))
+#'
+#'   # Drop the set.seed() and the run drifts, `seed` notwithstanding.
+#'   c1 <- foundation_simclr_pretrain(patches, epochs = 3L,
+#'                                    batch_size = 6L, seed = 11L)
+#'   c2 <- foundation_simclr_pretrain(patches, epochs = 3L,
+#'                                    batch_size = 6L, seed = 11L)
+#'   print(identical(c1$loss_history, c2$loss_history))
+#' }
 #' @export
 foundation_simclr_pretrain <- function(patches,
                                         feature_dim = 32L, proj_dim = 16L,
@@ -186,6 +272,89 @@ foundation_simclr_pretrain <- function(patches,
 #' @param projection Logical; return L2-normalised projection-head
 #'   outputs instead of backbone features.
 #' @return Numeric matrix `N x D` with `D = feature_dim` (or `proj_dim`).
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   data(br_cerrado)
+#'
+#'   # Twelve 8 x 8 tiles, three standardised covariate channels.
+#'   grids <- lapply(c("elev", "twi", "ndvi"), function(v) {
+#'     m <- matrix(br_cerrado[[v]], nrow = 45, ncol = 45)
+#'     (m - mean(m)) / sd(m)
+#'   })
+#'   patches <- array(0, dim = c(12L, 3L, 8L, 8L))
+#'   k <- 0L
+#'   for (r0 in c(0L, 8L, 16L)) for (c0 in c(0L, 8L, 16L, 24L)) {
+#'     k <- k + 1L
+#'     for (j in seq_along(grids)) {
+#'       patches[k, j, , ] <- grids[[j]][r0 + 1:8, c0 + 1:8]
+#'     }
+#'   }
+#'
+#'   # Warm torch up first, else `seed` misses the lazily-loaded
+#'   # backend (see `foundation_simclr_pretrain()`).
+#'   invisible(torch::torch_manual_seed(11L))
+#'   set.seed(1)
+#'   fit <- foundation_simclr_pretrain(patches, epochs = 30L,
+#'                                     batch_size = 6L, seed = 11L)
+#'
+#'   # The default is the backbone feature, `feature_dim` wide. The
+#'   # projection head, `proj_dim` wide, exists only to shape the
+#'   # contrastive loss; Chen et al. (2020) throw it away and reuse
+#'   # the feature, which is why `projection = FALSE` is the default.
+#'   feat <- foundation_simclr_embed(fit, patches)
+#'   proj <- foundation_simclr_embed(fit, patches, projection = TRUE)
+#'   print(c(feature = ncol(feat), projection = ncol(proj)))
+#'
+#'   # They differ in geometry, not merely in width. Projection rows
+#'   # are unit-norm by construction. Backbone features are pooled
+#'   # ReLU activations: never negative, and with row norms spread
+#'   # over nearly an order of magnitude -- scale them before handing
+#'   # them to a distance-based or penalised downstream model.
+#'   print(round(c(feat_min  = min(feat),
+#'                 feat_norm = range(sqrt(rowSums(feat^2))),
+#'                 proj_norm = range(sqrt(rowSums(proj^2)))), 4))
+#'
+#'   # Embedding applies no augmentation, so it is deterministic.
+#'   print(identical(feat, foundation_simclr_embed(fit, patches)))
+#'
+#'   # Adaptive average pooling makes the encoder size-agnostic: a
+#'   # 16 x 16 patch still yields `feature_dim` columns. The channel
+#'   # count and order, though, must match pre-training exactly.
+#'   print(dim(foundation_simclr_embed(
+#'     fit, array(0, dim = c(2L, 3L, 16L, 16L)))))
+#'
+#'   # How much has it actually learned? Compare two retrieval probes
+#'   # against a barely-trained encoder.
+#'   set.seed(1)
+#'   raw <- foundation_simclr_pretrain(patches, epochs = 1L,
+#'                                     batch_size = 6L, seed = 11L)
+#'   unit <- function(m) m / sqrt(rowSums(m^2))
+#'   top1 <- function(f, query) {
+#'     s <- tcrossprod(unit(foundation_simclr_embed(f, query)),
+#'                     unit(foundation_simclr_embed(f, patches)))
+#'     mean(apply(s, 1, which.max) == seq_len(nrow(s)))
+#'   }
+#'   set.seed(2)
+#'   noisy <- patches + array(rnorm(length(patches), sd = 0.25),
+#'                            dim(patches))
+#'
+#'   # `noise` retrieves each patch from a noisy copy; `flip` from a
+#'   # vertically flipped one, the invariance the augmentation asks
+#'   # the encoder to acquire.
+#'   print(rbind(
+#'     untrained = c(noise = top1(raw, noisy),
+#'                   flip  = top1(raw, patches[, , 8:1, ])),
+#'     trained   = c(noise = top1(fit, noisy),
+#'                   flip  = top1(fit, patches[, , 8:1, ])),
+#'     chance    = c(1 / 12, 1 / 12)))
+#'
+#'   # The noise probe is saturated before training starts, so it
+#'   # cannot tell the two encoders apart; only the flip probe moves.
+#'   # Treat even that as an interface check: an encoder pre-trained
+#'   # on twelve tiles for thirty epochs has memorised twelve tiles,
+#'   # not learned a transferable covariate representation.
+#' }
 #' @export
 foundation_simclr_embed <- function(object, patches, projection = FALSE) {
   .foundation_require_torch()

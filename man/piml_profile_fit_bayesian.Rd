@@ -36,8 +36,17 @@ source for the default structure (fields
 
 \item{control}{\code{optim} control list for the MAP step.}
 
-\item{n_iter, n_burn, thin, seed}{MCMC settings. Only consulted when
+\item{n_iter, n_burn, thin}{MCMC settings. Only consulted when
 \code{method = "mcmc"}.}
+
+\item{seed}{Optional integer seed. Consulted by \emph{both} methods, not
+only by MCMC: with \code{method = "laplace"} it seeds the 2000 Gaussian
+draws taken from the Laplace posterior, and with \code{method = "mcmc"}
+it seeds the Metropolis chain. Because every entry of the returned
+\code{summary} (and of any downstream \code{predict()}) is a Monte-Carlo
+average over those draws, leaving \code{seed = NULL} makes the reported
+posterior means, SDs and quantiles change on every call. Set it
+whenever you intend to quote or compare the numbers.}
 
 \item{verbose}{Logical — print one progress line per 10\% of MCMC
 iterations.}
@@ -94,9 +103,20 @@ list to override them.
 \examples{
 depths <- c(5, 15, 30, 60, 100)
 values <- c(25, 18, 12, 8, 6.5)
-fit_bayes <- piml_profile_fit_bayesian(depths, values)
+# The posterior summary is a Monte-Carlo average over 2000 draws from
+# the Laplace posterior, so `seed` is required for it to be
+# reproducible. Drop the seed and the printed means and quantiles
+# change in the 4th significant figure on every call.
+fit_bayes <- piml_profile_fit_bayesian(depths, values, seed = 1)
 fit_bayes
 summary(fit_bayes)
+
+# With seed = 1 this profile gives a lambda0 posterior mean of 0.0493
+# and a 95\% credible interval of [0.04434, 0.05456] -- a relative
+# width of 21\%, so the decay rate is identified to roughly +/- 10\%
+# and the point estimate alone would overstate what 5 horizons buy.
+round(subset(summary(fit_bayes), parameter == "lambda0",
+             c("mean", "q2.5", "q97.5")), 5)
 }
 \references{
 Bishop, C. M. (2006). \emph{Pattern Recognition and Machine Learning}.

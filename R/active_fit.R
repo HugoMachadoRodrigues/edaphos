@@ -73,7 +73,10 @@
 #'   rejects a value too small to make that reliable for
 #'   `nrow(labeled)` rows (about 88 trees for 30 rows, rising slowly
 #'   with n) rather than letting `ranger` fail on some random seeds.
-#' @param ... Additional arguments forwarded to `ranger::ranger()`.
+#' @param ... Additional arguments forwarded to `ranger::ranger()`. Note
+#'   `seed`: `ranger` draws its own random seed when none is given, so
+#'   without it every call grows a different forest and reports a
+#'   different out-of-bag RMSE.
 #'
 #' @return A `edaphos_al_model` object.
 #'
@@ -85,13 +88,27 @@
 #' \donttest{
 #'   if (requireNamespace("sp", quietly = TRUE)) {
 #'     data(meuse, package = "sp")
+#'     d <- stats::na.omit(meuse[1:30, ])   # 29 rows survive na.omit()
+#'
+#'     # `seed` is forwarded to ranger::ranger(). Without it the 500-tree
+#'     # forest -- and the "last RMSE" printed below -- differs on every
+#'     # run; with it, repeated calls print the same number.
 #'     m <- al_fit(
-#'       labeled    = stats::na.omit(meuse[1:30, ]),
+#'       labeled    = d,
 #'       target     = "lead",
 #'       covariates = c("dist", "elev"),
-#'       coords     = c("x", "y")
+#'       coords     = c("x", "y"),
+#'       seed       = 42
 #'     )
-#'     m
+#'     print(m)
+#'
+#'     # That RMSE is not evidence of a useful model: it is an out-of-bag
+#'     # estimate from 29 points and 2 covariates. Compare it with the RMSE
+#'     # of simply predicting the mean of the 29 labeled values.
+#'     print(c(oob       = m$history[[1]]$rmse_oob,
+#'             mean_only = sqrt(mean((d$lead - mean(d$lead))^2))))
+#'     # A model worth acting on needs hundreds of labeled sites and
+#'     # spatially blocked validation -- run al_loop() to add points.
 #'   }
 #' }
 #' @export

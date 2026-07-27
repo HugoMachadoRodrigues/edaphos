@@ -36,7 +36,12 @@ interval represents the predictive distribution of a \emph{future
 observation}. If \code{FALSE} (default), the interval represents the
 uncertainty on the \emph{mean function} \eqn{g(z; \theta)} alone.}
 
-\item{seed}{Optional integer seed for the sub-sampling of draws.}
+\item{seed}{Optional integer seed for the sub-sampling of draws.
+Every returned number is a Monte-Carlo summary over the sub-sample,
+so without a seed the \code{mean}, \code{sd}, \code{lower} and \code{upper} columns
+move between calls. Note that this seed only controls \emph{which}
+posterior draws are propagated — reproducing a result end-to-end
+also requires seeding \code{\link[=piml_profile_fit_bayesian]{piml_profile_fit_bayesian()}} itself.}
 
 \item{...}{Unused; present for S3 \code{predict} generic compatibility.}
 }
@@ -52,6 +57,15 @@ forward model to produce posterior-predictive draws of
 \examples{
 depths <- c(5, 15, 30, 60, 100)
 values <- c(25, 18, 12, 8, 6.5)
-fit <- piml_profile_fit_bayesian(depths, values)
-predict(fit, newdepths = c(10, 20, 40, 80), interval = 0.95)
+# BOTH seeds are needed for a reproducible interval: one for the 2000
+# posterior draws, one for the 500 of them that predict() propagates.
+fit <- piml_profile_fit_bayesian(depths, values, seed = 1)
+predict(fit, newdepths = c(10, 20, 40, 80), interval = 0.95, seed = 1)
+
+# At depth 10 that prints mean 21.00 with a 95\% interval of
+# [20.75, 21.24] for the mean function. `include_obs_noise = TRUE`
+# widens it to [20.58, 21.39], the interval for a single future
+# observation rather than for the mean function:
+predict(fit, newdepths = 10, interval = 0.95, seed = 1,
+        include_obs_noise = TRUE)
 }
