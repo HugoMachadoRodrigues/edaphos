@@ -27,6 +27,30 @@
 #' template to extend for a specific region.
 #'
 #' @return A `dagitty` graph object.
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   dag <- causal_clorpt_dag()
+#'   print(names(dag))
+#'
+#'   # Only four of the five CLORPT factors come out exogenous:
+#'   # Organisms does not, because the graph asserts Climate ->
+#'   # Organisms.
+#'   print(dagitty::exogenousVariables(dag))
+#'
+#'   # Trap: these are conceptual labels, not column names. The DAG
+#'   # shares no node at all with the bundled br_cerrado grid, so the
+#'   # two cannot be handed to causal_estimate_effect() together.
+#'   print(intersect(names(dag), names(br_cerrado)))
+#'
+#'   # CEC is a common effect of Clay and SOC, i.e. a collider. Given
+#'   # the shared causes Climate and Time the two are d-separated ...
+#'   print(dagitty::dconnected(dag, "SOC", "Clay", c("Climate", "Time")))
+#'   # ... and adding CEC to the conditioning set re-opens the path,
+#'   # manufacturing a clay-carbon association that is not causal.
+#'   # This is what "control for every covariate we measured" buys you.
+#'   print(dagitty::dconnected(dag, "SOC", "Clay",
+#'                             c("Climate", "Time", "CEC")))
+#' }
 #' @export
 causal_clorpt_dag <- function() {
   .causal_require_dagitty()
@@ -59,6 +83,24 @@ causal_clorpt_dag <- function() {
 #'
 #' @return A `dagitty` graph object with nodes `elev`, `slope`, `twi`,
 #'   `map_mm`, `ndvi`, `soc`.
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   dag <- causal_cerrado_dag()
+#'
+#'   # Unlike causal_clorpt_dag(), every node is a column of the
+#'   # bundled grid, so DAG and data frame can be used together as-is.
+#'   print(all(names(dag) %in% names(br_cerrado)))
+#'
+#'   # A DAG is a falsifiable claim, not decoration. This one is nearly
+#'   # saturated: it implies only two conditional independencies, so
+#'   # passing them is weak evidence for the structure, not proof.
+#'   print(dagitty::impliedConditionalIndependencies(dag))
+#'
+#'   # Both do hold in br_cerrado -- the partial correlations come out
+#'   # under 0.03 in absolute value, and neither confidence interval
+#'   # excludes zero.
+#'   print(dagitty::localTests(dag, br_cerrado))
+#' }
 #' @export
 causal_cerrado_dag <- function() {
   .causal_require_dagitty()
@@ -117,6 +159,36 @@ causal_cerrado_dag <- function() {
 #' @seealso [causal_cerrado_dag()] for the short-label schematic
 #'   version; [causal_adjustment_set()] and
 #'   [causal_estimate_effect()] for identification + estimation.
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   dag  <- causal_cerrado_real_dag()
+#'   prof <- readRDS(system.file("extdata", "case_cerrado_results.rds",
+#'                               package = "edaphos"))$profiles
+#'
+#'   # The whole point of this DAG: all of its nodes are real columns
+#'   # of the WoSIS case-study table, whereas the schematic
+#'   # causal_cerrado_dag() shares only two names with it.
+#'   print(all(names(dag) %in% names(prof)))
+#'   print(intersect(names(causal_cerrado_dag()), names(prof)))
+#'
+#'   # Total vs direct effect of clay on topsoil SOC. The total effect
+#'   # only needs slope; the direct effect must additionally block bulk
+#'   # density (a mediator) and then sand as well, because bdod is a
+#'   # collider of clay and sand.
+#'   print(causal_adjustment_set(dag, "soilgrids_clay",
+#'                               "soc_topsoil_gkg", effect = "total"))
+#'   print(causal_adjustment_set(dag, "soilgrids_clay",
+#'                               "soc_topsoil_gkg", effect = "direct"))
+#'
+#'   # Roughly two thirds of the clay effect is mediated: the total
+#'   # slope is about 0.54 g/kg SOC per unit of soilgrids_clay, the
+#'   # direct one about 0.19 with an interval that only just clears
+#'   # zero. Report which one you mean.
+#'   print(causal_estimate_effect(prof, dag, "soilgrids_clay",
+#'                                "soc_topsoil_gkg", effect = "total"))
+#'   print(causal_estimate_effect(prof, dag, "soilgrids_clay",
+#'                                "soc_topsoil_gkg", effect = "direct"))
+#' }
 #' @export
 causal_cerrado_real_dag <- function() {
   .causal_require_dagitty()
@@ -169,13 +241,28 @@ causal_cerrado_real_dag <- function() {
 #' if (requireNamespace("dagitty", quietly = TRUE)) {
 #'   dag <- causal_clorpt_dag()
 #'
-#'   # Which covariates must be conditioned on to read the effect of
-#'   # Climate on SOC as causal rather than confounded?
-#'   causal_adjustment_set(dag, exposure = "Climate", outcome = "SOC")
+#'   # `effect` decides WHICH estimand you are adjusting for, and the
+#'   # default is "direct". That distinction is not cosmetic.
+#'   #
+#'   # Climate is exogenous in this DAG -- it has no parents at all --
+#'   # so the TOTAL effect of Climate on SOC is not confounded by
+#'   # anything, and the adjustment set is empty:
+#'   dagitty::parents(dag, "Climate")
+#'   causal_adjustment_set(dag, "Climate", "SOC", effect = "total")
 #'
-#'   # The answer is a property of the graph, not of the data: change
-#'   # the exposure and the required set changes with it.
-#'   causal_adjustment_set(dag, exposure = "Relief", outcome = "SOC")
+#'   # The default asks a different question. Climate reaches SOC both
+#'   # directly and through Organisms, so isolating the DIRECT effect
+#'   # means blocking the indirect path:
+#'   causal_adjustment_set(dag, "Climate", "SOC")   # effect = "direct"
+#'
+#'   # Organisms is a CHILD of Climate, not a common cause of both.
+#'   dagitty::children(dag, "Climate")
+#'
+#'   # So do not read a non-empty adjustment set as "these are the
+#'   # confounders". Conditioning on a mediator does not remove bias --
+#'   # it changes the estimand from total to direct, and conditioning
+#'   # on one when you wanted the total effect introduces bias rather
+#'   # than removing it.
 #' }
 #' @export
 causal_adjustment_set <- function(dag, exposure, outcome,
@@ -247,6 +334,41 @@ causal_adjustment_set <- function(dag, exposure, outcome,
 #' Bayesian Additive Regression Trees. *Annals of Applied Statistics*
 #' **4**, 266-298.
 #'
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   dag <- causal_cerrado_dag()
+#'
+#'   # Greenness looks like an enormous SOC driver until the DAG is
+#'   # honoured: twi, slope and map_mm cause both ndvi and soc, so the
+#'   # raw slope (about 49) is inflated. Adjusting cuts it to about 18.
+#'   print(causal_estimate_effect(br_cerrado, dag, "ndvi", "soc"))
+#'
+#'   # Elevation is the instructive case: the adjusted effect comes out
+#'   # positive, the unadjusted one negative -- a sign flip.
+#'   print(causal_estimate_effect(br_cerrado, dag, "elev", "soc"))
+#'
+#'   # Read that flip carefully. elev has no parents in this DAG, so
+#'   # the unadjusted slope is not confounded at all, despite the
+#'   # wording the print method uses: it is the *total* effect, and
+#'   # asking for it reproduces the naive number exactly. The gap
+#'   # between the two is mediation through slope, twi and map_mm.
+#'   print(dagitty::parents(dag, "elev"))
+#'   print(causal_estimate_effect(br_cerrado, dag, "elev", "soc",
+#'                                effect = "total"))
+#'
+#'   # Same adjustment set, non-linear estimator. BART also puts the
+#'   # direct elevation effect above zero, and lands below the OLS
+#'   # slope. Note what it reports: an average finite difference over a
+#'   # step of delta = IQR/2 (76.4 m of elevation here), not a local
+#'   # derivative, so it equals the OLS coefficient only if the
+#'   # response really is linear over that span.
+#'   if (requireNamespace("dbarts", quietly = TRUE)) {
+#'     set.seed(1)
+#'     print(causal_estimate_effect(
+#'       br_cerrado, dag, "elev", "soc", estimator = "bart",
+#'       bart_kwargs = list(ntree = 50L, ndpost = 200L, nskip = 100L)))
+#'   }
+#' }
 #' @export
 causal_estimate_effect <- function(data, dag, exposure, outcome,
                                     adjustment = NULL,

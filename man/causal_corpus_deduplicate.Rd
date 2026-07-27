@@ -22,3 +22,44 @@ results from multiple sources (SciELO + OpenAlex frequently share
 Brazilian pedology papers). DOI is the primary key when available;
 a normalised lower-case title is the fallback.
 }
+\examples{
+# A merged SciELO + OpenAlex pull on Cerrado pedology: the same
+# paper arrives twice, once per source, with the DOI cased
+# differently.
+corpus <- data.frame(
+  source = c("scielo", "openalex", "openalex", "scielo"),
+  title  = c("Soil organic carbon under Cerrado pasture",
+             "soil organic  carbon under cerrado pasture",
+             "Termite mounds and phosphorus availability",
+             "Soil organic carbon under Cerrado pasture"),
+  doi    = c("10.1590/S0100-06832011000100001",
+             "10.1590/s0100-06832011000100001",
+             "10.1016/j.geoderma.2019.05.001",
+             NA_character_),
+  stringsAsFactors = FALSE
+)
+
+dedup <- causal_corpus_deduplicate(corpus)
+dedup[, c("source", "doi")]
+
+# Rows 1 and 2 collapse on the case-folded DOI and the FIRST
+# occurrence survives, so which record wins is decided by row
+# order, not by record quality -- stack the feed you trust on top.
+dedup$source[1]  # "scielo"
+
+# The trap: row 4 is that paper a third time but with no DOI, so
+# it is keyed on its title while row 1 is keyed on its DOI. Keys
+# drawn from different columns never match, and the duplicate
+# survives.
+nrow(dedup)  # 3, not 2
+
+# Forcing a single key space fixes it; title matching also folds
+# case and collapses runs of whitespace.
+nrow(causal_corpus_deduplicate(corpus, by = "title"))  # 2
+
+# Records with neither a DOI nor a title get an NA key and are all
+# kept -- "unknown" is not treated as "the same".
+blank <- data.frame(doi   = c(NA_character_, NA_character_),
+                    title = c(NA_character_, NA_character_))
+nrow(causal_corpus_deduplicate(blank))  # 2
+}

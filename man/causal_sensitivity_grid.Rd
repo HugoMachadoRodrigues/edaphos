@@ -26,3 +26,33 @@ Z) and returns the bias-adjusted estimate at each cell, ready for
 \code{contour()} / \code{ggplot2::geom_contour()}.  The grid is dense enough
 (51 x 51 by default) to render smooth contours.
 }
+\examples{
+# A backdoor fit of `soc` on mean annual rainfall in `br_cerrado`
+# gives beta = 0.008583 g/kg per mm, SE = 0.000529, df = 2020.
+s <- causal_sensitivity_summary(0.008583, 0.000529, 2020)
+
+# The grid is the contour map that the robustness value summarises.
+# Evaluate it out to r2_max = RV and the far corner of the
+# equal-confounding diagonal lands exactly on zero.
+corner <- causal_sensitivity_grid(0.008583, 0.000529, 2020,
+                                  grid_size = 2L, r2_max = s$rv)
+corner[, c("r2_xu_z", "r2_yu_xz", "adjusted_estimate")]
+
+# The two axes are not interchangeable.  `r2_xu_z` enters the bias
+# factor as r2 / (1 - r2), so confounding of the EXPOSURE bites
+# harder: the (0.5, 0.2) cell has already flipped the sign of the
+# estimate while (0.2, 0.5) is still positive.
+g <- causal_sensitivity_grid(0.008583, 0.000529, 2020,
+                             grid_size = 6L, r2_max = 0.5)
+g[(g$r2_xu_z == 0.5 & g$r2_yu_xz == 0.2) |
+  (g$r2_xu_z == 0.2 & g$r2_yu_xz == 0.5), ]
+
+# Sign reversal is not an error: `adjusted_estimate` is the estimate
+# pushed towards zero by `bias`, and beyond the RV it overshoots.
+# Ten of these 36 cells come back negative.
+sum(g$adjusted_estimate < 0)
+
+# The default is 51 x 51 = 2601 rows, which is the long-format frame
+# you hand to contour() or ggplot2::geom_contour().
+nrow(causal_sensitivity_grid(0.008583, 0.000529, 2020))
+}

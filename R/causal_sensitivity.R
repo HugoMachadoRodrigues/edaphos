@@ -142,6 +142,35 @@ causal_sensitivity_summary <- function(effect, se, df,
 #'   real covariates).
 #' @return A long-format data frame with columns `r2_xu_z`,
 #'   `r2_yu_xz`, `adjusted_estimate`, `bias`, `bias_factor`.
+#' @examples
+#' # A backdoor fit of `soc` on mean annual rainfall in `br_cerrado`
+#' # gives beta = 0.008583 g/kg per mm, SE = 0.000529, df = 2020.
+#' s <- causal_sensitivity_summary(0.008583, 0.000529, 2020)
+#'
+#' # The grid is the contour map that the robustness value summarises.
+#' # Evaluate it out to r2_max = RV and the far corner of the
+#' # equal-confounding diagonal lands exactly on zero.
+#' corner <- causal_sensitivity_grid(0.008583, 0.000529, 2020,
+#'                                   grid_size = 2L, r2_max = s$rv)
+#' corner[, c("r2_xu_z", "r2_yu_xz", "adjusted_estimate")]
+#'
+#' # The two axes are not interchangeable.  `r2_xu_z` enters the bias
+#' # factor as r2 / (1 - r2), so confounding of the EXPOSURE bites
+#' # harder: the (0.5, 0.2) cell has already flipped the sign of the
+#' # estimate while (0.2, 0.5) is still positive.
+#' g <- causal_sensitivity_grid(0.008583, 0.000529, 2020,
+#'                              grid_size = 6L, r2_max = 0.5)
+#' g[(g$r2_xu_z == 0.5 & g$r2_yu_xz == 0.2) |
+#'   (g$r2_xu_z == 0.2 & g$r2_yu_xz == 0.5), ]
+#'
+#' # Sign reversal is not an error: `adjusted_estimate` is the estimate
+#' # pushed towards zero by `bias`, and beyond the RV it overshoots.
+#' # Ten of these 36 cells come back negative.
+#' sum(g$adjusted_estimate < 0)
+#'
+#' # The default is 51 x 51 = 2601 rows, which is the long-format frame
+#' # you hand to contour() or ggplot2::geom_contour().
+#' nrow(causal_sensitivity_grid(0.008583, 0.000529, 2020))
 #' @export
 causal_sensitivity_grid <- function(effect, se, df,
                                       grid_size = 51L,
@@ -171,6 +200,35 @@ causal_sensitivity_grid <- function(effect, se, df,
 #' @param exposure Character; the exposure coefficient name.
 #' @param q,alpha See [`causal_sensitivity_summary()`].
 #' @return List identical to [`causal_sensitivity_summary()`].
+#' @examples
+#' data(br_cerrado)
+#'
+#' # Effect of dry-season greenness on topsoil carbon, holding the
+#' # usual climate/terrain backdoor set fixed.
+#' fit <- lm(soc ~ ndvi + map_mm + elev + slope, data = br_cerrado)
+#' s <- causal_sensitivity_from_lm(fit, "ndvi")
+#' round(c(effect = s$effect, t = s$t_stat,
+#'         rv = s$rv, rv_alpha = s$rv_alpha), 3)
+#'
+#' # RV = 0.290 reads: an unobserved confounder -- soil texture, say --
+#' # would have to explain 29% of the residual variance of `ndvi` AND
+#' # 29% of the residual variance of `soc`, on top of the three
+#' # covariates, before the coefficient reached zero.  `rv_alpha`
+#' # (0.258) is always the smaller of the two: it only has to reach
+#' # statistical insignificance, not zero.
+#'
+#' # Trap: the RV depends on the fit only through |t| and df, so it is
+#' # blind to the units of the exposure.  Rescaling rainfall from mm to
+#' # metres multiplies the coefficient by 1000 and leaves the RV where
+#' # it was -- a numerically larger effect is not a more robust one.
+#' cerrado_m <- br_cerrado
+#' cerrado_m$map_m <- cerrado_m$map_mm / 1000
+#' mm <- causal_sensitivity_from_lm(
+#'   lm(soc ~ map_mm + ndvi + elev + slope, data = br_cerrado), "map_mm")
+#' m <- causal_sensitivity_from_lm(
+#'   lm(soc ~ map_m + ndvi + elev + slope, data = cerrado_m), "map_m")
+#' round(c(rv_mm = mm$rv, rv_m = m$rv,
+#'         effect_ratio = m$effect / mm$effect), 4)
 #' @export
 causal_sensitivity_from_lm <- function(fit, exposure,
                                          q = 1, alpha = 0.05) {
@@ -200,6 +258,40 @@ causal_sensitivity_from_lm <- function(fit, exposure,
 #' @param q,alpha See [`causal_sensitivity_summary()`].
 #' @return List identical to [`causal_sensitivity_summary()`] with
 #'   an extra `fit_estimator` field.
+#' @examples
+#' # A liming trial where the ASSIGNED rate was randomised but the
+#' # APPLIED rate was not: growers on clay-rich plots limed more, and
+#' # clay content raises SOC on its own.  Clay is never measured; the
+#' # assigned rate is the instrument.
+#' set.seed(42)
+#' n        <- 400
+#' clay     <- stats::rnorm(n)
+#' assigned <- stats::rnorm(n)
+#' applied  <- 0.8 * assigned + 0.9 * clay + stats::rnorm(n)
+#' soc      <- 1.5 * applied + 1.2 * clay + stats::rnorm(n)
+#' trial    <- data.frame(assigned, applied, soc)
+#'
+#' ols <- lm(soc ~ applied, data = trial)
+#' iv  <- causal_iv_fit_2sls(trial, exposure = "applied",
+#'                           outcome = "soc", instruments = "assigned")
+#'
+#' # OLS is biased upwards (1.922 against a true effect of 1.5) and
+#' # 2SLS recovers 1.533.  Now compare the two robustness values.
+#' pick <- c("effect", "se", "rv")
+#' round(rbind(
+#'   ols = unlist(causal_sensitivity_from_lm(ols, "applied")[pick]),
+#'   iv  = unlist(causal_sensitivity_from_iv(iv)[pick])
+#' ), 3)
+#'
+#' # Trap: the RV rewards precision, not correctness.  The confounded
+#' # OLS estimate scores 0.855 and the consistent 2SLS estimate only
+#' # 0.535, purely because instrumenting more than doubled the standard
+#' # error.  Read this wrapper's RV as "how much confounding survives
+#' # the instruments", never as a ranking of the two estimators.
+#'
+#' # The one structural difference from the `lm` wrapper is the
+#' # recorded estimator label.
+#' causal_sensitivity_from_iv(iv)$fit_estimator
 #' @export
 causal_sensitivity_from_iv <- function(fit, q = 1, alpha = 0.05) {
   stopifnot(inherits(fit, "edaphos_causal_iv"))

@@ -43,6 +43,37 @@ produce 3-4x SOC differences in Cerrado topsoil; the
 land-cover fractions are the dominant single factor.}
 }
 }
+\examples{
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag  <- causal_cerrado_real_dag()
+  prof <- readRDS(system.file("extdata", "case_cerrado_results.rds",
+                              package = "edaphos"))$profiles
+
+  # The whole point of this DAG: all of its nodes are real columns
+  # of the WoSIS case-study table, whereas the schematic
+  # causal_cerrado_dag() shares only two names with it.
+  print(all(names(dag) \%in\% names(prof)))
+  print(intersect(names(causal_cerrado_dag()), names(prof)))
+
+  # Total vs direct effect of clay on topsoil SOC. The total effect
+  # only needs slope; the direct effect must additionally block bulk
+  # density (a mediator) and then sand as well, because bdod is a
+  # collider of clay and sand.
+  print(causal_adjustment_set(dag, "soilgrids_clay",
+                              "soc_topsoil_gkg", effect = "total"))
+  print(causal_adjustment_set(dag, "soilgrids_clay",
+                              "soc_topsoil_gkg", effect = "direct"))
+
+  # Roughly two thirds of the clay effect is mediated: the total
+  # slope is about 0.54 g/kg SOC per unit of soilgrids_clay, the
+  # direct one about 0.19 with an interval that only just clears
+  # zero. Report which one you mean.
+  print(causal_estimate_effect(prof, dag, "soilgrids_clay",
+                               "soc_topsoil_gkg", effect = "total"))
+  print(causal_estimate_effect(prof, dag, "soilgrids_clay",
+                               "soc_topsoil_gkg", effect = "direct"))
+}
+}
 \seealso{
 \code{\link[=causal_cerrado_dag]{causal_cerrado_dag()}} for the short-label schematic
 version; \code{\link[=causal_adjustment_set]{causal_adjustment_set()}} and

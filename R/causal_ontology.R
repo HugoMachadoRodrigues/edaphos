@@ -74,6 +74,34 @@
 #' [causal_kg_alignment()].
 #'
 #' @return A data frame with columns `term` and `category`.
+#' @examples
+#' vocab <- causal_ontology_cerrado()
+#' nrow(vocab)
+#' table(vocab$category)
+#'
+#' # The vocabulary is deliberately narrow: it covers the drivers that
+#' # actually turn up in Cerrado pedology abstracts, not all of soil
+#' # science. Terms outside it come back unmatched from
+#' # causal_kg_alignment() -- that is the intended behaviour, not a bug.
+#' #
+#' # Note what "narrow" does and does not mean. `gibbsite` and `cec`
+#' # ARE in it, because Cerrado abstracts discuss them; the SPELLING
+#' # is what is narrow. `cation_exchange_capacity` is absent even
+#' # though `cec` is present, so an extractor that emits the expanded
+#' # form goes unmatched while one that emits the abbreviation does
+#' # not. `salinity` is genuinely out of scope for the biome.
+#' c("gibbsite", "cec", "cation_exchange_capacity", "salinity") %in%
+#'   vocab$term   # TRUE TRUE FALSE FALSE
+#'
+#' # A trap: `soc` and `soil_organic_carbon` are BOTH canonical terms,
+#' # both filed under chemistry. Alignment will therefore keep them as
+#' # two separate nodes rather than merging them -- collapse them
+#' # yourself with causal_kg_rename() if your KG needs one carbon node.
+#' subset(vocab, term %in% c("soc", "soil_organic_carbon", "soc_loss"))
+#'
+#' # Spelling is British throughout, so American labels can only be
+#' # rescued by the fuzzy tier of causal_kg_alignment().
+#' grep("alumin|mineralis", vocab$term, value = TRUE)
 #' @export
 causal_ontology_cerrado <- function() {
   .cerrado_canonical_vocabulary()
@@ -149,6 +177,30 @@ causal_ontology_agrovoc <- function(query, limit = 10L,
 #'
 #' @param path Path to an `envo.obo` file.
 #' @return A data frame with columns `id`, `term`, `label`.
+#' @examples
+#' \dontrun{
+#'   # ENVO is not bundled with edaphos. Download the OBO release from
+#'   # https://obofoundry.org/ontology/envo.html and install the
+#'   # optional `ontologyIndex` package first: without it the function
+#'   # stops rather than falling back to a partial parse.
+#'   envo <- causal_ontology_envo("~/ontologies/envo.obo")
+#'   head(envo)
+#'
+#'   # Unlike causal_ontology_cerrado(), every row carries a persistent
+#'   # ENVO id, so an alignment made against it stays traceable to a
+#'   # versioned ontology release.
+#'   subset(envo, grepl("savanna|ferralsol", term))
+#'
+#'   # Most ENVO classes have nothing to do with pedometry, and the
+#'   # fuzzy tier will cheerfully map a soil node onto one of them.
+#'   # Filter the vocabulary down first, and leave fuzzy switched off.
+#'   soil_vocab <- envo[grepl("soil|sediment", envo$term), ]
+#'   kg <- causal_kg_new()
+#'   kg <- causal_kg_add_edge(kg, "clay", "water_retention",
+#'                            source = "Paper A")
+#'   causal_kg_alignment(kg, vocab = soil_vocab,
+#'                       method = c("exact", "substring"))
+#' }
 #' @export
 causal_ontology_envo <- function(path) {
   if (!requireNamespace("ontologyIndex", quietly = TRUE)) {
@@ -221,6 +273,38 @@ causal_ontology_envo <- function(path) {
 #' @return A data frame with columns `term` (input), `uri`
 #'   (AGROVOC concept), `label` (AGROVOC pref label), `distance`
 #'   (Levenshtein of lowercased label vs term).
+#' @examples
+#' \dontrun{
+#'   # Live SPARQL over HTTP: one round trip per uncached term, several
+#'   # seconds each. Point `cache_path` at a location that survives the
+#'   # session -- tempdir() is a fresh directory every time R starts, so
+#'   # a cache written there never gets read back.
+#'   cache <- "tools/.agrovoc_cache.rds"
+#'   ag <- causal_ontology_agrovoc_align(
+#'     c("soil organic carbon", "bulk density", "gibbsite"),
+#'     cache_path = cache, verbose = TRUE
+#'   )
+#'   ag
+#'
+#'   # `distance` is the Levenshtein distance between the AGROVOC pref
+#'   # label and the query, not a confidence. Zero means the label
+#'   # repeats the query verbatim; a large value means AGROVOC returned
+#'   # a much longer label that merely contains the query as a
+#'   # substring. Filter on it before trusting the mapping.
+#'   subset(ag, !is.na(uri) & distance <= 3)
+#'
+#'   # Failures are cached as well as hits, so an endpoint outage is
+#'   # persisted as a permanent NA row and later runs will not retry it.
+#'   # Delete the cache file after an outage.
+#'   unlink(cache)
+#'
+#'   # unique() is applied before the terms are lower-cased and trimmed,
+#'   # so two spellings of one concept both survive it and the result
+#'   # gains a duplicate row (only one query is sent -- the in-flight
+#'   # cache absorbs the second). De-duplicate yourself if the row count
+#'   # matters downstream.
+#'   nrow(causal_ontology_agrovoc_align(c("gibbsite", "Gibbsite")))
+#' }
 #' @export
 causal_ontology_agrovoc_align <- function(terms,
                                             cache_path = NULL,
@@ -559,6 +643,39 @@ causal_ontology_agrovoc_align_batch <- function(terms,
 #' @return A data frame with columns `original`, `canonical`,
 #'   `method`, `distance`. When `vocab = "agrovoc"` an extra
 #'   `uri` column is attached.
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   # Node labels the way an LLM extractor really emits them: typos,
+#'   # plurals, US spellings, over-specific compounds.
+#'   kg <- causal_kg_new()
+#'   kg <- causal_kg_add_edge(kg, "precipitaton", "soc", source = "A")
+#'   kg <- causal_kg_add_edge(kg, "aluminum", "root_biomass",
+#'                            source = "B")
+#'   kg <- causal_kg_add_edge(kg, "steeper_slopes", "erosion",
+#'                            source = "C")
+#'   kg <- causal_kg_add_edge(kg, "microbial_biomass", "decomposition",
+#'                            source = "D")
+#'
+#'   print(causal_kg_alignment(kg))
+#'
+#'   # Two things to read off that table.
+#'   #
+#'   # `steeper_slopes` stays unmatched. The substring tier only matches
+#'   # whole underscore-separated tokens, so the plural "slopes" misses
+#'   # "slope", and the nearest vocabulary term is 8 edits away, past
+#'   # the default max_distance = 4.
+#'   #
+#'   # `microbial_biomass` is folded into `biomass` by the substring
+#'   # tier, silently merging two different carbon pools. Substring
+#'   # matching is lossy; drop the tier when you would rather see a
+#'   # node come back unmatched than wrongly matched.
+#'   print(causal_kg_alignment(kg, method = c("exact", "fuzzy")))
+#'
+#'   # Do not repair the misses by loosening the fuzzy cap. At
+#'   # max_distance = 8 the fuzzy tier maps `steeper_slopes` onto
+#'   # `temperature`, which is worse than no match at all.
+#'   causal_kg_alignment(kg, max_distance = 8L)
+#' }
 #' @export
 causal_kg_alignment <- function(kg, vocab = NULL,
                                  method = c("exact", "substring", "fuzzy"),
@@ -646,6 +763,32 @@ causal_kg_alignment <- function(kg, vocab = NULL,
 #'   `canonical`. Rows with `NA` canonical are left untouched.
 #' @return A new `edaphos_causal_kg` whose node names are the
 #'   canonical terms (unmapped nodes kept as-is).
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   kg <- causal_kg_new()
+#'   kg <- causal_kg_add_edge(kg, "precipitaton", "soc",
+#'                            source = "Paper A", confidence = 0.7)
+#'   kg <- causal_kg_add_edge(kg, "soc_stocks", "soc",
+#'                            source = "Paper B", confidence = 0.5)
+#'
+#'   map <- causal_kg_alignment(kg)
+#'   kg2 <- causal_kg_rename(kg, map)
+#'
+#'   # The typo is repaired: `precipitaton` becomes `precipitation`.
+#'   print(causal_kg_edges(kg2)[, c("cause", "effect", "source")])
+#'
+#'   # Now count the edges. `soc_stocks` aligns onto `soc`, so the edge
+#'   # `soc_stocks -> soc` collapses into a self-loop and is dropped
+#'   # without a warning: renaming can silently shrink a KG. Always
+#'   # compare edge counts before and after.
+#'   print(c(before = nrow(causal_kg_edges(kg)),
+#'           after  = nrow(causal_kg_edges(kg2))))
+#'
+#'   # Rows with an NA `canonical` are left untouched, so vetoing one
+#'   # bad match by hand is enough to keep its edge alive.
+#'   map$canonical[map$original == "soc_stocks"] <- NA
+#'   nrow(causal_kg_edges(causal_kg_rename(kg, map)))
+#' }
 #' @export
 causal_kg_rename <- function(kg, mapping) {
   .causal_kg_require_igraph()

@@ -21,3 +21,37 @@ the edges whose confidence is at least \code{min_confidence}. The
 resulting DAG is ready to be consumed by
 \code{\link[=causal_adjustment_set]{causal_adjustment_set()}} and \code{\link[=causal_estimate_effect]{causal_estimate_effect()}}.
 }
+\examples{
+if (requireNamespace("igraph", quietly = TRUE) &&
+    requireNamespace("dagitty", quietly = TRUE)) {
+  kg <- causal_kg_new()
+  kg <- causal_kg_add_edge(kg, "mean annual precipitation", "ndvi",
+                           confidence = 0.90)
+  kg <- causal_kg_add_edge(kg, "mean annual precipitation", "soc",
+                           confidence = 0.80)
+  kg <- causal_kg_add_edge(kg, "ndvi", "soc", confidence = 0.85)
+  kg <- causal_kg_add_edge(kg, "clay content", "soc",
+                           confidence = 0.78)
+  # A speculative claim the extractor was unsure about.
+  kg <- causal_kg_add_edge(kg, "clay content", "ndvi",
+                           confidence = 0.40)
+
+  dag_hi <- causal_kg_to_dagitty(kg, min_confidence = 0.7)
+  dag_lo <- causal_kg_to_dagitty(kg, min_confidence = 0.3)
+  c(hi = nrow(dagitty::edges(dag_hi)),   # 4: clay -> ndvi dropped
+    lo = nrow(dagitty::edges(dag_lo)))   # 5: it survives
+
+  # min_confidence is a modelling decision, not a cosmetic filter.
+  # Keeping the weak clay -> NDVI edge makes clay content a
+  # confounder of the NDVI -> SOC effect, so it has to enter the
+  # adjustment set; dropping it leaves precipitation alone. Same
+  # evidence base, different estimator.
+  causal_adjustment_set(dag_hi, "ndvi", "soc", effect = "total")
+  causal_adjustment_set(dag_lo, "ndvi", "soc", effect = "total")
+
+  # Set the bar above every edge and you get a valid but empty DAG
+  # rather than an error, so check before handing it to an
+  # estimator.
+  length(names(causal_kg_to_dagitty(kg, min_confidence = 0.95)))  # 0
+}
+}

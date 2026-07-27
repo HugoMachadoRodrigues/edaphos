@@ -55,3 +55,37 @@ are tried in order — exact, substring, fuzzy — and the first hit
 wins. The mapping is returned as a tidy data frame; apply it with
 \code{\link[=causal_kg_rename]{causal_kg_rename()}}.
 }
+\examples{
+if (requireNamespace("igraph", quietly = TRUE)) {
+  # Node labels the way an LLM extractor really emits them: typos,
+  # plurals, US spellings, over-specific compounds.
+  kg <- causal_kg_new()
+  kg <- causal_kg_add_edge(kg, "precipitaton", "soc", source = "A")
+  kg <- causal_kg_add_edge(kg, "aluminum", "root_biomass",
+                           source = "B")
+  kg <- causal_kg_add_edge(kg, "steeper_slopes", "erosion",
+                           source = "C")
+  kg <- causal_kg_add_edge(kg, "microbial_biomass", "decomposition",
+                           source = "D")
+
+  print(causal_kg_alignment(kg))
+
+  # Two things to read off that table.
+  #
+  # `steeper_slopes` stays unmatched. The substring tier only matches
+  # whole underscore-separated tokens, so the plural "slopes" misses
+  # "slope", and the nearest vocabulary term is 8 edits away, past
+  # the default max_distance = 4.
+  #
+  # `microbial_biomass` is folded into `biomass` by the substring
+  # tier, silently merging two different carbon pools. Substring
+  # matching is lossy; drop the tier when you would rather see a
+  # node come back unmatched than wrongly matched.
+  print(causal_kg_alignment(kg, method = c("exact", "fuzzy")))
+
+  # Do not repair the misses by loosening the fuzzy cap. At
+  # max_distance = 8 the fuzzy tier maps `steeper_slopes` onto
+  # `temperature`, which is worse than no match at all.
+  causal_kg_alignment(kg, max_distance = 8L)
+}
+}

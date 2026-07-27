@@ -64,12 +64,36 @@ trustworthy than either alone.
 }
 \examples{
 \donttest{
-  kg <- causal_kg_new()
-  kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-                            source = "Jenny 1941", confidence = 0.9)
-  kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-                            source = "Minasny 2017", confidence = 0.85)
-  causal_kg_rank_edges(kg, by = c("n_sources", "mean_confidence"))
+# `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+# DOES execute \donttest blocks, so this guard is load-bearing:
+# without it the example errors on any machine lacking igraph.
+if (requireNamespace("igraph", quietly = TRUE)) {
+    kg <- causal_kg_new()
+    kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+                              source = "Jenny 1941", confidence = 0.9)
+    kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+                              source = "Minasny 2017", confidence = 0.85)
+
+    # Read `mean_confidence` carefully. The two calls above did NOT
+    # create two rows: causal_kg_add_edge() collapses a repeated
+    # (cause, effect) pair on insertion, pasting the provenance and
+    # keeping the MAXIMUM confidence. So the graph holds one edge at
+    # 0.9, the 0.85 is gone, and the "mean" is taken over that single
+    # row -- it is 0.9, not the 0.875 you might expect.
+    nrow(causal_kg_edges(kg))   # 1
+
+    r <- causal_kg_rank_edges(kg, by = c("n_sources", "mean_confidence"))
+    r[, c("n_sources", "mean_confidence", "max_confidence")]
+
+    # `n_sources` is recovered by counting the pasted provenance, so
+    # it does see both citations. But mean_confidence == max_confidence
+    # by construction after a merge: a weaker corroborating source can
+    # never pull an edge's confidence down.
+
+    # The default `by` includes "agrovoc_support", which needs an
+    # `alignment` and can trigger a live SPARQL lookup. The explicit
+    # `by` above is what keeps this example offline.
+}
 }
 }
 \seealso{

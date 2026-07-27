@@ -57,14 +57,19 @@
 #'   human-readable RDF variant.
 #' @examples
 #' \donttest{
-#'   kg <- causal_kg_new()
-#'   kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-#'                             source = "Jenny 1941",
-#'                             confidence = 0.9)
-#'   f <- tempfile(fileext = ".rds")
-#'   causal_kg_save(kg, f)
-#'   kg2 <- causal_kg_load(f)
-#'   identical(causal_kg_edges(kg), causal_kg_edges(kg2))
+#' # `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+#' # DOES execute \donttest blocks, so this guard is load-bearing:
+#' # without it the example errors on any machine lacking igraph.
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'     kg <- causal_kg_new()
+#'     kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+#'                               source = "Jenny 1941",
+#'                               confidence = 0.9)
+#'     f <- tempfile(fileext = ".rds")
+#'     causal_kg_save(kg, f)
+#'     kg2 <- causal_kg_load(f)
+#'     identical(causal_kg_edges(kg), causal_kg_edges(kg2))
+#' }
 #' }
 #' @export
 causal_kg_save <- function(kg, path) {
@@ -104,6 +109,44 @@ causal_kg_save <- function(kg, path) {
 #'
 #' @param path Path to the `.rds` file.
 #' @return An `edaphos_causal_kg`.
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   kg <- causal_kg_new()
+#'   kg <- causal_kg_add_edge(kg, "mean annual precipitation", "ndvi",
+#'                            source     = "Jenny 1941",
+#'                            evidence   = "Water limits primary production.",
+#'                            confidence = 0.90)
+#'   kg <- causal_kg_add_edge(kg, "ndvi", "soc",
+#'                            source     = "Minasny et al. 2017",
+#'                            evidence   = "Litter inputs scale with NPP.",
+#'                            confidence = 0.85)
+#'
+#'   f <- tempfile(fileext = ".rds")
+#'   causal_kg_save(kg, f)
+#'
+#'   # The round trip is exact down to the per-edge timestamps, so a
+#'   # reloaded KG is the same audit trail, not an approximation.
+#'   print(identical(causal_kg_edges(kg),
+#'                   causal_kg_edges(causal_kg_load(f))))
+#'
+#'   # Loading REPLAYS causal_kg_add_edge() for every saved edge, and
+#'   # the replay is wrapped in suppressWarnings(). A KG that warned
+#'   # about a cycle while you built it therefore reloads in silence:
+#'   # re-check is_dag() after loading rather than waiting to be told.
+#'   cyclic <- suppressWarnings(
+#'     causal_kg_add_edge(kg, "soc", "mean annual precipitation",
+#'                        confidence = 0.40)
+#'   )
+#'   g <- tempfile(fileext = ".rds")
+#'   causal_kg_save(cyclic, g)
+#'   print(igraph::is_dag(causal_kg_load(g)$graph))  # FALSE, silently
+#'
+#'   # The reader is guarded by format_version, so aiming it at some
+#'   # other .rds fails loudly instead of half-building a graph.
+#'   other <- tempfile(fileext = ".rds")
+#'   saveRDS(list(cause = "clay", effect = "soc"), other)
+#'   try(causal_kg_load(other))
+#' }
 #' @export
 causal_kg_load <- function(path) {
   .causal_kg_require_igraph()
@@ -224,18 +267,25 @@ causal_kg_load <- function(path) {
 #' *W3C Recommendation*.
 #' @examples
 #' \donttest{
-#'   kg <- causal_kg_new()
-#'   kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-#'                             source = "Jenny 1941",
-#'                             evidence = "Higher precipitation favours SOC.",
-#'                             confidence = 0.9)
-#'   ttl <- causal_kg_to_turtle(kg)
-#'   substr(ttl, 1, 200)
+#' # `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+#' # DOES execute \donttest blocks, so this guard is load-bearing:
+#' # without it the example errors on any machine lacking igraph.
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'     kg <- causal_kg_new()
+#'     kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+#'                               source = "Jenny 1941",
+#'                               evidence = "Higher precipitation favours SOC.",
+#'                               confidence = 0.9)
+#'     ttl <- causal_kg_to_turtle(kg)
+#'     substr(ttl, 1, 200)
 #'
-#'   # Write to disk and (optionally) round-trip through rdflib if
-#'   # installed -- a useful SPARQL-queryable artefact.
-#'   tf <- tempfile(fileext = ".ttl")
-#'   causal_kg_to_turtle(kg, tf)
+#'     # Write to disk.  The emitter is pure R and this example does
+#'     # not parse the result back, so treat "loadable by a triple
+#'     # store" as a design intent rather than something demonstrated
+#'     # here -- validate with rdflib/Jena against your own consumer.
+#'     tf <- tempfile(fileext = ".ttl")
+#'     causal_kg_to_turtle(kg, tf)
+#' }
 #' }
 #' @export
 causal_kg_to_turtle <- function(kg, path = NULL,
@@ -509,12 +559,36 @@ print.edaphos_causal_kg_summary <- function(x, ...) {
 #' @seealso [causal_kg_alignment()], [summary.edaphos_causal_kg()].
 #' @examples
 #' \donttest{
-#'   kg <- causal_kg_new()
-#'   kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-#'                             source = "Jenny 1941", confidence = 0.9)
-#'   kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-#'                             source = "Minasny 2017", confidence = 0.85)
-#'   causal_kg_rank_edges(kg, by = c("n_sources", "mean_confidence"))
+#' # `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+#' # DOES execute \donttest blocks, so this guard is load-bearing:
+#' # without it the example errors on any machine lacking igraph.
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'     kg <- causal_kg_new()
+#'     kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+#'                               source = "Jenny 1941", confidence = 0.9)
+#'     kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+#'                               source = "Minasny 2017", confidence = 0.85)
+#'
+#'     # Read `mean_confidence` carefully. The two calls above did NOT
+#'     # create two rows: causal_kg_add_edge() collapses a repeated
+#'     # (cause, effect) pair on insertion, pasting the provenance and
+#'     # keeping the MAXIMUM confidence. So the graph holds one edge at
+#'     # 0.9, the 0.85 is gone, and the "mean" is taken over that single
+#'     # row -- it is 0.9, not the 0.875 you might expect.
+#'     nrow(causal_kg_edges(kg))   # 1
+#'
+#'     r <- causal_kg_rank_edges(kg, by = c("n_sources", "mean_confidence"))
+#'     r[, c("n_sources", "mean_confidence", "max_confidence")]
+#'
+#'     # `n_sources` is recovered by counting the pasted provenance, so
+#'     # it does see both citations. But mean_confidence == max_confidence
+#'     # by construction after a merge: a weaker corroborating source can
+#'     # never pull an edge's confidence down.
+#'
+#'     # The default `by` includes "agrovoc_support", which needs an
+#'     # `alignment` and can trigger a live SPARQL lookup. The explicit
+#'     # `by` above is what keeps this example offline.
+#' }
 #' }
 #' @export
 causal_kg_rank_edges <- function(kg,

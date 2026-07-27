@@ -79,6 +79,44 @@
 #' @return An `edaphos_causal_iv` object with components `effect`,
 #'   `se`, `ci`, `stage1_F`, `stage1_R2`, `sargan_p` (NULL if exactly
 #'   identified), `n`, plus auxiliary fits for inspection.
+#'
+#' @examples
+#' # A liming study confounded by management: unobserved agronomic
+#' # intensity raises both soil pH and yield, so no regression of
+#' # yield on pH can identify the causal effect.
+#' set.seed(42)
+#' n <- 300
+#' mgmt      <- rnorm(n)          # unobserved agronomic intensity
+#' carbonate <- runif(n, 0, 12)   # parent-rock CaCO3, per cent
+#' quarry_km <- runif(n, 1, 60)   # distance to the nearest lime quarry
+#' ph    <- 4.6 + 0.10 * carbonate - 0.010 * quarry_km +
+#'          0.45 * mgmt + rnorm(n, 0, 0.25)
+#' yield <- 1.0 + 1.5 * ph + 1.3 * mgmt + rnorm(n, 0, 0.4)
+#' soil  <- data.frame(ph, yield, carbonate, quarry_km)
+#'
+#' # The true effect is 1.5 t/ha per pH unit. OLS returns 2.85 --
+#' # nearly double -- because it credits pH with the yield that
+#' # management delivered.
+#' ols <- lm(yield ~ ph, data = soil)
+#' coef(ols)[["ph"]]
+#'
+#' # 2SLS uses only the pH variation forced by geology, which
+#' # management cannot touch: 1.62, with a 95 per cent interval that
+#' # covers 1.5.
+#' fit <- causal_iv_fit_2sls(soil, exposure = "ph", outcome = "yield",
+#'                           instruments = c("carbonate", "quarry_km"))
+#' fit
+#'
+#' # Consistency is bought with variance: the IV standard error here
+#' # is about twice the OLS one. Quoting the narrow OLS interval
+#' # around the wrong number is what this estimator exists to avoid.
+#' c(ols = summary(ols)$coefficients["ph", "Std. Error"], iv = fit$se)
+#'
+#' # `effect` is the exposure coefficient alone; `coefs` carries the
+#' # whole second-stage vector and `vcov` its 2SLS covariance -- not
+#' # the naive lm() covariance of a regression on fitted values.
+#' fit$coefs
+#' sqrt(diag(fit$vcov))
 #' @export
 causal_iv_fit_2sls <- function(data, exposure, outcome, instruments,
                                  covariates = NULL) {
@@ -205,6 +243,49 @@ print.edaphos_causal_iv <- function(x, ...) {
 #'
 #' @inheritParams causal_iv_fit_2sls
 #' @return Named list with `F`, `F_pvalue`, `R2`, `R2_partial`.
+#'
+#' @examples
+#' # Relevance is the one IV assumption the data can actually check,
+#' # so run the first stage before trusting any 2SLS point estimate.
+#' set.seed(42)
+#' n <- 300
+#' mgmt      <- rnorm(n)
+#' carbonate <- runif(n, 0, 12)   # parent-rock CaCO3, per cent
+#' quarry_km <- runif(n, 1, 60)   # distance to the nearest lime quarry
+#' clay      <- rnorm(n, 35, 8)   # exogenous control that also drives pH
+#' ph <- 4.6 + 0.10 * carbonate - 0.010 * quarry_km + 0.06 * clay +
+#'       0.45 * mgmt + rnorm(n, 0, 0.25)
+#' soil <- data.frame(ph, carbonate, quarry_km, clay,
+#'                    rainfall_resid = rnorm(n))
+#'
+#' fs <- causal_iv_first_stage(soil, exposure = "ph",
+#'                             instruments = c("carbonate", "quarry_km"),
+#'                             covariates = "clay")
+#' c(F = fs$F, R2 = fs$R2, R2_partial = fs$R2_partial)
+#'
+#' # F = 81 clears the Stock-Yogo rule of thumb by a wide margin. The
+#' # rule is not a significance test: F = 10 is roughly where 2SLS
+#' # bias back towards OLS, and under-coverage of the nominal 95 per
+#' # cent interval, stop being negligible.
+#' fs$F > 10
+#'
+#' # The trap: `R2` scores the WHOLE first stage, controls included,
+#' # so it stays respectable even when the instruments are worthless.
+#' # Replacing them with noise leaves R2 at 0.35 -- down from 0.58, but
+#' # still the sort of number that reads as "the model fits", and all
+#' # of it carried by clay. F and the partial R2 do not survive the
+#' # substitution at all: 81 -> 0.33 and 0.354 -> 0.001. A drop of
+#' # 40 per cent against drops of 245x and 320x is the whole point --
+#' # only `R2_partial` and `F` speak to identification.
+#' bad <- causal_iv_first_stage(soil, exposure = "ph",
+#'                              instruments = "rainfall_resid",
+#'                              covariates = "clay")
+#' c(F = bad$F, R2 = bad$R2, R2_partial = bad$R2_partial)
+#'
+#' # `full_fit` is the fitted lm, so the individual first-stage slopes
+#' # can be signed against agronomy: carbonate raises pH, distance to
+#' # the quarry lowers it.
+#' coef(fs$full_fit)
 #' @export
 causal_iv_first_stage <- function(data, exposure, instruments,
                                     covariates = NULL) {
@@ -260,6 +341,54 @@ causal_iv_first_stage <- function(data, exposure, instruments,
 #'
 #' @inheritParams causal_iv_fit_2sls
 #' @return Named list with `stat`, `df`, `p`.
+#'
+#' @examples
+#' # `carb_direct` and `quarry_direct` let an instrument reach yield
+#' # WITHOUT going through pH, i.e. break the exclusion restriction.
+#' sim_liming <- function(seed = 42, carb_direct = 0,
+#'                        quarry_direct = 0) {
+#'   set.seed(seed)
+#'   n <- 300
+#'   mgmt      <- rnorm(n)
+#'   carbonate <- runif(n, 0, 12)
+#'   quarry_km <- runif(n, 1, 60)
+#'   ph    <- 4.6 + 0.10 * carbonate - 0.010 * quarry_km +
+#'            0.45 * mgmt + rnorm(n, 0, 0.25)
+#'   yield <- 1.0 + 1.5 * ph + 1.3 * mgmt + rnorm(n, 0, 0.4) +
+#'            carb_direct * carbonate + quarry_direct * quarry_km
+#'   data.frame(ph, yield, carbonate, quarry_km)
+#' }
+#' soil <- sim_liming()
+#'
+#' # The test needs MORE instruments than endogenous exposures. One
+#' # instrument for one exposure is exactly identified: there is
+#' # nothing to over-identify, and you get NA rather than a
+#' # reassuring p-value.
+#' causal_iv_sargan_test(soil, "ph", "yield", instruments = "carbonate")
+#'
+#' # Two instruments, both valid by construction: J = 0.27 on 1 df,
+#' # p = 0.60, no evidence against the exclusion restriction.
+#' causal_iv_sargan_test(soil, "ph", "yield",
+#'                       instruments = c("carbonate", "quarry_km"))
+#'
+#' # Let carbonate fertilise the crop directly, breaking exclusion for
+#' # that instrument only. The two instruments now disagree about the
+#' # effect and the test fires: J = 19.6, p = 9.4e-06.
+#' causal_iv_sargan_test(sim_liming(carb_direct = 0.15), "ph", "yield",
+#'                       instruments = c("carbonate", "quarry_km"))
+#'
+#' # What a non-rejection does NOT prove. Break BOTH instruments in
+#' # proportion to their first-stage strength and they agree on the
+#' # same wrong answer, so Sargan sees no conflict (p = 0.92) while
+#' # 2SLS returns 2.93 against a truth of 1.5. The J-statistic
+#' # compares instruments with each other; a bias they share is
+#' # invisible to it, and no over-identification test can license the
+#' # exclusion restriction on its own.
+#' soil_worse <- sim_liming(carb_direct = 0.15, quarry_direct = -0.015)
+#' causal_iv_sargan_test(soil_worse, "ph", "yield",
+#'                       instruments = c("carbonate", "quarry_km"))$p
+#' causal_iv_fit_2sls(soil_worse, "ph", "yield",
+#'                    instruments = c("carbonate", "quarry_km"))$effect
 #' @export
 causal_iv_sargan_test <- function(data, exposure, outcome,
                                     instruments, covariates = NULL) {
@@ -325,6 +454,51 @@ causal_iv_sargan_test <- function(data, exposure, outcome,
 #' @param units Optional units string.
 #' @return An `edaphos_posterior` with `query_type = "effect"` and
 #'   `method = "bootstrap"`.
+#'
+#' @examples
+#' # Geology is a landscape attribute, so the instruments are constant
+#' # within a farm -- and the agronomy shock is shared within a farm
+#' # too. That is the regime where row-wise resampling lies.
+#' set.seed(7)
+#' n_farm     <- 40
+#' farm       <- rep(seq_len(n_farm), each = 8)
+#' farm_shock <- rnorm(n_farm, 0, 1.2)[farm]   # shared agronomy
+#' carbonate  <- runif(n_farm, 0, 12)[farm]    # parent-rock CaCO3
+#' quarry_km  <- runif(n_farm, 1, 60)[farm]    # km to the lime quarry
+#' n     <- length(farm)
+#' mgmt  <- rnorm(n)
+#' ph    <- 4.6 + 0.10 * carbonate - 0.010 * quarry_km +
+#'          0.45 * mgmt + rnorm(n, 0, 0.25)
+#' yield <- 1.0 + 1.5 * ph + 1.3 * mgmt + farm_shock + rnorm(n, 0, 0.4)
+#' soil  <- data.frame(ph, yield, carbonate, quarry_km, farm)
+#'
+#' # Resampling rows pretends the 320 plots are 320 independent draws.
+#' iv_rows <- causal_iv_posterior(
+#'   soil, "ph", "yield", instruments = c("carbonate", "quarry_km"),
+#'   B = 150L, seed = 1, units = "t/ha per pH unit")
+#'
+#' # Resampling farms respects the level at which the instruments and
+#' # the shock actually vary.
+#' iv_farms <- causal_iv_posterior(
+#'   soil, "ph", "yield", instruments = c("carbonate", "quarry_km"),
+#'   B = 150L, cluster = "farm", seed = 1, units = "t/ha per pH unit")
+#'
+#' # The cluster bootstrap is about twice as wide, 0.48 against 0.23.
+#' # The analytic 2SLS standard error, 0.22, agrees with the row
+#' # bootstrap and is just as wrong: neither knows the effective
+#' # sample size is 40 farms, not 320 plots.
+#' fit <- causal_iv_fit_2sls(soil, "ph", "yield",
+#'                           instruments = c("carbonate", "quarry_km"))
+#' c(analytic = fit$se, boot_rows = iv_rows$sd, boot_farms = iv_farms$sd)
+#'
+#' # The centre barely moves: clustering is about uncertainty, not
+#' # about bias. Both results are ordinary edaphos_posterior objects.
+#' iv_farms
+#' c(rows = iv_rows$mean, farms = iv_farms$mean)
+#'
+#' # Resamples that fail to fit are dropped silently, so check how
+#' # many draws actually survived before quoting an interval.
+#' iv_farms$metadata$B
 #' @export
 causal_iv_posterior <- function(data, exposure, outcome, instruments,
                                   covariates = NULL,
@@ -401,6 +575,59 @@ causal_iv_posterior <- function(data, exposure, outcome, instruments,
 #' @param n_pcs Integer; number of top principal components to keep
 #'   as instruments.  Default `5L`.
 #' @return `edaphos_causal_iv` object (see [`causal_iv_fit_2sls()`]).
+#'
+#' @examples
+#' # Patch embeddings as candidate instruments. Only four of the
+#' # twelve dimensions track the parent material; the other eight
+#' # track canopy, which carries no geology at all.
+#' set.seed(11)
+#' n <- 300
+#' mgmt      <- rnorm(n)
+#' carbonate <- runif(n, 0, 12)
+#' quarry_km <- runif(n, 1, 60)
+#' ph    <- 4.6 + 0.10 * carbonate - 0.010 * quarry_km +
+#'          0.45 * mgmt + rnorm(n, 0, 0.25)
+#' yield <- 1.0 + 1.5 * ph + 1.3 * mgmt + rnorm(n, 0, 0.4)
+#' soil  <- data.frame(ph, yield)
+#'
+#' canopy <- rnorm(n)
+#' emb <- cbind(
+#'   matrix(canopy, n, 8)           + matrix(rnorm(n * 8, 0, 0.5), n),
+#'   matrix(scale(carbonate), n, 2) + matrix(rnorm(n * 2, 0, 0.5), n),
+#'   matrix(scale(quarry_km), n, 2) + matrix(rnorm(n * 2, 0, 0.5), n)
+#' )
+#' colnames(emb) <- paste0("emb_", 1:12)
+#'
+#' # The trap: prcomp ranks components by variance in the EMBEDDING,
+#' # not by relevance to the exposure. PC_1 holds 0.56 of that
+#' # variance and is pure canopy, so on its own it is a
+#' # non-instrument: F = 0.03 and an interval from -13.5 to +19.4.
+#' causal_iv_from_embeddings(soil, emb, "ph", "yield", n_pcs = 1L)
+#'
+#' # Three PCs reach the geology directions: F = 45.6, and the
+#' # interval [0.87, 1.75] covers the true effect of 1.5.
+#' causal_iv_from_embeddings(soil, emb, "ph", "yield", n_pcs = 3L)
+#'
+#' # More PCs is not monotonically better. The default n_pcs = 5L buys
+#' # extra Sargan degrees of freedom but dilutes the joint first-stage
+#' # F, which tests a growing number of restrictions: it falls from
+#' # 45.6 at three PCs to 27.9 at five while the estimate barely
+#' # moves. Choose n_pcs on the first stage, not on a default.
+#' sapply(1:5, function(k)
+#'   causal_iv_from_embeddings(soil, emb, "ph", "yield",
+#'                             n_pcs = k)$stage1_F)
+#'
+#' # `pca_variance_explained` documents the choice, but read it as an
+#' # audit trail rather than a relevance ranking -- PC_1 dominates it
+#' # and is the one component that identifies nothing.
+#' fit <- causal_iv_from_embeddings(soil, emb, "ph", "yield", n_pcs = 3L)
+#' round(fit$pca_variance_explained, 3)
+#'
+#' # Constant embedding dimensions are dropped before PCA rather than
+#' # breaking `scale. = TRUE`; `embedding_cols` records what survived.
+#' length(causal_iv_from_embeddings(soil, cbind(emb, dead_dim = 1),
+#'                                  "ph", "yield",
+#'                                  n_pcs = 3L)$embedding_cols)
 #' @export
 causal_iv_from_embeddings <- function(data, embeddings,
                                         exposure, outcome,

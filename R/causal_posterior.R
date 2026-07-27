@@ -44,6 +44,41 @@
 #' @param seed Optional integer for reproducibility.
 #' @return Numeric vector of length `B` with one direct-effect estimate
 #'   per bootstrap resample.
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   dag <- causal_cerrado_dag()
+#'   d   <- br_cerrado
+#'
+#'   # The bootstrap resamples CLUSTERS, not rows, so `data` must carry
+#'   # a cluster column -- `br_cerrado` does not ship one. Nine spatial
+#'   # blocks from k-means on the coordinates, as in the Cerrado
+#'   # pipeline.
+#'   set.seed(42)
+#'   d$kmeans_cluster <- stats::kmeans(d[, c("x", "y")], centers = 9L)$cluster
+#'
+#'   # B = 50 keeps this example fast; a real analysis wants several
+#'   # hundred. At B = 50 the tail quantiles are themselves noisy: the
+#'   # 95% width wandered between 0.23 and 0.37 across five seeds here,
+#'   # against 0.35 at B = 500.
+#'   boot <- causal_effect_bootstrap(d, dag, "twi", "soc", B = 50L, seed = 1L)
+#'   quantile(boot, c(0.025, 0.5, 0.975))
+#'
+#'   # Block resampling does not automatically widen the interval: here
+#'   # it lands on the asymptotic confint(lm) width, which says these
+#'   # (synthetic) residuals carry little block-level dependence. Check
+#'   # that before calling the clustered interval the conservative one.
+#'   fit <- causal_estimate_effect(d, dag, "twi", "soc")
+#'   c(block_boot = unname(diff(quantile(boot, c(0.025, 0.975)))),
+#'     asymptotic = unname(diff(fit$effect_ci)))
+#'
+#'   # What resampling cannot check is the graph. Same rows, same seed,
+#'   # one edge-level decision -- "direct" blocks the twi -> ndvi -> soc
+#'   # mediator, "total" leaves it open -- and the target moves from
+#'   # 1.51 to 1.80, with the two 95% intervals overlapping by 0.02.
+#'   tot <- causal_effect_bootstrap(d, dag, "twi", "soc", B = 50L,
+#'                                  seed = 1L, effect = "total")
+#'   c(direct = mean(boot), total = mean(tot))
+#' }
 #' @export
 causal_effect_bootstrap <- function(data, dag, exposure, outcome,
                                       adjustment = NULL,
@@ -111,6 +146,43 @@ causal_effect_bootstrap <- function(data, dag, exposure, outcome,
 #'   the `edaphos_posterior`.
 #' @return An `edaphos_posterior` with `query_type = "effect"` and
 #'   `method` set to `"bootstrap"` (LM) or `"bayesian"` (BART).
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   dag <- causal_cerrado_dag()
+#'   d   <- br_cerrado
+#'   set.seed(42)
+#'   d$kmeans_cluster <- stats::kmeans(d[, c("x", "y")], centers = 9L)$cluster
+#'
+#'   # LM path: the draws are the cluster block bootstrap. B = 50 keeps
+#'   # the example fast; use several hundred for anything you report.
+#'   post <- causal_effect_posterior(d, dag, "twi", "soc", B = 50L,
+#'                                   seed = 1L, units = "g/kg per TWI unit")
+#'   post
+#'
+#'   # `post$quantiles` holds q05/q50/q95 -- a 90% interval, not the
+#'   # 95% one most papers quote. Take that from the draws directly.
+#'   quantile(post$samples[, 1], c(0.025, 0.975))
+#'
+#'   # When the adjustment set is derived from the DAG rather than
+#'   # passed in, the LM path records `metadata$adjustment` as NULL.
+#'   # Recover the set from the graph for your provenance record.
+#'   post$metadata$adjustment
+#'   causal_adjustment_set(dag, "twi", "soc", effect = "direct")
+#'
+#'   # The posterior is conditional on the DAG *and* on the estimator.
+#'   # BART on the same graph and the same rows returns about 1.20,
+#'   # outside the LM bootstrap interval of roughly [1.36, 1.69]. No
+#'   # number of resamples exposes that -- it is a functional-form
+#'   # disagreement, not sampling noise.
+#'   if (requireNamespace("dbarts", quietly = TRUE)) {
+#'     pb <- causal_effect_posterior(
+#'       d, dag, "twi", "soc", estimator = "bart",
+#'       bart_kwargs = list(ntree = 50L, ndpost = 200L, nskip = 100L,
+#'                          seed = 1L)
+#'     )
+#'     c(lm = post$mean, bart = pb$mean)
+#'   }
+#' }
 #' @export
 causal_effect_posterior <- function(data, dag, exposure, outcome,
                                       adjustment = NULL,

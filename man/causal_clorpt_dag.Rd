@@ -15,3 +15,28 @@ Encodes Jenny (1941)'s Climate / Organisms / Relief / Parent material
 Useful as a textbook baseline DAG in causal analyses and as a
 template to extend for a specific region.
 }
+\examples{
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- causal_clorpt_dag()
+  print(names(dag))
+
+  # Only four of the five CLORPT factors come out exogenous:
+  # Organisms does not, because the graph asserts Climate ->
+  # Organisms.
+  print(dagitty::exogenousVariables(dag))
+
+  # Trap: these are conceptual labels, not column names. The DAG
+  # shares no node at all with the bundled br_cerrado grid, so the
+  # two cannot be handed to causal_estimate_effect() together.
+  print(intersect(names(dag), names(br_cerrado)))
+
+  # CEC is a common effect of Clay and SOC, i.e. a collider. Given
+  # the shared causes Climate and Time the two are d-separated ...
+  print(dagitty::dconnected(dag, "SOC", "Clay", c("Climate", "Time")))
+  # ... and adding CEC to the conditioning set re-opens the path,
+  # manufacturing a clay-carbon association that is not causal.
+  # This is what "control for every covariate we measured" buys you.
+  print(dagitty::dconnected(dag, "SOC", "Clay",
+                            c("Climate", "Time", "CEC")))
+}
+}

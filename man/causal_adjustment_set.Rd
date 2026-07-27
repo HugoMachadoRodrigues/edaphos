@@ -37,12 +37,27 @@ plain character vector — or \code{NULL} if the effect is not identifiable.
 if (requireNamespace("dagitty", quietly = TRUE)) {
   dag <- causal_clorpt_dag()
 
-  # Which covariates must be conditioned on to read the effect of
-  # Climate on SOC as causal rather than confounded?
-  causal_adjustment_set(dag, exposure = "Climate", outcome = "SOC")
+  # `effect` decides WHICH estimand you are adjusting for, and the
+  # default is "direct". That distinction is not cosmetic.
+  #
+  # Climate is exogenous in this DAG -- it has no parents at all --
+  # so the TOTAL effect of Climate on SOC is not confounded by
+  # anything, and the adjustment set is empty:
+  dagitty::parents(dag, "Climate")
+  causal_adjustment_set(dag, "Climate", "SOC", effect = "total")
 
-  # The answer is a property of the graph, not of the data: change
-  # the exposure and the required set changes with it.
-  causal_adjustment_set(dag, exposure = "Relief", outcome = "SOC")
+  # The default asks a different question. Climate reaches SOC both
+  # directly and through Organisms, so isolating the DIRECT effect
+  # means blocking the indirect path:
+  causal_adjustment_set(dag, "Climate", "SOC")   # effect = "direct"
+
+  # Organisms is a CHILD of Climate, not a common cause of both.
+  dagitty::children(dag, "Climate")
+
+  # So do not read a non-empty adjustment set as "these are the
+  # confounders". Conditioning on a mediator does not remove bias --
+  # it changes the estimand from total to direct, and conditioning
+  # on one when you wanted the total effect introduces bias rather
+  # than removing it.
 }
 }

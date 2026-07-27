@@ -286,6 +286,59 @@ causal_llm_extract <- function(text,
 #' @return The updated `edaphos_causal_kg`. An attribute
 #'   `"claims"` carries the tidy data frame that was actually
 #'   inserted.
+#' @examples
+#' \dontrun{
+#'   # Ollama needs no credentials, only a reachable server. The hosted
+#'   # backends take their key from the environment instead:
+#'   # backend = "openai" reads OPENAI_API_KEY, backend = "anthropic"
+#'   # reads ANTHROPIC_API_KEY, and both ignore `host`.
+#'   abstract <- paste(
+#'     "Across 212 Cerrado profiles, mean annual precipitation was the",
+#'     "dominant control on topsoil organic carbon, whereas slope",
+#'     "position governed erosion losses under conventional tillage."
+#'   )
+#'
+#'   kg <- causal_kg_new()
+#'   kg <- causal_llm_ingest_abstract(
+#'     kg, abstract,
+#'     source  = "Silva et al. 2019",
+#'     backend = "ollama", model = "gemma4:latest",
+#'     host    = "http://localhost:11434"
+#'   )
+#'
+#'   # The "claims" attribute is what was INSERTED, not what the model
+#'   # returned -- anything below `min_confidence` is already gone. To
+#'   # audit what was discarded, call causal_llm_extract() yourself.
+#'   attr(kg, "claims")
+#'
+#'   # It also carries the model's own labels, which the graph does not:
+#'   # node names are snake_cased on insertion, so a claim about
+#'   # "mean annual precipitation" becomes the node
+#'   # "mean_annual_precipitation".
+#'   causal_kg_edges(kg)$cause
+#'
+#'   # Trap: min_confidence = 0 does not mean "keep everything". The
+#'   # filter is `!is.na(confidence) & confidence >= min_confidence`, so
+#'   # a claim whose confidence field the model omitted is dropped at
+#'   # every threshold, silently.
+#'   kg_all <- causal_llm_ingest_abstract(causal_kg_new(), abstract,
+#'                                        source = "Silva et al. 2019",
+#'                                        min_confidence = 0)
+#'
+#'   # Trap: a cause and effect that differ only in spacing or hyphens
+#'   # ("soil organic carbon" vs "soil-organic-carbon") pass the JSON
+#'   # parser, then collapse onto one node, and causal_kg_add_edge()
+#'   # raises "Self-loops are not allowed". That error aborts the whole
+#'   # call, so every other claim in the abstract is lost too. Wrap the
+#'   # ingest whenever the passages are not hand-checked.
+#'   kg <- tryCatch(
+#'     causal_llm_ingest_abstract(kg, abstract, source = "Silva 2019"),
+#'     error = function(e) {
+#'       message("skipped abstract: ", conditionMessage(e))
+#'       kg
+#'     }
+#'   )
+#' }
 #' @export
 causal_llm_ingest_abstract <- function(kg, abstract, source,
                                         min_confidence = 0.5, ...) {
@@ -357,6 +410,58 @@ causal_llm_ingest_abstract <- function(kg, abstract, source,
 #'   `model`, `host`, `temperature`, `timeout_sec`, `api_key`).
 #' @return Updated `edaphos_causal_kg`. A `"failed"` attribute
 #'   lists the rows (if any) that exhausted all retries.
+#' @examples
+#' \dontrun{
+#'   corpus <- data.frame(
+#'     source = c("Jenny 1941", "Minasny et al. 2017", "Poggio 2021"),
+#'     abstract = c(
+#'       "Climate governs the accumulation of soil organic matter.",
+#'       "Wetter sites accumulate more carbon at equal parent material.",
+#'       "A purely descriptive survey of Cerrado profile morphology."
+#'     ),
+#'     stringsAsFactors = FALSE
+#'   )
+#'
+#'   # `cache_dir` is what makes a 10 000-abstract run survivable, so it
+#'   # must OUTLIVE the R session. file.path(tempdir(), "cache") looks
+#'   # right and is useless here: it is wiped on exit, and the next run
+#'   # silently re-spends the whole corpus.
+#'   cache <- "cerrado_llm_cache"
+#'   kg <- causal_llm_ingest_corpus(
+#'     causal_kg_new(), corpus,
+#'     cache_dir = cache,
+#'     backend   = "ollama",   # "openai" / "anthropic" read their key
+#'     host      = "http://localhost:11434"   # from the environment
+#'   )
+#'
+#'   # Each row is keyed by md5("source|abstract"). Re-running after a
+#'   # crash replays the stored claims rather than calling the LLM, so
+#'   # cached rows cost nothing and an interrupted run is resumable;
+#'   # editing one abstract re-queries that row alone.
+#'   kg <- causal_llm_ingest_corpus(causal_kg_new(), corpus,
+#'                                  cache_dir = cache)
+#'
+#'   # Claims are cached UNFILTERED, so `min_confidence` is applied when
+#'   # they are replayed. Re-thresholding a finished corpus therefore
+#'   # costs nothing; only edges change, never the cache.
+#'   kg_loose <- causal_llm_ingest_corpus(causal_kg_new(), corpus,
+#'                                        cache_dir = cache,
+#'                                        min_confidence = 0.3)
+#'
+#'   # Read "failed" carefully. A row is listed there when it yielded NO
+#'   # claims after `max_retries`, so a descriptive abstract that
+#'   # correctly produces nothing is reported exactly like a row whose
+#'   # LLM call kept erroring. It is not a list of network failures.
+#'   attr(kg, "failed")
+#'
+#'   # Supplying `progress` replaces the default txtProgressBar, which
+#'   # is only shown for corpora of five rows or more.
+#'   kg <- causal_llm_ingest_corpus(
+#'     causal_kg_new(), corpus, cache_dir = cache,
+#'     progress = function(i, n, source)
+#'       message(sprintf("[%d/%d] %s", i, n, source))
+#'   )
+#' }
 #' @export
 causal_llm_ingest_corpus <- function(kg, abstracts,
                                      abstract_col = "abstract",

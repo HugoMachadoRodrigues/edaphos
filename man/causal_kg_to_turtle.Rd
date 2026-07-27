@@ -70,18 +70,25 @@ direction. Provenance is attached via \code{dct:source}
 }
 \examples{
 \donttest{
-  kg <- causal_kg_new()
-  kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-                            source = "Jenny 1941",
-                            evidence = "Higher precipitation favours SOC.",
-                            confidence = 0.9)
-  ttl <- causal_kg_to_turtle(kg)
-  substr(ttl, 1, 200)
+# `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+# DOES execute \donttest blocks, so this guard is load-bearing:
+# without it the example errors on any machine lacking igraph.
+if (requireNamespace("igraph", quietly = TRUE)) {
+    kg <- causal_kg_new()
+    kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+                              source = "Jenny 1941",
+                              evidence = "Higher precipitation favours SOC.",
+                              confidence = 0.9)
+    ttl <- causal_kg_to_turtle(kg)
+    substr(ttl, 1, 200)
 
-  # Write to disk and (optionally) round-trip through rdflib if
-  # installed -- a useful SPARQL-queryable artefact.
-  tf <- tempfile(fileext = ".ttl")
-  causal_kg_to_turtle(kg, tf)
+    # Write to disk.  The emitter is pure R and this example does
+    # not parse the result back, so treat "loadable by a triple
+    # store" as a design intent rather than something demonstrated
+    # here -- validate with rdflib/Jena against your own consumer.
+    tf <- tempfile(fileext = ".ttl")
+    causal_kg_to_turtle(kg, tf)
+}
 }
 }
 \references{

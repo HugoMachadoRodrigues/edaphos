@@ -16,3 +16,22 @@ process of \code{br_cerrado}, suitable for demonstrating backdoor
 adjustment without relying on the high-level abstractions in
 \code{\link[=causal_clorpt_dag]{causal_clorpt_dag()}}.
 }
+\examples{
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- causal_cerrado_dag()
+
+  # Unlike causal_clorpt_dag(), every node is a column of the
+  # bundled grid, so DAG and data frame can be used together as-is.
+  print(all(names(dag) \%in\% names(br_cerrado)))
+
+  # A DAG is a falsifiable claim, not decoration. This one is nearly
+  # saturated: it implies only two conditional independencies, so
+  # passing them is weak evidence for the structure, not proof.
+  print(dagitty::impliedConditionalIndependencies(dag))
+
+  # Both do hold in br_cerrado -- the partial correlations come out
+  # under 0.03 in absolute value, and neither confidence interval
+  # excludes zero.
+  print(dagitty::localTests(dag, br_cerrado))
+}
+}

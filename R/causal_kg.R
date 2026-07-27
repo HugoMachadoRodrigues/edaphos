@@ -46,14 +46,19 @@
 #' @export
 #' @examples
 #' \donttest{
-#'   kg <- causal_kg_new()
-#'   kg <- causal_kg_add_edge(
-#'     kg, "precipitation", "soc",
-#'     source     = "Jenny 1941",
-#'     evidence   = "Higher precipitation favours organic-matter accumulation.",
-#'     confidence = 0.9
-#'   )
-#'   causal_kg_edges(kg)
+#' # `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+#' # DOES execute \donttest blocks, so this guard is load-bearing:
+#' # without it the example errors on any machine lacking igraph.
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'     kg <- causal_kg_new()
+#'     kg <- causal_kg_add_edge(
+#'       kg, "precipitation", "soc",
+#'       source     = "Jenny 1941",
+#'       evidence   = "Higher precipitation favours organic-matter accumulation.",
+#'       confidence = 0.9
+#'     )
+#'     causal_kg_edges(kg)
+#' }
 #' }
 causal_kg_new <- function() {
   .causal_kg_require_igraph()
@@ -77,6 +82,45 @@ causal_kg_new <- function() {
 #'   `Sys.time()`.
 #'
 #' @return The updated `edaphos_causal_kg`.
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   kg <- causal_kg_new()
+#'   kg <- causal_kg_add_edge(
+#'     kg, "Mean annual precipitation", "SOC stock",
+#'     source     = "Jenny 1941",
+#'     evidence   = "Moisture regulates decomposition rate.",
+#'     confidence = 0.80
+#'   )
+#'
+#'   # Node labels are normalised to lower-snake-case before insertion,
+#'   # so free-text variants collapse onto one node. Convenient for LLM
+#'   # output, but it silently merges concepts whose labels differ only
+#'   # in case, spaces or hyphens.
+#'   kg <- causal_kg_add_edge(
+#'     kg, "mean-annual-precipitation", "soc stock",
+#'     source     = "Minasny et al. 2017",
+#'     evidence   = "Wetter sites accumulate more carbon.",
+#'     confidence = 0.55
+#'   )
+#'   nrow(causal_kg_edges(kg))  # 1 -- the second call merged into the first
+#'
+#'   # A merge keeps the MAXIMUM confidence and pastes provenance with
+#'   # " | ". A weaker second citation can therefore never lower an
+#'   # edge's confidence: re-asserting a claim only ever strengthens it.
+#'   causal_kg_edges(kg)[, c("source", "confidence")]
+#'
+#'   # A cycle is only warned about; the edge is still added and the
+#'   # graph stops being a DAG, which breaks backdoor adjustment later.
+#'   cyclic <- suppressWarnings(
+#'     causal_kg_add_edge(kg, "soc stock", "mean annual precipitation",
+#'                        confidence = 0.40)
+#'   )
+#'   igraph::is_dag(cyclic$graph)  # FALSE
+#'
+#'   # A self-loop is a hard error instead -- and after normalisation
+#'   # these two spellings are the same node.
+#'   try(causal_kg_add_edge(kg, "SOC stock", "soc-stock"))
+#' }
 #' @export
 causal_kg_add_edge <- function(kg, cause, effect,
                                source     = NA_character_,
@@ -149,6 +193,41 @@ causal_kg_add_edge <- function(kg, cause, effect,
 #'
 #' @param kg An `edaphos_causal_kg`.
 #' @return A data frame; empty (zero rows) for an empty graph.
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   kg <- causal_kg_new()
+#'   kg <- causal_kg_add_edge(
+#'     kg, "mean annual precipitation", "ndvi",
+#'     source     = "Jenny 1941",
+#'     evidence   = "Water availability limits primary production.",
+#'     confidence = 0.90
+#'   )
+#'   kg <- causal_kg_add_edge(
+#'     kg, "ndvi", "soc",
+#'     source     = "Minasny et al. 2017",
+#'     evidence   = "Litter inputs scale with productivity.",
+#'     confidence = 0.85
+#'   )
+#'   kg <- causal_kg_add_edge(
+#'     kg, "termite mound density", "soc",
+#'     source     = "field notebook",
+#'     evidence   = "Speculative bioturbation pathway.",
+#'     confidence = 0.35
+#'   )
+#'
+#'   edges <- causal_kg_edges(kg)
+#'   edges[, c("cause", "effect", "confidence")]
+#'
+#'   # The frame is an audit trail, not just a topology dump: every
+#'   # claim carries the source and the quotation it was extracted
+#'   # from, so the weakly supported ones can go back for curation.
+#'   edges[edges$confidence < 0.5, c("cause", "effect", "source")]
+#'
+#'   # An empty graph returns a ZERO-ROW frame with the same six
+#'   # columns, never NULL, so column-wise code is safe before any
+#'   # claim has been extracted.
+#'   dim(causal_kg_edges(causal_kg_new()))  # 0 6
+#' }
 #' @export
 causal_kg_edges <- function(kg) {
   .causal_kg_require_igraph()
@@ -185,6 +264,39 @@ causal_kg_edges <- function(kg) {
 #' @param min_confidence Numeric in `[0, 1]`. Edges with
 #'   `confidence < min_confidence` are dropped.
 #' @return A `dagitty` object.
+#' @examples
+#' if (requireNamespace("igraph", quietly = TRUE) &&
+#'     requireNamespace("dagitty", quietly = TRUE)) {
+#'   kg <- causal_kg_new()
+#'   kg <- causal_kg_add_edge(kg, "mean annual precipitation", "ndvi",
+#'                            confidence = 0.90)
+#'   kg <- causal_kg_add_edge(kg, "mean annual precipitation", "soc",
+#'                            confidence = 0.80)
+#'   kg <- causal_kg_add_edge(kg, "ndvi", "soc", confidence = 0.85)
+#'   kg <- causal_kg_add_edge(kg, "clay content", "soc",
+#'                            confidence = 0.78)
+#'   # A speculative claim the extractor was unsure about.
+#'   kg <- causal_kg_add_edge(kg, "clay content", "ndvi",
+#'                            confidence = 0.40)
+#'
+#'   dag_hi <- causal_kg_to_dagitty(kg, min_confidence = 0.7)
+#'   dag_lo <- causal_kg_to_dagitty(kg, min_confidence = 0.3)
+#'   c(hi = nrow(dagitty::edges(dag_hi)),   # 4: clay -> ndvi dropped
+#'     lo = nrow(dagitty::edges(dag_lo)))   # 5: it survives
+#'
+#'   # min_confidence is a modelling decision, not a cosmetic filter.
+#'   # Keeping the weak clay -> NDVI edge makes clay content a
+#'   # confounder of the NDVI -> SOC effect, so it has to enter the
+#'   # adjustment set; dropping it leaves precipitation alone. Same
+#'   # evidence base, different estimator.
+#'   causal_adjustment_set(dag_hi, "ndvi", "soc", effect = "total")
+#'   causal_adjustment_set(dag_lo, "ndvi", "soc", effect = "total")
+#'
+#'   # Set the bar above every edge and you get a valid but empty DAG
+#'   # rather than an error, so check before handing it to an
+#'   # estimator.
+#'   length(names(causal_kg_to_dagitty(kg, min_confidence = 0.95)))  # 0
+#' }
 #' @export
 causal_kg_to_dagitty <- function(kg, min_confidence = 0.7) {
   .causal_kg_require_igraph()

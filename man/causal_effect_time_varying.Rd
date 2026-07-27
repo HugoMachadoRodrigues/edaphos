@@ -51,3 +51,54 @@ estimator is applied within non-overlapping (or overlapping)
 windows of the temporal frame, producing a beta_hat(t) trajectory
 with bootstrap CIs.  Mann-Kendall tests for a significant trend.
 }
+\examples{
+# A synthetic 36-slice soil panel: 10 sites, an annual-rainfall
+# anomaly (mm from the long-term normal) driving topsoil SOC, and
+# elevation confounding both (orographic rain, cooler moister
+# soils).  The MAP -> SOC slope is built to decay over the record.
+set.seed(11)
+panel <- expand.grid(site = 1:10, t = 1:36)
+elev  <- runif(10, 400, 1100)
+panel$elev     <- elev[panel$site]
+panel$map_anom <- -0.10 * (panel$elev - 750) + rnorm(nrow(panel), 0, 60)
+panel$soc      <- 22 + 0.006 * panel$elev +
+  (0.022 - 0.0006 * panel$t) * panel$map_anom + rnorm(nrow(panel), 0, 0.8)
+
+# `dag` is consulted only when `adjustment = NULL`, so an explicit
+# adjustment set lets you pass `dag = NULL`.  Only `t`, the exposure,
+# the outcome and the adjustment columns are ever read -- the panel
+# here carries no `lon`/`lat` at all.
+bt <- causal_effect_time_varying(panel, dag = NULL,
+                                 exposure = "map_anom", outcome = "soc",
+                                 window = 12L, step = 3L,
+                                 adjustment = "elev", B = 0L)
+bt
+
+# Dropping the confounder does not merely add noise: it collapses
+# the level of the whole trajectory while leaving the downward shape
+# intact.  A convincing-looking beta(t) decline is therefore no
+# evidence at all that the backdoor was closed.
+naive <- causal_effect_time_varying(panel, NULL, "map_anom", "soc",
+                                    window = 12L, step = 3L,
+                                    adjustment = character(0), B = 0L)
+round(rbind(adjusted = bt$beta_hat, naive = naive$beta_hat), 4)
+round(c(adjusted = mean(bt$beta_hat), naive = mean(naive$beta_hat)), 4)
+
+# With B = 0 the interval is exactly beta_hat +/- 1.96 * se, not a
+# bootstrap.  Note also how the metadata attributes survive
+# subsetting: `[` KEEPS them when you subset rows (R >= 4.0), but
+# drops them the moment you subset columns, after which print()
+# reports "adjustment : <none>".  as.data.frame() is the safe route
+# when you only want the numbers.
+isTRUE(all.equal(bt$ci_lo, bt$beta_hat - qnorm(0.975) * bt$se))
+head(as.data.frame(bt)[, c("t_centre", "n", "beta_hat", "ci_lo")], 3)
+
+# dagitty can derive the same adjustment set from the graph instead.
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- dagitty::dagitty(
+    "dag { elev -> map_anom  elev -> soc  map_anom -> soc }")
+  bt2 <- causal_effect_time_varying(panel, dag, "map_anom", "soc",
+                                    window = 12L, step = 3L, B = 0L)
+  identical(attr(bt2, "adjustment"), "elev")
+}
+}

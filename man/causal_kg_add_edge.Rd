@@ -39,3 +39,43 @@ The updated \code{edaphos_causal_kg}.
 \description{
 Add a causal edge to a pedogenetic Knowledge Graph
 }
+\examples{
+if (requireNamespace("igraph", quietly = TRUE)) {
+  kg <- causal_kg_new()
+  kg <- causal_kg_add_edge(
+    kg, "Mean annual precipitation", "SOC stock",
+    source     = "Jenny 1941",
+    evidence   = "Moisture regulates decomposition rate.",
+    confidence = 0.80
+  )
+
+  # Node labels are normalised to lower-snake-case before insertion,
+  # so free-text variants collapse onto one node. Convenient for LLM
+  # output, but it silently merges concepts whose labels differ only
+  # in case, spaces or hyphens.
+  kg <- causal_kg_add_edge(
+    kg, "mean-annual-precipitation", "soc stock",
+    source     = "Minasny et al. 2017",
+    evidence   = "Wetter sites accumulate more carbon.",
+    confidence = 0.55
+  )
+  nrow(causal_kg_edges(kg))  # 1 -- the second call merged into the first
+
+  # A merge keeps the MAXIMUM confidence and pastes provenance with
+  # " | ". A weaker second citation can therefore never lower an
+  # edge's confidence: re-asserting a claim only ever strengthens it.
+  causal_kg_edges(kg)[, c("source", "confidence")]
+
+  # A cycle is only warned about; the edge is still added and the
+  # graph stops being a DAG, which breaks backdoor adjustment later.
+  cyclic <- suppressWarnings(
+    causal_kg_add_edge(kg, "soc stock", "mean annual precipitation",
+                       confidence = 0.40)
+  )
+  igraph::is_dag(cyclic$graph)  # FALSE
+
+  # A self-loop is a hard error instead -- and after normalisation
+  # these two spellings are the same node.
+  try(causal_kg_add_edge(kg, "SOC stock", "soc-stock"))
+}
+}

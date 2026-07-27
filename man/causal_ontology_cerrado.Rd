@@ -18,3 +18,32 @@ chosen for coverage of the topics that actually appear in Brazilian
 pedology abstracts. It is the default reference used by
 \code{\link[=causal_kg_alignment]{causal_kg_alignment()}}.
 }
+\examples{
+vocab <- causal_ontology_cerrado()
+nrow(vocab)
+table(vocab$category)
+
+# The vocabulary is deliberately narrow: it covers the drivers that
+# actually turn up in Cerrado pedology abstracts, not all of soil
+# science. Terms outside it come back unmatched from
+# causal_kg_alignment() -- that is the intended behaviour, not a bug.
+#
+# Note what "narrow" does and does not mean. `gibbsite` and `cec`
+# ARE in it, because Cerrado abstracts discuss them; the SPELLING
+# is what is narrow. `cation_exchange_capacity` is absent even
+# though `cec` is present, so an extractor that emits the expanded
+# form goes unmatched while one that emits the abbreviation does
+# not. `salinity` is genuinely out of scope for the biome.
+c("gibbsite", "cec", "cation_exchange_capacity", "salinity") \%in\%
+  vocab$term   # TRUE TRUE FALSE FALSE
+
+# A trap: `soc` and `soil_organic_carbon` are BOTH canonical terms,
+# both filed under chemistry. Alignment will therefore keep them as
+# two separate nodes rather than merging them -- collapse them
+# yourself with causal_kg_rename() if your KG needs one carbon node.
+subset(vocab, term \%in\% c("soc", "soil_organic_carbon", "soc_loss"))
+
+# Spelling is British throughout, so American labels can only be
+# rescued by the fuzzy tier of causal_kg_alignment().
+grep("alumin|mineralis", vocab$term, value = TRUE)
+}

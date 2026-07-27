@@ -20,13 +20,18 @@ metadata attributes: \code{source} (bibliographic or textual provenance),
 }
 \examples{
 \donttest{
-  kg <- causal_kg_new()
-  kg <- causal_kg_add_edge(
-    kg, "precipitation", "soc",
-    source     = "Jenny 1941",
-    evidence   = "Higher precipitation favours organic-matter accumulation.",
-    confidence = 0.9
-  )
-  causal_kg_edges(kg)
+# `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+# DOES execute \donttest blocks, so this guard is load-bearing:
+# without it the example errors on any machine lacking igraph.
+if (requireNamespace("igraph", quietly = TRUE)) {
+    kg <- causal_kg_new()
+    kg <- causal_kg_add_edge(
+      kg, "precipitation", "soc",
+      source     = "Jenny 1941",
+      evidence   = "Higher precipitation favours organic-matter accumulation.",
+      confidence = 0.9
+    )
+    causal_kg_edges(kg)
+}
 }
 }

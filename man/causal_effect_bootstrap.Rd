@@ -47,3 +47,39 @@ coefficients. When the clustering structure is k-means on \verb{(lon, lat)} (as 
 spatial-clustering-aware confidence intervals that the asymptotic
 \code{confint(lm)} interval ignores.
 }
+\examples{
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- causal_cerrado_dag()
+  d   <- br_cerrado
+
+  # The bootstrap resamples CLUSTERS, not rows, so `data` must carry
+  # a cluster column -- `br_cerrado` does not ship one. Nine spatial
+  # blocks from k-means on the coordinates, as in the Cerrado
+  # pipeline.
+  set.seed(42)
+  d$kmeans_cluster <- stats::kmeans(d[, c("x", "y")], centers = 9L)$cluster
+
+  # B = 50 keeps this example fast; a real analysis wants several
+  # hundred. At B = 50 the tail quantiles are themselves noisy: the
+  # 95\% width wandered between 0.23 and 0.37 across five seeds here,
+  # against 0.35 at B = 500.
+  boot <- causal_effect_bootstrap(d, dag, "twi", "soc", B = 50L, seed = 1L)
+  quantile(boot, c(0.025, 0.5, 0.975))
+
+  # Block resampling does not automatically widen the interval: here
+  # it lands on the asymptotic confint(lm) width, which says these
+  # (synthetic) residuals carry little block-level dependence. Check
+  # that before calling the clustered interval the conservative one.
+  fit <- causal_estimate_effect(d, dag, "twi", "soc")
+  c(block_boot = unname(diff(quantile(boot, c(0.025, 0.975)))),
+    asymptotic = unname(diff(fit$effect_ci)))
+
+  # What resampling cannot check is the graph. Same rows, same seed,
+  # one edge-level decision -- "direct" blocks the twi -> ndvi -> soc
+  # mediator, "total" leaves it open -- and the target moves from
+  # 1.51 to 1.80, with the two 95\% intervals overlapping by 0.02.
+  tot <- causal_effect_bootstrap(d, dag, "twi", "soc", B = 50L,
+                                 seed = 1L, effect = "total")
+  c(direct = mean(boot), total = mean(tot))
+}
+}
