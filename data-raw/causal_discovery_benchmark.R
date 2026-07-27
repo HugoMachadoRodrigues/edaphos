@@ -116,20 +116,76 @@ message(sprintf("  A has %d edges", nrow(edges_A)))
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [2/5] Method B: LLM-KG augmented DAG ===")
 
-# We cache a realistic set of Gemma-4-extracted edges for the canonical
-# WoSIS column names.  In production this is `cerrado_claims.jsonl`;
-# here we hard-code the same six high-confidence edges that a fresh
-# Ollama + gemma4:latest run returns on the ten Cerrado-pedology
-# abstracts in inst/extdata/cerrado_abstracts.jsonl.
-llm_extra_edges <- data.frame(
-  from = c("wc_bio_12", "wc_bio_01", "wc_landcover_trees",
-           "soilgrids_clay", "slope", "wc_bio_12"),
-  to   = c("wc_landcover_trees", "wc_landcover_trees",
-           "soilgrids_bdod", "soilgrids_bdod", "soilgrids_sand",
-           "soilgrids_clay"),
-  confidence = c(0.90, 0.82, 0.78, 0.75, 0.72, 0.71),
-  stringsAsFactors = FALSE
+# Read the extracted claims that the package actually ships, and map their
+# conceptual variable names onto the WoSIS column names this benchmark uses.
+#
+# Through v3.10.0 this block hard-coded six edges with confidences of 0.90,
+# 0.82, 0.78, 0.75, 0.72 and 0.71, described as "the same six high-confidence
+# edges that a fresh Ollama + gemma4:latest run returns".  Nothing in the
+# repository supports that: inst/extdata/cerrado_claims.jsonl contains 30
+# claims, every one of them at confidence 0.9, expressed in conceptual names
+# (mean_annual_precipitation, twi, soc) rather than WoSIS columns.  Those six
+# edges and their varied confidences were composed by hand, and this method
+# is labelled "LLM-augmented (Gemma 4)" in the vignette and the README.
+#
+# The mapping below is the only editorial step, and it is explicit and
+# inspectable: concept -> WoSIS column, drawn from the package's own
+# causal_ontology_cerrado() vocabulary.  Claims whose endpoints have no WoSIS
+# counterpart are dropped and counted, not silently discarded.
+# Only concepts with a genuine counterpart in the WoSIS covariate set may
+# appear here.  Mapping a concept onto a column that does not exist (twi and
+# elevation-derived indices are the tempting cases: this dataset has `elev`
+# but no `twi`) produces edges to a phantom node, which the DAG constructor
+# then drops -- silently turning a mapping error into an apparent finding.
+# The assertion below makes that impossible.
+CONCEPT_TO_WOSIS <- c(
+  mean_annual_precipitation  = "wc_bio_12",
+  precipitation              = "wc_bio_12",
+  mean_annual_temperature    = "wc_bio_01",
+  temperature                = "wc_bio_01",
+  soc                        = "soc_topsoil_gkg",
+  clay_content               = "soilgrids_clay",
+  clay_content_at_bt_horizon = "soilgrids_clay",
+  sand_content               = "soilgrids_sand",
+  bulk_density               = "soilgrids_bdod",
+  elevation                  = "elev",
+  slope                      = "slope",
+  tree_cover                 = "wc_landcover_trees",
+  above_ground_biomass       = "wc_landcover_trees",
+  land_use                   = "wc_landcover_cropland"
 )
+unknown_targets <- setdiff(unname(CONCEPT_TO_WOSIS), names(profiles))
+if (length(unknown_targets))
+  stop(sprintf(
+    "CONCEPT_TO_WOSIS maps onto columns that do not exist in the profile frame: %s",
+    paste(unknown_targets, collapse = ", ")), call. = FALSE)
+
+claims_path <- system.file("extdata", "cerrado_claims.jsonl",
+                            package = "edaphos")
+claims_raw <- do.call(rbind, lapply(readLines(claims_path, warn = FALSE),
+  function(l) {
+    j <- jsonlite::fromJSON(l)
+    data.frame(cause = j$cause, effect = j$effect,
+               confidence = j$confidence, source = j$source,
+               stringsAsFactors = FALSE)
+  }))
+message(sprintf("  read %d claims from %s", nrow(claims_raw),
+                basename(claims_path)))
+
+mapped <- transform(claims_raw,
+  from = unname(CONCEPT_TO_WOSIS[cause]),
+  to   = unname(CONCEPT_TO_WOSIS[effect]))
+n_unmapped <- sum(is.na(mapped$from) | is.na(mapped$to))
+llm_extra_edges <- unique(
+  mapped[!is.na(mapped$from) & !is.na(mapped$to) & mapped$from != mapped$to,
+         c("from", "to", "confidence")])
+message(sprintf(
+  "  mapped %d of %d claims onto WoSIS columns (%d dropped: endpoint outside the covariate set); %d distinct edges",
+  nrow(claims_raw) - n_unmapped, nrow(claims_raw), n_unmapped,
+  nrow(llm_extra_edges)))
+if (nrow(llm_extra_edges) == 0L)
+  stop("no claim mapped onto a WoSIS column -- refusing to present an empty edge set as an LLM-derived DAG",
+       call. = FALSE)
 
 # Augmented edge set = expert ∪ LLM-high-confidence (keep expert direction
 # if conflict; reject LLM edge if it would create a cycle).
@@ -140,8 +196,15 @@ augmented_edges <- rbind(
   distinct(from, to, .keep_all = TRUE)
 
 # Build DAG + cycle check
+# A silent fallback here would make Method B indistinguishable from Method A
+# while still being labelled "LLM-augmented" in every downstream table.
 dag_B <- tryCatch(edges_to_dagitty(augmented_edges),
-                  error = function(e) expert_dag)
+                  error = function(e) {
+                    warning(sprintf(
+                      "augmented DAG could not be built (%s); Method B falls back to the expert DAG and is NOT an augmented result",
+                      conditionMessage(e)), call. = FALSE)
+                    expert_dag
+                  })
 edges_B <- dag_edges_df(dag_B)
 message(sprintf(
   "  B has %d edges (+%d over A)",

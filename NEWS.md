@@ -1,3 +1,53 @@
+# Corrections to earlier release notes
+
+The sections below are kept as written, because a published release note is a
+record of what was claimed at the time and deleting it hides the claim rather
+than correcting it. Four kinds of statement in them are wrong, and are
+corrected here once rather than edited away in place.
+
+**"R CMD check: 0 errors / 0 notes"** appears in four sections. It was never
+verified against a check log. A real `R CMD check --as-cran` on the v3.10.0
+tree produced *2 ERRORs, 1 WARNING, 6 NOTEs*. The errors were two failing
+tests and a PDF-manual failure caused by two raw Unicode characters in Rd
+text; all are fixed. The current status, the verbatim log, and a per-item
+classification of what is a package defect versus an artefact of the checking
+machine are generated into `cran-comments.md` by
+`tools/status/render-cran-comments.R` and are no longer written by hand.
+
+**Test counts** ("1 345 tests pass", "1 308", "1 282", ...) were quoted from
+machines whose provisioning was not recorded, and the arithmetic between
+consecutive sections does not always add up. They were not fabricated: on a
+fully provisioned machine the suite is close to the largest of these figures.
+But a count without its environment is not reproducible, so the current
+figures are measured at render time into `STATUS.md` and stated together with
+the platform, R version, and which optional dependencies were present.
+
+**Empirical claims about Pillar 1 x Pillar 4** in the v1.9.1 section, and the
+corresponding README table, reported Sargan p = 0.343 / 0.283 / 0.424 and
+concluded that foundation-model embeddings pass the over-identification test
+for all three exposures. Those figures came from a run in which the encoder's
+per-channel normalisation was replaced by a placeholder (`means = 0`,
+`sds = 1`), which kills about half of its backbone channels. Re-run on the
+real 31-channel stack at the encoder's native grid with per-channel
+standardisation, the test is passed for mean annual precipitation only
+(p = 0.250, stage-1 F = 862) and rejected for tree cover and clay. The README
+now says so, and `tests/testthat/test-headline-claims.R` binds every published
+figure to the shipped bundle so the two cannot drift apart again.
+
+**The multi-backend LLM benchmark** in the v1.8.0 section was presented as a
+measured comparison of Gemma 4, GPT-4o-mini and Claude Sonnet-4.5. The shipped
+bundle carries `mode = "simulated"`; its precision, recall, latency and cost
+are inputs to a deterministic noise model, not measurements, and no API was
+called. The vendor-attributed table has been withdrawn from the README.
+Likewise the "LLM-augmented (Gemma 4)" DAG in the causal-discovery trio was
+six edges typed by hand, with confidence values that appear in no file in this
+package; the benchmark now derives its edge set from the shipped claims file.
+
+Nothing above changes what the code does. It changes what the project claims
+about what the code showed.
+
+---
+
 # edaphos 3.10.0
 
 ## Pilar 1 -- production harness for 10k+ LLM-KG extraction runs

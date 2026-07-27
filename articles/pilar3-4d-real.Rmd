@@ -57,7 +57,10 @@ a stochastic Ensemble Kalman Filter [@Evensen1994; @Burgers1998enkf] that
 sequentially assimilates new in-situ observations into the ConvLSTM
 forecast without retraining the network.
 
-```{r load, message = FALSE}
+```{r load-gate, echo=FALSE}
+# knit_exit() stops knitting AFTER this chunk finishes, so the guard
+# must be the last thing in a chunk of its own -- otherwise the code
+# it protects still runs.
 library(edaphos)
 library(ggplot2)
 
@@ -68,6 +71,9 @@ if (!nzchar(res_path) || !file.exists(res_path)) {
     "Pre-computed Pillar 3 real-data bundle not found — skipping."
   )
 }
+```
+
+```{r load, message = FALSE}
 R <- readRDS(res_path)
 str(R$meta, max.level = 1L)
 ```

@@ -62,7 +62,10 @@ Each of the 2025 pixels of `br_cerrado` is made the centre of a
 slope, TWI, mean annual precipitation, NDVI). Reflection padding
 preserves the original grid size.
 
-```{r setup, message=FALSE}
+```{r setup-gate, echo=FALSE}
+# knit_exit() stops knitting AFTER this chunk finishes, so the guard
+# must be the last thing in a chunk of its own -- otherwise the code
+# it protects still runs.
 library(edaphos)
 .torch_ok <- requireNamespace("torch", quietly = TRUE) &&
              isTRUE(tryCatch(torch::torch_is_installed(),
@@ -72,6 +75,9 @@ if (!.torch_ok) {
     "torch runtime (libtorch) not available — skipping vignette."
   )
 }
+```
+
+```{r setup, message=FALSE}
 data(br_cerrado, package = "edaphos")
 
 covs_base <- c("elev", "slope", "twi", "map_mm", "ndvi")

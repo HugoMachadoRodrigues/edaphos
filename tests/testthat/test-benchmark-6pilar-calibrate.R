@@ -134,14 +134,49 @@ test_that(".bench_inject_aleatoric: adds zero-mean noise of expected SD", {
   expect_equal(stats::sd(as.numeric(out)), 0.5, tolerance = 0.05)
 })
 
-test_that(".bench_residual_sd: returns SD of finite residuals", {
+test_that(".bench_residual_sd: returns the residual standard error, not sd()", {
+  # This helper sizes the aleatoric term of a PREDICTIVE interval, so it must
+  # measure the typical magnitude of the prediction error -- bias included.
+  # stats::sd() measures scatter about the residual MEAN, so it ignores bias
+  # entirely: for a predictor off by 0.42 with scatter 0.16, sd() returns 0.16
+  # while the error an interval actually has to cover is 0.45.  Every pillar in
+  # this benchmark is biased towards the mean, so the old sd()-based estimate
+  # systematically under-inflated the intervals and depressed PICP.
   obs <- c(1, 2, 3, 4, 5)
   hat <- c(1.1, 2.2, 2.9, 3.8, 5.2)
+  r   <- obs - hat
   expect_equal(edaphos:::.bench_residual_sd(obs, hat),
-                stats::sd(obs - hat), tolerance = 1e-12)
+                sqrt(sum(r^2) / (length(r) - 1L)), tolerance = 1e-12)
+
+  # With a biased predictor it must exceed sd() and track the RMSE.
+  set.seed(1L)
+  obs_b <- stats::rnorm(60L, 20, 5)
+  hat_b <- obs_b + stats::rnorm(60L, 0.4, 0.18)     # deliberate offset
+  got   <- edaphos:::.bench_residual_sd(obs_b, hat_b)
+  expect_gt(got, stats::sd(obs_b - hat_b))
+  expect_equal(got, sqrt(mean((obs_b - hat_b)^2)), tolerance = 0.02)
+
+  # n_params applies the degrees-of-freedom correction and must not shrink it.
+  expect_gt(edaphos:::.bench_residual_sd(obs_b, hat_b, n_params = 10L), got)
+
   # NA-safe
-  expect_equal(edaphos:::.bench_residual_sd(c(NA, 1, 2), c(NA, 1, 2)),
-                0)
+  expect_equal(edaphos:::.bench_residual_sd(c(NA, 1, 2), c(NA, 1, 2)), 0)
   # Too few finite residuals -> 0
   expect_equal(edaphos:::.bench_residual_sd(c(NA, NA), c(NA, NA)), 0)
+})
+
+test_that(".bench_inject_aleatoric preserves the point prediction exactly", {
+  # The benchmark reads the point prediction as colMeans(samples).  Adding iid
+  # noise leaves a residue of sigma/sqrt(n_draws) in that mean, which inflated
+  # every published RMSE by ~0.44 g/kg at n_boot = 300.  Centring the noise per
+  # column removes it exactly while preserving the marginal spread.
+  set.seed(3L)
+  pm  <- matrix(rep(stats::rnorm(80L, 25, 10), each = 300L), 300L, 80L)
+  out <- edaphos:::.bench_inject_aleatoric(pm, sigma_resid = 8, seed = 5L)
+  expect_equal(colMeans(out), colMeans(pm), tolerance = 1e-9)
+  expect_equal(stats::sd(as.numeric(out - pm)), 8, tolerance = 0.2)
+  # degenerate inputs are passed through untouched
+  expect_identical(edaphos:::.bench_inject_aleatoric(pm, 0), pm)
+  expect_identical(edaphos:::.bench_inject_aleatoric(pm[1, , drop = FALSE], 8),
+                    pm[1, , drop = FALSE])
 })

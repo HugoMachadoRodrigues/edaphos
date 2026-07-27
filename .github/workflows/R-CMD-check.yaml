@@ -14,7 +14,7 @@ jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})${{ matrix.config.torch && ' +torch' || '' }}
 
     strategy:
       fail-fast: false
@@ -25,14 +25,20 @@ jobs:
           - {os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release'}
           - {os: ubuntu-latest,  r: 'release'}
           - {os: ubuntu-latest,  r: 'oldrel-1'}
+          # One leg installs the libtorch runtime.  Without it every
+          # torch-gated test skips, and 74 test_that blocks covering pillars
+          # 3, 4, 8, 9 and 10 -- roughly a quarter of R/ -- had never executed
+          # on any machine, here or locally.  They pass; that fact should be
+          # produced by CI rather than asserted.
+          - {os: ubuntu-latest,  r: 'release', torch: true}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      # Skip torch runtime download on CI — all torch-using tests are
-      # already guarded by skip_if_not_installed("torch") plus a runtime
-      # probe, so CI still exercises ~70 % of the test suite.
-      TORCH_INSTALL: 0
+      # Legs without `torch: true` skip the libtorch download; their
+      # torch-gated tests are skipped, not silently passed.  The +torch leg
+      # below overrides this.
+      TORCH_INSTALL: ${{ matrix.config.torch && '1' || '0' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +56,42 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      # libtorch is ~2 GB; cache it so the +torch leg costs one download
+      # rather than one per run.
+      - name: Cache libtorch
+        if: matrix.config.torch
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/torch
+          key: libtorch-${{ runner.os }}-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: libtorch-${{ runner.os }}-
+
+      - name: Install libtorch runtime
+        if: matrix.config.torch
+        run: |
+          torch::install_torch()
+          cat("torch_is_installed:", torch::torch_is_installed(), "\n")
+          if (!torch::torch_is_installed())
+            stop("libtorch did not install; this leg exists to exercise torch")
+        shell: Rscript {0}
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      # A green run must mean the torch paths ran, not that they skipped.
+      - name: Assert the torch tests actually executed
+        if: matrix.config.torch
+        run: |
+          log <- Sys.glob(file.path("check", "*.Rcheck", "tests",
+                                    "testthat.Rout*"))
+          if (!length(log)) stop("no testthat output found")
+          txt <- readLines(log[1], warn = FALSE)
+          skipped <- grep("torch.*not installed|libtorch.*not available",
+                          txt, value = TRUE)
+          if (length(skipped))
+            stop(sprintf("torch tests skipped on the +torch leg (%d lines): %s",
+                         length(skipped), paste(head(skipped, 3), collapse = " | ")))
+          cat("torch-gated tests executed on this leg\n")
+        shell: Rscript {0}

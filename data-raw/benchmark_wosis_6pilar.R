@@ -56,6 +56,50 @@ profiles <- profiles[stats::complete.cases(profiles[, cov_cols]), ]
 message(sprintf("  n = %d profiles; cov_cols = {%s}",
                  nrow(profiles), paste(cov_cols, collapse = ", ")))
 
+# ---------------------------------------------------------------------------
+# Response scale.  SOC in g/kg is strongly right-skewed here: 11 of 1095
+# profiles (1.0 %) carry 48.2 % of the total sum of squares, with a maximum of
+# 194 g/kg against a median of 13.3.  On the raw scale R2 therefore measures
+# how well a method reproduces a handful of extreme profiles, and every method
+# scores near or below zero.  On log1p(SOC) -- the conventional scale for soil
+# organic carbon -- the same covariates under these same blocked folds give
+# OLS R2 = +0.161 and ranger R2 = +0.134, so the raw-scale result is a property
+# of the scale and not of the prediction problem.  Fit on log1p by default.
+# Set EDAPHOS_BENCH_SCALE=raw to reproduce the historical raw-scale numbers.
+RESPONSE_SCALE <- if (identical(Sys.getenv("EDAPHOS_BENCH_SCALE"), "raw"))
+  "raw" else "log1p"
+if (RESPONSE_SCALE == "log1p") profiles$soc <- log1p(profiles$soc)
+RESPONSE_UNITS <- if (RESPONSE_SCALE == "log1p") "log1p(g/kg)" else "g/kg"
+message(sprintf("  response scale: %s (%s)", RESPONSE_SCALE, RESPONSE_UNITS))
+
+# ---------------------------------------------------------------------------
+# Provenance of the response relative to the covariates.  The WoSIS profiles
+# were sampled decades before the covariate rasters were measured, so part of
+# the irreducible error is temporal mismatch rather than model inadequacy.
+# Recorded in the bundle so no table can present the result without it.
+PROFILE_YEARS <- suppressWarnings(as.numeric(profiles$year))
+YEAR_SUMMARY <- list(
+  min = suppressWarnings(min(PROFILE_YEARS, na.rm = TRUE)),
+  q25 = unname(stats::quantile(PROFILE_YEARS, 0.25, na.rm = TRUE)),
+  median = stats::median(PROFILE_YEARS, na.rm = TRUE),
+  q75 = unname(stats::quantile(PROFILE_YEARS, 0.75, na.rm = TRUE)),
+  max = suppressWarnings(max(PROFILE_YEARS, na.rm = TRUE)),
+  n_missing = sum(is.na(PROFILE_YEARS)),
+  covariate_epoch = "SoilGrids 2020 / WorldClim 2.1 (1970-2000) / SRTM 2000 / WorldCover 2020",
+  note = paste("Land cover is measured decades after the median profile was",
+               "sampled; the covariates cannot describe the land surface as",
+               "it was at sampling time.")
+)
+# Ensemble budgets, recorded per row so a table cannot present methods with
+# 30x different budgets as a like-for-like comparison.
+P1_N_BOOT  <- 300L
+P6_N_BOOT  <- 100L
+P10_N_ENS  <- 8L
+
+message(sprintf("  profile years: %g-%g (median %g, %d missing)",
+                YEAR_SUMMARY$min, YEAR_SUMMARY$max, YEAR_SUMMARY$median,
+                YEAR_SUMMARY$n_missing))
+
 v280 <- tryCatch(readRDS(V280_PATH), error = function(e) NULL)
 if (is.null(v280))
   stop("v2.8.0 benchmark RDS missing; run data-raw/benchmark_wosis_p4_p5_p7.R first.")
@@ -94,7 +138,7 @@ for (fd in 1:5) {
   t1 <- system.time({
     post1 <- tryCatch(benchmark_fit_p1_causal(train, test, cov_cols,
                                                     dag = causal_rds$dag,
-                                                    n_boot = 300L),
+                                                    n_boot = P1_N_BOOT),
                         error = function(e) {
                           message("    [P1 warn] ", conditionMessage(e))
                           NULL
@@ -102,11 +146,14 @@ for (fd in 1:5) {
   })["elapsed"]
 
   # P6 Quantum (bootstrap-ensemble over circuit KRR).
-  # n_pcs = 6, reps = 1 keeps the full 1 095-profile run within ~15 min.
+  # Previously n_boot = 10 against P1's 300 -- an ensemble 30x smaller, which
+  # is not a like-for-like comparison of the METHODS but of their budgets.
+  # Raised to 100; the quantum kernel is O(n^2 * 2^n_pcs) so 300 is out of
+  # reach, and the residual disparity is recorded per row as `n_ensemble`.
   t6 <- system.time({
     post6 <- tryCatch(benchmark_fit_p6_quantum(train, test, cov_cols,
                                                      n_pcs = 6L, reps = 1L,
-                                                     n_boot = 10L,
+                                                     n_boot = P6_N_BOOT,
                                                      lambda = 0.5),
                         error = function(e) {
                           message("    [P6 warn] ", conditionMessage(e))
@@ -136,9 +183,15 @@ for (fd in 1:5) {
   }
   c1 <- eval_post(post1); c6 <- eval_post(post6); c10 <- eval_post(post10)
 
+  budget_of <- function(name)
+    if (grepl("^P1 ", name)) P1_N_BOOT
+    else if (grepl("^P6 ", name)) P6_N_BOOT
+    else if (grepl("^P10 ", name)) P10_N_ENS else NA_integer_
+
   grab <- function(name, post, cal, elapsed) {
     if (is.null(cal)) {
       return(data.frame(method = name, fold = fd, n_test = n_te,
+                          n_train = n_tr, n_ensemble = budget_of(name),
                           rmse = NA, mae = NA, r2 = NA,
                           crps = NA, picp90 = NA, mpiw90 = NA,
                           elapsed_s = elapsed, stringsAsFactors = FALSE))
@@ -157,14 +210,22 @@ for (fd in 1:5) {
     # Unclamped on purpose -- see the note in benchmark_wosis_p4_p5_p7.R.
     r2_val     <- edaphos_r2(truth, point_pred)
     data.frame(method = name, fold = fd, n_test = n_te,
+                 n_train = n_tr, n_ensemble = budget_of(name),
                  rmse = rmse_val, mae = mae_val, r2 = r2_val,
                  crps = cal$crps, picp90 = picp90, mpiw90 = mpiw90,
                  elapsed_s = elapsed, stringsAsFactors = FALSE)
   }
-  fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P1 Causal+OLS",     post1, c1, t1)
+  # Labels describe what each row actually fits.  "P1 Causal+OLS" was OLS on a
+  # DAG-selected covariate subset with a parametric bootstrap -- no causal
+  # estimand is computed here, only a variable-selection step.  "P10 GAT" uses
+  # randomly initialised attention weights with a ridge head; the attention is
+  # never trained.
+  fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P1 OLS (DAG-selected covariates)", post1, c1, t1)
   fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P6 Quantum KRR",    post6, c6, t6)
-  fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P10 GAT ensemble",  post10, c10, t10)
+  fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P10 GAT (random attention + ridge head)", post10, c10, t10)
   post_bank_new[[fd]] <- list(p1 = post1, p6 = post6, p10 = post10,
+                               # achievable null for this fold
+                               train_mean = mean(train$soc, na.rm = TRUE),
                                 truth = truth)
 }
 
@@ -175,7 +236,18 @@ for (fd in 1:5) {
 # ---------------------------------------------------------------------------
 message("=== [4/7] Merging with v2.8.0 triple + aggregating ===")
 cv_tbl_new <- bind_rows(fold_rows_new)
+
+# The merged bundle must have been produced on the same response scale, or the
+# combined table silently mixes g/kg rows with log1p rows.
+v280_scale <- v280$response_scale %||% "raw"
+if (!identical(v280_scale, RESPONSE_SCALE))
+  stop(sprintf(paste("scale mismatch: %s carries response_scale = '%s' but this",
+                     "run is '%s'. Re-run data-raw/benchmark_wosis_p4_p5_p7.R",
+                     "with the same EDAPHOS_BENCH_SCALE first."),
+               basename(V280_PATH), v280_scale, RESPONSE_SCALE), call. = FALSE)
 cv_tbl_all <- bind_rows(v280$cv_fold_table, cv_tbl_new)
+
+`%||%` <- function(a, b) if (is.null(a)) b else a
 
 agg <- cv_tbl_all |>
   group_by(method) |>
@@ -195,6 +267,65 @@ agg <- cv_tbl_all |>
 print(agg)
 
 # ---------------------------------------------------------------------------
+# Pooled metrics.  Concatenate every fold's test predictions and score once,
+# against the achievable null (each fold's TRAINING-fold mean) rather than the
+# global mean, which is an oracle over the very rows being scored.
+# ---------------------------------------------------------------------------
+pooled_tbl <- local({
+  banks <- c(v280$posterior_bank, post_bank_new)
+  is_post  <- function(x) inherits(x, "edaphos_posterior")
+  point_of <- function(p) if (!is_post(p)) NULL
+                          else if (!is.null(p$samples)) colMeans(p$samples)
+                          else as.numeric(p$mean)
+  # A "method" is any bank slot that actually holds a posterior.  Identifying
+  # them by class rather than by excluding known bookkeeping names keeps this
+  # correct when a new field (train_mean, timings, ...) is added to the bank.
+  meths <- unique(unlist(lapply(banks, function(el)
+    names(el)[vapply(el, is_post, logical(1))])))
+
+  acc <- setNames(vector("list", length(meths)), meths)
+  truth_v <- null_v <- numeric(0)
+  seen <- character(0)
+  for (el in banks) {
+    if (is.null(el$truth)) next
+    # the two banks cover the same folds; count truth and the null once
+    fid <- paste0("f", length(el$truth), "_", round(sum(el$truth), 6))
+    if (!(fid %in% seen)) {
+      seen    <- c(seen, fid)
+      truth_v <- c(truth_v, el$truth)
+      null_v  <- c(null_v, rep(el$train_mean %||% mean(el$truth),
+                               length(el$truth)))
+    }
+    for (m in meths) {
+      pt <- point_of(el[[m]])
+      if (!is.null(pt)) acc[[m]] <- c(acc[[m]], pt)
+    }
+  }
+  ss_null <- sum((truth_v - null_v)^2)
+  rows <- lapply(meths, function(m) {
+    pr <- acc[[m]]
+    if (length(pr) != length(truth_v)) {
+      message(sprintf("    [pooled] skipping %s: %d predictions for %d rows",
+                      m, length(pr), length(truth_v)))
+      return(NULL)
+    }
+    ok <- is.finite(pr) & is.finite(truth_v)
+    data.frame(method = m, n = sum(ok),
+      pooled_rmse = edaphos_rmse(truth_v[ok], pr[ok]),
+      pooled_r2_vs_global_mean = edaphos_r2(truth_v[ok], pr[ok]),
+      nse_vs_training_fold_mean = 1 - sum((truth_v[ok] - pr[ok])^2) / ss_null,
+      stringsAsFactors = FALSE)
+  })
+  out <- do.call(rbind, rows)
+  if (!is.null(out)) out <- out[order(-out$nse_vs_training_fold_mean), ]
+  out
+})
+cat("
+--- pooled (achievable null = training-fold mean) ---
+")
+print(pooled_tbl)
+
+# ---------------------------------------------------------------------------
 # 5. Save combined bundle
 # ---------------------------------------------------------------------------
 message("=== [5/7] Saving combined bundle ===")
@@ -205,7 +336,18 @@ R_out <- list(
   cov_cols          = cov_cols,
   folds             = folds,
   cv_fold_table     = cv_tbl_all,
+  response_scale    = RESPONSE_SCALE,
+  response_units    = RESPONSE_UNITS,
+  profile_years     = YEAR_SUMMARY,
+  ensemble_budgets  = list(P1 = P1_N_BOOT, P6 = P6_N_BOOT, P10 = P10_N_ENS),
   cv_aggregate      = agg,
+  # Pooled metrics: every fold's test predictions concatenated and scored once.
+  # The unweighted mean of per-fold R2 is not a usable summary under blocked
+  # folds -- fold SOC sd ranges 6.5 to 20.7 here, so a fold with a narrow
+  # spread dominates the mean regardless of model quality.  `null_*` is the
+  # achievable baseline: predict each fold's TRAINING-fold mean.  The global
+  # mean is an oracle and is not used as the reference.
+  cv_pooled         = pooled_tbl,
   posterior_bank    = c(v280$posterior_bank, post_bank_new),
   excluded_pilares  = list(
     P2 = "Profile ODE (pedogenetic depth dynamics) -- targets full depth profile, not topsoil scalar.",

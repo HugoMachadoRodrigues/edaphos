@@ -80,7 +80,10 @@ input proportional to wet-season biomass turnover; the denominator
 \(k_{\text{out}}\mathrm{SOC}\,P/\bar P\) captures humidity-modulated
 decomposition [@Lehmann2015; @Minasny2017].
 
-```{r setup, message=FALSE}
+```{r setup-gate, echo=FALSE}
+# knit_exit() stops knitting AFTER this chunk finishes, so the guard
+# must be the last thing in a chunk of its own -- otherwise the code
+# it protects still runs.
 library(edaphos)
 .torch_ok <- requireNamespace("torch", quietly = TRUE) &&
              isTRUE(tryCatch(torch::torch_is_installed(),
@@ -90,6 +93,9 @@ if (!.torch_ok) {
     "torch runtime (libtorch) not available — skipping vignette."
   )
 }
+```
+
+```{r setup, message=FALSE}
 cube <- temporal_synth_soc_cube(H = 12L, W = 12L, T_total = 18L,
                                 seed = 7L)
 str(cube)

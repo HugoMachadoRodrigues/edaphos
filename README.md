@@ -640,7 +640,7 @@ block-bootstrap sample (B = 500) or a native BART posterior — so
 `uncertainty_calibrate()` applies uniformly (see
 [§9](#unified-uncertainty-api-v160)).
 
-### 🆕 v1.7.2 — Causal-discovery trio: expert × LLM × data-driven
+### Causal-discovery trio: expert × LLM × data-driven
 
 `vignette("causal-discovery-trio")` asks a harder question: **do the
 three DAG-construction strategies in Pillar 1 agree?** Running all
@@ -648,18 +648,38 @@ five methods on the same 1 095 WoSIS profiles:
 
 | Comparison | Structural Hamming Distance |
 |:---|---:|
-| Expert ↔ LLM-augmented (Gemma 4) | **2** |
+| Expert ↔ LLM-augmented | **0** |
 | bnlearn `hc` ↔ bnlearn `tabu`    | **0** |
 | bnlearn `pc-stable` ↔ `hc`       | 12 |
 | Expert ↔ bnlearn `hc`             | **29** |
 
-The **major scientific finding** is that the choice of DAG changes
-the backdoor adjustment set for MAP → SOC from **6 covariates**
-(LLM-augmented) to **0 covariates** (bnlearn mmhc) — a difference of
-an order of magnitude that directly changes the identified effect. The
-three strategies are **complementary**, not substitutable. The
-vignette recommends using all three and reporting sensitivity as the
-causal-analog of observational uncertainty.
+**The LLM adds nothing here, and that is the informative result.** Of
+the 30 claims in `inst/extdata/cerrado_claims.jsonl`, only 3 have both
+endpoints expressible among the 10 WoSIS covariates, and all 3 were
+already in the expert DAG. The 32 remaining distinct concepts —
+`decomposition`, `primary_mineral_dissolution`, `argillic_horizon`,
+`root_input`, `effective_cation_exchange_capacity`, `twi` and others —
+have no counterpart in the covariate set. The extractor is not the
+bottleneck; the covariate set is.
+
+Earlier releases reported `SHD(Expert, LLM-augmented) = 2` and read it
+as the LLM being "conservative". That figure came from six edges typed
+by hand into `data-raw/causal_discovery_benchmark.R`, carrying
+confidences (0.90, 0.82, 0.78, 0.75, 0.72, 0.71) that appear in no file
+in this package — every shipped claim has confidence 0.9. Those edges
+have been withdrawn; the benchmark now derives its edge set from the
+claims file through an explicit concept → column mapping that is
+validated against the columns which actually exist.
+
+The finding that survives is the disagreement between expert and
+data-driven structure. The backdoor adjustment set for MAP → SOC is
+**5 covariates** under the expert DAG (`slope`, `wc_bio_01`,
+`wc_landcover_cropland`, `wc_landcover_grassland`,
+`wc_landcover_trees`) but **1** under `pc-stable` (`wc_bio_01`) and 2
+under `hc`/`tabu`. That difference directly changes the identified
+effect, so the three strategies are **complementary**, not
+substitutable, and the vignette recommends reporting the sensitivity
+rather than picking one.
 
 📖 Vignettes: `vignette("pilar1-causal")`,
 `vignette("pilar1-causal-real")`,

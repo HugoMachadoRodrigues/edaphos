@@ -175,7 +175,7 @@ um DAG em outro [@Tsamardinos2006mmhc]. `SHD(A, A) = 0` (o DAG é
 idêntico a si mesmo); `SHD(A, B) = n` significa que B difere de A em
 n operações.
 
-```{r shd-heatmap, fig.height = 5, fig.cap = "Matriz de Structural Hamming Distance (SHD) entre os cinco métodos. Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu (concordância total) e SHD=2 entre Expert e LLM-augmented (apenas 2 arestas adicionadas pelo Gemma 4)."}
+```{r shd-heatmap, fig.height = 5, fig.cap = "Matriz de Structural Hamming Distance (SHD) entre os cinco métodos. Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu (concordância total) e tambem SHD=0 entre Expert e LLM-augmented: as claims extraidas nao acrescentam nenhuma aresta representavel neste conjunto de covariaveis."}
 shd <- R$shd_matrix
 shd_df <- expand.grid(
   método_i = rownames(shd),
@@ -200,9 +200,26 @@ ggplot(shd_df, aes(x = método_j, y = método_i, fill = SHD)) +
 
 **Leitura.**
 
-- `SHD(Expert, LLM-augmented) = 2`: o Gemma 4 adiciona apenas 2 arestas
-  de alta confiança sobre o DAG expert — o LLM é **conservador** com
-  priors bem especificados. Isso é uma característica, não um bug.
+- `SHD(Expert, LLM-augmented) = 0`: as claims extraídas **não acrescentam
+  nenhuma aresta** ao DAG expert. Das 30 claims em
+  `inst/extdata/cerrado_claims.jsonl`, apenas 3 têm ambos os extremos
+  representáveis no conjunto de 10 covariáveis WoSIS, e as 3 já constavam
+  do DAG expert. O gargalo aqui **não é o extrator**: 32 conceitos
+  distintos aparecem nas claims — `decomposition`,
+  `primary_mineral_dissolution`, `argillic_horizon`, `root_input`,
+  `effective_cation_exchange_capacity`, `twi`, entre outros — e nenhum
+  deles tem contrapartida entre as covariáveis disponíveis. A extração
+  produz afirmações pedologicamente sensatas que este conjunto de
+  covariáveis simplesmente não consegue expressar.
+
+  Versões anteriores desta vignette reportavam `SHD = 2` e concluíam que
+  "o Gemma 4 é conservador". Aquele número vinha de seis arestas
+  digitadas à mão em `data-raw/causal_discovery_benchmark.R`, com
+  confidences (0,90 / 0,82 / 0,78 / 0,75 / 0,72 / 0,71) que não existem
+  em nenhum arquivo do pacote — todas as claims embarcadas têm
+  confidence 0,9. Essas arestas foram retiradas; o benchmark agora deriva
+  o conjunto do arquivo de claims por um mapeamento conceito → coluna
+  explícito e validado contra as colunas que de fato existem.
 - `SHD(hc, tabu) = 0`: os dois algoritmos score-based convergem para
   o mesmo DAG na superfície BIC-g, porque o 1 095-perfil é grande
   suficiente para tornar o máximo único.

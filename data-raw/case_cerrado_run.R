@@ -198,7 +198,19 @@ for (k in seq_len(K_FOLDS)) {
   pred_b1_hi[test_ix] <- q_b1[, 2L]
 
   # --- B2 B1 + residual kriging (linear scale) -------------------------------
-  train_mid <- predict(rf_b1, data = train)$predictions
+  # Krige OUT-OF-BAG residuals.  predict(rf, data = train) returns in-bag
+  # predictions: every tree that saw a row votes on it, so the forest has
+  # partly memorised the training data and the residuals are far too small.
+  # Measured on a synthetic problem with a known spatial component, in-bag
+  # residuals carry under a quarter of the OOB residual variance (4.5 vs
+  # 19.8) at essentially the same correlation with the true spatial signal
+  # (0.667 vs 0.671) -- the shape is right, the magnitude is wrong by 4x.
+  # Kriging those understates both the correction and the kriging variance,
+  # which narrows B2's intervals and depresses its PICP.  That handicaps the
+  # baseline this benchmark exists to compare against.
+  # ranger's $predictions field is the OOB prediction for a regression forest.
+  train_mid <- rf_b1$predictions
+  stopifnot(length(train_mid) == nrow(train))
   train$residual <- train[[.resp_col]] - train_mid
   train_sf <- sf::st_as_sf(train, coords = c("lon", "lat"), crs = 4326)
   test_sf  <- sf::st_as_sf(test,  coords = c("lon", "lat"), crs = 4326)

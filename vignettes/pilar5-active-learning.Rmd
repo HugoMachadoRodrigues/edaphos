@@ -102,11 +102,17 @@ information criteria [@Settles2009].
 
 ## 2. Data and seed design
 
-```{r setup, message=FALSE}
+```{r setup-gate, echo=FALSE}
+# knit_exit() stops knitting AFTER this chunk finishes, so the guard
+# must be the last thing in a chunk of its own -- otherwise the code
+# it protects still runs.
 library(edaphos)
 if (!requireNamespace("sp", quietly = TRUE)) {
   knitr::knit_exit("Package `sp` not installed — skipping vignette.")
 }
+```
+
+```{r setup, message=FALSE}
 data(meuse, package = "sp")
 
 d <- stats::na.omit(meuse[, c("x", "y", "dist", "elev", "ffreq",

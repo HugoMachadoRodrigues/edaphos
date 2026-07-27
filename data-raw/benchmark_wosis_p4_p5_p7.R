@@ -50,6 +50,25 @@ cov_cols <- intersect(cov_cols, names(profiles))
 profiles <- profiles[stats::complete.cases(profiles[, cov_cols]), ]
 message(sprintf("  After NA drop: %d profiles", nrow(profiles)))
 
+# Response scale -- must match data-raw/benchmark_wosis_6pilar.R, which merges
+# this bundle.  See the long note there: on raw g/kg, 1 % of profiles carry
+# 48 % of the sum of squares and every method scores near zero; log1p is the
+# conventional scale for soil organic carbon.
+RESPONSE_SCALE <- if (identical(Sys.getenv("EDAPHOS_BENCH_SCALE"), "raw"))
+  "raw" else "log1p"
+if (RESPONSE_SCALE == "log1p") profiles$soc <- log1p(profiles$soc)
+RESPONSE_UNITS <- if (RESPONSE_SCALE == "log1p") "log1p(g/kg)" else "g/kg"
+message(sprintf("  response scale: %s (%s)", RESPONSE_SCALE, RESPONSE_UNITS))
+
+PROFILE_YEARS <- suppressWarnings(as.numeric(profiles$year))
+YEAR_SUMMARY <- list(
+  min = suppressWarnings(min(PROFILE_YEARS, na.rm = TRUE)),
+  median = stats::median(PROFILE_YEARS, na.rm = TRUE),
+  max = suppressWarnings(max(PROFILE_YEARS, na.rm = TRUE)),
+  n_missing = sum(is.na(PROFILE_YEARS)),
+  covariate_epoch = "SoilGrids 2020 / WorldClim 2.1 (1970-2000) / SRTM 2000 / WorldCover 2020"
+)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 2. 5-fold spatial CV (k-means cluster)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -129,7 +148,8 @@ fit_p7_bhs <- function(train, test, cov_cols,
   fml <- stats::as.formula(paste("soc ~", paste(cov_cols, collapse = " + ")))
   fit <- bhs_fit(data = train, formula = fml,
                    coords = c("lon", "lat"),
-                   backend = "gibbs",
+                   backend = if (requireNamespace("edaphos", quietly = TRUE))
+                                "rcpp" else "gibbs",
                    nmcmc = nmcmc, burn = burn,
                    phi_range = c(0.05, 5),
                    seed = 1L, verbose = FALSE)
@@ -149,26 +169,40 @@ fit_p7_bhs <- function(train, test, cov_cols,
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. Set up MoCo v1 encoder + synthetic stack (shared across folds)
 # ─────────────────────────────────────────────────────────────────────────────
-message("=== [3/7] Loading MoCo v1 encoder + building synthetic stack ===")
+message("=== [3/7] Loading MoCo v1 encoder + building the real covariate stack ===")
 moco <- foundation_weights_load("edaphos-cerrado-moco-v1", verbose = FALSE)
-dataset_meta <- list(
-  patch_size = 16L, n_channels = moco$n_channels,
-  means = rep(0, moco$n_channels), sds = rep(1, moco$n_channels)
-)
 bbox <- c(min(profiles$lon) - 0.2, min(profiles$lat) - 0.2,
            max(profiles$lon) + 0.2, max(profiles$lat) + 0.2)
 library(terra)
-tpl <- terra::rast(xmin = bbox[1], xmax = bbox[3],
-                    ymin = bbox[2], ymax = bbox[4],
-                    crs  = "EPSG:4326",
-                    resolution = 0.05,
-                    nlyrs = 1L)
-terra::values(tpl) <- stats::rnorm(terra::ncell(tpl))
-stk <- terra::rast(replicate(moco$n_channels, tpl, simplify = FALSE))
-for (k in seq_len(moco$n_channels))
-  terra::values(stk[[k]]) <- stats::rnorm(terra::ncell(stk))
-message(sprintf("  synthetic stack: %d x %d x %d",
-                terra::nrow(stk), terra::ncol(stk), terra::nlyr(stk)))
+
+# Through v3.10.0 this benchmark ran the encoder over a raster of pure
+# stats::rnorm() noise and published the resulting row as part of the
+# "first honest cross-pillar comparison".  An encoder applied to noise
+# measures nothing about the encoder.  Build the real 31-channel
+# SoilGrids + WorldClim + SRTM stack at the grid the encoder was trained
+# on, exactly as data-raw/causal_iv_benchmark_real.R does.
+GEOCACHE <- if (nzchar(Sys.getenv("EDAPHOS_GEOCACHE")))
+  Sys.getenv("EDAPHOS_GEOCACHE") else
+  tools::R_user_dir("edaphos", which = "cache")
+stk <- foundation_build_cerrado_stack(bbox = bbox, target_res = 0.01,
+                                       cache_dir = GEOCACHE,
+                                       schema = "v1_encoder")
+stopifnot(terra::nlyr(stk) == moco$n_channels)
+
+# The v1 encoder's training means / sds were never persisted (the weights
+# registry records norm_stats_status = "unrecoverable"), so standardise
+# per channel over this AoI and record that this is an approximation of
+# the training normalisation, not a reconstruction of it.
+ch_stats <- terra::global(stk, fun = c("mean", "sd"), na.rm = TRUE)
+dataset_meta <- list(
+  patch_size = 16L, n_channels = moco$n_channels,
+  means = as.numeric(ch_stats[, "mean"]),
+  sds   = pmax(as.numeric(ch_stats[, "sd"]), .Machine$double.eps),
+  normalisation_source = "aoi"
+)
+message(sprintf("  real stack: %d x %d x %d at %.3f deg",
+                terra::nrow(stk), terra::ncol(stk), terra::nlyr(stk),
+                terra::xres(stk)))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Run 5-fold CV
@@ -204,8 +238,15 @@ for (fd in 1:5) {
                           NULL
                         })
   })["elapsed"]
-  # P7 BHS (cap training at 300 for MCMC speed)
-  train_bhs <- if (n_tr > 300L) train[sample(n_tr, 300L), ] else train
+  # P7 BHS used to train on a 300-row subsample while P4 and P5 saw the full
+  # fold -- a comparison of budgets, not of methods.  The RcppArmadillo Gibbs
+  # backend makes the full fold affordable, so the cap is gone; set
+  # EDAPHOS_BENCH_P7_CAP to restore a subsample if the run is too slow.  The
+  # size actually used still travels with every row.
+  P7_TRAIN_CAP <- suppressWarnings(as.integer(Sys.getenv("EDAPHOS_BENCH_P7_CAP", "")))
+  train_bhs <- if (!is.na(P7_TRAIN_CAP) && n_tr > P7_TRAIN_CAP)
+                 train[sample(n_tr, P7_TRAIN_CAP), ] else train
+  p7_n_train <- nrow(train_bhs)
   t7 <- system.time({
     post7 <- tryCatch(fit_p7_bhs(train_bhs, test, cov_cols,
                                     nmcmc = 300L, burn = 150L),
@@ -247,6 +288,9 @@ for (fd in 1:5) {
     r2_val     <- edaphos_r2(truth, point_pred)
     data.frame(
       method    = name, fold = fd, n_test = n_te,
+      # training rows this method actually saw -- P7 is capped, P4/P5 are not
+      n_train   = if (grepl("^P7", name)) p7_n_train else n_tr,
+      train_capped = grepl("^P7", name) && p7_n_train < n_tr,
       rmse      = rmse_val, mae = mae_val, r2 = r2_val,
       crps      = cal$crps,
       picp90    = picp90,
@@ -256,9 +300,11 @@ for (fd in 1:5) {
     )
   }
   fold_rows[[length(fold_rows) + 1L]] <- grab("P5 QRF",           post5, c5, t5)
-  fold_rows[[length(fold_rows) + 1L]] <- grab("P4 Foundation+QRF", post4, c4, t4)
+  fold_rows[[length(fold_rows) + 1L]] <- grab("P4 Foundation embeddings + QRF", post4, c4, t4)
   fold_rows[[length(fold_rows) + 1L]] <- grab("P7 BHS",            post7, c7, t7)
   posterior_bank[[fd]] <- list(p5 = post5, p4 = post4, p7 = post7,
+                               # achievable null for this fold
+                               train_mean = mean(train$soc, na.rm = TRUE),
                                  truth = truth)
 }
 
@@ -291,6 +337,9 @@ print(agg)
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [7/7] Saving bundle ===")
 R_out <- list(
+  response_scale = RESPONSE_SCALE,
+  response_units = RESPONSE_UNITS,
+  profile_years  = YEAR_SUMMARY,
   version        = packageVersion("edaphos"),
   date_computed  = Sys.time(),
   n_profiles     = nrow(profiles),

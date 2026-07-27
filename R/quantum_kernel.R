@@ -264,14 +264,27 @@ quantum_krr_fit <- function(X, y, reps = 2L, lambda = 0.1) {
   y <- as.numeric(y)
   stopifnot(nrow(X) == length(y), lambda > 0)
   K <- quantum_kernel(X, reps = reps)
-  alpha <- solve(K + lambda * diag(nrow(K)), y)
-  fitted <- as.vector(K %*% alpha)
+  # Centre the response and carry the offset as an explicit intercept.
+  #
+  # Kernel ridge regression has no intercept term: solving
+  # alpha = (K + lambda I)^-1 y shrinks predictions towards ZERO, not towards
+  # the mean of y.  For a response with a large offset relative to its spread
+  # -- soil organic carbon on any scale -- the kernel expansion then has to
+  # reproduce the mean from scratch, and with a bounded kernel and a non-tiny
+  # lambda it cannot.  The model is penalised for the location of the response
+  # rather than for its inability to explain the variation, and predictions
+  # collapse towards zero.  Centring is the standard remedy and is what makes
+  # the ridge penalty act on the signal instead of on the offset.
+  y_mean <- mean(y)
+  alpha  <- solve(K + lambda * diag(nrow(K)), y - y_mean)
+  fitted <- as.vector(K %*% alpha) + y_mean
   rmse   <- sqrt(mean((fitted - y)^2))
 
   structure(
     list(
       X_train  = X,
       y_train  = y,
+      y_mean   = y_mean,
       alpha    = as.numeric(alpha),
       K_train  = K,
       reps     = as.integer(reps),
@@ -291,8 +304,13 @@ predict.edaphos_quantum_krr <- function(object, newdata,
   newdata <- as.matrix(newdata)
   stopifnot(ncol(newdata) == object$n_qubits)
   K_new <- quantum_kernel(newdata, object$X_train, reps = object$reps)
-  scores <- as.vector(K_new %*% object$alpha)
+  # `y_mean` is absent from fits produced before the intercept was added;
+  # treat those as centred at zero so old objects still predict.
+  y_mean <- if (is.null(object$y_mean)) 0 else object$y_mean
+  scores <- as.vector(K_new %*% object$alpha) + y_mean
   if (type == "class") {
+    # for the classification path the offset is not meaningful
+    scores <- scores - y_mean
     labs <- sign(scores)
     labs[labs == 0] <- 1
     as.integer(labs)

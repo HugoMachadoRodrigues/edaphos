@@ -71,7 +71,10 @@ strong-PIML regime sensu [@Karniadakis2021].
 We use the ten reference pedons of `aqp::sp4` with horizon
 concentrations of clay, sand, Ca, Mg, K, CEC and CF.
 
-```{r setup, message=FALSE}
+```{r setup-gate, echo=FALSE}
+# knit_exit() stops knitting AFTER this chunk finishes, so the guard
+# must be the last thing in a chunk of its own -- otherwise the code
+# it protects still runs.
 library(edaphos)
 .torch_ok <- requireNamespace("torch", quietly = TRUE) &&
              isTRUE(tryCatch(torch::torch_is_installed(),
@@ -79,6 +82,9 @@ library(edaphos)
 if (!requireNamespace("aqp", quietly = TRUE)) {
   knitr::knit_exit("Package `aqp` not installed — skipping vignette.")
 }
+```
+
+```{r setup, message=FALSE}
 data(sp4, package = "aqp")
 sp4$depth <- (sp4$top + sp4$bottom) / 2
 head(sp4[, c("id", "name", "top", "bottom", "depth", "clay", "K")])
