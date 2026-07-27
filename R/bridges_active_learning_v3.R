@@ -9,7 +9,7 @@
 #
 # All three return an `edaphos_al_query` data frame with `pool_index`,
 # `score`, and optional auxiliary columns for diagnostics.  They
-# follow the v2.1.1 `al_query_causal()` signature pattern so they
+# follow the `al_query_causal()` signature pattern so they
 # plug straight into Pilar 5's existing `al_loop()` machinery by way
 # of a custom acquisition-function callback.
 

@@ -41,7 +41,7 @@
 #                          Suggests-only package is installed --
 #                          runs the full Bayesian spatial linear
 #                          model with phi MCMC.
-#   backend = "stan"    : future v2.3.1 work.
+#   backend = "stan"    : not implemented.
 #
 # References
 # ----------

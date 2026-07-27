@@ -3,7 +3,7 @@
 # _R_CHECK_FORCE_SUGGESTS_=false (Suggests unavailable here are listed in the log).
 # Absolute scratch paths replaced by <CHECKDIR>.
 # ---------------------------------------------------------------------------
-* using log directory ‘<CHECKDIR>/check7/edaphos.Rcheck’
+* using log directory ‘<CHECKDIR>/check8/edaphos.Rcheck’
 * using R version 4.6.1 (2026-06-24)
 * using platform: aarch64-apple-darwin23
 * R was compiled by
@@ -11,19 +11,31 @@
     GNU Fortran (GCC) 14.2.0
 * running under: macOS Tahoe 26.5.2
 * using session charset: UTF-8
-* current time: 2026-07-27 02:29:51 UTC
+* current time: 2026-07-27 16:03:22 UTC
 * using option ‘--as-cran’
 * checking for file ‘edaphos/DESCRIPTION’ ... OK
-* this is package ‘edaphos’ version ‘3.10.0’
+* this is package ‘edaphos’ version ‘4.0.0’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [4s/31s] NOTE
+* checking CRAN incoming feasibility ...Warning: unable to access index for repository https://bioconductor.org/packages/3.23/bioc/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/bioc/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/annotation/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/annotation/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/experiment/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/experiment/src/contrib/PACKAGES'
+ [4s/271s] NOTE
 Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
 
 New submission
 
-Size of tarball: 16648053 bytes
+Size of tarball: 16647524 bytes
 * checking package namespace information ... OK
-* checking package dependencies ... INFO
+* checking package dependencies ...Warning: unable to access index for repository https://bioconductor.org/packages/3.23/bioc/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/bioc/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/annotation/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/annotation/src/contrib/PACKAGES'
+Warning: unable to access index for repository https://bioconductor.org/packages/3.23/data/experiment/src/contrib:
+  cannot open URL 'https://bioconductor.org/packages/3.23/data/experiment/src/contrib/PACKAGES'
+ INFO
 Packages suggested but not available for checking:
   'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges',
   'ontologyIndex', 'spBayes'
@@ -33,7 +45,7 @@ Packages suggested but not available for checking:
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
-* checking whether package ‘edaphos’ can be installed ... [12s/14s] OK
+* checking whether package ‘edaphos’ can be installed ... [12s/13s] OK
 * used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.1.1.101)’
 * used SDK: ‘MacOSX26.5.sdk’
 * checking installed package size ... INFO
@@ -63,7 +75,7 @@ Packages suggested but not available for checking:
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
-* checking R code for possible problems ... [10s/10s] OK
+* checking R code for possible problems ... [11s/12s] OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
 * checking Rd line widths ... OK
@@ -86,14 +98,14 @@ Packages suggested but not available for checking:
 * checking installed files from ‘inst/doc’ ... OK
 * checking files in ‘vignettes’ ... OK
 * checking examples ... OK
-* checking examples with --run-donttest ... [11s/11s] OK
+* checking examples with --run-donttest ... [11s/13s] OK
 * checking for unstated dependencies in ‘tests’ ... OK
 * checking tests ...
-  Running ‘testthat.R’ [451s/439s]
- [452s/439s] OK
+  Running ‘testthat.R’ [449s/483s]
+ [449s/483s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [207s/195s] OK
+* checking re-building of vignette outputs ... [209s/216s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -102,11 +114,11 @@ release or compiling the source code from <https://www.html-tidy.org/>.
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  ‘tmpjhxye6g5’
+  ‘tmpbn39rews’
 * DONE
 
 Status: 3 NOTEs
 See
-  ‘<CHECKDIR>/check7/edaphos.Rcheck/00check.log’
+  ‘<CHECKDIR>/check8/edaphos.Rcheck/00check.log’
 for details.
 

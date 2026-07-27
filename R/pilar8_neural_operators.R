@@ -25,7 +25,7 @@
 # Both are implemented in pure R as 1-D operator models with ONLY
 # `stats` as a dependency (no torch required).  The small-scale
 # demonstrator stays fast and serves as an API-stable reference for
-# a future torch implementation (v2.4.1).
+# a torch implementation, which is not written yet.
 #
 # Exports
 #   no_fno_fit(depths, targets, covariates, n_modes, width, ...)
@@ -213,7 +213,7 @@ no_fno_fit <- function(depths, targets, covariates,
   }
 
   # Simple SGD with numerical gradient.  For production users will
-  # swap in a torch port (v2.4.1); for a small demo (n_obs <= 30,
+  # swap in a torch port (not written yet); for a small demo (n_obs <= 30,
   # n_depths <= 20, width=8, n_blocks=2) 200 epochs run in ~2s.
   loss <- function() {
     y_hat <- forward()

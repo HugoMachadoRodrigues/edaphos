@@ -316,3 +316,73 @@ test_that("README does not re-publish the withdrawn raw-scale six-pillar table",
   )
   expect_false(any(grepl("All three tie at ~14.1 g/kg", ln, fixed = TRUE)))
 })
+
+# ---------------------------------------------------------------------------
+# The README must be followable
+#
+# Through v3.10.0 the only install instruction in an 84 KB README pinned
+# `@v2.8.0`, a tag that does not exist -- so nobody had ever installed this
+# package by following its own documentation. The gap survived because
+# tools/status/facts.R MEASURED it and STATUS.md REPORTED it, but nothing
+# enforced it. Measuring a defect is not the same as guarding against it.
+#
+# This resolves the ref against git rather than comparing strings: a test that
+# only checked the text would pass on a pin to any plausible-looking tag.
+# ---------------------------------------------------------------------------
+
+test_that("every git ref the README tells users to install actually resolves", {
+  skip_on_cran()
+  skip_if(unname(Sys.which("git")) == "", "git not on PATH")
+  repo <- normalizePath("../..", mustWork = FALSE)
+  skip_if(!dir.exists(file.path(repo, ".git")) &&
+          !file.exists(file.path(repo, ".git")),
+          "not a git checkout")
+
+  ln <- readme_lines()
+  installs <- grep("install_github", ln, value = TRUE)
+  expect_gt(length(installs), 0L)   # the README must say how to install
+
+  refs <- unique(unlist(regmatches(
+    installs, gregexpr("(?<=@)[A-Za-z0-9._/-]+", installs, perl = TRUE))))
+  for (r in refs) {
+    ok <- system2("git", c("-C", shQuote(repo), "rev-parse", "-q", "--verify",
+                            shQuote(r)),
+                  stdout = FALSE, stderr = FALSE) == 0L
+    expect_true(
+      ok,
+      info = sprintf("README pins install_github(...@%s) but that ref does not exist in this repository", r)
+    )
+  }
+})
+
+test_that("no shipped source claims a version that was never released", {
+  skip_on_cran()
+  repo <- normalizePath("../..", mustWork = FALSE)
+  news <- file.path(repo, "NEWS.md")
+  skip_if(!file.exists(news), "NEWS.md not reachable")
+
+  declared <- sub("\\s.*$", "", sub("^# edaphos ", "",
+                   grep("^# edaphos ", readLines(news, warn = FALSE),
+                        value = TRUE)))
+  tagged <- tryCatch(
+    sub("^v", "", system2("git", c("-C", shQuote(repo), "tag", "-l"),
+                           stdout = TRUE)),
+    error = function(e) character())
+  known <- unique(c(declared, tagged, "0.0.0"))
+
+  src <- c(Sys.glob(file.path(repo, "R", "*.R")),
+           Sys.glob(file.path(repo, "man", "*.Rd")))
+  skip_if(length(src) == 0L, "sources not reachable")
+  phantom <- unlist(lapply(src, function(f) {
+    ln <- readLines(f, warn = FALSE)
+    v  <- unlist(regmatches(ln, gregexpr(
+      "(?<![0-9.])[0-9]+\\.[0-9]+\\.[0-9]+(?![0-9.])", ln, perl = TRUE)))
+    bad <- setdiff(v, known)
+    if (length(bad)) sprintf("%s: %s", basename(f),
+                             paste(unique(bad), collapse = ", ")) else character()
+  }))
+  expect_equal(
+    phantom, character(0),
+    info = "shipped code names a version with no NEWS section and no git tag"
+  )
+})

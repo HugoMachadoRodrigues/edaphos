@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `51bb2a7` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `3.10.0` — **measured** 2026-07-27T02:42:29Z
+**Commit** `f9d459c` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `4.0.0` — **measured** 2026-07-27T16:32:18Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,20 +18,20 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 87 |
-| First → last commit | 2026-04-20 → 2026-07-26 (96.9 calendar days, 9 with commits) |
-| Days since last commit | 0 |
-| NEWS release sections | 43 |
+| Commits | 88 |
+| First → last commit | 2026-04-20 → 2026-07-26 (97.0 calendar days, 9 with commits) |
+| Days since last commit | 1 |
+| NEWS release sections | 44 |
 | Git tags | 18 |
-| NEWS versions with no tag | 32 |
+| NEWS versions with no tag | 33 |
 | R/ source lines | 20 352 |
 | Exported functions | 170 |
-| Test blocks | 482 |
-| Tests passing | 1 491 |
+| Test blocks | 484 |
+| Tests passing | 1 493 |
 | Tests skipped | 1 |
 | Test failures + errors | 0 |
 | R CMD check status | Status: 3 NOTEs |
-| Shipped bytes | 14.62 MB |
+| Shipped bytes | 14.63 MB |
 | Findings open (blocker/high) | 27 |
 
 ### Stage assessment
@@ -90,7 +90,7 @@ are a floor, not a total.
 
 ## 3. The git clock
 
-`51bb2a7` — 87 commits across 9 active days.
+`f9d459c` — 88 commits across 9 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -102,60 +102,34 @@ are a floor, not a total.
 | 2026-04-25 | 7 |
 | 2026-04-26 | 9 |
 | 2026-04-27 | 8 |
-| 2026-07-26 | 5 |
+| 2026-07-26 | 6 |
 
-Releases declared in `NEWS.md`: **43**. Git tags: **18**.
+Releases declared in `NEWS.md`: **44**. Git tags: **18**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`.
-Commits since the newest tag (`v3.10.0`): **21**.
+Commits since the newest tag (`v3.10.0`): **22**.
 
-`NEWS.md` versions with **no git tag** (32): `3.9.0`, `3.8.0`, `3.7.0`, `3.6.0`, `3.5.0`, `3.4.0`, `3.3.0`, `3.2.0`, `3.1.0`, `3.0.0`, `2.9.1`, `2.9.0`, `2.8.0`, `2.7.0`, `2.6.0`, `2.5.0`, `2.4.0`, `2.3.0`, `2.2.1`, `2.2.0`, `2.1.3`, `2.1.0`, `2.0.0`, `1.9.2`, `1.9.1`, `1.9.0`, `1.8.2`, `1.8.1`, `1.8.0`, `1.7.2`, `1.7.1`, `1.7.0`.
+`NEWS.md` versions with **no git tag** (33): `4.0.0`, `3.9.0`, `3.8.0`, `3.7.0`, `3.6.0`, `3.5.0`, `3.4.0`, `3.3.0`, `3.2.0`, `3.1.0`, `3.0.0`, `2.9.1`, `2.9.0`, `2.8.0`, `2.7.0`, `2.6.0`, `2.5.0`, `2.4.0`, `2.3.0`, `2.2.1`, `2.2.0`, `2.1.3`, `2.1.0`, `2.0.0`, `1.9.2`, `1.9.1`, `1.9.0`, `1.8.2`, `1.8.1`, `1.8.0`, `1.7.2`, `1.7.1`, `1.7.0`.
 
 ## 4. Version coherence
 
 | Check | Result |
 | --- | --- |
-| DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `3.10.0`, NEWS `3.10.0`) |
-| DESCRIPTION version has a git tag | ✅ (`v3.10.0`) |
-| HEAD is the tagged release commit | ❌ (21 commits past `v3.10.0`) |
-| Every NEWS release is tagged | ❌ (32 of 43 untagged) |
+| DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `4.0.0`, NEWS `4.0.0`) |
+| DESCRIPTION version has a git tag | ❌ (`v4.0.0`) |
+| HEAD is the tagged release commit | ❌ (22 commits past `v3.10.0`) |
+| Every NEWS release is tagged | ❌ (33 of 44 untagged) |
 
 Version strings each artefact claims for the package:
 
 | Artefact | Claims |
 | --- | --- |
-| DESCRIPTION | `3.10.0` |
-| NEWS.md | `3.10.0` |
+| DESCRIPTION | `4.0.0` |
+| NEWS.md | `4.0.0` |
 | README.md | `2.8.0` |
-| CITATION.cff | `2.1.0`, `1.6.0` |
-| .zenodo.json | **no version field at all** |
-
-Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md` section nor a git tag declares** (7): `2.1.1`, `3.11.0`, `1.3.2`, `2.3.1`, `2.4.1`, `2.5.1`, `2.1.2`. Each names a release that never existed.
-
-| File | Line | Version |
-| --- | --: | --- |
-| `R/bridges_active_learning_v3.R` | 12 | `2.1.1` |
-| `R/causal_active_learning.R` | 1 | `2.1.1` |
-| `R/foundation_embed_coords.R` | 204 | `3.11.0` |
-| `R/foundation_embed_coords.R` | 222 | `3.11.0` |
-| `R/foundation_embed_coords.R` | 238 | `3.11.0` |
-| `R/foundation_weights.R` | 55 | `1.3.2` |
-| `R/foundation_weights.R` | 82 | `1.2.0,3.11.0` |
-| `R/pilar7_bayesian_hierarchical.R` | 44 | `2.3.1` |
-| `R/pilar8_neural_operators.R` | 28 | `2.4.1` |
-| `R/pilar8_neural_operators.R` | 216 | `2.4.1` |
-| `R/pilar9_diffusion_models.R` | 77 | `2.5.1` |
-| `R/temporal_active_learning.R` | 2 | `2.1.2` |
-| `man/foundation_build_cerrado_stack.Rd` | 31 | `3.11.0` |
-| `man/foundation_build_cerrado_stack.Rd` | 39 | `3.11.0` |
-| `man/foundation_build_cerrado_stack.Rd` | 58 | `3.11.0` |
+| CITATION.cff | `4.0.0` |
+| .zenodo.json | has a version field |
 
 Conversely, git tags with **no `NEWS.md` section**: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`.
-
-Git refs the README tells users to install:
-
-| Ref | Resolves |
-| --- | --- |
-| `v2.8.0` | ❌ |
 
 ## 5. `R CMD build` / `R CMD check --as-cran`
 
@@ -200,13 +174,13 @@ Installed size, verbatim from the log:
     help      2.9Mb
 ```
 
-Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/check.log` (112 lines, sha256 `173bffbc8c30f2e5`). Verbatim tail:
+Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/check.log` (124 lines, sha256 `1a9676d143116d74`). Verbatim tail:
 
 ```
- [452s/439s] OK
+ [449s/483s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [207s/195s] OK
+* checking re-building of vignette outputs ... [209s/216s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -215,11 +189,11 @@ release or compiling the source code from <https://www.html-tidy.org/>.
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  tmpjhxye6g5
+  tmpbn39rews
 * DONE
 Status: 3 NOTEs
 See
-  <CHECKDIR>/check7/edaphos.Rcheck/00check.log
+  <CHECKDIR>/check8/edaphos.Rcheck/00check.log
 for details.
 ```
 
@@ -281,22 +255,22 @@ Fixes, per item:
 | Measure | Value |
 | --- | --- |
 | Test files | 70 |
-| `test_that` blocks | 482 |
-| `expect_*` calls | 1 201 |
+| `test_that` blocks | 484 |
+| `expect_*` calls | 1 204 |
 | `skip_if_not_installed` gates | 74 |
-| `skip_on_cran` gates | 5 |
+| `skip_on_cran` gates | 7 |
 | `set.seed` calls | 122 |
 
 Live run in this environment:
 
 | Outcome | Count |
 | --- | --- |
-| Passed | 1 491 |
+| Passed | 1 493 |
 | Skipped | 1 |
 | Failed | 0 |
 | Errored | 0 |
 | Warnings | 2 |
-| Wall clock (s) | 426.1 |
+| Wall clock (s) | 385.3 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -352,8 +326,8 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 | `man` | 2.58 MB | ✅ |
 | `R` | 821 KB | ✅ |
 | `tools` | 636 KB | ❌ |
-| `<root>` | 471 KB | ✅ |
-| `tests` | 326 KB | ✅ |
+| `<root>` | 478 KB | ✅ |
+| `tests` | 329 KB | ✅ |
 | `data-raw` | 316 KB | ❌ |
 | `vignettes` | 266 KB | ✅ |
 | `data` | 64 KB | ✅ |
@@ -362,7 +336,7 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 | `src` | 15 KB | ✅ |
 | `.github` | 10 KB | ❌ |
 
-Total shipped: **14.62 MB** against the CRAN 5 MB soft cap (5.00 MB) — **over, so an installed-size NOTE is unavoidable**.
+Total shipped: **14.63 MB** against the CRAN 5 MB soft cap (5.00 MB) — **over, so an installed-size NOTE is unavoidable**.
 
 Largest shipped files:
 
@@ -375,7 +349,7 @@ Largest shipped files:
 | `inst/extdata/capstone_native_calibration.rds` | 741 KB |
 | `inst/extdata/capstone_campaign_results.rds` | 543 KB |
 | `tools/status/findings.json` | 439 KB |
-| `STATUS.md` | 227 KB |
+| `STATUS.md` | 226 KB |
 | `inst/extdata/temporal_cerrado_results.rds` | 194 KB |
 | `inst/extdata/causal_sensitivity_cerrado.rds` | 142 KB |
 

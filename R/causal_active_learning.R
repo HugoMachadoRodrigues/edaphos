@@ -1,4 +1,4 @@
-# Pillar 1 x Pillar 5 bridge -- Causal Active Learning (v2.1.1).
+# Pillar 1 x Pillar 5 bridge -- Causal Active Learning.
 #
 # Classical AL (Pillar 5) asks: "where is my outcome Y most uncertain?"
 # and picks the next sample that maximally reduces predictive MSE.  In

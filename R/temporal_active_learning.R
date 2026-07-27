@@ -1,5 +1,5 @@
 # Pillar 3 x Pillar 5 bridge -- Temporal Active Learning with EnKF
-# feedback (v2.1.2).
+# feedback.
 #
 # The v1.5.0 stochastic Ensemble Kalman Filter of Pillar 3 produces
 # a per-cell *Kalman gain* on every assimilation step -- a map of

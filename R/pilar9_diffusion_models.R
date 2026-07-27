@@ -26,7 +26,7 @@
 #   (c) conditional ancestral sampling
 #
 # The point is the API + scientific machinery; a production-grade
-# version ported to torch is scheduled for v2.5.1.
+# version ported to torch is not written yet.
 #
 # References
 # ----------
@@ -74,7 +74,7 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 # noise eps that was added at time t.  This architecture is known
 # to underperform a proper 2-D U-Net (cf. Ho et al. 2020) but is
 # sufficient to demonstrate the score-matching objective on patches
-# up to 8 x 8.  A U-Net port is v2.5.1 future work.
+# up to 8 x 8.  A U-Net port is not written yet.
 
 .dm_time_embed <- function(t_norm, dim = 8L) {
   # Sinusoidal embedding: dim/2 frequencies

@@ -201,7 +201,7 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #' Build the Cerrado raster stack for IV / quantum-foundation benchmarks
 #'
 #' Downloads / assembles the covariate raster stack that the
-#' `edaphos-cerrado-moco-v1` encoder was pretrained on.  As of v3.11.0
+#' `edaphos-cerrado-moco-v1` encoder was pretrained on.  As of v4.0.0
 #' the stack matches the v1 encoder's 31-channel input schema:
 #'
 #' \itemize{
@@ -219,7 +219,7 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #' and clipped to `bbox`.  Earlier versions assembled only a 10-channel
 #' subset, which forced the IV benchmark
 #' (`data-raw/causal_iv_benchmark_real.R`) to fall back to a synthetic
-#' 31-channel stack -- the v3.11.0 rewrite closes that gap.
+#' 31-channel stack -- the v4.0.0 rewrite closes that gap.
 #'
 #' **Heavy download.**  A 2-deg x 2-deg Cerrado AoI lands in about
 #' 80-110 MB after alignment (cache_dir hit on subsequent calls).
@@ -235,7 +235,7 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #' @param force Logical; re-download even if a cached stack exists.
 #' @param schema One of `"v1_encoder"` (default; 31-channel encoder-
 #'   compatible stack) or `"minimal"` (10-channel legacy stack used
-#'   pre-v3.11.0).  Pass `"minimal"` to reproduce the older bundles.
+#'   pre-v4.0.0).  Pass `"minimal"` to reproduce the older bundles.
 #' @return A `terra::SpatRaster` with the requested number of aligned
 #'   layers.
 #' @export
