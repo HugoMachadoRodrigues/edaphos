@@ -9,7 +9,7 @@
 [![Version](https://img.shields.io/badge/version-3.10.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v3.10.0)
 [![Pillars](https://img.shields.io/badge/pillars-10%2F10%20shipped-success)](#the-six-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-14-9cf)](#vignettes)
-[![Tests](https://img.shields.io/badge/tests-1123%20pass-brightgreen)](#testing-and-continuous-integration)
+[![Tests](https://img.shields.io/badge/tests-1491%20pass-brightgreen)](#testing-and-continuous-integration)
 [![Codecov](https://codecov.io/gh/HugoMachadoRodrigues/edaphos/branch/main/graph/badge.svg)](https://app.codecov.io/gh/HugoMachadoRodrigues/edaphos)
 
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--8070--8126-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-8070-8126)
@@ -240,22 +240,60 @@ fallback for users without libtorch. A proper 2-D conditional
 U-Net replaces the MLP denoiser in DDPM, and the GAT layer uses
 `torch::index_add` scatter for softmax-per-source attention.
 
-**v2.8.0 — Real head-to-head benchmark on 1 095 WoSIS profiles.**
-First honest cross-pillar comparison:
+**Cross-pillar head-to-head on 1 095 WoSIS profiles.** Five spatially
+blocked folds, `log1p(SOC)`, scored against the *achievable* null —
+predicting each fold's **training**-fold mean, not the global mean, which
+would be an oracle over the very rows being scored:
 
-| Method | RMSE | R² | PICP@90 | MPIW@90 | CRPS |
-|:---|---:|---:|---:|---:|---:|
-| P4 Foundation+QRF | 14.1 | 0.034 | **0.889** | 37.6 | 5.93 |
-| **P5 QRF** | 14.1 | 0.064 | 0.879 | 37.2 | **5.85** |
-| **P7 BHS** | 14.1 | **0.070** | 0.812 | **36.7** | 6.97 |
+| Method | RMSE | R² vs global mean | NSE vs training-fold mean | draws |
+|:---|---:|---:|---:|---:|
+| P1 OLS (DAG-selected covariates)  | 0.587 | +0.160 | **+0.196** | 300 |
+| P5 QRF                            | 0.594 | +0.139 | +0.175 | 99 |
+| P7 BHS                            | 0.601 | +0.119 | +0.157 | 200 |
+| P4 Foundation embeddings + QRF    | 0.615 | +0.077 | +0.116 | 99 |
+| P10 GAT (trained attention)       | 0.617 | +0.073 | +0.112 | **8** |
+| P6 Quantum KRR                    | 0.665 | −0.079 | −0.033 | 100 |
 
-All three tie at ~14.1 g/kg RMSE. P5 wins on CRPS, P7 on R² and
-MPIW (but under-covers), P4 best-calibrated at 0.89 ≈ nominal 0.90.
-Runner: `data-raw/benchmark_wosis_p4_p5_p7.R`; bundle:
-`inst/extdata/benchmark_wosis_p4_p5_p7.rds`.
+RMSE is in `log1p(g/kg)` and is not comparable to a g/kg figure. The
+`draws` column is the ensemble each method actually got: they are not
+equal, and a ranking that ignores that is comparing budgets. P10 reaches
++0.112 on **8** members against 99–300 for the others.
 
-An important **P7 BHS row-alignment bug** was found and fixed in the
-process (details in NEWS.md v2.8.0).
+**The honest reading.** Ordinary least squares on a DAG-selected
+covariate subset is the strongest method here. None of the five more
+elaborate pillars beats it on this task, and the spread between the top
+four is small relative to the fold-to-fold variation. Only P6 falls below
+the achievable null, and only just.
+
+**Two figures for P10, both correct.** The +0.112 above is a
+fixed-configuration comparison with every pillar at its defaults. Under
+nested cross-validation with tuned hyperparameters and a 10-member
+ensemble, the same GAT reaches **NSE +0.184 against a tuned QRF's +0.165**
+(difference +0.019, 95 % block-bootstrap CI [−0.021, +0.057],
+P(GAT ahead) = 0.844 — a consistent edge, not a significant one). Those
+answer different questions: "how do the pillars compare out of the box"
+versus "does a tuned GAT beat a tuned forest". Runner:
+`data-raw/pilar10_gat_tuning.R`; bundle
+`inst/extdata/pilar10_gat_tuning.rds`.
+
+**Earlier releases published a different table** — RMSE ≈ 14.1 g/kg and
+R² of 0.034 / 0.064 / 0.070 for P4 / P5 / P7, described as a three-way
+tie. Those figures came from the raw g/kg scale, where 11 profiles (1 %
+of n) carry 48 % of the total sum of squares, and from an R² clamped at
+zero that hid negative values in 21 of 30 method-fold cells. The P4 row
+was additionally computed over a raster of `stats::rnorm()` noise. They
+have been withdrawn. `tests/testthat/test-headline-claims.R` now binds
+every figure in this section to the shipped bundle.
+
+Runners: `data-raw/benchmark_wosis_p4_p5_p7.R` and
+`data-raw/benchmark_wosis_6pilar.R`; bundle
+`inst/extdata/benchmark_wosis_6pilar.rds`.
+
+**Provenance.** The WoSIS profiles were sampled between 1960 and 2010
+(median 1982); the covariates are present-day products (SoilGrids 2020,
+WorldClim 2.1, SRTM 2000, WorldCover 2020). Land cover is measured
+roughly four decades after the median observation, so part of the
+irreducible error is temporal mismatch rather than model inadequacy.
 
 ---
 
@@ -1719,10 +1757,10 @@ bibliography (`vignettes/references.bib`).
 
 ## Testing and continuous integration
 
-- **1 123 passing expectations** across 461 `test_that` blocks in 68 test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1. 75 expectations are skipped here because their optional dependency is absent; every skip is an explicit `skip_if_not_installed()` gate.
+- **1 491 passing expectations** across 482 `test_that` blocks in 70 test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1. 1 expectations are skipped here because their optional dependency is absent; every skip is an explicit `skip_if_not_installed()` gate.
 - **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`, `reticulate`, `terra`, `igraph`.
-- **`R CMD check --as-cran`:** `3 NOTEs` at commit `7abe507`. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in [`cran-comments.md`](cran-comments.md); the log itself is committed at [`tools/status/check.log`](tools/status/check.log).
-- **CI:** GitHub Actions matrix on `macos-latest / R release`, `windows-latest / R release`, `ubuntu-latest / R devel`, `ubuntu-latest / R release`, `ubuntu-latest / R oldrel-1`. Note that `TORCH_INSTALL: 0` is set, so libtorch is never installed on any leg and the torch-gated tests do not execute in CI.
+- **`R CMD check --as-cran`:** `3 NOTEs` at commit `51bb2a7`. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in [`cran-comments.md`](cran-comments.md); the log itself is committed at [`tools/status/check.log`](tools/status/check.log).
+- **CI:** GitHub Actions matrix on `macos-latest / R release`, `windows-latest / R release`, `ubuntu-latest / R devel`, `ubuntu-latest / R release`, `ubuntu-latest / R oldrel-1`, `ubuntu-latest / R release`. Note that `TORCH_INSTALL: 0` is set, so libtorch is never installed on any leg and the torch-gated tests do not execute in CI.
 - These figures are generated by `tools/status/patch-readme-metrics.R`
   from a real test run and a real check log. Do not edit them by hand.
 

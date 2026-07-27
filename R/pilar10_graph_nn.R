@@ -687,6 +687,10 @@ gnn_fit <- function(graph, targets, train_mask = NULL,
 #'
 #' @inheritParams gnn_fit
 #' @param n_ensemble Integer; number of members. Default `10L`.
+#' @param ... Further arguments passed to [gnn_fit()] for every member --
+#'   `hidden`, `n_heads`, `n_layers`, `epochs`, `lr`, `weight_decay`,
+#'   `residual`, `average_heads`, `readout_skip`, `val_frac`, `backend`,
+#'   `device`. Members differ only in their seed.
 #' @return An `edaphos_gnn_ensemble` carrying the member fits, the averaged
 #'   node predictions, and the between-member standard deviation (a cheap
 #'   epistemic spread).

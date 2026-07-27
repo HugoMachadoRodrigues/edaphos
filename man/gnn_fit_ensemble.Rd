@@ -28,6 +28,11 @@ value.}
 \item{n_ensemble}{Integer; number of members. Default \code{10L}.}
 
 \item{seed}{RNG seed.}
+
+\item{...}{Further arguments passed to \code{\link[=gnn_fit]{gnn_fit()}} for every member --
+\code{hidden}, \code{n_heads}, \code{n_layers}, \code{epochs}, \code{lr}, \code{weight_decay},
+\code{residual}, \code{average_heads}, \code{readout_skip}, \code{val_frac}, \code{backend},
+\code{device}. Members differ only in their seed.}
 }
 \value{
 An \code{edaphos_gnn_ensemble} carrying the member fits, the averaged

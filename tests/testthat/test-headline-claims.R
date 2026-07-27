@@ -247,3 +247,72 @@ test_that("no edge construction dominates, so none may be presented as best", {
   expect_true(formals(gnn_build_graph)$edges[[2L]] %in% picked ||
               eval(formals(gnn_build_graph)$edges)[1L] %in% picked)
 })
+
+# ---------------------------------------------------------------------------
+# The six-pillar WoSIS head-to-head
+#
+# This is the most prominent table in README.md and it was the LAST one to get
+# assertions -- which is exactly why it drifted: the benchmarks were re-run on
+# the log1p scale and the README kept publishing the raw-scale figures. Test
+# coverage had followed attention rather than risk. These tests bind the table
+# to the bundle so the next scale or metric change cannot pass silently.
+# ---------------------------------------------------------------------------
+
+test_that("the six-pillar bundle declares its scale and an achievable null", {
+  b <- bundle("benchmark_wosis_6pilar.rds")
+  expect_true(b$response_scale %in% c("log1p", "raw"))
+  expect_equal(b$response_scale, "log1p")
+  expect_equal(b$response_units, "log1p(g/kg)")
+
+  # pooled metrics must exist and be scored against the TRAINING-fold mean,
+  # not the global mean (which is an oracle over the scored rows)
+  expect_true("cv_pooled" %in% names(b))
+  # the R2 column names its reference: a bare `pooled_r2` would leave a reader
+  # to guess whether the baseline is the global mean or the training-fold mean
+  expect_true(all(c("pooled_rmse", "pooled_r2_vs_global_mean",
+                    "nse_vs_training_fold_mean") %in% names(b$cv_pooled)))
+  expect_equal(nrow(b$cv_pooled), 6L)
+
+  # temporal provenance must travel with the result
+  expect_true("profile_years" %in% names(b))
+  expect_lt(b$profile_years$median, 2000)
+  expect_match(b$profile_years$covariate_epoch, "WorldCover 2020")
+
+  # per-row budget disclosure, so no table can present unequal budgets as
+  # like-for-like
+  expect_true(all(c("n_train", "n_ensemble") %in% names(b$cv_fold_table)))
+})
+
+test_that("README's six-pillar figures match the shipped bundle", {
+  b <- bundle("benchmark_wosis_6pilar.rds")
+  p <- b$cv_pooled
+  get <- function(m) p$nse_vs_training_fold_mean[p$method == m]
+
+  # Ranking as published. Update the README and these together.
+  expect_gt(get("p1"), get("p5"))
+  expect_gt(get("p5"), get("p7"))
+  expect_gt(get("p7"), get("p4"))
+  expect_gt(get("p4"), get("p6"))
+
+  # The qualitative claims the README makes.
+  expect_gt(get("p1"), 0)          # the best method beats the achievable null
+  expect_lt(get("p6"), 0)          # quantum KRR is below it
+  expect_true(all(p$pooled_rmse > 0.4 & p$pooled_rmse < 1.0))  # log1p scale
+})
+
+test_that("README does not re-publish the withdrawn raw-scale six-pillar table", {
+  skip_on_cran()
+  b <- bundle("benchmark_wosis_6pilar.rds")
+  skip_if(!identical(b$response_scale, "log1p"), "bundle is on the raw scale")
+  ln <- readme_lines()
+  # The withdrawn table reported ~14.1 g/kg RMSE for three methods at once and
+  # concluded they tie. Those figures cannot coexist with a log1p bundle.
+  rows <- grep("^\\s*\\|", ln, value = TRUE)
+  rows <- grep("P4 Foundation|P5 QRF|P7 BHS|P1 |P6 |P10 ", rows, value = TRUE)
+  offending <- rows[grepl("\\|\\s*1[3-5]\\.[0-9]\\s*\\|", rows)]
+  expect_equal(
+    offending, character(0),
+    info = "README still shows raw-scale g/kg RMSE for a log1p bundle"
+  )
+  expect_false(any(grepl("All three tie at ~14.1 g/kg", ln, fixed = TRUE)))
+})

@@ -191,7 +191,8 @@ for (fd in 1:5) {
   grab <- function(name, post, cal, elapsed) {
     if (is.null(cal)) {
       return(data.frame(method = name, fold = fd, n_test = n_te,
-                          n_train = n_tr, n_ensemble = budget_of(name),
+                          n_train = n_tr, train_capped = FALSE,
+                          n_ensemble = budget_of(name),
                           rmse = NA, mae = NA, r2 = NA,
                           crps = NA, picp90 = NA, mpiw90 = NA,
                           elapsed_s = elapsed, stringsAsFactors = FALSE))
@@ -210,19 +211,20 @@ for (fd in 1:5) {
     # Unclamped on purpose -- see the note in benchmark_wosis_p4_p5_p7.R.
     r2_val     <- edaphos_r2(truth, point_pred)
     data.frame(method = name, fold = fd, n_test = n_te,
-                 n_train = n_tr, n_ensemble = budget_of(name),
+                 n_train = n_tr, train_capped = FALSE,
+                 n_ensemble = budget_of(name),
                  rmse = rmse_val, mae = mae_val, r2 = r2_val,
                  crps = cal$crps, picp90 = picp90, mpiw90 = mpiw90,
                  elapsed_s = elapsed, stringsAsFactors = FALSE)
   }
-  # Labels describe what each row actually fits.  "P1 Causal+OLS" was OLS on a
-  # DAG-selected covariate subset with a parametric bootstrap -- no causal
-  # estimand is computed here, only a variable-selection step.  "P10 GAT" uses
-  # randomly initialised attention weights with a ridge head; the attention is
-  # never trained.
+  # Labels describe what each row actually fits.  "P1 Causal+OLS" was renamed
+  # because no causal estimand is computed here, only a DAG-based variable
+  # selection step (which itself was a no-op until the parents() fix).  "P10
+  # GAT" was labelled "random attention + ridge head" while that was true; the
+  # attention is now trained by analytic gradients, so the label is dropped.
   fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P1 OLS (DAG-selected covariates)", post1, c1, t1)
   fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P6 Quantum KRR",    post6, c6, t6)
-  fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P10 GAT (random attention + ridge head)", post10, c10, t10)
+  fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P10 GAT (trained attention)",              post10, c10, t10)
   post_bank_new[[fd]] <- list(p1 = post1, p6 = post6, p10 = post10,
                                # achievable null for this fold
                                train_mean = mean(train$soc, na.rm = TRUE),

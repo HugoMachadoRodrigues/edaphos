@@ -267,7 +267,13 @@ for (fd in 1:5) {
 
   grab <- function(name, post, cal, elapsed) {
     if (is.null(cal)) {
+      # keep the column set identical to the success path, or bind_rows in
+      # benchmark_wosis_6pilar.R backfills NA and the disclosure columns go
+      # missing for whole methods
       return(data.frame(method = name, fold = fd, n_test = n_te,
+                          n_train = if (grepl("^P7", name)) p7_n_train else n_tr,
+                          train_capped = grepl("^P7", name) && p7_n_train < n_tr,
+                          n_ensemble = NA_integer_,
                           rmse = NA, mae = NA, r2 = NA,
                           crps = NA, picp90 = NA, mpiw90 = NA,
                           elapsed_s = elapsed, stringsAsFactors = FALSE))
@@ -288,9 +294,16 @@ for (fd in 1:5) {
     r2_val     <- edaphos_r2(truth, point_pred)
     data.frame(
       method    = name, fold = fd, n_test = n_te,
-      # training rows this method actually saw -- P7 is capped, P4/P5 are not
+      # training rows this method actually saw -- P7 was capped through
+      # v3.10.0, P4/P5 never were
       n_train   = if (grepl("^P7", name)) p7_n_train else n_tr,
       train_capped = grepl("^P7", name) && p7_n_train < n_tr,
+      # posterior draws behind the point prediction.  Read off the posterior
+      # rather than hard-coded, so it cannot drift from what was actually
+      # stored.  Without this column the 6-pillar table shows n_ensemble for
+      # P1/P6/P10 and NA for P4/P5/P7, and the budget disparity the disclosure
+      # exists to expose stays invisible for half the rows.
+      n_ensemble = if (!is.null(post$samples)) nrow(post$samples) else NA_integer_,
       rmse      = rmse_val, mae = mae_val, r2 = r2_val,
       crps      = cal$crps,
       picp90    = picp90,

@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `7abe507` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `3.10.0` — **measured** 2026-07-26T15:29:25Z
+**Commit** `51bb2a7` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `3.10.0` — **measured** 2026-07-27T02:42:29Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,20 +18,20 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 83 |
-| First → last commit | 2026-04-20 → 2026-07-26 (96.5 calendar days, 9 with commits) |
+| Commits | 87 |
+| First → last commit | 2026-04-20 → 2026-07-26 (96.9 calendar days, 9 with commits) |
 | Days since last commit | 0 |
 | NEWS release sections | 43 |
 | Git tags | 18 |
 | NEWS versions with no tag | 32 |
-| R/ source lines | 19 750 |
-| Exported functions | 169 |
-| Test blocks | 461 |
-| Tests passing | 1 123 |
-| Tests skipped | 75 |
+| R/ source lines | 20 352 |
+| Exported functions | 170 |
+| Test blocks | 482 |
+| Tests passing | 1 491 |
+| Tests skipped | 1 |
 | Test failures + errors | 0 |
 | R CMD check status | Status: 3 NOTEs |
-| Shipped bytes | 14.00 MB |
+| Shipped bytes | 14.62 MB |
 | Findings open (blocker/high) | 27 |
 
 ### Stage assessment
@@ -82,15 +82,15 @@ From the audit's completeness critic (editorial, not measured):
 | OS | Darwin 25.5.0 |
 | Worktree clean | no |
 | Local vs origin/main | `0 / 0` (ahead / behind) |
-| Optional deps missing | 10 |
+| Optional deps missing | 8 |
 
-Suggests **not installed** in the measuring environment: `DiagrammeR`, `ecmwfr`, `fmsb`, `geobr`, `geodata`, `ggdag`, `ggridges`, `ontologyIndex`, `spBayes`, `torch`.
+Suggests **not installed** in the measuring environment: `DiagrammeR`, `ecmwfr`, `fmsb`, `geobr`, `ggdag`, `ggridges`, `ontologyIndex`, `spBayes`.
 Every test and vignette gated on these is skipped, so the pass counts below
 are a floor, not a total.
 
 ## 3. The git clock
 
-`7abe507` — 83 commits across 9 active days.
+`51bb2a7` — 87 commits across 9 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -102,11 +102,11 @@ are a floor, not a total.
 | 2026-04-25 | 7 |
 | 2026-04-26 | 9 |
 | 2026-04-27 | 8 |
-| 2026-07-26 | 1 |
+| 2026-07-26 | 5 |
 
 Releases declared in `NEWS.md`: **43**. Git tags: **18**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`.
-Commits since the newest tag (`v3.10.0`): **17**.
+Commits since the newest tag (`v3.10.0`): **21**.
 
 `NEWS.md` versions with **no git tag** (32): `3.9.0`, `3.8.0`, `3.7.0`, `3.6.0`, `3.5.0`, `3.4.0`, `3.3.0`, `3.2.0`, `3.1.0`, `3.0.0`, `2.9.1`, `2.9.0`, `2.8.0`, `2.7.0`, `2.6.0`, `2.5.0`, `2.4.0`, `2.3.0`, `2.2.1`, `2.2.0`, `2.1.3`, `2.1.0`, `2.0.0`, `1.9.2`, `1.9.1`, `1.9.0`, `1.8.2`, `1.8.1`, `1.8.0`, `1.7.2`, `1.7.1`, `1.7.0`.
 
@@ -116,7 +116,7 @@ Commits since the newest tag (`v3.10.0`): **17**.
 | --- | --- |
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `3.10.0`, NEWS `3.10.0`) |
 | DESCRIPTION version has a git tag | ✅ (`v3.10.0`) |
-| HEAD is the tagged release commit | ❌ (17 commits past `v3.10.0`) |
+| HEAD is the tagged release commit | ❌ (21 commits past `v3.10.0`) |
 | Every NEWS release is tagged | ❌ (32 of 43 untagged) |
 
 Version strings each artefact claims for the package:
@@ -135,9 +135,9 @@ Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md
 | --- | --: | --- |
 | `R/bridges_active_learning_v3.R` | 12 | `2.1.1` |
 | `R/causal_active_learning.R` | 1 | `2.1.1` |
-| `R/foundation_embed_coords.R` | 186 | `3.11.0` |
 | `R/foundation_embed_coords.R` | 204 | `3.11.0` |
-| `R/foundation_embed_coords.R` | 220 | `3.11.0` |
+| `R/foundation_embed_coords.R` | 222 | `3.11.0` |
+| `R/foundation_embed_coords.R` | 238 | `3.11.0` |
 | `R/foundation_weights.R` | 55 | `1.3.2` |
 | `R/foundation_weights.R` | 82 | `1.2.0,3.11.0` |
 | `R/pilar7_bayesian_hierarchical.R` | 44 | `2.3.1` |
@@ -185,28 +185,28 @@ Counts are taken from R's own `Status:` line; an independent walk of the log agr
 | --- | --- |
 | Maintainer | `Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>` |
 | CRAN status | **New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN |
-| Tarball size | 15.02 MB (CRAN guidance: 5.00 MB) |
+| Tarball size | 15.88 MB (CRAN guidance: 5.00 MB) |
 | URLs flagged as invalid | 0 |
 
-Suggests unavailable to the check (so their tests and vignette chunks were skipped): 'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'geodata', 'ggdag', 'ggridges', 'ontologyIndex', 'spBayes', 'torch'.
+Suggests unavailable to the check (so their tests and vignette chunks were skipped): 'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges', 'ontologyIndex', 'spBayes'.
 
 Installed size, verbatim from the log:
 
 ```
-  installed size is 18.5Mb
+  installed size is 19.5Mb
   sub-directories of 1Mb or more:
-    doc       4.7Mb
-    extdata   9.6Mb
+    doc       5.1Mb
+    extdata  10.1Mb
     help      2.9Mb
 ```
 
-Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/check.log` (124 lines, sha256 `fbfd37b75cfad09e`). Verbatim tail:
+Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/tools/status/check.log` (112 lines, sha256 `173bffbc8c30f2e5`). Verbatim tail:
 
 ```
- [49s/31s] OK
+ [452s/439s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [50s/37s] OK
+* checking re-building of vignette outputs ... [207s/195s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -215,11 +215,11 @@ release or compiling the source code from <https://www.html-tidy.org/>.
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  tmpspsyky6e
+  tmpjhxye6g5
 * DONE
 Status: 3 NOTEs
 See
-  <CHECKDIR>/check4/edaphos.Rcheck/00check.log
+  <CHECKDIR>/check7/edaphos.Rcheck/00check.log
 for details.
 ```
 
@@ -268,7 +268,7 @@ Fixes, per item:
 
 ### Rd portability (the source of the PDF-manual check items)
 
-`man/*.Rd` files containing characters outside latin1: **58** of 182. Most are cosmetic — R's Rd-to-LaTeX pass maps dashes and ellipses. Distinct characters found:
+`man/*.Rd` files containing characters outside latin1: **58** of 183. Most are cosmetic — R's Rd-to-LaTeX pass maps dashes and ellipses. Distinct characters found:
 
 | Character | Codepoint | Occurrences | Breaks LaTeX |
 | --- | --- | --: | :-: |
@@ -280,29 +280,29 @@ Fixes, per item:
 
 | Measure | Value |
 | --- | --- |
-| Test files | 68 |
-| `test_that` blocks | 461 |
-| `expect_*` calls | 1 088 |
+| Test files | 70 |
+| `test_that` blocks | 482 |
+| `expect_*` calls | 1 201 |
 | `skip_if_not_installed` gates | 74 |
-| `skip_on_cran` gates | 1 |
-| `set.seed` calls | 114 |
+| `skip_on_cran` gates | 5 |
+| `set.seed` calls | 122 |
 
 Live run in this environment:
 
 | Outcome | Count |
 | --- | --- |
-| Passed | 1 123 |
-| Skipped | 75 |
+| Passed | 1 491 |
+| Skipped | 1 |
 | Failed | 0 |
 | Errored | 0 |
 | Warnings | 2 |
-| Wall clock (s) | 29.8 |
+| Wall clock (s) | 426.1 |
 
 Conditional skipping by dependency (static gate count):
 
 | Dependency | Gate sites | Installed here |
 | --- | --: | :-: |
-| torch | 16 | ❌ |
+| torch | 16 | ✅ |
 | igraph | 11 | ✅ |
 | dagitty | 8 | ✅ |
 | terra | 5 | ✅ |
@@ -310,26 +310,26 @@ Conditional skipping by dependency (static gate count):
 | reticulate | 2 | ✅ |
 | dbarts | 1 | ✅ |
 
-Result bundles in `inst/extdata/`: **13**. Test files that read `inst/extdata`: `test-llm-annotation.R`.
+Result bundles in `inst/extdata/`: **14**. Test files that read `inst/extdata`: `test-headline-claims.R`, `test-llm-annotation.R`.
 
-Exported functions never named in any test (**12**): `causal_ontology_agrovoc`, `causal_ontology_envo`, `edaphos_zenodo_release`, `foundation_build_cerrado_stack`, `foundation_tile_source_era5`, `foundation_tile_source_modis`, `foundation_tile_source_soilgrids`, `foundation_tile_source_srtm`, `foundation_tile_source_worldclim`, `llm_annotation_launch`, `piml_neural_ode_predict`, `temporal_convlstm_predict`.
+Exported functions never named in any test (**13**): `causal_ontology_agrovoc`, `causal_ontology_envo`, `edaphos_zenodo_release`, `foundation_build_cerrado_stack`, `foundation_tile_source_era5`, `foundation_tile_source_modis`, `foundation_tile_source_soilgrids`, `foundation_tile_source_srtm`, `foundation_tile_source_worldclim`, `gnn_fit_ensemble`, `llm_annotation_launch`, `piml_neural_ode_predict`, `temporal_convlstm_predict`.
 
 ## 7. Documentation coverage
 
 | Measure | Value |
 | --- | --- |
-| `man/*.Rd` files | 182 |
+| `man/*.Rd` files | 183 |
 | Rd with `\examples` | 36 |
 | — wrapping `\dontrun` | 18 |
 | — wrapping `\donttest` | 8 |
 | — with an example `R CMD check` runs | 10 |
-| Exports with no example anywhere | 134 |
+| Exports with no example anywhere | 135 |
 | Exports with no `.Rd` | 0 |
 | Rd with `\references` | 25 |
 | Vignettes | 14 |
 | Root `articles/` | 4 |
 | Cheatsheets | 11 |
-| README size | 83 KB |
+| README size | 88 KB |
 
 "six pillars" vs "ten pillars", counted per file:
 
@@ -348,28 +348,28 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 
 | Directory | Size | Ships in tarball |
 | --- | --: | :-: |
-| `inst` | 9.57 MB | ✅ |
+| `inst` | 10.12 MB | ✅ |
 | `man` | 2.58 MB | ✅ |
-| `R` | 791 KB | ✅ |
-| `tools` | 618 KB | ❌ |
-| `<root>` | 463 KB | ✅ |
-| `tests` | 300 KB | ✅ |
-| `data-raw` | 289 KB | ❌ |
-| `vignettes` | 264 KB | ✅ |
+| `R` | 821 KB | ✅ |
+| `tools` | 636 KB | ❌ |
+| `<root>` | 471 KB | ✅ |
+| `tests` | 326 KB | ✅ |
+| `data-raw` | 316 KB | ❌ |
+| `vignettes` | 266 KB | ✅ |
 | `data` | 64 KB | ✅ |
-| `articles` | 42 KB | ❌ |
+| `articles` | 43 KB | ❌ |
 | `cheatsheets` | 16 KB | ❌ |
 | `src` | 15 KB | ✅ |
-| `.github` | 8 KB | ❌ |
+| `.github` | 10 KB | ❌ |
 
-Total shipped: **14.00 MB** against the CRAN 5 MB soft cap (5.00 MB) — **over, so an installed-size NOTE is unavoidable**.
+Total shipped: **14.62 MB** against the CRAN 5 MB soft cap (5.00 MB) — **over, so an installed-size NOTE is unavoidable**.
 
 Largest shipped files:
 
 | File | Size |
 | --- | --: |
-| `inst/extdata/benchmark_wosis_6pilar.rds` | 4.43 MB |
-| `inst/extdata/benchmark_wosis_p4_p5_p7.rds` | 1.87 MB |
+| `inst/extdata/benchmark_wosis_6pilar.rds` | 4.96 MB |
+| `inst/extdata/benchmark_wosis_p4_p5_p7.rds` | 1.89 MB |
 | `man/figures/logo.png` | 1.83 MB |
 | `inst/extdata/case_cerrado_results.rds` | 1.40 MB |
 | `inst/extdata/capstone_native_calibration.rds` | 741 KB |
@@ -390,8 +390,9 @@ Workflows (3): `pkgdown.yaml`, `R-CMD-check.yaml`, `test-coverage.yaml`.
 - `- {os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release'}`
 - `- {os: ubuntu-latest,  r: 'release'}`
 - `- {os: ubuntu-latest,  r: 'oldrel-1'}`
+- `- {os: ubuntu-latest,  r: 'release', torch: true}`
 
-`TORCH_INSTALL` setting found in the workflows: `TORCH_INSTALL: 0` — with `0`, libtorch is never installed, so every torch-gated test skips on every leg.
+`TORCH_INSTALL` setting found in the workflows: `TORCH_INSTALL: ${{ matrix.config.torch && '1' || '0' }}` — with `0`, libtorch is never installed, so every torch-gated test skips on every leg.
 
 | Check | Result |
 | --- | --- |
@@ -409,22 +410,22 @@ actually ships, independent of what the README says about them.
 | Field | Value |
 | --- | --- |
 | Bundle version | `3.10.0` |
-| Computed | 2026-04-27 12:02:24 |
+| Computed | 2026-07-26 12:19:34 |
 | Used real stack | yes |
 | Stack layers | 31 |
-| Resolution (deg) | 0.05 |
-| Profiles | 1 081 |
+| Resolution (deg) | 0.01 |
+| Profiles | 1 095 |
 
 Health of the stored embedding sample (measured, not characterised):
 
 | Statistic | Value |
 | --- | --: |
 | Values stored | 30 |
-| Exactly zero | 16 |
-| Share exactly zero | 53% |
+| Exactly zero | 3 |
+| Share exactly zero | 10% |
 | Min | 0 |
-| Max | 466 |
-| SD | 193 |
+| Max | 1.08 |
+| SD | 0.314 |
 
 A healthy standardised embedding contains no exact zeros. A large share of exact zeros indicates channels that were never populated, or normalisation statistics left at their placeholder values.
 
@@ -432,22 +433,12 @@ Estimates as shipped, all rows:
 
 | Exposure | Estimator | beta | Stage-1 F | Sargan p |
 | --- | --- | --: | --: | --: |
-| MAP (mm/a) | Backdoor OLS | 0.007777 |  |  |
-| MAP (mm/a) | 2SLS (real MoCo v1) | 0.007566 | 1495.000 | 3.22e-08 |
-| Tree cover (%) | Backdoor OLS | 7.200000 |  |  |
-| Tree cover (%) | 2SLS (real MoCo v1) | 56.710000 | 14.800 | 7.47e-04 |
-| Clay (%) | Backdoor OLS | 0.194900 |  |  |
-| Clay (%) | 2SLS (real MoCo v1) | -4.464000 | 2.686 | 8.86e-02 |
-
-What `README.md` publishes at the same place, verbatim:
-
-```
-| Exposure | v1.9.0 Sargan p (proxy) | **v1.9.1 Sargan p (real MoCo)** |
-|:---|---:|---:|
-| MAP <e2><86><92> SOC | < 10<e2><81><bb><c2><b9><c2><b2> <e2><9d><8c> | **0.343** <e2><9c><85> |
-| Tree cover <e2><86><92> SOC | < 10<e2><81><bb><e2><81><b9> <e2><9d><8c> | **0.283** <e2><9c><85> |
-| Clay <e2><86><92> SOC | < 10<e2><81><bb><c2><b9><c2><b2> <e2><9d><8c> | **0.424** <e2><9c><85> |
-```
+| MAP (mm/a) | Backdoor OLS | 0.007691 |  |  |
+| MAP (mm/a) | 2SLS (real MoCo v1) | 0.012590 | 861.900 | 0.25000 |
+| Tree cover (%) | Backdoor OLS | 6.536000 |  |  |
+| Tree cover (%) | 2SLS (real MoCo v1) | 47.740000 | 8.437 | 0.04200 |
+| Clay (%) | Backdoor OLS | 0.192400 |  |  |
+| Clay (%) | 2SLS (real MoCo v1) | -0.533000 | 10.970 | 0.00302 |
 
 ### `llm_benchmark_results.rds`
 
@@ -464,9 +455,7 @@ What `README.md` publishes at the same place, verbatim:
 
 Methods reporting R² of exactly zero: **3** — a consequence of the clamp sites below.
 
-R² clamped with `max(0, 1 - ...)` at: `R/quantum_foundation.R:279`, `data-raw/benchmark_wosis_6pilar.R:157`, `data-raw/benchmark_wosis_p4_p5_p7.R:244`.
-
-Benchmark covariate rasters filled with `rnorm()` at: `data-raw/benchmark_wosis_p4_p5_p7.R:166`, `data-raw/benchmark_wosis_p4_p5_p7.R:169`, `data-raw/causal_iv_benchmark_real.R:127`, `data-raw/quantum_foundation_benchmark.R:53`.
+Benchmark covariate rasters filled with `rnorm()` at: `data-raw/causal_iv_benchmark_real.R:138`, `data-raw/quantum_foundation_benchmark.R:53`.
 
 ## 11. Findings register
 
