@@ -150,3 +150,100 @@ test_that("R2 is never clamped at zero anywhere in the package", {
   }))
   expect_equal(hits, character(0))
 })
+
+# ---------------------------------------------------------------------------
+# Pillar 1: the expert x LLM x data-driven discovery trio
+# ---------------------------------------------------------------------------
+
+test_that("the discovery-trio figures in README match the shipped bundle", {
+  b <- bundle("causal_discovery_results.rds")
+  m <- b$shd_matrix
+
+  # Structural Hamming Distances as published.
+  expect_equal(m["Expert", "LLM-augmented"], 0)
+  expect_equal(m["bnlearn hc", "bnlearn tabu"], 0)
+  expect_equal(m["bnlearn pc-stable", "bnlearn hc"], 12)
+  expect_equal(m["Expert", "bnlearn hc"], 29)
+
+  # Adjustment-set sizes for MAP -> SOC.
+  at <- b$adjustment_table
+  sz <- stats::setNames(at$adj_size, at$method)
+  expect_equal(unname(sz["Expert"]), 5L)
+  expect_equal(unname(sz["bnlearn pc-stable"]), 1L)
+  expect_equal(unname(sz["bnlearn hc"]), 2L)
+})
+
+test_that("the LLM edge set is derived from the shipped claims, not typed in", {
+  b <- bundle("causal_discovery_results.rds")
+  le <- b$llm_extra_edges
+  expect_true(NROW(le) > 0L)
+
+  # Every shipped claim carries confidence 0.9; a set of edges with varied
+  # confidences cannot have come from that file, which is exactly how the
+  # withdrawn hand-typed edges (0.90/0.82/0.78/0.75/0.72/0.71) were spotted.
+  claims_path <- system.file("extdata", "cerrado_claims.jsonl",
+                             package = "edaphos")
+  skip_if(!nzchar(claims_path), "claims file not installed")
+  conf <- vapply(readLines(claims_path, warn = FALSE),
+                 function(l) as.numeric(jsonlite::fromJSON(l)$confidence),
+                 numeric(1), USE.NAMES = FALSE)
+  expect_true(all(le$confidence %in% conf))
+
+  # and every endpoint must be a real covariate, never a phantom column
+  prof <- names(bundle("causal_cerrado_real.rds")$profiles)
+  expect_true(all(le$from %in% prof))
+  expect_true(all(le$to   %in% prof))
+})
+
+# ---------------------------------------------------------------------------
+# Pillar 10: the tuned GAT vs QRF comparison
+# ---------------------------------------------------------------------------
+
+test_that("the GAT tuning bundle records an honest nested-CV protocol", {
+  b <- bundle("pilar10_gat_tuning.rds")
+  # The protocol is the claim: tuning must not have touched the evaluated folds.
+  expect_match(b$protocol, "nested CV")
+  expect_match(b$protocol, "never tuned on")
+  expect_equal(b$response_scale, "log1p(g/kg)")
+  expect_equal(b$n_profiles, 1095L)
+  # both methods must have had a grid, or the comparison measures the budget
+  expect_gt(nrow(b$gat_grid), 1L)
+  expect_gt(nrow(b$qrf_grid), 1L)
+  # the GAT ensemble is smaller than the forest, so the residual asymmetry
+  # favours QRF -- that direction must not silently flip
+  expect_lt(b$gat_n_ensemble, min(b$qrf_grid$num.trees))
+  # a configuration was recorded for every outer fold
+  expect_equal(length(b$chosen_per_fold), 5L)
+})
+
+test_that("the GAT vs QRF figures in README match the tuning bundle", {
+  b <- bundle("pilar10_gat_tuning.rds")
+  p <- b$pooled
+  gat <- p[grepl("GAT", p$method), ]
+  qrf <- p[grepl("QRF", p$method), ]
+
+  # Values as published. Update these and the README together.
+  expect_equal(round(gat$nse_vs_training_fold_mean, 3), 0.184, tolerance = 0.002)
+  expect_equal(round(qrf$nse_vs_training_fold_mean, 3), 0.165, tolerance = 0.002)
+  expect_equal(round(gat$pooled_rmse, 3), 0.591, tolerance = 0.002)
+  expect_equal(round(qrf$pooled_rmse, 3), 0.598, tolerance = 0.002)
+
+  # The qualitative claim: the GAT is ahead on the point estimate but the
+  # difference is NOT separable from zero. If a future run makes it separable
+  # the README wording has to change, so assert both halves.
+  expect_gt(gat$nse_vs_training_fold_mean, qrf$nse_vs_training_fold_mean)
+  expect_lt(b$boot_diff_ci[[1]], 0)   # CI still spans zero
+  expect_gt(b$boot_diff_ci[[2]], 0)
+  expect_gt(b$p_gat_beats_qrf, 0.5)
+  expect_lt(b$p_gat_beats_qrf, 0.95)  # not a significant win
+})
+
+test_that("no edge construction dominates, so none may be presented as best", {
+  b <- bundle("pilar10_gat_tuning.rds")
+  picked <- vapply(b$chosen_per_fold, function(z) as.character(z$gat$edges),
+                   character(1))
+  expect_true(all(picked %in% c("spatial", "feature", "hybrid")))
+  # The default must be one the nested selection actually favours.
+  expect_true(formals(gnn_build_graph)$edges[[2L]] %in% picked ||
+              eval(formals(gnn_build_graph)$edges)[1L] %in% picked)
+})

@@ -9,20 +9,34 @@
   cbind(data.frame(lon = lon, lat = lat), feats, y = y)
 }
 
-test_that("gnn_build_graph: k = 1 produces exactly n edges", {
+test_that("gnn_build_graph: k = 1 gives one neighbour plus one self-loop", {
   d <- .mk_net(n = 20L)
   g <- gnn_build_graph(d, k = 1L,
                          feature_cols = c("x1", "x2", "x3"))
-  expect_equal(nrow(g$edge_index), 20L)
-  # Each source row appears exactly once
-  expect_equal(sort(g$edge_index[, 1L]), 1:20)
+  # k neighbours + 1 self-loop per node.  Self-loops were added because k-NN
+  # never returns a node as its own neighbour, so without one a profile's own
+  # covariates never reach its own prediction.
+  expect_equal(nrow(g$edge_index), 20L * 2L)
+  expect_equal(sum(g$edge_index[, 1L] == g$edge_index[, 2L]), 20L)
+  expect_equal(sort(unique(g$edge_index[, 1L])), 1:20)
+
+  # opting out restores the historical shape
+  g0 <- gnn_build_graph(d, k = 1L, feature_cols = c("x1", "x2", "x3"),
+                          self_loops = FALSE)
+  expect_equal(nrow(g0$edge_index), 20L)
+  expect_equal(sum(g0$edge_index[, 1L] == g0$edge_index[, 2L]), 0L)
 })
 
 test_that("gnn_build_graph: k = n-1 turns into a complete graph", {
   d <- .mk_net(n = 10L)
   g <- gnn_build_graph(d, k = 9L,
                          feature_cols = c("x1", "x2", "x3"))
-  expect_equal(nrow(g$edge_index), 10L * 9L)
+  # every ordered pair, self-loops included
+  expect_equal(nrow(g$edge_index), 10L * 10L)
+  expect_equal(nrow(gnn_build_graph(d, k = 9L,
+                                      feature_cols = c("x1", "x2", "x3"),
+                                      self_loops = FALSE)$edge_index),
+                10L * 9L)
 })
 
 test_that("gnn_build_graph: rejects when no numeric feature columns exist", {
@@ -61,7 +75,11 @@ test_that("gnn_fit: n_heads = 1 still produces coherent embedding dim", {
   fit <- gnn_fit(g, d$y,
                    hidden = 5L, n_heads = 1L, n_layers = 2L,
                    epochs = 10L, seed = 1L)
-  expect_equal(fit$emb_dim, 5L)  # hidden * n_heads = 5 * 1
+  # heads are averaged on the output layer, so the learned representation is
+  # `hidden` wide; the head additionally sees the 3 raw features through the
+  # readout skip, which is why emb_dim exceeds it.
+  expect_equal(ncol(gnn_embed(fit)), 5L)
+  expect_equal(fit$emb_dim, 5L + 3L)
 })
 
 test_that("gnn_fit: n_layers = 1 (single GAT layer) works", {

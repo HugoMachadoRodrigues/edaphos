@@ -7,12 +7,18 @@
 gnn_fit(
   graph,
   targets,
+  train_mask = NULL,
   hidden = 16L,
   n_heads = 4L,
   n_layers = 2L,
   epochs = 200L,
   lr = 0.01,
   seed = NULL,
+  weight_decay = 1e-04,
+  residual = TRUE,
+  average_heads = TRUE,
+  readout_skip = TRUE,
+  val_frac = 0.2,
   backend = c("r", "torch"),
   device = c("cpu", "mps", "cuda")
 )
@@ -21,6 +27,13 @@ gnn_fit(
 \item{graph}{An \code{edaphos_gnn_graph} from \code{\link[=gnn_build_graph]{gnn_build_graph()}}.}
 
 \item{targets}{Numeric vector, one value per node.}
+
+\item{train_mask}{Optional logical vector of length \code{graph$n} selecting the
+nodes whose target is observed.  The graph is used in full for message
+passing, but the regression head is fitted -- and the targets are
+standardised -- on these nodes only.  Defaults to \code{!is.na(targets)}, so
+held-out nodes can simply be passed as \code{NA} rather than given an invented
+value.}
 
 \item{hidden}{Integer; output dimension of each GAT layer.
 Default \code{16L}.}
@@ -34,6 +47,26 @@ Default \code{16L}.}
 \item{lr}{Numeric; learning rate.}
 
 \item{seed}{RNG seed.}
+
+\item{weight_decay}{Numeric; L2 penalty applied to the attention
+projections \code{W}. Default \code{1e-4}.}
+
+\item{residual}{Logical; add a skip connection around each layer whose
+input and output widths match. Default \code{TRUE}.}
+
+\item{average_heads}{Logical; average the attention heads on the output
+layer (the convention of Velickovic et al. 2018) instead of
+concatenating them. Default \code{TRUE}.}
+
+\item{readout_skip}{Logical; concatenate the raw node features to the
+final embedding before the regression head, so the head sees a profile's
+own covariates un-smoothed as well as its neighbourhood summary.
+Default \code{TRUE}. With this off the graph layers must reconstruct the input
+through the aggregation, and a plain linear model on the same covariates
+can outperform the network.}
+
+\item{val_frac}{Numeric in (0, 1); fraction of the training nodes held out
+internally to select the stopping epoch. Default \code{0.2}.}
 
 \item{backend}{\code{"r"} (default, ELM-style) or \code{"torch"} (full
 autograd with multi-head attention; requires the \code{torch}

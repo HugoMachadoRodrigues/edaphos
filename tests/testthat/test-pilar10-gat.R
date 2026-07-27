@@ -20,10 +20,13 @@ test_that("gnn_build_graph: constructs a well-formed edaphos_gnn_graph", {
   expect_equal(g$n, 30L)
   expect_equal(dim(g$features), c(30L, 3L))
   expect_equal(ncol(g$edge_index), 2L)
-  expect_equal(nrow(g$edge_index), 30L * 5L)
-  # Each node has exactly k=5 edges
+  # k neighbours + 1 self-loop per node.  k-NN never returns a node as its own
+  # neighbour, so without the self-loop a profile's own covariates never reach
+  # its own prediction -- see gnn_build_graph(self_loops =).
+  expect_equal(nrow(g$edge_index), 30L * 6L)
   for (i in 1:30) {
-    expect_equal(sum(g$edge_index[, 1L] == i), 5L)
+    expect_equal(sum(g$edge_index[, 1L] == i), 6L)
+    expect_equal(sum(g$edge_index[, 1L] == i & g$edge_index[, 2L] == i), 1L)
   }
   # Edge weights sum to 1 per source node (soft-normalised)
   for (i in 1:30) {
@@ -47,9 +50,22 @@ test_that("gnn_fit: trains and produces an embedding matrix of correct shape", {
                    hidden = 8L, n_heads = 2L, n_layers = 2L,
                    epochs = 50L, lr = 0.05, seed = 1L)
   expect_s3_class(fit, "edaphos_gnn_gat")
-  expect_equal(fit$emb_dim, 16L)  # hidden * n_heads = 8 * 2
+  # Heads are AVERAGED on the output layer (the convention of Velickovic et
+  # al. 2018); the previous code concatenated them everywhere, so the learned
+  # representation is now `hidden` wide rather than hidden * n_heads.
   emb <- gnn_embed(fit)
-  expect_equal(dim(emb), c(40L, 16L))
+  expect_equal(dim(emb), c(40L, 8L))
+  # emb_dim describes the HEAD's design matrix, which additionally carries the
+  # 3 raw features through the readout skip.
+  expect_equal(fit$emb_dim, 8L + 3L)
+  expect_equal(ncol(fit$head_design), fit$emb_dim)
+
+  # concatenating heads and dropping the skip restores the historical shape
+  fit0 <- gnn_fit(g, targets = dat$y, hidden = 8L, n_heads = 2L,
+                    n_layers = 2L, epochs = 10L, lr = 0.05, seed = 1L,
+                    average_heads = FALSE, readout_skip = FALSE)
+  expect_equal(dim(gnn_embed(fit0)), c(40L, 16L))
+  expect_equal(fit0$emb_dim, 16L)
 })
 
 test_that("gnn_fit: training MSE decreases", {

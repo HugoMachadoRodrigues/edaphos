@@ -109,7 +109,13 @@
 # ---------------------------------------------------------------------------
 
 .torch_gnn_fit <- function(graph, targets, hidden, n_heads,
-                              n_layers, epochs, lr, seed, device_pref) {
+                              n_layers, epochs, lr, seed, device_pref,
+                              train_mask = NULL) {
+  # See gnn_fit(): the graph spans train and test nodes, but the loss is
+  # restricted to nodes whose target is observed.
+  if (is.null(train_mask)) train_mask <- !is.na(targets)
+  train_mask <- as.logical(train_mask)
+  stopifnot(length(train_mask) == graph$n, sum(train_mask) >= 2L)
   if (!is.null(seed)) {
     set.seed(seed); torch::torch_manual_seed(seed)
   }
@@ -124,9 +130,11 @@
   d_in <- ncol(X)
 
   # Standardise targets
-  y_mu <- mean(targets); y_sigma <- stats::sd(targets)
-  if (y_sigma < 1e-6) y_sigma <- 1
+  # standardise on training nodes only
+  y_mu <- mean(targets[train_mask]); y_sigma <- stats::sd(targets[train_mask])
+  if (!is.finite(y_sigma) || y_sigma < 1e-6) y_sigma <- 1
   y_z  <- (targets - y_mu) / y_sigma
+  y_z[!train_mask] <- 0        # never read; keeps the tensor finite
 
   h_t <- torch::torch_tensor(X, dtype = torch::torch_float(),
                                 device = dev)
@@ -138,6 +146,8 @@
                                       device = dev)
   y_t <- torch::torch_tensor(y_z, dtype = torch::torch_float(),
                                 device = dev)
+  tr_idx <- torch::torch_tensor(which(train_mask), dtype = torch::torch_long(),
+                                   device = dev)
 
   mod <- .torch_gat_module(d_in, hidden, n_heads, n_layers)
   mod$to(device = dev)
@@ -147,7 +157,7 @@
   for (ep in seq_len(epochs)) {
     opt$zero_grad()
     pred <- mod(h_t, edge_idx_t, edge_w_t)
-    loss <- torch::nnf_mse_loss(pred, y_t)
+    loss <- torch::nnf_mse_loss(pred[tr_idx], y_t[tr_idx])
     loss$backward()
     opt$step()
     history[ep] <- as.numeric(loss$detach()$to(device = "cpu"))
@@ -174,6 +184,7 @@
     torch_module = mod, device = device_str,
     emb = emb_mat,
     y_mu = y_mu, y_sigma = y_sigma,
+    train_mask = train_mask, n_train = sum(train_mask),
     hidden = hidden, n_heads = n_heads, n_layers = n_layers,
     emb_dim = ncol(emb_mat),
     history = history[history > 0 | is.na(history)]

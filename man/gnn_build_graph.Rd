@@ -4,7 +4,13 @@
 \alias{gnn_build_graph}
 \title{Build a k-NN co-location graph from a profile frame}
 \usage{
-gnn_build_graph(profiles, k = 8L, feature_cols = NULL)
+gnn_build_graph(
+  profiles,
+  k = 8L,
+  feature_cols = NULL,
+  edges = c("spatial", "feature", "hybrid"),
+  self_loops = TRUE
+)
 }
 \arguments{
 \item{profiles}{Data frame with numeric columns \code{lon}, \code{lat} and
@@ -16,6 +22,38 @@ Default \code{8L}.}
 \item{feature_cols}{Character vector of column names to use as
 node features.  Default: every numeric column except \code{lon},
 \code{lat}.}
+
+\item{edges}{How neighbours are chosen. \code{"spatial"} (default) uses
+geographic k-NN; \code{"feature"} uses k-NN in standardised covariate space;
+\code{"hybrid"} is the union of both.
+
+Which one is best is not obvious, and the answer changed once the model
+was fixed. Under spatially blocked validation a purely spatial graph
+connects a held-out node almost exclusively to other held-out nodes
+(measured on the Cerrado benchmark folds: 99.9 \% of a node's 8 nearest
+geographic neighbours are also held out, against 73.7 \% for feature-space
+edges). While the regression head was trained by gradient descent and a
+profile's own covariates reached the readout only through the smoothing
+aggregation, that starved the network and feature-space edges were clearly
+better. With the closed-form readout and the input skip
+(\code{readout_skip = TRUE}) a node already has direct access to its own
+covariates, and the spatial neighbourhood then contributes the one thing
+it genuinely carries -- spatial structure.
+
+Nested cross-validation on the Cerrado benchmark
+(\code{data-raw/pilar10_gat_tuning.R}, bundle
+\code{inst/extdata/pilar10_gat_tuning.rds}) selected \code{"spatial"} in 3 of 5
+outer folds and \code{"hybrid"} in the other 2, never \code{"feature"} -- and the
+selection never saw the evaluated folds. Hence \code{"spatial"} is the
+default. Treat the choice as a hyperparameter and tune it: none of the
+three dominates.}
+
+\item{self_loops}{Logical; add an edge from every node to itself.
+Default \code{TRUE}. k-NN never returns a node as its own neighbour, so
+without a self-loop the aggregation builds each node's representation
+purely from OTHER profiles and a profile's own covariates never reach
+its own prediction. Graphs built before this argument existed had no
+self-loops.}
 }
 \value{
 An \code{edaphos_gnn_graph} list with \code{features}, \code{edge_index},
