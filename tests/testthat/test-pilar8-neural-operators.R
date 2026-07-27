@@ -6,10 +6,14 @@
   depths <- seq(5, 120, length.out = n_depths)
   cov_static <- matrix(stats::rnorm(n_obs * p_in), n_obs, p_in)
   # Target: decaying profile modulated by covariates
+  # Use only the covariates that exist: indexing cov_i[3L] when
+  # p_in < 3 silently produced an all-NA target matrix, so several
+  # tests below were fitting on nothing and asserting only dim().
   make_profile <- function(cov_i, z) {
     amp  <- 10 + 5 * cov_i[1L]
-    rate <- 0.02 + 0.005 * cov_i[2L]
-    amp * exp(-rate * z) + cov_i[3L]
+    rate <- 0.02 + 0.005 * (if (length(cov_i) >= 2L) cov_i[2L] else 0)
+    off  <- if (length(cov_i) >= 3L) cov_i[3L] else 0
+    amp * exp(-rate * z) + off
   }
   targets <- t(apply(cov_static, 1L, make_profile, z = depths))
   list(depths = depths, covariates = cov_static, targets = targets)

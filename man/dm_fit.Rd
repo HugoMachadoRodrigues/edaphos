@@ -48,3 +48,17 @@ An \code{edaphos_dm_fit} fit.
 \description{
 Train a tiny DDPM on a collection of soil-map patches
 }
+\references{
+Ho, J., Jain, A. and Abbeel, P. (2020). Denoising Diffusion
+Probabilistic Models. \emph{Advances in Neural Information Processing
+Systems} \strong{33}, 6840-6851.
+
+Nichol, A. Q. and Dhariwal, P. (2021). Improved Denoising Diffusion
+Probabilistic Models. \emph{Proceedings of the 38th International
+Conference on Machine Learning} \strong{139}, 8162-8171.
+
+Huang, G.-B., Zhu, Q.-Y. and Siew, C.-K. (2006). Extreme learning
+machine: Theory and applications. \emph{Neurocomputing} \strong{70}, 489-501.
+\doi{10.1016/j.neucom.2005.12.126} (the random-hidden-layer regime
+the \code{backend = "r"} trainer operates in).
+}

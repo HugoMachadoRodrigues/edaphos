@@ -49,6 +49,53 @@
   sweep(sweep(X, 2L, center, "-"), 2L, scale, "/")
 }
 
+# Undo the target standardisation.
+#
+# `.no_standardise()` centres and scales targets *per depth*, so
+# `tgt_std$center` and `tgt_std$scale` are vectors of length n_depths,
+# not scalars.  A soil profile's mean carbon at 2.5 cm and at 150 cm
+# differ by more than either column's standard deviation, so applying
+# the first column's constants to every depth -- as every predict()
+# path did before v4.1.0 -- shifts deep predictions by the difference
+# between the topsoil and subsoil means.  The error is invisible in the
+# training loss, which is computed entirely on the standardised scale.
+#
+# `depths_out` supports the DeepONet trunk, which accepts depths that
+# were never in the training grid.  Per-depth constants do not exist
+# there, so they are linearly interpolated (and held flat outside the
+# training range).  The profile mean and spread vary smoothly with
+# depth, so interpolating them is exactly as defensible as the operator
+# being learned; `rule = 2` keeps extrapolation to the nearest observed
+# depth rather than inventing a trend.
+.no_unstandardise_targets <- function(Y, tgt_std, depths_train,
+                                        depths_out = NULL) {
+  ctr <- tgt_std$center
+  scl <- tgt_std$scale
+
+  if (!is.null(depths_out) &&
+      !isTRUE(all.equal(as.numeric(depths_out),
+                          as.numeric(depths_train)))) {
+    if (length(depths_train) > 1L) {
+      ctr <- stats::approx(depths_train, tgt_std$center,
+                             xout = depths_out, rule = 2)$y
+      scl <- stats::approx(depths_train, tgt_std$scale,
+                             xout = depths_out, rule = 2)$y
+    } else {
+      ctr <- rep(tgt_std$center[1L], length(depths_out))
+      scl <- rep(tgt_std$scale[1L],  length(depths_out))
+    }
+  }
+
+  if (length(ctr) != ncol(Y)) {
+    # Defensive: a mismatch here means the prediction grid and the
+    # stored constants disagree, which would silently mis-scale.
+    stop(sprintf(paste("internal: target un-standardisation expects %d",
+                        "columns but the prediction has %d."),
+                  length(ctr), ncol(Y)), call. = FALSE)
+  }
+  sweep(sweep(Y, 2L, scl, "*"), 2L, ctr, "+")
+}
+
 # ---------------------------------------------------------------------------
 # Fourier Neural Operator (1-D)
 # ---------------------------------------------------------------------------
@@ -96,6 +143,17 @@
 #' @param device `"cpu"` (default), `"mps"` (Apple Silicon) or
 #'   `"cuda"` when `backend = "torch"`.
 #' @return An `edaphos_no_fno` fit.
+#'
+#' @references
+#' Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K.,
+#' Stuart, A. and Anandkumar, A. (2021). Fourier Neural Operator for
+#' Parametric Partial Differential Equations. *International Conference
+#' on Learning Representations*.
+#'
+#' Kovachki, N., Li, Z., Liu, B., Azizzadenesheli, K., Bhattacharya, K.,
+#' Stuart, A. and Anandkumar, A. (2023). Neural Operator: Learning Maps
+#' Between Function Spaces With Applications to PDEs. *Journal of
+#' Machine Learning Research* **24**, 1-97.
 #' @export
 no_fno_fit <- function(depths, targets, covariates,
                          n_modes = 4L, width = 8L, n_blocks = 2L,
@@ -135,6 +193,11 @@ no_fno_fit <- function(depths, targets, covariates,
                       nrow = n_obs * n_depths, ncol = C_in)
   cov_std  <- .no_standardise(cov_flat)
   cov_z    <- array(cov_std$X, dim = c(n_obs, n_depths, C_in))
+  # Targets that are entirely non-finite standardise to NaN and then
+  # train, predict and score without a single error, returning NaN
+  # everywhere.  Refuse up front instead.
+  if (!any(is.finite(targets)))
+    stop("`targets` contains no finite values.", call. = FALSE)
   tgt_std  <- .no_standardise(matrix(targets, ncol = n_depths))
   tgt_z    <- matrix(tgt_std$X, nrow = n_obs, ncol = n_depths)
 
@@ -290,7 +353,7 @@ predict.edaphos_no_fno <- function(object, newcovariates, ...) {
                                   device = dev)
     pred_t <- object$torch_module(x_t)$detach()$to(device = "cpu")
     pred <- as.matrix(as.array(pred_t))
-    return(pred * object$tgt_std$scale[1L] + object$tgt_std$center[1L])
+    return(.no_unstandardise_targets(pred, object$tgt_std, object$depths))
   }
 
   # Standardise new covariates with the training stats
@@ -345,7 +408,7 @@ predict.edaphos_no_fno <- function(object, newcovariates, ...) {
   }
   y_hat <- y_hat + object$b_out
   # Un-standardise back to target scale
-  y_hat * object$tgt_std$scale[1L] + object$tgt_std$center[1L]
+  .no_unstandardise_targets(y_hat, object$tgt_std, object$depths)
 }
 
 #' @export
@@ -391,6 +454,17 @@ print.edaphos_no_fno <- function(x, ...) {
 #' @param backend `"r"` (default) or `"torch"` (full autograd).
 #' @param device `"cpu"`, `"mps"`, or `"cuda"` when
 #'   `backend = "torch"`.
+#'
+#' @references
+#' Lu, L., Jin, P., Pang, G., Zhang, Z. and Karniadakis, G. E. (2021).
+#' Learning nonlinear operators via DeepONet based on the universal
+#' approximation theorem of operators. *Nature Machine Intelligence*
+#' **3**, 218-229. \doi{10.1038/s42256-021-00302-5}
+#'
+#' Chen, T. and Chen, H. (1995). Universal approximation to nonlinear
+#' operators by neural networks with arbitrary activation functions and
+#' its application to dynamical systems. *IEEE Transactions on Neural
+#' Networks* **6**, 911-917. \doi{10.1109/72.392253}
 #' @export
 no_deeponet_fit <- function(depths, targets, covariates,
                               branch_hidden = 16L,
@@ -433,6 +507,11 @@ no_deeponet_fit <- function(depths, targets, covariates,
 
   # Standardise
   cov_std  <- .no_standardise(covariates)
+  # Targets that are entirely non-finite standardise to NaN and then
+  # train, predict and score without a single error, returning NaN
+  # everywhere.  Refuse up front instead.
+  if (!any(is.finite(targets)))
+    stop("`targets` contains no finite values.", call. = FALSE)
   tgt_std  <- .no_standardise(matrix(targets, ncol = n_depths))
   tgt_z    <- matrix(tgt_std$X, nrow = n_obs, ncol = n_depths)
   depth_std <- .no_standardise(matrix(depths, ncol = 1L))
@@ -546,7 +625,8 @@ predict.edaphos_no_deeponet <- function(object, newcovariates,
                                   device = dev)
     pred_t <- object$torch_module(u_t, z_t)$detach()$to(device = "cpu")
     pred <- as.matrix(as.array(pred_t))
-    return(pred * object$tgt_std$scale[1L] + object$tgt_std$center[1L])
+    return(.no_unstandardise_targets(pred, object$tgt_std,
+                                       object$depths, z_in))
   }
   # Standardise new inputs with training stats
   cov_z <- .no_apply_standardise(as.matrix(newcovariates),
@@ -571,8 +651,8 @@ predict.edaphos_no_deeponet <- function(object, newcovariates,
   t_out <- h_t %*% object$W_t2 +
             matrix(object$b_t2, n_d_new, object$output_dim, byrow = TRUE)
   y_z <- b_out %*% t(t_out) + object$bias
-  # Un-standardise
-  y_z * object$tgt_std$scale[1L] + object$tgt_std$center[1L]
+  # Un-standardise (per depth; interpolated when newdepths is given)
+  .no_unstandardise_targets(y_z, object$tgt_std, object$depths, z_in)
 }
 
 #' @export

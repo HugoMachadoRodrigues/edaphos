@@ -7,11 +7,11 @@
 #' algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
 #' state of the art (McBratney, Mendon\enc{ç}{c}a Santos and Minasny,
 #' 2003; Wadoux, Minasny and McBratney, 2020). Its contributions are
-#' organised across **six research pillars**, each confronting a specific
+#' organised across **ten research pillars**, each confronting a specific
 #' methodological gap of the contemporary literature and equipped with a
 #' vignette that derives the governing object from first principles.
 #'
-#' @section Six research pillars:
+#' @section Ten research pillars:
 #'
 #' \describe{
 #'   \item{\strong{1. Causal AI.}}{DAG-backed backdoor adjustment via
@@ -140,6 +140,59 @@
 #'     organo-mineral motifs: the carboxylate (`"formic_acid"`), the
 #'     ortho-diol (`"methanediol"`), and a monodentate Fe(III)–
 #'     carboxylate coordination complex (`"ferric_formate"`).}
+#'   \item{\strong{7. Bayesian Hierarchical Spatial.}}{Hierarchical
+#'     spatial linear model \eqn{y = X\beta + w + \varepsilon} with a
+#'     Gaussian-process random effect \eqn{w \sim GP(0, \sigma^2
+#'     \rho(\cdot; \phi))} — [bhs_fit()]. The \eqn{\beta} and variance
+#'     updates are conjugate and therefore closed-form; the range
+#'     \eqn{\phi} is profiled over a user-supplied grid by maximum
+#'     likelihood, which keeps the whole sampler free of Metropolis
+#'     steps. The Cholesky-heavy inner loop runs through an
+#'     RcppArmadillo backend. [predict()] performs Bayesian kriging at
+#'     unobserved sites, propagating every posterior draw into the
+#'     predictive distribution rather than plugging in a point
+#'     estimate.}
+#'   \item{\strong{8. Neural Operators.}}{Learns the solution operator
+#'     \eqn{\mathcal{G}: u(z) \mapsto y(z)} between depth-function
+#'     spaces instead of a pointwise regression. A 1-D **Fourier
+#'     Neural Operator** ([no_fno_fit()]) applies
+#'     \eqn{(\mathcal{K}v)(z) = \mathcal{F}^{-1}(R_\theta \cdot
+#'     \mathcal{F}v)(z)} with the spectrum truncated to `n_modes`
+#'     (Li et al., 2021); a **DeepONet** ([no_deeponet_fit()])
+#'     factorises \eqn{\mathcal{G}(u)(z) \approx \sum_k b_k(u) t_k(z)}
+#'     into branch and trunk networks (Lu et al., 2021), the
+#'     constructive form of the Chen and Chen (1995) universal operator
+#'     approximation theorem. Both expose a pure-R backend and a
+#'     `torch` backend with full autograd and `"cpu"` / `"mps"` /
+#'     `"cuda"` dispatch.}
+#'   \item{\strong{9. Diffusion Models.}}{Denoising Diffusion
+#'     Probabilistic Model (Ho, Jain and Abbeel, 2020) over soil-map
+#'     patches. [dm_cosine_schedule()] builds the forward process
+#'     \eqn{q(x_t \mid x_0) = N(\sqrt{\bar\alpha_t} x_0, (1 -
+#'     \bar\alpha_t) I)} on the cosine schedule of Nichol and Dhariwal
+#'     (2021); [dm_fit()] trains a denoiser
+#'     \eqn{\epsilon_\theta(x_t, t)} by score matching; [dm_sample()]
+#'     runs ancestral sampling from \eqn{t = T} down to 0, optionally
+#'     conditioned on covariates. The `backend = "r"` trainer updates
+#'     the readout layer only over randomly initialised hidden features
+#'     — an Extreme-Learning-Machine regime (Huang, Zhu and Siew, 2006)
+#'     — whereas `backend = "torch"` trains the full network.}
+#'   \item{\strong{10. Graph Neural Networks.}}{Graph Attention Network
+#'     (Veli\enc{č}{c}kovi\enc{ć}{c} et al., 2018) over a k-NN
+#'     co-location graph of profiles — [gnn_build_graph()], with
+#'     `edges = "spatial"`, `"feature"` or `"hybrid"` and optional
+#'     self-loops. [gnn_fit()] trains multi-head attention
+#'     \eqn{\alpha_{ij} = \mathrm{softmax}_j(\mathrm{LeakyReLU}(
+#'     a^\top [W h_i \Vert W h_j]))} by analytic reverse-mode
+#'     gradients through the grouped softmax — checked against central
+#'     finite differences in the test suite — with residual
+#'     connections, head averaging, a transductive `train_mask` so no
+#'     test label leaks into training, and a closed-form ridge readout.
+#'     [gnn_fit_ensemble()] averages independent seeds so that the
+#'     published comparison against a quantile regression forest is
+#'     ensemble-versus-ensemble. [gnn_embed()] returns the learned node
+#'     embeddings and [gnn_causal_discovery()] hands them to Pillar 1's
+#'     structure learner.}
 #' }
 #'
 #' @section Vignettes:
@@ -150,11 +203,23 @@
 #' \code{vignette("pilar3-4d-soc", package = "edaphos")},
 #' \code{vignette("pilar4-simclr-embeddings", package = "edaphos")},
 #' \code{vignette("pilar5-active-learning", package = "edaphos")},
-#' \code{vignette("pilar5-soilgrids-br", package = "edaphos")},
-#' \code{vignette("pilar6-quantum", package = "edaphos")}.
+#' \code{vignette("pilar6-quantum", package = "edaphos")},
+#' \code{vignette("pilar7-bayesian-hierarchical", package = "edaphos")},
+#' \code{vignette("pilar8-neural-operators", package = "edaphos")},
+#' \code{vignette("pilar9-diffusion-models", package = "edaphos")},
+#' \code{vignette("pilar10-graph-attention", package = "edaphos")}.
+#' Cross-pillar bridges have their own:
+#' \code{vignette("pilar1-pilar4-iv", package = "edaphos")},
+#' \code{vignette("pilar4-pilar6-quantum", package = "edaphos")},
+#' \code{vignette("uncertainty-unified", package = "edaphos")},
+#' \code{vignette("causal-discovery-trio", package = "edaphos")},
+#' \code{vignette("llm-annotation-workflow", package = "edaphos")}.
 #' The end-to-end honest benchmark on 1212 real Brazilian WoSIS
 #' Cerrado profiles lives in
-#' \code{vignette("case-cerrado-end-to-end", package = "edaphos")}.
+#' \code{vignette("case-cerrado-end-to-end", package = "edaphos")}, and
+#' \code{vignette("capstone-cerrado-campaign", package = "edaphos")}
+#' puts the pillars together on a sampling-campaign decision. Start at
+#' \code{vignette("getting-started", package = "edaphos")}.
 #'
 #' @references
 #' McBratney, A. B., Mendon\enc{ç}{c}a Santos, M. L. and Minasny, B.

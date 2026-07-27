@@ -315,10 +315,22 @@ for (fd in 1:5) {
   fold_rows[[length(fold_rows) + 1L]] <- grab("P5 QRF",           post5, c5, t5)
   fold_rows[[length(fold_rows) + 1L]] <- grab("P4 Foundation embeddings + QRF", post4, c4, t4)
   fold_rows[[length(fold_rows) + 1L]] <- grab("P7 BHS",            post7, c7, t7)
-  posterior_bank[[fd]] <- list(p5 = post5, p4 = post4, p7 = post7,
-                               # achievable null for this fold
-                               train_mean = mean(train$soc, na.rm = TRUE),
-                                 truth = truth)
+  # Store POINT predictions, not the full posterior sample matrices.
+  #
+  # The matrices dominated this bundle -- 98.8 % of the six-pillar file that
+  # merges it -- and nothing downstream reads them: the calibration metrics
+  # (PICP, MPIW, CRPS) are computed here and stored in cv_fold_table, and the
+  # pooled metrics need only a point prediction per row.  Keeping megabytes of
+  # draws that no consumer opens is the largest avoidable item in the CRAN
+  # install size.
+  .point_of <- function(p) if (is.null(p)) NULL
+                           else if (!is.null(p$samples)) colMeans(p$samples)
+                           else as.numeric(p$mean)
+  posterior_bank[[fd]] <- list(
+    p5 = .point_of(post5), p4 = .point_of(post4), p7 = .point_of(post7),
+    # achievable null for this fold
+    train_mean = mean(train$soc, na.rm = TRUE),
+    truth = truth)
 }
 
 cv_tbl <- bind_rows(fold_rows)

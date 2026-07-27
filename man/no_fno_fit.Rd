@@ -60,3 +60,14 @@ Learns the solution map \code{u(z) -> y(z)} from a collection of
 (covariate trajectory, target profile) pairs.  The trained
 operator predicts the depth profile at new sites without re-fitting.
 }
+\references{
+Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K.,
+Stuart, A. and Anandkumar, A. (2021). Fourier Neural Operator for
+Parametric Partial Differential Equations. \emph{International Conference
+on Learning Representations}.
+
+Kovachki, N., Li, Z., Liu, B., Azizzadenesheli, K., Bhattacharya, K.,
+Stuart, A. and Anandkumar, A. (2023). Neural Operator: Learning Maps
+Between Function Spaces With Applications to PDEs. \emph{Journal of
+Machine Learning Research} \strong{24}, 1-97.
+}

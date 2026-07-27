@@ -8,8 +8,8 @@
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
 [![Version](https://img.shields.io/badge/version-3.10.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases/tag/v3.10.0)
 [![Pillars](https://img.shields.io/badge/pillars-10%2F10%20shipped-success)](#the-six-pillars-at-a-glance)
-[![Vignettes](https://img.shields.io/badge/vignettes-14-9cf)](#vignettes)
-[![Tests](https://img.shields.io/badge/tests-1493%20pass-brightgreen)](#testing-and-continuous-integration)
+[![Vignettes](https://img.shields.io/badge/vignettes-18-9cf)](#vignettes)
+[![Tests](https://img.shields.io/badge/tests-1578%20pass-brightgreen)](#testing-and-continuous-integration)
 [![Codecov](https://codecov.io/gh/HugoMachadoRodrigues/edaphos/branch/main/graph/badge.svg)](https://app.codecov.io/gh/HugoMachadoRodrigues/edaphos)
 
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--8070--8126-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-8070-8126)
@@ -30,7 +30,7 @@ research pillars**, each confronting a specific methodological gap of
 the contemporary literature, each with a mathematically explicit
 governing object, a single R function family, and a dedicated
 vignette. v1.7.0 closes the circle with a **capstone cross-pillar
-vignette** that integrates all six pillars in a single Cerrado
+vignette** that integrates the pillars in a single Cerrado
 sampling-campaign narrative causally grounded in the generative DSM
 framework of [Zhang and Wadoux 2026][zhang2026].
 
@@ -71,7 +71,7 @@ And they distinguish two competing views of causality:
 | **Successionist** | Regularities / repeatable associations ⇒ causal claim | Simpson's paradox; spurious associations; no temporal sequencing |
 | **Generative** | Soil-forming factors act through **explicit processes** that produce soil properties | Requires process-informed models; directly satisfies condition 1 |
 
-Each of `edaphos`'s six pillars addresses one of these gaps with a
+Each of `edaphos`'s ten pillars addresses one of these gaps with a
 concrete, reproducible computational machinery. The package is the
 first R stack that — taken together — operationalises the generative
 DSM paradigm end-to-end, with quantified uncertainty at every step.
@@ -91,7 +91,7 @@ flowchart TB
         LIT[Literature<br/>SciELO + OpenAlex]
     end
 
-    subgraph PILLARS["🏛️ Six research pillars"]
+    subgraph PILLARS["🏛️ Ten research pillars"]
         P1["🧠 Pillar 1 — Causal AI<br/>DAG + backdoor adjustment<br/>LLM-KG via Gemma 4"]
         P2["⚛️ Pillar 2 — PIML<br/>pedogenetic ODE<br/>Neural ODE"]
         P3["🕓 Pillar 3 — 4D<br/>ConvLSTM + EnKF<br/>Gaspari-Cohn localization"]
@@ -149,7 +149,7 @@ identical diagnostics.
 The headline feature of the current release is a new vignette:
 **"Uma decisão de amostragem sob incerteza no Cerrado"**
 (`vignette("capstone-cerrado-campaign")`). It answers a single
-question with all six pillars acting together:
+question with the pillars acting together:
 
 > *A team has budget for exactly eight new soil-sampling points in the
 > Cerrado. Where should they go — and why?*
@@ -207,23 +207,27 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 ## Table of contents
 
 1. [Installation](#installation)
-2. [The six pillars at a glance](#the-six-pillars-at-a-glance)
+2. [The ten pillars at a glance](#the-ten-pillars-at-a-glance)
 3. [Pillar 1 — Causal AI + LLM Knowledge Graphs](#pillar-1--causal-ai--llm-knowledge-graphs)
 4. [Pillar 2 — Physics-Informed ML](#pillar-2--physics-informed-ml)
 5. [Pillar 3 — 4D Pedometry](#pillar-3--4d-pedometry)
 6. [Pillar 4 — Foundation Models](#pillar-4--foundation-models)
 7. [Pillar 5 — Autonomous Active Learning](#pillar-5--autonomous-active-learning)
 8. [Pillar 6 — Quantum ML](#pillar-6--quantum-ml)
-9. [Unified uncertainty API (v1.6.0)](#unified-uncertainty-api-v160)
-10. [Capstone vignette (v1.7.0)](#capstone-vignette-v170)
-11. [Benchmarks on real data](#benchmarks-on-real-data)
-12. [Bundled datasets](#bundled-datasets)
-13. [Vignettes](#vignettes)
-14. [Testing and CI](#testing-and-continuous-integration)
-15. [Roadmap](#roadmap)
-16. [Citation](#citation)
-17. [Selected references](#selected-references)
-18. [License](#license)
+9. [Pillar 7 — Bayesian Hierarchical Spatial](#pillar-7--bayesian-hierarchical-spatial)
+10. [Pillar 8 — Neural Operators](#pillar-8--neural-operators)
+11. [Pillar 9 — Diffusion Models](#pillar-9--diffusion-models)
+12. [Pillar 10 — Graph Neural Networks](#pillar-10--graph-neural-networks)
+13. [Unified uncertainty API (v1.6.0)](#unified-uncertainty-api-v160)
+14. [Capstone vignette (v1.7.0)](#capstone-vignette-v170)
+15. [Benchmarks on real data](#benchmarks-on-real-data)
+16. [Bundled datasets](#bundled-datasets)
+17. [Vignettes](#vignettes)
+18. [Testing and CI](#testing-and-continuous-integration)
+19. [Roadmap](#roadmap)
+20. [Citation](#citation)
+21. [Selected references](#selected-references)
+22. [License](#license)
 
 ---
 
@@ -406,7 +410,7 @@ light and the scientific boundary between pillars explicit.
 
 ---
 
-## The six pillars at a glance
+## The ten pillars at a glance
 
 | Nº  | Pillar                       | Namespace       | Status        | Governing object                                                                                                                                                                                   |
 |-----|------------------------------|-----------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -416,8 +420,12 @@ light and the scientific boundary between pillars explicit.
 | 4   | **Foundation Models**        | `foundation_*`  | ✅ v1.2.0      | SimCLR + MoCo v2 contrastive pre-training [[He et al. 2020][he2020moco]; [Chen et al. 2020b][chen2020moco2]] on planetary-scale patches; **Zenodo-published Cerrado encoder** + fine-tune ensemble |
 | 5   | **Autonomous Active Learning** | `al_*`        | ✅ v1.1.0      | Hybrid policy $\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})$ with PIML physics gate + BatchBALD                                                                   |
 | 6   | **Quantum ML**               | `quantum_*`     | ✅ v0.9.0      | ZZFeatureMap quantum kernel [[Havlicek et al. 2019][havlicek2019]] + Quantum Kernel Ridge Regression; **Qiskit VQE** with M3 / ZNE mitigation                                                        |
+| 7   | **Bayesian Hierarchical Spatial** | `bhs_*`    | ✅ v2.3.0      | Hierarchical model $y = X\beta + w + \varepsilon$ with $w \sim GP(0, \sigma^2 R(\phi))$ [[Banerjee et al. 2014][banerjee2014]]; conjugate Gibbs sampler with profile-MLE for the rate $\phi$ (RcppArmadillo backend); Bayesian kriging that propagates every posterior draw |
+| 8   | **Neural Operators**         | `no_*`          | ✅ v2.4.0      | Solution operator $\mathcal{G}: u(z) \mapsto y(z)$ between depth-function spaces — FNO $(\mathcal{K}v)(z) = \mathcal{F}^{-1}(R_\theta \cdot \mathcal{F}v)(z)$ [[Li et al. 2021][li2021fno]] and DeepONet $\sum_k b_k(u)\,t_k(z)$ [[Lu et al. 2021][lu2021deeponet]]; off-grid depth queries |
+| 9   | **Diffusion Models**         | `dm_*`          | ✅ v2.5.0      | DDPM [[Ho et al. 2020][ho2020ddpm]] over map patches: forward $q(x_t \mid x_0) = N(\sqrt{\bar\alpha_t}x_0, (1-\bar\alpha_t)I)$ on the cosine schedule [[Nichol & Dhariwal 2021][nichol2021]], denoiser $\epsilon_\theta(x_t,t)$, ancestral sampling with $x_0$ clipping |
+| 10  | **Graph Neural Networks**    | `gnn_*`         | ✅ v2.6.0      | GAT [[Veličković et al. 2018][velickovic2018]] on a k-NN co-location graph: $\alpha_{ij} = \mathrm{softmax}_j(\mathrm{LeakyReLU}(a^\top[Wh_i \Vert Wh_j]))$ by analytic reverse-mode gradients, transductive train mask, closed-form ridge readout |
 | **🔗**   | **Unified uncertainty API** | `uncertainty_*` | ✅ v1.6.0      | `edaphos_posterior` S3 class + `uncertainty_calibrate()` returning CRPS / PICP / MPIW / reliability diagram for *every* pillar                                                                         |
-| **🎬**   | **Capstone vignette**       | —               | ✅ v1.7.0      | "Uma decisão de amostragem sob incerteza no Cerrado" — all six pillars integrated, causally grounded in [Zhang & Wadoux (2026)][zhang2026]                                                           |
+| **🎬**   | **Capstone vignette**       | —               | ✅ v1.7.0      | "Uma decisão de amostragem sob incerteza no Cerrado" — integrating the six pillars that existed at v1.7.0, causally grounded in [Zhang & Wadoux (2026)][zhang2026]                                                           |
 
 Every pillar ships with (i) a mathematically explicit governing
 object; (ii) an R function family; (iii) one or more vignettes deriving
@@ -720,8 +728,10 @@ substitutable, and the vignette recommends reporting the sensitivity
 rather than picking one.
 
 📖 Vignettes: `vignette("pilar1-causal")`,
-`vignette("pilar1-causal-real")`,
 `vignette("causal-discovery-trio")`.
+The real-data Cerrado application ships as the bundled
+`causal_cerrado_real.rds` and is exercised from
+`vignette("case-cerrado-end-to-end")`; it has no vignette of its own.
 
 ### Multi-backend LLM extraction: harness, not vendor comparison
 
@@ -753,7 +763,9 @@ writes will carry `mode = "real"`, and
 `tests/testthat/test-headline-claims.R` will then permit a
 vendor-attributed table in this section.
 
-📖 Vignette: `vignette("llm-kg-benchmark")`.
+📖 Vignette: `vignette("llm-annotation-workflow")`.
+The benchmark itself ships as `llm_benchmark_results.rds` +
+`cerrado_gold_standard_v1.jsonl`; there is no separate vignette.
 
 ### v1.8.1 — Annotation tool: pre-annotation + Shiny review UI
 
@@ -1185,7 +1197,7 @@ assim <- temporal_kalman_update(
 
 ### Real-data demonstration (v1.5.0)
 
-`vignette("pilar3-4d-real")` runs the full pipeline on a **real
+The bundled `temporal_cerrado_results.rds` holds the full pipeline run on a **real
 Cerrado 2° × 2° AoI cube** (MOD13Q1 NDVI + NASA POWER precipitation +
 NASA POWER T2M, 168 monthly steps, 2003 – 2016), with:
 
@@ -1202,8 +1214,8 @@ The Kalman gain map becomes the first priority signal for the Pillar 5
 active-learning loop — cells with large gain would benefit most from
 *another* in-situ sample.
 
-📖 Vignettes: `vignette("pilar3-4d-soc")`,
-`vignette("pilar3-4d-real")`.
+📖 Vignette: `vignette("pilar3-4d-soc")`. The real-AoI run above is
+distributed as a result bundle rather than as a vignette.
 
 ---
 
@@ -1368,8 +1380,7 @@ with a $(1 - 1/e)$ optimality guarantee
 [[Nemhauser et al. 1978][nemhauser1978]]. Incremental Cholesky /
 Schur-complement updates make every greedy step $O(m^2 \cdot n_{\text{pool}})$.
 
-📖 Vignettes: `vignette("pilar5-active-learning")`,
-`vignette("pilar5-soilgrids-br")`.
+📖 Vignette: `vignette("pilar5-active-learning")`.
 
 ---
 
@@ -1518,6 +1529,184 @@ decides the question empirically when richer inputs become available.
 
 ---
 
+## Pillar 7 — Bayesian Hierarchical Spatial
+
+### Motivation
+
+A machine-learning soil map returns a number per pixel; it rarely
+returns an honest interval, because residual spatial structure is
+treated as noise rather than as a signal with a covariance. Pillar 7
+puts the dependence *inside* the model as a Gaussian-process random
+effect and returns a posterior over every quantity of interest
+[[Banerjee et al. 2014][banerjee2014]].
+
+### Governing object
+
+$$
+y = X\beta + w + \varepsilon, \qquad
+w \sim GP\big(0,\ \sigma^2 R(\phi)\big), \qquad
+\varepsilon \sim N(0,\ \tau^2 I),
+$$
+
+with $R(\phi)_{ij} = \exp(-\phi \lVert s_i - s_j \rVert)$. Note that
+$\phi$ is a **rate** (units 1/distance), not a range; the practical
+correlation range is $\approx 3/\phi$.
+
+Conditional on $\phi$ every update is conjugate, so `bhs_fit()` profiles
+$\phi$ by maximum likelihood over `phi_range` and runs a Metropolis-free
+Gibbs sampler for everything else — the same concession INLA makes
+[[Rue et al. 2009][rue2009]]. The Cholesky-heavy inner loop runs through
+an RcppArmadillo backend.
+
+```r
+fit <- bhs_fit(train, soc ~ elev + slope + twi, coords = c("x", "y"),
+               nmcmc = 1500L, burn = 500L, phi_range = c(0.05, 1000))
+
+pred <- predict(fit, newdata = test)   # Bayesian kriging, per draw
+```
+
+`bhs_fit()` **warns when the profile-MLE of $\phi$ lands on an endpoint
+of `phi_range`**: the bracket rather than the data then set the
+correlation rate, and the spatial variance fraction is not
+interpretable. Read that warning before reading anything else — the
+vignette shows a case where the fraction reads 0.97 with a tight
+posterior in a fit that has no resolvable spatial field at all.
+
+📖 Vignette: `vignette("pilar7-bayesian-hierarchical")`.
+
+---
+
+## Pillar 8 — Neural Operators
+
+### Motivation
+
+A soil profile is not a stack of independent points; it is a *function*
+of depth. Pillar 8 learns the operator that produced it, rather than a
+pointwise regression evaluated at fixed depths.
+
+### Governing object
+
+$$
+\mathcal{G} : u(z) \longmapsto y(z)
+$$
+
+Two architectures, both shipped:
+
+**Fourier Neural Operator** [[Li et al. 2021][li2021fno]] — spectral
+convolution with the spectrum truncated to `n_modes`:
+
+$$
+(\mathcal{K}v)(z) = \mathcal{F}^{-1}\big(R_\theta \cdot \mathcal{F}v\big)(z)
+$$
+
+**DeepONet** [[Lu et al. 2021][lu2021deeponet]] — branch/trunk
+factorisation, the constructive form of the Chen and Chen (1995)
+universal operator approximation theorem:
+
+$$
+\mathcal{G}(u)(z) \approx \sum_{k=1}^{p} b_k(u)\, t_k(z)
+$$
+
+```r
+don <- no_deeponet_fit(depths, targets, covariates,
+                       branch_hidden = 24L, trunk_hidden = 24L)
+
+# The trunk accepts any depth, including ones never trained on:
+predict(don, new_covariates, newdepths = c(7.5, 33, 61, 97, 133))
+```
+
+That last line is the point of the pillar. On the training grid a
+quantile regression forest is at least as accurate; asked for depths it
+never saw, it is not. The vignette measures both.
+
+📖 Vignette: `vignette("pilar8-neural-operators")`.
+
+---
+
+## Pillar 9 — Diffusion Models
+
+### Motivation
+
+Every other pillar answers "what is the value here?". None answers
+"what does a plausible soil landscape look like?" — a map assembled
+from per-pixel quantiles is smoother than any real landscape and
+corresponds to no coherent realisation. Pillar 9 samples whole maps.
+
+### Governing object
+
+Forward process (fixed, no parameters), on the cosine schedule of
+[[Nichol and Dhariwal 2021][nichol2021]]:
+
+$$
+q(x_t \mid x_0) = N\big(\sqrt{\bar\alpha_t}\,x_0,\ (1 - \bar\alpha_t) I\big)
+$$
+
+Only the denoiser $\epsilon_\theta(x_t, t)$ is learned, by score
+matching [[Ho et al. 2020][ho2020ddpm]]; `dm_sample()` then runs
+ancestral sampling from $t = T$ down to $0$ with $x_0$ clipping.
+
+```r
+sch <- dm_cosine_schedule(T = 100L)
+fit <- dm_fit(patch_stack, T = 100L, epochs = 250L)
+gen <- dm_sample(fit, n_samples = 4L)
+```
+
+**Honest status.** The pure-R backend trains a readout over frozen
+random features (an ELM regime) and does **not** reproduce the spatial
+autocorrelation of the training patches — measured, and reported in the
+vignette rather than hidden behind plausible-looking thumbnails. Use
+`backend = "torch"`, which trains every layer by autograd and does
+recover the structure.
+
+📖 Vignette: `vignette("pilar9-diffusion-models")`.
+
+---
+
+## Pillar 10 — Graph Neural Networks
+
+### Motivation
+
+Kriging assumes you know the covariance function; a random forest
+assumes profiles are independent rows. Neither is right — profiles
+inform each other through a relation that should be *learned*.
+
+### Governing object
+
+Graph attention [[Veličković et al. 2018][velickovic2018]] over a k-NN
+co-location graph of profiles:
+
+$$
+e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
+\qquad
+\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}(i)} \exp(e_{ik})}
+$$
+
+The softmax is grouped per neighbourhood, and $e_{ij}$ depends on both
+endpoints' features — so two pairs at identical separation can receive
+very different weights. That is what a fixed covariance function cannot
+express.
+
+```r
+g <- gnn_build_graph(profiles, k = 8L, feature_cols = feat,
+                     edges = "spatial", self_loops = TRUE)
+
+ens <- gnn_fit_ensemble(g, targets = profiles$soc,
+                        train_mask = train_mask, n_ensemble = 5L)
+```
+
+Attention is trained by **analytic reverse-mode gradients** through the
+grouped softmax — hand-derived, and checked against central finite
+differences across several architectures in
+`test-pilar10-gat-grad.R`. `train_mask` keeps every node in message
+passing while restricting the loss to training nodes, so no test label
+reaches the optimiser. `gnn_fit_ensemble()` averages seeds so the
+published comparison against a 500-tree QRF is ensemble-versus-ensemble
+rather than one model against a forest.
+
+📖 Vignette: `vignette("pilar10-graph-attention")`.
+
+---
+
 ## Unified uncertainty API (v1.6.0)
 
 Through v1.5.0 each pillar quantified uncertainty in its own format.
@@ -1598,7 +1787,7 @@ comparison with the naïve unified-query table and its caveats.
 ## Capstone vignette (v1.7.0)
 
 `vignette("capstone-cerrado-campaign")` is the flagship of v1.7.0 —
-a ~900-line narrative that puts all six pillars to work on a single
+a ~900-line narrative that puts the pillars to work on a single
 decision: *where should we place 8 new field samples in the Cerrado?*
 
 ### What it contains
@@ -1732,18 +1921,14 @@ browseVignettes("edaphos")
 | Vignette                          | Scope                                                                                                  |
 |-----------------------------------|--------------------------------------------------------------------------------------------------------|
 | `pilar1-causal`                   | Backdoor adjustment in a pedogenetic DAG; naive vs. causal estimator on `br_cerrado`.                  |
-| `pilar1-causal-real`              | Backdoor-adjusted direct effects on **1 095 real WoSIS Cerrado profiles** (v1.4.0).                    |
 | `pilar2-piml-profile`             | Parametric ODE + Neural ODE of the depth profile on `aqp::sp4`; Pillar 2 × 5 physics gate.              |
 | `pilar3-4d-soc`                   | Stacked ConvLSTM forecasting of the synthetic SOC cube; optional mass-balance physics loss.             |
-| `pilar3-4d-real`                  | ConvLSTM forecast of MODIS NDVI over a Cerrado 2° × 2° AoI + stochastic EnKF assimilation (v1.5.0).    |
 | `pilar4-simclr-embeddings`        | Contrastive pre-training on raster patches; embeddings as auxiliary AL covariates.                      |
 | `pilar5-active-learning`          | Formal derivation of the hybrid query policy on the classic `meuse` dataset.                            |
-| `pilar5-soilgrids-br`             | Same AL loop on a Cerrado recorte; migration path to live SoilGrids data.                               |
 | `pilar6-quantum`                  | Pure-R ZZFeatureMap simulator + quantum-kernel Gram matrix + Quantum KRR on binary SOC classification.   |
-| `uncertainty-unified`             | Unified `edaphos_posterior` class + single calibration diagnostic applied to all six pillars (v1.6.0).  |
-| 🏆 `capstone-cerrado-campaign`    | **v1.7.0 capstone**: all six pillars integrated in a Cerrado sampling-campaign decision.               |
+| `uncertainty-unified`             | Unified `edaphos_posterior` class + single calibration diagnostic, applied at v1.6.0 to the six pillars that existed then. |
+| 🏆 `capstone-cerrado-campaign`    | **v1.7.0 capstone**: the six pillars of that release, integrated in a Cerrado sampling-campaign decision. |
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
-| 📊 `llm-kg-benchmark`             | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen's κ, cost / 1k claims, latency, 10k-abstract scaling. |
 | 🛠️ `llm-annotation-workflow`      | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
 | 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`) where Sargan passes; v1.9.2 adds Cinelli-Hazlett sensitivity analysis. |
 | 🌀 `pilar4-pilar6-quantum`        | **v2.0.0**: quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines. |
@@ -1757,9 +1942,9 @@ bibliography (`vignettes/references.bib`).
 
 ## Testing and continuous integration
 
-- **1 493 passing expectations** across 484 `test_that` blocks in 70 test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1. 1 expectations are skipped here because their optional dependency is absent; every skip is an explicit `skip_if_not_installed()` gate.
+- **1 578 passing expectations** across 505 `test_that` blocks in 74 test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1. 1 expectations are skipped here because their optional dependency is absent; every skip is an explicit `skip_if_not_installed()` gate.
 - **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`, `reticulate`, `terra`, `igraph`.
-- **`R CMD check --as-cran`:** `3 NOTEs` at commit `f9d459c`. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in [`cran-comments.md`](cran-comments.md); the log itself is committed at [`tools/status/check.log`](tools/status/check.log).
+- **`R CMD check --as-cran`:** `3 NOTEs` at commit `2984aa5`. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in [`cran-comments.md`](cran-comments.md); the log itself is committed at [`tools/status/check.log`](tools/status/check.log).
 - **CI:** GitHub Actions matrix on `macos-latest / R release`, `windows-latest / R release`, `ubuntu-latest / R devel`, `ubuntu-latest / R release`, `ubuntu-latest / R oldrel-1`, `ubuntu-latest / R release`. Note that `TORCH_INSTALL: 0` is set, so libtorch is never installed on any leg and the torch-gated tests do not execute in CI.
 - These figures are generated by `tools/status/patch-readme-metrics.R`
   from a real test run and a real check log. Do not edit them by hand.
@@ -1774,7 +1959,7 @@ bibliography (`vignettes/references.bib`).
 | v1.4.0  | Causal on 1 095 WoSIS real profiles                    |   ✅    |
 | v1.5.0  | ConvLSTM + EnKF with Gaspari-Cohn on real Cerrado cube |   ✅    |
 | v1.6.0  | Unified `edaphos_posterior` + `uncertainty_calibrate()` |   ✅    |
-| v1.7.0  | Capstone vignette integrating all six pillars          |   ✅    |
+| v1.7.0  | Capstone vignette integrating the then-six pillars     |   ✅    |
 | v1.7.1  | Native-query calibration (honest per-pillar domain)    |   ✅    |
 | v1.7.2  | Causal-discovery trio: expert × LLM × data-driven      |   ✅    |
 | v1.8.0  | LLM extraction benchmark (Gemma 4 × GPT × Claude)      |   ✅    |
@@ -1953,3 +2138,11 @@ MIT © Hugo Rodrigues. See [LICENSE.md](LICENSE.md).
 > *Education without ethics is only rhetoric.*
 >
 > *Power without reflection is violence.*
+
+[banerjee2014]: https://doi.org/10.1201/b17115
+[li2021fno]: https://openreview.net/forum?id=c8P9NQVtmnO
+[lu2021deeponet]: https://doi.org/10.1038/s42256-021-00302-5
+[ho2020ddpm]: https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html
+[nichol2021]: https://proceedings.mlr.press/v139/nichol21a.html
+[velickovic2018]: https://openreview.net/forum?id=rJXMpikCZ
+[rue2009]: https://doi.org/10.1111/j.1467-9868.2008.00700.x

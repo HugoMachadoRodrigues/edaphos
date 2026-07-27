@@ -47,3 +47,14 @@ branch and trunk MLPs.}
 \description{
 Fit a DeepONet for depth-profile operators
 }
+\references{
+Lu, L., Jin, P., Pang, G., Zhang, Z. and Karniadakis, G. E. (2021).
+Learning nonlinear operators via DeepONet based on the universal
+approximation theorem of operators. \emph{Nature Machine Intelligence}
+\strong{3}, 218-229. \doi{10.1038/s42256-021-00302-5}
+
+Chen, T. and Chen, H. (1995). Universal approximation to nonlinear
+operators by neural networks with arbitrary activation functions and
+its application to dynamical systems. \emph{IEEE Transactions on Neural
+Networks} \strong{6}, 911-917. \doi{10.1109/72.392253}
+}

@@ -63,3 +63,4 @@ src/symbols.rds
 pkgdown/
 tools/zenodo_release/
 tools/zenodo_release.zip
+figure/

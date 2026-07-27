@@ -600,12 +600,26 @@ size_facts <- safe({
   top     <- ifelse(grepl("/", tracked), sub("/.*$", "", tracked), "<root>")
   agg     <- tapply(bytes, top, sum)
   # a source tarball ships these top-level directories plus the root files
+  # Apply .Rbuildignore rather than guessing from the top-level directory.
+  # The previous heuristic counted every root file as shipping, so STATUS.md
+  # (231 KB) and the other ignored top-level files inflated the figure that
+  # this document uses to argue about the CRAN size limit.
+  rb <- if (file.exists(".Rbuildignore"))
+    grep("^\\s*(#|$)", readLines(".Rbuildignore", warn = FALSE),
+         value = TRUE, invert = TRUE) else character()
+  ignored <- function(paths) {
+    if (!length(rb)) return(rep(FALSE, length(paths)))
+    Reduce(`|`, lapply(rb, function(pat)
+      grepl(pat, paths, perl = TRUE)), rep(FALSE, length(paths)))
+  }
   shipped_dirs <- c("R", "src", "man", "data", "inst", "tests", "vignettes")
-  is_ship <- names(agg) %in% c(shipped_dirs, "<root>")
+  ship_file <- (top %in% c(shipped_dirs, "<root>")) & !ignored(tracked)
+  agg_ship  <- tapply(bytes[ship_file], top[ship_file], sum)
+  is_ship <- names(agg) %in% names(agg_ship)
   big <- local({
-    o <- order(bytes, decreasing = TRUE)[seq_len(min(10, length(bytes)))]
+    o <- order(bytes, decreasing = TRUE)[seq_len(min(12, length(bytes)))]
     data.frame(file = tracked[o], bytes = unname(bytes[o]),
-               ships = top[o] %in% c(shipped_dirs, "<root>"),
+               ships = ship_file[o],   # honours .Rbuildignore
                row.names = NULL, stringsAsFactors = FALSE)
   })
   list(
@@ -615,7 +629,26 @@ size_facts <- safe({
                         ships_in_tarball = is_ship,
                         row.names = NULL, stringsAsFactors = FALSE)[
                           order(-as.numeric(agg)), ],
-    shipped_bytes = sum(agg[is_ship], na.rm = TRUE),
+    shipped_bytes = sum(bytes[ship_file], na.rm = TRUE),
+    shipped_file_count = sum(ship_file),
+    # The size CRAN actually applies its 5 MB guidance to is the built
+    # tarball, which is larger than the git-tracked sources because
+    # `R CMD build` adds inst/doc (the rendered vignettes).  Measure the
+    # real artefact when one is present rather than scraping the check
+    # log, which only prints "Size of tarball:" above a threshold.
+    tarball_bytes = local({
+      f <- list.files(".", pattern = "^edaphos_.*\\.tar\\.gz$",
+                      full.names = TRUE)
+      if (!length(f)) return(NA_real_)
+      f <- f[order(file.mtime(f), decreasing = TRUE)][1L]
+      as.numeric(file.size(f))
+    }),
+    tarball_file = local({
+      f <- list.files(".", pattern = "^edaphos_.*\\.tar\\.gz$")
+      if (!length(f)) NA_character_ else
+        f[order(file.mtime(file.path(".", f)), decreasing = TRUE)][1L]
+    }),
+    excluded_by_rbuildignore = sum(!ship_file & top %in% c(shipped_dirs, "<root>")),
     repo_bytes    = sum(bytes, na.rm = TRUE),
     cran_soft_cap_bytes = 5 * 1024^2,
     largest_shipped_files = big,

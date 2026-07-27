@@ -45,7 +45,14 @@ when available).}
 priors on \code{sigma^2} and \code{tau^2}.}
 
 \item{phi_range}{Numeric length-2; bracket for the profile-MLE of
-the GP rate parameter \code{phi}.  Default \code{c(0.01, 10)}.}
+the GP rate parameter \code{phi}.  Default \code{c(0.01, 10)}.  Note that
+\code{phi} is a \strong{rate}, entering the correlation as
+\eqn{\rho(d) = \exp(-\phi d)}, so its units are 1/distance and the
+usable bracket depends on whether \code{coords} are in degrees, metres
+or kilometres.  If the profile-MLE lands on an endpoint,
+\code{bhs_fit()} warns: the bracket rather than the data is then
+determining the correlation rate, and the spatial variance
+fraction can be off by an order of magnitude.}
 
 \item{seed}{Optional RNG seed.}
 
@@ -59,4 +66,17 @@ The v2.3.0 activation of the Pilar 7 scaffold.  Fits a Bayesian
 spatial linear model \verb{y_i = x_i' beta + w_i + eps_i} with a latent
 exponential-correlation Gaussian process on the residual field
 and returns full posterior draws.
+}
+\references{
+Banerjee, S., Carlin, B. P. and Gelfand, A. E. (2014). \emph{Hierarchical
+Modeling and Analysis for Spatial Data}, 2nd edition. Chapman and
+Hall/CRC, Boca Raton. \doi{10.1201/b17115}
+
+Rue, H., Martino, S. and Chopin, N. (2009). Approximate Bayesian
+inference for latent Gaussian models by using integrated nested
+Laplace approximations. \emph{Journal of the Royal Statistical Society:
+Series B} \strong{71}, 319-392. \doi{10.1111/j.1467-9868.2008.00700.x}
+
+Cressie, N. and Wikle, C. K. (2011). \emph{Statistics for Spatio-Temporal
+Data}. Wiley, Hoboken.
 }

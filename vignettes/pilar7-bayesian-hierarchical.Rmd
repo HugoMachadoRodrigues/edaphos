@@ -1,0 +1,360 @@
+---
+title: "Pilar 7 — Bayesian Hierarchical Spatial Models"
+author: "Hugo Rodrigues"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 7 — Bayesian Hierarchical Spatial Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 6.5, fig.height = 4.5
+)
+library(edaphos)
+```
+
+## Abstract
+
+A machine-learning soil map returns a number at every pixel. It rarely
+returns an *honest* interval around that number, because the residual
+spatial structure the model failed to explain is treated as noise
+rather than as a signal with a covariance. Pillar 7 takes the opposite
+route: it puts the spatial dependence *inside* the model, as a Gaussian
+process random effect, and returns a full posterior over every quantity
+of interest [@Banerjee2014hierarchical; @Cressie2011].
+
+This vignette derives the hierarchy, is explicit about the one
+non-conjugate parameter and the concession `edaphos` makes for it, and
+then spends most of its length on the part that is usually skipped: the
+two diagnostics that decide whether the fitted spatial field means
+anything at all.
+
+## 1. The hierarchy
+
+Write the observed soil property at site $s_i$ as a mean structure plus
+a spatially correlated random effect plus independent error:
+
+$$
+y(s_i) \;=\; \mathbf{x}(s_i)^\top \boldsymbol\beta \;+\; w(s_i) \;+\; \varepsilon(s_i),
+\qquad i = 1,\dots,n .
+$$
+
+The three layers are
+
+$$
+\begin{aligned}
+\text{data:} \quad & y \mid \boldsymbol\beta, w, \tau^2 \;\sim\; N(X\boldsymbol\beta + w,\; \tau^2 I) \\
+\text{process:} \quad & w \mid \sigma^2, \phi \;\sim\; N(0,\; \sigma^2 R(\phi)) \\
+\text{priors:} \quad & \boldsymbol\beta \sim N(0, v_\beta I), \quad
+                       \sigma^2 \sim IG(a, b), \quad \tau^2 \sim IG(a, b)
+\end{aligned}
+$$
+
+with an exponential correlation function
+
+$$
+R(\phi)_{ij} \;=\; \exp\!\big(-\phi \, \lVert s_i - s_j \rVert\big).
+$$
+
+Note the parameterisation carefully, because it is the source of most
+mistakes with this model: **$\phi$ is a decay rate, not a range.** Its
+units are 1/distance. *Large* $\phi$ means correlation dies off
+quickly; $\phi \to \infty$ drives $R \to I$. The practical correlation
+range is roughly $3/\phi$. If your coordinates are in degrees, a
+sensible $\phi$ is a very different number than if they are in metres.
+
+$\tau^2$ is the **nugget**: variation below the shortest sampling
+distance, pooling laboratory error and micro-scale heterogeneity.
+$\sigma^2$ is the **partial sill**, the variance of the structured
+field.
+
+### 1.1 Why $\phi$ is the hard one
+
+Collapse $w$ out of the likelihood:
+
+$$
+y \mid \boldsymbol\beta, \sigma^2, \tau^2, \phi \;\sim\;
+N\!\left(X\boldsymbol\beta,\; \Sigma\right),
+\qquad \Sigma = \sigma^2 R(\phi) + \tau^2 I .
+$$
+
+Conditional on $\phi$ this is an ordinary Bayesian linear model with a
+known covariance: $\boldsymbol\beta$ has a Gaussian full conditional
+and the variances have inverse-gamma full conditionals. Every update is
+closed-form.
+
+But $\phi$ sits *inside a matrix inverse and a determinant*. It has no
+conjugate update, and a Metropolis step on it pays an $O(n^3)$ Cholesky
+for every proposal, accepted or rejected.
+
+`edaphos` avoids the Metropolis step. It **profiles** $\phi$: over the
+bracket `phi_range` it maximises the marginal likelihood once, fixes
+$\phi$ at $\hat\phi$, and runs a fully conjugate Gibbs sampler for
+everything else. This is the concession INLA makes for its
+hyperparameters [@Rue2009inla] — treat the rate as estimated rather
+than sampled, buy exact fast updates for the parameters you report.
+
+The cost, stated plainly: the reported posterior for
+$\boldsymbol\beta$ is *conditional on* $\hat\phi$ and does not
+propagate uncertainty in the rate. It is a conditional posterior, not a
+joint one.
+
+## 2. The Cerrado grid
+
+`br_cerrado` is a 45 × 45 regular grid of synthesised Cerrado
+observations bundled with the package, so this vignette runs offline
+and identically everywhere.
+
+```{r data}
+data(br_cerrado)
+str(br_cerrado)
+```
+
+```{r subsample}
+set.seed(42)
+idx   <- sample(nrow(br_cerrado), 220)
+train <- br_cerrado[idx, ]
+test  <- br_cerrado[-idx, ][sample(nrow(br_cerrado) - 220, 200), ]
+
+c(n_train = nrow(train), n_test = nrow(test))
+```
+
+The Gibbs sampler is $O(n^3)$ per iteration through the Cholesky, so
+$n$ — not the iteration count — is what binds on a laptop.
+
+## 3. Fit the full model, and read the warning
+
+```{r fit-full}
+fit_full <- bhs_fit(
+  data      = train,
+  formula   = soc ~ elev + slope + twi + map_mm,
+  coords    = c("x", "y"),
+  backend   = "gibbs",
+  nmcmc     = 1500L, burn = 500L, thin = 2L,
+  phi_range = c(0.05, 1000),
+  seed      = 1L, verbose = FALSE
+)
+```
+
+That warning is not noise to be silenced. It is the first diagnostic.
+
+`bhs_fit()` warns when $\hat\phi$ lands on an endpoint of
+`phi_range`, because then the *bracket* — not the data — determined the
+answer. Here the likelihood is still climbing at the upper end: it
+wants $\phi$ as large as it can get, which is the model's way of saying
+**there is no residual spatial structure left to fit**. Every driver of
+`soc` in this synthesised grid is already in the formula, so the
+residual is white.
+
+Widening the bracket will not help; it will rail again, further out.
+The right conclusion is that a spatial random effect is not needed for
+this specification.
+
+### 3.1 The diagnostic that works, and the one that does not
+
+The number most often quoted from a fit like this is the spatial
+fraction $\sigma^2 / (\sigma^2 + \tau^2)$. This section shows why, on
+its own, it tells you nothing.
+
+The question a spatial model has to answer first is whether the fitted
+correlation is *resolvable by the sampling design at all*. The
+practical range is $3/\phi$; compare it to the shortest distance
+between two sampled sites:
+
+```{r aliased}
+d_min <- min(dist(train[, c("x", "y")]))
+
+c(phi_hat       = fit_full$phi_hat,
+  range_3_over  = 3 / fit_full$phi_hat,
+  d_min         = d_min,
+  range_per_dmin = (3 / fit_full$phi_hat) / d_min,
+  corr_nearest  = exp(-fit_full$phi_hat * d_min))
+```
+
+The fitted range is *shorter than the gap between the two closest
+observations*. Nothing in the design can see structure at that scale:
+even nearest neighbours are essentially uncorrelated, so $R$ is
+numerically the identity and
+$\Sigma = \sigma^2 R + \tau^2 I \approx (\sigma^2 + \tau^2) I$. In that
+regime $w$ and $\varepsilon$ enter the likelihood identically — they
+are **aliased**, and only their sum is a statement about the data.
+
+Now look at the spatial fraction anyway:
+
+```{r frac-full}
+fr_full <- fit_full$sigma2_draws /
+           (fit_full$sigma2_draws + fit_full$tau2_draws)
+c(mean = mean(fr_full), sd = sd(fr_full))
+```
+
+Near 1, with a tight posterior — which reads as "almost all residual
+variance is spatially structured" and is the opposite of the truth.
+The apparent precision is the trap: a narrow posterior on an aliased
+quantity is not evidence. Section 4 fits a model where the field *is*
+real and shows this same number barely moves, which is the point.
+
+## 4. Omit a driver, and the field reappears
+
+A GP random effect is, operationally, a *surrogate for spatially smooth
+predictors you do not have*. We can demonstrate that directly by
+dropping `map_mm` — a smooth climate driver — and refitting.
+
+```{r fit-drop}
+fit_drop <- bhs_fit(
+  data      = train,
+  formula   = soc ~ elev + slope + twi,
+  coords    = c("x", "y"),
+  backend   = "gibbs",
+  nmcmc     = 1500L, burn = 500L, thin = 2L,
+  phi_range = c(0.05, 1000),
+  seed      = 1L, verbose = FALSE
+)
+
+c(phi_hat        = fit_drop$phi_hat,
+  interior       = fit_drop$phi_hat < 1000,
+  range_3_over   = 3 / fit_drop$phi_hat,
+  range_per_dmin = (3 / fit_drop$phi_hat) / d_min,
+  corr_nearest   = exp(-fit_drop$phi_hat * d_min))
+```
+
+No warning this time: $\hat\phi$ is interior, so the data — not the
+bracket — chose it. And the range now spans several nearest-neighbour
+spacings, with immediate neighbours meaningfully correlated. This is a
+real, short-range field: the GP has taken over the job the omitted
+rainfall covariate was doing.
+
+That is the honest interpretation of a spatial random effect in any
+applied fit — it is as much a statement about what is *missing* from
+your covariate stack as about pedogenesis.
+
+Now the promised comparison. Here is the spatial fraction for this
+fit, where the field is genuine:
+
+```{r frac-drop}
+fr_drop <- fit_drop$sigma2_draws /
+           (fit_drop$sigma2_draws + fit_drop$tau2_draws)
+
+rbind(`full (no resolvable field)` = c(mean = mean(fr_full), sd = sd(fr_full)),
+      `reduced (real field)`       = c(mean = mean(fr_drop), sd = sd(fr_drop)))
+```
+
+The two are practically indistinguishable — same value, same tight
+posterior — yet one fit has a resolvable spatial field and the other
+has none. **The spatial fraction did not detect the difference.** What
+did was $\hat\phi$: interior versus railed, and its range measured
+against the sampling distance.
+
+Report those together, or report neither.
+
+```{r beta}
+round(t(apply(fit_drop$beta_draws, 2, function(b)
+  c(mean = mean(b), sd = sd(b),
+    q025 = quantile(b, 0.025, names = FALSE),
+    q975 = quantile(b, 0.975, names = FALSE)))), 4)
+```
+
+A coefficient whose 95% credible interval excludes zero is one the data
+resolve *after* the field has absorbed everything it can — a stricter
+bar than an OLS $p$-value, because a covariate that merely happens to
+be smooth in space will have its apparent effect soaked up by $w$.
+
+## 5. Bayesian kriging, and whether the interval is earned
+
+Prediction at a new site is *not* $\mathbf{x}_0^\top
+\hat{\boldsymbol\beta}$. Marginalising the field out of the hierarchy
+gives the exact Gaussian conditional
+
+$$
+\begin{aligned}
+E[y_0 \mid y] &= \mathbf{x}_0^\top \boldsymbol\beta
+  + \sigma^2 \mathbf{r}_0^\top \Sigma^{-1} (y - X\boldsymbol\beta), \\
+V[y_0 \mid y] &= \underbrace{\sigma^2 + \tau^2}_{\text{marginal}}
+  - \underbrace{\sigma^4 \mathbf{r}_0^\top \Sigma^{-1} \mathbf{r}_0}_{\text{kriging variance}},
+\end{aligned}
+$$
+
+evaluated at every retained posterior draw of
+$(\boldsymbol\beta, \sigma^2, \tau^2)$.
+
+The second variance term is what makes the interval location-aware. It
+is largest — so the subtraction is largest, so the interval is
+narrowest — at sites surrounded by data, and it vanishes as
+$\mathbf{r}_0 \to 0$, correctly relaxing the predictive variance to the
+full marginal $\sigma^2 + \tau^2$ far from any observation. You can
+watch both limits:
+
+```{r variance-limits}
+p_at  <- predict(fit_drop, newdata = train, n_draws = 1000L)  # on the data
+far   <- test[1:50, ];  far$x <- far$x + 500                  # far outside
+p_far <- predict(fit_drop, newdata = far, n_draws = 1000L)
+
+s2 <- mean(fit_drop$sigma2_draws); t2 <- mean(fit_drop$tau2_draws)
+c(sd_at_observed = mean(p_at$sd),
+  sd_far_away    = mean(p_far$sd),
+  sqrt_marginal  = sqrt(s2 + t2))
+```
+
+`sd_far_away` should land on `sqrt_marginal`, and `sd_at_observed`
+should sit well below it. An implementation that adds only the nugget
+would return the *same* small number in both columns — narrow intervals
+everywhere, including where the model knows nothing.
+
+### 5.1 Coverage
+
+```{r coverage}
+pred    <- predict(fit_drop, newdata = test)
+covered <- test$soc >= pred$q025 & test$soc <= pred$q975
+
+c(picp_95    = mean(covered),
+  mean_width = mean(pred$q975 - pred$q025),
+  rmse       = sqrt(mean((test$soc - pred$mean)^2)),
+  r2         = 1 - sum((test$soc - pred$mean)^2) /
+                   sum((test$soc - mean(train$soc))^2))
+```
+
+Read coverage and width together, never separately. An interval from
+$-\infty$ to $\infty$ has perfect coverage; a degenerate one has
+perfect width. A model earns trust when coverage lands near nominal
+*while* the width stays narrow enough to inform a decision.
+
+Note the $R^2$ denominator: the **training** mean, not the test-set
+mean. Scoring against the test mean measures the model against an
+oracle no deployed map has, and inflates $R^2$ for free.
+
+## 6. Where this connects
+
+`bhs_fit()` returns an object the package's unified uncertainty layer
+understands, so the same calibration diagnostic applies here as to
+every other pillar:
+
+```{r posterior-class}
+post <- as_edaphos_posterior(fit_drop)
+class(post)
+```
+
+See `vignette("uncertainty-unified")` for the cross-pillar comparison
+and `vignette("capstone-cerrado-campaign")` for this model inside a
+full sampling-campaign decision.
+
+## 7. Limitations
+
+- $\phi$ is profiled, not sampled (§1.1); posteriors are conditional on
+  $\hat\phi$. Always check the warning before reading the variance
+  split (§3.1).
+- The exponential correlation is isotropic. Anisotropic pedogenesis —
+  a catena down a slope — is not represented.
+- The $O(n^3)$ Cholesky bounds practical $n$ to the low thousands. The
+  RcppArmadillo backend moves the constant, not the exponent.
+- `br_cerrado` is synthesised. The numbers above demonstrate machinery,
+  not a published finding about the Cerrado. For real WoSIS profiles
+  see `vignette("case-cerrado-end-to-end")`.
+
+## References

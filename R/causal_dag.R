@@ -165,6 +165,18 @@ causal_cerrado_real_dag <- function() {
 #'
 #' @return A character vector of variable names to condition on, or
 #'   `NULL` if no valid set exists.
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   dag <- causal_clorpt_dag()
+#'
+#'   # Which covariates must be conditioned on to read the effect of
+#'   # Climate on SOC as causal rather than confounded?
+#'   causal_adjustment_set(dag, exposure = "Climate", outcome = "SOC")
+#'
+#'   # The answer is a property of the graph, not of the data: change
+#'   # the exposure and the required set changes with it.
+#'   causal_adjustment_set(dag, exposure = "Relief", outcome = "SOC")
+#' }
 #' @export
 causal_adjustment_set <- function(dag, exposure, outcome,
                                    type = c("minimal", "canonical", "all"),

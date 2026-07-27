@@ -14,8 +14,16 @@ test_that("dm_cosine_schedule: T = 1 is handled (degenerate case)", {
 test_that("dm_cosine_schedule: numerical stability at T = 1000", {
   sch <- dm_cosine_schedule(T = 1000L)
   expect_true(all(sch$alphabar > 0))
-  expect_true(all(sch$alphabar <= 0.9999))
+  # alphabar is a product of alphas in (0, 1], so 1 is the bound.  This
+  # assertion used to read `<= 0.9999`, which held only because the
+  # pre-v4.1.0 schedule clamped alphabar directly -- and that clamp is
+  # exactly what broke the identity alphabar == cumprod(alphas) that
+  # the reverse step depends on.  At T = 1000 the first step barely
+  # destroys any signal, so alphabar[1] legitimately exceeds 0.9999.
+  expect_true(all(sch$alphabar <= 1))
+  expect_equal(sch$alphabar, cumprod(sch$alphas), tolerance = 1e-12)
   expect_true(all(sch$sqrt_alphabar >= 0))
+  expect_true(all(is.finite(sch$sqrt_one_minus_alphabar)))
 })
 
 test_that("dm_fit: degenerate constant stack still runs", {

@@ -4,8 +4,13 @@
   set.seed(seed)
   depths <- seq(5, 120, length.out = nd)
   cov_s  <- matrix(stats::rnorm(n * p), n, p)
-  make_p <- function(ci, z) (10 + 5*ci[1]) * exp(-(0.02 + 0.005*ci[2])*z) +
-                              ci[3]
+  # Only index covariates that exist: ci[3] with p < 3 made every
+  # target NA, so the affected tests fitted on nothing.
+  make_p <- function(ci, z) {
+    rate <- 0.02 + 0.005 * (if (length(ci) >= 2L) ci[2] else 0)
+    off  <- if (length(ci) >= 3L) ci[3] else 0
+    (10 + 5 * ci[1]) * exp(-rate * z) + off
+  }
   targets <- t(apply(cov_s, 1L, make_p, z = depths))
   list(depths = depths, covariates = cov_s, targets = targets)
 }

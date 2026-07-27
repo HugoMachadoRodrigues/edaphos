@@ -48,6 +48,93 @@ about what the code showed.
 
 ---
 
+# edaphos 4.1.0
+
+Four defects in the pillar 7-10 implementations, all found while writing the
+vignettes those pillars had been shipping without. Each was invisible to the
+training loss, which is why they survived to v4.0.0; each is now pinned by a
+regression test that fails on the old behaviour.
+
+## Bug fixes
+
+* `predict.edaphos_bhs()` omitted the kriging variance. The predictive
+  distribution added only the nugget `tau^2` and dropped
+  `sigma^2 (1 - r' Sigma^-1 r)` entirely, so every interval was too narrow by
+  exactly the spatially structured share of the residual variance -- worst
+  precisely where the spatial model does the most work. The predictive standard
+  deviation now correctly relaxes to `sqrt(sigma^2 + tau^2)` far from the data
+  and shrinks towards the nugget at observed sites. Measured on a held-out
+  Cerrado split at the profile-MLE optimum, 95% coverage moved from 0.41 to
+  0.92. The step was also rewritten as the exact Gaussian conditional evaluated
+  per posterior draw, instead of conditioning on a single posterior mean of the
+  latent field.
+
+* `bhs_fit()` now warns when the profile-MLE of `phi` lands on an endpoint of
+  `phi_range`. A pinned `phi` means the bracket, not the data, set the
+  correlation rate; the implied spatial variance fraction can then differ by an
+  order of magnitude from its value at the true optimum, silently reversing the
+  conclusion about whether spatial structure is present. `phi` is a rate
+  (1/distance), so the usable bracket depends on the units of `coords` -- now
+  documented.
+
+* Pillar 8 predictions were returned on the wrong scale. `.no_standardise()`
+  centres and scales targets *per depth*, but all four `predict()` paths
+  (`no_fno_fit()` and `no_deeponet_fit()`, R and torch backends) un-standardised
+  with the topsoil constants `[1L]` for every depth. Deep predictions were
+  shifted by the difference between the topsoil and subsoil means -- on a
+  24-depth demonstration profile, 14.8 g/kg at the deepest layer. The DeepONet
+  scored R^2 = -10.6 on a problem where a random forest scored +0.985; it now
+  scores +0.984. Off-grid depth queries interpolate the per-depth constants.
+
+* DDPM ancestral sampling diverged. Two guards prescribed by the source papers
+  were missing: `dm_cosine_schedule()` did not clip `beta_t` at 0.999 (Nichol
+  and Dhariwal 2021, sec. 3.2), letting `alpha_T` reach ~1e-5 so a single
+  reverse step amplified the iterate ~150-fold; and neither `dm_sample()` nor
+  `.torch_ddpm_sample()` clipped `x_0` (Ho et al. 2020, sec. 3.3). Samples came
+  out at ~1e4 times the data scale from the R backend and ~250x from the torch
+  backend, where the fields were correctly *shaped* and merely enormous -- the
+  failure a visual check passes. `alphabar` is now re-derived as
+  `cumprod(alphas)` so the schedule stays self-consistent.
+
+* `no_fno_fit()` and `no_deeponet_fit()` now reject `targets` with no finite
+  values instead of training, predicting and scoring entirely in `NaN`. Three
+  test helpers were silently generating all-NA targets by indexing a covariate
+  column that did not exist.
+
+## Documentation
+
+* Pillars 7-10 ship vignettes: `pilar7-bayesian-hierarchical`,
+  `pilar8-neural-operators`, `pilar9-diffusion-models` and
+  `pilar10-graph-attention`. Every pillar named in DESCRIPTION now has one.
+
+* The ten-pillar claim in DESCRIPTION is now matched by the shipped
+  documentation. `R/pillars_roadmap.R`, `R/edaphos-package.R` and the README
+  described six.
+
+* Pillars 7-10 have `@references`; Ho 2020, Nichol and Dhariwal 2021, Lu 2021,
+  Li 2021, Kovachki 2023, Velickovic 2018, Kipf and Welling 2017, Banerjee 2014,
+  Rue 2009, Chen and Chen 1995 and Huang 2006 were added to the bibliography.
+
+* Four vignettes advertised in the README and package overview did not exist
+  (`pilar1-causal-real`, `pilar3-4d-real`, `pilar5-soilgrids-br`,
+  `llm-kg-benchmark`). The pointers now name what actually ships. A test
+  resolves every `vignette()` reference and every `[fn()]` cross-reference
+  against the tree.
+
+* Runnable examples added to the metrics family, `dm_cosine_schedule()`,
+  `gnn_build_graph()`, `piml_profile_predict()` and `causal_adjustment_set()`.
+
+* `gnn_embed()` documented its return as `(n, hidden * n_heads)`; with the
+  default `average_heads = TRUE` it is `(n, hidden)`.
+
+## Package size
+
+* The shipped tarball went from 14.63 MB to 5.43 MB. The benchmark bundles
+  stored full posterior sample matrices that no consumer outside the runners
+  read (98.8% of the six-pillar bundle); they now store point predictions, and
+  every published figure is unchanged. The logo was 1874 KB at 1254x1254 for a
+  200 px display width.
+
 # edaphos 4.0.0
 
 A correctness release. Six commits of remediation after an adversarial audit

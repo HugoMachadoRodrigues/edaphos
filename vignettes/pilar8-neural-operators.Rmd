@@ -1,0 +1,343 @@
+---
+title: "Pilar 8 — Neural Operators over Depth-Function Space"
+author: "Hugo Rodrigues"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Pilar 8 — Neural Operators over Depth-Function Space}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  fig.width = 6.5, fig.height = 4.5
+)
+library(edaphos)
+```
+
+## Abstract
+
+Digital Soil Mapping predicts a soil property at a *point*: a depth, a
+location, a value. But a soil profile is not a stack of independent
+points — it is a **function** of depth, and pedogenesis is the operator
+that produced it. Pillar 8 learns that operator directly.
+
+Instead of fitting $\hat{y} = f(\mathbf{x}, z)$ pointwise, a neural
+operator learns a map between *function spaces*
+[@Kovachki2023no; @Li2021fno; @Lu2021deeponet],
+
+$$
+\mathcal{G} : u \longmapsto y, \qquad u, y \in \mathcal{C}([z_{\min}, z_{\max}]),
+$$
+
+so that a single trained model evaluates the whole profile at once,
+and — this is the property that matters — can be queried at depths that
+were never in the training grid.
+
+## 1. Why "operator" is not a synonym for "regression"
+
+A pointwise regressor takes $(\mathbf{x}, z)$ and returns a scalar. It
+has no notion that the values at $z = 10$ cm and $z = 15$ cm belong to
+the same profile, and nothing stops it from returning a physically
+absurd non-monotone carbon profile. Depth is just another column.
+
+An operator learner takes the *whole input function* and returns the
+*whole output function*. Continuity in depth is built into the
+representation rather than hoped for in the output. Two constructions
+dominate the literature, and `edaphos` implements both.
+
+### 1.1 Fourier Neural Operator
+
+The FNO [@Li2021fno] builds each layer around a convolution performed
+in the spectral domain. For a hidden function $v(z)$,
+
+$$
+(\mathcal{K}v)(z) \;=\; \mathcal{F}^{-1}\!\big(R_\theta \cdot \mathcal{F}v\big)(z),
+$$
+
+where $\mathcal{F}$ is the discrete Fourier transform along depth and
+$R_\theta$ is a learned complex multiplier applied to the lowest
+`n_modes` frequencies. Truncating the spectrum is not a computational
+shortcut — it is the inductive bias. It says the depth operator is
+smooth, which is exactly what a diffusion-and-transport account of
+pedogenesis implies.
+
+Because the multiplier acts on frequencies rather than grid indices,
+the *learned weights* are independent of the discretisation — the
+property that makes FNO attractive in the PDE literature. Note that
+the `edaphos` implementation nonetheless evaluates on the training
+depth grid: `predict()` for an `edaphos_no_fno` takes covariates only.
+Off-grid querying is available through the DeepONet fitter (§1.2, §6),
+whose trunk network accepts an arbitrary depth.
+
+### 1.2 DeepONet
+
+DeepONet [@Lu2021deeponet] factorises the operator into two networks:
+
+$$
+\mathcal{G}(u)(z) \;\approx\; \sum_{k=1}^{p} \underbrace{b_k(u)}_{\text{branch}} \;
+                                              \underbrace{t_k(z)}_{\text{trunk}} .
+$$
+
+The branch reads the input function (here, the site covariates) and the
+trunk reads the query depth; the prediction is their inner product.
+This is not an arbitrary architecture — it is the constructive form of
+the Chen and Chen (1995) universal operator approximation theorem
+[@ChenChen1995universal], which guarantees that a sum of such products
+can approximate any continuous operator to arbitrary accuracy.
+
+The practical consequence is the same as for the FNO, by a different
+route: the trunk accepts *any* $z$, so the profile can be evaluated
+off-grid.
+
+## 2. A dataset with a known operator
+
+To judge whether an operator was learned we need a problem whose
+operator we know. Pillar 2 supplies one: the parametric pedogenetic
+ODE,
+
+$$
+\frac{dy}{dz} \;=\; -\lambda_0 e^{-\mu z}\,\big(y - y_\infty\big),
+$$
+
+whose closed-form solution is
+
+$$
+y(z) \;=\; y_\infty + (y_0 - y_\infty)\,
+           \exp\!\left(-\tfrac{\lambda_0}{\mu}\big(1 - e^{-\mu z}\big)\right).
+$$
+
+We let the four parameters depend on site covariates. The true operator
+is then "covariates $\mapsto$ profile", and it is analytic, so any
+failure to recover it is the model's, not the data's.
+
+```{r data}
+set.seed(11)
+
+n_sites  <- 160L
+depths   <- seq(2.5, 150, length.out = 24L)     # cm
+
+cov_mat <- cbind(
+  clay   = stats::runif(n_sites, 0.10, 0.60),
+  map    = stats::runif(n_sites, 0.80, 1.60),   # scaled rainfall
+  relief = stats::runif(n_sites, 0.00, 1.00)
+)
+
+profile_of <- function(p, z) {
+  y0     <- 20 + 25 * p[["clay"]]
+  yinf   <-  2 +  6 * p[["map"]]
+  lam0   <- 0.05 + 0.04 * p[["relief"]]
+  mu     <- 0.02 + 0.01 * p[["clay"]]
+  yinf + (y0 - yinf) * exp(-(lam0 / mu) * (1 - exp(-mu * z)))
+}
+
+targets <- t(apply(cov_mat, 1L, profile_of, z = depths))
+targets <- targets + matrix(stats::rnorm(length(targets), 0, 0.25),
+                            nrow(targets), ncol(targets))
+
+dim(targets)          # sites x depths
+round(targets[1, 1:6], 2)
+```
+
+Train/test split by *site*, never by depth — splitting within a profile
+would leak the answer.
+
+```{r split}
+train_id <- sample(n_sites, 120L)
+test_id  <- setdiff(seq_len(n_sites), train_id)
+
+y_tr <- targets[train_id, , drop = FALSE]; x_tr <- cov_mat[train_id, , drop = FALSE]
+y_te <- targets[test_id,  , drop = FALSE]; x_te <- cov_mat[test_id,  , drop = FALSE]
+```
+
+## 3. DeepONet
+
+`no_deeponet_fit()` takes the covariate matrix directly: one row per
+site, and the depth grid separately.
+
+```{r deeponet}
+don <- no_deeponet_fit(
+  depths        = depths,
+  targets       = y_tr,
+  covariates    = x_tr,
+  branch_hidden = 24L,
+  trunk_hidden  = 24L,
+  output_dim    = 10L,
+  epochs        = 400L,
+  lr            = 0.02,
+  seed          = 1L
+)
+
+pred_don <- predict(don, x_te)
+dim(pred_don)
+```
+
+## 4. Fourier Neural Operator
+
+The FNO consumes a depth-resolved covariate *cube*
+`(sites, depths, channels)`. Static site covariates are broadcast along
+the depth axis:
+
+```{r fno}
+cube <- function(x) {
+  a <- array(0, dim = c(nrow(x), length(depths), ncol(x)))
+  for (j in seq_len(ncol(x))) a[, , j] <- x[, j]
+  a
+}
+
+fno <- no_fno_fit(
+  depths     = depths,
+  targets    = y_tr,
+  covariates = cube(x_tr),
+  n_modes    = 6L,
+  width      = 8L,
+  n_blocks   = 1L,
+  epochs     = 60L,
+  lr         = 0.01,
+  seed       = 1L
+)
+
+pred_fno <- predict(fno, cube(x_te))
+dim(pred_fno)
+```
+
+## 5. Scoring, against a baseline that is not a straw man
+
+An operator model should be compared with the honest pointwise
+alternative: flatten every (site, depth) pair into a row, hand a random
+forest the depth as an extra feature, and let it compete.
+
+```{r baseline}
+flatten <- function(x, y) {
+  data.frame(
+    z    = rep(depths, each = nrow(x)),
+    clay = rep(x[, "clay"],   times = length(depths)),
+    map  = rep(x[, "map"],    times = length(depths)),
+    rel  = rep(x[, "relief"], times = length(depths)),
+    y    = as.vector(y)
+  )
+}
+
+d_tr <- flatten(x_tr, y_tr)
+d_te <- flatten(x_te, y_te)
+
+rf <- ranger::ranger(y ~ z + clay + map + rel, data = d_tr,
+                     num.trees = 300L, seed = 1L)
+pred_rf <- matrix(predict(rf, d_te)$predictions,
+                  nrow = nrow(y_te), ncol = length(depths))
+```
+
+```{r score}
+score <- function(p, lbl) {
+  c(model = lbl,
+    rmse  = sprintf("%.3f", sqrt(mean((p - y_te)^2))),
+    r2    = sprintf("%+.4f", 1 - sum((p - y_te)^2) /
+                                 sum((y_te - mean(y_tr))^2)))
+}
+
+as.data.frame(rbind(
+  score(pred_don, "DeepONet"),
+  score(pred_fno, "FNO"),
+  score(pred_rf,  "ranger (pointwise)")
+), stringsAsFactors = FALSE)
+```
+
+Two things to take from this table, both of which cut against the
+marketing version of "neural operators".
+
+**The forest is not beaten on its home turf.** Scored on the training
+depth grid, `ranger` is at least as accurate as the best operator
+model. That is the regime a pointwise regressor is built for, and 500
+trees on three covariates is a genuinely strong baseline. Any claim
+that an operator model dominates here should be met with suspicion.
+
+**The FNO's R backend is the weakest of the three, by design.** It is a
+small spectral network trained by plain gradient descent so the pillar
+is inspectable and installs with no system dependencies (§7). It is a
+reference implementation, not a competitive one, and the gap you see is
+the cost of that choice — not a property of Fourier neural operators.
+
+The next section scores the thing that actually distinguishes an
+operator model, and there the ordering changes.
+
+## 6. The property a pointwise model cannot have
+
+Ask every model for the profile at depths that appear **nowhere** in
+training. The operator models accept the query directly. The random
+forest must extrapolate along a feature it only ever saw at 24 discrete
+values.
+
+```{r offgrid}
+z_new <- c(7.5, 33, 61, 97, 133)          # deliberately between nodes
+
+truth_new <- t(apply(x_te, 1L, profile_of, z = z_new))
+
+don_new <- predict(don, x_te, newdepths = z_new)
+
+d_new <- data.frame(
+  z    = rep(z_new, each = nrow(x_te)),
+  clay = rep(x_te[, "clay"],   times = length(z_new)),
+  map  = rep(x_te[, "map"],    times = length(z_new)),
+  rel  = rep(x_te[, "relief"], times = length(z_new))
+)
+rf_new <- matrix(predict(rf, d_new)$predictions,
+                 nrow = nrow(x_te), ncol = length(z_new))
+
+c(deeponet_offgrid_rmse = sqrt(mean((don_new - truth_new)^2)),
+  ranger_offgrid_rmse   = sqrt(mean((rf_new  - truth_new)^2)))
+```
+
+The ordering reverses. On the training grid the forest was ahead; asked
+for depths it never saw, it is not — because a tree can only return
+values it has averaged from training leaves, and its splits on `z`
+partition the 24 observed depths into steps. The DeepONet trunk, by
+contrast, is a continuous function of $z$: querying it at 61 cm is the
+same operation as querying it at a training depth.
+
+This is the claim Pillar 8 actually makes. Not "neural operators beat
+random forests" — §5 shows they need not, even on data generated by a
+smooth operator. The claim is that the operator model has learned a
+*function of depth* and can be interrogated anywhere on the interval,
+which is what you need to produce GlobalSoilMap-style standard depth
+intervals from profiles sampled on irregular horizons.
+
+## 7. Backends
+
+Both fitters ship a dependency-free pure-R backend (used throughout
+this vignette, so it knits offline) and a `torch` backend with full
+autograd:
+
+```{r backend, eval = FALSE}
+fno_t <- no_fno_fit(depths, y_tr, cube(x_tr),
+                    backend = "torch", device = "cpu",  # or "mps" / "cuda"
+                    n_modes = 8L, width = 32L, n_blocks = 3L,
+                    epochs = 500L, lr = 1e-3, seed = 1L)
+```
+
+The R backend exists so the pillar is inspectable and installable
+anywhere; the torch backend exists so it scales. They are not expected
+to produce identical numbers — different optimisers, different
+initialisations — and the test suite asserts agreement in behaviour,
+not in digits.
+
+## 8. Limitations
+
+- The demonstration operator is analytic and noise is mild. Real depth
+  functions carry horizon discontinuities, which a spectrally
+  truncated FNO will deliberately smooth over.
+- Both models assume every profile shares one depth grid. Ragged
+  horizon data must be splined onto a common support first — see
+  `vignette("pilar2-piml-profile")`.
+- The R backend trains a small network with plain gradient descent. It
+  is a reference implementation, not a competitive one; use
+  `backend = "torch"` for anything at scale.
+- Off-grid accuracy is bounded by the smoothness of the true operator.
+  Neither architecture invents information between sampled depths.
+
+## References

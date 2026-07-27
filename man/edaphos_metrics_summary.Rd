@@ -34,3 +34,17 @@ Convenience wrapper returning a one-row data frame with RMSE, MAE,
 R2, bias, PICP and the interval score at the stated level. Used as
 the row-per-method aggregator in the case-study benchmark table.
 }
+\examples{
+set.seed(1)
+obs  <- stats::rnorm(100, 20, 3)
+pred <- obs + stats::rnorm(100, 0, 1)
+
+# Point metrics only.
+edaphos_metrics_summary(obs, pred, method = "qrf")
+
+# Adding intervals turns on the calibration columns, so a single
+# row carries accuracy, sharpness and coverage together.
+edaphos_metrics_summary(obs, pred,
+                        lower = pred - 1.96, upper = pred + 1.96,
+                        method = "qrf + intervals")
+}

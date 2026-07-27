@@ -225,10 +225,15 @@ for (fd in 1:5) {
   fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P1 OLS (DAG-selected covariates)", post1, c1, t1)
   fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P6 Quantum KRR",    post6, c6, t6)
   fold_rows_new[[length(fold_rows_new) + 1L]] <- grab("P10 GAT (trained attention)",              post10, c10, t10)
-  post_bank_new[[fd]] <- list(p1 = post1, p6 = post6, p10 = post10,
-                               # achievable null for this fold
-                               train_mean = mean(train$soc, na.rm = TRUE),
-                                truth = truth)
+  # Point predictions only -- see the note in benchmark_wosis_p4_p5_p7.R.
+  .point_of <- function(p) if (is.null(p)) NULL
+                           else if (!is.null(p$samples)) colMeans(p$samples)
+                           else as.numeric(p$mean)
+  post_bank_new[[fd]] <- list(
+    p1 = .point_of(post1), p6 = .point_of(post6), p10 = .point_of(post10),
+    # achievable null for this fold
+    train_mean = mean(train$soc, na.rm = TRUE),
+    truth = truth)
 }
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
@@ -275,15 +280,23 @@ print(agg)
 # ---------------------------------------------------------------------------
 pooled_tbl <- local({
   banks <- c(v280$posterior_bank, post_bank_new)
-  is_post  <- function(x) inherits(x, "edaphos_posterior")
-  point_of <- function(p) if (!is_post(p)) NULL
-                          else if (!is.null(p$samples)) colMeans(p$samples)
-                          else as.numeric(p$mean)
-  # A "method" is any bank slot that actually holds a posterior.  Identifying
-  # them by class rather than by excluding known bookkeeping names keeps this
-  # correct when a new field (train_mean, timings, ...) is added to the bank.
-  meths <- unique(unlist(lapply(banks, function(el)
-    names(el)[vapply(el, is_post, logical(1))])))
+  # A bank slot holds a method's predictions when it is a numeric vector as
+  # long as that fold's truth.  Identifying methods structurally -- rather than
+  # by excluding known bookkeeping names -- keeps this correct when a new field
+  # is added to the bank, and it accepts both the old full-posterior banks and
+  # the compact point-prediction ones.
+  n_truth  <- function(el) if (is.null(el$truth)) 0L else length(el$truth)
+  point_of <- function(p, n) {
+    if (inherits(p, "edaphos_posterior"))
+      return(if (!is.null(p$samples)) colMeans(p$samples) else as.numeric(p$mean))
+    if (is.numeric(p) && length(p) == n) return(as.numeric(p))
+    NULL
+  }
+  meths <- unique(unlist(lapply(banks, function(el) {
+    n <- n_truth(el)
+    nm <- setdiff(names(el), c("truth", "train_mean"))
+    nm[vapply(nm, function(k) !is.null(point_of(el[[k]], n)), logical(1))]
+  })))
 
   acc <- setNames(vector("list", length(meths)), meths)
   truth_v <- null_v <- numeric(0)
@@ -299,7 +312,7 @@ pooled_tbl <- local({
                                length(el$truth)))
     }
     for (m in meths) {
-      pt <- point_of(el[[m]])
+      pt <- point_of(el[[m]], length(el$truth))
       if (!is.null(pt)) acc[[m]] <- c(acc[[m]], pt)
     }
   }

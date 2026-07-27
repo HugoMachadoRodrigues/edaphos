@@ -77,6 +77,25 @@
 #'   `lat`.
 #' @return An `edaphos_gnn_graph` list with `features`, `edge_index`,
 #'   `edge_weight`, `coords`, `feature_names`.
+#' @examples
+#' data(br_cerrado)
+#' set.seed(1)
+#'
+#' # gnn_build_graph() expects coordinates under `lon` / `lat`.
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 120L), ]
+#' names(sub)[names(sub) == "x"] <- "lon"
+#' names(sub)[names(sub) == "y"] <- "lat"
+#'
+#' g <- gnn_build_graph(sub, k = 5L,
+#'                      feature_cols = c("elev", "slope", "twi"))
+#' c(n_nodes = g$n, n_edges = ncol(g$edge_index))
+#'
+#' # "spatial" links nearest neighbours in geographic space; "feature"
+#' # links pedologically similar profiles however far apart they lie.
+#' gf <- gnn_build_graph(sub, k = 5L,
+#'                       feature_cols = c("elev", "slope", "twi"),
+#'                       edges = "feature")
+#' identical(g$edge_index, gf$edge_index)
 #' @export
 gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL,
                               edges = c("spatial", "feature", "hybrid"),
@@ -438,6 +457,15 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL,
 #' @param device `"cpu"` (default), `"mps"`, or `"cuda"` when
 #'   `backend = "torch"`.
 #' @return An `edaphos_gnn_gat` fit.
+#'
+#' @references
+#' Veli\enc{č}{c}kovi\enc{ć}{c}, P., Cucurull, G., Casanova, A., Romero,
+#' A., Li\enc{ò}{o}, P. and Bengio, Y. (2018). Graph Attention Networks.
+#' *International Conference on Learning Representations*.
+#'
+#' Kipf, T. N. and Welling, M. (2017). Semi-Supervised Classification
+#' with Graph Convolutional Networks. *International Conference on
+#' Learning Representations*.
 #' @export
 gnn_fit <- function(graph, targets, train_mask = NULL,
                       hidden = 16L, n_heads = 4L, n_layers = 2L,
@@ -731,8 +759,14 @@ print.edaphos_gnn_ensemble <- function(x, ...) {
 
 #' Node-level embeddings from a fitted GAT
 #'
-#' @param object An `edaphos_gnn_gat` fit.
-#' @return An `(n, hidden * n_heads)` matrix -- one row per node.
+#' @param object An `edaphos_gnn_gat` fit.  A `gnn_fit_ensemble()`
+#'   result is not accepted; pass one of its `members` instead.
+#' @return A matrix with one row per node in the graph -- every node,
+#'   not only the training ones, since message passing runs over the
+#'   whole graph.  The column count follows the `average_heads`
+#'   argument of [gnn_fit()]: `hidden` columns when it is `TRUE` (the
+#'   default, heads averaged) and `hidden * n_heads` when it is
+#'   `FALSE` (heads concatenated).
 #' @export
 gnn_embed <- function(object) {
   stopifnot(inherits(object, "edaphos_gnn_gat"))

@@ -33,3 +33,16 @@ A character vector of variable names to condition on, or
 Wraps \code{dagitty::adjustmentSets()} and returns the adjustment set as a
 plain character vector — or \code{NULL} if the effect is not identifiable.
 }
+\examples{
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- causal_clorpt_dag()
+
+  # Which covariates must be conditioned on to read the effect of
+  # Climate on SOC as causal rather than confounded?
+  causal_adjustment_set(dag, exposure = "Climate", outcome = "SOC")
+
+  # The answer is a property of the graph, not of the data: change
+  # the exposure and the required set changes with it.
+  causal_adjustment_set(dag, exposure = "Relief", outcome = "SOC")
+}
+}

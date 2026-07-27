@@ -16,10 +16,13 @@
   set.seed(seed)
   depths <- seq(5, 120, length.out = n_depths)
   cov_static <- matrix(stats::rnorm(n_obs * p_in), n_obs, p_in)
+  # Index only the covariates that exist: cov_i[3L] with p_in < 3 made
+  # every target NA, so callers with p_in = 2 were fitting on nothing.
   make_profile <- function(cov_i, z) {
     amp  <- 10 + 5 * cov_i[1L]
-    rate <- 0.02 + 0.005 * cov_i[2L]
-    amp * exp(-rate * z) + cov_i[3L]
+    rate <- 0.02 + 0.005 * (if (length(cov_i) >= 2L) cov_i[2L] else 0)
+    off  <- if (length(cov_i) >= 3L) cov_i[3L] else 0
+    amp * exp(-rate * z) + off
   }
   targets <- t(apply(cov_static, 1L, make_profile, z = depths))
   list(depths = depths, covariates = cov_static, targets = targets)

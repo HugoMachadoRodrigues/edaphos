@@ -24,6 +24,24 @@ observed value). Lower is better.
 \deqn{IS_\alpha = (u - \ell) + \frac{2}{\alpha}(\ell - y) \mathbb 1\{y < \ell\}
                  + \frac{2}{\alpha}(y - u) \mathbb 1\{y > u\}.}
 }
+\examples{
+set.seed(1)
+n   <- 200
+obs <- stats::rnorm(n, mean = 20, sd = 3)
+band <- function(half) list(lower = rep(20 - half, n),
+                            upper = rep(20 + half, n))
+
+# The interval score is negatively oriented (lower is better) and
+# penalises width as well as missed coverage, so -- unlike PICP --
+# it cannot be gamed by widening the interval.
+ok   <- band(1.96 * 3)
+wide <- band(1e3)
+tight <- band(0.5)
+
+c(calibrated     = edaphos_interval_score(obs, ok$lower, ok$upper),
+  too_wide       = edaphos_interval_score(obs, wide$lower, wide$upper),
+  over_confident = edaphos_interval_score(obs, tight$lower, tight$upper))
+}
 \references{
 Gneiting, T. and Raftery, A. E. (2007). Strictly proper scoring
 rules, prediction, and estimation. \emph{Journal of the American

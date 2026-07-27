@@ -7,10 +7,16 @@
 gnn_embed(object)
 }
 \arguments{
-\item{object}{An \code{edaphos_gnn_gat} fit.}
+\item{object}{An \code{edaphos_gnn_gat} fit.  A \code{gnn_fit_ensemble()}
+result is not accepted; pass one of its \code{members} instead.}
 }
 \value{
-An \verb{(n, hidden * n_heads)} matrix -- one row per node.
+A matrix with one row per node in the graph -- every node,
+not only the training ones, since message passing runs over the
+whole graph.  The column count follows the \code{average_heads}
+argument of \code{\link[=gnn_fit]{gnn_fit()}}: \code{hidden} columns when it is \code{TRUE} (the
+default, heads averaged) and \code{hidden * n_heads} when it is
+\code{FALSE} (heads concatenated).
 }
 \description{
 Node-level embeddings from a fitted GAT

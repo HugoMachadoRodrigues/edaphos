@@ -46,6 +46,27 @@
 #' @param T Integer; number of diffusion steps.
 #' @param s Numeric; small offset to avoid alphabar = 0 at t = T.
 #' @return Named list.
+#'
+#' @references
+#' Nichol, A. Q. and Dhariwal, P. (2021). Improved Denoising Diffusion
+#' Probabilistic Models. *Proceedings of the 38th International
+#' Conference on Machine Learning* **139**, 8162-8171.
+#' @examples
+#' sch <- dm_cosine_schedule(T = 100L)
+#'
+#' # alphabar is the fraction of the original signal surviving to step
+#' # t: it starts near 1 and decays monotonically to ~0.
+#' round(sch$alphabar[c(1, 25, 50, 75, 100)], 4)
+#'
+#' # The three arrays are mutually consistent -- alphabar is the
+#' # running product of alphas -- which is what makes the reverse step
+#' # algebraically valid.
+#' c(complementary = isTRUE(all.equal(sch$alphas + sch$betas, rep(1, 100))),
+#'   running_prod  = isTRUE(all.equal(sch$alphabar, cumprod(sch$alphas))))
+#'
+#' # beta is clipped at 0.999 (Nichol and Dhariwal 2021) to keep the
+#' # 1/sqrt(alpha_t) factor of the reverse step finite near t = T.
+#' max(sch$betas)
 #' @export
 dm_cosine_schedule <- function(T = 50L, s = 0.008) {
   t <- seq(0, T)
@@ -53,14 +74,32 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
   alphabar <- f / f[1]
   alphabar <- pmax(pmin(alphabar, 0.9999), 1e-8)
   alphas <- alphabar[-1] / alphabar[-(T + 1)]
-  betas  <- 1 - alphas
+
+  # Nichol and Dhariwal (2021), sec. 3.2: clip beta_t at 0.999 "to
+  # prevent singularities near t = T".  Without it the cosine schedule
+  # drives alpha_T towards 1e-5, and the reverse step
+  #   mu = (1 / sqrt(alpha_t)) (x_t - ...)
+  # multiplies the iterate by 1/sqrt(alpha_T) ~ 150 in a single step.
+  # With an exact denoiser the bracket cancels and this is harmless;
+  # with any approximate one the residual is amplified and ancestral
+  # sampling diverges -- observed at ~1e4 times the data scale, while
+  # the training loss (computed only on the forward process) looks
+  # perfectly healthy.
+  betas  <- pmin(1 - alphas, 0.999)
+  alphas <- 1 - betas
+
+  # Re-derive alphabar from the clipped alphas so that the three arrays
+  # remain mutually consistent: the reverse step is only valid when
+  # alphabar_t == prod(alphas_1..t).
+  alphabar_c <- cumprod(alphas)
+
   list(
     T = as.integer(T),
     alphas = alphas,
     betas  = betas,
-    alphabar = alphabar[-1],
-    sqrt_alphabar         = sqrt(alphabar[-1]),
-    sqrt_one_minus_alphabar = sqrt(1 - alphabar[-1])
+    alphabar = alphabar_c,
+    sqrt_alphabar         = sqrt(alphabar_c),
+    sqrt_one_minus_alphabar = sqrt(1 - alphabar_c)
   )
 }
 
@@ -161,6 +200,20 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #' @param device `"cpu"` (default), `"mps"`, or `"cuda"` when
 #'   `backend = "torch"`.
 #' @return An `edaphos_dm_fit` fit.
+#'
+#' @references
+#' Ho, J., Jain, A. and Abbeel, P. (2020). Denoising Diffusion
+#' Probabilistic Models. *Advances in Neural Information Processing
+#' Systems* **33**, 6840-6851.
+#'
+#' Nichol, A. Q. and Dhariwal, P. (2021). Improved Denoising Diffusion
+#' Probabilistic Models. *Proceedings of the 38th International
+#' Conference on Machine Learning* **139**, 8162-8171.
+#'
+#' Huang, G.-B., Zhu, Q.-Y. and Siew, C.-K. (2006). Extreme learning
+#' machine: Theory and applications. *Neurocomputing* **70**, 489-501.
+#' \doi{10.1016/j.neucom.2005.12.126} (the random-hidden-layer regime
+#' the `backend = "r"` trainer operates in).
 #' @export
 dm_fit <- function(stack, conditioning = NULL,
                      T = 50L, epochs = 100L,
@@ -286,25 +339,51 @@ dm_sample <- function(fit, n_samples = 4L,
                ncol(conditioning) == fit$cond_dim)
   }
 
+  # Ancestral sampling with x_0 clipping (Ho et al. 2020, sec. 3.3).
+  #
+  # The compact form of the reverse step,
+  #   mu = (1 / sqrt(a_t)) (x_t - ((1 - a_t) / sqrt(1 - abar_t)) eps_hat),
+  # multiplies the iterate by 1 / sqrt(a_t) at every step.  Only an
+  # accurate eps_hat makes the bracket cancel that growth: with
+  # eps_hat == 0 the total gain over the trajectory is
+  # 1 / sqrt(alphabar_T), which the cosine schedule drives past 1e4.
+  # The pure-R denoiser trains a readout over frozen random features
+  # (an ELM regime) and explains only a modest share of the noise, so
+  # the unclipped recursion diverges -- silently, because the training
+  # loss is computed on the forward process and never sees it.
+  #
+  # The standard remedy is to route the step through x_0: invert the
+  # forward process for x_0, clip it to the range the data actually
+  # occupy, and rebuild the posterior mean from the clipped value via
+  #   mu = (sqrt(abar_{t-1}) b_t / (1 - abar_t)) x0
+  #      + (sqrt(a_t) (1 - abar_{t-1}) / (1 - abar_t)) x_t   (eq. 7).
+  # This is algebraically identical when x_0 is in range and bounded
+  # otherwise, so it costs nothing when the denoiser is good.
+  #
+  # Patches are standardised at fit time, so the bound is set in
+  # standard deviations of the training data.
+  clip <- 4
   x <- matrix(stats::rnorm(n_samples * H * W), n_samples, H * W)
   for (t in seq(T, 1, by = -1L)) {
-    at  <- fit$schedule$alphas[t]
-    abt <- fit$schedule$alphabar[t]
-    sigma_t <- sqrt(fit$schedule$betas[t])
+    at   <- fit$schedule$alphas[t]
+    abt  <- fit$schedule$alphabar[t]
+    abtm <- if (t > 1L) fit$schedule$alphabar[t - 1L] else 1
+    bt   <- fit$schedule$betas[t]
+    # Posterior variance of q(x_{t-1} | x_t, x_0) (eq. 7), which is
+    # smaller than the beta_t used by the compact form.
+    sigma_t <- if (t > 1L) sqrt(bt * (1 - abtm) / (1 - abt)) else 0
     for (i in seq_len(n_samples)) {
       fwd <- .dm_forward(fit$net,
                           x_flat    = x[i, ],
                           cond_flat = conditioning[i, ],
                           t_norm    = t / T)
-      # Predicted mean (Ho et al. 2020, eq 11):
-      # mu = (1/sqrt(a)) ( x - ( (1-a) / sqrt(1-abt) ) * eps_hat )
-      mu <- (1 / sqrt(at)) *
-        (x[i, ] - ((1 - at) / sqrt(1 - abt)) * fwd$eps_hat)
-      if (t > 1) {
-        x[i, ] <- mu + sigma_t * stats::rnorm(H * W)
-      } else {
-        x[i, ] <- mu
-      }
+      x0 <- (x[i, ] - sqrt(1 - abt) * fwd$eps_hat) / sqrt(abt)
+      x0 <- pmin(pmax(x0, -clip), clip)
+
+      mu <- (sqrt(abtm) * bt / (1 - abt)) * x0 +
+            (sqrt(at) * (1 - abtm) / (1 - abt)) * x[i, ]
+
+      x[i, ] <- if (t > 1L) mu + sigma_t * stats::rnorm(H * W) else mu
     }
   }
   # Un-standardise

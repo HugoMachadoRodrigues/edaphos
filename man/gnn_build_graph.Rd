@@ -66,3 +66,23 @@ an \code{edaphos_gnn_graph} S3 object carrying the node-feature matrix,
 the sparse adjacency (edge_index + edge_weight), and the spatial
 coordinates used.
 }
+\examples{
+data(br_cerrado)
+set.seed(1)
+
+# gnn_build_graph() expects coordinates under `lon` / `lat`.
+sub <- br_cerrado[sample(nrow(br_cerrado), 120L), ]
+names(sub)[names(sub) == "x"] <- "lon"
+names(sub)[names(sub) == "y"] <- "lat"
+
+g <- gnn_build_graph(sub, k = 5L,
+                     feature_cols = c("elev", "slope", "twi"))
+c(n_nodes = g$n, n_edges = ncol(g$edge_index))
+
+# "spatial" links nearest neighbours in geographic space; "feature"
+# links pedologically similar profiles however far apart they lie.
+gf <- gnn_build_graph(sub, k = 5L,
+                      feature_cols = c("elev", "slope", "twi"),
+                      edges = "feature")
+identical(g$edge_index, gf$edge_index)
+}

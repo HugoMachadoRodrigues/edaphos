@@ -19,7 +19,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse   = TRUE, comment = "#>",
   fig.width  = 7.5, fig.height = 4.8, fig.align = "center",
-  out.width  = "96%", dpi = 150,
+  out.width  = "96%", dpi =  96,
   message    = FALSE, warning = FALSE, eval = FALSE
 )
 ```

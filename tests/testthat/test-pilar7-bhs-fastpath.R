@@ -37,8 +37,13 @@ test_that("fast-path bhs_fit: posterior variance components remain positive", {
     x   = stats::rnorm(n)
   )
   dat$y <- 2 * dat$x + stats::rnorm(n, 0, 1)
-  fit <- bhs_fit(dat, y ~ x, c("lon", "lat"),
-                   nmcmc = 300L, burn = 150L, seed = 11L)
+  # `y` here is generated with no spatial random effect at all, so
+  # the profile-MLE correctly wants maximum decay and pins to the
+  # bracket; bhs_fit() warns. That is the intended behaviour (see
+  # test-pilar7-bhs-kriging-variance.R) and is not what this test
+  # is about.
+  fit <- suppressWarnings(bhs_fit(dat, y ~ x, c("lon", "lat"),
+                   nmcmc = 300L, burn = 150L, seed = 11L))
   expect_true(all(fit$sigma2_draws > 0))
   expect_true(all(fit$tau2_draws  > 0))
 })
@@ -52,8 +57,13 @@ test_that("fast-path bhs_fit: predict() produces finite summaries", {
     x   = stats::rnorm(n)
   )
   dat$y <- 1.5 * dat$x + stats::rnorm(n, 0, 0.5)
-  fit <- bhs_fit(dat, y ~ x, c("lon", "lat"),
-                   nmcmc = 300L, burn = 150L, seed = 12L)
+  # `y` here is generated with no spatial random effect at all, so
+  # the profile-MLE correctly wants maximum decay and pins to the
+  # bracket; bhs_fit() warns. That is the intended behaviour (see
+  # test-pilar7-bhs-kriging-variance.R) and is not what this test
+  # is about.
+  fit <- suppressWarnings(bhs_fit(dat, y ~ x, c("lon", "lat"),
+                   nmcmc = 300L, burn = 150L, seed = 12L))
   newd <- data.frame(
     x   = stats::rnorm(5),
     lon = stats::runif(5, -49.5, -48.5),
@@ -79,9 +89,9 @@ test_that("fast-path bhs_fit: faster than a (hypothetical) dense-inverse path", 
   )
   dat$y <- 2 * dat$x + stats::rnorm(n, 0, 1)
   t1 <- system.time(
-    bhs_fit(dat, y ~ x, c("lon", "lat"),
+    suppressWarnings(bhs_fit(dat, y ~ x, c("lon", "lat"),
              nmcmc = 500L, burn = 250L, seed = 13L,
-             phi_range = c(0.1, 5))
+             phi_range = c(0.1, 5)))
   )["elapsed"]
   # Generous ceiling; purely a performance-regression guard-rail.
   expect_lt(as.numeric(t1), 10)

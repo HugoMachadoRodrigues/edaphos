@@ -128,8 +128,20 @@ if (!is.null(ci_)) {
     add(sprintf("The check flagged %d redirecting URL(s); each has been updated in this tree:",
                 length(ci_$invalid_urls)), "",
         paste0("* ", ci_$invalid_urls), "")
-  if (!is.na(ci_$tarball_bytes))
-    add(sprintf("Source tarball: %s.", mb(ci_$tarball_bytes)), "")
+  # `R CMD check` only prints "Size of tarball:" above a threshold, so this
+  # is legitimately absent on most runs and arrives as NULL through JSON.
+  # Prefer the direct on-disk measurement, and say so when neither exists --
+  # a missing measurement must not abort the render.
+  tb <- if (length(sz$tarball_bytes) == 1L &&
+            !is.na(sz$tarball_bytes)) sz$tarball_bytes
+        else if (length(ci_$tarball_bytes) == 1L &&
+                 !is.na(ci_$tarball_bytes)) ci_$tarball_bytes
+        else NULL
+  if (!is.null(tb)) {
+    add(sprintf("Source tarball: %s (CRAN's guidance is 5 MB).", mb(tb)), "")
+  } else {
+    add("Source tarball size: _not measured_.", "")
+  }
 }
 
 # ---- tests ---------------------------------------------------------------

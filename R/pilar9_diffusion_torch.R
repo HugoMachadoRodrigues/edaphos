@@ -234,12 +234,22 @@
                                       device = dev)
   }
 
+  # Ancestral sampling with x_0 clipping, mirroring the pure-R
+  # `dm_sample()`.  The compact reverse step multiplies the iterate by
+  # 1 / sqrt(alpha_t) every step, and only an exact eps_hat cancels
+  # that growth; anything less diverges in scale.  This backend learns
+  # the *shape* of the field well (generated lag-1 autocorrelation
+  # tracks the data), which made the failure easy to miss -- the
+  # samples were correctly structured and ~250x too large.
+  # See Ho et al. (2020) sec. 3.3 and eq. 7.
+  clip <- 4
   x <- torch::torch_randn(c(n_samples, 1L, H, W), device = dev)
   for (t in seq(T, 1, by = -1L)) {
     at   <- fit$schedule$alphas[t]
     abt  <- fit$schedule$alphabar[t]
+    abtm <- if (t > 1L) fit$schedule$alphabar[t - 1L] else 1
     beta_t <- fit$schedule$betas[t]
-    sigma_t <- sqrt(beta_t)
+    sigma_t <- if (t > 1L) sqrt(beta_t * (1 - abtm) / (1 - abt)) else 0
     t_norm <- torch::torch_tensor(t / T, dtype = torch::torch_float(),
                                       device = dev)
     eps_hat <- torch::torch_empty_like(x)
@@ -249,13 +259,13 @@
                                       t_scalar = t_norm,
                                       cond = ci)$squeeze(1L)
     }
-    mu_t <- (1 / sqrt(at)) *
-      (x - ((1 - at) / sqrt(1 - abt)) * eps_hat)
-    if (t > 1L) {
-      x <- mu_t + sigma_t * torch::torch_randn_like(x)
-    } else {
-      x <- mu_t
-    }
+    x0 <- (x - sqrt(1 - abt) * eps_hat) / sqrt(abt)
+    x0 <- x0$clamp(min = -clip, max = clip)
+
+    mu_t <- (sqrt(abtm) * beta_t / (1 - abt)) * x0 +
+            (sqrt(at) * (1 - abtm) / (1 - abt)) * x
+
+    x <- if (t > 1L) mu_t + sigma_t * torch::torch_randn_like(x) else mu_t
   }
   out_arr <- as.array(x$detach()$to(device = "cpu"))
   out_arr <- out_arr[, 1L, , , drop = FALSE]       # drop channel axis

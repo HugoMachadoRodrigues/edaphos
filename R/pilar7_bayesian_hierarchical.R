@@ -75,10 +75,30 @@
 #' @param prior_ig_a,prior_ig_b Shape and scale of the inverse-Gamma
 #'   priors on `sigma^2` and `tau^2`.
 #' @param phi_range Numeric length-2; bracket for the profile-MLE of
-#'   the GP rate parameter `phi`.  Default `c(0.01, 10)`.
+#'   the GP rate parameter `phi`.  Default `c(0.01, 10)`.  Note that
+#'   `phi` is a **rate**, entering the correlation as
+#'   \eqn{\rho(d) = \exp(-\phi d)}, so its units are 1/distance and the
+#'   usable bracket depends on whether `coords` are in degrees, metres
+#'   or kilometres.  If the profile-MLE lands on an endpoint,
+#'   `bhs_fit()` warns: the bracket rather than the data is then
+#'   determining the correlation rate, and the spatial variance
+#'   fraction can be off by an order of magnitude.
 #' @param seed Optional RNG seed.
 #' @param verbose Logical.
 #' @return An `edaphos_bhs` S3 object.
+#'
+#' @references
+#' Banerjee, S., Carlin, B. P. and Gelfand, A. E. (2014). *Hierarchical
+#' Modeling and Analysis for Spatial Data*, 2nd edition. Chapman and
+#' Hall/CRC, Boca Raton. \doi{10.1201/b17115}
+#'
+#' Rue, H., Martino, S. and Chopin, N. (2009). Approximate Bayesian
+#' inference for latent Gaussian models by using integrated nested
+#' Laplace approximations. *Journal of the Royal Statistical Society:
+#' Series B* **71**, 319-392. \doi{10.1111/j.1467-9868.2008.00700.x}
+#'
+#' Cressie, N. and Wikle, C. K. (2011). *Statistics for Spatio-Temporal
+#' Data*. Wiley, Hoboken.
 #' @export
 bhs_fit <- function(data, formula, coords = c("lon", "lat"),
                       backend = c("gibbs", "rcpp", "spBayes"),
@@ -129,6 +149,27 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
   S <- as.matrix(coord_df)
   n  <- length(y); p <- ncol(X)
   if (n < p + 5L) stop("Too few complete rows for BHS.", call. = FALSE)
+
+  # Reject a rank-deficient design before the sampler starts.
+  #
+  # The Gibbs chain seeds beta from stats::lm.fit(), which returns NA for
+  # aliased columns.  That NA reaches the inverse-gamma rate parameters, so
+  # rgamma() warns "NAs produced" and returns NaN, and the next iteration dies
+  # inside chol() with "the leading minor of order 1 is not positive" -- a
+  # message that tells the caller nothing about the actual problem, which is a
+  # constant or collinear covariate.  Name the offending columns instead.
+  qr_X <- qr(X)
+  if (qr_X$rank < p) {
+    aliased <- colnames(X)[is.na(stats::lm.fit(X, y)$coefficients)]
+    if (!length(aliased))
+      aliased <- setdiff(colnames(X), colnames(X)[qr_X$pivot[seq_len(qr_X$rank)]])
+    .stopf(paste("design matrix is rank-deficient: rank %d for %d columns.",
+                 "Aliased column(s): %s."),
+           qr_X$rank, p, paste(aliased, collapse = ", "),
+           hint = paste("A covariate is constant or an exact linear",
+                        "combination of the others. Drop it, or check for a",
+                        "factor level that no retained row uses."))
+  }
 
   if (!is.null(seed)) set.seed(seed)
 
@@ -194,6 +235,27 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
                       interval = phi_range)$minimum,
     error = function(e) mean(phi_range)
   )
+  # The profile MLE is only meaningful if it is interior to the
+  # bracket.  When it lands on an endpoint the likelihood is still
+  # climbing and `phi_range` -- not the data -- is what determined the
+  # answer.  This is not cosmetic: on a bracket that is too narrow the
+  # implied sigma^2 / (sigma^2 + tau^2) can differ by an order of
+  # magnitude from its value at the true optimum, which silently
+  # reverses the conclusion about whether any spatial structure is
+  # present.  phi is a *rate* with units of 1/distance, so the usable
+  # bracket depends on the units of `coords` (degrees, metres, km).
+  tol <- 1e-3 * max(1, diff(range(phi_range)))
+  if (isTRUE(abs(phi_hat - phi_range[1L]) < tol) ||
+      isTRUE(abs(phi_hat - phi_range[2L]) < tol)) {
+    edge <- if (abs(phi_hat - phi_range[1L]) < tol) "lower" else "upper"
+    warning(sprintf(paste(
+      "bhs_fit(): the profile-MLE of phi (%.4g) is at the %s end of",
+      "phi_range = c(%.4g, %.4g), so the bracket -- not the data --",
+      "is setting the correlation rate. Widen phi_range and refit;",
+      "the spatial variance fraction is not trustworthy until phi is",
+      "interior. phi is a rate (1/distance) in the units of `coords`."),
+      phi_hat, edge, phi_range[1L], phi_range[2L]), call. = FALSE)
+  }
   if (verbose) message(sprintf("[bhs_fit] profile-MLE phi = %.4f", phi_hat))
 
   # Gibbs sampler conditional on phi_hat
@@ -370,7 +432,6 @@ predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975
   D_tr  <- as.matrix(stats::dist(object$coords))
   phi   <- object$phi_hat %||% stats::median(object$phi_draws)
   R_tr  <- exp(-phi * D_tr);  diag(R_tr) <- diag(R_tr) + 1e-8
-  R_tr_inv <- solve(R_tr)
 
   D_cross <- as.matrix(stats::dist(rbind(object$coords,
                                             S_new)))[
@@ -378,7 +439,35 @@ predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975
     seq(n_tr + 1L, n_tr + n_te), drop = FALSE]
   R_cross <- exp(-phi * D_cross)
 
-  # Posterior draws
+  # Exact conditional predictive, per posterior draw.
+  #
+  # Marginalising the latent field out of the hierarchy leaves
+  #   y  ~ N(X beta, Sigma),  Sigma = sigma^2 R + tau^2 I
+  # and, for a new site s0 with cross-correlation vector r0,
+  #   cov(y0, y) = sigma^2 r0,   var(y0) = sigma^2 + tau^2.
+  # The Gaussian conditional is therefore
+  #   E[y0 | y] = x0' beta + sigma^2 r0' Sigma^{-1} (y - X beta)
+  #   V[y0 | y] = sigma^2 + tau^2 - sigma^4 r0' Sigma^{-1} r0.
+  #
+  # The second term of the variance is the kriging variance.  It
+  # vanishes only when s0 coincides with a training site; as s0 moves
+  # away r0 -> 0 and the predictive variance correctly relaxes to the
+  # full marginal sigma^2 + tau^2.  Omitting it -- i.e. adding only the
+  # nugget -- makes every interval too narrow by exactly the share of
+  # residual variance that is spatially structured, which is severe
+  # precisely when the spatial model is doing the most work.
+  #
+  # One symmetric eigendecomposition of R serves every draw:
+  #   Sigma^{-1} = U diag(1 / (sigma^2 lambda + tau^2)) U'
+  # so each draw costs O(n_tr * n_te) instead of an O(n_tr^3) solve.
+  eg   <- eigen(R_tr, symmetric = TRUE)
+  U    <- eg$vectors
+  lam  <- pmax(eg$values, 0)
+  Ut_y <- crossprod(U, object$y)
+  Ut_X <- crossprod(U, object$X)
+  Ut_r <- crossprod(U, R_cross)          # n_tr x n_te, draw-independent
+  Ut_r2 <- Ut_r^2
+
   idx <- sample.int(nrow(object$beta_draws),
                      min(n_draws, nrow(object$beta_draws)))
   draws <- matrix(NA_real_, length(idx), n_te)
@@ -386,14 +475,16 @@ predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975
     b  <- object$beta_draws[idx[i], ]
     s2 <- object$sigma2_draws[idx[i]]
     t2 <- object$tau2_draws[idx[i]]
-    # Posterior mean of latent w at new sites
-    w_new_mean <- as.numeric(
-      t(R_cross) %*% R_tr_inv %*% object$w_post_mean
-    )
-    # Mean prediction
-    mu_new <- as.numeric(X_new %*% b) + w_new_mean
-    # Draw observational noise
-    draws[i, ] <- mu_new + stats::rnorm(n_te, 0, sqrt(t2))
+
+    dinv  <- 1 / (s2 * lam + t2)
+    Ut_e  <- Ut_y - Ut_X %*% b           # U' (y - X beta)
+
+    mu_new <- as.numeric(X_new %*% b) +
+      s2 * as.numeric(crossprod(Ut_r, dinv * Ut_e))
+    v_new  <- s2 + t2 - s2^2 * as.numeric(colSums(dinv * Ut_r2))
+    v_new  <- pmax(v_new, .Machine$double.eps)
+
+    draws[i, ] <- mu_new + stats::rnorm(n_te, 0, sqrt(v_new))
   }
   mu  <- colMeans(draws)
   sd_ <- apply(draws, 2L, stats::sd)

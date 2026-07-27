@@ -46,26 +46,58 @@ test_that("bhs_fit: handles duplicate coordinates without Cholesky failure", {
   # Duplicate two rows' coordinates
   d$lon[c(5, 10, 15)] <- d$lon[1]
   d$lat[c(5, 10, 15)] <- d$lat[1]
-  fit <- bhs_fit(d, y ~ x, c("lon", "lat"),
-                   nmcmc = 80L, burn = 40L, seed = 1L)
+  # n = 30 over a small domain leaves phi weakly identified, so the
+  # profile-MLE pins to the default bracket and bhs_fit() warns.  That
+  # warning is correct and is asserted in
+  # test-pilar7-bhs-kriging-variance.R; here we only care that
+  # duplicate coordinates do not break the Cholesky.
+  fit <- suppressWarnings(bhs_fit(d, y ~ x, c("lon", "lat"),
+                   nmcmc = 80L, burn = 40L, seed = 1L))
   expect_s3_class(fit, "edaphos_bhs")
   # sigma2 and tau2 should stay positive despite duplicate coords
   expect_true(all(fit$sigma2_draws > 0))
   expect_true(all(fit$tau2_draws > 0))
 })
 
-test_that("bhs_fit: constant covariate does not crash", {
+test_that("bhs_fit: a constant covariate is rejected by name, not by Cholesky", {
+  # This test used to accept ANY outcome -- `expect_true(is.null(fit) ||
+  # inherits(fit, "edaphos_bhs"))` is true whether the function works, returns
+  # nonsense, or crashes.  What actually happened was the worst of the three:
+  # lm.fit() seeded beta with NA, rgamma() warned "NAs produced" twice, and the
+  # next iteration died inside chol() with "the leading minor of order 1 is not
+  # positive" -- a message that says nothing about the constant covariate that
+  # caused it.
   d <- .mk_spatial(n = 30L)
-  d$x <- rep(1, nrow(d))  # zero variance
-  # lm.fit may give NA coefficient but Gibbs should proceed
-  fit <- tryCatch(
-    bhs_fit(d, y ~ x, c("lon", "lat"),
-              nmcmc = 50L, burn = 20L, seed = 1L),
-    error = function(e) NULL
+  d$x <- rep(1, nrow(d))                      # zero variance
+
+  expect_error(
+    bhs_fit(d, y ~ x, c("lon", "lat"), nmcmc = 50L, burn = 20L, seed = 1L),
+    regexp = "rank-deficient"
   )
-  # Either it fits (NA beta from lm.fit init is OK -- Gibbs will
-  # re-sample) or it errors informatively.  Both acceptable; no crash.
-  expect_true(is.null(fit) || inherits(fit, "edaphos_bhs"))
+  # the message must name the column, so the user knows which one to drop
+  err <- tryCatch(bhs_fit(d, y ~ x, c("lon", "lat"), nmcmc = 50L, burn = 20L,
+                            seed = 1L),
+                  error = function(e) conditionMessage(e))
+  expect_match(err, "\\bx\\b")
+  expect_match(err, "constant or an exact linear")
+  # and it must fail cleanly -- no warnings on the way out
+  expect_no_warning(
+    tryCatch(bhs_fit(d, y ~ x, c("lon", "lat"), nmcmc = 50L, burn = 20L,
+                       seed = 1L), error = function(e) NULL)
+  )
+})
+
+test_that("bhs_fit: exactly collinear covariates are rejected too", {
+  d <- .mk_spatial(n = 30L)
+  d$x2 <- 2 * d$x                              # exact linear combination
+  expect_error(
+    bhs_fit(d, y ~ x + x2, c("lon", "lat"), nmcmc = 50L, burn = 20L, seed = 1L),
+    regexp = "rank-deficient"
+  )
+  # a well-conditioned design still fits
+  fit <- bhs_fit(d, y ~ x, c("lon", "lat"), nmcmc = 50L, burn = 20L, seed = 1L)
+  expect_s3_class(fit, "edaphos_bhs")
+  expect_false(anyNA(fit$beta_draws))
 })
 
 test_that("bhs_fit: large prior_var_beta approximates flat prior", {
@@ -109,13 +141,21 @@ test_that("predict.edaphos_bhs: rejects newdata missing covariates", {
 
 test_that("bhs_fit: extreme phi_range still returns valid posterior", {
   d <- .mk_spatial(n = 40L)
-  fit <- bhs_fit(d, y ~ x, c("lon", "lat"),
-                   nmcmc = 80L, burn = 40L,
-                   phi_range = c(1e-4, 1e4), seed = 1L)
-  # Profile-MLE should pick SOME value in the bracket
+  # A bracket spanning eight orders of magnitude on 40 points cannot
+  # identify phi; the profile-MLE pins to an endpoint and bhs_fit()
+  # must say so rather than reporting the pinned value as an estimate.
+  expect_warning(
+    fit <- bhs_fit(d, y ~ x, c("lon", "lat"),
+                     nmcmc = 80L, burn = 40L,
+                     phi_range = c(1e-4, 1e4), seed = 1L),
+    "profile-MLE of phi"
+  )
+  # The posterior must still be well-formed despite the pinned phi.
   expect_true(is.numeric(fit$phi_hat))
   expect_gte(fit$phi_hat, 1e-4)
   expect_lte(fit$phi_hat, 1e4)
+  expect_true(all(fit$sigma2_draws > 0))
+  expect_true(all(fit$tau2_draws  > 0))
 })
 
 test_that("as_edaphos_posterior.edaphos_bhs: matches sample dimensions", {

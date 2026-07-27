@@ -81,3 +81,12 @@ An \code{edaphos_gnn_gat} fit.
 \description{
 Fit a Graph Attention Network on a WoSIS-style co-location graph
 }
+\references{
+Veli\enc{č}{c}kovi\enc{ć}{c}, P., Cucurull, G., Casanova, A., Romero,
+A., Li\enc{ò}{o}, P. and Bengio, Y. (2018). Graph Attention Networks.
+\emph{International Conference on Learning Representations}.
+
+Kipf, T. N. and Welling, M. (2017). Semi-Supervised Classification
+with Graph Convolutional Networks. \emph{International Conference on
+Learning Representations}.
+}
