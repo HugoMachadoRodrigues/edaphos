@@ -73,7 +73,8 @@ D\bigr). \$\$
 For a regression model with Gaussian aleatoric noise of variance
 \\\sigma_a^2\\ and an epistemic posterior represented by `T` parameter
 draws \\f\_\theta^{(1)}, \ldots, f\_\theta^{(T)}\\, the objective
-reduces to a log-determinant :
+reduces to a log-determinant (see the source comment at the top of
+`R/active_batchbald.R` for the derivation):
 
 \$\$ \mathrm{BatchBALD}(B) \\\propto\\ \tfrac{1}{2}\log\det\\\bigl(
 \mathrm{Cov}\_\theta\bigl(f\_\theta(B)\bigr) + \sigma_a^2 I\_{\|B\|}

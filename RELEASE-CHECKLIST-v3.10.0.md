@@ -16,6 +16,7 @@ The package source tarball is already built at:
 To submit, open R in the package root and run:
 
 ``` r
+
 devtools::submit_cran()
 ```
 

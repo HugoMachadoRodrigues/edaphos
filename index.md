@@ -53,10 +53,10 @@ observational):
 
 And they distinguish two competing views of causality:
 
-| View              | Lógica central                                                                       | Challenge in DSM                                                 |
-|:------------------|:-------------------------------------------------------------------------------------|:-----------------------------------------------------------------|
-| **Successionist** | Regularities / repeatable associations ⇒ causal claim                                | Simpson’s paradox; spurious associations; no temporal sequencing |
-| **Generative**    | Soil-forming factors act through **explicit processes** that produce soil properties | Requires process-informed models; directly satisfies condition 1 |
+| View | Lógica central | Challenge in DSM |
+|:---|:---|:---|
+| **Successionist** | Regularities / repeatable associations ⇒ causal claim | Simpson’s paradox; spurious associations; no temporal sequencing |
+| **Generative** | Soil-forming factors act through **explicit processes** that produce soil properties | Requires process-informed models; directly satisfies condition 1 |
 
 Each of `edaphos`’s six pillars addresses one of these gaps with a
 concrete, reproducible computational machinery. The package is the first
@@ -172,7 +172,7 @@ The vignette produces a weighted decision matrix integrating:
 
 - **Pillar 1** causal-effect posteriors (block-bootstrap in k-means
   clusters).
-- **Pillar 2** pedogenetic ODE posteriors ($k_{1},k_{2},\sigma$).
+- **Pillar 2** pedogenetic ODE posteriors ($`k_1, k_2, \sigma`$).
 - **Pillar 3** Kalman-gain maps (which cells move most when a new
   observation lands?).
 - **Pillar 4** foundation-model ensemble SD (where is the representation
@@ -187,6 +187,7 @@ explicit causal justification tied back to the [Zhang & Wadoux
 📖 Build the vignette:
 
 ``` r
+
 vignette("capstone-cerrado-campaign", package = "edaphos")
 ```
 
@@ -231,22 +232,61 @@ for users without libtorch. A proper 2-D conditional U-Net replaces the
 MLP denoiser in DDPM, and the GAT layer uses `torch::index_add` scatter
 for softmax-per-source attention.
 
-**v2.8.0 — Real head-to-head benchmark on 1 095 WoSIS profiles.** First
-honest cross-pillar comparison:
+**Cross-pillar head-to-head on 1 095 WoSIS profiles.** Five spatially
+blocked folds, `log1p(SOC)`, scored against the *achievable* null —
+predicting each fold’s **training**-fold mean, not the global mean,
+which would be an oracle over the very rows being scored:
 
-| Method            | RMSE |        R² | <PICP@90> | <MPIW@90> |     CRPS |
-|:------------------|-----:|----------:|----------:|----------:|---------:|
-| P4 Foundation+QRF | 14.1 |     0.034 | **0.889** |      37.6 |     5.93 |
-| **P5 QRF**        | 14.1 |     0.064 |     0.879 |      37.2 | **5.85** |
-| **P7 BHS**        | 14.1 | **0.070** |     0.812 |  **36.7** |     6.97 |
+| Method | RMSE | R² vs global mean | NSE vs training-fold mean | draws |
+|:---|---:|---:|---:|---:|
+| P1 OLS (DAG-selected covariates) | 0.587 | +0.160 | **+0.196** | 300 |
+| P5 QRF | 0.594 | +0.139 | +0.175 | 99 |
+| P7 BHS | 0.601 | +0.119 | +0.157 | 200 |
+| P4 Foundation embeddings + QRF | 0.615 | +0.077 | +0.116 | 99 |
+| P10 GAT (trained attention) | 0.617 | +0.073 | +0.112 | **8** |
+| P6 Quantum KRR | 0.665 | −0.079 | −0.033 | 100 |
 
-All three tie at ~14.1 g/kg RMSE. P5 wins on CRPS, P7 on R² and MPIW
-(but under-covers), P4 best-calibrated at 0.89 ≈ nominal 0.90. Runner:
-`data-raw/benchmark_wosis_p4_p5_p7.R`; bundle:
-`inst/extdata/benchmark_wosis_p4_p5_p7.rds`.
+RMSE is in `log1p(g/kg)` and is not comparable to a g/kg figure. The
+`draws` column is the ensemble each method actually got: they are not
+equal, and a ranking that ignores that is comparing budgets. P10 reaches
++0.112 on **8** members against 99–300 for the others.
 
-An important **P7 BHS row-alignment bug** was found and fixed in the
-process (details in NEWS.md v2.8.0).
+**The honest reading.** Ordinary least squares on a DAG-selected
+covariate subset is the strongest method here. None of the five more
+elaborate pillars beats it on this task, and the spread between the top
+four is small relative to the fold-to-fold variation. Only P6 falls
+below the achievable null, and only just.
+
+**Two figures for P10, both correct.** The +0.112 above is a
+fixed-configuration comparison with every pillar at its defaults. Under
+nested cross-validation with tuned hyperparameters and a 10-member
+ensemble, the same GAT reaches **NSE +0.184 against a tuned QRF’s
++0.165** (difference +0.019, 95 % block-bootstrap CI \[−0.021, +0.057\],
+P(GAT ahead) = 0.844 — a consistent edge, not a significant one). Those
+answer different questions: “how do the pillars compare out of the box”
+versus “does a tuned GAT beat a tuned forest”. Runner:
+`data-raw/pilar10_gat_tuning.R`; bundle
+`inst/extdata/pilar10_gat_tuning.rds`.
+
+**Earlier releases published a different table** — RMSE ≈ 14.1 g/kg and
+R² of 0.034 / 0.064 / 0.070 for P4 / P5 / P7, described as a three-way
+tie. Those figures came from the raw g/kg scale, where 11 profiles (1 %
+of n) carry 48 % of the total sum of squares, and from an R² clamped at
+zero that hid negative values in 21 of 30 method-fold cells. The P4 row
+was additionally computed over a raster of
+[`stats::rnorm()`](https://rdrr.io/r/stats/Normal.html) noise. They have
+been withdrawn. `tests/testthat/test-headline-claims.R` now binds every
+figure in this section to the shipped bundle.
+
+Runners: `data-raw/benchmark_wosis_p4_p5_p7.R` and
+`data-raw/benchmark_wosis_6pilar.R`; bundle
+`inst/extdata/benchmark_wosis_6pilar.rds`.
+
+**Provenance.** The WoSIS profiles were sampled between 1960 and 2010
+(median 1982); the covariates are present-day products (SoilGrids 2020,
+WorldClim 2.1, SRTM 2000, WorldCover 2020). Land cover is measured
+roughly four decades after the median observation, so part of the
+irreducible error is temporal mismatch rather than model inadequacy.
 
 ------------------------------------------------------------------------
 
@@ -255,15 +295,15 @@ process (details in NEWS.md v2.8.0).
 One batched session shipped **seven** full releases, each with 0/0/0 R
 CMD check and a dedicated test suite:
 
-|  Version   | Scope                                                                                                                                                                                                                                                                                                               |
-|:----------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **v2.1.3** | Rcpp port of [`quantum_kernel()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_kernel.md) — 10-50× speedup, machine-precision agreement with the R reference.                                                                                                                                   |
+| Version | Scope |
+|:--:|:---|
+| **v2.1.3** | Rcpp port of [`quantum_kernel()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_kernel.md) — 10-50× speedup, machine-precision agreement with the R reference. |
 | **v2.2.0** | Physics-informed quantum kernels (P2 × P6): [`piml_quantum_kernel()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_quantum_kernel.md) + [`piml_qkrr_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_qkrr_fit.md) fuse ZZFeatureMap overlap with ODE-residual RBF similarity. |
-| **v2.2.1** | Causal 4D time-varying effects (P1 × P3): [`causal_effect_time_varying()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_effect_time_varying.md) sliding-window backdoor + Mann-Kendall trend test + ggplot2 trajectory.                                                                          |
-| **v2.3.0** | **Pilar 7 BHS** — Bayesian hierarchical spatial model via self-contained Gibbs sampler + optional [`spBayes::spLM`](https://rdrr.io/pkg/spBayes/man/spLM.html) backend. Profile-MLE phi for closed-form conditionals.                                                                                               |
-| **v2.4.0** | **Pilar 8 Neural Operators** — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021) in pure R. Learn `u(z) → y(z)` across sites without torch.                                                                                                                                   |
-| **v2.5.0** | **Pilar 9 DDPM** — first pedometric diffusion-model for generative soil maps. Cosine-schedule (Nichol & Dhariwal 2021) + score-matching loss + ancestral sampling.                                                                                                                                                  |
-| **v2.8.0** | **Pilar 10 GAT** — first pedometric Graph Attention Network (Velickovic et al. 2018) over WoSIS k-NN co-location graphs.                                                                                                                                                                                            |
+| **v2.2.1** | Causal 4D time-varying effects (P1 × P3): [`causal_effect_time_varying()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_effect_time_varying.md) sliding-window backdoor + Mann-Kendall trend test + ggplot2 trajectory. |
+| **v2.3.0** | **Pilar 7 BHS** — Bayesian hierarchical spatial model via self-contained Gibbs sampler + optional [`spBayes::spLM`](https://finleya.github.io/spBayes/reference/spLM.html) backend. Profile-MLE phi for closed-form conditionals. |
+| **v2.4.0** | **Pilar 8 Neural Operators** — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021) in pure R. Learn `u(z) → y(z)` across sites without torch. |
+| **v2.5.0** | **Pilar 9 DDPM** — first pedometric diffusion-model for generative soil maps. Cosine-schedule (Nichol & Dhariwal 2021) + score-matching loss + ancestral sampling. |
+| **v2.8.0** | **Pilar 10 GAT** — first pedometric Graph Attention Network (Velickovic et al. 2018) over WoSIS k-NN co-location graphs. |
 
 **Tooling now in place**: `src/` compiled Rcpp, `LinkingTo: Rcpp`,
 `Dockerfile`, `_pkgdown.yml`, `cran-comments.md`,
@@ -276,7 +316,7 @@ Consolidation release aimed at CRAN / rOpenSci readiness:
 
 - **pkgdown documentation site** — `_pkgdown.yml` + GitHub Actions
   workflow; deployed at
-  <https://hugomachadorodrigues.github.io/edaphos>.
+  <https://hugomachadorodrigues.github.io/edaphos/>.
 - **Docker reproducibility** — `Dockerfile` based on
   `rocker/geospatial:4.4.1` with libtorch + pinned CRAN snapshot +
   pre-downloaded `edaphos-cerrado-moco-v1` encoder. One-command
@@ -333,8 +373,9 @@ plan and TODO checklist.
 ## Installation
 
 ``` r
+
 # Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
-remotes::install_github("HugoMachadoRodrigues/edaphos@v2.8.0",
+remotes::install_github("HugoMachadoRodrigues/edaphos",
                          build_vignettes = TRUE)
 
 # Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)
@@ -368,16 +409,16 @@ light and the scientific boundary between pillars explicit.
 
 ## The six pillars at a glance
 
-| Nº     | Pillar                         | Namespace       | Status    | Governing object                                                                                                                                                                                                                              |
-|--------|--------------------------------|-----------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1      | **Causal AI + LLM KG**         | `causal_*`      | ✅ v1.4.0 | Pedogenetic DAG $G = (V,E)$ + backdoor-adjusted $\beta_{x\rightarrow y}^{\text{do}}$ \[[Pearl 2009](https://doi.org/10.1017/CBO9780511803161)\] **+ LLM-extracted claims** via Gemma 4 / GPT / Claude (multi-backend voting + AGROVOC)        |
-| 2      | **Physics-Informed ML**        | `piml_*`        | ✅ v1.1.0 | Pedogenetic ODE $\frac{dy}{dz} = - \lambda_{0}e^{- \mu z}\left( y - y_{\infty} \right)$; Bayesian posterior over $\left( \lambda_{0},\mu,y_{\infty} \right)$; Neural ODE $\frac{dy}{dz} = f_{\theta}(z,y,\mathbf{x})$                         |
-| 3      | **4D Pedometry**               | `temporal_*`    | ✅ v1.5.0 | Stacked ConvLSTM \[[Shi et al. 2015](https://arxiv.org/abs/1506.04214)\] with seq-to-seq + multi-step rollout + mass-balance physics loss; stochastic EnKF with Gaspari-Cohn localization                                                     |
-| 4      | **Foundation Models**          | `foundation_*`  | ✅ v1.2.0 | SimCLR + MoCo v2 contrastive pre-training \[[He et al. 2020](https://arxiv.org/abs/1911.05722); [Chen et al. 2020b](https://arxiv.org/abs/2003.04297)\] on planetary-scale patches; **Zenodo-published Cerrado encoder** + fine-tune ensemble |
-| 5      | **Autonomous Active Learning** | `al_*`          | ✅ v1.1.0 | Hybrid policy $\pi(\mathbf{x}) = \alpha\,\widetilde{u}(\mathbf{x}) + (1 - \alpha)\,\widetilde{d}(\mathbf{x})$ with PIML physics gate + BatchBALD                                                                                              |
-| 6      | **Quantum ML**                 | `quantum_*`     | ✅ v0.9.0 | ZZFeatureMap quantum kernel \[[Havlicek et al. 2019](https://doi.org/10.1038/s41586-019-0980-2)\] + Quantum Kernel Ridge Regression; **Qiskit VQE** with M3 / ZNE mitigation                                                                  |
-| **🔗** | **Unified uncertainty API**    | `uncertainty_*` | ✅ v1.6.0 | `edaphos_posterior` S3 class + [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md) returning CRPS / PICP / MPIW / reliability diagram for *every* pillar                           |
-| **🎬** | **Capstone vignette**          | —               | ✅ v1.7.0 | “Uma decisão de amostragem sob incerteza no Cerrado” — all six pillars integrated, causally grounded in [Zhang & Wadoux (2026)](https://doi.org/10.1111/ejss.70284)                                                                           |
+| Nº | Pillar | Namespace | Status | Governing object |
+|----|----|----|----|----|
+| 1 | **Causal AI + LLM KG** | `causal_*` | ✅ v1.4.0 | Pedogenetic DAG $`G = (V, E)`$ + backdoor-adjusted $`\beta_{x \to y}^{\text{do}}`$ \[[Pearl 2009](https://doi.org/10.1017/CBO9780511803161)\] **+ LLM-extracted claims** via Gemma 4 / GPT / Claude (multi-backend voting + AGROVOC) |
+| 2 | **Physics-Informed ML** | `piml_*` | ✅ v1.1.0 | Pedogenetic ODE $`\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)`$; Bayesian posterior over $`(\lambda_0, \mu, y_\infty)`$; Neural ODE $`\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})`$ |
+| 3 | **4D Pedometry** | `temporal_*` | ✅ v1.5.0 | Stacked ConvLSTM \[[Shi et al. 2015](https://arxiv.org/abs/1506.04214)\] with seq-to-seq + multi-step rollout + mass-balance physics loss; stochastic EnKF with Gaspari-Cohn localization |
+| 4 | **Foundation Models** | `foundation_*` | ✅ v1.2.0 | SimCLR + MoCo v2 contrastive pre-training \[[He et al. 2020](https://arxiv.org/abs/1911.05722); [Chen et al. 2020b](https://arxiv.org/abs/2003.04297)\] on planetary-scale patches; **Zenodo-published Cerrado encoder** + fine-tune ensemble |
+| 5 | **Autonomous Active Learning** | `al_*` | ✅ v1.1.0 | Hybrid policy $`\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})`$ with PIML physics gate + BatchBALD |
+| 6 | **Quantum ML** | `quantum_*` | ✅ v0.9.0 | ZZFeatureMap quantum kernel \[[Havlicek et al. 2019](https://doi.org/10.1038/s41586-019-0980-2)\] + Quantum Kernel Ridge Regression; **Qiskit VQE** with M3 / ZNE mitigation |
+| **🔗** | **Unified uncertainty API** | `uncertainty_*` | ✅ v1.6.0 | `edaphos_posterior` S3 class + [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md) returning CRPS / PICP / MPIW / reliability diagram for *every* pillar |
+| **🎬** | **Capstone vignette** | — | ✅ v1.7.0 | “Uma decisão de amostragem sob incerteza no Cerrado” — all six pillars integrated, causally grounded in [Zhang & Wadoux (2026)](https://doi.org/10.1111/ejss.70284) |
 
 Every pillar ships with (i) a mathematically explicit governing object;
 (ii) an R function family; (iii) one or more vignettes deriving the
@@ -400,14 +441,21 @@ structural-causal-model apparatus \[[Pearl
 
 ### Governing object
 
-Given a pedogenetic Directed Acyclic Graph $G = (V,E)$, the
-**backdoor-adjusted** direct effect of exposure $X$ on outcome $Y$ is
+Given a pedogenetic Directed Acyclic Graph $`G = (V, E)`$, the
+**backdoor-adjusted** direct effect of exposure $`X`$ on outcome $`Y`$
+is
 
-$$\beta_{x\rightarrow y}^{\text{do}}\; = \;\frac{\partial\,{\mathbb{E}}\lbrack Y \mid X = x,\, Z = z\rbrack}{\partial x},\qquad Z\; \in \;\texttt{𝚍𝚊𝚐𝚒𝚝𝚝𝚢::𝚊𝚍𝚓𝚞𝚜𝚝𝚖𝚎𝚗𝚝𝚂𝚎𝚝𝚜}(G,X,Y).$$
+``` math
+\beta_{x\to y}^{\text{do}} \;=\;
+    \frac{\partial\,\mathbb{E}\bigl[Y \mid X=x,\, Z=z\bigr]}{\partial x},
+\qquad
+    Z \;\in\; \texttt{dagitty::adjustmentSets}(G,X,Y).
+```
 
 ### Classical API
 
 ``` r
+
 library(edaphos)
 data(br_cerrado)
 
@@ -508,6 +556,7 @@ converge on a clean DAG instead of a tangle of synonyms.
 #### Single-abstract ingestion
 
 ``` r
+
 kg <- causal_kg_new()
 
 kg <- causal_llm_ingest_abstract(
@@ -579,6 +628,7 @@ runs all three on the same abstract and resolves disagreements by one of
 three rules:
 
 ``` r
+
 cons <- causal_llm_vote(
   abstract = "Higher MAP drives SOC in Cerrado...",
   backends = list(
@@ -592,7 +642,10 @@ cons <- causal_llm_vote(
 
 The formal resolution rule for majority voting is
 
-$$\left. \text{claim}\,\left( c\rightarrow e \right) \in C_{\text{cons}}\;\Leftrightarrow\;|\{ b \in B\,:\,\left( c\rightarrow e \right) \in C_{b}\}|\; \geq \;\lceil|B|/2\rceil, \right.$$
+``` math
+\text{claim}\,(c \to e) \in C_{\text{cons}} \;\iff\;
+    \bigl|\{b \in B \,:\, (c \to e) \in C_b\}\bigr| \;\ge\; \lceil |B|/2 \rceil,
+```
 
 with confidence set to the per-backend mean over the voters that agreed.
 [`causal_llm_ingest_abstract_voted()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_ingest_abstract_voted.md)
@@ -628,80 +681,96 @@ Running the adjusted + naive comparison on **1 095 real WoSIS Cerrado
 topsoil profiles** (v1.4.0) with a block-bootstrap over k-means
 clusters:
 
-| Exposure       | Naive β (g/kg per unit) | Adjusted β (g/kg per unit) | Confounding factor | Backdoor adjustment set          |
-|:---------------|------------------------:|---------------------------:|-------------------:|:---------------------------------|
-| MAP (mm/a)     |                   0.013 |                  **0.009** |               1.5× | slope, T2M, land-cover fractions |
-| Tree cover (%) |                    0.42 |                   **0.31** |               1.4× | MAP, T2M                         |
-| Clay (%)       |                    0.38 |                   **0.25** |               1.5× | slope, bulk density, sand        |
+| Exposure | Naive β (g/kg per unit) | Adjusted β (g/kg per unit) | Confounding factor | Backdoor adjustment set |
+|:---|---:|---:|---:|:---|
+| MAP (mm/a) | 0.013 | **0.009** | 1.5× | slope, T2M, land-cover fractions |
+| Tree cover (%) | 0.42 | **0.31** | 1.4× | MAP, T2M |
+| Clay (%) | 0.38 | **0.25** | 1.5× | slope, bulk density, sand |
 
 Every effect is accompanied by an `edaphos_posterior` with a
 block-bootstrap sample (B = 500) or a native BART posterior — so
 [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md)
 applies uniformly (see [§9](#unified-uncertainty-api-v160)).
 
-### 🆕 v1.7.2 — Causal-discovery trio: expert × LLM × data-driven
+### Causal-discovery trio: expert × LLM × data-driven
 
 [`vignette("causal-discovery-trio")`](https://hugomachadorodrigues.github.io/edaphos/articles/causal-discovery-trio.md)
 asks a harder question: **do the three DAG-construction strategies in
 Pillar 1 agree?** Running all five methods on the same 1 095 WoSIS
 profiles:
 
-| Comparison                       | Structural Hamming Distance |
-|:---------------------------------|----------------------------:|
-| Expert ↔︎ LLM-augmented (Gemma 4) |                       **2** |
-| bnlearn `hc` ↔︎ bnlearn `tabu`    |                       **0** |
-| bnlearn `pc-stable` ↔︎ `hc`       |                          12 |
-| Expert ↔︎ bnlearn `hc`            |                      **29** |
+| Comparison                    | Structural Hamming Distance |
+|:------------------------------|----------------------------:|
+| Expert ↔︎ LLM-augmented        |                       **0** |
+| bnlearn `hc` ↔︎ bnlearn `tabu` |                       **0** |
+| bnlearn `pc-stable` ↔︎ `hc`    |                          12 |
+| Expert ↔︎ bnlearn `hc`         |                      **29** |
 
-The **major scientific finding** is that the choice of DAG changes the
-backdoor adjustment set for MAP → SOC from **6 covariates**
-(LLM-augmented) to **0 covariates** (bnlearn mmhc) — a difference of an
-order of magnitude that directly changes the identified effect. The
-three strategies are **complementary**, not substitutable. The vignette
-recommends using all three and reporting sensitivity as the
-causal-analog of observational uncertainty.
+**The LLM adds nothing here, and that is the informative result.** Of
+the 30 claims in `inst/extdata/cerrado_claims.jsonl`, only 3 have both
+endpoints expressible among the 10 WoSIS covariates, and all 3 were
+already in the expert DAG. The 32 remaining distinct concepts —
+`decomposition`, `primary_mineral_dissolution`, `argillic_horizon`,
+`root_input`, `effective_cation_exchange_capacity`, `twi` and others —
+have no counterpart in the covariate set. The extractor is not the
+bottleneck; the covariate set is.
+
+Earlier releases reported `SHD(Expert, LLM-augmented) = 2` and read it
+as the LLM being “conservative”. That figure came from six edges typed
+by hand into `data-raw/causal_discovery_benchmark.R`, carrying
+confidences (0.90, 0.82, 0.78, 0.75, 0.72, 0.71) that appear in no file
+in this package — every shipped claim has confidence 0.9. Those edges
+have been withdrawn; the benchmark now derives its edge set from the
+claims file through an explicit concept → column mapping that is
+validated against the columns which actually exist.
+
+The finding that survives is the disagreement between expert and
+data-driven structure. The backdoor adjustment set for MAP → SOC is **5
+covariates** under the expert DAG (`slope`, `wc_bio_01`,
+`wc_landcover_cropland`, `wc_landcover_grassland`, `wc_landcover_trees`)
+but **1** under `pc-stable` (`wc_bio_01`) and 2 under `hc`/`tabu`. That
+difference directly changes the identified effect, so the three
+strategies are **complementary**, not substitutable, and the vignette
+recommends reporting the sensitivity rather than picking one.
 
 📖 Vignettes:
 [`vignette("pilar1-causal")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal.md),
 `vignette("pilar1-causal-real")`,
 [`vignette("causal-discovery-trio")`](https://hugomachadorodrigues.github.io/edaphos/articles/causal-discovery-trio.md).
 
-### v1.8.0 — Multi-backend LLM extraction benchmark
+### Multi-backend LLM extraction: harness, not vendor comparison
 
-The first quantitative validation of the Gemma 4 extractor that powers
-Pillar 1. A **gold standard of 30 Cerrado abstracts × 72
+Pillar 1’s extractor can be driven by three backends (local Ollama,
+OpenAI, Anthropic) through
+[`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md),
+and
+[`causal_llm_vote()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_vote.md)
+combines them. A gold standard of **30 Cerrado abstracts × 72
 expert-annotated causal claims**
-(`inst/extdata/cerrado_gold_standard_v1.jsonl`) is compared against
-extractions from three backends through
-[`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md):
+(`inst/extdata/cerrado_gold_standard_v1.jsonl`) is shipped so the
+scoring harness can be exercised offline.
 
-| Backend               | Precision |   Recall |       F1 | Cost/10k abs. | Latency (median) |
-|:----------------------|----------:|---------:|---------:|--------------:|-----------------:|
-| Gemma 4 (local)       |      0.75 |     0.67 |     0.71 |       **\$0** |             16 s |
-| GPT-4o-mini           |      0.70 |     0.71 |     0.70 |        \$1.71 |        **2.8 s** |
-| **Claude Sonnet-4.5** |  **0.82** | **0.82** | **0.82** |       \$37.50 |            5.4 s |
-
-**Key findings.**
-
-- **Claude has the best F1** (0.82) and is the only backend that reaches
-  “substantial” Cohen’s κ with the human annotator (0.57, Landis-Koch
-  threshold 0.60).
-- **GPT-4o-mini is the fastest** (2.8 s vs. 5.4 s vs. 16 s median
-  latency per abstract).
-- **Gemma 4 is the only free option**; at a 10 000-abstract scale,
-  switching from Claude to Gemma 4 saves ~\$37.50 at the cost of 11
-  F1-points.
-- **Backends disagree strongly on which abstracts to extract** (κ ≈
-  −0.08 to 0.12 pairwise), which means combining them via
-  [`causal_llm_vote()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_vote.md)
-  captures complementary strengths. This finding **justifies the
-  three-backend architecture** already shipped.
-
-The benchmark runs reproducibly in CI using
+**No measured vendor comparison is published here.** The shipped bundle
+`inst/extdata/llm_benchmark_results.rds` carries `mode = "simulated"`:
+it is the output of
 [`llm_benchmark_simulate()`](https://hugomachadorodrigues.github.io/edaphos/reference/llm_benchmark_simulate.md),
-a deterministic noise model calibrated to published profiles for each
-backend. For real API runs, set `EDAPHOS_USE_REAL_LLM=1` and provide the
-relevant API keys.
+a deterministic noise model whose precision, recall, latency and cost
+are *inputs* supplied by the caller (see the `sim_args` list in
+`data-raw/llm_benchmark_run.R`). Earlier releases of this README
+presented those inputs as a measured head-to-head table of Gemma,
+GPT-4o-mini and Claude scores. No API was ever called to produce them,
+so the table has been withdrawn.
+
+What the simulated bundle legitimately demonstrates is that the harness
+works end to end: scoring against the gold standard, pairwise agreement,
+cost and latency accounting, and the voting rules all run
+deterministically in CI without network access or API keys.
+
+To produce a real comparison, set `EDAPHOS_USE_REAL_LLM=1`, provide the
+API keys, and re-run `data-raw/llm_benchmark_run.R`; the bundle it
+writes will carry `mode = "real"`, and
+`tests/testthat/test-headline-claims.R` will then permit a
+vendor-attributed table in this section.
 
 📖 Vignette: `vignette("llm-kg-benchmark")`.
 
@@ -712,6 +781,7 @@ needs ~300 claims with statistical power. v1.8.1 ships the **two-phase
 annotation tooling** to get there in ~3 hours:
 
 ``` r
+
 # 1. LLM drafts one set of claims per abstract (~25 min for 100 abs.)
 edaphos::llm_preannotate(
   corpus      = "cerrado_corpus_openalex.jsonl",
@@ -787,14 +857,16 @@ identifies causal effects only under **causal sufficiency** — all
 confounders observed. When unobserved confounders `U` remain, the
 adjusted estimator is biased:
 
-$${\widehat{\beta}}_{\text{backdoor}} = \beta_{\text{true}} + \text{bias}(U)$$
+``` math
+\hat{\beta}_{\text{backdoor}} = \beta_{\text{true}} + \text{bias}(U)
+```
 
 **Instrumental variables** (IVs) identify effects under a different set
 of assumptions \[@Wooldridge2010\]:
 
-1.  **Relevance**: $\text{Cov}(Z,X) \neq 0$
-2.  **Exclusion**: $\left. Z\rightarrow Y \right.$ only through $X$
-3.  **Unconfoundedness**: $Z\bot U$
+1.  **Relevance**: $`\text{Cov}(Z, X) \neq 0`$
+2.  **Exclusion**: $`Z \to Y`$ only through $`X`$
+3.  **Unconfoundedness**: $`Z \perp U`$
 
 The MoCo v2 encoder (Pillar 4), trained contrastively on landscape
 patches *without ever seeing SOC*, is a natural IV candidate: it
@@ -802,6 +874,7 @@ captures landscape-scale structure orthogonal to the named confounders
 in the DAG.
 
 ``` r
+
 # 2SLS with foundation-model embeddings as instruments
 iv_fit <- edaphos::causal_iv_from_embeddings(
   data       = cerrado_profiles,
@@ -839,38 +912,72 @@ its job, and it demonstrates why we need the real MoCo v2 encoder
 📖 Vignette:
 [`vignette("pilar1-pilar4-iv")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-pilar4-iv.md).
 
-### v1.9.1 — Real MoCo v2 patch extraction passes the Sargan test
+### Foundation-model embeddings as instruments: what the Sargan test actually says
 
-Two new functions close the loop from the v1.9.0 thesis to real
+Two functions close the loop from the identification argument to
 empirical evidence:
 
 - **`foundation_embed_at_coords(moco, coords, stack, dataset, ...)`**
   extracts one embedding per query coordinate by cutting a
   `patch_size x patch_size` window, normalising, and running the encoder
-  forward — O(minutes) for 1 095 WoSIS profiles on Apple M1 Max MPS.
+  forward — 17 s for 1 095 WoSIS profiles on Apple M1 Max MPS.
 - **`foundation_build_cerrado_stack(bbox, ...)`** assembles the
-  SoilGrids + WorldClim + SRTM raster stack the encoder was trained on
-  (optional live `geodata` download, ~200 MB cached to disk).
+  31-channel SoilGrids + WorldClim + SRTM stack the encoder was trained
+  on (measured: 1.84 GB downloaded, 3.0 min, cached to disk).
 
 Using the Zenodo-published `edaphos-cerrado-moco-v1` encoder on the 1
-095 Cerrado profiles:
+095 Cerrado profiles, at the encoder’s native 0.01-deg grid:
 
-| Exposure         | v1.9.0 Sargan p (proxy) | **v1.9.1 Sargan p (real MoCo)** |
-|:-----------------|------------------------:|--------------------------------:|
-| MAP → SOC        |             \< 10⁻¹² ❌ |                    **0.343** ✅ |
-| Tree cover → SOC |              \< 10⁻⁹ ❌ |                    **0.283** ✅ |
-| Clay → SOC       |             \< 10⁻¹² ❌ |                    **0.424** ✅ |
+| Exposure         | Stage-1 F |  Sargan p | Over-identification |
+|:-----------------|----------:|----------:|:--------------------|
+| MAP → SOC        |   **862** | **0.250** | not rejected        |
+| Tree cover → SOC |       8.4 |     0.042 | rejected            |
+| Clay → SOC       |      11.0 |    0.0030 | rejected            |
 
-**The decisive test passes.** An encoder pretrained by contrastive
-self-supervision *without seeing SOC* produces structurally valid
-instruments where any feature engineered from observed X fails
-exclusion. This is the central empirical contribution of v1.9.1.
+**The result is partial, and that is the finding.** For mean annual
+precipitation the instruments are strong (F = 862) and the
+over-identification restriction is not rejected: an encoder pretrained
+by contrastive self-supervision *without ever seeing SOC* does yield
+structurally valid instruments for that exposure, and the 2SLS estimate
+(β = 0.0126) is 64 % larger than the backdoor-OLS estimate (β = 0.0077),
+the direction expected when attenuation from covariate measurement error
+is corrected.
 
-**Honest caveat.** Stage-1 F drops to 7-10 (from ~20 000 under proxies)
-because the synthetic CI-mode raster stack lacks the real spatial
-autocorrelation of SoilGrids. Running with `EDAPHOS_IV_REAL_STACK=1` +
-the full 200 MB download lifts F back into a practically-useful range
-(work scoped for v1.9.2).
+For tree cover and clay the same instruments fail. Tree cover also has a
+first-stage F of 8.4, below the conventional threshold of 10, so its
+2SLS estimate should not be read as identified at all. Clay’s Sargan p =
+0.003 rejects exclusion outright.
+
+**Three limitations that bound every number above.**
+
+1.  *The encoder’s training normalisation was never persisted.* The
+    weights registry has no per-channel mean/sd for
+    `edaphos-cerrado-moco-v1`, so the exact standardisation it was
+    trained under is unrecoverable. The figures above use per-channel
+    statistics computed over this area of interest, which is an
+    approximation, not a reconstruction. The bundle records this as
+    `normalisation_source = "aoi"`. Every future encoder must publish
+    its statistics; the registry now carries a `norm_stats_status` field
+    so the gap is visible rather than assumed away.
+2.  *The area of interest exceeds the training region.* The WoSIS
+    profiles span 18.4° × 21.9°; the encoder was trained on the Cerrado
+    core, 10° × 13°. The bundle records `aoi_exceeds_training = TRUE`.
+    21.8 % of the encoder’s 64 backbone channels are dead (exactly zero
+    after post-ReLU average pooling) on this input, against roughly 5 %
+    for input drawn from the distribution it was trained on.
+3.  *These are single-run values.* Sargan p = 0.042 for tree cover sits
+    close enough to 0.05 that it should not be treated as a sharp
+    verdict without a resampling study.
+
+Earlier releases of this README reported Sargan p of 0.343 / 0.283 /
+0.424 for the three exposures and concluded that the test passed for all
+of them. Those figures were produced with the normalisation placeholder
+`means = 0`, `sds = 1`, which fed raw geophysical magnitudes into a
+network trained on standardised inputs and killed about half its
+channels. They have been withdrawn and replaced by the table above.
+`tests/testthat/test-headline-claims.R` now asserts every figure in this
+section against the shipped `inst/extdata/causal_iv_cerrado_real.rds`,
+so the two cannot drift apart again.
 
 ### v1.9.2 — Cinelli & Hazlett (2020) sensitivity analysis
 
@@ -881,6 +988,7 @@ Following \[@CinelliHazlett2020\] we compute the **Robustness Value
 to have with *both* X and Y to zero out the estimate.
 
 ``` r
+
 # Any of the following produces a RV summary
 s <- edaphos::causal_sensitivity_summary(effect = 0.00769,
                                            se     = 0.00271,
@@ -945,7 +1053,13 @@ variable-importance metrics never deliver.
 
 Depth-dependent translocation toward a parent-material asymptote,
 
-$$\frac{dy}{dz}\; = \; - \,\lambda_{0}\, e^{- \mu z}\,(y(z) - y_{\infty})\qquad\text{(parametric)}\qquad\text{or}\qquad\frac{dy}{dz}\; = \; f_{\theta}(z,y,\mathbf{x})\qquad\text{(Neural ODE).}$$
+``` math
+\frac{dy}{dz} \;=\; -\,\lambda_0\,e^{-\mu z}\,\bigl(y(z) - y_\infty\bigr)
+\qquad\text{(parametric)}
+\qquad\text{or}\qquad
+\frac{dy}{dz} \;=\; f_\theta\bigl(z, y, \mathbf{x}\bigr)
+\qquad\text{(Neural ODE).}
+```
 
 The **parametric** form is integrated by
 [`deSolve::lsoda`](https://rdrr.io/pkg/deSolve/man/lsoda.html); the
@@ -956,6 +1070,7 @@ al. 2018](https://arxiv.org/abs/1806.07366)\].
 ### Point and Bayesian APIs
 
 ``` r
+
 data(sp4, package = "aqp")
 sp4$depth <- (sp4$top + sp4$bottom) / 2
 colusa <- subset(sp4, id == "colusa")
@@ -1030,22 +1145,25 @@ observations.
 ### Governing object
 
 A multi-layer ConvLSTM propagates a spatial hidden state
-$\mathbf{H}_{t}$ and cell state $\mathbf{C}_{t}$ alongside time:
+$`\mathbf{H}_t`$ and cell state $`\mathbf{C}_t`$ alongside time:
 
-$$\begin{aligned}
-\mathbf{i}_{t} & {= \sigma(W_{xi}*\mathbf{X}_{t} + W_{hi}*\mathbf{H}_{t - 1}),} \\
-\mathbf{f}_{t} & {= \sigma(W_{xf}*\mathbf{X}_{t} + W_{hf}*\mathbf{H}_{t - 1}),} \\
-\mathbf{g}_{t} & {= \tanh(W_{xg}*\mathbf{X}_{t} + W_{hg}*\mathbf{H}_{t - 1}),} \\
-\mathbf{o}_{t} & {= \sigma(W_{xo}*\mathbf{X}_{t} + W_{ho}*\mathbf{H}_{t - 1}),} \\
-\mathbf{C}_{t} & {= \mathbf{f}_{t} \odot \mathbf{C}_{t - 1} + \mathbf{i}_{t} \odot \mathbf{g}_{t},} \\
-\mathbf{H}_{t} & {= \mathbf{o}_{t} \odot \tanh\left( \mathbf{C}_{t} \right),}
-\end{aligned}$$
+``` math
+\begin{aligned}
+\mathbf{i}_t &= \sigma\bigl(W_{xi} * \mathbf{X}_t + W_{hi} * \mathbf{H}_{t-1}\bigr), \\
+\mathbf{f}_t &= \sigma\bigl(W_{xf} * \mathbf{X}_t + W_{hf} * \mathbf{H}_{t-1}\bigr), \\
+\mathbf{g}_t &= \tanh\bigl(W_{xg} * \mathbf{X}_t + W_{hg} * \mathbf{H}_{t-1}\bigr), \\
+\mathbf{o}_t &= \sigma\bigl(W_{xo} * \mathbf{X}_t + W_{ho} * \mathbf{H}_{t-1}\bigr), \\
+\mathbf{C}_t &= \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \mathbf{g}_t, \\
+\mathbf{H}_t &= \mathbf{o}_t \odot \tanh(\mathbf{C}_t),
+\end{aligned}
+```
 
 with `*` a 2-D convolution and `⊙` the Hadamard product.
 
 ### Example
 
 ``` r
+
 cube   <- temporal_synth_soc_cube(H = 12L, W = 12L, T_total = 18L, seed = 7L)
 past   <- temporal_cube_to_tensor(cube, t_slice = 1:12)
 future <- temporal_cube_to_tensor(cube, t_slice = 13:18)
@@ -1088,6 +1206,7 @@ specified radius, preventing spurious long-range correlations typical of
 small ensembles.
 
 ``` r
+
 fc_ens <- array(..., dim = c(K = 10, H = 10, W = 10))
 
 assim <- temporal_kalman_update(
@@ -1111,9 +1230,9 @@ T2M, 168 monthly steps, 2003 – 2016), with:
 - 8 synthetic in-situ observations for the EnKF test
 - localization radius = 2 cells
 
-| Metric                 | Prior (ConvLSTM) | Analysis (EnKF + localization) | Reduction |
-|:-----------------------|-----------------:|-------------------------------:|----------:|
-| RMSE (COS, normalised) |            0.637 |                      **0.617** | **−3.2%** |
+| Metric | Prior (ConvLSTM) | Analysis (EnKF + localization) | Reduction |
+|:---|---:|---:|---:|
+| RMSE (COS, normalised) | 0.637 | **0.617** | **−3.2%** |
 
 The Kalman gain map becomes the first priority signal for the Pillar 5
 active-learning loop — cells with large gain would benefit most from
@@ -1138,16 +1257,24 @@ learned feature map — the premise of a future “**SoilGPT**”.
 
 ### Governing object
 
-For each batch of $B$ raster patches, SimCLR draws two stochastic
+For each batch of $`B`$ raster patches, SimCLR draws two stochastic
 augmentations per patch, encodes each with a shared backbone CNN and
 projection head, and minimises the **normalised temperature-scaled
 cross-entropy** loss \[[Chen et
 al. 2020](https://arxiv.org/abs/2002.05709)\]:
 
-$$\mathcal{L}_{\text{NT-Xent}}\; = \; - \frac{1}{2B}\sum\limits_{i = 1}^{B}\sum\limits_{v \in \{ 1,2\}}\log\frac{\exp\!({sim}\left( \mathbf{z}_{i}^{(v)},\,\mathbf{z}_{i}^{(v\prime)} \right)/\tau)}{\sum\limits_{k \neq {(i,v)}}\exp\!({sim}\left( \mathbf{z}_{i}^{(v)},\,\mathbf{z}_{k} \right)/\tau)}.$$
+``` math
+\mathcal{L}_{\text{NT-Xent}}
+\;=\;
+-\frac{1}{2B}
+\sum_{i=1}^{B}\sum_{v\in\{1,2\}}
+\log
+\frac{\exp\!\bigl(\mathrm{sim}(\mathbf{z}^{(v)}_{i},\,\mathbf{z}^{(v')}_{i}) / \tau\bigr)}
+     {\displaystyle\sum_{k \neq (i,v)} \exp\!\bigl(\mathrm{sim}(\mathbf{z}^{(v)}_{i},\,\mathbf{z}_{k})/\tau\bigr)}.
+```
 
 After pre-training the **projection head is discarded** and the backbone
-output $f_{\theta}(\mathbf{x})$ is reused as the downstream feature
+output $`f_\theta(\mathbf{x})`$ is reused as the downstream feature
 vector. MoCo v2 \[[He et al. 2020](https://arxiv.org/abs/1911.05722);
 [Chen et al. 2020b](https://arxiv.org/abs/2003.04297)\] replaces the
 two-view symmetric loss with a queue-based momentum encoder, scaling to
@@ -1156,6 +1283,7 @@ larger batches.
 ### Zenodo-hosted pre-trained weights
 
 ``` r
+
 moco <- foundation_weights_load("edaphos-cerrado-moco-v1", verbose = TRUE)
 fit  <- foundation_fit_classifier(
   moco, labelled_patches, soil_order,
@@ -1212,12 +1340,16 @@ the loop: **fit → query → measure → refit**.
 
 A hybrid batch-mode acquisition policy,
 
-$$\pi_{\text{hyb}}(\mathbf{x};\alpha)\; = \;\alpha\,{\widetilde{u}}_{t}(\mathbf{x})\; + \;(1 - \alpha)\,{\widetilde{d}}_{t}(\mathbf{x}),\qquad\alpha \in \lbrack 0,1\rbrack,$$
+``` math
+\pi_{\text{hyb}}(\mathbf{x};\alpha)
+ \;=\;\alpha\,\tilde{u}_t(\mathbf{x}) \;+\; (1-\alpha)\,\tilde{d}_t(\mathbf{x}),
+\qquad \alpha\in[0,1],
+```
 
-where ${\widetilde{u}}_{t}$ is the **Quantile Regression Forest**
+where $`\tilde{u}_t`$ is the **Quantile Regression Forest**
 \[[Meinshausen
 2006](https://jmlr.csail.mit.edu/papers/v7/meinshausen06a.html)\]
-prediction-interval width and ${\widetilde{d}}_{t}$ is the min-distance
+prediction-interval width and $`\tilde{d}_t`$ is the min-distance
 feature-space diversity from the already-labelled set. A `"cost"`
 variant adds a logistical-distance penalty for autonomous sampler
 deployment; a `physics_gate` keyword rejects physically implausible
@@ -1226,6 +1358,7 @@ candidates via a PIML fit (the Pillar 2 × 5 bridge).
 ### Example
 
 ``` r
+
 covs <- c("elev", "slope", "twi", "map_mm", "ndvi")
 
 set.seed(42)
@@ -1267,18 +1400,19 @@ picks the batch that maximises the mutual information between its labels
 and the model parameters \[[Kirsch et
 al. 2019](https://papers.nips.cc/paper/9357-batchbald-efficient-and-diverse-batch-acquisition-for-deep-bayesian-active-learning)\]:
 
-$${BatchBALD}(B)\; = \; I\left( y_{B};\theta \mid x_{B},\mathcal{D} \right).$$
+``` math
+\mathrm{BatchBALD}(B) \;=\; I(y_B; \theta \mid x_B, \mathcal D).
+```
 
 For a QRF (the
 [`al_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_fit.md)
 backbone) the trees are the parameter samples, so the joint covariance
 of the epistemic posterior is the per-tree empirical covariance across
-candidates. Under Gaussian aleatoric noise $\sigma_{a}^{2}$ the
-objective reduces to a log-determinant with a $(1 - 1/e)$ optimality
-guarantee \[[Nemhauser et
-al. 1978](https://doi.org/10.1007/BF01588971)\]. Incremental Cholesky /
-Schur-complement updates make every greedy step
-$O\left( m^{2} \cdot n_{\text{pool}} \right)$.
+candidates. Under Gaussian aleatoric noise $`\sigma_a^2`$ the objective
+reduces to a log-determinant with a $`(1 - 1/e)`$ optimality guarantee
+\[[Nemhauser et al. 1978](https://doi.org/10.1007/BF01588971)\].
+Incremental Cholesky / Schur-complement updates make every greedy step
+$`O(m^2 \cdot n_{\text{pool}})`$.
 
 📖 Vignettes:
 [`vignette("pilar5-active-learning")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-active-learning.md),
@@ -1295,25 +1429,34 @@ of dimensionality**. Pillar 6 reformulates the kernel of the regression
 problem as the **overlap of parametrised quantum states** \[[Havlicek et
 al. 2019](https://doi.org/10.1038/s41586-019-0980-2); [Schuld and
 Killoran 2019](https://doi.org/10.1103/PhysRevLett.122.040504)\], living
-in a Hilbert space of dimension $2^{n}$ in the number of qubits yet
-classically simulable in pure R for $n \leq 8$.
+in a Hilbert space of dimension $`2^n`$ in the number of qubits yet
+classically simulable in pure R for $`n \le 8`$.
 
 ### Governing object
 
 The ZZFeatureMap quantum state
 
-$$|\phi(\mathbf{x})\rangle\; = \;(U_{\phi}(\mathbf{x})\, H^{\otimes n})^{R}\,|0\rangle^{\otimes n}$$
+``` math
+\lvert\phi(\mathbf{x})\rangle \;=\;
+  \bigl(U_\phi(\mathbf{x})\,H^{\otimes n}\bigr)^{R}\,\lvert 0\rangle^{\otimes n}
+```
 
 induces the kernel
 
-$$K\left( \mathbf{x}_{i},\mathbf{x}_{j} \right)\; = \;|\langle\phi\left( \mathbf{x}_{j} \right) \mid \phi\left( \mathbf{x}_{i} \right)\rangle|^{2},$$
+``` math
+K(\mathbf{x}_i, \mathbf{x}_j) \;=\;
+  \bigl\lvert \langle \phi(\mathbf{x}_j) \mid \phi(\mathbf{x}_i)\rangle \bigr\rvert^{2},
+```
 
 with
 
-\$\$ U\_\phi(\mathbf{x}) \\=\\ \exp\\\Bigl(i\\\sum\_{S\subseteq\[n\]}
-\phi_S(\mathbf{x})\\\prod\_{i\in S}\\ Z_i\Bigr), \quad
-\phi\_{\\i\\}(\mathbf{x}) = 2\\x_i, \quad \phi\_{\\i,j\\}(\mathbf{x}) =
-2\\(\pi - x_i)(\pi - x_j). \$\$
+``` math
+U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\!\prod_{i\in S}\! Z_i\Bigr),
+\quad
+\phi_{\{i\}}(\mathbf{x}) = 2\,x_i,
+\quad
+\phi_{\{i,j\}}(\mathbf{x}) = 2\,(\pi - x_i)(\pi - x_j).
+```
 
 ### GP-equivalent posterior (v1.6.0)
 
@@ -1321,9 +1464,11 @@ Using the well-known equivalence between Kernel Ridge Regression and
 Gaussian-process regression \[Rasmussen & Williams 2006 §2.3\], the
 Q-KRR’s predictive variance is analytic:
 
-$$\sigma_{\epsilon}^{2}\left( \mathbf{x}_{\star} \right) = \underset{\text{aleatoric}}{\underbrace{k\left( \mathbf{x}_{\star},\mathbf{x}_{\star} \right)}} - \underset{\text{epistemic}}{\underbrace{k\left( \mathbf{x}_{\star},X \right)\,(K + \lambda I)^{- 1}\, k\left( X,\mathbf{x}_{\star} \right)}} + \sigma_{n}^{2}$$
+``` math
+\sigma_\epsilon^2(\mathbf{x}_\star) = \underbrace{k(\mathbf{x}_\star, \mathbf{x}_\star)}_{\text{aleatoric}} - \underbrace{k(\mathbf{x}_\star, X)\,(K + \lambda I)^{-1}\,k(X, \mathbf{x}_\star)}_{\text{epistemic}} + \sigma_n^2
+```
 
-where $\sigma_{n}^{2}$ is the leave-one-out residual variance.
+where $`\sigma_n^2`$ is the leave-one-out residual variance.
 [`quantum_krr_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_krr_posterior.md)
 wraps this into an `edaphos_posterior` with the epistemic / aleatoric
 decomposition carried through the object.
@@ -1334,6 +1479,7 @@ Three interchangeable execution backends for variational quantum
 eigensolvers:
 
 ``` r
+
 ham <- quantum_hamiltonian_h2()
 
 # 1) Exact noiseless statevector
@@ -1355,11 +1501,11 @@ quantum_vqe_fit(ham, backend = "ibmq",
 Three organo-mineral Hamiltonians come pre-built via qiskit-nature +
 PySCF:
 
-| Variant            | Pedological role                                         | Active space | Qubits |
-|:-------------------|:---------------------------------------------------------|:------------:|:------:|
-| `"formic_acid"`    | carboxylate — dominant humic functional group            |   (2e, 2o)   |   2    |
-| `"methanediol"`    | ortho-diol — catechol-style Fe(III) chelator             |   (2e, 2o)   |   2    |
-| `"ferric_formate"` | monodentate Fe(III)–OOCH — minimum viable organo-mineral |   (4e, 4o)   |   4    |
+| Variant | Pedological role | Active space | Qubits |
+|:---|:---|:--:|:--:|
+| `"formic_acid"` | carboxylate — dominant humic functional group | (2e, 2o) | 2 |
+| `"methanediol"` | ortho-diol — catechol-style Fe(III) chelator | (2e, 2o) | 2 |
+| `"ferric_formate"` | monodentate Fe(III)–OOCH — minimum viable organo-mineral | (4e, 4o) | 4 |
 
 ![Heatmap of the quantum kernel Gram matrix on 70 Cerrado
 samples](reference/figures/pillar6-quantum.png)
@@ -1371,10 +1517,11 @@ samples](reference/figures/pillar6-quantum.png)
 
 The **Pilar 4 × Pilar 6 fusion**. Foundation embeddings (64-dim MoCo v2
 outputs) are compressed to `n_pcs` principal components rescaled to
-$\lbrack - \pi,\pi\rbrack$, then lifted into a $2^{n}$-dimensional
-Hilbert space by the ZZFeatureMap. Four new exported functions:
+$`[-\pi, \pi]`$, then lifted into a $`2^n`$-dimensional Hilbert space by
+the ZZFeatureMap. Four new exported functions:
 
 ``` r
+
 # 1. Reduce foundation embeddings to top-n PCs in quantum range
 red <- edaphos::qf_embed_reduce(embeddings, n_pcs = 6L)
 
@@ -1466,6 +1613,7 @@ flowchart LR
 Three lines of code are now enough to calibrate any pillar:
 
 ``` r
+
 post <- causal_effect_posterior(data, dag, exposure, outcome, B = 500L)
 cal  <- uncertainty_calibrate(post, truth = observed_effects)
 autoplot(post)                       # ggplot2 figure by query type
@@ -1539,7 +1687,7 @@ The narrative then justifies each ranked site causally:
 
 > **Site 1.** High EnKF gain (P3) indicates that SOC dynamics are
 > changing fast here; high foundation-model SD (P4) confirms that the
-> representation space is under-sampled. The ODE (P2) shows that $k_{1}$
+> representation space is under-sampled. The ODE (P2) shows that $`k_1`$
 > carries 2× above-average posterior variance in this cell — a new
 > sample here directly reduces uncertainty about the decomposition
 > process.
@@ -1558,11 +1706,11 @@ evaluated by **5-fold spatial cross-validation** (k-means on
 coordinates), with covariates from SoilGrids 250 m, WorldClim 2.1, SRTM
 30-arcsec, and ESA WorldCover 2020.
 
-| Method                                     |     n | RMSE (g/kg) | MAE (g/kg) |        R² | PICP @ 95 | Interval score |
-|:-------------------------------------------|------:|------------:|-----------:|----------:|----------:|---------------:|
-| **B1** `ranger` QRF — 56 covariates        |  1095 |       13.51 |       7.72 |     0.219 | **0.944** |      **65.81** |
-| **B2** `ranger` + `gstat` residual kriging | 910\* |   **13.86** |       7.86 | **0.233** |     0.817 |           99.5 |
-| **E** `ranger` + MoCo v1 embedding         | 923\* |       14.07 |       7.95 |     0.157 |     0.940 |           71.7 |
+| Method | n | RMSE (g/kg) | MAE (g/kg) | R² | PICP @ 95 | Interval score |
+|:---|---:|---:|---:|---:|---:|---:|
+| **B1** `ranger` QRF — 56 covariates | 1095 | 13.51 | 7.72 | 0.219 | **0.944** | **65.81** |
+| **B2** `ranger` + `gstat` residual kriging | 910\* | **13.86** | 7.86 | **0.233** | 0.817 | 99.5 |
+| **E** `ranger` + MoCo v1 embedding | 923\* | 14.07 | 7.95 | 0.157 | 0.940 | 71.7 |
 
 \* Kriging drops test points whose variogram-range disk misses the
 training cloud; the foundation stack drops points within 16 pixels of
@@ -1606,24 +1754,24 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 
 ### `inst/extdata` real-data bundles (CC-BY-4.0)
 
-| File                                   |    Size | What it holds                                                                | Used by                         |
-|:---------------------------------------|--------:|:-----------------------------------------------------------------------------|:--------------------------------|
-| `case_cerrado_results.rds`             |   ~1 MB | QRF/kriging/MoCo benchmark (§Benchmarks)                                     | `case-cerrado-end-to-end`       |
-| `causal_cerrado_real.rds`              |   ~2 MB | 1 095 WoSIS profiles + DAG + identified effects                              | `pilar1-causal-real`            |
-| `temporal_cerrado_results.rds`         | ~195 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis                 | `pilar3-4d-real`                |
-| `capstone_campaign_results.rds`        | ~543 KB | 6-pillar integrated bundle for the v1.7.0 capstone                           | `capstone-cerrado-campaign`     |
-| `capstone_native_calibration.rds`      | ~741 KB | Native-query calibration per pillar (v1.7.1 hotfix)                          | `capstone-cerrado-campaign` §10 |
-| `causal_discovery_results.rds`         |   ~2 KB | Expert × LLM × data-driven DAG benchmark (v1.7.2)                            | `causal-discovery-trio`         |
-| `cerrado_gold_standard_v1.jsonl`       |  ~16 KB | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)              | `llm-kg-benchmark`              |
-| `cerrado_gold_standard_v1_draft.jsonl` |  ~20 KB | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)            | `llm-annotation-workflow`       |
-| `causal_iv_cerrado.rds`                |  ~12 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`              |
-| `causal_iv_cerrado_real.rds`           |   ~1 KB | Real-encoder IV benchmark (v1.9.1): 1 081 embeddings + Sargan passes         | `pilar1-pilar4-iv` §7           |
-| `causal_sensitivity_cerrado.rds`       | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2)                              | `pilar1-pilar4-iv` §8           |
-| `quantum_foundation_cerrado.rds`       |   ~1 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)      | `pilar4-pilar6-quantum`         |
-| `llm_benchmark_results.rds`            |  ~10 KB | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)           | `llm-kg-benchmark`              |
-| `cerrado_abstracts.jsonl`              |  ~40 KB | 10 curated Cerrado-pedology abstracts                                        | `pilar1-causal`                 |
-| `cerrado_claims.jsonl`                 |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                        | `pilar1-causal`                 |
-| `cerrado_claims_real_corpus.jsonl`     | ~400 KB | **100-abstract production corpus** (OpenAlex + SciELO)                       | `data-raw/run_large_corpus.R`   |
+| File | Size | What it holds | Used by |
+|:---|---:|:---|:---|
+| `case_cerrado_results.rds` | ~1 MB | QRF/kriging/MoCo benchmark (§Benchmarks) | `case-cerrado-end-to-end` |
+| `causal_cerrado_real.rds` | ~2 MB | 1 095 WoSIS profiles + DAG + identified effects | `pilar1-causal-real` |
+| `temporal_cerrado_results.rds` | ~195 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis | `pilar3-4d-real` |
+| `capstone_campaign_results.rds` | ~543 KB | 6-pillar integrated bundle for the v1.7.0 capstone | `capstone-cerrado-campaign` |
+| `capstone_native_calibration.rds` | ~741 KB | Native-query calibration per pillar (v1.7.1 hotfix) | `capstone-cerrado-campaign` §10 |
+| `causal_discovery_results.rds` | ~2 KB | Expert × LLM × data-driven DAG benchmark (v1.7.2) | `causal-discovery-trio` |
+| `cerrado_gold_standard_v1.jsonl` | ~16 KB | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed) | `llm-kg-benchmark` |
+| `cerrado_gold_standard_v1_draft.jsonl` | ~20 KB | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo) | `llm-annotation-workflow` |
+| `causal_iv_cerrado.rds` | ~12 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv` |
+| `causal_iv_cerrado_real.rds` | ~1 KB | Real-encoder IV benchmark (v1.9.1): 1 081 embeddings + Sargan passes | `pilar1-pilar4-iv` §7 |
+| `causal_sensitivity_cerrado.rds` | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2) | `pilar1-pilar4-iv` §8 |
+| `quantum_foundation_cerrado.rds` | ~1 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0) | `pilar4-pilar6-quantum` |
+| `llm_benchmark_results.rds` | ~10 KB | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency) | `llm-kg-benchmark` |
+| `cerrado_abstracts.jsonl` | ~40 KB | 10 curated Cerrado-pedology abstracts | `pilar1-causal` |
+| `cerrado_claims.jsonl` | ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts | `pilar1-causal` |
+| `cerrado_claims_real_corpus.jsonl` | ~400 KB | **100-abstract production corpus** (OpenAlex + SciELO) | `data-raw/run_large_corpus.R` |
 
 All real-data bundles are tracked in Zenodo for permanent DOI citation.
 
@@ -1632,28 +1780,29 @@ All real-data bundles are tracked in Zenodo for permanent DOI citation.
 ## Vignettes
 
 ``` r
+
 browseVignettes("edaphos")
 ```
 
-| Vignette                       | Scope                                                                                                                                                                                                                 |
-|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pilar1-causal`                | Backdoor adjustment in a pedogenetic DAG; naive vs. causal estimator on `br_cerrado`.                                                                                                                                 |
-| `pilar1-causal-real`           | Backdoor-adjusted direct effects on **1 095 real WoSIS Cerrado profiles** (v1.4.0).                                                                                                                                   |
-| `pilar2-piml-profile`          | Parametric ODE + Neural ODE of the depth profile on [`aqp::sp4`](https://ncss-tech.github.io/aqp/reference/sp4.html); Pillar 2 × 5 physics gate.                                                                      |
-| `pilar3-4d-soc`                | Stacked ConvLSTM forecasting of the synthetic SOC cube; optional mass-balance physics loss.                                                                                                                           |
-| `pilar3-4d-real`               | ConvLSTM forecast of MODIS NDVI over a Cerrado 2° × 2° AoI + stochastic EnKF assimilation (v1.5.0).                                                                                                                   |
-| `pilar4-simclr-embeddings`     | Contrastive pre-training on raster patches; embeddings as auxiliary AL covariates.                                                                                                                                    |
-| `pilar5-active-learning`       | Formal derivation of the hybrid query policy on the classic `meuse` dataset.                                                                                                                                          |
-| `pilar5-soilgrids-br`          | Same AL loop on a Cerrado recorte; migration path to live SoilGrids data.                                                                                                                                             |
-| `pilar6-quantum`               | Pure-R ZZFeatureMap simulator + quantum-kernel Gram matrix + Quantum KRR on binary SOC classification.                                                                                                                |
-| `uncertainty-unified`          | Unified `edaphos_posterior` class + single calibration diagnostic applied to all six pillars (v1.6.0).                                                                                                                |
-| 🏆 `capstone-cerrado-campaign` | **v1.7.0 capstone**: all six pillars integrated in a Cerrado sampling-campaign decision.                                                                                                                              |
-| `causal-discovery-trio`        | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set.                                                    |
-| 📊 `llm-kg-benchmark`          | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen’s κ, cost / 1k claims, latency, 10k-abstract scaling.                                                 |
-| 🛠️ `llm-annotation-workflow`   | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims.                                                        |
-| 🔗 `pilar1-pilar4-iv`          | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`) where Sargan passes; v1.9.2 adds Cinelli-Hazlett sensitivity analysis. |
-| 🌀 `pilar4-pilar6-quantum`     | **v2.0.0**: quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines.                                                            |
-| `case-cerrado-end-to-end`      | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                                                                                                                                    |
+| Vignette | Scope |
+|----|----|
+| `pilar1-causal` | Backdoor adjustment in a pedogenetic DAG; naive vs. causal estimator on `br_cerrado`. |
+| `pilar1-causal-real` | Backdoor-adjusted direct effects on **1 095 real WoSIS Cerrado profiles** (v1.4.0). |
+| `pilar2-piml-profile` | Parametric ODE + Neural ODE of the depth profile on [`aqp::sp4`](https://ncss-tech.github.io/aqp/reference/sp4.html); Pillar 2 × 5 physics gate. |
+| `pilar3-4d-soc` | Stacked ConvLSTM forecasting of the synthetic SOC cube; optional mass-balance physics loss. |
+| `pilar3-4d-real` | ConvLSTM forecast of MODIS NDVI over a Cerrado 2° × 2° AoI + stochastic EnKF assimilation (v1.5.0). |
+| `pilar4-simclr-embeddings` | Contrastive pre-training on raster patches; embeddings as auxiliary AL covariates. |
+| `pilar5-active-learning` | Formal derivation of the hybrid query policy on the classic `meuse` dataset. |
+| `pilar5-soilgrids-br` | Same AL loop on a Cerrado recorte; migration path to live SoilGrids data. |
+| `pilar6-quantum` | Pure-R ZZFeatureMap simulator + quantum-kernel Gram matrix + Quantum KRR on binary SOC classification. |
+| `uncertainty-unified` | Unified `edaphos_posterior` class + single calibration diagnostic applied to all six pillars (v1.6.0). |
+| 🏆 `capstone-cerrado-campaign` | **v1.7.0 capstone**: all six pillars integrated in a Cerrado sampling-campaign decision. |
+| `causal-discovery-trio` | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
+| 📊 `llm-kg-benchmark` | **v1.8.0**: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen’s κ, cost / 1k claims, latency, 10k-abstract scaling. |
+| 🛠️ `llm-annotation-workflow` | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
+| 🔗 `pilar1-pilar4-iv` | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`) where Sargan passes; v1.9.2 adds Cinelli-Hazlett sensitivity analysis. |
+| 🌀 `pilar4-pilar6-quantum` | **v2.0.0**: quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines. |
+| `case-cerrado-end-to-end` | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1). |
 
 Each vignette is written in the style of a short methods paper —
 abstract, numbered sections with LaTeX derivations, shared BibTeX
@@ -1663,50 +1812,60 @@ bibliography (`vignettes/references.bib`).
 
 ## Testing and continuous integration
 
-- **109+ unit and integration tests** (`testthat`) covering every public
-  function across the six pillars. Tests that require optional runtime
-  dependencies (`torch`, `dagitty`, `sp`, `aqp`, `geodata`) are gated by
-  `skip_if_not_installed()` so the base suite runs without libtorch.
-- **Local:** `R CMD check --as-cran` → **0 errors / 0 warnings / 0
-  notes** on v1.7.0.
-- **CI:** GitHub Actions matrix on `macos-latest`, `windows-latest` and
-  three Ubuntu configurations (release, devel, oldrel-1). Every push and
-  pull request triggers the full check; the badge at the top reflects
-  the latest run on `main`.
+- **1 493 passing expectations** across 484 `test_that` blocks in 70
+  test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1.
+  1 expectations are skipped here because their optional dependency is
+  absent; every skip is an explicit `skip_if_not_installed()` gate.
+- **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`,
+  `reticulate`, `terra`, `igraph`.
+- **`R CMD check --as-cran`:** `3 NOTEs` at commit `f9d459c`. The
+  per-item breakdown, including which items are package defects and
+  which are artefacts of the checking machine, is in
+  [`cran-comments.md`](https://hugomachadorodrigues.github.io/edaphos/cran-comments.md);
+  the log itself is committed at
+  [`tools/status/check.log`](https://hugomachadorodrigues.github.io/edaphos/tools/status/check.log).
+- **CI:** GitHub Actions matrix on `macos-latest / R release`,
+  `windows-latest / R release`, `ubuntu-latest / R devel`,
+  `ubuntu-latest / R release`, `ubuntu-latest / R oldrel-1`,
+  `ubuntu-latest / R release`. Note that `TORCH_INSTALL: 0` is set, so
+  libtorch is never installed on any leg and the torch-gated tests do
+  not execute in CI.
+- These figures are generated by `tools/status/patch-readme-metrics.R`
+  from a real test run and a real check log. Do not edit them by hand.
 
 ------------------------------------------------------------------------
 
 ## Roadmap
 
-| Version | Theme                                                                                                                                             | Status |
-|:-------:|:--------------------------------------------------------------------------------------------------------------------------------------------------|:------:|
-| v1.4.0  | Causal on 1 095 WoSIS real profiles                                                                                                               |   ✅   |
-| v1.5.0  | ConvLSTM + EnKF with Gaspari-Cohn on real Cerrado cube                                                                                            |   ✅   |
-| v1.6.0  | Unified `edaphos_posterior` + [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md)      |   ✅   |
-| v1.7.0  | Capstone vignette integrating all six pillars                                                                                                     |   ✅   |
-| v1.7.1  | Native-query calibration (honest per-pillar domain)                                                                                               |   ✅   |
-| v1.7.2  | Causal-discovery trio: expert × LLM × data-driven                                                                                                 |   ✅   |
-| v1.8.0  | LLM extraction benchmark (Gemma 4 × GPT × Claude)                                                                                                 |   ✅   |
-| v1.8.1  | Annotation tool: pre-annotation + Shiny review UI                                                                                                 |   ✅   |
-| v1.8.2  | DAG preview + dark mode + OpenAlex fetcher + Zenodo export                                                                                        |   ✅   |
-| v1.9.0  | Foundation embeddings as causal IVs (2SLS + Sargan)                                                                                               |   ✅   |
-| v1.9.1  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`) — Sargan passes empirically                                                          |   ✅   |
-| v1.9.2  | Cinelli & Hazlett sensitivity analysis (`causal_sensitivity_*`)                                                                                   |   ✅   |
-| v2.0.0  | **Quantum kernel over foundation embeddings** (Pilar 4 × Pilar 6)                                                                                 |   ✅   |
-| v2.1.0  | Frente D polish: pkgdown + Docker + test suite + Zenodo release + 2 bridges                                                                       |   ✅   |
-| v2.1.1  | Bridge P1 × P5 Causal AL — shipped (`al_query_causal`)                                                                                            |   ✅   |
-| v2.1.2  | Bridge P3 × P5 Temporal AL — shipped (`al_query_temporal`)                                                                                        |   ✅   |
-| v2.1.3  | Rcpp port of [`quantum_kernel()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_kernel.md) (10-50× speedup, machine-precision) |   ✅   |
-| v2.2.0  | Bridge P2 × P6 — Physics-informed quantum kernels                                                                                                 |   ✅   |
-| v2.2.1  | Bridge P1 × P3 — Causal 4D (time-varying effects)                                                                                                 |   ✅   |
-| v2.3.0  | **Pilar 7** — Bayesian hierarchical spatial (Gibbs + spBayes)                                                                                     |   ✅   |
-| v2.4.0  | **Pilar 8** — Neural operators (FNO + DeepONet) for pedogenetic PDEs                                                                              |   ✅   |
-| v2.5.0  | **Pilar 9** — Diffusion models for generative soil maps (DDPM)                                                                                    |   ✅   |
-| v2.8.0  | **Pilar 10** — Graph Attention Networks on WoSIS co-location network                                                                              |   ✅   |
-| v1.9.3  | Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit                                                                                        |   📝   |
-| v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)                                                                                                   |   🚧   |
-| v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool)                                                                                         |   📝   |
-| v3.0.0  | CRAN + rOpenSci submission                                                                                                                        |   📝   |
+| Version | Theme | Status |
+|:--:|:---|:--:|
+| v1.4.0 | Causal on 1 095 WoSIS real profiles | ✅ |
+| v1.5.0 | ConvLSTM + EnKF with Gaspari-Cohn on real Cerrado cube | ✅ |
+| v1.6.0 | Unified `edaphos_posterior` + [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md) | ✅ |
+| v1.7.0 | Capstone vignette integrating all six pillars | ✅ |
+| v1.7.1 | Native-query calibration (honest per-pillar domain) | ✅ |
+| v1.7.2 | Causal-discovery trio: expert × LLM × data-driven | ✅ |
+| v1.8.0 | LLM extraction benchmark (Gemma 4 × GPT × Claude) | ✅ |
+| v1.8.1 | Annotation tool: pre-annotation + Shiny review UI | ✅ |
+| v1.8.2 | DAG preview + dark mode + OpenAlex fetcher + Zenodo export | ✅ |
+| v1.9.0 | Foundation embeddings as causal IVs (2SLS + Sargan) | ✅ |
+| v1.9.1 | Real MoCo v2 patch extraction (`foundation_embed_at_coords`) — Sargan passes empirically | ✅ |
+| v1.9.2 | Cinelli & Hazlett sensitivity analysis (`causal_sensitivity_*`) | ✅ |
+| v2.0.0 | **Quantum kernel over foundation embeddings** (Pilar 4 × Pilar 6) | ✅ |
+| v2.1.0 | Frente D polish: pkgdown + Docker + test suite + Zenodo release + 2 bridges | ✅ |
+| v2.1.1 | Bridge P1 × P5 Causal AL — shipped (`al_query_causal`) | ✅ |
+| v2.1.2 | Bridge P3 × P5 Temporal AL — shipped (`al_query_temporal`) | ✅ |
+| v2.1.3 | Rcpp port of [`quantum_kernel()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_kernel.md) (10-50× speedup, machine-precision) | ✅ |
+| v2.2.0 | Bridge P2 × P6 — Physics-informed quantum kernels | ✅ |
+| v2.2.1 | Bridge P1 × P3 — Causal 4D (time-varying effects) | ✅ |
+| v2.3.0 | **Pilar 7** — Bayesian hierarchical spatial (Gibbs + spBayes) | ✅ |
+| v2.4.0 | **Pilar 8** — Neural operators (FNO + DeepONet) for pedogenetic PDEs | ✅ |
+| v2.5.0 | **Pilar 9** — Diffusion models for generative soil maps (DDPM) | ✅ |
+| v2.8.0 | **Pilar 10** — Graph Attention Networks on WoSIS co-location network | ✅ |
+| v1.9.3 | Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit | 📝 |
+| v1.3.2 | Re-benchmark with MoCo v2 encoder (200 k steps) | 🚧 |
+| v1.8.3 | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝 |
+| v3.0.0 | CRAN + rOpenSci submission | 📝 |
 
 ------------------------------------------------------------------------
 
@@ -1735,6 +1894,7 @@ publications:
 An auto-generated citation is also available in R:
 
 ``` r
+
 citation("edaphos")
 ```
 

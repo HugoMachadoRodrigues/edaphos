@@ -1,5 +1,156 @@
 # Changelog
 
+## edaphos 4.0.0
+
+A correctness release. Six commits of remediation after an adversarial
+audit of the v3.10.0 tree found that several headline empirical claims
+were contradicted by the artefacts the package itself shipped, and that
+two exported functions carried defects that made their pillars look
+worse than they are.
+
+**This is a major version because user-visible behaviour changed**, not
+because the feature set grew. Code written against v3.10.0 can produce
+different results.
+
+### Breaking changes
+
+- [`gnn_build_graph()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_build_graph.md)
+  adds a **self-loop** to every node by default (`self_loops = TRUE`).
+  k-NN never returns a node as its own neighbour, so without one the
+  aggregation built each node’s representation entirely from OTHER
+  profiles and a profile’s own covariates never reached its own
+  prediction. Edge counts change from `n * k` to `n * (k + 1)`. Pass
+  `self_loops = FALSE` for the old graph.
+- [`gnn_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit.md)
+  now trains the attention parameters. Through v3.10.0 `W`, `a_l` and
+  `a_r` stayed at their random initialisation and only the linear head
+  was fitted – a random-feature encoder, not a Graph Attention Network.
+  It also gained `train_mask`, `weight_decay`, `residual`,
+  `average_heads`, `readout_skip` and `val_frac`.
+- [`gnn_embed()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_embed.md)
+  returns a `hidden`-wide representation, not `hidden * n_heads`:
+  attention heads are now averaged on the output layer (the convention
+  of Velickovic et al. 2018). `average_heads = FALSE` restores
+  concatenation.
+- [`quantum_krr_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_krr_fit.md)
+  centres the response and carries an explicit intercept. Kernel ridge
+  without one shrinks predictions towards ZERO rather than towards the
+  mean of `y`, which for a response with a large offset relative to its
+  spread is catastrophic. Predictions from this function change.
+- [`al_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_fit.md)
+  validates `num.trees` against the minimum `ranger` needs for
+  out-of-bag quantile regression and errors below it. Values that
+  previously failed on roughly one seed in seven now fail immediately
+  with a clear message.
+- `Depends: R (>= 4.0)` (was 3.5), which
+  [`tools::R_user_dir()`](https://rdrr.io/r/tools/userdir.html) already
+  required. `utils` and `tools` are now declared in `Imports`.
+- The WoSIS benchmarks fit `log1p(SOC)` by default. Set
+  `EDAPHOS_BENCH_SCALE=raw` for the historical raw-scale numbers.
+
+### New
+
+- [`gnn_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit_ensemble.md)
+  – seed ensemble of GAT fits with a between-member standard deviation.
+- `gnn_build_graph(edges =)` – neighbours by geography (`"spatial"`,
+  default), by covariate similarity (`"feature"`), or both (`"hybrid"`).
+- `data-raw/pilar10_gat_tuning.R` and
+  `inst/extdata/pilar10_gat_tuning.rds` – nested cross-validation of the
+  GAT against a quantile regression forest.
+- `tools/status/` – `STATUS.md`, `cran-comments.md` and the README’s
+  metrics are now GENERATED from a live measurement and a real
+  `R CMD check` log. Nothing in them is typed by hand, and a quantity
+  that cannot be measured prints `_not measured_` rather than a
+  plausible-looking value.
+- `tests/testthat/test-headline-claims.R` – every empirical figure
+  quoted in `README.md` is bound to the artefact it came from. Before
+  this file existed no test read any of the twelve result bundles, which
+  is how the README and the shipped data came to disagree.
+- `tests/testthat/test-pilar10-gat-grad.R` – the GAT’s analytic
+  gradients are checked against central finite differences.
+
+### Corrected empirical claims
+
+Each of these was published and is now withdrawn or restated. Full
+detail is in the “Corrections to earlier release notes” section at the
+top of this file.
+
+- **Sargan / instrumental variables.** Published p = 0.343 / 0.283 /
+  0.424 with “the decisive test passes”. Re-run on the real 31-channel
+  stack at the encoder’s native grid: **0.250 / 0.042 / 0.0030** – the
+  test is passed for mean annual precipitation only. The earlier figures
+  came from a run in which the encoder’s normalisation was replaced by
+  `means = 0`, `sds = 1`.
+- **Six-pillar head-to-head.** Published RMSE ~14.1 g/kg and R2 of 0.034
+  / 0.064 / 0.070 as a three-way tie. Those came from an R2 clamped at
+  zero (21 of 30 method-fold cells were clamped) on a scale where 1 % of
+  profiles carry 48 % of the sum of squares, with the P4 row computed
+  over a raster of
+  [`stats::rnorm()`](https://rdrr.io/r/stats/Normal.html) noise.
+- **Multi-backend LLM benchmark.** Presented as a measured comparison of
+  Gemma 4, GPT-4o-mini and Claude Sonnet-4.5. The shipped bundle carries
+  `mode = "simulated"`; those precision, recall, latency and cost
+  figures are the simulator’s own inputs and no API was ever called.
+  Withdrawn.
+- **Causal-discovery trio.** The “LLM-augmented (Gemma 4)” DAG was six
+  edges typed by hand with confidences that appear in no file in this
+  package. The edge set is now derived from the shipped claims file; 3
+  of 30 claims are expressible in the covariate set and all 3 were
+  already in the expert DAG.
+
+### Fixes
+
+- [`benchmark_fit_p1_causal()`](https://hugomachadorodrigues.github.io/edaphos/reference/benchmark_fit_p1_causal.md)
+  restricted covariates by membership in `names(dag)` – which includes
+  every node and the outcome – so the “DAG-adjusted” set was silently
+  the full set. It now uses
+  [`dagitty::parents()`](https://rdrr.io/pkg/dagitty/man/AncestralRelations.html)
+  as documented.
+- `.bench_inject_aleatoric()` centres its noise per test row, so the
+  point prediction is preserved exactly instead of carrying a residue of
+  `sigma / sqrt(n_draws)`.
+- `.bench_residual_sd()` returns the residual standard error rather than
+  [`stats::sd()`](https://rdrr.io/r/stats/sd.html), which ignores bias
+  entirely and under-inflated every predictive interval.
+- Residual kriging in the case study krige OOB rather than in-bag
+  residuals.
+- [`foundation_build_cerrado_stack()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_build_cerrado_stack.md)
+  asserts the schema’s channel count before writing to the cache; a
+  partial network failure used to produce a truncated stack that was
+  cached and reused indefinitely.
+- [`foundation_weights_load()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_weights_load.md)
+  no longer requires `torch` before validating its own arguments.
+- `.ft_require_torch()` no longer demands `reticulate`, which the
+  fine-tuning API never uses.
+- `knit_exit()` guards moved into their own chunks in seven vignettes.
+  `knit_exit()` stops knitting AFTER the current chunk, so the code it
+  guarded still ran – `R CMD build` aborted outright without `dagitty`.
+- Raw Unicode in Rd text that `pdflatex` cannot typeset.
+- A sixth CI leg installs libtorch and FAILS if the torch tests were
+  skipped on it. 74 test blocks covering pillars 3, 4, 8, 9 and 10 had
+  never executed anywhere, here or in CI.
+
+### A note on this package’s version numbers
+
+Versions 0.1.0 through 3.10.0 – 43 sections in this file – were minted
+between 2026-04-20 and 2026-04-27, a single eight-day build. They are
+development milestones within one continuous sprint, not distributed
+releases: only 18 are tagged, nothing after v1.6.0 was deposited
+anywhere, and no version was ever installed by a third party. Several of
+them are named in source comments that this release removed, because a
+comment that says “scheduled for v2.4.1” promises a release that will
+never exist under that numbering.
+
+They are kept rather than renumbered, because the git history and this
+file are the record of what was claimed and when. Treat the version
+number as a label, not as evidence that something was released.
+
+R CMD check –as-cran : 3 NOTEs (New submission; HTML Tidy on the
+checking machine; a temp directory left by the optional qiskit/PySCF
+bridge) testthat : 1470 pass / 1 skip / 0 failures
+
+------------------------------------------------------------------------
+
 ## edaphos 3.10.0
 
 ### Pilar 1 – production harness for 10k+ LLM-KG extraction runs
@@ -1071,7 +1222,7 @@ conditional posterior closed-form.
     (inverse-Gamma), and the latent spatial field w (sparse
     precision-form Gaussian). ~2000 iters in ~1 s on n = 80.
   - `"spBayes"`: dispatches to
-    [`spBayes::spLM`](https://rdrr.io/pkg/spBayes/man/spLM.html)
+    [`spBayes::spLM`](https://finleya.github.io/spBayes/reference/spLM.html)
     (Finley, Banerjee and Carlin 2007) when the Suggests-only package is
     installed – full MCMC over phi, sigma.sq, tau.sq, beta.
 - **`predict.edaphos_bhs(object, newdata, quantiles, n_draws)`** –
@@ -1630,11 +1781,11 @@ block-bootstrap CIs that respect the spatial clustering of the profiles.
 
 #### Headline identified effects (LM direct, block-bootstrap CI95)
 
-| Exposure                                | Naive slope |  Identified direct |  Bootstrap 95 % CI   |
-|:----------------------------------------|------------:|-------------------:|:--------------------:|
-| `wc_bio_12` (MAP, g/kg per mm)          |     +0.0072 |            +0.0071 | \[+0.0002, +0.0121\] |
-| `wc_landcover_trees` (g/kg per % trees) |      +0.898 |  **+2.048** (2.3×) |  \[-0.465, +6.901\]  |
-| `soilgrids_clay` (g/kg per % clay)      |      +0.526 | **+0.195** (0.37×) |  \[-0.099, +0.688\]  |
+| Exposure | Naive slope | Identified direct | Bootstrap 95 % CI |
+|:---|---:|---:|:--:|
+| `wc_bio_12` (MAP, g/kg per mm) | +0.0072 | +0.0071 | \[+0.0002, +0.0121\] |
+| `wc_landcover_trees` (g/kg per % trees) | +0.898 | **+2.048** (2.3×) | \[-0.465, +6.901\] |
+| `soilgrids_clay` (g/kg per % clay) | +0.526 | **+0.195** (0.37×) | \[-0.099, +0.688\] |
 
 Confounding moves in *both directions*: naive OLS under-estimates the
 land-use causal effect by more than half and over-estimates clay’s
@@ -1750,7 +1901,7 @@ from v1.3.0).
 
 For the case-study prep script, which pulls the Cerrado biome polygon
 from IBGE via
-[`geobr::read_biomes()`](https://ipeagit.github.io/geobr/reference/read_biomes.html).
+[`geobr::read_biomes()`](https://rdrr.io/pkg/geobr/man/read_biomes.html).
 
 ## edaphos 1.2.0 (in development)
 

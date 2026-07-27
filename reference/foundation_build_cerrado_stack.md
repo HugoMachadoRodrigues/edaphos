@@ -1,7 +1,7 @@
 # Build the Cerrado raster stack for IV / quantum-foundation benchmarks
 
 Downloads / assembles the covariate raster stack that the
-`edaphos-cerrado-moco-v1` encoder was pretrained on. As of v3.11.0 the
+`edaphos-cerrado-moco-v1` encoder was pretrained on. As of v4.0.0 the
 stack matches the v1 encoder's 31-channel input schema:
 
 ## Usage
@@ -41,7 +41,7 @@ foundation_build_cerrado_stack(
 - schema:
 
   One of `"v1_encoder"` (default; 31-channel encoder- compatible stack)
-  or `"minimal"` (10-channel legacy stack used pre-v3.11.0). Pass
+  or `"minimal"` (10-channel legacy stack used pre-v4.0.0). Pass
   `"minimal"` to reproduce the older bundles.
 
 ## Value
@@ -65,8 +65,8 @@ with the requested number of aligned layers.
 All 31 layers are resampled to a common `target_res`-degree grid and
 clipped to `bbox`. Earlier versions assembled only a 10-channel subset,
 which forced the IV benchmark (`data-raw/causal_iv_benchmark_real.R`) to
-fall back to a synthetic 31-channel stack – the v3.11.0 rewrite closes
+fall back to a synthetic 31-channel stack – the v4.0.0 rewrite closes
 that gap.
 
-**Heavy download.** A 2-deg x 2-deg Cerrado AoI lands in \\80-110 MB
+**Heavy download.** A 2-deg x 2-deg Cerrado AoI lands in about 80-110 MB
 after alignment (cache_dir hit on subsequent calls).

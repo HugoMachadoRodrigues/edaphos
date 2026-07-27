@@ -4,11 +4,11 @@
 
 Digital Soil Mapping (DSM) has historically decoupled sampling design
 from model fitting: a pre-defined scheme collects observations and a
-model is subsequently trained on the resulting dataset ([McBratney,
-Mendonça Santos, and Minasny 2003](#ref-McBratney2003); [Minasny and
-McBratney 2016](#ref-Minasny2016)). This static pipeline ignores the
-fact that, once an initial model exists, its uncertainty field contains
-direct guidance on where additional information is most needed ([Settles
+model is subsequently trained on the resulting dataset ([McBratney et
+al. 2003](#ref-McBratney2003); [Minasny and McBratney
+2016](#ref-Minasny2016)). This static pipeline ignores the fact that,
+once an initial model exists, its uncertainty field contains direct
+guidance on where additional information is most needed ([Settles
 2009](#ref-Settles2009); [Brus 2019](#ref-Brus2019)). This vignette
 formalises the Pillar 5 closed-loop **Active Learning** workflow shipped
 in `edaphos`: the algorithm iteratively (i) fits a Quantile Regression
@@ -23,54 +23,67 @@ plus a logistically cost-aware variant.
 
 ## 1. Statistical framework
 
-Let $\mathcal{S} \subset {\mathbb{R}}^{2}$ be the study region and let
-$\mathbf{x}(\mathbf{s}) \in {\mathbb{R}}^{p}$ denote the vector of
-environmental covariates at location $\mathbf{s} \in \mathcal{S}$.
+Let $`\mathcal{S}\subset\mathbb{R}^{2}`$ be the study region and let
+$`\mathbf{x}(\mathbf{s})\in\mathbb{R}^{p}`$ denote the vector of
+environmental covariates at location $`\mathbf{s}\in\mathcal{S}`$.
 Assume a measurable soil property
-$y(\mathbf{s}) = f\left( \mathbf{x}(\mathbf{s}) \right) + \varepsilon(\mathbf{s})$,
-with heteroscedastic error $\varepsilon$. Given a labelled dataset
-$\mathcal{L}_{t} = \{\left( \mathbf{s}_{i},\mathbf{x}_{i},y_{i} \right)\}_{i = 1}^{n_{t}}$
+$`y(\mathbf{s})=f(\mathbf{x}(\mathbf{s}))+\varepsilon(\mathbf{s})`$,
+with heteroscedastic error $`\varepsilon`$. Given a labelled dataset
+$`\mathcal{L}_{t}=\{(\mathbf{s}_{i},\mathbf{x}_{i},y_{i})\}_{i=1}^{n_{t}}`$
 and a candidate pool
-$\mathcal{U}_{t} \subset \mathcal{S}\backslash\mathcal{L}_{t}$ at
-iteration $t$, we seek a policy $\pi$ that selects
-$B_{t} \subset \mathcal{U}_{t}$, $\left| B_{t} \right| = b$, maximising
-expected information gain under a finite sampling budget $N$.
+$`\mathcal{U}_{t}\subset\mathcal{S}\setminus\mathcal{L}_{t}`$ at
+iteration $`t`$, we seek a policy $`\pi`$ that selects
+$`B_{t}\subset\mathcal{U}_{t}`$, $`|B_{t}|=b`$, maximising expected
+information gain under a finite sampling budget $`N`$.
 
 We adopt a Quantile Regression Forest (QRF) ([Meinshausen
-2006](#ref-Meinshausen2006)) for ${\widehat{f}}_{t}$. For a query
-probability pair $\left( \tau_{\ell},\tau_{u} \right) \in (0,1)^{2}$,
-the QRF provides a per-pixel prediction interval
-$\lbrack{\widehat{q}}_{\tau_{\ell}}(\mathbf{x}),{\widehat{q}}_{\tau_{u}}(\mathbf{x})\rbrack$;
+2006](#ref-Meinshausen2006)) for $`\hat{f}_{t}`$. For a query
+probability pair $`(\tau_{\ell},\tau_{u})\in(0,1)^{2}`$, the QRF
+provides a per-pixel prediction interval
+$`\bigl[\hat{q}_{\tau_{\ell}}(\mathbf{x}),\hat{q}_{\tau_{u}}(\mathbf{x})\bigr]`$;
 the interval width
-$$u_{t}(\mathbf{x})\; = \;{\widehat{q}}_{\tau_{u}}(\mathbf{x})\; - \;{\widehat{q}}_{\tau_{\ell}}(\mathbf{x})$$
+``` math
+u_{t}(\mathbf{x})\;=\;\hat{q}_{\tau_{u}}(\mathbf{x})
+                    \;-\;\hat{q}_{\tau_{\ell}}(\mathbf{x})
+```
 is the Pillar 5 *uncertainty score*.
 
 The *diversity score* is
-$$d_{t}(\mathbf{x})\; = \;\min\limits_{\mathbf{x}^{\prime} \in \mathcal{L}_{t} \cup B_{t}^{< k}} \parallel \mathbf{z}(\mathbf{x}) - \mathbf{z}\left( \mathbf{x}^{\prime} \right) \parallel_{2},$$
-where $\mathbf{z}$ denotes a mean-standardised covariate vector and
-$B_{t}^{< k}$ are the candidates already greedily chosen within the
+``` math
+d_{t}(\mathbf{x})\;=\;\min_{\mathbf{x}^{\prime}\in\mathcal{L}_{t}\cup B_{t}^{<k}}
+                      \bigl\|\mathbf{z}(\mathbf{x})-\mathbf{z}(\mathbf{x}^{\prime})\bigr\|_{2},
+```
+where $`\mathbf{z}`$ denotes a mean-standardised covariate vector and
+$`B_{t}^{<k}`$ are the candidates already greedily chosen within the
 current batch (so the batch is internally diverse).
 
 The **hybrid strategy** combines them through a convex combination of
 0-1 min-max-scaled scores:
-$$\pi_{\text{hyb}}(\mathbf{x};\alpha)\; = \;\alpha\,{\widetilde{u}}_{t}(\mathbf{x}) + (1 - \alpha)\,{\widetilde{d}}_{t}(\mathbf{x}),\qquad\alpha \in \lbrack 0,1\rbrack.$$
+``` math
+\pi_{\text{hyb}}(\mathbf{x};\alpha)
+   \;=\;\alpha\,\tilde u_{t}(\mathbf{x})
+       +(1-\alpha)\,\tilde d_{t}(\mathbf{x}),
+\qquad \alpha\in[0,1].
+```
 For deployment on autonomous samplers (drones, rovers) we add a
 logistical cost term proportional to the Euclidean distance to a base
-$\mathbf{s}_{0}$:
-$$\pi_{\text{cost}}(\mathbf{x};\alpha,\gamma)\; = \;\pi_{\text{hyb}}(\mathbf{x};\alpha)\; - \;\gamma\,\widetilde{c}(\mathbf{x}),\qquad c(\mathbf{x}) = \parallel \mathbf{s}(\mathbf{x}) - \mathbf{s}_{0} \parallel_{2}.$$
+$`\mathbf{s}_{0}`$:
+``` math
+\pi_{\text{cost}}(\mathbf{x};\alpha,\gamma)
+   \;=\;\pi_{\text{hyb}}(\mathbf{x};\alpha)
+       \;-\;\gamma\,\tilde c(\mathbf{x}),
+\qquad c(\mathbf{x})=\|\mathbf{s}(\mathbf{x})-\mathbf{s}_{0}\|_{2}.
+```
 
 These four policies are dispatched by the `strategy` argument of
 \[[`al_query()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query.md)\]\[al_query\]
 and
-\[[`al_loop()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_loop.md)\]\[al_loop\].[¹](#fn1)
+\[[`al_loop()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_loop.md)\]\[al_loop\].[^1]
 
 ## 2. Data and seed design
 
 ``` r
-library(edaphos)
-if (!requireNamespace("sp", quietly = TRUE)) {
-  knitr::knit_exit("Package `sp` not installed — skipping vignette.")
-}
+
 data(meuse, package = "sp")
 
 d <- stats::na.omit(meuse[, c("x", "y", "dist", "elev", "ffreq",
@@ -81,14 +94,15 @@ d$lime  <- as.numeric(as.character(d$lime))
 ```
 
 The `meuse` dataset ([Heuvelink and Webster 2001](#ref-Heuvelink2001))
-holds $n = 155$ topsoil samples from a Dutch floodplain; we use lead
-concentration (mg kg$^{- 1}$) as target and four ancillary covariates.
+holds $`n = 155`$ topsoil samples from a Dutch floodplain; we use lead
+concentration (mg kg$`^{-1}`$) as target and four ancillary covariates.
 The initial labelled subset is drawn by **conditioned Latin Hypercube
 Sampling (cLHS)** ([Minasny and McBratney 2006](#ref-Minasny2006clhs)),
 which spreads samples across the joint covariate distribution and is a
 strong baseline for DSM ([Brus 2019](#ref-Brus2019)).
 
 ``` r
+
 covs <- c("dist", "elev", "ffreq", "soil", "lime")
 set.seed(42)
 seed_idx <- al_initial_design(d, covariates = covs,
@@ -103,6 +117,7 @@ c(n_labeled = nrow(labeled0), n_candidates = nrow(candidates))
 ## 3. Closed-loop fit under the hybrid policy
 
 ``` r
+
 set.seed(42)
 model_hybrid <- al_loop(
   labeled    = labeled0,
@@ -125,6 +140,7 @@ model_hybrid
 ```
 
 ``` r
+
 h_hyb <- al_history(model_hybrid)
 h_hyb
 #>   iter n_labeled  rmse_oob mean_uncertainty
@@ -138,6 +154,7 @@ h_hyb
 ```
 
 ``` r
+
 library(ggplot2)
 ggplot(h_hyb, aes(n_labeled, rmse_oob)) +
   geom_line(linewidth = 0.7) + geom_point(size = 2) +
@@ -156,6 +173,7 @@ seed and budget (the *ceteris-paribus* principle). Deviation between
 curves is attributable to policy choice alone.
 
 ``` r
+
 run_one <- function(strategy) {
   set.seed(42)
   m <- al_loop(
@@ -175,6 +193,7 @@ h_all <- rbind(
 ```
 
 ``` r
+
 ggplot(h_all, aes(n_labeled, rmse_oob, colour = strategy)) +
   geom_line(linewidth = 0.7) + geom_point(size = 2) +
   labs(x = "Labelled sample size n_t",
@@ -198,9 +217,10 @@ dominates both in our setting.
 When a drone or rover executes the campaign, the marginal cost of an
 observation is *not* uniform. The `"cost"` strategy adds a logistical
 penalty proportional to the distance from a base
-$\mathbf{s}_{0} = \left( x_{0},y_{0} \right)$.
+$`\mathbf{s}_{0}=(x_{0},y_{0})`$.
 
 ``` r
+
 set.seed(42)
 model_cost <- al_loop(
   labeled = labeled0, candidates = candidates,
@@ -228,29 +248,38 @@ and the loop closes in seconds rather than weeks.
 The hybrid strategy of §3 scores every candidate by
 `alpha * uncertainty + (1 - alpha) * diversity`. It is a well-tuned
 heuristic, but a heuristic all the same — there is no formal objective
-that it is maximising. **BatchBALD** ([Kirsch, Amersfoort, and Gal
+that it is maximising. **BatchBALD** ([Kirsch et al.
 2019](#ref-Kirsch2019batchbald)) replaces the heuristic with an
 information-theoretic objective: pick the batch that maximises the
 mutual information between its labels and the model parameters,
 
-$${BatchBALD}(B)\; = \; I(y_{B};\theta \mid x_{B},\mathcal{D}).$$
+``` math
+  \mathrm{BatchBALD}(B) \;=\;
+  I\bigl(y_B ; \theta \mid x_B, \mathcal D\bigr).
+```
 
 For a regression model with Gaussian aleatoric noise of variance
-$\sigma_{a}^{2}$ and an epistemic posterior represented by `T` parameter
+$`\sigma_a^2`$ and an epistemic posterior represented by `T` parameter
 draws (for a QRF: the `T` trees of the forest), the objective reduces to
 a log-determinant:
 
-$${BatchBALD}(B)\; \propto \;\frac{1}{2}\log\det\!({Cov}_{\theta}\left( f_{\theta}(B) \right) + \sigma_{a}^{2}I_{|B|}).$$
+``` math
+  \mathrm{BatchBALD}(B) \;\propto\;
+  \tfrac{1}{2}\log\det\!\bigl(
+    \mathrm{Cov}_\theta(f_\theta(B)) + \sigma_a^2 I_{|B|}
+  \bigr).
+```
 
-The log-det is monotone submodular in $B$, so a greedy argmax enjoys the
-$(1 - 1/e)$ optimality guarantee of ([Nemhauser, Wolsey, and Fisher
+The log-det is monotone submodular in $`B`$, so a greedy argmax enjoys
+the $`(1 - 1/e)`$ optimality guarantee of ([Nemhauser et al.
 1978](#ref-Nemhauser1978submodular)). The
 \[[`al_query_batchbald()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_batchbald.md)\]\[al_query_batchbald\]
 implementation uses incremental Cholesky / Schur updates so each greedy
-step is $O\left( m^{2}n_{pool} \right)$ rather than
-$O\left( m^{3}n_{pool} \right)$.
+step is $`O(m^2 n_{\mathrm{pool}})`$ rather than
+$`O(m^3 n_{\mathrm{pool}})`$.
 
 ``` r
+
 library(edaphos)
 data(br_cerrado)
 
@@ -272,9 +301,9 @@ head(pool[batch, covs])
 ```
 
 The failure mode that BatchBALD specifically addresses is the
-**cluster-of-near-duplicates** pathology of top-$n$ BALD: when the pool
-contains several candidates that are nearly identical in covariate
-space, a plain uncertainty-sort returns $n$ copies of “the same
+**cluster-of-near-duplicates** pathology of top-$`n`$ BALD: when the
+pool contains several candidates that are nearly identical in covariate
+space, a plain uncertainty-sort returns $`n`$ copies of “the same
 question.” BatchBALD’s log-det penalises adding a candidate whose
 predictive distribution overlaps strongly with the distribution of an
 already-selected candidate, so the greedy step spreads out through
@@ -325,18 +354,18 @@ Brus, D. J. 2019. “Sampling for Digital Soil Mapping: A Tutorial
 Supported by R Scripts.” *Geoderma* 338: 464–80.
 <https://doi.org/10.1016/j.geoderma.2018.07.036>.
 
-Hengl, T., J. Mendes de Jesus, G. B. M. Heuvelink, M. Ruiperez Gonzalez,
-M. Kilibarda, A. Blagotić, W. Shangguan, et al. 2017. “SoilGrids250m:
-Global Gridded Soil Information Based on Machine Learning.” *PLoS ONE*
-12 (2): e0169748. <https://doi.org/10.1371/journal.pone.0169748>.
+Hengl, T., J. Mendes de Jesus, G. B. M. Heuvelink, et al. 2017.
+“SoilGrids250m: Global Gridded Soil Information Based on Machine
+Learning.” *PLoS ONE* 12 (2): e0169748.
+<https://doi.org/10.1371/journal.pone.0169748>.
 
 Heuvelink, G. B. M., and R. Webster. 2001. “Modelling Soil Variation:
 Past, Present, and Future.” *Geoderma* 100 (3-4): 269–301.
 <https://doi.org/10.1016/S0016-7061(01)00025-8>.
 
 Kirsch, A., J. van Amersfoort, and Y. Gal. 2019. “BatchBALD: Efficient
-and Diverse Batch Acquisition for Deep Bayesian Active Learning.” In
-*Advances in Neural Information Processing Systems*, 32:7024–35.
+and Diverse Batch Acquisition for Deep Bayesian Active Learning.”
+*Advances in Neural Information Processing Systems* 32: 7024–35.
 
 McBratney, A. B., M. L. Mendonça Santos, and B. Minasny. 2003. “On
 Digital Soil Mapping.” *Geoderma* 117 (1-2): 3–52.
@@ -350,8 +379,8 @@ Method for Sampling in the Presence of Ancillary Information.”
 *Computers & Geosciences* 32 (9): 1378–88.
 <https://doi.org/10.1016/j.cageo.2005.12.009>.
 
-———. 2016. “Digital Soil Mapping: A Brief History and Some Lessons
-Learned.” *Geoderma* 264: 301–11.
+Minasny, B., and A. B. McBratney. 2016. “Digital Soil Mapping: A Brief
+History and Some Lessons Learned.” *Geoderma* 264: 301–11.
 <https://doi.org/10.1016/j.geoderma.2015.07.017>.
 
 Nemhauser, G. L., L. A. Wolsey, and M. L. Fisher. 1978. “An Analysis of
@@ -359,16 +388,14 @@ Approximations for Maximizing Submodular Set Functions – I.”
 *Mathematical Programming* 14: 265–94.
 <https://doi.org/10.1007/BF01588971>.
 
-Settles, B. 2009. “Active Learning Literature Survey.” 1648. University
-of Wisconsin–Madison, Department of Computer Sciences.
+Settles, B. 2009. *Active Learning Literature Survey*. No. 1648.
+University of Wisconsin–Madison, Department of Computer Sciences.
 
 Wright, M. N., and A. Ziegler. 2017. “Ranger: A Fast Implementation of
 Random Forests for High Dimensional Data in C++ and R.” *Journal of
 Statistical Software* 77 (1): 1–17.
 <https://doi.org/10.18637/jss.v077.i01>.
 
-------------------------------------------------------------------------
-
-1.  Greedy batch selection is a standard approximation of the optimal
+[^1]: Greedy batch selection is a standard approximation of the optimal
     batch policy and is provably near-optimal for submodular information
     criteria ([Settles 2009](#ref-Settles2009)).

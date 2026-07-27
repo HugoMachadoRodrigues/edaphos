@@ -10,6 +10,7 @@
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/RELEASE-CHECKLIST-v3.10.0.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/RELEASE.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/SECURITY.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/STATUS.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/capstone-cerrado-campaign.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/case-cerrado-end-to-end.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/causal-discovery-trio.html</loc></url>
@@ -138,6 +139,7 @@
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/gnn_causal_discovery.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/gnn_embed.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit_ensemble.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/index.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/llm_annotation_export.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/llm_annotation_launch.html</loc></url>

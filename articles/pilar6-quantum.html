@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Pilar 6 — Quantum Kernel Methods for High-Dimensional Soil Covariates • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Pilar 6 — Quantum Kernel Methods for High-Dimensional Soil Covariates">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,15 +133,14 @@ Rodrigues</h4>
 <h2 id="abstract">Abstract<a class="anchor" aria-label="anchor" href="#abstract"></a>
 </h2>
 <p>High-dimensional covariate stacks — a natural product of modern
-Digital Soil Mapping pipelines <span class="citation">(<a href="#ref-McBratney2003">McBratney, Mendonça Santos, and Minasny
-2003</a>; <a href="#ref-Wadoux2020">Wadoux, Minasny, and McBratney
-2020</a>)</span> — eventually hit the classical curse of dimensionality:
-the volume of the covariate hypercube grows exponentially with the
-number of features, while the number of labelled soil samples remains
-stubbornly linear in budget <span class="citation">(<a href="#ref-Brus2019">Brus 2019</a>)</span>. The <strong>Pillar
-6</strong> of <code>edaphos</code> addresses this gap by reformulating
-the kernel of the regression problem as the <em>overlap of parametrised
-quantum states</em> <span class="citation">(<a href="#ref-Havlicek2019">Havlíček et al. 2019</a>; <a href="#ref-Schuld2019qml">Schuld and Killoran 2019</a>)</span>. The
+Digital Soil Mapping pipelines <span class="citation">(<a href="#ref-McBratney2003">McBratney et al. 2003</a>; <a href="#ref-Wadoux2020">Wadoux et al. 2020</a>)</span> — eventually hit
+the classical curse of dimensionality: the volume of the covariate
+hypercube grows exponentially with the number of features, while the
+number of labelled soil samples remains stubbornly linear in budget
+<span class="citation">(<a href="#ref-Brus2019">Brus 2019</a>)</span>.
+The <strong>Pillar 6</strong> of <code>edaphos</code> addresses this gap
+by reformulating the kernel of the regression problem as the <em>overlap
+of parametrised quantum states</em> <span class="citation">(<a href="#ref-Havlicek2019">Havlíček et al. 2019</a>; <a href="#ref-Schuld2019qml">Schuld and Killoran 2019</a>)</span>. The
 resulting <strong>quantum kernel</strong> lives in a complex Hilbert
 space whose dimension grows as
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>
@@ -169,11 +168,11 @@ question<a class="anchor" aria-label="anchor" href="#background-the-curse-of-dim
 <p>Classical DSM regressors (Random Forests, GAMs, Gaussian Processes)
 live on the data itself: features enter through a (possibly non-linear)
 kernel
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">k(\mathbf{x}_i, \mathbf{x}_j)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">k(\mathbf{x}_i, \mathbf{x}_j)</annotation></semantics></math>
 on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>ℝ</mi><mi>n</mi></msup><annotation encoding="application/x-tex">\mathbb{R}^n</annotation></semantics></math>.
 The RBF kernel
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mtext mathvariant="normal">RBF</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>γ</mi><mo stretchy="false" form="prefix">∥</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>−</mo><msub><mi>𝐱</mi><mi>j</mi></msub><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">k_{\text{RBF}}(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mtext mathvariant="normal">RBF</mtext></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>γ</mi><msup><mrow><mo stretchy="true" form="prefix">‖</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>−</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">‖</mo></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">k_{\text{RBF}}(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma
 \lVert\mathbf{x}_i - \mathbf{x}_j\rVert^2)</annotation></semantics></math>
 is equivalent to an inner product in an infinite-dimensional feature
 space, but this space is <em>classically computable</em> and its
@@ -182,14 +181,14 @@ expressivity is bounded by the behaviour of
 <p>A <strong>quantum feature map</strong> lifts each data point
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐱</mi><annotation encoding="application/x-tex">\mathbf{x}</annotation></semantics></math>
 to a quantum state
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\lvert\phi(\mathbf{x})\rangle</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\lvert\phi(\mathbf{x})\rangle</annotation></semantics></math>
 in the Hilbert space of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
 qubits,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℋ</mi><mo>=</mo><msup><mi>ℂ</mi><msup><mn>2</mn><mi>n</mi></msup></msup></mrow><annotation encoding="application/x-tex">\mathcal{H} = \mathbb{C}^{2^n}</annotation></semantics></math>.
 The induced <strong>quantum kernel</strong> is the squared overlap of
 those states:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">⟨</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∣</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">⟩</mo><msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">|</mo><mn>2</mn></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">|</mo><mo stretchy="false" form="prefix">⟨</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>∣</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">⟩</mo><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">|</mo><mn>2</mn></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
 K(\mathbf{x}_i, \mathbf{x}_j) \;=\;
   \bigl\lvert\langle \phi(\mathbf{x}_j) \mid \phi(\mathbf{x}_i)\rangle\bigr\rvert^{2}.
 </annotation></semantics></math></p>
@@ -210,34 +209,33 @@ device.</p>
 <h2 id="the-zzfeaturemap-encoding">2. The ZZFeatureMap encoding<a class="anchor" aria-label="anchor" href="#the-zzfeaturemap-encoding"></a>
 </h2>
 <p>The Havlicek et al. feature map constructs
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\lvert\phi(\mathbf{x})\rangle</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\lvert\phi(\mathbf{x})\rangle</annotation></semantics></math>
 from a parameterised unitary
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mi>ϕ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">U_\phi(\mathbf{x})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mi>ϕ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">U_\phi(\mathbf{x})</annotation></semantics></math>
 applied to a uniform superposition:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">⟩</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msub><mi>U</mi><mi>ϕ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msup><mi>H</mi><mrow><mo>⊗</mo><mi>n</mi></mrow></msup><msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mi>R</mi></msup><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">|</mo><mn>0</mn><msup><mo stretchy="false" form="postfix">⟩</mo><mrow><mo>⊗</mo><mi>n</mi></mrow></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">⟩</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>U</mi><mi>ϕ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>H</mi><mrow><mi>⊗</mi><mi>n</mi></mrow></msup><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mi>R</mi></msup><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">|</mo><mn>0</mn><msup><mo stretchy="false" form="postfix">⟩</mo><mrow><mi>⊗</mi><mi>n</mi></mrow></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \lvert\phi(\mathbf{x})\rangle
    \;=\; \bigl(U_\phi(\mathbf{x})\,H^{\otimes n}\bigr)^{R}\,\lvert 0\rangle^{\otimes n},
 </annotation></semantics></math></p>
 <p>with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R \ge 1</annotation></semantics></math>
 the number of encoding repetitions and</p>
-<p><span class="math display">$$
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mi>ϕ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mi>i</mi><munder><mo>∑</mo><mrow><mi>S</mi><mo>⊆</mo><mo stretchy="false" form="prefix">[</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mrow></munder><msub><mi>ϕ</mi><mi>S</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><munder><mo>∏</mo><mrow><mi>i</mi><mo>∈</mo><mi>S</mi></mrow></munder><msub><mi>Z</mi><mi>i</mi></msub><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 U_\phi(\mathbf{x})
-  \;=\; \exp\!\Bigl(i\sum_{S\subseteq[n]}\phi_S(\mathbf{x})\prod_{i\in
-S} Z_i\Bigr).
-$$</span></p>
+  \;=\; \exp\!\Bigl(i\sum_{S\subseteq[n]}\phi_S(\mathbf{x})\prod_{i\in S} Z_i\Bigr).
+</annotation></semantics></math></p>
 <p>In the second-order regime the non-trivial subsets are the singletons
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{i\}</annotation></semantics></math>
 and the pairs
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{i, j\}</annotation></semantics></math>,
 for which we take</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mn>2</mn><mspace width="0.167em"></mspace><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mn>2</mn><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>π</mi><mo>−</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>π</mi><mo>−</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mn>2</mn><mspace width="0.167em"></mspace><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mn>2</mn><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo>−</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo>−</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \phi_{\{i\}}(\mathbf{x}) \;=\; 2\,x_i,
 \qquad
 \phi_{\{i, j\}}(\mathbf{x}) \;=\; 2\,(\pi - x_i)(\pi - x_j).
 </annotation></semantics></math></p>
 <p>Pairwise terms are implemented via the standard
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">N</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">T</mi></mrow><mrow><mi>i</mi><mo>→</mo><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>R</mi><mi>z</mi></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">N</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">T</mi></mrow><mrow><mi>i</mi><mo>→</mo><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\mathrm{CNOT}_{i\to j}\,R_z\bigl(\phi_{\{i,j\}}(\mathbf{x})\bigr)\,\mathrm{CNOT}_{i\to j}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">N</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">T</mi></mrow><mrow><mi>i</mi><mo>→</mo><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>R</mi><mi>z</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">N</mi><mi mathvariant="normal">O</mi><mi mathvariant="normal">T</mi></mrow><mrow><mi>i</mi><mo>→</mo><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\mathrm{CNOT}_{i\to j}\,R_z\bigl(\phi_{\{i,j\}}(\mathbf{x})\bigr)\,\mathrm{CNOT}_{i\to j}</annotation></semantics></math>
 decomposition. This is the exact circuit that
 [<code>.quantum_zz_feature_map()</code>][quantum_feature_map] implements
 in <code>R/quantum_kernel.R</code>.</p>
@@ -248,7 +246,7 @@ in <code>R/quantum_kernel.R</code>.</p>
 <p>For up to 8 qubits the state vector has length
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">\le 256</annotation></semantics></math>,
 and every gate can be applied by an
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(2^n)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(2^n)</annotation></semantics></math>
 bit-level permutation of that vector — no explicit
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>n</mi></msup><mo>×</mo><msup><mn>2</mn><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">2^n \times 2^n</annotation></semantics></math>
 Kronecker product is built. This keeps <code>edaphos</code> free of any
@@ -277,7 +275,7 @@ the binary median-split of NDVI itself. Three qubits give a Hilbert
 space of dimension
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>3</mn></msup><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">2^3 = 8</annotation></semantics></math>.
 The features are rescaled into
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mi>π</mi><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, \pi]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, \pi]</annotation></semantics></math>
 by [<code><a href="../reference/quantum_scale.html">quantum_scale()</a></code>][quantum_scale], the de-facto range of
 validity for the ZZFeatureMap.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -309,7 +307,7 @@ validity for the ZZFeatureMap.</p>
 <p>The Gram matrix is symmetric, with <code>K[i, i] = 1</code> by
 construction (self-overlap of a normalised state) and all off-diagonal
 entries in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>
 — the numerical fingerprint of a valid quantum kernel.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lambda_min</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/eigen.html" class="external-link">eigen</a></span><span class="op">(</span><span class="va">K</span>, symmetric <span class="op">=</span> <span class="cn">TRUE</span>, only.values <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">values</span><span class="op">)</span></span>
@@ -320,7 +318,7 @@ entries in
 </h2>
 <p>With the Gram matrix in hand, Kernel Ridge Regression is a
 closed-form problem:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛂</mi><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>K</mi><mo>+</mo><mi>λ</mi><mi>I</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><mspace width="0.167em"></mspace><mi>𝐲</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛂</mi><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mi>λ</mi><mi>I</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mspace width="0.167em"></mspace><mi>𝐲</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \boldsymbol{\alpha} \;=\; (K + \lambda I)^{-1}\,\mathbf{y}.
 </annotation></semantics></math></p>
 <p>[<code><a href="../reference/quantum_krr_fit.html">quantum_krr_fit()</a></code>][quantum_krr_fit] computes this solve
@@ -453,7 +451,7 @@ H<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><m
 molecule at bond length 0.735 Å is the archetypal VQE benchmark. Its
 Bravyi-Kitaev-tapered Hamiltonian has only five Pauli terms on two
 qubits, and the ground-state energy is known to be
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1.857275</mn></mrow><annotation encoding="application/x-tex">-1.857275</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1.857275</mn></mrow><annotation encoding="application/x-tex">-1.857275</annotation></semantics></math>
 Hartree.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span>
@@ -468,7 +466,7 @@ Hartree.</p>
 <span>                              seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span><span class="va">vqe_h2</span></span></code></pre></div>
 <p>Typical COBYLA run: the VQE energy lands within
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mo>−</mo><mn>5</mn></mrow></msup><annotation encoding="application/x-tex">10^{-5}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><annotation encoding="application/x-tex">10^{-5}</annotation></semantics></math>
 Hartree of the exact diagonalisation — the noise-free simulator
 reproduces the published benchmark to machine precision.</p>
 </div>
@@ -478,7 +476,7 @@ reproduces the published benchmark to machine precision.</p>
 <p><code><a href="../reference/quantum_hamiltonian_organo_mineral.html">quantum_hamiltonian_organo_mineral()</a></code> defines a
 deliberately small 4-qubit model that is nevertheless
 <em>structurally</em> similar to a clay-humus adsorption complex:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mo>−</mo><msub><mi>ε</mi><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">e</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Z</mi><mn>3</mn></msub><mo>+</mo><msub><mi>Z</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>ε</mi><mi mathvariant="normal">L</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Z</mi><mn>1</mn></msub><mo>+</mo><msub><mi>Z</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>J</mi><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">e</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>Z</mi><mn>3</mn></msub><msub><mi>Z</mi><mn>2</mn></msub><mo>+</mo><msub><mi>J</mi><mi mathvariant="normal">L</mi></msub><mspace width="0.167em"></mspace><msub><mi>Z</mi><mn>1</mn></msub><msub><mi>Z</mi><mn>0</mn></msub><mo>+</mo><mi>t</mi><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mn>3</mn></msub><msub><mi>X</mi><mn>0</mn></msub><mo>+</mo><msub><mi>X</mi><mn>2</mn></msub><msub><mi>X</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mi>−</mi><msub><mi>ε</mi><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">e</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>Z</mi><mn>3</mn></msub><mo>+</mo><msub><mi>Z</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>ε</mi><mi mathvariant="normal">L</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>Z</mi><mn>1</mn></msub><mo>+</mo><msub><mi>Z</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>J</mi><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">e</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>Z</mi><mn>3</mn></msub><msub><mi>Z</mi><mn>2</mn></msub><mo>+</mo><msub><mi>J</mi><mi mathvariant="normal">L</mi></msub><mspace width="0.167em"></mspace><msub><mi>Z</mi><mn>1</mn></msub><msub><mi>Z</mi><mn>0</mn></msub><mo>+</mo><mi>t</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mn>3</mn></msub><msub><mi>X</mi><mn>0</mn></msub><mo>+</mo><msub><mi>X</mi><mn>2</mn></msub><msub><mi>X</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 H = -\varepsilon_\mathrm{Fe}(Z_3 + Z_2)
     - \varepsilon_\mathrm{L}(Z_1 + Z_0)
     + J_\mathrm{Fe}\,Z_3 Z_2 + J_\mathrm{L}\,Z_1 Z_0
@@ -518,7 +516,7 @@ regime where a classical model-free regressor struggles.</p>
 <h2 id="shot-based-execution-and-finite-sample-noise">8. Shot-based execution and finite-sample noise<a class="anchor" aria-label="anchor" href="#shot-based-execution-and-finite-sample-noise"></a>
 </h2>
 <p>The statevector simulator of §7 is analytic: every expectation value
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mi>H</mi><mo stretchy="false" form="postfix">⟩</mo><mo>=</mo><mo stretchy="false" form="prefix">⟨</mo><mi>ψ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">|</mo><mi>H</mi><mo stretchy="true" form="postfix">|</mo></mrow><mi>ψ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle H\rangle = \langle\psi(\theta)|H|\psi(\theta)\rangle</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mi>H</mi><mo stretchy="false" form="postfix">⟩</mo><mo>=</mo><mo stretchy="false" form="prefix">⟨</mo><mi>ψ</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">|</mo><mi>H</mi><mo stretchy="false" form="prefix">|</mo><mi>ψ</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle H\rangle = \langle\psi(\theta)|H|\psi(\theta)\rangle</annotation></semantics></math>
 is computed by contracting the full
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>-dimensional
 state vector against the Pauli-string Hamiltonian, so the COBYLA
@@ -534,7 +532,7 @@ stall or oscillate. The SPSA optimiser of <span class="citation">Spall
 (<a href="#ref-Spall1998spsa">1998</a>)</span> was designed for
 precisely this regime: it perturbs all parameters simultaneously with
 random
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>±</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\pm 1</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>±</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">\pm 1</annotation></semantics></math>
 Rademacher vectors and estimates a single scalar gradient per iteration,
 which is ~parameter-count times cheaper and far more robust to shot
 noise than coordinate-wise differencing.</p>
@@ -627,7 +625,7 @@ coherent-error-free expectation value by inverting an experimentally
 measured bit-flip matrix
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
 so that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mover><mi>O</mi><mo accent="true">̂</mo></mover><msub><mo stretchy="false" form="postfix">⟩</mo><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>=</mo><msup><mi>A</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">⟨</mo><mover><mi>O</mi><mo accent="true">̂</mo></mover><msub><mo stretchy="false" form="postfix">⟩</mo><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\langle \hat O\rangle_\mathrm{cor}
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mover><mi>O</mi><mo accent="true">̂</mo></mover><msub><mo stretchy="false" form="postfix">⟩</mo><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>=</mo><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">⟨</mo><mover><mi>O</mi><mo accent="true">̂</mo></mover><msub><mo stretchy="false" form="postfix">⟩</mo><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">w</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\langle \hat O\rangle_\mathrm{cor}
 = A^{-1}\langle \hat O\rangle_\mathrm{raw}</annotation></semantics></math>;
 it is cheap and <em>always</em> worth turning on. ZNE amplifies the
 noise by replacing each CNOT with an odd number of folded CNOTs
@@ -677,7 +675,7 @@ and <a href="../reference/quantum_hamiltonian_organo_mineral_nature.html"><code>
 Both build a genuine <em>ab initio</em> molecular Hamiltonian from a
 user-supplied XYZ geometry by the pipeline of <span class="citation">Sun
 et al. (<a href="#ref-Sun2018pyscf">2018</a>)</span> and <span class="citation">McClean et al. (<a href="#ref-McClean2016theory">2016b</a>)</span>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">XYZ</mtext><mover><mo>→</mo><mtext mathvariant="normal">PySCF RHF</mtext></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">O</mi></mrow></msub><mover><mo>→</mo><mtext mathvariant="normal">FreezeCore</mtext></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">t</mi></mrow></msub><mover><mo>→</mo><mrow><mtext mathvariant="normal">ActiveSpace</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mi>e</mi></msub><mo>,</mo><msub><mi>n</mi><mi>o</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">i</mi></mrow></msub><mover><mo>→</mo><mrow><mtext mathvariant="normal">ParityMapper</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>N</mi><mi>α</mi></msub><mo>,</mo><msub><mi>N</mi><mi>β</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">q</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">b</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mi>k</mi></munder><msub><mi>c</mi><mi>k</mi></msub><mspace width="0.167em"></mspace><msub><mi>P</mi><mi>k</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">XYZ</mtext><mover><mo>→</mo><mtext mathvariant="normal">PySCF RHF</mtext></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">O</mi></mrow></msub><mover><mo>→</mo><mtext mathvariant="normal">FreezeCore</mtext></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">t</mi></mrow></msub><mover><mo>→</mo><mrow><mtext mathvariant="normal">ActiveSpace</mtext><mo stretchy="false" form="prefix">(</mo><msub><mi>n</mi><mi>e</mi></msub><mo>,</mo><msub><mi>n</mi><mi>o</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">i</mi></mrow></msub><mover><mo>→</mo><mrow><mtext mathvariant="normal">ParityMapper</mtext><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>α</mi></msub><mo>,</mo><msub><mi>N</mi><mi>β</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mover><msub><mover><mi>H</mi><mo accent="true">̂</mo></mover><mrow><mi mathvariant="normal">q</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">b</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mi>k</mi></munder><msub><mi>c</mi><mi>k</mi></msub><mspace width="0.167em"></mspace><msub><mi>P</mi><mi>k</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \text{XYZ} \xrightarrow{\text{PySCF RHF}}
 \hat H_\mathrm{AO}
 \xrightarrow{\text{FreezeCore}}
@@ -801,7 +799,7 @@ chemistry).</li>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Biamonte2017qml" class="csl-entry">
 Biamonte, J., P. Wittek, N. Pancotti, P. Rebentrost, N. Wiebe, and S.
 Lloyd. 2017. <span>“Quantum Machine Learning.”</span> <em>Nature</em>
@@ -813,15 +811,14 @@ Supported by <span>R</span> Scripts.”</span> <em>Geoderma</em> 338:
 464–80. <a href="https://doi.org/10.1016/j.geoderma.2018.07.036" class="external-link">https://doi.org/10.1016/j.geoderma.2018.07.036</a>.
 </div>
 <div id="ref-Havlicek2019" class="csl-entry">
-Havlíček, V., A. D. Córcoles, K. Temme, A. W. Harrow, A. Kandala, J. M.
-Chow, and J. M. Gambetta. 2019. <span>“Supervised Learning with
-Quantum-Enhanced Feature Spaces.”</span> <em>Nature</em> 567: 209–12. <a href="https://doi.org/10.1038/s41586-019-0980-2" class="external-link">https://doi.org/10.1038/s41586-019-0980-2</a>.
+Havlíček, V., A. D. Córcoles, K. Temme, et al. 2019. <span>“Supervised
+Learning with Quantum-Enhanced Feature Spaces.”</span> <em>Nature</em>
+567: 209–12. <a href="https://doi.org/10.1038/s41586-019-0980-2" class="external-link">https://doi.org/10.1038/s41586-019-0980-2</a>.
 </div>
 <div id="ref-Kim2023utility" class="csl-entry">
-Kim, Y., A. Eddins, S. Anand, K. X. Wei, E. van den Berg, S. Rosenblatt,
-H. Nayfeh, et al. 2023. <span>“Evidence for the Utility of Quantum
-Computing Before Fault Tolerance.”</span> <em>Nature</em> 618: 500–505.
-<a href="https://doi.org/10.1038/s41586-023-06096-3" class="external-link">https://doi.org/10.1038/s41586-023-06096-3</a>.
+Kim, Y., A. Eddins, S. Anand, et al. 2023. <span>“Evidence for the
+Utility of Quantum Computing Before Fault Tolerance.”</span>
+<em>Nature</em> 618: 500–505. <a href="https://doi.org/10.1038/s41586-023-06096-3" class="external-link">https://doi.org/10.1038/s41586-023-06096-3</a>.
 </div>
 <div id="ref-McBratney2003" class="csl-entry">
 McBratney, A. B., M. L. Mendonça Santos, and B. Minasny. 2003. <span>“On
@@ -833,13 +830,13 @@ McClean, J. R., J. Romero, R. Babbush, and A. Aspuru-Guzik. 2016a.
 Algorithms.”</span> <em>New Journal of Physics</em> 18 (2): 023023. <a href="https://doi.org/10.1088/1367-2630/18/2/023023" class="external-link">https://doi.org/10.1088/1367-2630/18/2/023023</a>.
 </div>
 <div id="ref-McClean2016theory" class="csl-entry">
-———. 2016b. <span>“The Theory of Variational Hybrid Quantum-Classical
-Algorithms (Theory Edition).”</span> <em>New Journal of Physics</em> 18
-(2): 023023. <a href="https://doi.org/10.1088/1367-2630/18/2/023023" class="external-link">https://doi.org/10.1088/1367-2630/18/2/023023</a>.
+McClean, J. R., J. Romero, R. Babbush, and A. Aspuru-Guzik. 2016b.
+<span>“The Theory of Variational Hybrid Quantum-Classical Algorithms
+(Theory Edition).”</span> <em>New Journal of Physics</em> 18 (2):
+023023. <a href="https://doi.org/10.1088/1367-2630/18/2/023023" class="external-link">https://doi.org/10.1088/1367-2630/18/2/023023</a>.
 </div>
 <div id="ref-Peruzzo2014vqe" class="csl-entry">
-Peruzzo, A., J. McClean, P. Shadbolt, M.-H. Yung, X.-Q. Zhou, P. J.
-Love, A. Aspuru-Guzik, and J. L. O’Brien. 2014. <span>“A Variational
+Peruzzo, A., J. McClean, P. Shadbolt, et al. 2014. <span>“A Variational
 Eigenvalue Solver on a Photonic Quantum Processor.”</span> <em>Nature
 Communications</em> 5: 4213. <a href="https://doi.org/10.1038/ncomms5213" class="external-link">https://doi.org/10.1038/ncomms5213</a>.
 </div>
@@ -858,10 +855,10 @@ Perturbation Algorithm for Stochastic Optimization.”</span> <em>IEEE
 Transactions on Aerospace and Electronic Systems</em> 34 (3): 817–23. <a href="https://doi.org/10.1109/7.705889" class="external-link">https://doi.org/10.1109/7.705889</a>.
 </div>
 <div id="ref-Sun2018pyscf" class="csl-entry">
-Sun, Q., T. C. Berkelbach, N. S. Blunt, G. H. Booth, S. Guo, Z. Li, J.
-Liu, et al. 2018. <span>“<span>PySCF</span>: The Python-Based
-Simulations of Chemistry Framework.”</span> <em><span>WIREs</span>
-Computational Molecular Science</em> 8 (1): e1340. <a href="https://doi.org/10.1002/wcms.1340" class="external-link">https://doi.org/10.1002/wcms.1340</a>.
+Sun, Q., T. C. Berkelbach, N. S. Blunt, et al. 2018.
+<span>“<span>PySCF</span>: The Python-Based Simulations of Chemistry
+Framework.”</span> <em><span>WIREs</span> Computational Molecular
+Science</em> 8 (1): e1340. <a href="https://doi.org/10.1002/wcms.1340" class="external-link">https://doi.org/10.1002/wcms.1340</a>.
 </div>
 <div id="ref-Wadoux2020" class="csl-entry">
 Wadoux, A. M. J.-C., B. Minasny, and A. B. McBratney. 2020.
@@ -882,7 +879,7 @@ Reviews</em> 210: 103359. <a href="https://doi.org/10.1016/j.earscirev.2020.1033
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -13,6 +13,7 @@
 ------------------------------------------------------------------------
 
 ``` r
+
 library(edaphos)
 library(ggplot2)
 library(dplyr)
@@ -22,6 +23,7 @@ set.seed(20260423L)
 ```
 
 ``` r
+
 # Resultados pré-computados por data-raw/capstone_campaign_run.R.
 # Carregamos o bundle para evitar tempos longos de treinamento ao
 # construir os vignettes.
@@ -52,17 +54,18 @@ justificada.
 
 Os autores distinguem duas visões de causalidade:
 
-| Visão            | Lógica central                                                                        | Limitação em MDS                                                                     |
-|:-----------------|:--------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------|
-| **Sucessionist** | Regularidades e associações repetem-se → inferimos uma causa                          | Associações espúrias, paradoxo de Simpson, ausência de sequência temporal            |
-| **Generativa**   | Fatores pedogenéticos atuam por **processos explícitos** → geram propriedades do solo | Requer especificação dos mecanismos (mas abre a porta para inferência causal formal) |
+| Visão | Lógica central | Limitação em MDS |
+|:---|:---|:---|
+| **Sucessionist** | Regularidades e associações repetem-se → inferimos uma causa | Associações espúrias, paradoxo de Simpson, ausência de sequência temporal |
+| **Generativa** | Fatores pedogenéticos atuam por **processos explícitos** → geram propriedades do solo | Requer especificação dos mecanismos (mas abre a porta para inferência causal formal) |
 
 A visão generativa — resumida na equação conceptual de Zhang and Wadoux
 ([2026](#ref-Zhang2026causal)) —
 
-$$\text{fatores pedogenéticos}\overset{\text{processos}}{\rightarrow}\text{solo}$$
+\$\$\text{fatores pedogenéticos} \xrightarrow{\text{processos}}
+\text{solo} \tag{1}\$\$
 
-estende o modelo clássico de McBratney, Mendonça Santos, and Minasny
+estende o modelo clássico de McBratney et al.
 ([2003](#ref-McBratney2003)) e alinha-se naturalmente com o **Pilar 2**
 do `edaphos`, em que uma ODE pedogenética explícita representa os
 mecanismos de acumulação e decomposição da matéria orgânica.
@@ -93,6 +96,7 @@ O diagrama abaixo mostra como os seis pilares se encadeiam nesta
 campanha.
 
 ``` r
+
 if (requireNamespace("DiagrammeR", quietly = TRUE)) {
   DiagrammeR::grViz('
   digraph pipeline {
@@ -185,6 +189,7 @@ representa aproximadamente 22 km², cobrindo fitofisionomias típicas do
 Cerrado: campo limpo, campo sujo, cerrado sensu stricto e cerradão.
 
 ``` r
+
 aoi <- R$aoi
 knitr::kable(
   head(aoi, 8),
@@ -206,10 +211,12 @@ knitr::kable(
 | -48.444 | -16 |   1276.854 |   27.116 |      0.438 |   23.527 |
 
 Primeiras 8 células da grade de 10 × 10 (lon/lat em graus decimais).
+{.table}
 
 ### Perfis WoSIS
 
 ``` r
+
 profiles <- R$wosis_profiles
 cat(sprintf(
   "Perfis WoSIS no AoI: %d  |  COS médio: %.1f g/kg  |  Amplitude: %.1f–%.1f g/kg\n",
@@ -222,6 +229,7 @@ cat(sprintf(
 ```
 
 ``` r
+
 ggplot(profiles, aes(x = soc_g_kg)) +
   geom_histogram(bins = 25, fill = "#2ECC71", color = "white", alpha = 0.85) +
   labs(
@@ -262,6 +270,7 @@ aumentado por extração automática de arestas com o Gemma 4 via Ollama.
 ### Extração de arestas com Gemma 4 (LLM KG)
 
 ``` r
+
 # Passo executado offline (requer Ollama com gemma4:latest).
 # O resultado está armazenado em R$llm_claims.
 abstract_txt <- paste(
@@ -278,6 +287,7 @@ claims <- causal_llm_extract(
 ```
 
 ``` r
+
 claims <- R$llm_claims
 knitr::kable(
   claims[, c("cause", "effect", "confidence", "evidence")],
@@ -290,17 +300,17 @@ knitr::kable(
 )
 ```
 
-| cause              | effect          | confidence | evidence                                                                |
-|:-------------------|:----------------|-----------:|:------------------------------------------------------------------------|
-| wc_bio_12          | soc_topsoil_gkg |       0.92 | Higher MAP drives litter inputs and microbial activity, increasing SOC. |
-| wc_bio_01          | soc_topsoil_gkg |       0.85 | Higher MAT accelerates decomposition, reducing SOC accumulation.        |
-| wc_landcover_trees | soc_topsoil_gkg |       0.78 | Tree cover mediates litter quality and quantity, increasing SOC.        |
-| soilgrids_clay     | soc_topsoil_gkg |       0.71 | Clay stabilises SOC via organo-mineral associations.                    |
-| slope              | soilgrids_bdod  |       0.63 | Steeper slopes increase erosion, reducing bulk density and SOC.         |
+| cause | effect | confidence | evidence |
+|:---|:---|---:|:---|
+| wc_bio_12 | soc_topsoil_gkg | 0.92 | Higher MAP drives litter inputs and microbial activity, increasing SOC. |
+| wc_bio_01 | soc_topsoil_gkg | 0.85 | Higher MAT accelerates decomposition, reducing SOC accumulation. |
+| wc_landcover_trees | soc_topsoil_gkg | 0.78 | Tree cover mediates litter quality and quantity, increasing SOC. |
+| soilgrids_clay | soc_topsoil_gkg | 0.71 | Clay stabilises SOC via organo-mineral associations. |
+| slope | soilgrids_bdod | 0.63 | Steeper slopes increase erosion, reducing bulk density and SOC. |
 
 Arestas causais extraídas pelo Gemma 4 a partir de um fragmento
 representativo da literatura sobre pedogênese no Cerrado. Confidence em
-\[0, 1\]; 0,9 = evidência causal inequívoca.
+\[0, 1\]; 0,9 = evidência causal inequívoca. {.table}
 
 As arestas de alta confiança (≥ 0,75) são fundidas ao DAG base via
 [`causal_augment_dag()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_augment_dag.md).
@@ -310,6 +320,7 @@ textura, vegetação e COS.
 ### DAG aumentado pelo Gemma 4
 
 ``` r
+
 dag <- R$dag
 
 if (requireNamespace("ggdag", quietly = TRUE) &&
@@ -348,6 +359,7 @@ de ajuste mínimo pelo critério de backdoor e ajustamos um estimador
 linear com bootstrap espacial em blocos (k-means sobre lon/lat).
 
 ``` r
+
 eff <- R$causal_effects
 knitr::kable(
   eff,
@@ -362,16 +374,18 @@ knitr::kable(
 )
 ```
 
-| Exposição             | Resultado  | Efeito direto | IC 2,5% | IC 97,5% | Ajuste backdoor                                                                     |
-|:----------------------|:-----------|--------------:|--------:|---------:|:------------------------------------------------------------------------------------|
-| MAP (mm/a)            | COS (g/kg) |         0.002 |  -0.008 |    0.014 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
-| Cobertura arbórea (%) | COS (g/kg) |         2.975 |  -2.019 |   12.174 | wc_bio_01, wc_bio_12                                                                |
-| Argila (%)            | COS (g/kg) |        -0.097 |  -0.858 |    0.394 | slope, soilgrids_bdod, soilgrids_sand                                               |
+| Exposição | Resultado | Efeito direto | IC 2,5% | IC 97,5% | Ajuste backdoor |
+|:---|:---|---:|---:|---:|:---|
+| MAP (mm/a) | COS (g/kg) | 0.002 | -0.008 | 0.014 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
+| Cobertura arbórea (%) | COS (g/kg) | 2.975 | -2.019 | 12.174 | wc_bio_01, wc_bio_12 |
+| Argila (%) | COS (g/kg) | -0.097 | -0.858 | 0.394 | slope, soilgrids_bdod, soilgrids_sand |
 
 Efeitos causais diretos identificados por backdoor adjustment no DAG do
 Cerrado (estimador LM, bootstrap espacial B = 500, 250 perfis WoSIS).
+{.table}
 
 ``` r
+
 post_list <- R$causal_posteriors
 
 # Montar data.frame de amostras para ggplot
@@ -430,19 +444,23 @@ Wadoux ([2026](#ref-Zhang2026causal)): a acumulação de COS no perfil é
 governada por uma ODE que modela explicitamente os processos de produção
 e decomposição:
 
-$$\frac{d\left\lbrack \text{COS} \right\rbrack}{dz} = - k_{1} \cdot \left\lbrack \text{COS} \right\rbrack + k_{2} \cdot \text{MAP} \cdot \text{NDVI}\quad\text{com}\quad\left\lbrack \text{COS} \right\rbrack(0) = \text{COS}_{\text{superfície}}$$
+``` math
+\frac{d[\text{COS}]}{dz} = -k_1 \cdot [\text{COS}] + k_2 \cdot \text{MAP} \cdot \text{NDVI}
+\quad \text{com} \quad [\text{COS}](0) = \text{COS}_{\text{superfície}} \tag{2}
+```
 
-onde $z$ é a profundidade (cm), $k_{1}$ é a taxa de decomposição e
-$k_{2}$ a taxa de incorporação dependente de produtividade. Ao
+onde $`z`$ é a profundidade (cm), $`k_1`$ é a taxa de decomposição e
+$`k_2`$ a taxa de incorporação dependente de produtividade. Ao
 especificar esse mecanismo, satisfazemos a condição de Zhang and Wadoux
 ([2026](#ref-Zhang2026causal)): *“os processos são ‘plenamente
 determinados’ pela especificação do modelador, oferecendo um meio
 estruturado de controlar o confundimento”*.
 
 O ajuste bayesiano (`piml_profile_fit_bayesian`, método Laplace) propaga
-a incerteza dos parâmetros {$k_{1},k_{2},\sigma$} para o perfil predito.
+a incerteza dos parâmetros {$`k_1, k_2, \sigma`$} para o perfil predito.
 
 ``` r
+
 # Dados do perfil e posterior Bayesiano (pré-computado)
 prof_obs  <- R$piml_profile_obs
 prof_post <- R$piml_profile_posterior  # edaphos_posterior
@@ -496,6 +514,7 @@ IC 50%. Faixa clara: IC 95%. Pontos: observações WoSIS.
 ### Parâmetros pedogenéticos aprendidos
 
 ``` r
+
 knitr::kable(
   R$piml_params_table,
   digits  = 4,
@@ -509,19 +528,19 @@ knitr::kable(
 )
 ```
 
-| Parâmetro | Significado físico                    | Média posterior | IC 2,5% | IC 97,5% |
-|:----------|:--------------------------------------|----------------:|--------:|---------:|
-| k1        | Taxa de decomposição (cm⁻¹)           |          0.0250 |  0.0188 |   0.0312 |
-| k2        | Coef. de produtividade (g/kg/(mm·cm)) |          0.0001 |  0.0001 |   0.0001 |
-| sigma     | Ruído observacional (g/kg)            |          2.1000 |  1.6800 |   2.5200 |
+| Parâmetro | Significado físico | Média posterior | IC 2,5% | IC 97,5% |
+|:---|:---|---:|---:|---:|
+| k1 | Taxa de decomposição (cm⁻¹) | 0.0250 | 0.0188 | 0.0312 |
+| k2 | Coef. de produtividade (g/kg/(mm·cm)) | 0.0001 | 0.0001 | 0.0001 |
+| sigma | Ruído observacional (g/kg) | 2.1000 | 1.6800 | 2.5200 |
 
 Parâmetros da ODE pedogenética estimados por aproximação de Laplace
 (perfil representativo do Cerrado). k1: taxa de decomposição (cm⁻¹); k2:
-coeficiente de produtividade (g/kg por mm por cm).
+coeficiente de produtividade (g/kg por mm por cm). {.table}
 
 **Ligação entre Pilares 1 e 2.** O DAG do Pilar 1 restringe o espaço de
-parâmetros plausíveis: a aresta MAP → COS implica $k_{2} > 0$, e a
-aresta T2M → COS implica que $k_{1}$ cresce com temperatura. Essas
+parâmetros plausíveis: a aresta MAP → COS implica $`k_2 > 0`$, e a
+aresta T2M → COS implica que $`k_1`$ cresce com temperatura. Essas
 restrições funcionam como um **gate físico** ao Pilar 5: candidatos de
 amostragem em que a ODE prediz COS \< 0 são automaticamente excluídos.
 
@@ -543,11 +562,13 @@ do NDVI, e o EnKF assimila observações *in situ* de COS atualizando a
 previsão prospectiva.
 
 ``` r
+
 # Resultados do temporal Cerrado pré-computados
 temp_res <- R$temporal_results
 ```
 
 ``` r
+
 prior_field    <- temp_res$prior_mean
 analysis_field <- temp_res$analysis_mean
 obs_locs       <- temp_res$obs_locations
@@ -606,6 +627,7 @@ análise posterior ao EnKF localizado (Gaspari-Cohn, raio=2 células) para
 o campo médio de COS normalizado. A assimilação reduz o RMSE em ~3%.
 
 ``` r
+
 # `mean_gain` is one value per assimilated observation, not per grid
 # cell -- bind it to `obs_locs` directly to keep the data.frame
 # rectangular (v3.10.0 fix).
@@ -651,6 +673,7 @@ e textura do solo visíveis em imagens de satélite que seriam difíceis de
 engenheirar manualmente.
 
 ``` r
+
 found_df <- R$foundation_pred_df  # colunas: lon, lat, mean_pred, sd_pred
 
 ggplot(found_df, aes(x = lon, y = lat)) +
@@ -683,6 +706,7 @@ Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do
 ensemble. Pontos vermelhos: perfis WoSIS observados.
 
 ``` r
+
 ggplot(found_df, aes(x = lon, y = lat, fill = sd_pred)) +
   geom_tile() +
   scale_fill_viridis_c(option = "F", name = "SD (g/kg)",
@@ -722,12 +746,15 @@ O Pilar 5 implementa a política de amostragem ativa que integra:
 
 A função de score é:
 
-$$\text{score}(x) = \alpha \cdot \widehat{u}(x) + (1 - \alpha) \cdot \widehat{d}(x)$$
+``` math
+\text{score}(x) = \alpha \cdot \widehat{u}(x) + (1-\alpha) \cdot \widehat{d}(x) \tag{3}
+```
 
-onde $\widehat{u}$ é a incerteza normalizada e $\widehat{d}$ é a
-diversidade normalizada, com $\alpha = 0,7$ por padrão.
+onde $`\widehat{u}`$ é a incerteza normalizada e $`\widehat{d}`$ é a
+diversidade normalizada, com $`\alpha = 0{,}7`$ por padrão.
 
 ``` r
+
 query_res <- R$al_query_results
 cat(sprintf(
   "Candidatos avaliados: %d  |  Rejeitados pelo gate físico: %d  |",
@@ -742,6 +769,7 @@ cat(sprintf(
 ```
 
 ``` r
+
 cand_df    <- R$candidate_df   # lon, lat, score, selected, rejected_by_gate
 sel_df     <- cand_df[cand_df$selected, ]
 rej_df     <- cand_df[cand_df$rejected_by_gate, ]
@@ -780,6 +808,7 @@ diversidade. Os círculos cinza são os perfis WoSIS existentes. As cruzes
 pretas são candidatos rejeitados pelo gate físico da ODE.
 
 ``` r
+
 knitr::kable(
   sel_df[, c("lon", "lat", "score", "uncertainty_score",
              "diversity_score", "pred_mean", "pred_sd")],
@@ -806,9 +835,10 @@ knitr::kable(
 | 100 | -48.000 | -14.000 |       0.552 |     0.789 |       0.516 |           12.921 |    3.960 |
 
 As oito localizações recomendadas para coleta de campo, ordenadas por
-score decrescente. COS pred. e SD pred. são do modelo QRF.
+score decrescente. COS pred. e SD pred. são do modelo QRF. {.table}
 
 ``` r
+
 al_posts <- R$al_posteriors  # lista de edaphos_posterior por candidato
 
 posts_df <- bind_rows(lapply(seq_along(al_posts), function(i) {
@@ -854,14 +884,15 @@ incerteza aleatória + epistêmica do QRF.
 O Pilar 6 fornece uma **segunda opinião ultra-rápida** sobre o nível de
 incerteza dos candidatos de amostragem usando o Quantum Kernel Ridge
 Regression (Q-KRR). A equivalência GP do Q-KRR permite derivar uma
-variância preditiva analítica a partir da mesma matriz de Gram $K$ usada
-para a predição pontual — sem Monte Carlo adicional.
+variância preditiva analítica a partir da mesma matriz de Gram $`K`$
+usada para a predição pontual — sem Monte Carlo adicional.
 
 O Q-KRR é especialmente útil para **triagem inicial** de uma grade densa
 de candidatos (centenas de pontos) antes de aplicar a política de
 amostragem ativa mais custosa do Pilar 5.
 
 ``` r
+
 qkrr_df <- R$qkrr_df  # lon, lat, mean_pred, epistemic_sd, aleatoric_sd, total_sd
 
 qkrr_long <- tidyr::pivot_longer(
@@ -901,6 +932,7 @@ epistêmica sinaliza regiões onde o kernel quântico interpola mal —
 candidatos prioritários.
 
 ``` r
+
 compare_df <- R$qkrr_al_compare
 
 ggplot(compare_df, aes(x = al_uncertainty, y = qkrr_epistemic)) +
@@ -971,6 +1003,7 @@ produz os números do bloco abaixo — com PICP próximo de zero para P1–P3
 — que refletem mismatch de domínio, **não** calibração ruim.
 
 ``` r
+
 cal_tbl <- R$calibration_table
 cal_disp <- cal_tbl
 cal_disp$crps <- round(cal_tbl$crps, 3)
@@ -1002,23 +1035,24 @@ knitr::kable(
 Leitura *ingênua*: os seis pilares forçados à mesma query de mapa de
 COS. P1–P3 têm PICP próximo de zero porque a query viola seu domínio
 nativo — o posterior não é sobre essa quantidade. Não é falha de
-calibração; é falha de avaliação.
+calibração; é falha de avaliação. {.table}
 
 ### Calibração nativa por pilar — a leitura correta (v1.7.1)
 
 A versão **v1.7.1** introduz `capstone_native_calibration.rds`, que
 avalia cada pilar **no seu domínio natural**:
 
-| Pilar         | Query nativa                                         | Protocolo de validação                                            |
-|:--------------|:-----------------------------------------------------|:------------------------------------------------------------------|
-| P1 Causal     | efeito escalar $\beta_{x\rightarrow y}^{\text{do}}$  | 20 *split-samples* aleatórios: 40 pares (posterior, pseudo-truth) |
-| P2 PIML       | perfil de profundidade $y(z)$                        | *Leave-one-horizon-out* em 7 horizontes de um pedon do Cerrado    |
-| P3 4D         | mapa futuro $\mathbf{Y}\left( t_{\star} \right)$     | *Leave-one-month-out* no cubo 2° Cerrado (truth = NDVI observado) |
-| P4 Foundation | mapa espacial $\mathbf{Y}\left( \text{site} \right)$ | 5-fold **spatial CV** no WoSIS; ensemble com 8 heads bagged       |
-| P5 AL         | mapa espacial $\mathbf{Y}\left( \text{site} \right)$ | *Hold-out* 30% WoSIS; curva de aprendizado vs. baseline aleatório |
-| P6 Q-KRR      | regressão $y(\mathbf{x})$                            | *Hold-out* 70/30 WoSIS com 4 features quânticas                   |
+| Pilar | Query nativa | Protocolo de validação |
+|:---|:---|:---|
+| P1 Causal | efeito escalar $`\beta_{x\to y}^{\text{do}}`$ | 20 *split-samples* aleatórios: 40 pares (posterior, pseudo-truth) |
+| P2 PIML | perfil de profundidade $`y(z)`$ | *Leave-one-horizon-out* em 7 horizontes de um pedon do Cerrado |
+| P3 4D | mapa futuro $`\mathbf{Y}(t_\star)`$ | *Leave-one-month-out* no cubo 2° Cerrado (truth = NDVI observado) |
+| P4 Foundation | mapa espacial $`\mathbf{Y}(\text{site})`$ | 5-fold **spatial CV** no WoSIS; ensemble com 8 heads bagged |
+| P5 AL | mapa espacial $`\mathbf{Y}(\text{site})`$ | *Hold-out* 30% WoSIS; curva de aprendizado vs. baseline aleatório |
+| P6 Q-KRR | regressão $`y(\mathbf{x})`$ | *Hold-out* 70/30 WoSIS com 4 features quânticas |
 
 ``` r
+
 if (!is.null(N)) {
   nat_tbl <- N$native_table
   nat_disp <- nat_tbl
@@ -1056,6 +1090,7 @@ if (!is.null(N)) {
 Leitura **nativa** (v1.7.1): cada pilar avaliado no seu domínio natural.
 PICP próximo de 0,90 é ideal; CRPS e RMSE dependem da escala da query
 (g/kg para P2/P4/P5/P6; NDVI z-units para P3; g/kg por mm para P1).
+{.table}
 
 #### Como ler a tabela nativa
 
@@ -1083,6 +1118,7 @@ PICP próximo de 0,90 é ideal; CRPS e RMSE dependem da escala da query
   captura honestamente a incerteza mesmo em regime de dados escassos.
 
 ``` r
+
 if (!is.null(N) && length(N$reliability_list) > 0L) {
   rel_df_nat <- bind_rows(lapply(names(N$reliability_list), function(nm) {
     d <- N$reliability_list[[nm]]
@@ -1126,10 +1162,11 @@ com o problema de ensemble collapse documentado no texto.
 
 O Pilar 5 se valida não só pelo CRPS final, mas pela **trajetória** do
 CRPS conforme novos pontos são adquiridos. Abaixo comparamos a política
-AL ($\alpha = 0,7$, híbrida incerteza + diversidade) contra amostragem
+AL ($`\alpha=0{,}7`$, híbrida incerteza + diversidade) contra amostragem
 puramente aleatória, ambas partindo do mesmo conjunto semente.
 
 ``` r
+
 if (!is.null(N) && !is.null(N$p5$learning_curve)) {
   lc <- N$p5$learning_curve
   rc <- N$p5$random_curve
@@ -1178,6 +1215,7 @@ benefício de AL maior em regime inicial (n pequeno) do que terminal.
 Consolidamos a informação dos seis pilares numa matriz de evidências:
 
 ``` r
+
 dec_mat <- R$decision_matrix
 knitr::kable(
   dec_mat,
@@ -1195,23 +1233,24 @@ knitr::kable(
 )
 ```
 
-|     | Site   |     Lon |     Lat | Score P5 | Incert. Q-KRR | Ganho EnKF | Incert. Found. | Efeito MAP (P1) | COS pred. ODE (P2) | Score final |
-|:----|:-------|--------:|--------:|---------:|--------------:|-----------:|---------------:|----------------:|-------------------:|------------:|
-| 1   | Site 1 | -49.556 | -15.778 |    0.910 |         0.867 |      0.481 |          5.065 |           0.002 |             13.362 |       0.606 |
-| 3   | Site 3 | -48.444 | -14.222 |    0.684 |         0.892 |      1.103 |          4.641 |           0.002 |             13.067 |       0.569 |
-| 7   | Site 7 | -48.000 | -14.000 |    0.552 |         0.883 |      1.216 |          5.950 |           0.002 |             12.921 |       0.525 |
-| 5   | Site 5 | -49.333 | -14.000 |    0.671 |         0.913 |      1.061 |          2.991 |           0.002 |             12.925 |       0.453 |
-| 6   | Site 6 | -48.222 | -15.111 |    0.668 |         0.854 |      1.102 |          3.684 |           0.002 |             12.992 |       0.417 |
-| 2   | Site 2 | -48.667 | -15.333 |    0.700 |         0.910 |      0.545 |          4.752 |           0.002 |             12.845 |       0.399 |
-| 4   | Site 4 | -48.222 | -16.000 |    0.672 |         0.896 |      0.712 |          3.101 |           0.002 |             13.427 |       0.388 |
-| 8   | Site 8 | -49.333 | -14.667 |    0.552 |         0.860 |      0.707 |          2.772 |           0.002 |             12.756 |       0.086 |
+|  | Site | Lon | Lat | Score P5 | Incert. Q-KRR | Ganho EnKF | Incert. Found. | Efeito MAP (P1) | COS pred. ODE (P2) | Score final |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Site 1 | -49.556 | -15.778 | 0.910 | 0.867 | 0.481 | 5.065 | 0.002 | 13.362 | 0.606 |
+| 3 | Site 3 | -48.444 | -14.222 | 0.684 | 0.892 | 1.103 | 4.641 | 0.002 | 13.067 | 0.569 |
+| 7 | Site 7 | -48.000 | -14.000 | 0.552 | 0.883 | 1.216 | 5.950 | 0.002 | 12.921 | 0.525 |
+| 5 | Site 5 | -49.333 | -14.000 | 0.671 | 0.913 | 1.061 | 2.991 | 0.002 | 12.925 | 0.453 |
+| 6 | Site 6 | -48.222 | -15.111 | 0.668 | 0.854 | 1.102 | 3.684 | 0.002 | 12.992 | 0.417 |
+| 2 | Site 2 | -48.667 | -15.333 | 0.700 | 0.910 | 0.545 | 4.752 | 0.002 | 12.845 | 0.399 |
+| 4 | Site 4 | -48.222 | -16.000 | 0.672 | 0.896 | 0.712 | 3.101 | 0.002 | 13.427 | 0.388 |
+| 8 | Site 8 | -49.333 | -14.667 | 0.552 | 0.860 | 0.707 | 2.772 | 0.002 | 12.756 | 0.086 |
 
 Matriz de decisão integrada: os oito locais selecionados pelo Active
 Learning, anotados com informação dos seis pilares. Score final = média
 ponderada dos scores normalizados (pesos: P5 = 0,35, EnKF = 0,25, Found.
-= 0,20, Q-KRR = 0,10, P1-P2 = 0,10).
+= 0,20, Q-KRR = 0,10, P1-P2 = 0,10). {.table}
 
 ``` r
+
 final_sel <- R$final_selection  # lon, lat, final_score
 
 ggplot() +
@@ -1269,7 +1308,7 @@ apenas associativa:
     indica que a dinâmica temporal do COS está mudando mais rápido aqui;
     alta incerteza epistêmica do Foundation Model (Pilar 4) confirma que
     o espaço de representação está sub-amostrado. Segundo a ODE (Pilar
-    2), os parâmetros de decomposição ($k_{1}$) nessa célula apresentam
+    2), os parâmetros de decomposição ($`k_1`$) nessa célula apresentam
     incerteza 2× maior que a média — amostras aqui reduzem diretamente a
     incerteza sobre o processo de decomposição.
 
@@ -1296,17 +1335,17 @@ prediz COS \< 2 g/kg com certeza quase total).
 
 ## Alinhamento com Zhang & Wadoux (2026): checklist
 
-| Condição / Elemento                                       | Pilar responsável                                  | Função(ões) do edaphos                                                                                                                                                                                                                                |
-|:----------------------------------------------------------|:---------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1\. Modelo causal explícito (DAG)                         | P1 (LLM KG + dagitty)                              | [`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md) + [`causal_augment_dag()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_augment_dag.md)                                   |
-| 2\. Suficiência causal (sem confundidores não observados) | P1 (LLM KG: variáveis latentes na literatura)      | Gemma 4 extrai variáveis latentes da literatura                                                                                                                                                                                                       |
-| 3\. Fidelidade estrutura ↔︎ dados                          | P2 (ODE restringe associações plausíveis)          | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md) gate em [`al_query()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query.md)                                   |
-| Visão generativa: processos explícitos                    | P2 (ODE pedogenética, Neural ODE)                  | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md) + [`piml_neural_ode_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_neural_ode_fit_ensemble.md) |
-| Crítica de snapshot temporal respondida                   | P3 (ConvLSTM + EnKF — 14 anos de série temporal)   | [`temporal_convlstm_ensemble_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_convlstm_ensemble_fit.md) + [`temporal_kalman_update()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_kalman_update.md)   |
-| Predição + compreensão (objetivos duplos do MDS)          | P4 + P5 + P6 (previsão com incerteza quantificada) | [`foundation_finetune_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_finetune_ensemble.md) + [`active_learning_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/active_learning_posterior.md) |
+| Condição / Elemento | Pilar responsável | Função(ões) do edaphos |
+|:---|:---|:---|
+| 1\. Modelo causal explícito (DAG) | P1 (LLM KG + dagitty) | [`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md) + [`causal_augment_dag()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_augment_dag.md) |
+| 2\. Suficiência causal (sem confundidores não observados) | P1 (LLM KG: variáveis latentes na literatura) | Gemma 4 extrai variáveis latentes da literatura |
+| 3\. Fidelidade estrutura ↔︎ dados | P2 (ODE restringe associações plausíveis) | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md) gate em [`al_query()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query.md) |
+| Visão generativa: processos explícitos | P2 (ODE pedogenética, Neural ODE) | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md) + [`piml_neural_ode_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_neural_ode_fit_ensemble.md) |
+| Crítica de snapshot temporal respondida | P3 (ConvLSTM + EnKF — 14 anos de série temporal) | [`temporal_convlstm_ensemble_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_convlstm_ensemble_fit.md) + [`temporal_kalman_update()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_kalman_update.md) |
+| Predição + compreensão (objetivos duplos do MDS) | P4 + P5 + P6 (previsão com incerteza quantificada) | [`foundation_finetune_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_finetune_ensemble.md) + [`active_learning_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/active_learning_posterior.md) |
 
 Alinhamento entre os elementos do framework de Zhang and Wadoux
-([2026](#ref-Zhang2026causal)) e os pilares do edaphos v1.7.0.
+([2026](#ref-Zhang2026causal)) e os pilares do edaphos v1.7.0. {.table}
 
 ------------------------------------------------------------------------
 
@@ -1325,4 +1364,4 @@ Mapping Be Causal?” *European Journal of Soil Science* 77: e70284.
 
 ------------------------------------------------------------------------
 
-*Construído com* **edaphos** 3.10.0 · R version 4.6.0 (2026-04-24)
+*Construído com* **edaphos** 4.0.0 · R version 4.6.1 (2026-06-24)

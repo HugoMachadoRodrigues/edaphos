@@ -5,8 +5,8 @@ Regression counterpart of
 Attaches a scalar-output head (linear or MLP) on top of a
 self-supervised encoder and trains it against a numeric target `y`.
 Supports the same two regimes — linear probing with a frozen backbone or
-full fine-tuning with a two-group learning rate — and the same
-`device ∈ {"cpu", "mps", "cuda"}` dispatch.
+full fine-tuning with a two-group learning rate — and the same `device`
+dispatch over `"cpu"`, `"mps"` and `"cuda"`.
 
 ## Usage
 

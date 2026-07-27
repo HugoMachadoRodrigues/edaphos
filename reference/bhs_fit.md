@@ -44,8 +44,8 @@ bhs_fit(
 
   One of `"gibbs"` (pure-R Gibbs sampler, default, no external deps),
   `"spBayes"` (dispatches to
-  [`spBayes::spLM`](https://rdrr.io/pkg/spBayes/man/spLM.html) when
-  available).
+  [`spBayes::spLM`](https://finleya.github.io/spBayes/reference/spLM.html)
+  when available).
 
 - nmcmc:
 

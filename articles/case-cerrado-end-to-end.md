@@ -53,7 +53,7 @@ every downstream user.
 - **B1** `ranger` quantile regression forest ([Meinshausen
   2006](#ref-Meinshausen2006qrf)) on the expanded covariate stack
   (SoilGrids + WorldClim monthly + SRTM + WorldCover + bio), target =
-  $\log\left( 1 + \text{SOC} \right)$.
+  $`\log(1 + \text{SOC})`$.
 - **B2** B1 **plus** residual kriging via `gstat` ([Pebesma
   2004](#ref-Pebesma2004gstat)) — the full Hengl-style classical DSM
   recipe ([Hengl et al. 2017](#ref-Hengl2017soilgrids)).
@@ -70,14 +70,14 @@ real CC-BY-4.0 data. **Nothing in this vignette is synthetic.**
 
 ### Data sources + attribution
 
-| Artefact                   | Source                                                                                            | Licence            |
-|:---------------------------|:--------------------------------------------------------------------------------------------------|:-------------------|
-| Cerrado biome polygon      | IBGE Biomes 1:250 000 via `geobr` ([Pereira and Goncalves 2019](#ref-Pereira2019geobr))           | IBGE public data   |
-| SOC point observations     | WoSIS snapshot 2019 ([Batjes, Ribeiro, and Oostrum 2020](#ref-Batjes2020wosis)) via ISRIC WFS     | CC-BY-4.0          |
-| Soil covariates (5 layers) | SoilGrids 250m 0-5cm mean ([Hengl et al. 2017](#ref-Hengl2017soilgrids)) via `geodata`            | CC-BY-4.0          |
-| Climate (24 layers)        | WorldClim 2.1 Brazil country pack ([Fick and Hijmans 2017](#ref-Fick2017worldclim)) via `geodata` | open research      |
-| Terrain (2 layers)         | SRTM 30-arcsec ([Jarvis et al. 2008](#ref-Jarvis2008srtm)) via `geodata`                          | NASA public domain |
-| Foundation encoder         | `edaphos-cerrado-moco-v1` (this work, v1.2.0)                                                     | CC-BY-4.0          |
+| Artefact | Source | Licence |
+|:---|:---|:---|
+| Cerrado biome polygon | IBGE Biomes 1:250 000 via `geobr` ([Pereira and Goncalves 2019](#ref-Pereira2019geobr)) | IBGE public data |
+| SOC point observations | WoSIS snapshot 2019 ([Batjes et al. 2020](#ref-Batjes2020wosis)) via ISRIC WFS | CC-BY-4.0 |
+| Soil covariates (5 layers) | SoilGrids 250m 0-5cm mean ([Hengl et al. 2017](#ref-Hengl2017soilgrids)) via `geodata` | CC-BY-4.0 |
+| Climate (24 layers) | WorldClim 2.1 Brazil country pack ([Fick and Hijmans 2017](#ref-Fick2017worldclim)) via `geodata` | open research |
+| Terrain (2 layers) | SRTM 30-arcsec ([Jarvis et al. 2008](#ref-Jarvis2008srtm)) via `geodata` | NASA public domain |
+| Foundation encoder | `edaphos-cerrado-moco-v1` (this work, v1.2.0) | CC-BY-4.0 |
 
 ## 2. Reproducing this benchmark from scratch
 
@@ -98,6 +98,7 @@ consumes — you will find it ignored by `git` on purpose, because it is
 recomputable and we ship the code, not the artefact.
 
 ``` r
+
 library(edaphos)
 library(ggplot2)
 library(patchwork)
@@ -132,7 +133,7 @@ Brazilian soil surveys, ranging from **1960** to **2010**:
 | US-NCSS      |          2 |     1967 |     1980 |           27.0 |
 | WD-Mangroves |          1 |     2010 |     2010 |           33.2 |
 
-WoSIS profile counts per underlying Brazilian survey.
+WoSIS profile counts per underlying Brazilian survey. {.table}
 
 ![Real WoSIS 0–10 cm topsoil profiles inside the Cerrado biome. Colour =
 SOC (g/kg). Points coloured by 5-fold CV fold (k-means on
@@ -155,15 +156,15 @@ estimate inherited from unlucky train/test SOC distribution drift.
 
 ### 4.1 Headline table
 
-| method              |    n | RMSE (g/kg) | MAE (g/kg) |    R² | bias (g/kg) | <PICP@95> | Interval score |
-|:--------------------|-----:|------------:|-----------:|------:|------------:|:----------|---------------:|
-| B1 ranger           | 1095 |       13.51 |       7.72 | 0.219 |       -0.62 | 0.944     |          65.81 |
-| B2 ranger + kriging |  910 |       13.86 |       7.86 | 0.233 |       -0.23 | 0.816     |          99.52 |
-| E ranger + MoCo v1  |  923 |       14.07 |       7.95 | 0.157 |       -0.65 | 0.940     |          71.66 |
+| method | n | RMSE (g/kg) | MAE (g/kg) | R² | bias (g/kg) | <PICP@95> | Interval score |
+|:---|---:|---:|---:|---:|---:|:---|---:|
+| B1 ranger | 1095 | 13.51 | 7.72 | 0.219 | -0.62 | 0.944 | 65.81 |
+| B2 ranger + kriging | 910 | 13.86 | 7.86 | 0.233 | -0.23 | 0.816 | 99.52 |
+| E ranger + MoCo v1 | 923 | 14.07 | 7.95 | 0.157 | -0.65 | 0.940 | 71.66 |
 
 5-fold cross-validation results. `n` is smaller for the foundation-model
 stack because ~50 profiles are too close to the raster edge to extract a
-16×16 patch around them.
+16×16 patch around them. {.table style="width:100%;"}
 
 ### 4.2 Observed vs predicted
 
@@ -284,7 +285,7 @@ Profile Data to Support Global Mapping and Modelling (WoSIS Snapshot
 <https://doi.org/10.5194/essd-12-299-2020>.
 
 Chen, X., H. Fan, R. Girshick, and K. He. 2020. “Improved Baselines with
-Momentum Contrastive Learning.” In *arXiv Preprint arXiv:2003.04297*.
+Momentum Contrastive Learning.” *arXiv Preprint arXiv:2003.04297*.
 
 Fick, S. E., and R. J. Hijmans. 2017. “WorldClim 2: New 1-Km Spatial
 Resolution Climate Surfaces for Global Land Areas.” *International
@@ -292,16 +293,16 @@ Journal of Climatology* 37 (12): 4302–15.
 <https://doi.org/10.1002/joc.5086>.
 
 He, K., H. Fan, Y. Wu, S. Xie, and R. Girshick. 2020. “Momentum Contrast
-for Unsupervised Visual Representation Learning.” In *IEEE/CVF
-Conference on Computer Vision and Pattern Recognition*, 9729–38.
+for Unsupervised Visual Representation Learning.” *IEEE/CVF Conference
+on Computer Vision and Pattern Recognition*, 9729–38.
 
-Hengl, T., J. Mendes de Jesus, G. B. M. Heuvelink, M. Ruiperez Gonzalez,
-M. Kilibarda, A. Blagotić, W. Shangguan, et al. 2017. “SoilGrids250m:
-Global Gridded Soil Information Based on Machine Learning.” *PLOS ONE*
-12 (2): e0169748. <https://doi.org/10.1371/journal.pone.0169748>.
+Hengl, T., J. Mendes de Jesus, G. B. M. Heuvelink, et al. 2017.
+“SoilGrids250m: Global Gridded Soil Information Based on Machine
+Learning.” *PLOS ONE* 12 (2): e0169748.
+<https://doi.org/10.1371/journal.pone.0169748>.
 
-Jarvis, A., H. I. Reuter, A. Nelson, and E. Guevara. 2008. “Hole-Filled
-SRTM for the Globe (Version 4).” CGIAR-CSI SRTM 90m Database.
+Jarvis, A., H. I. Reuter, A. Nelson, and E. Guevara. 2008. *Hole-Filled
+SRTM for the Globe (Version 4)*. CGIAR-CSI SRTM 90m Database.
 <https://srtm.csi.cgiar.org>.
 
 Meinshausen, N. 2006. “Quantile Regression Forests.” *Journal of Machine
@@ -313,13 +314,12 @@ Package.” *Computers & Geosciences* 30 (7): 683–91.
 
 Pereira, R. H. M., and C. N. Goncalves. 2019. “geobr: Loads Shapefiles
 of Official Spatial Data Sets of Brazil.” *R Package (IPEA)*.
-<https://github.com/ipeaGIT/geobr>.
+<https://github.com/ipea/geobr>.
 
-Reichstein, M., G. Camps-Valls, B. Stevens, M. Jung, J. Denzler, N.
-Carvalhais, and Prabhat. 2019. “Deep Learning and Process Understanding
-for Data-Driven Earth System Science.” *Nature* 566: 195–204.
-<https://doi.org/10.1038/s41586-019-0912-1>.
+Reichstein, M., G. Camps-Valls, B. Stevens, et al. 2019. “Deep Learning
+and Process Understanding for Data-Driven Earth System Science.”
+*Nature* 566: 195–204. <https://doi.org/10.1038/s41586-019-0912-1>.
 
-Zanaga, D., R. Van De Kerchove, W. De Keersmaecker, N. Souverijns, C.
-Brockmann, R. Quast, J. Wevers, et al. 2021. “ESA WorldCover 10 m 2020
-v100.” Zenodo. <https://doi.org/10.5281/zenodo.5571936>.
+Zanaga, D., R. Van De Kerchove, W. De Keersmaecker, et al. 2021. *ESA
+WorldCover 10 m 2020 v100*. Zenodo.
+<https://doi.org/10.5281/zenodo.5571936>.

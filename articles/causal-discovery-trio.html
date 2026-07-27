@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Causal discovery no Cerrado: expert vs. LLM vs. data-driven • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Causal discovery no Cerrado: expert vs. LLM vs. data-driven">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,7 +117,7 @@
 
 <link href="causal-discovery-trio_files/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
 <script src="causal-discovery-trio_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="causal-discovery-trio_files/viz-1.8.2/viz.js"></script><link href="causal-discovery-trio_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
-<script src="causal-discovery-trio_files/grViz-binding-1.0.11/grViz.js"></script><div class="row">
+<script src="causal-discovery-trio_files/grViz-binding-1.0.12/grViz.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Causal discovery no Cerrado: expert vs. LLM vs. data-driven</h1>
             <h3 data-toc-skip class="subtitle">Um trio complementar para
@@ -377,9 +377,9 @@ causa elevação.</caption>
 </h2>
 <p>A <strong>Structural Hamming Distance (SHD)</strong> conta o número
 mínimo de adições, remoções e inversões de aresta necessárias para
-transformar um DAG em outro <span class="citation">(<a href="#ref-Tsamardinos2006mmhc">Tsamardinos, Brown, and Aliferis
-2006</a>)</span>. <code>SHD(A, A) = 0</code> (o DAG é idêntico a si
-mesmo); <code>SHD(A, B) = n</code> significa que B difere de A em n
+transformar um DAG em outro <span class="citation">(<a href="#ref-Tsamardinos2006mmhc">Tsamardinos et al. 2006</a>)</span>.
+<code>SHD(A, A) = 0</code> (o DAG é idêntico a si mesmo);
+<code>SHD(A, B) = n</code> significa que B difere de A em n
 operações.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shd</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">shd_matrix</span></span>
@@ -403,32 +403,48 @@ operações.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">20</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        panel.grid  <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="causal-discovery-trio_files/figure-html/shd-heatmap-1.png" class="r-plt" alt="Matriz de Structural Hamming Distance (SHD) entre os cinco métodos. Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu (concordância total) e SHD=2 entre Expert e LLM-augmented (apenas 2 arestas adicionadas pelo Gemma 4)." width="96%"><p class="caption">
+<img src="causal-discovery-trio_files/figure-html/shd-heatmap-1.png" class="r-plt" alt="Matriz de Structural Hamming Distance (SHD) entre os cinco métodos. Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu (concordância total) e tambem SHD=0 entre Expert e LLM-augmented: as claims extraidas nao acrescentam nenhuma aresta representavel neste conjunto de covariaveis." width="96%"><p class="caption">
 Matriz de Structural Hamming Distance (SHD) entre os cinco métodos.
 Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu
-(concordância total) e SHD=2 entre Expert e LLM-augmented (apenas 2
-arestas adicionadas pelo Gemma 4).
+(concordância total) e tambem SHD=0 entre Expert e LLM-augmented: as
+claims extraidas nao acrescentam nenhuma aresta representavel neste
+conjunto de covariaveis.
 </p>
 </div>
 <p><strong>Leitura.</strong></p>
 <ul>
 <li>
-<code>SHD(Expert, LLM-augmented) = 2</code>: o Gemma 4 adiciona
-apenas 2 arestas de alta confiança sobre o DAG expert — o LLM é
-<strong>conservador</strong> com priors bem especificados. Isso é uma
-característica, não um bug.</li>
-<li>
-<code>SHD(hc, tabu) = 0</code>: os dois algoritmos score-based
+<p><code>SHD(Expert, LLM-augmented) = 0</code>: as claims extraídas
+<strong>não acrescentam nenhuma aresta</strong> ao DAG expert. Das 30
+claims em <code>inst/extdata/cerrado_claims.jsonl</code>, apenas 3 têm
+ambos os extremos representáveis no conjunto de 10 covariáveis WoSIS, e
+as 3 já constavam do DAG expert. O gargalo aqui <strong>não é o
+extrator</strong>: 32 conceitos distintos aparecem nas claims —
+<code>decomposition</code>, <code>primary_mineral_dissolution</code>,
+<code>argillic_horizon</code>, <code>root_input</code>,
+<code>effective_cation_exchange_capacity</code>, <code>twi</code>, entre
+outros — e nenhum deles tem contrapartida entre as covariáveis
+disponíveis. A extração produz afirmações pedologicamente sensatas que
+este conjunto de covariáveis simplesmente não consegue expressar.</p>
+<p>Versões anteriores desta vignette reportavam <code>SHD = 2</code> e
+concluíam que “o Gemma 4 é conservador”. Aquele número vinha de seis
+arestas digitadas à mão em
+<code>data-raw/causal_discovery_benchmark.R</code>, com confidences
+(0,90 / 0,82 / 0,78 / 0,75 / 0,72 / 0,71) que não existem em nenhum
+arquivo do pacote — todas as claims embarcadas têm confidence 0,9. Essas
+arestas foram retiradas; o benchmark agora deriva o conjunto do arquivo
+de claims por um mapeamento conceito → coluna explícito e validado
+contra as colunas que de fato existem.</p>
+</li>
+<li><p><code>SHD(hc, tabu) = 0</code>: os dois algoritmos score-based
 convergem para o mesmo DAG na superfície BIC-g, porque o 1 095-perfil é
-grande suficiente para tornar o máximo único.</li>
-<li>
-<code>SHD(pc-stable, hc) = 12</code>: métodos constraint-based e
+grande suficiente para tornar o máximo único.</p></li>
+<li><p><code>SHD(pc-stable, hc) = 12</code>: métodos constraint-based e
 score-based discordam moderadamente — esperado, já que o PC-stable
-preserva mais arestas ambíguas como não-orientadas.</li>
-<li>
-<code>SHD(Expert, hc) = 29</code>: <strong>a maior
+preserva mais arestas ambíguas como não-orientadas.</p></li>
+<li><p><code>SHD(Expert, hc) = 29</code>: <strong>a maior
 discordância</strong>. Os algoritmos data-driven rejeitam 11 arestas do
-expert e adicionam 18 novas.</li>
+expert e adicionam 18 novas.</p></li>
 </ul>
 <hr>
 </div>
@@ -468,7 +484,7 @@ DAGs.</caption>
 <colgroup>
 <col width="36%">
 <col width="36%">
-<col width="26%">
+<col width="27%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
@@ -529,11 +545,6 @@ DAGs.</caption>
 <tr class="odd">
 <td align="left">wc_bio_12 -&gt; wc_landcover_trees</td>
 <td align="left">wc_bio_12 -&gt; wc_landcover_trees</td>
-<td align="right">4</td>
-</tr>
-<tr class="even">
-<td align="left">wc_landcover_trees -&gt; soilgrids_bdod</td>
-<td align="left">wc_landcover_trees -&gt; soilgrids_bdod</td>
 <td align="right">4</td>
 </tr>
 </tbody>
@@ -709,10 +720,10 @@ sobre esses conjuntos distintos produz <strong>efeitos causais
 distintos</strong> — é a escolha do DAG, não do estimador, que domina o
 resultado.</caption>
 <colgroup>
-<col width="11%">
-<col width="11%">
 <col width="12%">
-<col width="64%">
+<col width="12%">
+<col width="14%">
+<col width="60%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
@@ -731,9 +742,9 @@ wc_landcover_grassland, wc_landcover_trees</td>
 <tr class="even">
 <td align="left">LLM-augmented</td>
 <td align="left">LLM-augmented</td>
-<td align="right">6</td>
-<td align="left">slope, soilgrids_clay, wc_bio_01,
-wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees</td>
+<td align="right">5</td>
+<td align="left">slope, wc_bio_01, wc_landcover_cropland,
+wc_landcover_grassland, wc_landcover_trees</td>
 </tr>
 <tr class="odd">
 <td align="left">bnlearn hc</td>
@@ -855,7 +866,7 @@ incerteza observacional.</li>
 <div class="section level2">
 <h2 id="referências">Referências<a class="anchor" aria-label="anchor" href="#refer%C3%AAncias"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Tsamardinos2006mmhc" class="csl-entry">
 Tsamardinos, I., L. E. Brown, and C. F. Aliferis. 2006. <span>“The
 Max-Min Hill-Climbing <span>B</span>ayesian Network Structure Learning
@@ -879,7 +890,7 @@ e70284. <a href="https://doi.org/10.1111/ejss.70284" class="external-link">https
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

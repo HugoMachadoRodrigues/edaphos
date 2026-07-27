@@ -3,42 +3,50 @@
 ## Abstract
 
 Classical Digital Soil Mapping harmonises horizon observations via
-equal-area quadratic splines ([T. F. A. Bishop, McBratney, and Laslett
-1999](#ref-Bishop1999); [Malone et al. 2009](#ref-Malone2009)) — a
-purely mathematical object disconnected from pedogenesis. The **Pillar
-2** of `edaphos` replaces that spline with two Physics-Informed Machine
-Learning (PIML) ([Raissi, Perdikaris, and Karniadakis
-2019](#ref-Raissi2019); [Karniadakis et al. 2021](#ref-Karniadakis2021);
-[Willard et al. 2022](#ref-Willcox2021pinns)) models of the soil depth
-profile: a parametric pedogenetic Ordinary Differential Equation (ODE)
-integrated by `deSolve` ([Soetaert, Petzoldt, and Setzer
-2010](#ref-Soetaert2010desolve)), and a Neural ODE ([Chen et al.
-2018](#ref-Chen2018neuralode)) trained by back-propagation through a
-fixed-step Runge-Kutta integrator on `torch` ([Falbel and Luraschi
-2023](#ref-PichlerRtorch)). Both models are demonstrated on the
+equal-area quadratic splines ([Bishop et al. 1999](#ref-Bishop1999);
+[Malone et al. 2009](#ref-Malone2009)) — a purely mathematical object
+disconnected from pedogenesis. The **Pillar 2** of `edaphos` replaces
+that spline with two Physics-Informed Machine Learning (PIML) ([Raissi
+et al. 2019](#ref-Raissi2019); [Karniadakis et al.
+2021](#ref-Karniadakis2021); [Willard et al.
+2022](#ref-Willcox2021pinns)) models of the soil depth profile: a
+parametric pedogenetic Ordinary Differential Equation (ODE) integrated
+by `deSolve` ([Soetaert et al. 2010](#ref-Soetaert2010desolve)), and a
+Neural ODE ([Chen et al. 2018](#ref-Chen2018neuralode)) trained by
+back-propagation through a fixed-step Runge-Kutta integrator on `torch`
+([Falbel and Luraschi 2023](#ref-PichlerRtorch)). Both models are
+demonstrated on the
 [`aqp::sp4`](https://ncss-tech.github.io/aqp/reference/sp4.html)
 reference pedons and a hierarchical covariate-conditioned extension
 closes the loop with Pillar 5.
 
 ## 1. Pedogenetic ODE
 
-Let $y(z)$ denote a soil property (e.g. clay fraction, SOC) at depth
-$z \geq 0$. The one-dimensional kinetic model of translocation ([Jenny
+Let $`y(z)`$ denote a soil property (e.g. clay fraction, SOC) at depth
+$`z\ge 0`$. The one-dimensional kinetic model of translocation ([Jenny
 1941](#ref-Jenny1941); [Minasny and McBratney 2016](#ref-Minasny2016))
 assumes a depth-dependent relaxation towards a parent-material asymptote
-$y_{\infty}$ with rate $\lambda(z)$:
-$$\frac{dy}{dz}\; = \; - \lambda(z)\,(y(z) - y_{\infty}),\qquad\lambda(z) = \lambda_{0}\, e^{- \mu z}.$$
-Parameters $\left( \lambda_{0},\mu,y_{\infty},y_{0} \right)$ carry
-explicit physical meaning: $\lambda_{0}$ is the surface pedogenetic
-rate; $\mu$ controls how quickly that rate decays with depth; $y_{0}$ is
-the surface intercept; and $y_{\infty}$ is the parent-material
+$`y_{\infty}`$ with rate $`\lambda(z)`$:
+``` math
+\frac{dy}{dz}\;=\;-\lambda(z)\,\bigl(y(z)-y_{\infty}\bigr),\qquad
+\lambda(z)=\lambda_{0}\,e^{-\mu z}.
+\tag{1}
+```
+Parameters $`(\lambda_{0},\mu,y_{\infty},y_{0})`$ carry explicit
+physical meaning: $`\lambda_{0}`$ is the surface pedogenetic rate;
+$`\mu`$ controls how quickly that rate decays with depth; $`y_{0}`$ is
+the surface intercept; and $`y_{\infty}`$ is the parent-material
 extrapolation. The implementation
 \[[`piml_profile_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit.md)\]\[piml_profile_fit\]
 integrates (1) via
 [`deSolve::lsoda`](https://rdrr.io/pkg/deSolve/man/lsoda.html) at every
 loss evaluation and minimises
-$$\mathcal{J}(\theta)\; = \;\sum\limits_{j}(y\left( z_{j};\theta \right) - y_{j})^{2}\; + \;\eta \parallel \theta \parallel_{2}^{2},$$
-with Nelder–Mead and Tikhonov regularisation $\eta$.[¹](#fn1)
+``` math
+\mathcal{J}(\theta)\;=\;
+\sum_{j}\bigl(y(z_{j};\theta)-y_{j}\bigr)^{2}
+\;+\;\eta\|\theta\|_{2}^{2},\tag{2}
+```
+with Nelder–Mead and Tikhonov regularisation $`\eta`$.[^1]
 
 ## 2. Dataset — `aqp::sp4`
 
@@ -47,13 +55,7 @@ We use the ten reference pedons of
 horizon concentrations of clay, sand, Ca, Mg, K, CEC and CF.
 
 ``` r
-library(edaphos)
-.torch_ok <- requireNamespace("torch", quietly = TRUE) &&
-             isTRUE(tryCatch(torch::torch_is_installed(),
-                             error = function(e) FALSE))
-if (!requireNamespace("aqp", quietly = TRUE)) {
-  knitr::knit_exit("Package `aqp` not installed — skipping vignette.")
-}
+
 data(sp4, package = "aqp")
 sp4$depth <- (sp4$top + sp4$bottom) / 2
 head(sp4[, c("id", "name", "top", "bottom", "depth", "clay", "K")])
@@ -75,9 +77,10 @@ unique(sp4$id)
 The `napa` pedon is a canonical argillic-horizon case: clay increases
 with depth through illuviation then converges to a plateau in the parent
 material. The ODE (1) captures that dynamics without prescribing the
-sign of $y_{\infty} - y_{0}$.
+sign of $`y_{\infty}-y_{0}`$.
 
 ``` r
+
 napa <- subset(sp4, id == "napa")
 napa[, c("name", "depth", "clay")]
 #>    name depth clay
@@ -97,12 +100,14 @@ fit_napa
 ```
 
 ``` r
+
 grid_z <- seq(0, max(napa$depth) + 10, by = 1)
 pred_napa <- data.frame(depth = grid_z,
                          clay  = predict(fit_napa, grid_z))
 ```
 
 ``` r
+
 library(ggplot2)
 ggplot() +
   geom_line(data = pred_napa, aes(clay, depth),
@@ -123,6 +128,7 @@ Fitting the full `sp4` dataset recovers an interpretable table where
 every row has a direct pedological meaning.
 
 ``` r
+
 fits <- piml_profile_fit_group(
   sp4, id = "id", depth = "depth", value = "clay"
 )
@@ -158,6 +164,7 @@ linear-in-depth regression. A meaningful PIML gain should come from the
 physical constraint, *not* from extra parameters.
 
 ``` r
+
 baseline_rmse <- function(sub, target) {
   y <- sub[[target]]
   c(mean   = sqrt(mean((y - mean(y))^2)),
@@ -190,15 +197,24 @@ bench
 For profiles where the mono-asymptotic prior is violated — illuviated
 bulges, E horizons beneath A, buried paleosols — `edaphos` offers a
 Neural ODE alternative ([Chen et al. 2018](#ref-Chen2018neuralode)):
-$$\frac{dy}{dz} = f_{\theta}(z,y),\qquad f_{\theta} = \text{MLP}(z,y;\,\theta).$$
+``` math
+\frac{dy}{dz}=f_{\theta}(z,y),\qquad
+f_{\theta}=\text{MLP}(z,y;\,\theta).
+\tag{3}
+```
 The forward map is a fixed-step RK4 integrator written directly in
 `torch`, so training back-propagates the squared-error loss through the
-whole trajectory: \$\$ \mathcal{J}\_{\text{NODE}}(\theta)
-\\=\\\sum\_{j}\Bigl(
-\underbrace{\int\_{0}^{z\_{j}}f\_{\theta}(z,y(z))\\dz
-+y\_{0}}\_{\text{RK4 rollout}} \\-\\y\_{j}\Bigr)^{2}. \$\$
+whole trajectory:
+``` math
+\mathcal{J}_{\text{NODE}}(\theta)
+   \;=\;\sum_{j}\Bigl(
+      \underbrace{\int_{0}^{z_{j}}f_{\theta}(z,y(z))\,dz
+                  +y_{0}}_{\text{RK4 rollout}}
+      \;-\;y_{j}\Bigr)^{2}.
+```
 
 ``` r
+
 nn_fit <- piml_neural_ode_fit(
   depths  = napa$depth, values = napa$clay,
   hidden  = c(16L, 16L), epochs = 500L,
@@ -210,6 +226,7 @@ pred_nn <- data.frame(depth = grid_z,
 ```
 
 ``` r
+
 ggplot() +
   geom_line(data = pred_napa, aes(clay, depth,
             colour = "Parametric ODE"), linewidth = 1) +
@@ -232,11 +249,12 @@ Given a PIML fit (parametric or neural), the helper
 \[[`al_physics_gate_piml()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_physics_gate_piml.md)\]\[al_physics_gate_piml\]
 constructs a rejection function: candidates whose predicted target falls
 outside the envelope
-$\left\lbrack \min\left( y_{0},y_{\infty} \right),\,\max\left( y_{0},y_{\infty} \right) \right\rbrack$
-inflated by a `safety_factor` are eliminated from the greedy
-Active-Learning selection (see the Pillar 5 vignette).
+$`[\min(y_{0},y_{\infty}),\,\max(y_{0},y_{\infty})]`$ inflated by a
+`safety_factor` are eliminated from the greedy Active-Learning selection
+(see the Pillar 5 vignette).
 
 ``` r
+
 gate <- al_physics_gate_piml(fit_napa, safety_factor = 1.2)
 cand_dummy <- data.frame(dummy = 1:4)
 gate(cand_dummy, predicted_mean = c(10, 25, 200, -5))
@@ -256,7 +274,7 @@ returns a single point estimate. For any honest downstream use —
 propagating parametric uncertainty into a SOC-stock prediction, tuning a
 Pillar 5 Active-Learning acquisition under correct epistemic variance,
 reporting publishable parameter intervals — we need the **posterior**
-$p\left( \lambda_{0},\mu,y_{\infty},y_{0} \mid \text{depths},\text{values} \right)$,
+$`p(\lambda_0, \mu, y_\infty, y_0 \mid \text{depths}, \text{values})`$,
 not just the MAP.
 
 The function
@@ -265,19 +283,20 @@ returns that posterior through two nested approximations:
 
 1.  **Laplace approximation** (default, O(ms) per pedon). Gaussian
     posterior whose mean is the MAP and whose covariance is the inverse
-    observed Fisher information at the MAP ([C. M. Bishop 2006, sec.
+    observed Fisher information at the MAP ([Bishop 2006, sec.
     4.4](#ref-Bishop2006PRML)). Accurate when the posterior is
     well-identified; every call pre-samples 2 000 draws from
-    $N\left( \text{MAP},\Sigma \right)$ for predictive convenience.
-2.  **Adaptive random-walk Metropolis** ([Haario, Saksman, and Tamminen
+    $`N(\text{MAP}, \Sigma)`$ for predictive convenience.
+2.  **Adaptive random-walk Metropolis** ([Haario et al.
     2001](#ref-Haario2001)) (~seconds per pedon). Proposal covariance
     starts at the Laplace covariance, scaled by the Roberts–Gelman–Gilks
-    optimal factor $(2.38)^{2}/d$, and is updated online by Haario
+    optimal factor $`(2.38)^2 / d`$, and is updated online by Haario
     recursion after a warm-up period — so non-Gaussian or multimodal
     posteriors are captured faithfully where Laplace would paper over
     them.
 
 ``` r
+
 library(edaphos)
 
 depths <- c(5, 15, 30, 60, 100)
@@ -299,6 +318,7 @@ fit_bayes
 ```
 
 ``` r
+
 predict(fit_bayes,
          newdepths         = c(10, 20, 40, 80),
          interval          = 0.95,
@@ -312,18 +332,19 @@ predict(fit_bayes,
 ```
 
 `include_obs_noise = TRUE` adds Gaussian observation noise with the
-MAP-estimated $\sigma$ onto every predictive draw, so the returned
+MAP-estimated $`\sigma`$ onto every predictive draw, so the returned
 interval represents the predictive distribution of a *future
 observation* rather than the uncertainty on the mean function alone.
 
 For the Neural-ODE variant the variational analogue is a **deep
-ensemble** ([Lakshminarayanan, Pritzel, and Blundell
+ensemble** ([Lakshminarayanan et al.
 2017](#ref-Lakshminarayanan2017ensemble)): `K` independent networks
 trained from different random seeds produce an empirical posterior whose
 mean and variance approximate the Bayesian predictive posterior ([Wilson
 and Izmailov 2020](#ref-Wilson2020bayesian)).
 
 ``` r
+
 ens <- piml_neural_ode_fit_ensemble(depths, values,
                                        K = 5L, epochs = 300L, seed = 1L)
 predict(ens, newdepths = c(10, 20, 40, 80), interval = 0.9)
@@ -348,7 +369,7 @@ the roadmap:
   to the posterior regime that
   \[[`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md)\]\[piml_profile_fit_bayesian\]
   already exposes for single pedons, with covariate-conditioned priors
-  over $\left( \lambda_{0},\mu,y_{\infty},y_{0} \right)$.
+  over $`(\lambda_0, \mu, y_\infty, y_0)`$.
 
 ## References
 
@@ -361,8 +382,8 @@ Splines.” *Geoderma* 91 (1-2): 27–45.
 <https://doi.org/10.1016/S0016-7061(99)00003-8>.
 
 Chen, R. T. Q., Y. Rubanova, J. Bettencourt, and D. K. Duvenaud. 2018.
-“Neural Ordinary Differential Equations.” In *Advances in Neural
-Information Processing Systems*. Vol. 31.
+“Neural Ordinary Differential Equations.” *Advances in Neural
+Information Processing Systems* 31.
 
 Falbel, D., and J. Luraschi. 2023. *Torch: Tensors and Neural Networks
 with ’GPU’ Acceleration*.
@@ -372,24 +393,24 @@ Algorithm.” *Bernoulli* 7 (2): 223–42.
 <https://doi.org/10.2307/3318737>.
 
 Jenny, Hans. 1941. *Factors of Soil Formation: A System of Quantitative
-Pedology*. New York: McGraw-Hill.
+Pedology*. McGraw-Hill.
 
 Karniadakis, G. E., I. G. Kevrekidis, L. Lu, P. Perdikaris, S. Wang, and
 L. Yang. 2021. “Physics-Informed Machine Learning.” *Nature Reviews
 Physics* 3: 422–40. <https://doi.org/10.1038/s42254-021-00314-5>.
 
 Lakshminarayanan, B., A. Pritzel, and C. Blundell. 2017. “Simple and
-Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” In
-*Advances in Neural Information Processing Systems*, 30:6402–13.
+Scalable Predictive Uncertainty Estimation Using Deep Ensembles.”
+*Advances in Neural Information Processing Systems* 30: 6402–13.
 
 Malone, B. P., A. B. McBratney, B. Minasny, and G. M. Laslett. 2009.
 “Mapping Continuous Depth Functions of Soil Carbon Using Equal-Area
 Splines.” *Geoderma* 154 (1-2): 138–52.
 <https://doi.org/10.1016/j.geoderma.2009.10.007>.
 
-Minasny, B., B. P. Malone, A. B. McBratney, D. A. Angers, D. Arrouays,
-A. Chambers, V. Chaplot, et al. 2017. “Soil Carbon 4 Per Mille.”
-*Geoderma* 292: 59–86. <https://doi.org/10.1016/j.geoderma.2017.01.002>.
+Minasny, B., B. P. Malone, A. B. McBratney, et al. 2017. “Soil Carbon 4
+Per Mille.” *Geoderma* 292: 59–86.
+<https://doi.org/10.1016/j.geoderma.2017.01.002>.
 
 Minasny, B., and A. B. McBratney. 2016. “Digital Soil Mapping: A Brief
 History and Some Lessons Learned.” *Geoderma* 264: 301–11.
@@ -402,7 +423,7 @@ Equations.” *Journal of Computational Physics* 378: 686–707.
 <https://doi.org/10.1016/j.jcp.2018.10.045>.
 
 Soetaert, K., T. Petzoldt, and R. W. Setzer. 2010. *Solving Differential
-Equations in R: Package deSolve*. Vol. 33. 9. Journal of Statistical
+Equations in R: Package deSolve*. Vol. 33. Journal of Statistical
 Software. <https://doi.org/10.18637/jss.v033.i09>.
 
 Willard, J., X. Jia, S. Xu, M. Steinbach, and V. Kumar. 2022.
@@ -411,12 +432,10 @@ and Environmental Systems.” *ACM Computing Surveys* 55 (4): 66:1–37.
 <https://doi.org/10.1145/3514228>.
 
 Wilson, A. G., and P. Izmailov. 2020. “Bayesian Deep Learning and a
-Probabilistic Perspective of Generalization.” In *Advances in Neural
-Information Processing Systems*, 33:4697–4708.
+Probabilistic Perspective of Generalization.” *Advances in Neural
+Information Processing Systems* 33: 4697–708.
 
-------------------------------------------------------------------------
-
-1.  Physics is imposed by the *forward model itself* — the optimiser
+[^1]: Physics is imposed by the *forward model itself* — the optimiser
     cannot produce a profile that violates the exponential approach to
-    $y_{\infty}$, irrespective of data. This is the strong-PIML regime
+    $`y_{\infty}`$, irrespective of data. This is the strong-PIML regime
     sensu ([Karniadakis et al. 2021](#ref-Karniadakis2021)).

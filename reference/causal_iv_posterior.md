@@ -8,7 +8,7 @@ supplied) and packages the resulting vector of effect estimates as an
 so that
 [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md)
 and
-[`ggplot2::autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
 apply uniformly.
 
 ## Usage

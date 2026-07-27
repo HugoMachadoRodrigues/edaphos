@@ -51,6 +51,7 @@ Opção A (produção): buscar 100-300 abstracts reais sobre pedogênese
 Cerrado no OpenAlex:
 
 ``` r
+
 library(edaphos)
 
 # OpenAlex — queries ortogonais para cobrir o domínio
@@ -87,6 +88,7 @@ close(con)
 Opção B (demo): usar os 30 abstracts sintéticos já disponíveis:
 
 ``` r
+
 # Produz inst/extdata/cerrado_gold_standard_v1_draft.jsonl
 source("data-raw/annotation_tool_demo.R")
 ```
@@ -101,6 +103,7 @@ lê o corpus e produz um draft em que cada claim tem `status = "draft"`
 (para o reviewer saber que veio do LLM e não do humano):
 
 ``` r
+
 llm_preannotate(
   corpus      = "cerrado_corpus_openalex_2026.jsonl",
   backend     = "ollama",          # local, gratuito
@@ -118,6 +121,7 @@ se o processo morrer, basta re-rodar e ele pula os hits do cache.
 **Sem Ollama?** Use o fallback determinístico:
 
 ``` r
+
 llm_preannotate(corpus, backend = "simulator",
                  output_path = "draft_gold_v2.jsonl")
 ```
@@ -133,6 +137,7 @@ para testar a ferramenta de revisão.
 Essa é a parte de 3 horas. Abra o reviewer:
 
 ``` r
+
 llm_annotation_launch(
   draft_path         = "draft_gold_v2.jsonl",
   output_path        = "reviewed_gold_v2.jsonl",
@@ -196,6 +201,7 @@ Com o gold-standard expandido, basta apontar o runner do v1.8.0 para o
 arquivo novo:
 
 ``` r
+
 # Edit data-raw/llm_benchmark_run.R line 22:
 # gold_path <- "inst/extdata/cerrado_gold_standard_v2_final.jsonl"
 
@@ -235,6 +241,7 @@ gold-standard):
 ### Corpus fetcher em produção
 
 ``` r
+
 # Exige rede. Gratuito. ~40s para 6 queries × 60 results.
 Sys.setenv(EDAPHOS_CORPUS_MAILTO = "rodrigues.machado.hugo@gmail.com")
 source("data-raw/cerrado_corpus_v2_fetch.R")
@@ -267,6 +274,7 @@ Respeita a preferência do sistema operacional.
 A aba **Publish** empacota tudo num diretório Zenodo-ready:
 
 ``` r
+
 # Mesma coisa programaticamente
 edaphos::llm_annotation_to_zenodo(
   reviewed_path = "reviewed_gold_v2_final.jsonl",
@@ -286,12 +294,12 @@ edaphos::llm_annotation_to_zenodo(
 
 Conteúdo do bundle:
 
-| Arquivo               | Papel                                                                                                                                            |
-|:----------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------|
-| `gold_standard.jsonl` | Gold-standard limpo (draft/rejected removidos)                                                                                                   |
-| `kg.ttl`              | Grafo serializado em RDF 1.1 Turtle (cada claim vira um `rdf:Statement` reificado com predicados `eda:polarity`, `eda:confidence`, `dct:source`) |
-| `metadata.json`       | DataCite-compatible; pronto para a Zenodo REST API                                                                                               |
-| `README.md`           | Descrição, contagens, provenance, citação                                                                                                        |
+| Arquivo | Papel |
+|:---|:---|
+| `gold_standard.jsonl` | Gold-standard limpo (draft/rejected removidos) |
+| `kg.ttl` | Grafo serializado em RDF 1.1 Turtle (cada claim vira um `rdf:Statement` reificado com predicados `eda:polarity`, `eda:confidence`, `dct:source`) |
+| `metadata.json` | DataCite-compatible; pronto para a Zenodo REST API |
+| `README.md` | Descrição, contagens, provenance, citação |
 
 Upload manual em <https://zenodo.org/deposit/new>, cola os campos do
 `metadata.json` no formulário, publica, registra o DOI mintado no

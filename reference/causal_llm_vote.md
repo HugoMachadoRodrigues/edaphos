@@ -84,6 +84,7 @@ at least a `backend` field (one of `"ollama"`, `"openai"`,
 `"anthropic"`) and may optionally carry `model`, `host` (for Ollama),
 `temperature`, `timeout_sec`, `api_key`, `id`. Example:
 
+
     backends = list(
       list(backend = "ollama",    model = "gemma4:latest",
            host   = "http://localhost:11434"),

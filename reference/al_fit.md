@@ -37,7 +37,12 @@ al_fit(labeled, target, covariates, coords = NULL, num.trees = 500L, ...)
 
 - num.trees:
 
-  Integer, number of trees (default 500).
+  Integer, number of trees (default 500). Because the forest is fit with
+  `quantreg = TRUE`, `ranger` requires every observation to be
+  out-of-bag in at least 10 trees; `al_fit()` rejects a value too small
+  to make that reliable for `nrow(labeled)` rows (about 88 trees for 30
+  rows, rising slowly with n) rather than letting `ranger` fail on some
+  random seeds.
 
 - ...:
 

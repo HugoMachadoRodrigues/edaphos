@@ -229,3 +229,8 @@ Useful links:
 
 **Maintainer**: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>
 ([ORCID](https://orcid.org/0000-0002-8070-8126))
+
+Authors:
+
+- Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>
+  ([ORCID](https://orcid.org/0000-0002-8070-8126))

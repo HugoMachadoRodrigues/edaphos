@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Capstone — Uma decisão de amostragem sob incerteza no Cerrado • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Capstone — Uma decisão de amostragem sob incerteza no Cerrado">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,7 +117,7 @@
 
 <link href="capstone-cerrado-campaign_files/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
 <script src="capstone-cerrado-campaign_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="capstone-cerrado-campaign_files/viz-1.8.2/viz.js"></script><link href="capstone-cerrado-campaign_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
-<script src="capstone-cerrado-campaign_files/grViz-binding-1.0.11/grViz.js"></script><div class="row">
+<script src="capstone-cerrado-campaign_files/grViz-binding-1.0.12/grViz.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Capstone — Uma decisão de amostragem sob incerteza no Cerrado</h1>
             <h3 data-toc-skip class="subtitle">Integrando os seis
@@ -208,11 +208,12 @@ para inferência causal formal)</td>
 </tbody>
 </table>
 <p>A visão generativa — resumida na equação conceptual de <span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span> —</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">fatores pedogenéticos</mtext><mover><mo>→</mo><mtext mathvariant="normal">processos</mtext></mover><mtext mathvariant="normal">solo</mtext></mrow><annotation encoding="application/x-tex">\text{fatores pedogenéticos} \xrightarrow{\text{processos}} \text{solo}
-\tag{1}</annotation></semantics></math></p>
-<p>estende o modelo clássico de <span class="citation">McBratney,
-Mendonça Santos, and Minasny (<a href="#ref-McBratney2003">2003</a>)</span> e alinha-se naturalmente com
-o <strong>Pilar 2</strong> do <code>edaphos</code>, em que uma ODE
+<p><span class="math display">$$\text{fatores pedogenéticos}
+\xrightarrow{\text{processos}} \text{solo}
+\tag{1}$$</span></p>
+<p>estende o modelo clássico de <span class="citation">McBratney et al.
+(<a href="#ref-McBratney2003">2003</a>)</span> e alinha-se naturalmente
+com o <strong>Pilar 2</strong> do <code>edaphos</code>, em que uma ODE
 pedogenética explícita representa os mecanismos de acumulação e
 decomposição da matéria orgânica.</p>
 <p><span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span> enunciam três condições
@@ -724,7 +725,7 @@ Pilar 2.</p>
 <span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span>: a acumulação de COS no
 perfil é governada por uma ODE que modela explicitamente os processos de
 produção e decomposição:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">COS</mtext><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mo>=</mo><mo>−</mo><msub><mi>k</mi><mn>1</mn></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">COS</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mo>+</mo><msub><mi>k</mi><mn>2</mn></msub><mo>⋅</mo><mtext mathvariant="normal">MAP</mtext><mo>⋅</mo><mtext mathvariant="normal">NDVI</mtext><mspace width="1.0em"></mspace><mtext mathvariant="normal">com</mtext><mspace width="1.0em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><mtext mathvariant="normal">COS</mtext><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mtext mathvariant="normal">COS</mtext><mtext mathvariant="normal">superfície</mtext></msub></mrow><annotation encoding="application/x-tex">\frac{d[\text{COS}]}{dz} = -k_1 \cdot [\text{COS}] + k_2 \cdot \text{MAP} \cdot \text{NDVI}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mtext mathvariant="normal">COS</mtext><mo stretchy="false" form="postfix">]</mo></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mo>=</mo><mi>−</mi><msub><mi>k</mi><mn>1</mn></msub><mo>⋅</mo><mo stretchy="false" form="prefix">[</mo><mtext mathvariant="normal">COS</mtext><mo stretchy="false" form="postfix">]</mo><mo>+</mo><msub><mi>k</mi><mn>2</mn></msub><mo>⋅</mo><mtext mathvariant="normal">MAP</mtext><mo>⋅</mo><mtext mathvariant="normal">NDVI</mtext><mspace width="1.0em"></mspace><mtext mathvariant="normal">com</mtext><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">[</mo><mtext mathvariant="normal">COS</mtext><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mtext mathvariant="normal">COS</mtext><mtext mathvariant="normal">superfície</mtext></msub></mrow><annotation encoding="application/x-tex">\frac{d[\text{COS}]}{dz} = -k_1 \cdot [\text{COS}] + k_2 \cdot \text{MAP} \cdot \text{NDVI}
 \quad \text{com} \quad [\text{COS}](0) = \text{COS}_{\text{superfície}} \tag{2}</annotation></semantics></math></p>
 <p>onde
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
@@ -1041,7 +1042,7 @@ pedogenética (Pilar 2) implica COS &lt; 0 ou &gt; 120 g/kg são
 automaticamente excluídos como fisicamente implausíveis.</li>
 </ol>
 <p>A função de score é:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">score</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>α</mi><mo>⋅</mo><mover><mi>u</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mover><mi>d</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{score}(x) = \alpha \cdot \widehat{u}(x) + (1-\alpha) \cdot \widehat{d}(x) \tag{3}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">score</mtext><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>α</mi><mo>⋅</mo><mover><mi>u</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mover><mi>d</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{score}(x) = \alpha \cdot \widehat{u}(x) + (1-\alpha) \cdot \widehat{d}(x) \tag{3}</annotation></semantics></math></p>
 <p>onde
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>u</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\widehat{u}</annotation></semantics></math>
 é a incerteza normalizada e
@@ -1488,7 +1489,7 @@ viola seu domínio nativo — o posterior não é sobre essa quantidade. Não
 <tr class="even">
 <td align="left">P2 PIML</td>
 <td align="left">perfil de profundidade
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">y(z)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y(z)</annotation></semantics></math>
 </td>
 <td align="left">
 <em>Leave-one-horizon-out</em> em 7 horizontes de um
@@ -1497,7 +1498,7 @@ pedon do Cerrado</td>
 <tr class="odd">
 <td align="left">P3 4D</td>
 <td align="left">mapa futuro
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐘</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Y}(t_\star)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐘</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>t</mi><mo>⋆</mo></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{Y}(t_\star)</annotation></semantics></math>
 </td>
 <td align="left">
 <em>Leave-one-month-out</em> no cubo 2° Cerrado (truth
@@ -1506,7 +1507,7 @@ pedon do Cerrado</td>
 <tr class="even">
 <td align="left">P4 Foundation</td>
 <td align="left">mapa espacial
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐘</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">site</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Y}(\text{site})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐘</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">site</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{Y}(\text{site})</annotation></semantics></math>
 </td>
 <td align="left">5-fold <strong>spatial CV</strong> no WoSIS; ensemble
 com 8 heads bagged</td>
@@ -1514,7 +1515,7 @@ com 8 heads bagged</td>
 <tr class="odd">
 <td align="left">P5 AL</td>
 <td align="left">mapa espacial
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐘</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">site</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Y}(\text{site})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐘</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">site</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{Y}(\text{site})</annotation></semantics></math>
 </td>
 <td align="left">
 <em>Hold-out</em> 30% WoSIS; curva de aprendizado
@@ -1523,7 +1524,7 @@ vs. baseline aleatório</td>
 <tr class="even">
 <td align="left">P6 Q-KRR</td>
 <td align="left">regressão
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">y(\mathbf{x})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y(\mathbf{x})</annotation></semantics></math>
 </td>
 <td align="left">
 <em>Hold-out</em> 70/30 WoSIS com 4 features
@@ -2068,7 +2069,7 @@ observados)</td>
 <div class="section level2">
 <h2 id="referências">Referências<a class="anchor" aria-label="anchor" href="#refer%C3%AAncias"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-McBratney2003" class="csl-entry">
 McBratney, A. B., M. L. Mendonça Santos, and B. Minasny. 2003. <span>“On
 Digital Soil Mapping.”</span> <em>Geoderma</em> 117 (1-2): 3–52. <a href="https://doi.org/10.1016/S0016-7061(03)00223-4" class="external-link">https://doi.org/10.1016/S0016-7061(03)00223-4</a>.
@@ -2084,8 +2085,8 @@ e70284. <a href="https://doi.org/10.1111/ejss.70284" class="external-link">https
 </div>
 </div>
 <hr>
-<p><em>Construído com</em> <strong>edaphos</strong> 3.10.0 · R version
-4.6.0 (2026-04-24)</p>
+<p><em>Construído com</em> <strong>edaphos</strong> 4.0.0 · R version
+4.6.1 (2026-06-24)</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -2098,7 +2099,7 @@ e70284. <a href="https://doi.org/10.1111/ejss.70284" class="external-link">https
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

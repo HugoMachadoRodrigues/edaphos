@@ -136,7 +136,7 @@ An `edaphos_foundation_classifier` list with:
   The encoder and the head are trained jointly, with a two-group
   learning rate (`lr * backbone_lr_mult` for the backbone, `lr` for the
   head). Usually the better option when the downstream dataset is large
-  enough (≥ ~500 patches per class).
+  enough (\\\ge\\ about 500 patches per class).
 
 ## References
 

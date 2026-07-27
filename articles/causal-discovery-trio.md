@@ -7,6 +7,7 @@
 > entre elas?
 
 ``` r
+
 library(edaphos)
 library(ggplot2)
 library(dplyr)
@@ -14,6 +15,7 @@ theme_set(theme_bw(base_size = 11))
 ```
 
 ``` r
+
 res_path <- system.file("extdata", "causal_discovery_results.rds",
                         package = "edaphos")
 stopifnot(nzchar(res_path), file.exists(res_path))
@@ -45,6 +47,7 @@ que:
 ## Os três métodos
 
 ``` r
+
 methods_df <- data.frame(
   método       = c("A) Expert",
                     "B) LLM-augmented (Gemma 4)",
@@ -76,19 +79,21 @@ knitr::kable(
 )
 ```
 
-| Método                      | Fonte estrutural                  | Usa dados observacionais? | Usa priors pedológicos?           |
-|:----------------------------|:----------------------------------|:--------------------------|:----------------------------------|
-| A\) Expert                  | Conhecimento pedológico publicado | Não                       | Implícitos (expert)               |
-| B\) LLM-augmented (Gemma 4) | Extração automática + base expert | Não (KG da literatura)    | Expert + confidence ≥ 0,70        |
-| C1) bnlearn hc              | Hill-climbing em BIC-g            | Sim (1095 perfis WoSIS)   | Whitelist + blacklist pedológicos |
-| C2) bnlearn tabu            | Tabu search em BIC-g              | Sim (1095 perfis WoSIS)   | Whitelist + blacklist pedológicos |
-| C3) bnlearn pc-stable       | PC-stable com alpha=0,05          | Sim (1095 perfis WoSIS)   | Whitelist + blacklist pedológicos |
+| Método | Fonte estrutural | Usa dados observacionais? | Usa priors pedológicos? |
+|:---|:---|:---|:---|
+| A\) Expert | Conhecimento pedológico publicado | Não | Implícitos (expert) |
+| B\) LLM-augmented (Gemma 4) | Extração automática + base expert | Não (KG da literatura) | Expert + confidence ≥ 0,70 |
+| C1) bnlearn hc | Hill-climbing em BIC-g | Sim (1095 perfis WoSIS) | Whitelist + blacklist pedológicos |
+| C2) bnlearn tabu | Tabu search em BIC-g | Sim (1095 perfis WoSIS) | Whitelist + blacklist pedológicos |
+| C3) bnlearn pc-stable | PC-stable com alpha=0,05 | Sim (1095 perfis WoSIS) | Whitelist + blacklist pedológicos |
 
 Os cinco métodos de construção do DAG comparados neste vignette.
+{.table}
 
 ### Priors pedológicos (aplicados a todos os métodos data-driven)
 
 ``` r
+
 knitr::kable(
   R$whitelist,
   col.names = c("De", "Para"),
@@ -109,9 +114,10 @@ knitr::kable(
 
 **Whitelist** — orientações fisicamente indisputáveis impostas aos
 algoritmos de descoberta. Clima e topografia precedem solo; elevação
-precede declividade.
+precede declividade. {.table}
 
 ``` r
+
 knitr::kable(
   R$blacklist,
   col.names = c("De", "Para"),
@@ -132,12 +138,14 @@ knitr::kable(
 
 **Blacklist** — reversões proibidas. COS não causa precipitação nem
 temperatura; vegetação não causa clima; declividade não causa elevação.
+{.table}
 
 ------------------------------------------------------------------------
 
 ## Quantos arestas cada método produziu?
 
 ``` r
+
 counts <- data.frame(
   método = c(
     "Expert",
@@ -179,11 +187,12 @@ ggplot(counts, aes(x = reorder(método, n_arestas), y = n_arestas,
 
 A **Structural Hamming Distance (SHD)** conta o número mínimo de
 adições, remoções e inversões de aresta necessárias para transformar um
-DAG em outro ([Tsamardinos, Brown, and Aliferis
-2006](#ref-Tsamardinos2006mmhc)). `SHD(A, A) = 0` (o DAG é idêntico a si
-mesmo); `SHD(A, B) = n` significa que B difere de A em n operações.
+DAG em outro ([Tsamardinos et al. 2006](#ref-Tsamardinos2006mmhc)).
+`SHD(A, A) = 0` (o DAG é idêntico a si mesmo); `SHD(A, B) = n` significa
+que B difere de A em n operações.
 
 ``` r
+
 shd <- R$shd_matrix
 shd_df <- expand.grid(
   método_i = rownames(shd),
@@ -208,26 +217,48 @@ ggplot(shd_df, aes(x = método_j, y = método_i, fill = SHD)) +
 
 ![Matriz de Structural Hamming Distance (SHD) entre os cinco métodos.
 Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu
-(concordância total) e SHD=2 entre Expert e LLM-augmented (apenas 2
-arestas adicionadas pelo Gemma
-4).](causal-discovery-trio_files/figure-html/shd-heatmap-1.png)
+(concordância total) e tambem SHD=0 entre Expert e LLM-augmented: as
+claims extraidas nao acrescentam nenhuma aresta representavel neste
+conjunto de
+covariaveis.](causal-discovery-trio_files/figure-html/shd-heatmap-1.png)
 
 Matriz de Structural Hamming Distance (SHD) entre os cinco métodos.
 Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu
-(concordância total) e SHD=2 entre Expert e LLM-augmented (apenas 2
-arestas adicionadas pelo Gemma 4).
+(concordância total) e tambem SHD=0 entre Expert e LLM-augmented: as
+claims extraidas nao acrescentam nenhuma aresta representavel neste
+conjunto de covariaveis.
 
 **Leitura.**
 
-- `SHD(Expert, LLM-augmented) = 2`: o Gemma 4 adiciona apenas 2 arestas
-  de alta confiança sobre o DAG expert — o LLM é **conservador** com
-  priors bem especificados. Isso é uma característica, não um bug.
+- `SHD(Expert, LLM-augmented) = 0`: as claims extraídas **não
+  acrescentam nenhuma aresta** ao DAG expert. Das 30 claims em
+  `inst/extdata/cerrado_claims.jsonl`, apenas 3 têm ambos os extremos
+  representáveis no conjunto de 10 covariáveis WoSIS, e as 3 já
+  constavam do DAG expert. O gargalo aqui **não é o extrator**: 32
+  conceitos distintos aparecem nas claims — `decomposition`,
+  `primary_mineral_dissolution`, `argillic_horizon`, `root_input`,
+  `effective_cation_exchange_capacity`, `twi`, entre outros — e nenhum
+  deles tem contrapartida entre as covariáveis disponíveis. A extração
+  produz afirmações pedologicamente sensatas que este conjunto de
+  covariáveis simplesmente não consegue expressar.
+
+  Versões anteriores desta vignette reportavam `SHD = 2` e concluíam que
+  “o Gemma 4 é conservador”. Aquele número vinha de seis arestas
+  digitadas à mão em `data-raw/causal_discovery_benchmark.R`, com
+  confidences (0,90 / 0,82 / 0,78 / 0,75 / 0,72 / 0,71) que não existem
+  em nenhum arquivo do pacote — todas as claims embarcadas têm
+  confidence 0,9. Essas arestas foram retiradas; o benchmark agora
+  deriva o conjunto do arquivo de claims por um mapeamento conceito →
+  coluna explícito e validado contra as colunas que de fato existem.
+
 - `SHD(hc, tabu) = 0`: os dois algoritmos score-based convergem para o
   mesmo DAG na superfície BIC-g, porque o 1 095-perfil é grande
   suficiente para tornar o máximo único.
+
 - `SHD(pc-stable, hc) = 12`: métodos constraint-based e score-based
   discordam moderadamente — esperado, já que o PC-stable preserva mais
   arestas ambíguas como não-orientadas.
+
 - `SHD(Expert, hc) = 29`: **a maior discordância**. Os algoritmos
   data-driven rejeitam 11 arestas do expert e adicionam 18 novas.
 
@@ -236,6 +267,7 @@ arestas adicionadas pelo Gemma 4).
 ## Quais arestas são únicas a cada método?
 
 ``` r
+
 pm <- R$presence_matrix
 consenso <- rowSums(pm) / ncol(pm)
 edges_consensus <- data.frame(
@@ -250,6 +282,7 @@ edges_consensus <- edges_consensus[order(-edges_consensus$n_method), ]
 ### Arestas de consenso (em ≥ 4 dos 5 métodos)
 
 ``` r
+
 top_consensus <- edges_consensus |>
   filter(n_method >= 4L) |>
   head(15L)
@@ -264,27 +297,27 @@ knitr::kable(
 )
 ```
 
-|                                       | Aresta                                | Nº de métodos que a contêm |
-|:--------------------------------------|:--------------------------------------|---------------------------:|
-| elev -\> slope                        | elev -\> slope                        |                          5 |
-| elev -\> wc_bio_01                    | elev -\> wc_bio_01                    |                          5 |
-| elev -\> wc_bio_12                    | elev -\> wc_bio_12                    |                          5 |
-| wc_bio_01 -\> soc_topsoil_gkg         | wc_bio_01 -\> soc_topsoil_gkg         |                          5 |
-| wc_bio_01 -\> wc_landcover_cropland   | wc_bio_01 -\> wc_landcover_cropland   |                          5 |
-| wc_bio_12 -\> soc_topsoil_gkg         | wc_bio_12 -\> soc_topsoil_gkg         |                          5 |
-| wc_bio_12 -\> wc_landcover_cropland   | wc_bio_12 -\> wc_landcover_cropland   |                          5 |
-| soilgrids_clay -\> soilgrids_bdod     | soilgrids_clay -\> soilgrids_bdod     |                          4 |
-| soilgrids_sand -\> soc_topsoil_gkg    | soilgrids_sand -\> soc_topsoil_gkg    |                          4 |
-| wc_bio_01 -\> wc_landcover_trees      | wc_bio_01 -\> wc_landcover_trees      |                          4 |
-| wc_bio_12 -\> wc_landcover_trees      | wc_bio_12 -\> wc_landcover_trees      |                          4 |
-| wc_landcover_trees -\> soilgrids_bdod | wc_landcover_trees -\> soilgrids_bdod |                          4 |
+|  | Aresta | Nº de métodos que a contêm |
+|:---|:---|---:|
+| elev -\> slope | elev -\> slope | 5 |
+| elev -\> wc_bio_01 | elev -\> wc_bio_01 | 5 |
+| elev -\> wc_bio_12 | elev -\> wc_bio_12 | 5 |
+| wc_bio_01 -\> soc_topsoil_gkg | wc_bio_01 -\> soc_topsoil_gkg | 5 |
+| wc_bio_01 -\> wc_landcover_cropland | wc_bio_01 -\> wc_landcover_cropland | 5 |
+| wc_bio_12 -\> soc_topsoil_gkg | wc_bio_12 -\> soc_topsoil_gkg | 5 |
+| wc_bio_12 -\> wc_landcover_cropland | wc_bio_12 -\> wc_landcover_cropland | 5 |
+| soilgrids_clay -\> soilgrids_bdod | soilgrids_clay -\> soilgrids_bdod | 4 |
+| soilgrids_sand -\> soc_topsoil_gkg | soilgrids_sand -\> soc_topsoil_gkg | 4 |
+| wc_bio_01 -\> wc_landcover_trees | wc_bio_01 -\> wc_landcover_trees | 4 |
+| wc_bio_12 -\> wc_landcover_trees | wc_bio_12 -\> wc_landcover_trees | 4 |
 
 Arestas identificadas pela maioria dos métodos — são as mais confiáveis
-para interpretação causal. Aparecem em pelo menos 4 dos 5 DAGs.
+para interpretação causal. Aparecem em pelo menos 4 dos 5 DAGs. {.table}
 
 ### Arestas descobertas apenas pelos dados (missed by expert)
 
 ``` r
+
 novel <- R$novel_edges_data
 if (length(novel) > 0L) {
   novel_df <- data.frame(aresta = novel, stringsAsFactors = FALSE)
@@ -322,11 +355,12 @@ if (length(novel) > 0L) {
 
 Arestas suportadas por ≥ 2 algoritmos data-driven mas **ausentes** do
 DAG expert. Candidatas a revisão do DAG — o que os dados estão ‘vendo’
-que a literatura ainda não codificou?
+que a literatura ainda não codificou? {.table}
 
 ### Arestas expert rejeitadas pelos dados
 
 ``` r
+
 rejected <- R$expert_only_edges
 if (length(rejected) > 0L) {
   rej_df <- data.frame(aresta = rejected, stringsAsFactors = FALSE)
@@ -361,7 +395,7 @@ Arestas do DAG expert **ausentes** de todos os três algoritmos
 data-driven. Possíveis crenças pedológicas sem assinatura estatística no
 WoSIS Cerrado — dignas de re-examinação ou de discussão sobre
 *faithfulness* (Zhang and Wadoux ([2026](#ref-Zhang2026causal)),
-condição 3).
+condição 3). {.table}
 
 ------------------------------------------------------------------------
 
@@ -372,6 +406,7 @@ qual é o conjunto mínimo de ajuste backdoor segundo cada método? E como
 isso afeta a estimativa do efeito?
 
 ``` r
+
 at <- R$adjustment_table
 knitr::kable(
   at,
@@ -386,21 +421,22 @@ knitr::kable(
 )
 ```
 
-|                   | Método            | Tamanho do conjunto | Conjunto de ajuste                                                                                  |
-|:------------------|:------------------|--------------------:|:----------------------------------------------------------------------------------------------------|
-| Expert            | Expert            |                   5 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees                 |
-| LLM-augmented     | LLM-augmented     |                   6 | slope, soilgrids_clay, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
-| bnlearn hc        | bnlearn hc        |                   2 | soilgrids_sand, wc_bio_01                                                                           |
-| bnlearn tabu      | bnlearn tabu      |                   2 | soilgrids_sand, wc_bio_01                                                                           |
-| bnlearn pc-stable | bnlearn pc-stable |                   1 | wc_bio_01                                                                                           |
+|  | Método | Tamanho do conjunto | Conjunto de ajuste |
+|:---|:---|---:|:---|
+| Expert | Expert | 5 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
+| LLM-augmented | LLM-augmented | 5 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
+| bnlearn hc | bnlearn hc | 2 | soilgrids_sand, wc_bio_01 |
+| bnlearn tabu | bnlearn tabu | 2 | soilgrids_sand, wc_bio_01 |
+| bnlearn pc-stable | bnlearn pc-stable | 1 | wc_bio_01 |
 
 Conjuntos mínimos de ajuste backdoor para **MAP (wc_bio_12) → COS**.
 Note como o tamanho varia de 0 (bnlearn mmhc, efeito nu) a 6
 (LLM-augmentado). O estimador backdoor aplicado sobre esses conjuntos
 distintos produz **efeitos causais distintos** — é a escolha do DAG, não
-do estimador, que domina o resultado.
+do estimador, que domina o resultado. {.table}
 
 ``` r
+
 at$method <- factor(at$method, levels = at$method)
 ggplot(at, aes(x = method, y = adj_size, fill = method)) +
   geom_col(show.legend = FALSE, width = 0.72) +
@@ -434,6 +470,7 @@ como o efeito é estimado.
 ## Síntese: por que usar os três em conjunto?
 
 ``` r
+
 if (requireNamespace("DiagrammeR", quietly = TRUE)) {
   DiagrammeR::grViz('
   digraph trio {

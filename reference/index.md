@@ -476,6 +476,8 @@ k-NN co-location graphs + multi-head attention; v3.6.0 sparse.
   : Node-level embeddings from a fitted GAT
 - [`gnn_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit.md)
   : Fit a Graph Attention Network on a WoSIS-style co-location graph
+- [`gnn_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit_ensemble.md)
+  : Seed ensemble of GAT fits
 
 ## Cross-pillar bridges (v1.9.x + v2.0.0 + v3.0.0)
 

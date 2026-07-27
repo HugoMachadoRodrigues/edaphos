@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Pilar 1 — Causal AI: Backdoor Adjustment in Pedogenetic DAGs • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Pilar 1 — Causal AI: Backdoor Adjustment in Pedogenetic DAGs">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,8 +134,8 @@ Rodrigues</h4>
 </h2>
 <p>Modern DSM pipelines routinely conflate <em>variable importance</em>
 with <em>causal effect</em>, despite a mature statistical apparatus —
-Pearl’s structural causal models <span class="citation">(<a href="#ref-Pearl2009">Pearl 2009</a>; <a href="#ref-Pearl2016primer">Pearl, Glymour, and Jewell 2016</a>)</span>
-— that distinguishes the two cleanly. The <strong>Pillar 1</strong> of
+Pearl’s structural causal models <span class="citation">(<a href="#ref-Pearl2009">Pearl 2009</a>; <a href="#ref-Pearl2016primer">Pearl et al. 2016</a>)</span> — that
+distinguishes the two cleanly. The <strong>Pillar 1</strong> of
 <code>edaphos</code> ships a minimum-viable interface to that apparatus:
 pedogenetic Directed Acyclic Graphs (DAGs) expressed in the
 <code>dagitty</code> syntax <span class="citation">(<a href="#ref-Textor2016dagitty">Textor et al. 2016</a>)</span>, automatic
@@ -154,7 +154,7 @@ the direction of future extensions toward causal representation learning
 influences slope and mean annual precipitation; slope and precipitation
 influence both the Topographic Wetness Index (TWI) and NDVI; all five
 variables then jointly influence topsoil SOC. An ordinary regression
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">m</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">soc</mtext><mo>∼</mo><mtext mathvariant="normal">ndvi</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{lm}(\text{soc}\sim\text{ndvi})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">soc</mtext><mo>∼</mo><mtext mathvariant="normal">ndvi</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{lm}(\text{soc}\sim\text{ndvi})</annotation></semantics></math>
 does <strong>not</strong> recover the direct effect of NDVI on SOC: it
 sums the direct path with the backdoor paths through TWI, slope and
 precipitation <span class="citation">(<a href="#ref-Pearl2009">Pearl
@@ -170,11 +170,9 @@ sets automatically <span class="citation">(<a href="#ref-Textor2016dagitty">Text
 <p>[<code><a href="../reference/causal_cerrado_dag.html">causal_cerrado_dag()</a></code>][causal_cerrado_dag] encodes the
 generating process of <code>br_cerrado</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dagitty"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit_exit.html" class="external-link">knit_exit</a></span><span class="op">(</span><span class="st">"Package `dagitty` not installed — skipping vignette."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_cerrado_dag.html">causal_cerrado_dag</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_cerrado_dag.html">causal_cerrado_dag</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">g</span></span>
 <span><span class="co">#&gt; dag {</span></span>
 <span><span class="co">#&gt; elev</span></span>
@@ -197,7 +195,7 @@ generating process of <code>br_cerrado</code>.</p>
 <span><span class="co">#&gt; twi -&gt; ndvi</span></span>
 <span><span class="co">#&gt; twi -&gt; soc</span></span>
 <span><span class="co">#&gt; }</span></span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Plot coordinates for graph not supplied! Generating coordinates, see ?coordinates for how to set your own.</span></span></code></pre></div>
 <p><img src="pilar1-causal_files/figure-html/plot-dag-1.png" class="r-plt" alt="" width="576"></p>
@@ -205,7 +203,7 @@ generating process of <code>br_cerrado</code>.</p>
 <div class="section level2">
 <h2 id="adjustment-set-identification">3. Adjustment-set identification<a class="anchor" aria-label="anchor" href="#adjustment-set-identification"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_adjustment_set.html">causal_adjustment_set</a></span><span class="op">(</span><span class="va">g</span>, exposure <span class="op">=</span> <span class="st">"ndvi"</span>, outcome <span class="op">=</span> <span class="st">"soc"</span><span class="op">)</span></span>
 <span><span class="va">adj</span></span>
 <span><span class="co">#&gt; [1] "map_mm" "slope"  "twi"</span></span></code></pre></div>
@@ -230,9 +228,9 @@ is the returned adjustment set. It also reports the confounded-baseline
 coefficient
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>β</mi><mtext mathvariant="normal">ndvi</mtext><mtext mathvariant="normal">naive</mtext></msubsup><annotation encoding="application/x-tex">\beta_{\text{ndvi}}^{\text{naive}}</annotation></semantics></math>
 obtained from the unadjusted
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">m</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">soc</mtext><mo>∼</mo><mtext mathvariant="normal">ndvi</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{lm}(\text{soc}\sim\text{ndvi})</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">soc</mtext><mo>∼</mo><mtext mathvariant="normal">ndvi</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{lm}(\text{soc}\sim\text{ndvi})</annotation></semantics></math>,
 so the magnitude of confounding bias is directly legible.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span>, package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_estimate_effect.html">causal_estimate_effect</a></span><span class="op">(</span></span>
 <span>  <span class="va">br_cerrado</span>, <span class="va">g</span>,</span>
@@ -245,7 +243,7 @@ so the magnitude of confounding bias is directly legible.</p>
 <span><span class="co">#&gt;   adjustment set : {map_mm, slope, twi}</span></span>
 <span><span class="co">#&gt;   direct effect  : 18.43   (95% CI: 14.61, 22.25)</span></span>
 <span><span class="co">#&gt;   naive effect   : 49.36   (un-adjusted, likely confounded)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  estimator <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Naive (lm(soc ~ ndvi))"</span>,</span>
@@ -268,9 +266,8 @@ so the magnitude of confounding bias is directly legible.</p>
 </h2>
 <p>For problems beyond <code>br_cerrado</code>,
 [<code><a href="../reference/causal_clorpt_dag.html">causal_clorpt_dag()</a></code>][causal_clorpt_dag] returns the
-classical Jenny (1941) factorial DAG as a template <span class="citation">(<a href="#ref-Jenny1941">Jenny 1941</a>; <a href="#ref-McBratney2003">McBratney, Mendonça Santos, and Minasny
-2003</a>)</span>:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+classical Jenny (1941) factorial DAG as a template <span class="citation">(<a href="#ref-Jenny1941">Jenny 1941</a>; <a href="#ref-McBratney2003">McBratney et al. 2003</a>)</span>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g_clorpt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_clorpt_dag.html">causal_clorpt_dag</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">g_clorpt</span></span>
 <span><span class="co">#&gt; dag {</span></span>
@@ -340,11 +337,8 @@ Gemma-4 extractions ready to load from
 <code>inst/extdata/cerrado_claims.jsonl</code>. Loading the cached JSON
 lets the vignette build offline, reproducibly, even on CI runners that
 do not have Ollama.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit_exit.html" class="external-link">knit_exit</a></span><span class="op">(</span><span class="st">"Package `igraph` not installed — skipping KG section."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="va">abs_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_abstracts.jsonl"</span>,</span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">abs_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_abstracts.jsonl"</span>,</span>
 <span>                        package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span>
 <span><span class="va">claim_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_claims.jsonl"</span>,</span>
 <span>                          package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span>
@@ -380,7 +374,7 @@ do not have Ollama.</p>
 <p>When an Ollama server is available at <code>localhost:11434</code>,
 the same claims are recovered end-to-end. Guard the chunk so the
 vignette is still reproducible on a machine without Ollama:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">kg_live</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">kg_live</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_llm_ingest_corpus.html">causal_llm_ingest_corpus</a></span><span class="op">(</span></span>
 <span>  <span class="va">kg_live</span>, <span class="va">abstracts</span>,</span>
@@ -396,7 +390,7 @@ vignette is still reproducible on a machine without Ollama:</p>
 <div class="section level3">
 <h3 id="building-the-kg-from-the-cached-claims">6.3 Building the KG from the cached claims<a class="anchor" aria-label="anchor" href="#building-the-kg-from-the-cached-claims"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">claims</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span></span>
@@ -423,7 +417,7 @@ unions it with every KG edge whose confidence is
 <code>&gt;= min_confidence</code>. Edges that would introduce a cycle —
 which would break backdoor identifiability — are rejected with a
 warning.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g_aug</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_augment_dag.html">causal_augment_dag</a></span><span class="op">(</span><span class="va">g</span>, <span class="va">kg</span>, min_confidence <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span>
 <span><span class="va">diff</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_augment_diff.html">causal_augment_diff</a></span><span class="op">(</span><span class="va">g</span>, <span class="va">g_aug</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">diff</span><span class="op">$</span><span class="va">origin</span><span class="op">)</span></span>
@@ -448,7 +442,7 @@ warning.</p>
 (<code>erosion</code>, say) confounds <code>ndvi -&gt; soc</code>, the
 augmented DAG will add it to the minimal adjustment set, and the point
 estimate of the direct effect may shift materially.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adj_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_adjustment_set.html">causal_adjustment_set</a></span><span class="op">(</span><span class="va">g</span>,     exposure <span class="op">=</span> <span class="st">"ndvi"</span>, outcome <span class="op">=</span> <span class="st">"soc"</span><span class="op">)</span></span>
 <span><span class="va">adj_aug</span>  <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/causal_adjustment_set.html">causal_adjustment_set</a></span><span class="op">(</span><span class="va">g_aug</span>, exposure <span class="op">=</span> <span class="st">"ndvi"</span>, outcome <span class="op">=</span> <span class="st">"soc"</span><span class="op">)</span>,</span>
@@ -474,7 +468,7 @@ those synonymous labels must collapse to a single canonical term. Pillar
 1 ships a three-tier matcher — exact, substring, fuzzy Levenshtein —
 against a hand-curated Cerrado-pedometry vocabulary (~60 terms, subset
 of AGROVOC + ENVO):</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mapping</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_alignment.html">causal_kg_alignment</a></span><span class="op">(</span><span class="va">kg</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mapping</span><span class="op">[</span><span class="va">mapping</span><span class="op">$</span><span class="va">method</span> <span class="op">!=</span> <span class="st">"exact"</span>, <span class="op">]</span>, <span class="fl">8</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                               original       canonical    method distance</span></span>
@@ -505,7 +499,7 @@ whose vocabulary extends beyond the Cerrado core.</p>
 <p>Two zero-account clients turn literature search queries into
 abstract-ready data frames that can be piped directly into
 [<code><a href="../reference/causal_llm_ingest_corpus.html">causal_llm_ingest_corpus()</a></code>][causal_llm_ingest_corpus]:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># SciELO — Latin-American scientific literature (keyless)</span></span>
 <span><span class="va">scielo_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_corpus_scielo.html">causal_corpus_scielo</a></span><span class="op">(</span></span>
 <span>  query        <span class="op">=</span> <span class="st">"Cerrado soil organic carbon"</span>,</span>
@@ -543,14 +537,14 @@ function accepts <code>estimator = "bart"</code> and fits Bayesian
 Additive Regression Trees (Chipman, George and McCulloch 2010) on the
 same adjustment set. The direct effect is computed as the average
 partial derivative</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>∂</mi><mo accent="true">‾</mo></mover><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mfrac><mrow><mover><mi>E</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub><mo>+</mo><mi>δ</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>Z</mi><mo>=</mo><msub><mi>z</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>−</mo><mover><mi>E</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><mi>Z</mi><mo>=</mo><msub><mi>z</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mi>δ</mi></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>∂</mi><mo accent="true">‾</mo></mover><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mfrac><mrow><mover><mi>E</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub><mo>+</mo><mi>δ</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>Z</mi><mo>=</mo><msub><mi>z</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">]</mo><mo>−</mo><mover><mi>E</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><mi>Z</mi><mo>=</mo><msub><mi>z</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><mi>δ</mi></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \bar\partial = \frac{1}{n}\sum_{i=1}^{n}
   \frac{\widehat{E}[Y \mid X = x_i + \delta,\, Z = z_i]
         - \widehat{E}[Y \mid X = x_i,\, Z = z_i]}{\delta},
 </annotation></semantics></math></p>
 <p>averaged over the training data; a 95 % credible interval is
 recovered from the BART posterior.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">fit_bart</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_estimate_effect.html">causal_estimate_effect</a></span><span class="op">(</span></span>
 <span>  <span class="va">br_cerrado</span>, <span class="va">g</span>,</span>
@@ -608,7 +602,7 @@ and [<code><a href="../reference/causal_corpus_scielo.html">causal_corpus_scielo
 transparently through the upstream APIs (cursor-based for OpenAlex,
 limit-offset for SciELO) until <code>max_results</code> is reached. A
 multi-thousand pull is a single R call:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/causal_corpus_openalex.html">causal_corpus_openalex</a></span><span class="op">(</span><span class="st">"Brazilian Cerrado soil organic carbon"</span>,</span>
 <span>                          max_results <span class="op">=</span> <span class="fl">5000L</span>,</span>
@@ -633,7 +627,7 @@ the LLM call on re-runs. Failed calls (malformed JSON, timeouts) are
 retried up to <code>max_retries</code> times with exponential backoff;
 rows that exhaust all retries are reported in
 <code>attr(kg, "failed")</code>.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_llm_ingest_corpus.html">causal_llm_ingest_corpus</a></span><span class="op">(</span></span>
 <span>  <span class="va">kg</span>, <span class="va">corpus</span>,</span>
@@ -658,7 +652,7 @@ covering the tail. <code><a href="../reference/causal_kg_alignment.html">causal_
 <code>vocab = "agrovoc"</code>, which hits the FAO SPARQL endpoint live
 for every unique node, picks the Levenshtein-nearest
 <code>skos:prefLabel</code>, and caches the result on disk:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mapping</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_alignment.html">causal_kg_alignment</a></span><span class="op">(</span></span>
 <span>  <span class="va">kg</span>,</span>
 <span>  vocab         <span class="op">=</span> <span class="st">"agrovoc"</span>,</span>
@@ -691,7 +685,7 @@ serialise a KG through its tidy edge list — not through
 <code>igraph</code>’s raw C-level pointer layout — so the resulting
 <code>.rds</code> is portable across <code>igraph</code> versions and
 byte-reproducible:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">kg_roundtrip</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">kg_roundtrip</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg_roundtrip</span>, <span class="st">"precipitation"</span>, <span class="st">"soc"</span>,</span>
 <span>                                     source <span class="op">=</span> <span class="st">"Jenny 1941"</span>, confidence <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
@@ -717,7 +711,7 @@ SPARQL-queryable form, and each node gets a stable IRI inside a
 user-controlled namespace so the KG can be federated with external
 vocabularies (AGROVOC, ENVO, SKOS thesauri) by a simple
 <code>owl:sameAs</code>:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ttl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_kg_to_turtle.html">causal_kg_to_turtle</a></span><span class="op">(</span></span>
 <span>  <span class="va">kg_roundtrip</span>,</span>
 <span>  base_uri   <span class="op">=</span> <span class="st">"https://edaphos.io/kg/"</span>,</span>
@@ -752,7 +746,7 @@ sources</strong> — an edge asserted by 50 papers with mean confidence
 confidence 1.0. <code><a href="../reference/causal_kg_rank_edges.html">causal_kg_rank_edges()</a></code> collapses the KG to
 unique <code>(cause, effect)</code> pairs and sorts by a priority list
 of metrics:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/causal_kg_rank_edges.html">causal_kg_rank_edges</a></span><span class="op">(</span></span>
 <span>  <span class="va">kg_roundtrip</span>,</span>
 <span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n_sources"</span>, <span class="st">"mean_confidence"</span><span class="op">)</span></span>
@@ -772,7 +766,7 @@ community-governed vocabulary.</p>
 — node and edge counts, number of unique sources, confidence quartiles
 and a DAG-ness verdict — useful right after a 10 k-abstract
 <code><a href="../reference/causal_llm_ingest_corpus.html">causal_llm_ingest_corpus()</a></code> run:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">kg_roundtrip</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;edaphos_causal_kg_summary&gt;</span></span>
 <span><span class="co">#&gt;   nodes      : 3</span></span>
@@ -794,7 +788,7 @@ because AGROVOC’s production endpoint rejects genuine SPARQL-level
 batching (<code>VALUES</code> + <code>CONTAINS(?label, ?term)</code>)
 with a 504 gateway timeout, since the substring filter cannot
 short-circuit against a bound term set.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vocab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="../reference/causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg_big</span><span class="op">)</span><span class="op">$</span><span class="va">cause</span>,</span>
 <span>                  <span class="fu"><a href="../reference/causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg_big</span><span class="op">)</span><span class="op">$</span><span class="va">effect</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_ontology_agrovoc_align_batch.html">causal_ontology_agrovoc_align_batch</a></span><span class="op">(</span></span>
@@ -822,9 +816,7 @@ conditional-independence structure that a pedon dataset actually has in
 hand. Classical causal-discovery algorithms close the loop from the
 bottom up: given a data matrix, recover the DAG whose conditional
 independence structure best matches the data under an assumed
-faithfulness <span class="citation">(<a href="#ref-Spirtes2000causation">Spirtes, Glymour, and Scheines
-2000</a>; <a href="#ref-Scutari2010bnlearn">Scutari
-2010</a>)</span>.</p>
+faithfulness <span class="citation">(<a href="#ref-Spirtes2000causation">Spirtes et al. 2000</a>; <a href="#ref-Scutari2010bnlearn">Scutari 2010</a>)</span>.</p>
 <p>[<code><a href="../reference/causal_structure_learn.html">causal_structure_learn()</a></code>][causal_structure_learn] wires
 four of the best-tested structure-learning algorithms from
 <code>bnlearn</code> through a uniform interface that returns an
@@ -841,8 +833,8 @@ optima.</li>
 algorithm <span class="citation">(<a href="#ref-Colombo2014pcstable">Colombo and Maathuis
 2014</a>)</span>.</li>
 <li>
-<code>"mmhc"</code> — Max-Min Hill-Climbing hybrid <span class="citation">(<a href="#ref-Tsamardinos2006mmhc">Tsamardinos, Brown,
-and Aliferis 2006</a>)</span>.</li>
+<code>"mmhc"</code> — Max-Min Hill-Climbing hybrid <span class="citation">(<a href="#ref-Tsamardinos2006mmhc">Tsamardinos et al.
+2006</a>)</span>.</li>
 </ul>
 <p>Whitelists and blacklists forward directly to <code>bnlearn</code> so
 pedological priors like “parent material must precede soil chemistry”
@@ -851,7 +843,7 @@ bootstrap over rows of <code>data</code> returns the per-edge frequency,
 which is stored as the edge’s <code>confidence</code> and becomes
 comparable to the LLM-derived confidences produced by the abstract-level
 pipeline.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span></span>
 <span></span>
@@ -930,7 +922,7 @@ trade-off</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">backends</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>backend <span class="op">=</span> <span class="st">"ollama"</span>,    model <span class="op">=</span> <span class="st">"gemma4:latest"</span>,</span>
 <span>        host   <span class="op">=</span> <span class="st">"http://localhost:11434"</span><span class="op">)</span>,</span>
@@ -978,11 +970,11 @@ accuracy jointly with the consensus claims.</li>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Beckett2014turtle" class="csl-entry">
 Beckett, D., T. Berners-Lee, E. Prud’hommeaux, and G. Carothers. 2014.
-<span>“<span>RDF 1.1 Turtle</span> – Terse <span>RDF</span> Triple
-Language.”</span> W3C Recommendation. <a href="https://www.w3.org/TR/turtle/" class="external-link">https://www.w3.org/TR/turtle/</a>.
+<em><span>RDF 1.1 Turtle</span> – Terse <span>RDF</span> Triple
+Language</em>. W3C Recommendation. <a href="https://www.w3.org/TR/turtle/" class="external-link">https://www.w3.org/TR/turtle/</a>.
 </div>
 <div id="ref-Colombo2014pcstable" class="csl-entry">
 Colombo, D., and M. H. Maathuis. 2014. <span>“Order-Independent
@@ -991,11 +983,11 @@ Machine Learning Research</em> 15: 3741–82.
 </div>
 <div id="ref-Jenny1941" class="csl-entry">
 Jenny, Hans. 1941. <em>Factors of Soil Formation: A System of
-Quantitative Pedology</em>. New York: McGraw-Hill.
+Quantitative Pedology</em>. McGraw-Hill.
 </div>
 <div id="ref-Marcus2022llmrobust" class="csl-entry">
-Marcus, G., and E. Davis. 2019. <span>“Rebooting <span>AI</span>:
-Building Artificial Intelligence We Can Trust.”</span> Pantheon.
+Marcus, G., and E. Davis. 2019. <em>Rebooting <span>AI</span>: Building
+Artificial Intelligence We Can Trust</em>. Pantheon.
 </div>
 <div id="ref-McBratney2003" class="csl-entry">
 McBratney, A. B., M. L. Mendonça Santos, and B. Minasny. 2003. <span>“On
@@ -1010,15 +1002,14 @@ Pearl, J., M. Glymour, and N. P. Jewell. 2016. <em>Causal Inference in
 Statistics: A Primer</em>. Wiley.
 </div>
 <div id="ref-Runge2019" class="csl-entry">
-Runge, J., S. Bathiany, E. Bollt, G. Camps-Valls, D. Coumou, E. Deyle,
-C. Glymour, et al. 2019. <span>“Inferring Causation from Time Series in
-<span>Earth</span> System Sciences.”</span> <em>Nature
-Communications</em> 10: 2553. <a href="https://doi.org/10.1038/s41467-019-10105-3" class="external-link">https://doi.org/10.1038/s41467-019-10105-3</a>.
+Runge, J., S. Bathiany, E. Bollt, et al. 2019. <span>“Inferring
+Causation from Time Series in <span>Earth</span> System
+Sciences.”</span> <em>Nature Communications</em> 10: 2553. <a href="https://doi.org/10.1038/s41467-019-10105-3" class="external-link">https://doi.org/10.1038/s41467-019-10105-3</a>.
 </div>
 <div id="ref-Scholkopf2021" class="csl-entry">
-Schölkopf, B., F. Locatello, S. Bauer, N. R. Ke, N. Kalchbrenner, A.
-Goyal, and Y. Bengio. 2021. <span>“Toward Causal Representation
-Learning.”</span> <em>Proceedings of the IEEE</em> 109 (5): 612–34. <a href="https://doi.org/10.1109/JPROC.2021.3058954" class="external-link">https://doi.org/10.1109/JPROC.2021.3058954</a>.
+Schölkopf, B., F. Locatello, S. Bauer, et al. 2021. <span>“Toward Causal
+Representation Learning.”</span> <em>Proceedings of the IEEE</em> 109
+(5): 612–34. <a href="https://doi.org/10.1109/JPROC.2021.3058954" class="external-link">https://doi.org/10.1109/JPROC.2021.3058954</a>.
 </div>
 <div id="ref-Scutari2010bnlearn" class="csl-entry">
 Scutari, M. 2010. <span>“Learning <span>B</span>ayesian Networks with
@@ -1053,7 +1044,7 @@ Algorithm.”</span> <em>Machine Learning</em> 65: 31–78. <a href="https://doi
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

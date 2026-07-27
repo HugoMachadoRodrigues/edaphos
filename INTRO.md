@@ -29,10 +29,10 @@ observational):
 
 And they distinguish two competing views of causality:
 
-| View          | Logic                                                                            | DSM challenge                                                    |
-|---------------|----------------------------------------------------------------------------------|------------------------------------------------------------------|
-| Successionist | Regularities / repeatable associations                                           | Simpson’s paradox; spurious associations; no temporal sequencing |
-| Generative    | Soil-forming factors act through explicit processes that produce soil properties | Requires process-informed models; satisfies condition 1          |
+| View | Logic | DSM challenge |
+|----|----|----|
+| Successionist | Regularities / repeatable associations | Simpson’s paradox; spurious associations; no temporal sequencing |
+| Generative | Soil-forming factors act through explicit processes that produce soil properties | Requires process-informed models; satisfies condition 1 |
 
 `edaphos` operationalises the **generative paradigm** end-to-end.
 
@@ -44,18 +44,18 @@ Each pillar confronts a specific methodological gap of the contemporary
 DSM literature. See `cheatsheets/` for one-page API references and
 `vignettes/` for narrative tutorials.
 
-|  \# | Pillar                        | Gap addressed                                                            |
-|----:|-------------------------------|--------------------------------------------------------------------------|
-|   1 | Causal AI                     | Conflation of variable importance with causal effect                     |
-|   2 | Physics-Informed ML           | Black-box predictors that ignore pedogenetic depth dynamics              |
-|   3 | 4D Pedometry                  | Static maps that ignore spatio-temporal evolution                        |
-|   4 | Foundation Models             | Reliance on labelled data only, ignoring vast unlabelled raster archives |
-|   5 | Active Learning               | Fixed sampling designs blind to model-uncertainty geography              |
-|   6 | Quantum ML                    | Classical kernels saturate at high-dimensional covariate stacks          |
-|   7 | Bayesian Hierarchical Spatial | Frequentist GP without honest predictive intervals                       |
-|   8 | Neural Operators              | Profile prediction discretised to a fixed depth grid                     |
-|   9 | Diffusion Models              | Generative simulators absent from the DSM toolbox                        |
-|  10 | Graph Attention Networks      | Independence assumption between profiles ignores co-location structure   |
+| \# | Pillar | Gap addressed |
+|---:|----|----|
+| 1 | Causal AI | Conflation of variable importance with causal effect |
+| 2 | Physics-Informed ML | Black-box predictors that ignore pedogenetic depth dynamics |
+| 3 | 4D Pedometry | Static maps that ignore spatio-temporal evolution |
+| 4 | Foundation Models | Reliance on labelled data only, ignoring vast unlabelled raster archives |
+| 5 | Active Learning | Fixed sampling designs blind to model-uncertainty geography |
+| 6 | Quantum ML | Classical kernels saturate at high-dimensional covariate stacks |
+| 7 | Bayesian Hierarchical Spatial | Frequentist GP without honest predictive intervals |
+| 8 | Neural Operators | Profile prediction discretised to a fixed depth grid |
+| 9 | Diffusion Models | Generative simulators absent from the DSM toolbox |
+| 10 | Graph Attention Networks | Independence assumption between profiles ignores co-location structure |
 
 ------------------------------------------------------------------------
 
@@ -63,14 +63,14 @@ DSM literature. See `cheatsheets/` for one-page API references and
 
 Six bridges compose two pillars into a single API:
 
-| Bridge                                                                                                               | Pillars  | Purpose                                                 |
-|----------------------------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------|
-| [`al_query_neural_operator()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_neural_operator.md) | P8 x P5  | Operator-vs-ODE disagreement as AL priority             |
-| [`al_query_diffusion()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_diffusion.md)             | P9 x P5  | DDPM posterior-spread as AL priority                    |
-| [`al_query_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_bhs.md)                         | P7 x P5  | Thompson-sampling AL via BHS posterior                  |
-| [`gnn_causal_discovery()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_causal_discovery.md)         | P10 x P1 | GAT embeddings as nuisance conditioners in DAG learning |
-| [`temporal_piml_loss()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_piml_loss.md)             | P2 x P3  | ODE-derived mass-balance loss for ConvLSTM              |
-| [`qf_krr_on_gat_embeddings()`](https://hugomachadorodrigues.github.io/edaphos/reference/qf_krr_on_gat_embeddings.md) | P6 x P10 | Quantum kernel over GAT node embeddings                 |
+| Bridge | Pillars | Purpose |
+|----|----|----|
+| [`al_query_neural_operator()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_neural_operator.md) | P8 x P5 | Operator-vs-ODE disagreement as AL priority |
+| [`al_query_diffusion()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_diffusion.md) | P9 x P5 | DDPM posterior-spread as AL priority |
+| [`al_query_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_bhs.md) | P7 x P5 | Thompson-sampling AL via BHS posterior |
+| [`gnn_causal_discovery()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_causal_discovery.md) | P10 x P1 | GAT embeddings as nuisance conditioners in DAG learning |
+| [`temporal_piml_loss()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_piml_loss.md) | P2 x P3 | ODE-derived mass-balance loss for ConvLSTM |
+| [`qf_krr_on_gat_embeddings()`](https://hugomachadorodrigues.github.io/edaphos/reference/qf_krr_on_gat_embeddings.md) | P6 x P10 | Quantum kernel over GAT node embeddings |
 
 ------------------------------------------------------------------------
 
@@ -79,6 +79,7 @@ Six bridges compose two pillars into a single API:
 Every pillar’s predictive output funnels through a single S3 class:
 
 ``` r
+
 post <- as_edaphos_posterior(any_pilar_fit)
 uncertainty_calibrate(post, truth = test$y)
 # -> CRPS, PICP_50/80/90/95, MPIW_50/80/90/95

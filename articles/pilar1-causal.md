@@ -4,11 +4,11 @@
 
 Modern DSM pipelines routinely conflate *variable importance* with
 *causal effect*, despite a mature statistical apparatus — Pearl’s
-structural causal models ([Pearl 2009](#ref-Pearl2009); [Pearl, Glymour,
-and Jewell 2016](#ref-Pearl2016primer)) — that distinguishes the two
-cleanly. The **Pillar 1** of `edaphos` ships a minimum-viable interface
-to that apparatus: pedogenetic Directed Acyclic Graphs (DAGs) expressed
-in the `dagitty` syntax ([Textor et al. 2016](#ref-Textor2016dagitty)),
+structural causal models ([Pearl 2009](#ref-Pearl2009); [Pearl et al.
+2016](#ref-Pearl2016primer)) — that distinguishes the two cleanly. The
+**Pillar 1** of `edaphos` ships a minimum-viable interface to that
+apparatus: pedogenetic Directed Acyclic Graphs (DAGs) expressed in the
+`dagitty` syntax ([Textor et al. 2016](#ref-Textor2016dagitty)),
 automatic backdoor-adjustment set identification, and a linear
 causal-effect estimator with a confounded-baseline comparator. This
 vignette demonstrates the pipeline on the bundled Cerrado dataset and
@@ -22,9 +22,9 @@ Consider the generating process of `br_cerrado`: elevation influences
 slope and mean annual precipitation; slope and precipitation influence
 both the Topographic Wetness Index (TWI) and NDVI; all five variables
 then jointly influence topsoil SOC. An ordinary regression
-${lm}\left( \text{soc} \sim \text{ndvi} \right)$ does **not** recover
-the direct effect of NDVI on SOC: it sums the direct path with the
-backdoor paths through TWI, slope and precipitation ([Pearl
+$`\mathrm{lm}(\text{soc}\sim\text{ndvi})`$ does **not** recover the
+direct effect of NDVI on SOC: it sums the direct path with the backdoor
+paths through TWI, slope and precipitation ([Pearl
 2009](#ref-Pearl2009), Ch. 3).
 
 Backdoor adjustment is the textbook fix: condition on a set of variables
@@ -40,10 +40,12 @@ returns valid sets automatically ([Textor et al.
 encodes the generating process of `br_cerrado`.
 
 ``` r
+
 library(edaphos)
-if (!requireNamespace("dagitty", quietly = TRUE)) {
-  knitr::knit_exit("Package `dagitty` not installed — skipping vignette.")
-}
+```
+
+``` r
+
 g <- causal_cerrado_dag()
 g
 #> dag {
@@ -70,6 +72,7 @@ g
 ```
 
 ``` r
+
 plot(g)
 #> Plot coordinates for graph not supplied! Generating coordinates, see ?coordinates for how to set your own.
 ```
@@ -79,6 +82,7 @@ plot(g)
 ## 3. Adjustment-set identification
 
 ``` r
+
 adj <- causal_adjustment_set(g, exposure = "ndvi", outcome = "soc")
 adj
 #> [1] "map_mm" "slope"  "twi"
@@ -94,14 +98,17 @@ unconditioned — a standard back-door criterion result ([Pearl
 The wrapper
 \[[`causal_estimate_effect()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_estimate_effect.md)\]\[causal_estimate_effect\]
 fits the adjusted linear model
-$${soc}\; = \;\beta_{0} + \beta_{\text{ndvi}}\,{ndvi} + \sum\limits_{z \in Z}\gamma_{z}\, z + \varepsilon,$$
-where $Z$ is the returned adjustment set. It also reports the
-confounded-baseline coefficient $\beta_{\text{ndvi}}^{\text{naive}}$
-obtained from the unadjusted
-${lm}\left( \text{soc} \sim \text{ndvi} \right)$, so the magnitude of
-confounding bias is directly legible.
+``` math
+\mathrm{soc}\;=\;\beta_{0}+\beta_{\text{ndvi}}\,\mathrm{ndvi}
+                 +\sum_{z\in Z}\gamma_{z}\,z+\varepsilon,
+```
+where $`Z`$ is the returned adjustment set. It also reports the
+confounded-baseline coefficient $`\beta_{\text{ndvi}}^{\text{naive}}`$
+obtained from the unadjusted $`\mathrm{lm}(\text{soc}\sim\text{ndvi})`$,
+so the magnitude of confounding bias is directly legible.
 
 ``` r
+
 data(br_cerrado, package = "edaphos")
 fit <- causal_estimate_effect(
   br_cerrado, g,
@@ -117,6 +124,7 @@ fit
 ```
 
 ``` r
+
 library(ggplot2)
 df <- data.frame(
   estimator = factor(c("Naive (lm(soc ~ ndvi))",
@@ -141,10 +149,10 @@ ggplot(df, aes(estimator, coef, fill = estimator)) +
 For problems beyond `br_cerrado`,
 \[[`causal_clorpt_dag()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_clorpt_dag.md)\]\[causal_clorpt_dag\]
 returns the classical Jenny (1941) factorial DAG as a template ([Jenny
-1941](#ref-Jenny1941); [McBratney, Mendonça Santos, and Minasny
-2003](#ref-McBratney2003)):
+1941](#ref-Jenny1941); [McBratney et al. 2003](#ref-McBratney2003)):
 
 ``` r
+
 g_clorpt <- causal_clorpt_dag()
 g_clorpt
 #> dag {
@@ -210,9 +218,7 @@ Loading the cached JSON lets the vignette build offline, reproducibly,
 even on CI runners that do not have Ollama.
 
 ``` r
-if (!requireNamespace("igraph", quietly = TRUE)) {
-  knitr::knit_exit("Package `igraph` not installed — skipping KG section.")
-}
+
 abs_path <- system.file("extdata", "cerrado_abstracts.jsonl",
                         package = "edaphos")
 claim_path <- system.file("extdata", "cerrado_claims.jsonl",
@@ -251,6 +257,7 @@ are recovered end-to-end. Guard the chunk so the vignette is still
 reproducible on a machine without Ollama:
 
 ``` r
+
 kg_live <- causal_kg_new()
 kg_live <- causal_llm_ingest_corpus(
   kg_live, abstracts,
@@ -267,6 +274,7 @@ kg_live
 ### 6.3 Building the KG from the cached claims
 
 ``` r
+
 kg <- causal_kg_new()
 for (i in seq_len(nrow(claims))) {
   kg <- causal_kg_add_edge(
@@ -295,6 +303,7 @@ which would break backdoor identifiability — are rejected with a
 warning.
 
 ``` r
+
 g_aug <- causal_augment_dag(g, kg, min_confidence = 0.7)
 diff <- causal_augment_diff(g, g_aug)
 table(diff$origin)
@@ -321,6 +330,7 @@ minimal adjustment set, and the point estimate of the direct effect may
 shift materially.
 
 ``` r
+
 adj_base <- causal_adjustment_set(g,     exposure = "ndvi", outcome = "soc")
 adj_aug  <- tryCatch(
   causal_adjustment_set(g_aug, exposure = "ndvi", outcome = "soc"),
@@ -347,6 +357,7 @@ collapse to a single canonical term. Pillar 1 ships a three-tier matcher
 Cerrado-pedometry vocabulary (~60 terms, subset of AGROVOC + ENVO):
 
 ``` r
+
 mapping <- causal_kg_alignment(kg)
 head(mapping[mapping$method != "exact", ], 8)
 #>                               original       canonical    method distance
@@ -381,6 +392,7 @@ abstract-ready data frames that can be piped directly into
 \[[`causal_llm_ingest_corpus()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_ingest_corpus.md)\]\[causal_llm_ingest_corpus\]:
 
 ``` r
+
 # SciELO — Latin-American scientific literature (keyless)
 scielo_df <- causal_corpus_scielo(
   query        = "Cerrado soil organic carbon",
@@ -418,12 +430,17 @@ conditioned on. For non-linear regimes the same function accepts
 (Chipman, George and McCulloch 2010) on the same adjustment set. The
 direct effect is computed as the average partial derivative
 
-$$\bar{\partial} = \frac{1}{n}\sum\limits_{i = 1}^{n}\frac{\widehat{E}\left\lbrack Y \mid X = x_{i} + \delta,\, Z = z_{i} \right\rbrack - \widehat{E}\left\lbrack Y \mid X = x_{i},\, Z = z_{i} \right\rbrack}{\delta},$$
+``` math
+\bar\partial = \frac{1}{n}\sum_{i=1}^{n}
+  \frac{\widehat{E}[Y \mid X = x_i + \delta,\, Z = z_i]
+        - \widehat{E}[Y \mid X = x_i,\, Z = z_i]}{\delta},
+```
 
 averaged over the training data; a 95 % credible interval is recovered
 from the BART posterior.
 
 ``` r
+
 set.seed(1)
 fit_bart <- causal_estimate_effect(
   br_cerrado, g,
@@ -480,6 +497,7 @@ OpenAlex, limit-offset for SciELO) until `max_results` is reached. A
 multi-thousand pull is a single R call:
 
 ``` r
+
 corpus <- rbind(
   causal_corpus_openalex("Brazilian Cerrado soil organic carbon",
                           max_results = 5000L,
@@ -504,6 +522,7 @@ up to `max_retries` times with exponential backoff; rows that exhaust
 all retries are reported in `attr(kg, "failed")`.
 
 ``` r
+
 kg <- causal_kg_new()
 kg <- causal_llm_ingest_corpus(
   kg, corpus,
@@ -532,6 +551,7 @@ endpoint live for every unique node, picks the Levenshtein-nearest
 `skos:prefLabel`, and caches the result on disk:
 
 ``` r
+
 mapping <- causal_kg_alignment(
   kg,
   vocab         = "agrovoc",
@@ -565,6 +585,7 @@ C-level pointer layout — so the resulting `.rds` is portable across
 `igraph` versions and byte-reproducible:
 
 ``` r
+
 kg_roundtrip <- causal_kg_new()
 kg_roundtrip <- causal_kg_add_edge(kg_roundtrip, "precipitation", "soc",
                                      source = "Jenny 1941", confidence = 0.9)
@@ -592,6 +613,7 @@ external vocabularies (AGROVOC, ENVO, SKOS thesauri) by a simple
 `owl:sameAs`:
 
 ``` r
+
 ttl <- causal_kg_to_turtle(
   kg_roundtrip,
   base_uri   = "https://edaphos.io/kg/",
@@ -629,6 +651,7 @@ collapses the KG to unique `(cause, effect)` pairs and sorts by a
 priority list of metrics:
 
 ``` r
+
 causal_kg_rank_edges(
   kg_roundtrip,
   by = c("n_sources", "mean_confidence")
@@ -654,6 +677,7 @@ after a 10 k-abstract
 run:
 
 ``` r
+
 summary(kg_roundtrip)
 #> <edaphos_causal_kg_summary>
 #>   nodes      : 3
@@ -677,6 +701,7 @@ with a 504 gateway timeout, since the substring filter cannot
 short-circuit against a bound term set.
 
 ``` r
+
 vocab <- unique(c(causal_kg_edges(kg_big)$cause,
                   causal_kg_edges(kg_big)$effect))
 ag <- causal_ontology_agrovoc_align_batch(
@@ -703,8 +728,8 @@ prior knowledge but blind to the statistical conditional-independence
 structure that a pedon dataset actually has in hand. Classical
 causal-discovery algorithms close the loop from the bottom up: given a
 data matrix, recover the DAG whose conditional independence structure
-best matches the data under an assumed faithfulness ([Spirtes, Glymour,
-and Scheines 2000](#ref-Spirtes2000causation); [Scutari
+best matches the data under an assumed faithfulness ([Spirtes et al.
+2000](#ref-Spirtes2000causation); [Scutari
 2010](#ref-Scutari2010bnlearn)).
 
 \[[`causal_structure_learn()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_structure_learn.md)\]\[causal_structure_learn\]
@@ -716,8 +741,8 @@ wires four of the best-tested structure-learning algorithms from
 - `"tabu"` — tabu-search variant that escapes local optima.
 - `"pc-stable"` — order-independent PC constraint-based algorithm
   ([Colombo and Maathuis 2014](#ref-Colombo2014pcstable)).
-- `"mmhc"` — Max-Min Hill-Climbing hybrid ([Tsamardinos, Brown, and
-  Aliferis 2006](#ref-Tsamardinos2006mmhc)).
+- `"mmhc"` — Max-Min Hill-Climbing hybrid ([Tsamardinos et al.
+  2006](#ref-Tsamardinos2006mmhc)).
 
 Whitelists and blacklists forward directly to `bnlearn` so pedological
 priors like “parent material must precede soil chemistry” are honoured.
@@ -727,6 +752,7 @@ returns the per-edge frequency, which is stored as the edge’s
 produced by the abstract-level pipeline.
 
 ``` r
+
 library(edaphos)
 data(br_cerrado)
 
@@ -774,13 +800,14 @@ dispatches the same abstract to a user-specified list of LLM
 configurations, aligns the returned triples by (cause, effect), and
 applies one of three voting rules:
 
-| voting           | keeps edges asserted by                               | use when                                                    |
-|:-----------------|:------------------------------------------------------|:------------------------------------------------------------|
-| `"majority"`     | at least `min_support` backends (default `ceil(N/2)`) | N is odd and you want a balanced precision/recall trade-off |
-| `"weighted"`     | edges with `sum(w_i c_i) >= threshold`                | one backend is known to be more reliable                    |
-| `"intersection"` | edges asserted by **every** backend                   | you need the highest-precision KG possible                  |
+| voting | keeps edges asserted by | use when |
+|:---|:---|:---|
+| `"majority"` | at least `min_support` backends (default `ceil(N/2)`) | N is odd and you want a balanced precision/recall trade-off |
+| `"weighted"` | edges with `sum(w_i c_i) >= threshold` | one backend is known to be more reliable |
+| `"intersection"` | edges asserted by **every** backend | you need the highest-precision KG possible |
 
 ``` r
+
 backends <- list(
   list(backend = "ollama",    model = "gemma4:latest",
         host   = "http://localhost:11434"),
@@ -824,7 +851,7 @@ gracefully rather than crashing an 8-hour corpus ingestion.
 ## References
 
 Beckett, D., T. Berners-Lee, E. Prud’hommeaux, and G. Carothers. 2014.
-“RDF 1.1 Turtle – Terse RDF Triple Language.” W3C Recommendation.
+*RDF 1.1 Turtle – Terse RDF Triple Language*. W3C Recommendation.
 <https://www.w3.org/TR/turtle/>.
 
 Colombo, D., and M. H. Maathuis. 2014. “Order-Independent
@@ -832,10 +859,10 @@ Constraint-Based Causal Structure Learning.” *Journal of Machine
 Learning Research* 15: 3741–82.
 
 Jenny, Hans. 1941. *Factors of Soil Formation: A System of Quantitative
-Pedology*. New York: McGraw-Hill.
+Pedology*. McGraw-Hill.
 
-Marcus, G., and E. Davis. 2019. “Rebooting AI: Building Artificial
-Intelligence We Can Trust.” Pantheon.
+Marcus, G., and E. Davis. 2019. *Rebooting AI: Building Artificial
+Intelligence We Can Trust*. Pantheon.
 
 McBratney, A. B., M. L. Mendonça Santos, and B. Minasny. 2003. “On
 Digital Soil Mapping.” *Geoderma* 117 (1-2): 3–52.
@@ -847,14 +874,12 @@ Cambridge University Press.
 Pearl, J., M. Glymour, and N. P. Jewell. 2016. *Causal Inference in
 Statistics: A Primer*. Wiley.
 
-Runge, J., S. Bathiany, E. Bollt, G. Camps-Valls, D. Coumou, E. Deyle,
-C. Glymour, et al. 2019. “Inferring Causation from Time Series in Earth
-System Sciences.” *Nature Communications* 10: 2553.
+Runge, J., S. Bathiany, E. Bollt, et al. 2019. “Inferring Causation from
+Time Series in Earth System Sciences.” *Nature Communications* 10: 2553.
 <https://doi.org/10.1038/s41467-019-10105-3>.
 
-Schölkopf, B., F. Locatello, S. Bauer, N. R. Ke, N. Kalchbrenner, A.
-Goyal, and Y. Bengio. 2021. “Toward Causal Representation Learning.”
-*Proceedings of the IEEE* 109 (5): 612–34.
+Schölkopf, B., F. Locatello, S. Bauer, et al. 2021. “Toward Causal
+Representation Learning.” *Proceedings of the IEEE* 109 (5): 612–34.
 <https://doi.org/10.1109/JPROC.2021.3058954>.
 
 Scutari, M. 2010. “Learning Bayesian Networks with the bnlearn R

@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Case study — Cerrado SOC end-to-end: does edaphos beat the classical stack? • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Case study — Cerrado SOC end-to-end: does edaphos beat the classical stack?">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -186,7 +186,7 @@ supersedes v1 for every downstream user.</p>
 <span class="citation">(<a href="#ref-Meinshausen2006qrf">Meinshausen
 2006</a>)</span> on the expanded covariate stack (SoilGrids + WorldClim
 monthly + SRTM + WorldCover + bio), target =
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mtext mathvariant="normal">SOC</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log(1 + \text{SOC})</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mtext mathvariant="normal">SOC</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\log(1 + \text{SOC})</annotation></semantics></math>.</li>
 <li>
 <strong>B2</strong> B1 <strong>plus</strong> residual kriging via
 <code>gstat</code> <span class="citation">(<a href="#ref-Pebesma2004gstat">Pebesma 2004</a>)</span> — the full
@@ -228,8 +228,8 @@ synthetic.</strong></p>
 </tr>
 <tr class="even">
 <td align="left">SOC point observations</td>
-<td align="left">WoSIS snapshot 2019 <span class="citation">(<a href="#ref-Batjes2020wosis">Batjes, Ribeiro, and Oostrum
-2020</a>)</span> via ISRIC WFS</td>
+<td align="left">WoSIS snapshot 2019 <span class="citation">(<a href="#ref-Batjes2020wosis">Batjes et al. 2020</a>)</span> via ISRIC
+WFS</td>
 <td align="left">CC-BY-4.0</td>
 </tr>
 <tr class="odd">
@@ -557,7 +557,7 @@ table.</p></li>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Batjes2020wosis" class="csl-entry">
 Batjes, N. H., E. Ribeiro, and A. van Oostrum. 2020. <span>“Standardised
 Soil Profile Data to Support Global Mapping and Modelling
@@ -566,8 +566,8 @@ Data</em> 12 (1): 299–320. <a href="https://doi.org/10.5194/essd-12-299-2020" 
 </div>
 <div id="ref-Chen2020moco" class="csl-entry">
 Chen, X., H. Fan, R. Girshick, and K. He. 2020. <span>“Improved
-Baselines with Momentum Contrastive Learning.”</span> In <em>arXiv
-Preprint arXiv:2003.04297</em>.
+Baselines with Momentum Contrastive Learning.”</span> <em>arXiv Preprint
+arXiv:2003.04297</em>.
 </div>
 <div id="ref-Fick2017worldclim" class="csl-entry">
 Fick, S. E., and R. J. Hijmans. 2017. <span>“<span>WorldClim 2</span>:
@@ -577,19 +577,18 @@ Areas.”</span> <em>International Journal of Climatology</em> 37 (12):
 </div>
 <div id="ref-He2020moco" class="csl-entry">
 He, K., H. Fan, Y. Wu, S. Xie, and R. Girshick. 2020. <span>“Momentum
-Contrast for Unsupervised Visual Representation Learning.”</span> In
+Contrast for Unsupervised Visual Representation Learning.”</span>
 <em>IEEE/CVF Conference on Computer Vision and Pattern Recognition</em>,
 9729–38.
 </div>
 <div id="ref-Hengl2017soilgrids" class="csl-entry">
-Hengl, T., J. Mendes de Jesus, G. B. M. Heuvelink, M. Ruiperez Gonzalez,
-M. Kilibarda, A. Blagotić, W. Shangguan, et al. 2017.
+Hengl, T., J. Mendes de Jesus, G. B. M. Heuvelink, et al. 2017.
 <span>“<span>SoilGrids250m</span>: Global Gridded Soil Information Based
 on Machine Learning.”</span> <em>PLOS ONE</em> 12 (2): e0169748. <a href="https://doi.org/10.1371/journal.pone.0169748" class="external-link">https://doi.org/10.1371/journal.pone.0169748</a>.
 </div>
 <div id="ref-Jarvis2008srtm" class="csl-entry">
 Jarvis, A., H. I. Reuter, A. Nelson, and E. Guevara. 2008.
-<span>“Hole-Filled <span>SRTM</span> for the Globe (Version 4).”</span>
+<em>Hole-Filled <span>SRTM</span> for the Globe (Version 4)</em>.
 CGIAR-CSI SRTM 90m Database. <a href="https://srtm.csi.cgiar.org" class="external-link">https://srtm.csi.cgiar.org</a>.
 </div>
 <div id="ref-Meinshausen2006qrf" class="csl-entry">
@@ -603,17 +602,17 @@ Pebesma, E. J. 2004. <span>“Multivariable Geostatistics in
 </div>
 <div id="ref-Pereira2019geobr" class="csl-entry">
 Pereira, R. H. M., and C. N. Goncalves. 2019. <span>“<span class="nocase">geobr</span>: Loads Shapefiles of Official Spatial Data
-Sets of Brazil.”</span> <em>R Package (IPEA)</em>. <a href="https://github.com/ipeaGIT/geobr" class="external-link">https://github.com/ipeaGIT/geobr</a>.
+Sets of Brazil.”</span> <em>R Package (IPEA)</em>. <a href="https://github.com/ipea/geobr" class="external-link">https://github.com/ipea/geobr</a>.
 </div>
 <div id="ref-Reichstein2019deep" class="csl-entry">
-Reichstein, M., G. Camps-Valls, B. Stevens, M. Jung, J. Denzler, N.
-Carvalhais, and Prabhat. 2019. <span>“Deep Learning and Process
-Understanding for Data-Driven Earth System Science.”</span>
-<em>Nature</em> 566: 195–204. <a href="https://doi.org/10.1038/s41586-019-0912-1" class="external-link">https://doi.org/10.1038/s41586-019-0912-1</a>.
+Reichstein, M., G. Camps-Valls, B. Stevens, et al. 2019. <span>“Deep
+Learning and Process Understanding for Data-Driven Earth System
+Science.”</span> <em>Nature</em> 566: 195–204. <a href="https://doi.org/10.1038/s41586-019-0912-1" class="external-link">https://doi.org/10.1038/s41586-019-0912-1</a>.
 </div>
 <div id="ref-Zanaga2021worldcover" class="csl-entry">
-Zanaga, D., R. Van De Kerchove, W. De Keersmaecker, N. Souverijns, C.
-Brockmann, R. Quast, J. Wevers, et al. 2021. <span>“<span class="nocase">ESA WorldCover 10 m 2020 v100</span>.”</span> Zenodo. <a href="https://doi.org/10.5281/zenodo.5571936" class="external-link">https://doi.org/10.5281/zenodo.5571936</a>.
+Zanaga, D., R. Van De Kerchove, W. De Keersmaecker, et al. 2021.
+<em><span class="nocase">ESA WorldCover 10 m 2020 v100</span></em>.
+Zenodo. <a href="https://doi.org/10.5281/zenodo.5571936" class="external-link">https://doi.org/10.5281/zenodo.5571936</a>.
 </div>
 </div>
 </div>
@@ -628,7 +627,7 @@ Brockmann, R. Quast, J. Wevers, et al. 2021. <span>“<span class="nocase">ESA W
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

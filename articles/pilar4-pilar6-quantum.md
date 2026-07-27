@@ -49,6 +49,7 @@
 Usando 300 perfis WoSIS e os embeddings reais do encoder v1:
 
 ``` r
+
 bundle <- readRDS(system.file("extdata", "quantum_foundation_cerrado.rds",
                                 package = "edaphos"))
 bundle$kernel_comparison
@@ -66,6 +67,7 @@ estrutura capturada exclusivamente pelo quantum.
 Rodando `data-raw/quantum_foundation_benchmark.R`:
 
 ``` r
+
 bundle$cv_summary
 #>  method                          rmse_mean  rmse_sd  mae_mean  r2_mean  n_folds
 #>  Quantum KRR on foundation PCs   14.3        5.9      8.7      0.00     5
@@ -77,11 +79,11 @@ bundle$cv_summary
 ### Leitura honesta
 
 **Os quatro métodos empatam em RMSE (~14 g/kg)**. Apenas o `ranger`
-atinge $R^{2} > 0$ (consistente com o estudo `case-cerrado-end-to-end`
-v1.3.1 onde o QRF lidera com RMSE $\approx 13,5$ g/kg sobre 1095 perfis
-reais). As três regressões por kernel degeneram para R² = 0 — o mínimo
-aplicável — sinalizando que **elas prevêem essencialmente a média**
-sobre a partição espacial de teste.
+atinge $`R^2 > 0`$ (consistente com o estudo `case-cerrado-end-to-end`
+v1.3.1 onde o QRF lidera com RMSE $`\approx 13{,}5`$ g/kg sobre 1095
+perfis reais). As três regressões por kernel degeneram para R² = 0 — o
+mínimo aplicável — sinalizando que **elas prevêem essencialmente a
+média** sobre a partição espacial de teste.
 
 **Por que isso?** Três hipóteses alternativas, cada uma falseável:
 
@@ -95,8 +97,7 @@ sobre a partição espacial de teste.
 3.  **6 qubits são pouco para capturar a não-linearidade do problema**.
     Aumentar para 8-10 qubits (ainda classicamente simulável) + mais
     `reps` na camada de entangling do ZZFeatureMap é uma direção natural
-    — mas o custo computacional sobe como
-    $O\left( N^{2} \cdot 4^{n} \right)$.
+    — mas o custo computacional sobe como $`O(N^2 \cdot 4^n)`$.
 
 ### O que isso significa como contribuição científica
 
@@ -142,9 +143,8 @@ O valor do v2.0.0 não é bater os baselines (tentamos e não batemos). É:
 
 ## Referências
 
-Havlíček, V., A. D. Córcoles, K. Temme, A. W. Harrow, A. Kandala, J. M.
-Chow, and J. M. Gambetta. 2019. “Supervised Learning with
-Quantum-Enhanced Feature Spaces.” *Nature* 567: 209–12.
+Havlíček, V., A. D. Córcoles, K. Temme, et al. 2019. “Supervised
+Learning with Quantum-Enhanced Feature Spaces.” *Nature* 567: 209–12.
 <https://doi.org/10.1038/s41586-019-0980-2>.
 
 Zhang, Lei, and Alexandre M. J.-C. Wadoux. 2026. “Can Digital Soil

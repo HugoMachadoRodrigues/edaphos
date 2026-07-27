@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Pilar 2 — Physics-Informed ML for Soil Depth Profiles • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Pilar 2 — Physics-Informed ML for Soil Depth Profiles">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,14 +133,13 @@ Rodrigues</h4>
 <h2 id="abstract">Abstract<a class="anchor" aria-label="anchor" href="#abstract"></a>
 </h2>
 <p>Classical Digital Soil Mapping harmonises horizon observations via
-equal-area quadratic splines <span class="citation">(<a href="#ref-Bishop1999">T. F. A. Bishop, McBratney, and Laslett 1999</a>;
-<a href="#ref-Malone2009">Malone et al. 2009</a>)</span> — a purely
+equal-area quadratic splines <span class="citation">(<a href="#ref-Bishop1999">Bishop et al. 1999</a>; <a href="#ref-Malone2009">Malone et al. 2009</a>)</span> — a purely
 mathematical object disconnected from pedogenesis. The <strong>Pillar
 2</strong> of <code>edaphos</code> replaces that spline with two
-Physics-Informed Machine Learning (PIML) <span class="citation">(<a href="#ref-Raissi2019">Raissi, Perdikaris, and Karniadakis 2019</a>; <a href="#ref-Karniadakis2021">Karniadakis et al. 2021</a>; <a href="#ref-Willcox2021pinns">Willard et al. 2022</a>)</span> models of
+Physics-Informed Machine Learning (PIML) <span class="citation">(<a href="#ref-Raissi2019">Raissi et al. 2019</a>; <a href="#ref-Karniadakis2021">Karniadakis et al. 2021</a>; <a href="#ref-Willcox2021pinns">Willard et al. 2022</a>)</span> models of
 the soil depth profile: a parametric pedogenetic Ordinary Differential
-Equation (ODE) integrated by <code>deSolve</code> <span class="citation">(<a href="#ref-Soetaert2010desolve">Soetaert, Petzoldt,
-and Setzer 2010</a>)</span>, and a Neural ODE <span class="citation">(<a href="#ref-Chen2018neuralode">Chen et al. 2018</a>)</span> trained by
+Equation (ODE) integrated by <code>deSolve</code> <span class="citation">(<a href="#ref-Soetaert2010desolve">Soetaert et al.
+2010</a>)</span>, and a Neural ODE <span class="citation">(<a href="#ref-Chen2018neuralode">Chen et al. 2018</a>)</span> trained by
 back-propagation through a fixed-step Runge-Kutta integrator on
 <code>torch</code> <span class="citation">(<a href="#ref-PichlerRtorch">Falbel and Luraschi 2023</a>)</span>. Both
 models are demonstrated on the <code><a href="https://ncss-tech.github.io/aqp/reference/sp4.html" class="external-link">aqp::sp4</a></code> reference pedons
@@ -151,20 +150,20 @@ Pillar 5.</p>
 <h2 id="pedogenetic-ode">1. Pedogenetic ODE<a class="anchor" aria-label="anchor" href="#pedogenetic-ode"></a>
 </h2>
 <p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">y(z)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y(z)</annotation></semantics></math>
 denote a soil property (e.g. clay fraction, SOC) at depth
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">z\ge 0</annotation></semantics></math>.
 The one-dimensional kinetic model of translocation <span class="citation">(<a href="#ref-Jenny1941">Jenny 1941</a>; <a href="#ref-Minasny2016">Minasny and McBratney 2016</a>)</span> assumes a
 depth-dependent relaxation towards a parent-material asymptote
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_{\infty}</annotation></semantics></math>
 with rate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\lambda(z)</annotation></semantics></math>:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mi>y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>λ</mi><mn>0</mn></msub><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><mo>−</mo><mi>μ</mi><mi>z</mi></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\lambda(z)</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>λ</mi><mn>0</mn></msub><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \frac{dy}{dz}\;=\;-\lambda(z)\,\bigl(y(z)-y_{\infty}\bigr),\qquad
 \lambda(z)=\lambda_{0}\,e^{-\mu z}.
 \tag{1}
 </annotation></semantics></math> Parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>,</mo><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lambda_{0},\mu,y_{\infty},y_{0})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>,</mo><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lambda_{0},\mu,y_{\infty},y_{0})</annotation></semantics></math>
 carry explicit physical meaning:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\lambda_{0}</annotation></semantics></math>
 is the surface pedogenetic rate;
@@ -176,7 +175,7 @@ is the surface intercept; and
 is the parent-material extrapolation. The implementation
 [<code><a href="../reference/piml_profile_fit.html">piml_profile_fit()</a></code>][piml_profile_fit] integrates (1) via
 <code><a href="https://rdrr.io/pkg/deSolve/man/lsoda.html" class="external-link">deSolve::lsoda</a></code> at every loss evaluation and minimises
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒥</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mi>j</mi></munder><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mi>y</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>j</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mspace width="0.278em"></mspace><mo>+</mo><mspace width="0.278em"></mspace><mi>η</mi><mo stretchy="false" form="postfix">∥</mo><mi>θ</mi><msubsup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn><mn>2</mn></msubsup><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒥</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mi>j</mi></munder><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mi>j</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mn>2</mn></msup><mspace width="0.278em"></mspace><mo>+</mo><mspace width="0.278em"></mspace><mi>η</mi><mo stretchy="false" form="postfix">∥</mo><mi>θ</mi><msubsup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn><mn>2</mn></msubsup><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mathcal{J}(\theta)\;=\;
 \sum_{j}\bigl(y(z_{j};\theta)-y_{j}\bigr)^{2}
 \;+\;\eta\|\theta\|_{2}^{2},\tag{2}
@@ -195,14 +194,7 @@ irrespective of data. This is the strong-PIML regime sensu &lt;span class="citat
 <p>We use the ten reference pedons of <code><a href="https://ncss-tech.github.io/aqp/reference/sp4.html" class="external-link">aqp::sp4</a></code> with horizon
 concentrations of clay, sand, Ca, Mg, K, CEC and CF.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span>
-<span><span class="va">.torch_ok</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
-<span>             <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_is_installed.html" class="external-link">torch_is_installed</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                             error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"aqp"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit_exit.html" class="external-link">knit_exit</a></span><span class="op">(</span><span class="st">"Package `aqp` not installed — skipping vignette."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sp4</span>, package <span class="op">=</span> <span class="st">"aqp"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sp4</span>, package <span class="op">=</span> <span class="st">"aqp"</span><span class="op">)</span></span>
 <span><span class="va">sp4</span><span class="op">$</span><span class="va">depth</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">sp4</span><span class="op">$</span><span class="va">top</span> <span class="op">+</span> <span class="va">sp4</span><span class="op">$</span><span class="va">bottom</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sp4</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"id"</span>, <span class="st">"name"</span>, <span class="st">"top"</span>, <span class="st">"bottom"</span>, <span class="st">"depth"</span>, <span class="st">"clay"</span>, <span class="st">"K"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       id name top bottom depth clay   K</span></span>
@@ -331,20 +323,20 @@ physical constraint, <em>not</em> from extra parameters.</p>
 <p>For profiles where the mono-asymptotic prior is violated — illuviated
 bulges, E horizons beneath A, buried paleosols — <code>edaphos</code>
 offers a Neural ODE alternative <span class="citation">(<a href="#ref-Chen2018neuralode">Chen et al. 2018</a>)</span>:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>f</mi><mi>θ</mi></msub><mo>=</mo><mtext mathvariant="normal">MLP</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>;</mo><mspace width="0.167em"></mspace><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>f</mi><mi>θ</mi></msub><mo>=</mo><mtext mathvariant="normal">MLP</mtext><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>;</mo><mspace width="0.167em"></mspace><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \frac{dy}{dz}=f_{\theta}(z,y),\qquad
 f_{\theta}=\text{MLP}(z,y;\,\theta).
 \tag{3}
 </annotation></semantics></math> The forward map is a fixed-step RK4
 integrator written directly in <code>torch</code>, so training
 back-propagates the squared-error loss through the whole trajectory:
-<span class="math display">$$
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝒥</mi><mtext mathvariant="normal">NODE</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mi>j</mi></munder><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><munder><munder><mrow><msubsup><mo>∫</mo><mn>0</mn><msub><mi>z</mi><mi>j</mi></msub></msubsup><msub><mi>f</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>d</mi><mi>z</mi><mo>+</mo><msub><mi>y</mi><mn>0</mn></msub></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">RK4 rollout</mtext></munder><mspace width="0.278em"></mspace><mo>−</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>j</mi></msub><msup><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo><mn>2</mn></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \mathcal{J}_{\text{NODE}}(\theta)
    \;=\;\sum_{j}\Bigl(
       \underbrace{\int_{0}^{z_{j}}f_{\theta}(z,y(z))\,dz
                   +y_{0}}_{\text{RK4 rollout}}
       \;-\;y_{j}\Bigr)^{2}.
-$$</span></p>
+</annotation></semantics></math></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nn_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/piml_neural_ode_fit.html">piml_neural_ode_fit</a></span><span class="op">(</span></span>
 <span>  depths  <span class="op">=</span> <span class="va">napa</span><span class="op">$</span><span class="va">depth</span>, values <span class="op">=</span> <span class="va">napa</span><span class="op">$</span><span class="va">clay</span>,</span>
@@ -377,7 +369,7 @@ $$</span></p>
 [<code><a href="../reference/al_physics_gate_piml.html">al_physics_gate_piml()</a></code>][al_physics_gate_piml] constructs a
 rejection function: candidates whose predicted target falls outside the
 envelope
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mo>min</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="0.167em"></mspace><mo>max</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[\min(y_{0},y_{\infty}),\,\max(y_{0},y_{\infty})]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mrow><mi mathvariant="normal">min</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[\min(y_{0},y_{\infty}),\,\max(y_{0},y_{\infty})]</annotation></semantics></math>
 inflated by a <code>safety_factor</code> are eliminated from the greedy
 Active-Learning selection (see the Pillar 5 vignette).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -399,7 +391,7 @@ point estimate. For any honest downstream use — propagating parametric
 uncertainty into a SOC-stock prediction, tuning a Pillar 5
 Active-Learning acquisition under correct epistemic variance, reporting
 publishable parameter intervals — we need the <strong>posterior</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>,</mo><msub><mi>y</mi><mn>0</mn></msub><mo>∣</mo><mtext mathvariant="normal">depths</mtext><mo>,</mo><mtext mathvariant="normal">values</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(\lambda_0, \mu, y_\infty, y_0 \mid \text{depths}, \text{values})</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>,</mo><msub><mi>y</mi><mn>0</mn></msub><mo>∣</mo><mtext mathvariant="normal">depths</mtext><mo>,</mo><mtext mathvariant="normal">values</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(\lambda_0, \mu, y_\infty, y_0 \mid \text{depths}, \text{values})</annotation></semantics></math>,
 not just the MAP.</p>
 <p>The function
 [<code><a href="../reference/piml_profile_fit_bayesian.html">piml_profile_fit_bayesian()</a></code>][piml_profile_fit_bayesian]
@@ -408,17 +400,16 @@ returns that posterior through two nested approximations:</p>
 <li>
 <strong>Laplace approximation</strong> (default, O(ms) per pedon).
 Gaussian posterior whose mean is the MAP and whose covariance is the
-inverse observed Fisher information at the MAP <span class="citation">(<a href="#ref-Bishop2006PRML">C. M. Bishop 2006, sec.
+inverse observed Fisher information at the MAP <span class="citation">(<a href="#ref-Bishop2006PRML">Bishop 2006, sec.
 4.4</a>)</span>. Accurate when the posterior is well-identified; every
 call pre-samples 2 000 draws from
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">MAP</mtext><mo>,</mo><mi>Σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">N(\text{MAP}, \Sigma)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">MAP</mtext><mo>,</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N(\text{MAP}, \Sigma)</annotation></semantics></math>
 for predictive convenience.</li>
 <li>
-<strong>Adaptive random-walk Metropolis</strong> <span class="citation">(<a href="#ref-Haario2001">Haario, Saksman, and
-Tamminen 2001</a>)</span> (~seconds per pedon). Proposal covariance
-starts at the Laplace covariance, scaled by the Roberts–Gelman–Gilks
-optimal factor
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>2.38</mn><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mi>/</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">(2.38)^2 / d</annotation></semantics></math>,
+<strong>Adaptive random-walk Metropolis</strong> <span class="citation">(<a href="#ref-Haario2001">Haario et al.
+2001</a>)</span> (~seconds per pedon). Proposal covariance starts at the
+Laplace covariance, scaled by the Roberts–Gelman–Gilks optimal factor
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2.38</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mi>/</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">(2.38)^2 / d</annotation></semantics></math>,
 and is updated online by Haario recursion after a warm-up period — so
 non-Gaussian or multimodal posteriors are captured faithfully where
 Laplace would paper over them.</li>
@@ -460,10 +451,10 @@ onto every predictive draw, so the returned interval represents the
 predictive distribution of a <em>future observation</em> rather than the
 uncertainty on the mean function alone.</p>
 <p>For the Neural-ODE variant the variational analogue is a <strong>deep
-ensemble</strong> <span class="citation">(<a href="#ref-Lakshminarayanan2017ensemble">Lakshminarayanan, Pritzel, and
-Blundell 2017</a>)</span>: <code>K</code> independent networks trained
-from different random seeds produce an empirical posterior whose mean
-and variance approximate the Bayesian predictive posterior <span class="citation">(<a href="#ref-Wilson2020bayesian">Wilson and Izmailov
+ensemble</strong> <span class="citation">(<a href="#ref-Lakshminarayanan2017ensemble">Lakshminarayanan et al.
+2017</a>)</span>: <code>K</code> independent networks trained from
+different random seeds produce an empirical posterior whose mean and
+variance approximate the Bayesian predictive posterior <span class="citation">(<a href="#ref-Wilson2020bayesian">Wilson and Izmailov
 2020</a>)</span>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/piml_neural_ode_fit_ensemble.html">piml_neural_ode_fit_ensemble</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span>,</span>
@@ -496,13 +487,13 @@ posterior regime that
 [<code><a href="../reference/piml_profile_fit_bayesian.html">piml_profile_fit_bayesian()</a></code>][piml_profile_fit_bayesian]
 already exposes for single pedons, with covariate-conditioned priors
 over
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>,</mo><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lambda_0, \mu, y_\infty, y_0)</annotation></semantics></math>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>,</mo><msub><mi>y</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lambda_0, \mu, y_\infty, y_0)</annotation></semantics></math>.</li>
 </ul>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Bishop2006PRML" class="csl-entry">
 Bishop, C. M. 2006. <em>Pattern Recognition and Machine Learning</em>.
 Springer.
@@ -515,8 +506,8 @@ Quadratic Smoothing Splines.”</span> <em>Geoderma</em> 91 (1-2): 27–45.
 </div>
 <div id="ref-Chen2018neuralode" class="csl-entry">
 Chen, R. T. Q., Y. Rubanova, J. Bettencourt, and D. K. Duvenaud. 2018.
-<span>“Neural Ordinary Differential Equations.”</span> In <em>Advances
-in Neural Information Processing Systems</em>. Vol. 31.
+<span>“Neural Ordinary Differential Equations.”</span> <em>Advances in
+Neural Information Processing Systems</em> 31.
 </div>
 <div id="ref-PichlerRtorch" class="csl-entry">
 Falbel, D., and J. Luraschi. 2023. <em>Torch: Tensors and Neural
@@ -528,7 +519,7 @@ Metropolis Algorithm.”</span> <em>Bernoulli</em> 7 (2): 223–42. <a href="htt
 </div>
 <div id="ref-Jenny1941" class="csl-entry">
 Jenny, Hans. 1941. <em>Factors of Soil Formation: A System of
-Quantitative Pedology</em>. New York: McGraw-Hill.
+Quantitative Pedology</em>. McGraw-Hill.
 </div>
 <div id="ref-Karniadakis2021" class="csl-entry">
 Karniadakis, G. E., I. G. Kevrekidis, L. Lu, P. Perdikaris, S. Wang, and
@@ -538,8 +529,8 @@ L. Yang. 2021. <span>“Physics-Informed Machine Learning.”</span>
 <div id="ref-Lakshminarayanan2017ensemble" class="csl-entry">
 Lakshminarayanan, B., A. Pritzel, and C. Blundell. 2017. <span>“Simple
 and Scalable Predictive Uncertainty Estimation Using Deep
-Ensembles.”</span> In <em>Advances in Neural Information Processing
-Systems</em>, 30:6402–13.
+Ensembles.”</span> <em>Advances in Neural Information Processing
+Systems</em> 30: 6402–13.
 </div>
 <div id="ref-Malone2009" class="csl-entry">
 Malone, B. P., A. B. McBratney, B. Minasny, and G. M. Laslett. 2009.
@@ -547,9 +538,8 @@ Malone, B. P., A. B. McBratney, B. Minasny, and G. M. Laslett. 2009.
 Equal-Area Splines.”</span> <em>Geoderma</em> 154 (1-2): 138–52. <a href="https://doi.org/10.1016/j.geoderma.2009.10.007" class="external-link">https://doi.org/10.1016/j.geoderma.2009.10.007</a>.
 </div>
 <div id="ref-Minasny2017" class="csl-entry">
-Minasny, B., B. P. Malone, A. B. McBratney, D. A. Angers, D. Arrouays,
-A. Chambers, V. Chaplot, et al. 2017. <span>“Soil Carbon 4 Per
-Mille.”</span> <em>Geoderma</em> 292: 59–86. <a href="https://doi.org/10.1016/j.geoderma.2017.01.002" class="external-link">https://doi.org/10.1016/j.geoderma.2017.01.002</a>.
+Minasny, B., B. P. Malone, A. B. McBratney, et al. 2017. <span>“Soil
+Carbon 4 Per Mille.”</span> <em>Geoderma</em> 292: 59–86. <a href="https://doi.org/10.1016/j.geoderma.2017.01.002" class="external-link">https://doi.org/10.1016/j.geoderma.2017.01.002</a>.
 </div>
 <div id="ref-Minasny2016" class="csl-entry">
 Minasny, B., and A. B. McBratney. 2016. <span>“Digital Soil Mapping: A
@@ -566,7 +556,7 @@ Physics</em> 378: 686–707. <a href="https://doi.org/10.1016/j.jcp.2018.10.045"
 <div id="ref-Soetaert2010desolve" class="csl-entry">
 Soetaert, K., T. Petzoldt, and R. W. Setzer. 2010. <em>Solving
 Differential Equations in <span>R</span>: Package deSolve</em>. Vol. 33.
-9. Journal of Statistical Software. <a href="https://doi.org/10.18637/jss.v033.i09" class="external-link">https://doi.org/10.18637/jss.v033.i09</a>.
+Journal of Statistical Software. <a href="https://doi.org/10.18637/jss.v033.i09" class="external-link">https://doi.org/10.18637/jss.v033.i09</a>.
 </div>
 <div id="ref-Willcox2021pinns" class="csl-entry">
 Willard, J., X. Jia, S. Xu, M. Steinbach, and V. Kumar. 2022.
@@ -576,8 +566,8 @@ Surveys</em> 55 (4): 66:1–37. <a href="https://doi.org/10.1145/3514228" class=
 </div>
 <div id="ref-Wilson2020bayesian" class="csl-entry">
 Wilson, A. G., and P. Izmailov. 2020. <span>“Bayesian Deep Learning and
-a Probabilistic Perspective of Generalization.”</span> In <em>Advances
-in Neural Information Processing Systems</em>, 33:4697–4708.
+a Probabilistic Perspective of Generalization.”</span> <em>Advances in
+Neural Information Processing Systems</em> 33: 4697–708.
 </div>
 </div>
 </div>
@@ -593,7 +583,7 @@ in Neural Information Processing Systems</em>, 33:4697–4708.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

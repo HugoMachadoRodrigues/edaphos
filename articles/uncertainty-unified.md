@@ -5,14 +5,14 @@
 Through `edaphos` v1.5.0 each pillar quantified uncertainty in its own
 natural format:
 
-| Pillar                | What “uncertainty” meant             | Typical shape            |
-|:----------------------|:-------------------------------------|:-------------------------|
-| 1\. Causal AI         | CI on an identified direct effect    | scalar + CI              |
-| 2\. PIML              | MCMC draws or deep-ensemble spread   | vector of depth profiles |
-| 3\. 4D pedometry      | ConvLSTM ensemble + Kalman posterior | (K, H, W) map            |
-| 4\. Foundation models | — nothing —                          | —                        |
-| 5\. Active learning   | QRF prediction interval              | (lower, upper)           |
-| 6\. Quantum ML        | shot-based VQE variance              | per-iteration number     |
+| Pillar | What “uncertainty” meant | Typical shape |
+|:---|:---|:---|
+| 1\. Causal AI | CI on an identified direct effect | scalar + CI |
+| 2\. PIML | MCMC draws or deep-ensemble spread | vector of depth profiles |
+| 3\. 4D pedometry | ConvLSTM ensemble + Kalman posterior | (K, H, W) map |
+| 4\. Foundation models | — nothing — | — |
+| 5\. Active learning | QRF prediction interval | (lower, upper) |
+| 6\. Quantum ML | shot-based VQE variance | per-iteration number |
 
 No common calibration diagnostic, no common plotting code, and no way
 for a pedometrician to say “my Pillar 3 map carries more uncertainty
@@ -27,6 +27,7 @@ compact end-to-end example per pillar and ends with the unified
 calibration table that is now the package’s headline diagnostic.
 
 ``` r
+
 library(edaphos)
 library(ggplot2)
 set.seed(20260423L)
@@ -37,6 +38,7 @@ set.seed(20260423L)
 Every adapter below returns the same S3 object:
 
 ``` r
+
 draws <- stats::rnorm(400L, mean = 1.2, sd = 0.3)
 post  <- edaphos_posterior(samples    = draws,
                              method     = "bootstrap",
@@ -56,6 +58,7 @@ post
 The `autoplot` method dispatches on `query_type`:
 
 ``` r
+
 autoplot(post)
 ```
 
@@ -75,6 +78,7 @@ Cluster-block bootstrap of the backdoor-adjusted OLS slope gives a
 proper posterior over the identified direct effect.
 
 ``` r
+
 skip_p1 <- !requireNamespace("dagitty", quietly = TRUE)
 if (!skip_p1) {
   n  <- 300L
@@ -101,6 +105,7 @@ if (!skip_p1) {
 ### 3.2 Pillar 2 — Neural-ODE deep ensemble
 
 ``` r
+
 skip_p2 <- !requireNamespace("torch", quietly = TRUE) ||
            !isTRUE(tryCatch(torch::torch_is_installed(),
                              error = function(e) FALSE))
@@ -124,6 +129,7 @@ if (!skip_p2) {
 Uses the v1.5.0 Pillar 3 bundle that ships with the package.
 
 ``` r
+
 res_path_p3 <- system.file("extdata",
                              "temporal_cerrado_results.rds",
                              package = "edaphos")
@@ -150,6 +156,7 @@ if (!skip_p3) {
 A compact mock encoder keeps the vignette self-contained.
 
 ``` r
+
 skip_p4 <- skip_p2   # same torch dependency
 if (!skip_p4) {
   N <- 40L; C <- 4L; P <- 8L
@@ -183,6 +190,7 @@ if (!skip_p4) {
 ### 3.5 Pillar 5 — QRF posterior + Active Learning
 
 ``` r
+
 skip_p5 <- !requireNamespace("ranger", quietly = TRUE)
 if (!skip_p5) {
   n <- 160L
@@ -204,6 +212,7 @@ if (!skip_p5) {
 ### 3.6 Pillar 6 — Quantum-KRR GP-style posterior
 
 ``` r
+
 n6  <- 40L; d6 <- 3L
 X6  <- matrix(stats::runif(n6 * d6, 0, pi), ncol = d6)
 y6  <- sin(X6[, 1L]) + 0.5 * cos(X6[, 2L]) +
@@ -232,11 +241,13 @@ Pillar 1 where there is no observable “true” causal effect).
 | 0.95  | P1 causal      | bootstrap |   1 | 0.00632 |     1.000 |     0.111 | 0.000242 |
 | 0.951 | P3 4D NDVI map | ensemble  | 100 | 0.36600 |     0.740 |     1.380 | 0.637000 |
 | 0.952 | P5 AL / QRF    | ensemble  |  32 | 0.30000 |     0.969 |     2.140 | 0.588000 |
-| 0.953 | P6 quantum KRR | analytic  |  12 | 0.31700 |     1.000 |     3.200 | 0.561000 |
+| 0.953 | P6 quantum KRR | analytic  |  12 | 0.51600 |     0.917 |     3.210 | 0.905000 |
 
-Unified calibration across the six pillars (v1.6.0).
+Unified calibration across the six pillars (v1.6.0). {.table
+style="width:100%;"}
 
 ``` r
+
 panels <- list()
 add_panel <- function(label, calib) {
   if (is.null(calib)) return(invisible())
@@ -271,6 +282,7 @@ if (length(panels) > 0L) {
 The same three-line recipe now works for every pillar:
 
 ``` r
+
 post  <- as_edaphos_posterior(fit, newdata = xnew)   # or a *_posterior() helper
 calib <- uncertainty_calibrate(post, truth = ynew)
 autoplot(post); uncertainty_plot_reliability(calib)

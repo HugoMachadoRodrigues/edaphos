@@ -18,6 +18,7 @@ The badge in README currently resolves to **v0.2.0** because the concept
 DOI was minted early. To bring it up to date:
 
 ``` r
+
 # From the package root, in an R session:
 devtools::load_all(".")
 edaphos_zenodo_release(
@@ -77,6 +78,7 @@ submission context (test environments, optional-dependency rationale,
 etc.). Before submitting:
 
 ``` r
+
 # Final checks
 devtools::check(document = FALSE, vignettes = FALSE,
                  args = c("--as-cran"))

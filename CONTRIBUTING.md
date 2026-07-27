@@ -46,6 +46,7 @@ Conduct](https://hugomachadorodrigues.github.io/edaphos/CODE_OF_CONDUCT.md).
 6.  **Run locally** before pushing:
 
     ``` r
+
     devtools::load_all()
     devtools::test()                                            # all green
     devtools::check(args = c("--no-manual",

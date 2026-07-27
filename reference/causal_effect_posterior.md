@@ -5,7 +5,7 @@ Unified v1.6.0 entry point for Pillar 1. Returns an
 with posterior draws over the identified direct effect, ready for
 [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md)
 and
-[`ggplot2::autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html).
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html).
 For the LM estimator the draws are a cluster-block bootstrap; for BART
 the draws are the native Markov- chain posterior.
 

@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>edaphos — Frontier algorithms for Digital Soil Mapping • edaphos</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="edaphos — Frontier algorithms for Digital Soil Mapping">
 <meta name="description" content="Six research pillars confronting specific methodological gaps in DSM: Causal AI (with LLM-driven KG), Physics-Informed ML, 4D Pedometry, Foundation Models, Autonomous Active Learning, and Quantum ML. Unified uncertainty API + cross-pillar bridges.
@@ -48,7 +48,7 @@
 
     <a class="navbar-brand me-2" href="index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -161,18 +161,18 @@
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">View</th>
 <th align="left">Lógica central</th>
 <th align="left">Challenge in DSM</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left"><strong>Successionist</strong></td>
 <td align="left">Regularities / repeatable associations ⇒ causal claim</td>
 <td align="left">Simpson’s paradox; spurious associations; no temporal sequencing</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><strong>Generative</strong></td>
 <td align="left">Soil-forming factors act through <strong>explicit processes</strong> that produce soil properties</td>
 <td align="left">Requires process-informed models; directly satisfies condition 1</td>
@@ -241,7 +241,7 @@
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-v170--capstone-cross-pillar-vignette">🆕 v1.7.0 — capstone cross-pillar vignette<a class="anchor" aria-label="anchor" href="#id_-v170--capstone-cross-pillar-vignette"></a>
+<h2 id="new-v170--capstone-cross-pillar-vignette">🆕 v1.7.0 — capstone cross-pillar vignette<a class="anchor" aria-label="anchor" href="#new-v170--capstone-cross-pillar-vignette"></a>
 </h2>
 <p>The headline feature of the current release is a new vignette: <strong>“Uma decisão de amostragem sob incerteza no Cerrado”</strong> (<code><a href="articles/capstone-cerrado-campaign.html">vignette("capstone-cerrado-campaign")</a></code>). It answers a single question with all six pillars acting together:</p>
 <blockquote>
@@ -317,53 +317,81 @@
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-v270--v280--torch-autograd-ports--honest-head-to-head-wosis-benchmark">🆕 v2.7.0 – v2.8.0 — Torch autograd ports + honest head-to-head WoSIS benchmark<a class="anchor" aria-label="anchor" href="#id_-v270--v280--torch-autograd-ports--honest-head-to-head-wosis-benchmark"></a>
+<h2 id="new-v270--v280--torch-autograd-ports--honest-head-to-head-wosis-benchmark">🆕 v2.7.0 – v2.8.0 — Torch autograd ports + honest head-to-head WoSIS benchmark<a class="anchor" aria-label="anchor" href="#new-v270--v280--torch-autograd-ports--honest-head-to-head-wosis-benchmark"></a>
 </h2>
 <p>Two new releases complete the v2.x arc:</p>
 <p><strong>v2.7.0 — Torch autograd backends for Pilares 8, 9 and 10.</strong> Replaces the ELM-style (hidden layers frozen, gradient only on the head) pure-R fits with full-backprop <code><a href="https://torch.mlverse.org/docs/reference/optim_adam.html" class="external-link">torch::optim_adam</a></code> training. Each <code>*_fit()</code> gains <code>backend = c("r", "torch")</code> and <code>device = c("cpu", "mps", "cuda")</code>; pure-R remains the default fallback for users without libtorch. A proper 2-D conditional U-Net replaces the MLP denoiser in DDPM, and the GAT layer uses <code>torch::index_add</code> scatter for softmax-per-source attention.</p>
-<p><strong>v2.8.0 — Real head-to-head benchmark on 1 095 WoSIS profiles.</strong> First honest cross-pillar comparison:</p>
+<p><strong>Cross-pillar head-to-head on 1 095 WoSIS profiles.</strong> Five spatially blocked folds, <code>log1p(SOC)</code>, scored against the <em>achievable</em> null — predicting each fold’s <strong>training</strong>-fold mean, not the global mean, which would be an oracle over the very rows being scored:</p>
 <table class="table">
-<thead><tr class="header">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr>
 <th align="left">Method</th>
 <th align="right">RMSE</th>
-<th align="right">R²</th>
-<th align="right"><a href="mailto:PICP@90" class="email">PICP@90</a></th>
-<th align="right"><a href="mailto:MPIW@90" class="email">MPIW@90</a></th>
-<th align="right">CRPS</th>
+<th align="right">R² vs global mean</th>
+<th align="right">NSE vs training-fold mean</th>
+<th align="right">draws</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
-<td align="left">P4 Foundation+QRF</td>
-<td align="right">14.1</td>
-<td align="right">0.034</td>
-<td align="right"><strong>0.889</strong></td>
-<td align="right">37.6</td>
-<td align="right">5.93</td>
+<tr>
+<td align="left">P1 OLS (DAG-selected covariates)</td>
+<td align="right">0.587</td>
+<td align="right">+0.160</td>
+<td align="right"><strong>+0.196</strong></td>
+<td align="right">300</td>
 </tr>
-<tr class="even">
-<td align="left"><strong>P5 QRF</strong></td>
-<td align="right">14.1</td>
-<td align="right">0.064</td>
-<td align="right">0.879</td>
-<td align="right">37.2</td>
-<td align="right"><strong>5.85</strong></td>
+<tr>
+<td align="left">P5 QRF</td>
+<td align="right">0.594</td>
+<td align="right">+0.139</td>
+<td align="right">+0.175</td>
+<td align="right">99</td>
 </tr>
-<tr class="odd">
-<td align="left"><strong>P7 BHS</strong></td>
-<td align="right">14.1</td>
-<td align="right"><strong>0.070</strong></td>
-<td align="right">0.812</td>
-<td align="right"><strong>36.7</strong></td>
-<td align="right">6.97</td>
+<tr>
+<td align="left">P7 BHS</td>
+<td align="right">0.601</td>
+<td align="right">+0.119</td>
+<td align="right">+0.157</td>
+<td align="right">200</td>
+</tr>
+<tr>
+<td align="left">P4 Foundation embeddings + QRF</td>
+<td align="right">0.615</td>
+<td align="right">+0.077</td>
+<td align="right">+0.116</td>
+<td align="right">99</td>
+</tr>
+<tr>
+<td align="left">P10 GAT (trained attention)</td>
+<td align="right">0.617</td>
+<td align="right">+0.073</td>
+<td align="right">+0.112</td>
+<td align="right"><strong>8</strong></td>
+</tr>
+<tr>
+<td align="left">P6 Quantum KRR</td>
+<td align="right">0.665</td>
+<td align="right">−0.079</td>
+<td align="right">−0.033</td>
+<td align="right">100</td>
 </tr>
 </tbody>
 </table>
-<p>All three tie at ~14.1 g/kg RMSE. P5 wins on CRPS, P7 on R² and MPIW (but under-covers), P4 best-calibrated at 0.89 ≈ nominal 0.90. Runner: <code>data-raw/benchmark_wosis_p4_p5_p7.R</code>; bundle: <code>inst/extdata/benchmark_wosis_p4_p5_p7.rds</code>.</p>
-<p>An important <strong>P7 BHS row-alignment bug</strong> was found and fixed in the process (details in NEWS.md v2.8.0).</p>
+<p>RMSE is in <code>log1p(g/kg)</code> and is not comparable to a g/kg figure. The <code>draws</code> column is the ensemble each method actually got: they are not equal, and a ranking that ignores that is comparing budgets. P10 reaches +0.112 on <strong>8</strong> members against 99–300 for the others.</p>
+<p><strong>The honest reading.</strong> Ordinary least squares on a DAG-selected covariate subset is the strongest method here. None of the five more elaborate pillars beats it on this task, and the spread between the top four is small relative to the fold-to-fold variation. Only P6 falls below the achievable null, and only just.</p>
+<p><strong>Two figures for P10, both correct.</strong> The +0.112 above is a fixed-configuration comparison with every pillar at its defaults. Under nested cross-validation with tuned hyperparameters and a 10-member ensemble, the same GAT reaches <strong>NSE +0.184 against a tuned QRF’s +0.165</strong> (difference +0.019, 95 % block-bootstrap CI [−0.021, +0.057], P(GAT ahead) = 0.844 — a consistent edge, not a significant one). Those answer different questions: “how do the pillars compare out of the box” versus “does a tuned GAT beat a tuned forest”. Runner: <code>data-raw/pilar10_gat_tuning.R</code>; bundle <code>inst/extdata/pilar10_gat_tuning.rds</code>.</p>
+<p><strong>Earlier releases published a different table</strong> — RMSE ≈ 14.1 g/kg and R² of 0.034 / 0.064 / 0.070 for P4 / P5 / P7, described as a three-way tie. Those figures came from the raw g/kg scale, where 11 profiles (1 % of n) carry 48 % of the total sum of squares, and from an R² clamped at zero that hid negative values in 21 of 30 method-fold cells. The P4 row was additionally computed over a raster of <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">stats::rnorm()</a></code> noise. They have been withdrawn. <code>tests/testthat/test-headline-claims.R</code> now binds every figure in this section to the shipped bundle.</p>
+<p>Runners: <code>data-raw/benchmark_wosis_p4_p5_p7.R</code> and <code>data-raw/benchmark_wosis_6pilar.R</code>; bundle <code>inst/extdata/benchmark_wosis_6pilar.rds</code>.</p>
+<p><strong>Provenance.</strong> The WoSIS profiles were sampled between 1960 and 2010 (median 1982); the covariates are present-day products (SoilGrids 2020, WorldClim 2.1, SRTM 2000, WorldCover 2020). Land cover is measured roughly four decades after the median observation, so part of the irreducible error is temporal mismatch rather than model inadequacy.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="id_-v213--v260--seven-releases-polish--bridges--four-new-pillars">🆕 v2.1.3 – v2.6.0 — Seven releases: polish + bridges + four new pillars<a class="anchor" aria-label="anchor" href="#id_-v213--v260--seven-releases-polish--bridges--four-new-pillars"></a>
+<h2 id="new-v213--v260--seven-releases-polish--bridges--four-new-pillars">🆕 v2.1.3 – v2.6.0 — Seven releases: polish + bridges + four new pillars<a class="anchor" aria-label="anchor" href="#new-v213--v260--seven-releases-polish--bridges--four-new-pillars"></a>
 </h2>
 <p>One batched session shipped <strong>seven</strong> full releases, each with 0/0/0 R CMD check and a dedicated test suite:</p>
 <table class="table">
@@ -371,39 +399,39 @@
 <col width="42%">
 <col width="57%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="center">Version</th>
 <th align="left">Scope</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="center"><strong>v2.1.3</strong></td>
 <td align="left">Rcpp port of <code><a href="reference/quantum_kernel.html">quantum_kernel()</a></code> — 10-50× speedup, machine-precision agreement with the R reference.</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center"><strong>v2.2.0</strong></td>
 <td align="left">Physics-informed quantum kernels (P2 × P6): <code><a href="reference/piml_quantum_kernel.html">piml_quantum_kernel()</a></code> + <code><a href="reference/piml_qkrr_fit.html">piml_qkrr_fit()</a></code> fuse ZZFeatureMap overlap with ODE-residual RBF similarity.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center"><strong>v2.2.1</strong></td>
 <td align="left">Causal 4D time-varying effects (P1 × P3): <code><a href="reference/causal_effect_time_varying.html">causal_effect_time_varying()</a></code> sliding-window backdoor + Mann-Kendall trend test + ggplot2 trajectory.</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center"><strong>v2.3.0</strong></td>
 <td align="left">
-<strong>Pilar 7 BHS</strong> — Bayesian hierarchical spatial model via self-contained Gibbs sampler + optional <code><a href="https://rdrr.io/pkg/spBayes/man/spLM.html" class="external-link">spBayes::spLM</a></code> backend. Profile-MLE phi for closed-form conditionals.</td>
+<strong>Pilar 7 BHS</strong> — Bayesian hierarchical spatial model via self-contained Gibbs sampler + optional <code><a href="https://finleya.github.io/spBayes/reference/spLM.html" class="external-link">spBayes::spLM</a></code> backend. Profile-MLE phi for closed-form conditionals.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center"><strong>v2.4.0</strong></td>
 <td align="left">
 <strong>Pilar 8 Neural Operators</strong> — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021) in pure R. Learn <code>u(z) → y(z)</code> across sites without torch.</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center"><strong>v2.5.0</strong></td>
 <td align="left">
 <strong>Pilar 9 DDPM</strong> — first pedometric diffusion-model for generative soil maps. Cosine-schedule (Nichol &amp; Dhariwal 2021) + score-matching loss + ancestral sampling.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center"><strong>v2.8.0</strong></td>
 <td align="left">
 <strong>Pilar 10 GAT</strong> — first pedometric Graph Attention Network (Velickovic et al. 2018) over WoSIS k-NN co-location graphs.</td>
@@ -413,12 +441,12 @@
 <p><strong>Tooling now in place</strong>: <code>src/</code> compiled Rcpp, <code>LinkingTo: Rcpp</code>, <code>Dockerfile</code>, <code>_pkgdown.yml</code>, <code>cran-comments.md</code>, <code>inst/rosc/submission.md</code>, <code>NEWS.md</code> back to v0.1.0, 75+ unit tests across 43 test files.</p>
 </div>
 <div class="section level2">
-<h2 id="id_-v210--frente-d-polish--two-new-cross-pillar-bridges">🆕 v2.1.0 — Frente D polish + two new cross-pillar bridges<a class="anchor" aria-label="anchor" href="#id_-v210--frente-d-polish--two-new-cross-pillar-bridges"></a>
+<h2 id="new-v210--frente-d-polish--two-new-cross-pillar-bridges">🆕 v2.1.0 — Frente D polish + two new cross-pillar bridges<a class="anchor" aria-label="anchor" href="#new-v210--frente-d-polish--two-new-cross-pillar-bridges"></a>
 </h2>
 <p>Consolidation release aimed at CRAN / rOpenSci readiness:</p>
 <ul>
 <li>
-<strong>pkgdown documentation site</strong> — <code>_pkgdown.yml</code> + GitHub Actions workflow; deployed at <a href="https://hugomachadorodrigues.github.io/edaphos" class="uri">https://hugomachadorodrigues.github.io/edaphos</a>.</li>
+<strong>pkgdown documentation site</strong> — <code>_pkgdown.yml</code> + GitHub Actions workflow; deployed at <a href="https://hugomachadorodrigues.github.io/edaphos/" class="uri">https://hugomachadorodrigues.github.io/edaphos/</a>.</li>
 <li>
 <strong>Docker reproducibility</strong> — <code>Dockerfile</code> based on <code>rocker/geospatial:4.4.1</code> with libtorch + pinned CRAN snapshot + pre-downloaded <code>edaphos-cerrado-moco-v1</code> encoder. One-command reproducible environment.</li>
 <li>
@@ -461,7 +489,7 @@
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"HugoMachadoRodrigues/edaphos@v2.8.0"</span>,</span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"HugoMachadoRodrigues/edaphos"</span>,</span>
 <span>                         build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Optional heavy dependencies (Pillars 2 Neural ODE, 3, 4)</span></span>
@@ -498,7 +526,7 @@
 <col width="5%">
 <col width="74%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Nº</th>
 <th>Pillar</th>
 <th>Namespace</th>
@@ -506,50 +534,50 @@
 <th>Governing object</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>1</td>
 <td><strong>Causal AI + LLM KG</strong></td>
 <td><code>causal_*</code></td>
 <td>✅ v1.4.0</td>
-<td>Pedogenetic DAG <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math> + backdoor-adjusted <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>β</mi><mrow><mi>x</mi><mo>→</mo><mi>y</mi></mrow><mtext mathvariant="normal">do</mtext></msubsup><annotation encoding="application/x-tex">\beta_{x \to y}^{\text{do}}</annotation></semantics></math> [<a href="https://doi.org/10.1017/CBO9780511803161" class="external-link">Pearl 2009</a>] <strong>+ LLM-extracted claims</strong> via Gemma 4 / GPT / Claude (multi-backend voting + AGROVOC)</td>
+<td>Pedogenetic DAG <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math> + backdoor-adjusted <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>β</mi><mrow><mi>x</mi><mo>→</mo><mi>y</mi></mrow><mtext mathvariant="normal">do</mtext></msubsup><annotation encoding="application/x-tex">\beta_{x \to y}^{\text{do}}</annotation></semantics></math> [<a href="https://doi.org/10.1017/CBO9780511803161" class="external-link">Pearl 2009</a>] <strong>+ LLM-extracted claims</strong> via Gemma 4 / GPT / Claude (multi-backend voting + AGROVOC)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>2</td>
 <td><strong>Physics-Informed ML</strong></td>
 <td><code>piml_*</code></td>
 <td>✅ v1.1.0</td>
-<td>Pedogenetic ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac displaystyle="true"><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mo>=</mo><mo>−</mo><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>e</mi><mrow><mo>−</mo><mi>μ</mi><mi>z</mi></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>y</mi><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)</annotation></semantics></math>; Bayesian posterior over <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lambda_0, \mu, y_\infty)</annotation></semantics></math>; Neural ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac displaystyle="true"><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})</annotation></semantics></math>
+<td>Pedogenetic ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac></mstyle><mo>=</mo><mi>−</mi><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)</annotation></semantics></math>; Bayesian posterior over <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lambda_0, \mu, y_\infty)</annotation></semantics></math>; Neural ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac></mstyle><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})</annotation></semantics></math>
 </td>
 </tr>
-<tr class="odd">
+<tr>
 <td>3</td>
 <td><strong>4D Pedometry</strong></td>
 <td><code>temporal_*</code></td>
 <td>✅ v1.5.0</td>
 <td>Stacked ConvLSTM [<a href="https://arxiv.org/abs/1506.04214" class="external-link">Shi et al. 2015</a>] with seq-to-seq + multi-step rollout + mass-balance physics loss; stochastic EnKF with Gaspari-Cohn localization</td>
 </tr>
-<tr class="even">
+<tr>
 <td>4</td>
 <td><strong>Foundation Models</strong></td>
 <td><code>foundation_*</code></td>
 <td>✅ v1.2.0</td>
 <td>SimCLR + MoCo v2 contrastive pre-training [<a href="https://arxiv.org/abs/1911.05722" class="external-link">He et al. 2020</a>; <a href="https://arxiv.org/abs/2003.04297" class="external-link">Chen et al. 2020b</a>] on planetary-scale patches; <strong>Zenodo-published Cerrado encoder</strong> + fine-tune ensemble</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>5</td>
 <td><strong>Autonomous Active Learning</strong></td>
 <td><code>al_*</code></td>
 <td>✅ v1.1.0</td>
-<td>Hybrid policy <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>α</mi><mspace width="0.167em"></mspace><mover><mi>u</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mover><mi>d</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})</annotation></semantics></math> with PIML physics gate + BatchBALD</td>
+<td>Hybrid policy <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>α</mi><mspace width="0.167em"></mspace><mover><mi>u</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mover><mi>d</mi><mo accent="true">̃</mo></mover><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})</annotation></semantics></math> with PIML physics gate + BatchBALD</td>
 </tr>
-<tr class="even">
+<tr>
 <td>6</td>
 <td><strong>Quantum ML</strong></td>
 <td><code>quantum_*</code></td>
 <td>✅ v0.9.0</td>
 <td>ZZFeatureMap quantum kernel [<a href="https://doi.org/10.1038/s41586-019-0980-2" class="external-link">Havlicek et al. 2019</a>] + Quantum Kernel Ridge Regression; <strong>Qiskit VQE</strong> with M3 / ZNE mitigation</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>🔗</strong></td>
 <td><strong>Unified uncertainty API</strong></td>
 <td><code>uncertainty_*</code></td>
@@ -557,7 +585,7 @@
 <td>
 <code>edaphos_posterior</code> S3 class + <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> returning CRPS / PICP / MPIW / reliability diagram for <em>every</em> pillar</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>🎬</strong></td>
 <td><strong>Capstone vignette</strong></td>
 <td>—</td>
@@ -581,8 +609,8 @@
 <div class="section level3">
 <h3 id="governing-object">Governing object<a class="anchor" aria-label="anchor" href="#governing-object"></a>
 </h3>
-<p>Given a pedogenetic Directed Acyclic Graph <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math>, the <strong>backdoor-adjusted</strong> direct effect of exposure <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on outcome <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>β</mi><mrow><mi>x</mi><mo>→</mo><mi>y</mi></mrow><mtext mathvariant="normal">do</mtext></msubsup><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mfrac><mrow><mi>∂</mi><mspace width="0.167em"></mspace><mi>𝔼</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo>=</mo><mi>x</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>Z</mi><mo>=</mo><mi>z</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo></mrow><mrow><mi>∂</mi><mi>x</mi></mrow></mfrac><mo>,</mo><mspace width="2.0em"></mspace><mi>Z</mi><mspace width="0.278em"></mspace><mo>∈</mo><mspace width="0.278em"></mspace><mtext mathvariant="monospace">𝚍𝚊𝚐𝚒𝚝𝚝𝚢::𝚊𝚍𝚓𝚞𝚜𝚝𝚖𝚎𝚗𝚝𝚂𝚎𝚝𝚜</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p>Given a pedogenetic Directed Acyclic Graph <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math>, the <strong>backdoor-adjusted</strong> direct effect of exposure <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on outcome <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>β</mi><mrow><mi>x</mi><mo>→</mo><mi>y</mi></mrow><mtext mathvariant="normal">do</mtext></msubsup><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mfrac><mrow><mi>∂</mi><mspace width="0.167em"></mspace><mi>𝔼</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo>=</mo><mi>x</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>Z</mi><mo>=</mo><mi>z</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo></mrow><mrow><mi>∂</mi><mi>x</mi></mrow></mfrac><mo>,</mo><mspace width="2.0em"></mspace><mi>Z</mi><mspace width="0.278em"></mspace><mo>∈</mo><mspace width="0.278em"></mspace><mtext mathvariant="monospace">𝚍𝚊𝚐𝚒𝚝𝚝𝚢::𝚊𝚍𝚓𝚞𝚜𝚝𝚖𝚎𝚗𝚝𝚂𝚎𝚝𝚜</mtext><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \beta_{x\to y}^{\text{do}} \;=\;
     \frac{\partial\,\mathbb{E}\bigl[Y \mid X=x,\, Z=z\bigr]}{\partial x},
 \qquad
@@ -617,7 +645,7 @@
 <img src="reference/figures/pillar1-causal.png" width="620" alt="Bar chart comparing naive vs. backdoor-adjusted effect of NDVI on SOC"></p>
 </div>
 <div class="section level3">
-<h3 id="id_-from-expert-dags-to-llm-driven-knowledge-graphs">🤖 From expert DAGs to LLM-driven Knowledge Graphs<a class="anchor" aria-label="anchor" href="#id_-from-expert-dags-to-llm-driven-knowledge-graphs"></a>
+<h3 id="robot-from-expert-dags-to-llm-driven-knowledge-graphs">🤖 From expert DAGs to LLM-driven Knowledge Graphs<a class="anchor" aria-label="anchor" href="#robot-from-expert-dags-to-llm-driven-knowledge-graphs"></a>
 </h3>
 <p>The central scientific bottleneck of causal DSM is <strong>DAG construction</strong>. Hand-drawing a DAG for every soil study is labour-intensive, subjective, and rarely reproducible across researchers. Pillar 1 solves this by treating the peer-reviewed soil literature as a first-class data source: a <strong>Large Language Model (LLM)</strong> reads abstracts and returns structured causal triples, which are then fused with the expert DAG.</p>
 <p>This machinery <strong>directly operationalises condition 1 of <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a></strong> — “an explicit causal model” — at the scale of the literature instead of the individual expert.</p>
@@ -695,7 +723,7 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <p>Ten curated Cerrado-pedology abstracts and their Gemma-4 extractions ship in <code>inst/extdata/cerrado_abstracts.jsonl</code> + <code>inst/extdata/cerrado_claims.jsonl</code>, so the vignette builds fully offline on CI.</p>
 </div>
 <div class="section level4">
-<h4 id="id_-scaling-from-10-to-10-000-abstracts">📈 Scaling from 10 to 10 000 abstracts<a class="anchor" aria-label="anchor" href="#id_-scaling-from-10-to-10-000-abstracts"></a>
+<h4 id="chart_with_upwards_trend-scaling-from-10-to-10-000-abstracts">📈 Scaling from 10 to 10 000 abstracts<a class="anchor" aria-label="anchor" href="#chart_with_upwards_trend-scaling-from-10-to-10-000-abstracts"></a>
 </h4>
 <p>Three additions promote the extractor from demo to literature-scale:</p>
 <ul>
@@ -709,7 +737,7 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <p>A <strong>100-abstract production run</strong> (three OpenAlex queries, deduplicated, Gemma-4-extracted, AGROVOC-aligned) ships at <code>inst/extdata/cerrado_claims_real_corpus.jsonl</code> and is reproduced end-to-end by <code>data-raw/run_large_corpus.R</code>.</p>
 </div>
 <div class="section level4">
-<h4 id="id_️-multi-extractor-llm-voting">🗳️ Multi-extractor LLM voting<a class="anchor" aria-label="anchor" href="#id_%EF%B8%8F-multi-extractor-llm-voting"></a>
+<h4 id="ballot_box-multi-extractor-llm-voting">🗳️ Multi-extractor LLM voting<a class="anchor" aria-label="anchor" href="#ballot_box-multi-extractor-llm-voting"></a>
 </h4>
 <p>A single LLM backend inherits that model’s idiosyncrasies: GPT tends to over-generate claims, Claude to under-specify confidence, Gemma to be the strictest. <code><a href="reference/causal_llm_vote.html">causal_llm_vote()</a></code> runs all three on the same abstract and resolves disagreements by one of three rules:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -723,14 +751,14 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <span>  voting   <span class="op">=</span> <span class="st">"majority"</span>     <span class="co"># or "weighted" / "intersection"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The formal resolution rule for majority voting is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">claim</mtext><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>c</mi><mo>→</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msub><mi>C</mi><mtext mathvariant="normal">cons</mtext></msub><mspace width="0.278em"></mspace><mo>⇔</mo><mspace width="0.278em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">{</mo><mi>b</mi><mo>∈</mo><mi>B</mi><mspace width="0.167em"></mspace><mo>:</mo><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>c</mi><mo>→</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msub><mi>C</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">}</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">|</mo><mspace width="0.278em"></mspace><mo>≥</mo><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">⌈</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>B</mi><mo stretchy="true" form="postfix">|</mo></mrow><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌉</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">claim</mtext><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo>→</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><msub><mi>C</mi><mtext mathvariant="normal">cons</mtext></msub><mspace width="0.278em"></mspace><mo>⇔</mo><mspace width="0.278em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">|</mo><mo stretchy="false" form="prefix">{</mo><mi>b</mi><mo>∈</mo><mi>B</mi><mspace width="0.167em"></mspace><mo>:</mo><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>c</mi><mo>→</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><msub><mi>C</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">}</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">|</mo><mspace width="0.278em"></mspace><mo>≥</mo><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">⌈</mo><mo stretchy="false" form="prefix">|</mo><mi>B</mi><mo stretchy="false" form="prefix">|</mo><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌉</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \text{claim}\,(c \to e) \in C_{\text{cons}} \;\iff\;
     \bigl|\{b \in B \,:\, (c \to e) \in C_b\}\bigr| \;\ge\; \lceil |B|/2 \rceil,
 </annotation></semantics></math></p>
 <p>with confidence set to the per-backend mean over the voters that agreed. <code><a href="reference/causal_llm_ingest_abstract_voted.html">causal_llm_ingest_abstract_voted()</a></code> runs the vote and adds the consensus edges to the KG in one call, tagging <code>source</code> with both the paper and the backends that agreed.</p>
 </div>
 <div class="section level4">
-<h4 id="id_-persistence-turtle-export-and-audit">📂 Persistence, Turtle export and audit<a class="anchor" aria-label="anchor" href="#id_-persistence-turtle-export-and-audit"></a>
+<h4 id="open_file_folder-persistence-turtle-export-and-audit">📂 Persistence, Turtle export and audit<a class="anchor" aria-label="anchor" href="#open_file_folder-persistence-turtle-export-and-audit"></a>
 </h4>
 <p>Pillar 1 is not just an in-memory toy:</p>
 <ul>
@@ -757,7 +785,7 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <col width="20%">
 <col width="20%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Exposure</th>
 <th align="right">Naive β (g/kg per unit)</th>
 <th align="right">Adjusted β (g/kg per unit)</th>
@@ -765,21 +793,21 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <th align="left">Backdoor adjustment set</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">MAP (mm/a)</td>
 <td align="right">0.013</td>
 <td align="right"><strong>0.009</strong></td>
 <td align="right">1.5×</td>
 <td align="left">slope, T2M, land-cover fractions</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">Tree cover (%)</td>
 <td align="right">0.42</td>
 <td align="right"><strong>0.31</strong></td>
 <td align="right">1.4×</td>
 <td align="left">MAP, T2M</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">Clay (%)</td>
 <td align="right">0.38</td>
 <td align="right"><strong>0.25</strong></td>
@@ -791,99 +819,48 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <p>Every effect is accompanied by an <code>edaphos_posterior</code> with a block-bootstrap sample (B = 500) or a native BART posterior — so <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> applies uniformly (see <a href="#unified-uncertainty-api-v160">§9</a>).</p>
 </div>
 <div class="section level3">
-<h3 id="id_-v172--causal-discovery-trio-expert--llm--data-driven">🆕 v1.7.2 — Causal-discovery trio: expert × LLM × data-driven<a class="anchor" aria-label="anchor" href="#id_-v172--causal-discovery-trio-expert--llm--data-driven"></a>
+<h3 id="causal-discovery-trio-expert--llm--data-driven">Causal-discovery trio: expert × LLM × data-driven<a class="anchor" aria-label="anchor" href="#causal-discovery-trio-expert--llm--data-driven"></a>
 </h3>
 <p><code><a href="articles/causal-discovery-trio.html">vignette("causal-discovery-trio")</a></code> asks a harder question: <strong>do the three DAG-construction strategies in Pillar 1 agree?</strong> Running all five methods on the same 1 095 WoSIS profiles:</p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Comparison</th>
 <th align="right">Structural Hamming Distance</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
-<td align="left">Expert ↔︎ LLM-augmented (Gemma 4)</td>
-<td align="right"><strong>2</strong></td>
+<tr>
+<td align="left">Expert ↔︎ LLM-augmented</td>
+<td align="right"><strong>0</strong></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">bnlearn <code>hc</code> ↔︎ bnlearn <code>tabu</code>
 </td>
 <td align="right"><strong>0</strong></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">bnlearn <code>pc-stable</code> ↔︎ <code>hc</code>
 </td>
 <td align="right">12</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">Expert ↔︎ bnlearn <code>hc</code>
 </td>
 <td align="right"><strong>29</strong></td>
 </tr>
 </tbody>
 </table>
-<p>The <strong>major scientific finding</strong> is that the choice of DAG changes the backdoor adjustment set for MAP → SOC from <strong>6 covariates</strong> (LLM-augmented) to <strong>0 covariates</strong> (bnlearn mmhc) — a difference of an order of magnitude that directly changes the identified effect. The three strategies are <strong>complementary</strong>, not substitutable. The vignette recommends using all three and reporting sensitivity as the causal-analog of observational uncertainty.</p>
+<p><strong>The LLM adds nothing here, and that is the informative result.</strong> Of the 30 claims in <code>inst/extdata/cerrado_claims.jsonl</code>, only 3 have both endpoints expressible among the 10 WoSIS covariates, and all 3 were already in the expert DAG. The 32 remaining distinct concepts — <code>decomposition</code>, <code>primary_mineral_dissolution</code>, <code>argillic_horizon</code>, <code>root_input</code>, <code>effective_cation_exchange_capacity</code>, <code>twi</code> and others — have no counterpart in the covariate set. The extractor is not the bottleneck; the covariate set is.</p>
+<p>Earlier releases reported <code>SHD(Expert, LLM-augmented) = 2</code> and read it as the LLM being “conservative”. That figure came from six edges typed by hand into <code>data-raw/causal_discovery_benchmark.R</code>, carrying confidences (0.90, 0.82, 0.78, 0.75, 0.72, 0.71) that appear in no file in this package — every shipped claim has confidence 0.9. Those edges have been withdrawn; the benchmark now derives its edge set from the claims file through an explicit concept → column mapping that is validated against the columns which actually exist.</p>
+<p>The finding that survives is the disagreement between expert and data-driven structure. The backdoor adjustment set for MAP → SOC is <strong>5 covariates</strong> under the expert DAG (<code>slope</code>, <code>wc_bio_01</code>, <code>wc_landcover_cropland</code>, <code>wc_landcover_grassland</code>, <code>wc_landcover_trees</code>) but <strong>1</strong> under <code>pc-stable</code> (<code>wc_bio_01</code>) and 2 under <code>hc</code>/<code>tabu</code>. That difference directly changes the identified effect, so the three strategies are <strong>complementary</strong>, not substitutable, and the vignette recommends reporting the sensitivity rather than picking one.</p>
 <p>📖 Vignettes: <code><a href="articles/pilar1-causal.html">vignette("pilar1-causal")</a></code>, <code>vignette("pilar1-causal-real")</code>, <code><a href="articles/causal-discovery-trio.html">vignette("causal-discovery-trio")</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="v180--multi-backend-llm-extraction-benchmark">v1.8.0 — Multi-backend LLM extraction benchmark<a class="anchor" aria-label="anchor" href="#v180--multi-backend-llm-extraction-benchmark"></a>
+<h3 id="multi-backend-llm-extraction-harness-not-vendor-comparison">Multi-backend LLM extraction: harness, not vendor comparison<a class="anchor" aria-label="anchor" href="#multi-backend-llm-extraction-harness-not-vendor-comparison"></a>
 </h3>
-<p>The first quantitative validation of the Gemma 4 extractor that powers Pillar 1. A <strong>gold standard of 30 Cerrado abstracts × 72 expert-annotated causal claims</strong> (<code>inst/extdata/cerrado_gold_standard_v1.jsonl</code>) is compared against extractions from three backends through <code><a href="reference/causal_llm_extract.html">causal_llm_extract()</a></code>:</p>
-<table class="table">
-<colgroup>
-<col width="27%">
-<col width="13%">
-<col width="9%">
-<col width="9%">
-<col width="18%">
-<col width="20%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">Backend</th>
-<th align="right">Precision</th>
-<th align="right">Recall</th>
-<th align="right">F1</th>
-<th align="right">Cost/10k abs.</th>
-<th align="right">Latency (median)</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Gemma 4 (local)</td>
-<td align="right">0.75</td>
-<td align="right">0.67</td>
-<td align="right">0.71</td>
-<td align="right"><strong>$0</strong></td>
-<td align="right">16 s</td>
-</tr>
-<tr class="even">
-<td align="left">GPT-4o-mini</td>
-<td align="right">0.70</td>
-<td align="right">0.71</td>
-<td align="right">0.70</td>
-<td align="right">$1.71</td>
-<td align="right"><strong>2.8 s</strong></td>
-</tr>
-<tr class="odd">
-<td align="left"><strong>Claude Sonnet-4.5</strong></td>
-<td align="right"><strong>0.82</strong></td>
-<td align="right"><strong>0.82</strong></td>
-<td align="right"><strong>0.82</strong></td>
-<td align="right">$37.50</td>
-<td align="right">5.4 s</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Key findings.</strong></p>
-<ul>
-<li>
-<strong>Claude has the best F1</strong> (0.82) and is the only backend that reaches “substantial” Cohen’s κ with the human annotator (0.57, Landis-Koch threshold 0.60).</li>
-<li>
-<strong>GPT-4o-mini is the fastest</strong> (2.8 s vs. 5.4 s vs. 16 s median latency per abstract).</li>
-<li>
-<strong>Gemma 4 is the only free option</strong>; at a 10 000-abstract scale, switching from Claude to Gemma 4 saves ~$37.50 at the cost of 11 F1-points.</li>
-<li>
-<strong>Backends disagree strongly on which abstracts to extract</strong> (κ ≈ −0.08 to 0.12 pairwise), which means combining them via <code><a href="reference/causal_llm_vote.html">causal_llm_vote()</a></code> captures complementary strengths. This finding <strong>justifies the three-backend architecture</strong> already shipped.</li>
-</ul>
-<p>The benchmark runs reproducibly in CI using <code><a href="reference/llm_benchmark_simulate.html">llm_benchmark_simulate()</a></code>, a deterministic noise model calibrated to published profiles for each backend. For real API runs, set <code>EDAPHOS_USE_REAL_LLM=1</code> and provide the relevant API keys.</p>
+<p>Pillar 1’s extractor can be driven by three backends (local Ollama, OpenAI, Anthropic) through <code><a href="reference/causal_llm_extract.html">causal_llm_extract()</a></code>, and <code><a href="reference/causal_llm_vote.html">causal_llm_vote()</a></code> combines them. A gold standard of <strong>30 Cerrado abstracts × 72 expert-annotated causal claims</strong> (<code>inst/extdata/cerrado_gold_standard_v1.jsonl</code>) is shipped so the scoring harness can be exercised offline.</p>
+<p><strong>No measured vendor comparison is published here.</strong> The shipped bundle <code>inst/extdata/llm_benchmark_results.rds</code> carries <code>mode = "simulated"</code>: it is the output of <code><a href="reference/llm_benchmark_simulate.html">llm_benchmark_simulate()</a></code>, a deterministic noise model whose precision, recall, latency and cost are <em>inputs</em> supplied by the caller (see the <code>sim_args</code> list in <code>data-raw/llm_benchmark_run.R</code>). Earlier releases of this README presented those inputs as a measured head-to-head table of Gemma, GPT-4o-mini and Claude scores. No API was ever called to produce them, so the table has been withdrawn.</p>
+<p>What the simulated bundle legitimately demonstrates is that the harness works end to end: scoring against the gold standard, pairwise agreement, cost and latency accounting, and the voting rules all run deterministically in CI without network access or API keys.</p>
+<p>To produce a real comparison, set <code>EDAPHOS_USE_REAL_LLM=1</code>, provide the API keys, and re-run <code>data-raw/llm_benchmark_run.R</code>; the bundle it writes will carry <code>mode = "real"</code>, and <code>tests/testthat/test-headline-claims.R</code> will then permit a vendor-attributed table in this section.</p>
 <p>📖 Vignette: <code>vignette("llm-kg-benchmark")</code>.</p>
 </div>
 <div class="section level3">
@@ -939,17 +916,17 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="v190--foundation-embeddings-as-causal-instrumental-variables">v1.9.0 — Foundation embeddings as causal instrumental variables<a class="anchor" aria-label="anchor" href="#v190--foundation-embeddings-as-causal-instrumental-variables"></a>
 </h3>
 <p>The <strong>Pillar 1 × Pillar 4 bridge</strong>. Backdoor adjustment (Pillar 1) identifies causal effects only under <strong>causal sufficiency</strong> — all confounders observed. When unobserved confounders <code>U</code> remain, the adjusted estimator is biased:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">backdoor</mtext></msub><mo>=</mo><msub><mi>β</mi><mtext mathvariant="normal">true</mtext></msub><mo>+</mo><mtext mathvariant="normal">bias</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>U</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\beta}_{\text{backdoor}} = \beta_{\text{true}} + \text{bias}(U)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">backdoor</mtext></msub><mo>=</mo><msub><mi>β</mi><mtext mathvariant="normal">true</mtext></msub><mo>+</mo><mtext mathvariant="normal">bias</mtext><mo stretchy="false" form="prefix">(</mo><mi>U</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{\beta}_{\text{backdoor}} = \beta_{\text{true}} + \text{bias}(U)</annotation></semantics></math></p>
 <p><strong>Instrumental variables</strong> (IVs) identify effects under a different set of assumptions [@Wooldridge2010]:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>Relevance</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>Z</mi><mo>,</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≠</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(Z, X) \neq 0</annotation></semantics></math>
+<strong>Relevance</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo>,</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>≠</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(Z, X) \neq 0</annotation></semantics></math>
 </li>
 <li>
 <strong>Exclusion</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi><mo>→</mo><mi>Y</mi></mrow><annotation encoding="application/x-tex">Z \to Y</annotation></semantics></math> only through <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
 </li>
 <li>
-<strong>Unconfoundedness</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi><mo>⊥</mo><mi>U</mi></mrow><annotation encoding="application/x-tex">Z \perp U</annotation></semantics></math>
+<strong>Unconfoundedness</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi><mo>⟂</mo><mi>U</mi></mrow><annotation encoding="application/x-tex">Z \perp U</annotation></semantics></math>
 </li>
 </ol>
 <p>The MoCo v2 encoder (Pillar 4), trained contrastively on landscape patches <em>without ever seeing SOC</em>, is a natural IV candidate: it captures landscape-scale structure orthogonal to the named confounders in the DAG.</p>
@@ -972,23 +949,23 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <span><span class="co">#&gt;   Sargan J    : chi2(4) = 49.4, p = 4.7e-10</span></span></code></pre></div>
 <p><strong>Synthetic DGP validation (known truth β = 1.5):</strong></p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Estimator</th>
 <th align="right">β̂</th>
 <th align="center">95% CI</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">OLS (biased by U)</td>
 <td align="right">1.82</td>
 <td align="center">[1.77, 1.87]</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><strong>2SLS (IV)</strong></td>
 <td align="right"><strong>1.46</strong></td>
 <td align="center"><strong>[1.39, 1.53]</strong></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">True</td>
 <td align="right">1.50</td>
 <td align="center">—</td>
@@ -999,45 +976,56 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <p>📖 Vignette: <code><a href="articles/pilar1-pilar4-iv.html">vignette("pilar1-pilar4-iv")</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="v191--real-moco-v2-patch-extraction-passes-the-sargan-test">v1.9.1 — Real MoCo v2 patch extraction passes the Sargan test<a class="anchor" aria-label="anchor" href="#v191--real-moco-v2-patch-extraction-passes-the-sargan-test"></a>
+<h3 id="foundation-model-embeddings-as-instruments-what-the-sargan-test-actually-says">Foundation-model embeddings as instruments: what the Sargan test actually says<a class="anchor" aria-label="anchor" href="#foundation-model-embeddings-as-instruments-what-the-sargan-test-actually-says"></a>
 </h3>
-<p>Two new functions close the loop from the v1.9.0 thesis to real empirical evidence:</p>
+<p>Two functions close the loop from the identification argument to empirical evidence:</p>
 <ul>
 <li>
-<strong><code>foundation_embed_at_coords(moco, coords, stack, dataset, ...)</code></strong> extracts one embedding per query coordinate by cutting a <code>patch_size x patch_size</code> window, normalising, and running the encoder forward — O(minutes) for 1 095 WoSIS profiles on Apple M1 Max MPS.</li>
+<strong><code>foundation_embed_at_coords(moco, coords, stack, dataset, ...)</code></strong> extracts one embedding per query coordinate by cutting a <code>patch_size x patch_size</code> window, normalising, and running the encoder forward — 17 s for 1 095 WoSIS profiles on Apple M1 Max MPS.</li>
 <li>
-<strong><code>foundation_build_cerrado_stack(bbox, ...)</code></strong> assembles the SoilGrids + WorldClim + SRTM raster stack the encoder was trained on (optional live <code>geodata</code> download, ~200 MB cached to disk).</li>
+<strong><code>foundation_build_cerrado_stack(bbox, ...)</code></strong> assembles the 31-channel SoilGrids + WorldClim + SRTM stack the encoder was trained on (measured: 1.84 GB downloaded, 3.0 min, cached to disk).</li>
 </ul>
-<p>Using the Zenodo-published <code>edaphos-cerrado-moco-v1</code> encoder on the 1 095 Cerrado profiles:</p>
+<p>Using the Zenodo-published <code>edaphos-cerrado-moco-v1</code> encoder on the 1 095 Cerrado profiles, at the encoder’s native 0.01-deg grid:</p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Exposure</th>
-<th align="right">v1.9.0 Sargan p (proxy)</th>
-<th align="right"><strong>v1.9.1 Sargan p (real MoCo)</strong></th>
+<th align="right">Stage-1 F</th>
+<th align="right">Sargan p</th>
+<th align="left">Over-identification</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">MAP → SOC</td>
-<td align="right">&lt; 10⁻¹² ❌</td>
-<td align="right">
-<strong>0.343</strong> ✅</td>
+<td align="right"><strong>862</strong></td>
+<td align="right"><strong>0.250</strong></td>
+<td align="left">not rejected</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">Tree cover → SOC</td>
-<td align="right">&lt; 10⁻⁹ ❌</td>
-<td align="right">
-<strong>0.283</strong> ✅</td>
+<td align="right">8.4</td>
+<td align="right">0.042</td>
+<td align="left">rejected</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">Clay → SOC</td>
-<td align="right">&lt; 10⁻¹² ❌</td>
-<td align="right">
-<strong>0.424</strong> ✅</td>
+<td align="right">11.0</td>
+<td align="right">0.0030</td>
+<td align="left">rejected</td>
 </tr>
 </tbody>
 </table>
-<p><strong>The decisive test passes.</strong> An encoder pretrained by contrastive self-supervision <em>without seeing SOC</em> produces structurally valid instruments where any feature engineered from observed X fails exclusion. This is the central empirical contribution of v1.9.1.</p>
-<p><strong>Honest caveat.</strong> Stage-1 F drops to 7-10 (from ~20 000 under proxies) because the synthetic CI-mode raster stack lacks the real spatial autocorrelation of SoilGrids. Running with <code>EDAPHOS_IV_REAL_STACK=1</code> + the full 200 MB download lifts F back into a practically-useful range (work scoped for v1.9.2).</p>
+<p><strong>The result is partial, and that is the finding.</strong> For mean annual precipitation the instruments are strong (F = 862) and the over-identification restriction is not rejected: an encoder pretrained by contrastive self-supervision <em>without ever seeing SOC</em> does yield structurally valid instruments for that exposure, and the 2SLS estimate (β = 0.0126) is 64 % larger than the backdoor-OLS estimate (β = 0.0077), the direction expected when attenuation from covariate measurement error is corrected.</p>
+<p>For tree cover and clay the same instruments fail. Tree cover also has a first-stage F of 8.4, below the conventional threshold of 10, so its 2SLS estimate should not be read as identified at all. Clay’s Sargan p = 0.003 rejects exclusion outright.</p>
+<p><strong>Three limitations that bound every number above.</strong></p>
+<ol style="list-style-type: decimal">
+<li>
+<em>The encoder’s training normalisation was never persisted.</em> The weights registry has no per-channel mean/sd for <code>edaphos-cerrado-moco-v1</code>, so the exact standardisation it was trained under is unrecoverable. The figures above use per-channel statistics computed over this area of interest, which is an approximation, not a reconstruction. The bundle records this as <code>normalisation_source = "aoi"</code>. Every future encoder must publish its statistics; the registry now carries a <code>norm_stats_status</code> field so the gap is visible rather than assumed away.</li>
+<li>
+<em>The area of interest exceeds the training region.</em> The WoSIS profiles span 18.4° × 21.9°; the encoder was trained on the Cerrado core, 10° × 13°. The bundle records <code>aoi_exceeds_training = TRUE</code>. 21.8 % of the encoder’s 64 backbone channels are dead (exactly zero after post-ReLU average pooling) on this input, against roughly 5 % for input drawn from the distribution it was trained on.</li>
+<li>
+<em>These are single-run values.</em> Sargan p = 0.042 for tree cover sits close enough to 0.05 that it should not be treated as a sharp verdict without a resampling study.</li>
+</ol>
+<p>Earlier releases of this README reported Sargan p of 0.343 / 0.283 / 0.424 for the three exposures and concluded that the test passed for all of them. Those figures were produced with the normalisation placeholder <code>means = 0</code>, <code>sds = 1</code>, which fed raw geophysical magnitudes into a network trained on standardised inputs and killed about half its channels. They have been withdrawn and replaced by the table above. <code>tests/testthat/test-headline-claims.R</code> now asserts every figure in this section against the shipped <code>inst/extdata/causal_iv_cerrado_real.rds</code>, so the two cannot drift apart again.</p>
 </div>
 <div class="section level3">
 <h3 id="v192--cinelli--hazlett-2020-sensitivity-analysis">v1.9.2 — Cinelli &amp; Hazlett (2020) sensitivity analysis<a class="anchor" aria-label="anchor" href="#v192--cinelli--hazlett-2020-sensitivity-analysis"></a>
@@ -1056,7 +1044,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <span><span class="fu">edaphos</span><span class="fu">::</span><span class="fu"><a href="reference/causal_sensitivity_from_iv.html">causal_sensitivity_from_iv</a></span><span class="op">(</span><span class="va">iv_fit</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Robustness table on the 1 095 Cerrado profiles:</strong></p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Exposure</th>
 <th align="left">Estimator</th>
 <th align="right">β̂</th>
@@ -1064,63 +1052,63 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <th align="right">RV @ 5%</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">MAP (mm/a)</td>
 <td align="left">Naive OLS</td>
 <td align="right">0.0072</td>
 <td align="right"><strong>9.2%</strong></td>
 <td align="right">3.7%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">MAP (mm/a)</td>
 <td align="left">Backdoor OLS</td>
 <td align="right">0.0077</td>
 <td align="right"><strong>8.3%</strong></td>
 <td align="right">2.6%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">MAP (mm/a)</td>
 <td align="left">Proxy IV (v1.9.0)</td>
 <td align="right">0.0081</td>
 <td align="right"><strong>8.6%</strong></td>
 <td align="right">3.0%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">MAP (mm/a)</td>
 <td align="left">Real MoCo IV (v1.9.1)</td>
 <td align="right">0.0169</td>
 <td align="right"><strong>3.9%</strong></td>
 <td align="right">0.0%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">Tree cover</td>
 <td align="left">Backdoor OLS</td>
 <td align="right">6.54</td>
 <td align="right"><strong>6.3%</strong></td>
 <td align="right">0.5%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">Tree cover</td>
 <td align="left">Real MoCo IV</td>
 <td align="right">4.98</td>
 <td align="right"><strong>0.9%</strong></td>
 <td align="right">0.0%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><strong>Clay (%)</strong></td>
 <td align="left">Naive OLS</td>
 <td align="right">0.526</td>
 <td align="right"><strong>24.4%</strong></td>
 <td align="right">19.8%</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">Clay (%)</td>
 <td align="left">Backdoor OLS</td>
 <td align="right">0.192</td>
 <td align="right"><strong>5.0%</strong></td>
 <td align="right">0.0%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">Clay (%)</td>
 <td align="left">Real MoCo IV</td>
 <td align="right">0.858</td>
@@ -1147,7 +1135,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="governing-object-1">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-1"></a>
 </h3>
 <p>Depth-dependent translocation toward a parent-material asymptote,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mspace width="0.167em"></mspace><msub><mi>λ</mi><mn>0</mn></msub><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><mo>−</mo><mi>μ</mi><mi>z</mi></mrow></msup><mspace width="0.167em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mi>y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">(parametric)</mtext><mspace width="2.0em"></mspace><mtext mathvariant="normal">or</mtext><mspace width="2.0em"></mspace><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><msub><mi>f</mi><mi>θ</mi></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>𝐱</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">(Neural ODE).</mtext></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mspace width="0.167em"></mspace><msub><mi>λ</mi><mn>0</mn></msub><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mspace width="0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">(parametric)</mtext><mspace width="2.0em"></mspace><mtext mathvariant="normal">or</mtext><mspace width="2.0em"></mspace><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><msub><mi>f</mi><mi>θ</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>𝐱</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">(Neural ODE).</mtext></mrow><annotation encoding="application/x-tex">
 \frac{dy}{dz} \;=\; -\,\lambda_0\,e^{-\mu z}\,\bigl(y(z) - y_\infty\bigr)
 \qquad\text{(parametric)}
 \qquad\text{or}\qquad
@@ -1207,7 +1195,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="governing-object-2">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-2"></a>
 </h3>
 <p>A multi-layer ConvLSTM propagates a spatial hidden state <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐇</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\mathbf{H}_t</annotation></semantics></math> and cell state <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐂</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\mathbf{C}_t</annotation></semantics></math> alongside time:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐢</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>σ</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>i</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>i</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐟</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>σ</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>f</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>f</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐠</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>tanh</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>g</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>g</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐨</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>σ</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>o</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>o</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐂</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>𝐟</mi><mi>t</mi></msub><mo>⊙</mo><msub><mi>𝐂</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>𝐢</mi><mi>t</mi></msub><mo>⊙</mo><msub><mi>𝐠</mi><mi>t</mi></msub><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>𝐇</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>𝐨</mi><mi>t</mi></msub><mo>⊙</mo><mo>tanh</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐂</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐢</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>σ</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>i</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>i</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐟</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>σ</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>f</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>f</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐠</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mi mathvariant="normal">tanh</mi><mo>⁡</mo></mrow><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>g</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>g</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐨</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>σ</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>W</mi><mrow><mi>x</mi><mi>o</mi></mrow></msub><mo>*</mo><msub><mi>𝐗</mi><mi>t</mi></msub><mo>+</mo><msub><mi>W</mi><mrow><mi>h</mi><mi>o</mi></mrow></msub><mo>*</mo><msub><mi>𝐇</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐂</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>𝐟</mi><mi>t</mi></msub><mo>⊙</mo><msub><mi>𝐂</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>𝐢</mi><mi>t</mi></msub><mo>⊙</mo><msub><mi>𝐠</mi><mi>t</mi></msub><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>𝐇</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>𝐨</mi><mi>t</mi></msub><mo>⊙</mo><mrow><mi mathvariant="normal">tanh</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐂</mi><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
 \mathbf{i}_t &amp;= \sigma\bigl(W_{xi} * \mathbf{X}_t + W_{hi} * \mathbf{H}_{t-1}\bigr), \\
 \mathbf{f}_t &amp;= \sigma\bigl(W_{xf} * \mathbf{X}_t + W_{hf} * \mathbf{H}_{t-1}\bigr), \\
@@ -1244,7 +1232,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <img src="reference/figures/pillar3-4d.png" width="720" alt="Observed vs. ConvLSTM-forecast monthly SOC trajectory at a pixel"></p>
 </div>
 <div class="section level3">
-<h3 id="id_-stochastic-enkf-with-gaspari-cohn-localization-v150">🎯 Stochastic EnKF with Gaspari-Cohn localization (v1.5.0)<a class="anchor" aria-label="anchor" href="#id_-stochastic-enkf-with-gaspari-cohn-localization-v150"></a>
+<h3 id="dart-stochastic-enkf-with-gaspari-cohn-localization-v150">🎯 Stochastic EnKF with Gaspari-Cohn localization (v1.5.0)<a class="anchor" aria-label="anchor" href="#dart-stochastic-enkf-with-gaspari-cohn-localization-v150"></a>
 </h3>
 <p>In a realistic DSM pipeline, new in-situ observations keep arriving <strong>after</strong> the ConvLSTM was trained. <code><a href="reference/temporal_kalman_update.html">temporal_kalman_update()</a></code> nudges the trained forecast toward those new observations with a stochastic Ensemble Kalman Filter [<a href="https://doi.org/10.1029/94JC00572" class="external-link">Evensen 1994</a>; <a href="https://doi.org/10.1175/1520-0493(1998)126%3C1719:ASITEK%3E2.0.CO;2" class="external-link">Burgers, van Leeuwen and Evensen 1998</a>]: a gain matrix is estimated directly from the ensemble sample covariance and applied per-member, so the posterior ensemble reflects the new evidence without retraining.</p>
 <p>The default localization is <strong>Gaspari-Cohn</strong> — a compactly supported 5th-order polynomial that tapers the gain smoothly to zero at twice the specified radius, preventing spurious long-range correlations typical of small ensembles.</p>
@@ -1277,13 +1265,13 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <col width="25%">
 <col width="25%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Metric</th>
 <th align="right">Prior (ConvLSTM)</th>
 <th align="right">Analysis (EnKF + localization)</th>
 <th align="right">Reduction</th>
 </tr></thead>
-<tbody><tr class="odd">
+<tbody><tr>
 <td align="left">RMSE (COS, normalised)</td>
 <td align="right">0.637</td>
 <td align="right"><strong>0.617</strong></td>
@@ -1307,7 +1295,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="governing-object-3">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-3"></a>
 </h3>
 <p>For each batch of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> raster patches, SimCLR draws two stochastic augmentations per patch, encodes each with a shared backbone CNN and projection head, and minimises the <strong>normalised temperature-scaled cross-entropy</strong> loss [<a href="https://arxiv.org/abs/2002.05709" class="external-link">Chen et al. 2020</a>]:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ℒ</mi><mtext mathvariant="normal">NT-Xent</mtext></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>B</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>B</mi></munderover><munder><mo>∑</mo><mrow><mi>v</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">}</mo></mrow></munder><mo>log</mo><mfrac><mrow><mo>exp</mo><mspace width="-0.167em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>v</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>v</mi><mi>′</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>τ</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mi>k</mi><mo>≠</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>v</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></munder><mo>exp</mo><mspace width="-0.167em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>v</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>𝐳</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>τ</mi><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ℒ</mi><mtext mathvariant="normal">NT-Xent</mtext></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>B</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>B</mi></munderover><munder><mo>∑</mo><mrow><mi>v</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">}</mo></mrow></munder><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mfrac><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>v</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>τ</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mi>k</mi><mo>≠</mo><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>𝐳</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>τ</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \mathcal{L}_{\text{NT-Xent}}
 \;=\;
 -\frac{1}{2B}
@@ -1316,7 +1304,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 \frac{\exp\!\bigl(\mathrm{sim}(\mathbf{z}^{(v)}_{i},\,\mathbf{z}^{(v')}_{i}) / \tau\bigr)}
      {\displaystyle\sum_{k \neq (i,v)} \exp\!\bigl(\mathrm{sim}(\mathbf{z}^{(v)}_{i},\,\mathbf{z}_{k})/\tau\bigr)}.
 </annotation></semantics></math></p>
-<p>After pre-training the <strong>projection head is discarded</strong> and the backbone output <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>θ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f_\theta(\mathbf{x})</annotation></semantics></math> is reused as the downstream feature vector. MoCo v2 [<a href="https://arxiv.org/abs/1911.05722" class="external-link">He et al. 2020</a>; <a href="https://arxiv.org/abs/2003.04297" class="external-link">Chen et al. 2020b</a>] replaces the two-view symmetric loss with a queue-based momentum encoder, scaling to larger batches.</p>
+<p>After pre-training the <strong>projection head is discarded</strong> and the backbone output <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f_\theta(\mathbf{x})</annotation></semantics></math> is reused as the downstream feature vector. MoCo v2 [<a href="https://arxiv.org/abs/1911.05722" class="external-link">He et al. 2020</a>; <a href="https://arxiv.org/abs/2003.04297" class="external-link">Chen et al. 2020b</a>] replaces the two-view symmetric loss with a queue-based momentum encoder, scaling to larger batches.</p>
 </div>
 <div class="section level3">
 <h3 id="zenodo-hosted-pre-trained-weights">Zenodo-hosted pre-trained weights<a class="anchor" aria-label="anchor" href="#zenodo-hosted-pre-trained-weights"></a>
@@ -1332,7 +1320,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <p>The first published encoder — <strong><code>edaphos-cerrado-moco-v1</code></strong> — was pre-trained on Apple M1 Max (MPS) over 50 000 16 × 16 tiles of a core Cerrado AoI (longitude −53 to −43, latitude −23 to −10), stacking SoilGrids 250 m, WorldClim 2.1 and SRTM 30-arc-second. Zenodo DOI <a href="https://doi.org/10.5281/zenodo.19701276" class="external-link">10.5281/zenodo.19701276</a>. An encoder <code>v2</code> (200 k steps, 10× the v1 budget) is currently in training; v1.3.2 will re-benchmark with the new weights.</p>
 </div>
 <div class="section level3">
-<h3 id="id_-deep-ensemble--mc-dropout-v160">🔀 Deep-ensemble + MC-dropout (v1.6.0)<a class="anchor" aria-label="anchor" href="#id_-deep-ensemble--mc-dropout-v160"></a>
+<h3 id="twisted_rightwards_arrows-deep-ensemble--mc-dropout-v160">🔀 Deep-ensemble + MC-dropout (v1.6.0)<a class="anchor" aria-label="anchor" href="#twisted_rightwards_arrows-deep-ensemble--mc-dropout-v160"></a>
 </h3>
 <p>Pillar 4 was deterministic through v1.5.0. v1.6.0 ships two canonical uncertainty recipes:</p>
 <ul>
@@ -1358,7 +1346,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="governing-object-4">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-4"></a>
 </h3>
 <p>A hybrid batch-mode acquisition policy,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mtext mathvariant="normal">hyb</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo>;</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mi>α</mi><mspace width="0.167em"></mspace><msub><mover><mi>u</mi><mo accent="true">̃</mo></mover><mi>t</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>+</mo><mspace width="0.278em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msub><mover><mi>d</mi><mo accent="true">̃</mo></mover><mi>t</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><mi>α</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mtext mathvariant="normal">hyb</mtext></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo>;</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mi>α</mi><mspace width="0.167em"></mspace><msub><mover><mi>u</mi><mo accent="true">̃</mo></mover><mi>t</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>+</mo><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mover><mi>d</mi><mo accent="true">̃</mo></mover><mi>t</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>α</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \pi_{\text{hyb}}(\mathbf{x};\alpha)
  \;=\;\alpha\,\tilde{u}_t(\mathbf{x}) \;+\; (1-\alpha)\,\tilde{d}_t(\mathbf{x}),
 \qquad \alpha\in[0,1],
@@ -1396,13 +1384,13 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <p>OOB RMSE falls from 5.37 to 4.94 g/kg after nine batches of 5 samples. Queried points concentrate in transition zones between covariate regimes — exactly where expert pedologists historically placed transects.</p>
 </div>
 <div class="section level3">
-<h3 id="id_-batchbald-v110">🎲 BatchBALD (v1.1.0)<a class="anchor" aria-label="anchor" href="#id_-batchbald-v110"></a>
+<h3 id="game_die-batchbald-v110">🎲 BatchBALD (v1.1.0)<a class="anchor" aria-label="anchor" href="#game_die-batchbald-v110"></a>
 </h3>
 <p>An information-theoretic alternative to the hybrid heuristic: <code><a href="reference/al_query_batchbald.html">al_query_batchbald()</a></code> picks the batch that maximises the mutual information between its labels and the model parameters [<a href="https://papers.nips.cc/paper/9357-batchbald-efficient-and-diverse-batch-acquisition-for-deep-bayesian-active-learning" class="external-link">Kirsch et al. 2019</a>]:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">B</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">D</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>B</mi></msub><mo>;</mo><mi>θ</mi><mo>∣</mo><msub><mi>x</mi><mi>B</mi></msub><mo>,</mo><mi>𝒟</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">B</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">D</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>B</mi></msub><mo>;</mo><mi>θ</mi><mo>∣</mo><msub><mi>x</mi><mi>B</mi></msub><mo>,</mo><mi>𝒟</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \mathrm{BatchBALD}(B) \;=\; I(y_B; \theta \mid x_B, \mathcal D).
 </annotation></semantics></math></p>
-<p>For a QRF (the <code><a href="reference/al_fit.html">al_fit()</a></code> backbone) the trees are the parameter samples, so the joint covariance of the epistemic posterior is the per-tree empirical covariance across candidates. Under Gaussian aleatoric noise <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>a</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_a^2</annotation></semantics></math> the objective reduces to a log-determinant with a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>1</mn><mi>/</mi><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1 - 1/e)</annotation></semantics></math> optimality guarantee [<a href="https://doi.org/10.1007/BF01588971" class="external-link">Nemhauser et al. 1978</a>]. Incremental Cholesky / Schur-complement updates make every greedy step <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>m</mi><mn>2</mn></msup><mo>⋅</mo><msub><mi>n</mi><mtext mathvariant="normal">pool</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(m^2 \cdot n_{\text{pool}})</annotation></semantics></math>.</p>
+<p>For a QRF (the <code><a href="reference/al_fit.html">al_fit()</a></code> backbone) the trees are the parameter samples, so the joint covariance of the epistemic posterior is the per-tree empirical covariance across candidates. Under Gaussian aleatoric noise <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>a</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_a^2</annotation></semantics></math> the objective reduces to a log-determinant with a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>1</mn><mi>/</mi><mi>e</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1 - 1/e)</annotation></semantics></math> optimality guarantee [<a href="https://doi.org/10.1007/BF01588971" class="external-link">Nemhauser et al. 1978</a>]. Incremental Cholesky / Schur-complement updates make every greedy step <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>m</mi><mn>2</mn></msup><mo>⋅</mo><msub><mi>n</mi><mtext mathvariant="normal">pool</mtext></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(m^2 \cdot n_{\text{pool}})</annotation></semantics></math>.</p>
 <p>📖 Vignettes: <code><a href="articles/pilar5-active-learning.html">vignette("pilar5-active-learning")</a></code>, <code>vignette("pilar5-soilgrids-br")</code>.</p>
 <hr>
 </div>
@@ -1419,29 +1407,29 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="governing-object-5">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-5"></a>
 </h3>
 <p>The ZZFeatureMap quantum state</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">⟩</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">(</mo><msub><mi>U</mi><mi>ϕ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msup><mi>H</mi><mrow><mo>⊗</mo><mi>n</mi></mrow></msup><msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">)</mo><mi>R</mi></msup><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">|</mo><mn>0</mn><msup><mo stretchy="false" form="postfix">⟩</mo><mrow><mo>⊗</mo><mi>n</mi></mrow></msup></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">⟩</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>U</mi><mi>ϕ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msup><mi>H</mi><mrow><mi>⊗</mi><mi>n</mi></mrow></msup><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mi>R</mi></msup><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">|</mo><mn>0</mn><msup><mo stretchy="false" form="postfix">⟩</mo><mrow><mi>⊗</mi><mi>n</mi></mrow></msup></mrow><annotation encoding="application/x-tex">
 \lvert\phi(\mathbf{x})\rangle \;=\;
   \bigl(U_\phi(\mathbf{x})\,H^{\otimes n}\bigr)^{R}\,\lvert 0\rangle^{\otimes n}
 </annotation></semantics></math></p>
 <p>induces the kernel</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">⟨</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∣</mo><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">⟩</mo><msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">|</mo><mn>2</mn></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo>,</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">|</mo><mo stretchy="false" form="prefix">⟨</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>∣</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">⟩</mo><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">|</mo><mn>2</mn></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">
 K(\mathbf{x}_i, \mathbf{x}_j) \;=\;
   \bigl\lvert \langle \phi(\mathbf{x}_j) \mid \phi(\mathbf{x}_i)\rangle \bigr\rvert^{2},
 </annotation></semantics></math></p>
 <p>with</p>
-<p><span class="math display">$$
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mi>ϕ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mi>i</mi><mspace width="-0.167em"></mspace><munder><mo>∑</mo><mrow><mi>S</mi><mo>⊆</mo><mo stretchy="false" form="prefix">[</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mrow></munder><msub><mi>ϕ</mi><mi>S</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mspace width="-0.167em"></mspace><munder><mo>∏</mo><mrow><mi>i</mi><mo>∈</mo><mi>S</mi></mrow></munder><mspace width="-0.167em"></mspace><msub><mi>Z</mi><mi>i</mi></msub><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mspace width="0.167em"></mspace><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>ϕ</mi><mrow><mo stretchy="false" form="prefix">{</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="false" form="postfix">}</mo></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo>−</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>π</mi><mo>−</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\!\prod_{i\in S}\! Z_i\Bigr),
 \quad
 \phi_{\{i\}}(\mathbf{x}) = 2\,x_i,
 \quad
 \phi_{\{i,j\}}(\mathbf{x}) = 2\,(\pi - x_i)(\pi - x_j).
-$$</span></p>
+</annotation></semantics></math></p>
 </div>
 <div class="section level3">
 <h3 id="gp-equivalent-posterior-v160">GP-equivalent posterior (v1.6.0)<a class="anchor" aria-label="anchor" href="#gp-equivalent-posterior-v160"></a>
 </h3>
 <p>Using the well-known equivalence between Kernel Ridge Regression and Gaussian-process regression [Rasmussen &amp; Williams 2006 §2.3], the Q-KRR’s predictive variance is analytic:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>ϵ</mi><mn>2</mn></msubsup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><munder><mrow><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo>,</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">aleatoric</mtext></munder><mo>−</mo><munder><munder><mrow><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo>,</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>K</mi><mo>+</mo><mi>λ</mi><mi>I</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><mspace width="0.167em"></mspace><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">epistemic</mtext></munder><mo>+</mo><msubsup><mi>σ</mi><mi>n</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>ϵ</mi><mn>2</mn></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><munder><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo>,</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo stretchy="false" form="postfix">)</mo></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">aleatoric</mtext></munder><mo>−</mo><munder><munder><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo>,</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mi>λ</mi><mi>I</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mspace width="0.167em"></mspace><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><msub><mi>𝐱</mi><mo>⋆</mo></msub><mo stretchy="false" form="postfix">)</mo></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">epistemic</mtext></munder><mo>+</mo><msubsup><mi>σ</mi><mi>n</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">
 \sigma_\epsilon^2(\mathbf{x}_\star) = \underbrace{k(\mathbf{x}_\star, \mathbf{x}_\star)}_{\text{aleatoric}} - \underbrace{k(\mathbf{x}_\star, X)\,(K + \lambda I)^{-1}\,k(X, \mathbf{x}_\star)}_{\text{epistemic}} + \sigma_n^2
 </annotation></semantics></math></p>
 <p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>n</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_n^2</annotation></semantics></math> is the leave-one-out residual variance. <code><a href="reference/quantum_krr_posterior.html">quantum_krr_posterior()</a></code> wraps this into an <code>edaphos_posterior</code> with the epistemic / aleatoric decomposition carried through the object.</p>
@@ -1475,26 +1463,26 @@ $$</span></p>
 <col width="14%">
 <col width="8%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Variant</th>
 <th align="left">Pedological role</th>
 <th align="center">Active space</th>
 <th align="center">Qubits</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left"><code>"formic_acid"</code></td>
 <td align="left">carboxylate — dominant humic functional group</td>
 <td align="center">(2e, 2o)</td>
 <td align="center">2</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>"methanediol"</code></td>
 <td align="left">ortho-diol — catechol-style Fe(III) chelator</td>
 <td align="center">(2e, 2o)</td>
 <td align="center">2</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>"ferric_formate"</code></td>
 <td align="left">monodentate Fe(III)–OOCH — minimum viable organo-mineral</td>
 <td align="center">(4e, 4o)</td>
@@ -1509,7 +1497,7 @@ $$</span></p>
 <div class="section level3">
 <h3 id="v200--quantum-kernel-over-foundation-model-embeddings">v2.0.0 — Quantum kernel over foundation-model embeddings<a class="anchor" aria-label="anchor" href="#v200--quantum-kernel-over-foundation-model-embeddings"></a>
 </h3>
-<p>The <strong>Pilar 4 × Pilar 6 fusion</strong>. Foundation embeddings (64-dim MoCo v2 outputs) are compressed to <code>n_pcs</code> principal components rescaled to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mo>−</mo><mi>π</mi><mo>,</mo><mi>π</mi><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-\pi, \pi]</annotation></semantics></math>, then lifted into a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>-dimensional Hilbert space by the ZZFeatureMap. Four new exported functions:</p>
+<p>The <strong>Pilar 4 × Pilar 6 fusion</strong>. Foundation embeddings (64-dim MoCo v2 outputs) are compressed to <code>n_pcs</code> principal components rescaled to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mi>π</mi><mo>,</mo><mi>π</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-\pi, \pi]</annotation></semantics></math>, then lifted into a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>-dimensional Hilbert space by the ZZFeatureMap. Four new exported functions:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. Reduce foundation embeddings to top-n PCs in quantum range</span></span>
 <span><span class="va">red</span> <span class="op">&lt;-</span> <span class="fu">edaphos</span><span class="fu">::</span><span class="fu"><a href="reference/qf_embed_reduce.html">qf_embed_reduce</a></span><span class="op">(</span><span class="va">embeddings</span>, n_pcs <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span></span>
@@ -1527,32 +1515,32 @@ $$</span></p>
 <span>                                  n_pcs <span class="op">=</span> <span class="fl">6L</span>, reps <span class="op">=</span> <span class="fl">2L</span>, lambda <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p><strong>5-fold spatial CV on 1 095 Cerrado profiles (synthetic-stack mode):</strong></p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Method</th>
 <th align="right">RMSE</th>
 <th align="right">MAE</th>
 <th align="right">R²</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">Quantum KRR on foundation PCs</td>
 <td align="right">14.3</td>
 <td align="right">8.7</td>
 <td align="right">0.00</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">Quantum KRR on raw covariates</td>
 <td align="right">14.2</td>
 <td align="right">8.4</td>
 <td align="right">0.00</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">RBF-KRR on foundation PCs</td>
 <td align="right">14.8</td>
 <td align="right">9.8</td>
 <td align="right">0.00</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><strong>ranger (raw covariates)</strong></td>
 <td align="right">14.3</td>
 <td align="right">9.0</td>
@@ -1625,7 +1613,7 @@ $$</span></p>
 <col width="14%">
 <col width="8%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Pillar</th>
 <th align="left">Native query</th>
 <th align="right">n</th>
@@ -1635,7 +1623,7 @@ $$</span></p>
 <th align="right">RMSE</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">P1 Causal</td>
 <td align="left">effect β (g/kg per mm)</td>
 <td align="right">40</td>
@@ -1644,7 +1632,7 @@ $$</span></p>
 <td align="right">0.020</td>
 <td align="right">0.007</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">P2 PIML</td>
 <td align="left">depth profile y(z)</td>
 <td align="right">7</td>
@@ -1653,7 +1641,7 @@ $$</span></p>
 <td align="right">2.015</td>
 <td align="right">0.826</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">P3 4D</td>
 <td align="left">future map NDVI(t★)</td>
 <td align="right">100</td>
@@ -1662,7 +1650,7 @@ $$</span></p>
 <td align="right">1.268</td>
 <td align="right">0.637</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">P4 Found.</td>
 <td align="left">5-fold spatial CV</td>
 <td align="right">250</td>
@@ -1671,7 +1659,7 @@ $$</span></p>
 <td align="right">8.353</td>
 <td align="right">12.41</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><strong>P5 AL</strong></td>
 <td align="left">held-out map</td>
 <td align="right">71</td>
@@ -1680,7 +1668,7 @@ $$</span></p>
 <td align="right">37.816</td>
 <td align="right">12.86</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">P6 Q-KRR</td>
 <td align="left">held-out regression</td>
 <td align="right">75</td>
@@ -1721,43 +1709,43 @@ $$</span></p>
 <col width="9%">
 <col width="67%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">column</th>
 <th align="center">Pilar</th>
 <th align="left">Meaning</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left"><code>score_p5</code></td>
 <td align="center">5</td>
 <td align="left">Hybrid AL score (uncertainty + diversity)</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>qkrr_ep</code></td>
 <td align="center">6</td>
 <td align="left">Q-KRR epistemic SD</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>enkf_gain</code></td>
 <td align="center">3</td>
 <td align="left">Kalman gain magnitude at the site</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>found_sd</code></td>
 <td align="center">4</td>
 <td align="left">Foundation ensemble SD</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>map_effect</code></td>
 <td align="center">1</td>
 <td align="left">Backdoor-adjusted MAP → COS direct effect</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>ode_pred</code></td>
 <td align="center">2</td>
 <td align="left">ODE-predicted topsoil SOC (sanity check)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>final_score</code></td>
 <td align="center">1-6</td>
 <td align="left">Weighted mean (weights declared in the vignette)</td>
@@ -1785,7 +1773,7 @@ $$</span></p>
 <col width="14%">
 <col width="14%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">Method</th>
 <th align="right">n</th>
 <th align="right">RMSE (g/kg)</th>
@@ -1795,7 +1783,7 @@ $$</span></p>
 <th align="right">Interval score</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left">
 <strong>B1</strong> <code>ranger</code> QRF — 56 covariates</td>
 <td align="right">1095</td>
@@ -1805,7 +1793,7 @@ $$</span></p>
 <td align="right"><strong>0.944</strong></td>
 <td align="right"><strong>65.81</strong></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left">
 <strong>B2</strong> <code>ranger</code> + <code>gstat</code> residual kriging</td>
 <td align="right">910*</td>
@@ -1815,7 +1803,7 @@ $$</span></p>
 <td align="right">0.817</td>
 <td align="right">99.5</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left">
 <strong>E</strong> <code>ranger</code> + MoCo v1 embedding</td>
 <td align="right">923*</td>
@@ -1844,36 +1832,36 @@ $$</span></p>
 </h3>
 <p>A reproducible, offline, ~30 km × 30 km area near Brasília.</p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th>Column</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>x, y</code></td>
 <td>Longitude / latitude (WGS 84, decimal degrees)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>elev</code></td>
 <td>Elevation (m a.s.l.)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>slope</code></td>
 <td>Slope (degrees)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>twi</code></td>
 <td>Topographic Wetness Index</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>map_mm</code></td>
 <td>Mean annual precipitation (mm yr⁻¹)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>ndvi</code></td>
 <td>Dry-season NDVI (0–1)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>soc</code></td>
 <td>
 <strong>Target</strong> — SOC, 0–5 cm (g kg⁻¹)</td>
@@ -1892,107 +1880,107 @@ $$</span></p>
 <col width="46%">
 <col width="21%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="left">File</th>
 <th align="right">Size</th>
 <th align="left">What it holds</th>
 <th align="left">Used by</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left"><code>case_cerrado_results.rds</code></td>
 <td align="right">~1 MB</td>
 <td align="left">QRF/kriging/MoCo benchmark (§Benchmarks)</td>
 <td align="left"><code>case-cerrado-end-to-end</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>causal_cerrado_real.rds</code></td>
 <td align="right">~2 MB</td>
 <td align="left">1 095 WoSIS profiles + DAG + identified effects</td>
 <td align="left"><code>pilar1-causal-real</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>temporal_cerrado_results.rds</code></td>
 <td align="right">~195 KB</td>
 <td align="left">2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis</td>
 <td align="left"><code>pilar3-4d-real</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>capstone_campaign_results.rds</code></td>
 <td align="right">~543 KB</td>
 <td align="left">6-pillar integrated bundle for the v1.7.0 capstone</td>
 <td align="left"><code>capstone-cerrado-campaign</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>capstone_native_calibration.rds</code></td>
 <td align="right">~741 KB</td>
 <td align="left">Native-query calibration per pillar (v1.7.1 hotfix)</td>
 <td align="left">
 <code>capstone-cerrado-campaign</code> §10</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>causal_discovery_results.rds</code></td>
 <td align="right">~2 KB</td>
 <td align="left">Expert × LLM × data-driven DAG benchmark (v1.7.2)</td>
 <td align="left"><code>causal-discovery-trio</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>cerrado_gold_standard_v1.jsonl</code></td>
 <td align="right">~16 KB</td>
 <td align="left">30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)</td>
 <td align="left"><code>llm-kg-benchmark</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>cerrado_gold_standard_v1_draft.jsonl</code></td>
 <td align="right">~20 KB</td>
 <td align="left">Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)</td>
 <td align="left"><code>llm-annotation-workflow</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>causal_iv_cerrado.rds</code></td>
 <td align="right">~12 KB</td>
 <td align="left">2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado</td>
 <td align="left"><code>pilar1-pilar4-iv</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>causal_iv_cerrado_real.rds</code></td>
 <td align="right">~1 KB</td>
 <td align="left">Real-encoder IV benchmark (v1.9.1): 1 081 embeddings + Sargan passes</td>
 <td align="left">
 <code>pilar1-pilar4-iv</code> §7</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>causal_sensitivity_cerrado.rds</code></td>
 <td align="right">~142 KB</td>
 <td align="left">Cinelli-Hazlett RV + bias-contour grid (v1.9.2)</td>
 <td align="left">
 <code>pilar1-pilar4-iv</code> §8</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>quantum_foundation_cerrado.rds</code></td>
 <td align="right">~1 KB</td>
 <td align="left">Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)</td>
 <td align="left"><code>pilar4-pilar6-quantum</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>llm_benchmark_results.rds</code></td>
 <td align="right">~10 KB</td>
 <td align="left">Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)</td>
 <td align="left"><code>llm-kg-benchmark</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>cerrado_abstracts.jsonl</code></td>
 <td align="right">~40 KB</td>
 <td align="left">10 curated Cerrado-pedology abstracts</td>
 <td align="left"><code>pilar1-causal</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="left"><code>cerrado_claims.jsonl</code></td>
 <td align="right">~25 KB</td>
 <td align="left">Gemma-4-extracted causal claims from the 10 abstracts</td>
 <td align="left"><code>pilar1-causal</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>cerrado_claims_real_corpus.jsonl</code></td>
 <td align="right">~400 KB</td>
 <td align="left">
@@ -2015,87 +2003,87 @@ $$</span></p>
 <col width="25%">
 <col width="74%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Vignette</th>
 <th>Scope</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>pilar1-causal</code></td>
 <td>Backdoor adjustment in a pedogenetic DAG; naive vs. causal estimator on <code>br_cerrado</code>.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>pilar1-causal-real</code></td>
 <td>Backdoor-adjusted direct effects on <strong>1 095 real WoSIS Cerrado profiles</strong> (v1.4.0).</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>pilar2-piml-profile</code></td>
 <td>Parametric ODE + Neural ODE of the depth profile on <code><a href="https://ncss-tech.github.io/aqp/reference/sp4.html" class="external-link">aqp::sp4</a></code>; Pillar 2 × 5 physics gate.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>pilar3-4d-soc</code></td>
 <td>Stacked ConvLSTM forecasting of the synthetic SOC cube; optional mass-balance physics loss.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>pilar3-4d-real</code></td>
 <td>ConvLSTM forecast of MODIS NDVI over a Cerrado 2° × 2° AoI + stochastic EnKF assimilation (v1.5.0).</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>pilar4-simclr-embeddings</code></td>
 <td>Contrastive pre-training on raster patches; embeddings as auxiliary AL covariates.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>pilar5-active-learning</code></td>
 <td>Formal derivation of the hybrid query policy on the classic <code>meuse</code> dataset.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>pilar5-soilgrids-br</code></td>
 <td>Same AL loop on a Cerrado recorte; migration path to live SoilGrids data.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>pilar6-quantum</code></td>
 <td>Pure-R ZZFeatureMap simulator + quantum-kernel Gram matrix + Quantum KRR on binary SOC classification.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>uncertainty-unified</code></td>
 <td>Unified <code>edaphos_posterior</code> class + single calibration diagnostic applied to all six pillars (v1.6.0).</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>🏆 <code>capstone-cerrado-campaign</code>
 </td>
 <td>
 <strong>v1.7.0 capstone</strong>: all six pillars integrated in a Cerrado sampling-campaign decision.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>causal-discovery-trio</code></td>
 <td>
 <strong>v1.7.2</strong>: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>📊 <code>llm-kg-benchmark</code>
 </td>
 <td>
 <strong>v1.8.0</strong>: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen’s κ, cost / 1k claims, latency, 10k-abstract scaling.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>🛠️ <code>llm-annotation-workflow</code>
 </td>
 <td>
 <strong>v1.8.1+</strong>: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>🔗 <code>pilar1-pilar4-iv</code>
 </td>
 <td>
 <strong>v1.9.0+</strong>: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (<code>foundation_embed_at_coords</code>) where Sargan passes; v1.9.2 adds Cinelli-Hazlett sensitivity analysis.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>🌀 <code>pilar4-pilar6-quantum</code>
 </td>
 <td>
 <strong>v2.0.0</strong>: quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>case-cerrado-end-to-end</code></td>
 <td>Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).</td>
 </tr>
@@ -2109,11 +2097,14 @@ $$</span></p>
 </h2>
 <ul>
 <li>
-<strong>109+ unit and integration tests</strong> (<code>testthat</code>) covering every public function across the six pillars. Tests that require optional runtime dependencies (<code>torch</code>, <code>dagitty</code>, <code>sp</code>, <code>aqp</code>, <code>geodata</code>) are gated by <code>skip_if_not_installed()</code> so the base suite runs without libtorch.</li>
+<strong>1 493 passing expectations</strong> across 484 <code>test_that</code> blocks in 70 test files (<code>testthat</code>), measured on aarch64-apple-darwin23, R 4.6.1. 1 expectations are skipped here because their optional dependency is absent; every skip is an explicit <code>skip_if_not_installed()</code> gate.</li>
 <li>
-<strong>Local:</strong> <code>R CMD check --as-cran</code> → <strong>0 errors / 0 warnings / 0 notes</strong> on v1.7.0.</li>
+<strong>Gated dependencies:</strong> <code>torch</code>, <code>dagitty</code>, <code>bnlearn</code>, <code>dbarts</code>, <code>reticulate</code>, <code>terra</code>, <code>igraph</code>.</li>
 <li>
-<strong>CI:</strong> GitHub Actions matrix on <code>macos-latest</code>, <code>windows-latest</code> and three Ubuntu configurations (release, devel, oldrel-1). Every push and pull request triggers the full check; the badge at the top reflects the latest run on <code>main</code>.</li>
+<strong><code>R CMD check --as-cran</code>:</strong> <code>3 NOTEs</code> at commit <code>f9d459c</code>. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in <a href="cran-comments.html"><code>cran-comments.md</code></a>; the log itself is committed at <a href="tools/status/check.log"><code>tools/status/check.log</code></a>.</li>
+<li>
+<strong>CI:</strong> GitHub Actions matrix on <code>macos-latest / R release</code>, <code>windows-latest / R release</code>, <code>ubuntu-latest / R devel</code>, <code>ubuntu-latest / R release</code>, <code>ubuntu-latest / R oldrel-1</code>, <code>ubuntu-latest / R release</code>. Note that <code>TORCH_INSTALL: 0</code> is set, so libtorch is never installed on any leg and the torch-gated tests do not execute in CI.</li>
+<li>These figures are generated by <code>tools/status/patch-readme-metrics.R</code> from a real test run and a real check log. Do not edit them by hand.</li>
 </ul>
 <hr>
 </div>
@@ -2126,149 +2117,149 @@ $$</span></p>
 <col width="76%">
 <col width="12%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th align="center">Version</th>
 <th align="left">Theme</th>
 <th align="center">Status</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="center">v1.4.0</td>
 <td align="left">Causal on 1 095 WoSIS real profiles</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.5.0</td>
 <td align="left">ConvLSTM + EnKF with Gaspari-Cohn on real Cerrado cube</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v1.6.0</td>
 <td align="left">Unified <code>edaphos_posterior</code> + <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code>
 </td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.7.0</td>
 <td align="left">Capstone vignette integrating all six pillars</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v1.7.1</td>
 <td align="left">Native-query calibration (honest per-pillar domain)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.7.2</td>
 <td align="left">Causal-discovery trio: expert × LLM × data-driven</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v1.8.0</td>
 <td align="left">LLM extraction benchmark (Gemma 4 × GPT × Claude)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.8.1</td>
 <td align="left">Annotation tool: pre-annotation + Shiny review UI</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v1.8.2</td>
 <td align="left">DAG preview + dark mode + OpenAlex fetcher + Zenodo export</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.9.0</td>
 <td align="left">Foundation embeddings as causal IVs (2SLS + Sargan)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v1.9.1</td>
 <td align="left">Real MoCo v2 patch extraction (<code>foundation_embed_at_coords</code>) — Sargan passes empirically</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.9.2</td>
 <td align="left">Cinelli &amp; Hazlett sensitivity analysis (<code>causal_sensitivity_*</code>)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v2.0.0</td>
 <td align="left">
 <strong>Quantum kernel over foundation embeddings</strong> (Pilar 4 × Pilar 6)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v2.1.0</td>
 <td align="left">Frente D polish: pkgdown + Docker + test suite + Zenodo release + 2 bridges</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v2.1.1</td>
 <td align="left">Bridge P1 × P5 Causal AL — shipped (<code>al_query_causal</code>)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v2.1.2</td>
 <td align="left">Bridge P3 × P5 Temporal AL — shipped (<code>al_query_temporal</code>)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v2.1.3</td>
 <td align="left">Rcpp port of <code><a href="reference/quantum_kernel.html">quantum_kernel()</a></code> (10-50× speedup, machine-precision)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v2.2.0</td>
 <td align="left">Bridge P2 × P6 — Physics-informed quantum kernels</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v2.2.1</td>
 <td align="left">Bridge P1 × P3 — Causal 4D (time-varying effects)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v2.3.0</td>
 <td align="left">
 <strong>Pilar 7</strong> — Bayesian hierarchical spatial (Gibbs + spBayes)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v2.4.0</td>
 <td align="left">
 <strong>Pilar 8</strong> — Neural operators (FNO + DeepONet) for pedogenetic PDEs</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v2.5.0</td>
 <td align="left">
 <strong>Pilar 9</strong> — Diffusion models for generative soil maps (DDPM)</td>
 <td align="center">✅</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v2.8.0</td>
 <td align="left">
 <strong>Pilar 10</strong> — Graph Attention Networks on WoSIS co-location network</td>
 <td align="center">✅</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.9.3</td>
 <td align="left">Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit</td>
 <td align="center">📝</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v1.3.2</td>
 <td align="left">Re-benchmark with MoCo v2 encoder (200 k steps)</td>
 <td align="center">🚧</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="center">v1.8.3</td>
 <td align="left">Expand gold-standard to 300 real claims (via v1.8.2 tool)</td>
 <td align="center">📝</td>
 </tr>
-<tr class="odd">
+<tr>
 <td align="center">v3.0.0</td>
 <td align="left">CRAN + rOpenSci submission</td>
 <td align="center">📝</td>
@@ -2408,7 +2399,7 @@ $$</span></p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

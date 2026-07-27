@@ -9,14 +9,14 @@ with its own semantics, units, and calibration baseline. A soil
 scientist consuming `edaphos` cannot combine them into a single
 decision-useful statement. Concretely, as of v1.5.0:
 
-| Pillar                | What “uncertainty” means today       | Format                                                                            |
-|:----------------------|:-------------------------------------|:----------------------------------------------------------------------------------|
-| 1\. Causal AI         | CI on an identified direct effect    | [`confint.lm()`](https://rdrr.io/r/stats/confint.html) OR `effect_boot_ci` vector |
-| 2\. PIML              | MCMC draws on kinetic parameters     | per-parameter posterior (`_bayes` fits)                                           |
-| 3\. 4D Pedometry      | ensemble forecast + Kalman posterior | `K × H × W × T` arrays                                                            |
-| 4\. Foundation Models | *none*                               | deterministic encoder                                                             |
-| 5\. Active Learning   | QRF prediction interval              | `lower`, `upper` columns                                                          |
-| 6\. Quantum ML        | shot-based VQE error bars            | per-iteration variance                                                            |
+| Pillar | What “uncertainty” means today | Format |
+|:---|:---|:---|
+| 1\. Causal AI | CI on an identified direct effect | [`confint.lm()`](https://rdrr.io/r/stats/confint.html) OR `effect_boot_ci` vector |
+| 2\. PIML | MCMC draws on kinetic parameters | per-parameter posterior (`_bayes` fits) |
+| 3\. 4D Pedometry | ensemble forecast + Kalman posterior | `K × H × W × T` arrays |
+| 4\. Foundation Models | *none* | deterministic encoder |
+| 5\. Active Learning | QRF prediction interval | `lower`, `upper` columns |
+| 6\. Quantum ML | shot-based VQE error bars | per-iteration variance |
 
 This is a genuinely hard problem — the pillars estimate different things
 (an effect, a parameter, a map, a feature, a sample, a molecular energy)
@@ -34,6 +34,7 @@ A minimal S3 object carrying a predictive posterior for one or more
 queries. Every pillar’s predict-with-uncertainty wrapper returns one.
 
 ``` r
+
 structure(
   list(
     mean         = ...,       # point estimate, same shape as query
@@ -70,6 +71,7 @@ Invariants:
 ### 2.2 Unified print + summary
 
 ``` r
+
 print.edaphos_posterior(x)
 #> <edaphos_posterior>  method = ensemble  query = map  n_samples = 10
 #>   mean  range : [-4.859, 1.746]  (NDVI z-units)
@@ -83,6 +85,7 @@ print.edaphos_posterior(x)
 One function, any pillar. Given `edaphos_posterior` + ground truth:
 
 ``` r
+
 calib <- uncertainty_calibrate(post, truth,
                                 probs = seq(0.05, 0.95, by = 0.05))
 calib$picp     # vector of empirical coverage at each nominal level
@@ -113,6 +116,7 @@ already draws `B = 200` resamples. We simply keep the draws (currently
 discarded in the slim-save) and wrap them in `edaphos_posterior`.
 
 ``` r
+
 post <- causal_effect_posterior(dag, data,
                                  exposure = "wc_landcover_trees",
                                  outcome  = "soc_topsoil_gkg",

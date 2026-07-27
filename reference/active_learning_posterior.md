@@ -6,7 +6,7 @@ Samples the conditional distribution of the target at every row of
 carries those quantile samples directly, so
 [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md)
 and
-[`ggplot2::autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
 work without changes.
 
 ## Usage

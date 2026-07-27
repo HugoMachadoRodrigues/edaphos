@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Foundation-model embeddings as causal instrumental variables • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Foundation-model embeddings as causal instrumental variables">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -183,7 +183,7 @@ que afetam tanto covariáveis quanto COS e que nenhum rasterizador do
 SoilGrids captura.</p>
 <p>Quando a suficiência falha, o estimador <em>backdoor</em> volta a ser
 enviesado:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">backdoor</mtext></msub><mo>=</mo><msub><mi>β</mi><mtext mathvariant="normal">verdadeiro</mtext></msub><mo>+</mo><munder><munder><mrow><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>U</mi><mo>∣</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>∣</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">viés de confundimento latente</mtext></munder></mrow><annotation encoding="application/x-tex">\hat{\beta}_{\text{backdoor}} = \beta_{\text{verdadeiro}}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">backdoor</mtext></msub><mo>=</mo><msub><mi>β</mi><mtext mathvariant="normal">verdadeiro</mtext></msub><mo>+</mo><munder><munder><mrow><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>U</mi><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mtext mathvariant="normal">Var</mtext><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>∣</mo><mi>Z</mi><mo stretchy="false" form="postfix">)</mo></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">viés de confundimento latente</mtext></munder></mrow><annotation encoding="application/x-tex">\hat{\beta}_{\text{backdoor}} = \beta_{\text{verdadeiro}}
   + \underbrace{\text{Cov}(X, U \mid Z) / \text{Var}(X \mid Z)}_{\text{viés de confundimento latente}}</annotation></semantics></math></p>
 <div class="section level3">
 <h3 id="instrumental-variables-uma-saída-sob-condições-distintas">Instrumental variables: uma saída sob condições distintas<a class="anchor" aria-label="anchor" href="#instrumental-variables-uma-sa%C3%ADda-sob-condi%C3%A7%C3%B5es-distintas"></a>
@@ -194,7 +194,7 @@ satisfaz três condições <strong>diferentes</strong> das de Pearl:</p>
 <ul>
 <li>
 <strong>(IV.1) Relevância</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>Z</mi><mo>,</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≠</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(Z, X) \neq 0</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Cov</mtext><mo stretchy="false" form="prefix">(</mo><mi>Z</mi><mo>,</mo><mi>X</mi><mo stretchy="false" form="postfix">)</mo><mo>≠</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Cov}(Z, X) \neq 0</annotation></semantics></math>.
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
 precisa efetivamente predizer
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</li>
@@ -210,7 +210,7 @@ direto; nenhum confundidor
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi><mo>−</mo><mi>Y</mi></mrow><annotation encoding="application/x-tex">Z - Y</annotation></semantics></math>.</li>
 <li>
 <strong>(IV.3) Unconfoundedness</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi><mo>⊥</mo><mi>U</mi></mrow><annotation encoding="application/x-tex">Z \perp U</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi><mo>⟂</mo><mi>U</mi></mrow><annotation encoding="application/x-tex">Z \perp U</annotation></semantics></math>.
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
 é independente dos confundidores latentes.</li>
 </ul>
@@ -218,7 +218,7 @@ direto; nenhum confundidor
 (2SLS) identifica o efeito causal mesmo quando
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>U</mi><annotation encoding="application/x-tex">U</annotation></semantics></math>
 não é observado <span class="citation">(<a href="#ref-Wooldridge2010">Wooldridge 2010</a>)</span>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">2SLS</mtext></msub><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>X</mi><mi>⊤</mi></msup><msub><mi>P</mi><mi>Z</mi></msub><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><msup><mi>X</mi><mi>⊤</mi></msup><msub><mi>P</mi><mi>Z</mi></msub><mi>Y</mi><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>P</mi><mi>Z</mi></msub><mo>=</mo><mi>Z</mi><msup><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Z</mi><mi>⊤</mi></msup><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><msup><mi>Z</mi><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">\hat{\beta}_{\text{2SLS}} = (X^\top P_Z X)^{-1} X^\top P_Z Y,
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">2SLS</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>X</mi><mi>⊤</mi></msup><msub><mi>P</mi><mi>Z</mi></msub><mi>X</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>X</mi><mi>⊤</mi></msup><msub><mi>P</mi><mi>Z</mi></msub><mi>Y</mi><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>P</mi><mi>Z</mi></msub><mo>=</mo><mi>Z</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>Z</mi><mi>⊤</mi></msup><mi>Z</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>Z</mi><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">\hat{\beta}_{\text{2SLS}} = (X^\top P_Z X)^{-1} X^\top P_Z Y,
   \quad P_Z = Z(Z^\top Z)^{-1} Z^\top</annotation></semantics></math></p>
 </div>
 <div class="section level3">
@@ -256,17 +256,17 @@ pontuais.</li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/causal_iv_fit_2sls.html">causal_iv_fit_2sls</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">exposure</span>, <span class="va">outcome</span>, <span class="va">instruments</span>,</span>
 <span>                   covariates <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 <p>Implementa a forma fechada de <span class="citation">Wooldridge (<a href="#ref-Wooldridge2010">2010</a>)</span>, §5.2:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>X</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><mi>P</mi><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><msubsup><mi>X</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><mi>P</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">\hat{\beta} = (X_{\text{all}}^\top P X_{\text{all}})^{-1}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><mi>P</mi><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msubsup><mi>X</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><mi>P</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">\hat{\beta} = (X_{\text{all}}^\top P X_{\text{all}})^{-1}
                    X_{\text{all}}^\top P Y</annotation></semantics></math></p>
 <p>com
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>𝟏</mn><mo>,</mo><mi>W</mi><mo>,</mo><mi>X</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">X_{\text{all}} = [\mathbf{1}, W, X]</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><msub><mi>Z</mi><mtext mathvariant="normal">all</mtext></msub><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>Z</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><msub><mi>Z</mi><mtext mathvariant="normal">all</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><msubsup><mi>Z</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup></mrow><annotation encoding="application/x-tex">P = Z_{\text{all}}(Z_{\text{all}}^\top Z_{\text{all}})^{-1} Z_{\text{all}}^\top</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mn>𝟏</mn><mo>,</mo><mi>W</mi><mo>,</mo><mi>X</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">X_{\text{all}} = [\mathbf{1}, W, X]</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><msub><mi>Z</mi><mtext mathvariant="normal">all</mtext></msub><mo stretchy="false" form="prefix">(</mo><msubsup><mi>Z</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><msub><mi>Z</mi><mtext mathvariant="normal">all</mtext></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msubsup><mi>Z</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup></mrow><annotation encoding="application/x-tex">P = Z_{\text{all}}(Z_{\text{all}}^\top Z_{\text{all}})^{-1} Z_{\text{all}}^\top</annotation></semantics></math>,
 e a <strong>variância correta</strong> (usando os <strong>resíduos com X
 original</strong>, não com
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>X</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{X}</annotation></semantics></math>
 da primeira etapa — um erro comum ao aplicar <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>
 ingenuamente):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mtext mathvariant="normal">Var</mtext><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mn>2</mn></msup><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>X</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><mi>P</mi><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>,</mo><mspace width="1.0em"></mspace><msup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mn>2</mn></msup><mo>=</mo><mfrac displaystyle="false"><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>−</mo><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mi>⊤</mi></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>−</mo><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\widehat{\text{Var}}(\hat{\beta}) = \hat{\sigma}^2 (X_{\text{all}}^\top P X_{\text{all}})^{-1},
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mtext mathvariant="normal">Var</mtext><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><msubsup><mi>X</mi><mtext mathvariant="normal">all</mtext><mi>⊤</mi></msubsup><mi>P</mi><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo>,</mo><mspace width="1.0em"></mspace><msup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mn>2</mn></msup><mo>=</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></mfrac></mstyle><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>−</mo><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><msup><mo stretchy="false" form="postfix">)</mo><mi>⊤</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>−</mo><msub><mi>X</mi><mtext mathvariant="normal">all</mtext></msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\widehat{\text{Var}}(\hat{\beta}) = \hat{\sigma}^2 (X_{\text{all}}^\top P X_{\text{all}})^{-1},
 \quad \hat{\sigma}^2 = \tfrac{1}{n-k} (Y - X_{\text{all}}\hat{\beta})^\top(Y - X_{\text{all}}\hat{\beta})</annotation></semantics></math></p>
 <div class="section level3">
 <h3 id="diagnósticos-obrigatórios">Diagnósticos obrigatórios<a class="anchor" aria-label="anchor" href="#diagn%C3%B3sticos-obrigat%C3%B3rios"></a>
@@ -906,7 +906,7 @@ e
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
 — para zerar o efeito estimado?</em></p>
 <p>A fórmula-chave:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mo stretchy="true" form="prefix">|</mo><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">s</mi></mrow><mo stretchy="true" form="postfix">|</mo></mrow><mo>max</mo></msub><mo>=</mo><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><msqrt><mfrac><mrow><msubsup><mi>R</mi><mrow><mi>Y</mi><mo>∼</mo><mi>U</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo>,</mo><mi>Z</mi></mrow><mn>2</mn></msubsup><mo>⋅</mo><msubsup><mi>R</mi><mrow><mi>X</mi><mo>∼</mo><mi>U</mi><mo stretchy="false" form="prefix">|</mo><mi>Z</mi></mrow><mn>2</mn></msubsup></mrow><mrow><mn>1</mn><mo>−</mo><msubsup><mi>R</mi><mrow><mi>X</mi><mo>∼</mo><mi>U</mi><mo stretchy="false" form="prefix">|</mo><mi>Z</mi></mrow><mn>2</mn></msubsup></mrow></mfrac></msqrt><mo>⋅</mo><msqrt><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow></msqrt></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">b</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">s</mi></mrow><msub><mo stretchy="false" form="prefix">|</mo><mi mathvariant="normal">max</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msqrt><mfrac><mrow><msubsup><mi>R</mi><mrow><mi>Y</mi><mo>∼</mo><mi>U</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo>,</mo><mi>Z</mi></mrow><mn>2</mn></msubsup><mo>⋅</mo><msubsup><mi>R</mi><mrow><mi>X</mi><mo>∼</mo><mi>U</mi><mo stretchy="false" form="prefix">|</mo><mi>Z</mi></mrow><mn>2</mn></msubsup></mrow><mrow><mn>1</mn><mo>−</mo><msubsup><mi>R</mi><mrow><mi>X</mi><mo>∼</mo><mi>U</mi><mo stretchy="false" form="prefix">|</mo><mi>Z</mi></mrow><mn>2</mn></msubsup></mrow></mfrac></msqrt><mo>⋅</mo><msqrt><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow></msqrt></mrow><annotation encoding="application/x-tex">
 |\mathrm{bias}|_{\max} = \mathrm{SE}(\hat\beta) \cdot
   \sqrt{\frac{R^2_{Y\sim U | X, Z} \cdot R^2_{X\sim U | Z}}{1 - R^2_{X\sim U | Z}}}
   \cdot \sqrt{\mathrm{df}}
@@ -984,7 +984,7 @@ no eixo-y, e contornos do efeito ajustado pelo viés:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Cinelli-Hazlett bias-adjusted β for MAP→SOC"</span>,</span>
 <span>        subtitle <span class="op">=</span> <span class="st">"Red contour = β adjusted to zero"</span><span class="op">)</span></span></code></pre></div>
 <p>O contorno vermelho marca o conjunto de
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>R</mi><mrow><mi>X</mi><mo>∼</mo><mi>U</mi></mrow><mn>2</mn></msubsup><mo>,</mo><msubsup><mi>R</mi><mrow><mi>Y</mi><mo>∼</mo><mi>U</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(R^2_{X\sim U}, R^2_{Y\sim U})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>R</mi><mrow><mi>X</mi><mo>∼</mo><mi>U</mi></mrow><mn>2</mn></msubsup><mo>,</mo><msubsup><mi>R</mi><mrow><mi>Y</mi><mo>∼</mo><mi>U</mi></mrow><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(R^2_{X\sim U}, R^2_{Y\sim U})</annotation></semantics></math>
 para os quais o efeito ajustado é zero. Qualquer combinação
 <strong>abaixo</strong> dessa curva é seguro; acima, o confundidor
 latente é suficiente para extinguir o efeito.</p>
@@ -1017,7 +1017,7 @@ para uma das direções.</li>
 treinado em <em>covariate patches</em> é a candidatura natural a
 instrumento: ele <strong>vive</strong> no lado dos “fatores
 pedogenéticos” do diagrama
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">soil-forming factors</mtext><mo>→</mo><mtext mathvariant="normal">processes</mtext><mo>→</mo><mtext mathvariant="normal">soil</mtext><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\text{soil-forming factors} \to \text{processes} \to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">soil-forming factors</mtext><mo>→</mo><mtext mathvariant="normal">processes</mtext><mo>→</mo><mtext mathvariant="normal">soil</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\text{soil-forming factors} \to \text{processes} \to
 \text{soil})</annotation></semantics></math> e codifica relações que o
 modelador <strong>não precisou nomear</strong> no DAG expert. É
 exatamente o “oráculo de confundidores” que o framework de Pearl
@@ -1066,7 +1066,7 @@ embeddings (Pilar 4 × Pilar 6).</li>
 <div class="section level2">
 <h2 id="referências">Referências<a class="anchor" aria-label="anchor" href="#refer%C3%AAncias"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-CinelliHazlett2020" class="csl-entry">
 Cinelli, Carlos, and Chad Hazlett. 2020. <span>“Making Sense of
 Sensitivity: Extending Omitted Variable Bias.”</span> <em>Journal of the
@@ -1080,12 +1080,12 @@ Pearl, J. 2009. <em>Causality: Models, Reasoning, and Inference</em>.
 Stock, James H., and Motohiro Yogo. 2005. <span>“Testing for Weak
 Instruments in Linear <span>IV</span> Regression.”</span> In
 <em>Identification and Inference for Econometric Models: Essays in Honor
-of Thomas Rothenberg</em>, edited by D. W. K. Andrews and J. H. Stock,
-80–108. Cambridge University Press. <a href="https://doi.org/10.1017/CBO9780511614491.006" class="external-link">https://doi.org/10.1017/CBO9780511614491.006</a>.
+of Thomas Rothenberg</em>, edited by D. W. K. Andrews and J. H. Stock.
+Cambridge University Press. <a href="https://doi.org/10.1017/CBO9780511614491.006" class="external-link">https://doi.org/10.1017/CBO9780511614491.006</a>.
 </div>
 <div id="ref-Wooldridge2010" class="csl-entry">
 Wooldridge, Jeffrey M. 2010. <em>Econometric Analysis of Cross Section
-and Panel Data</em>. 2nd ed. Cambridge, MA: MIT Press.
+and Panel Data</em>. 2nd ed. MIT Press.
 </div>
 <div id="ref-Zhang2026causal" class="csl-entry">
 Zhang, Lei, and Alexandre M. J.-C. Wadoux. 2026. <span>“Can Digital Soil
@@ -1105,7 +1105,7 @@ e70284. <a href="https://doi.org/10.1111/ejss.70284" class="external-link">https
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
