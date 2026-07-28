@@ -36,10 +36,18 @@
 #' Reduce foundation-model embeddings to PCs and scale to quantum range
 #'
 #' Takes a matrix of per-observation foundation embeddings and returns
-#' the top-`n_pcs` principal components rescaled into `[-pi, pi]`,
-#' the natural input range of the ZZFeatureMap.  Zero-variance columns
-#' are dropped before PCA.  The rotation and scaling are stored on the
-#' return object so new observations can be projected identically.
+#' the top-`n_pcs` principal components rescaled into `[-pi, pi]`.
+#' Zero-variance columns are dropped before PCA.  The rotation and
+#' scaling are stored on the return object so new observations can be
+#' projected identically.
+#'
+#' Note that `[-pi, pi]` is twice the `[0, pi]` interval that
+#' [`quantum_scale()`] produces and that [`quantum_feature_map()`] and
+#' [`quantum_krr_fit()`] document as the ZZFeatureMap's input range.
+#' The wider interval doubles the entangling phase
+#' \eqn{2(\pi - x_i)(\pi - x_j)}, pushing it several times past the
+#' `4 * pi` period of the `Rz` gate; the examples measure what that
+#' costs.
 #'
 #' @param embeddings Numeric matrix (obs x embedding-dim).
 #' @param n_pcs Integer; number of PCs to retain.  Default `8L`
@@ -49,6 +57,42 @@
 #'   ready for `quantum_krr_fit()`), `rotation`, `variance_explained`,
 #'   `pca_center`, `pca_scale`, and `range_min`/`range_max` used for
 #'   the pi-rescale.
+#' @examples
+#' # A stand-in for a MoCo v2 patch encoder: 64 columns built by a
+#' # fixed random projection of five Cerrado covariates through a
+#' # tanh, plus noise.  Wide but low-rank, like a real encoder's
+#' # output -- and cheap enough to run here.
+#' set.seed(42)
+#' covs <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' sub  <- br_cerrado[sample(nrow(br_cerrado), 200L), ]
+#' Z    <- scale(as.matrix(sub[, covs]))
+#' W    <- matrix(rnorm(5L * 64L), 5L, 64L)
+#' emb  <- tanh(Z %*% W) + matrix(rnorm(200L * 64L, 0, 0.1), 200L, 64L)
+#'
+#' red <- qf_embed_reduce(emb, n_pcs = 6L)
+#' dim(red$X_q)                       # 200 x 6: one column per qubit
+#' round(red$variance_explained, 3)   # .358 .269 .183 .060 .041 .015
+#'
+#' # Trap: every PC is stretched to the SAME [-pi, pi] range, so
+#' # QPC_6 -- 1.5% of the variance, mostly noise -- reaches the
+#' # feature map at the amplitude QPC_1 gets for its 36%.  The PCA
+#' # ordering does not survive the rescale:
+#' round(apply(red$X_q, 2, sd), 2)    # 1.79 1.67 1.47 1.13 1.27 1.38
+#'
+#' # n_pcs IS the qubit count, and the simulator carries one state
+#' # vector of length 2^n_pcs per sample, so the work behind every
+#' # Gram entry doubles with each extra PC.
+#' length(quantum_feature_map(rep(0, 6)))    # 64
+#' length(quantum_feature_map(rep(0, 12)))   # 4096
+#'
+#' # The interval is not cosmetic.  Mapping the same PCs onto
+#' # [0, pi] -- what quantum_scale() would have produced -- halves
+#' # the ZZ phase and leaves visibly more off-diagonal kernel mass,
+#' # i.e. a Gram matrix less collapsed onto the identity.
+#' Kw <- quantum_kernel(red$X_q[1:60, ], reps = 2L)
+#' Kn <- quantum_kernel((red$X_q[1:60, ] + pi) / 2, reps = 2L)
+#' c(range_2pi = mean(Kw[upper.tri(Kw)]),
+#'   range_pi  = mean(Kn[upper.tri(Kn)]))    # 0.0153 vs 0.0189
 #' @export
 qf_embed_reduce <- function(embeddings, n_pcs = 8L) {
   stopifnot(is.matrix(embeddings) || is.data.frame(embeddings),
@@ -112,6 +156,53 @@ qf_embed_reduce <- function(embeddings, n_pcs = 8L) {
 #' @return Named list with `K_quantum`, `K_rbf`, `K_linear`, and a
 #'   `diagnostics` data frame summarising pairwise distances +
 #'   effective rank.
+#' @examples
+#' # Same stand-in MoCo encoder output as in qf_embed_reduce(), on
+#' # 60 Cerrado pixels so the three Gram matrices stay 60 x 60.
+#' set.seed(42)
+#' covs <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' sub  <- br_cerrado[sample(nrow(br_cerrado), 60L), ]
+#' Z    <- scale(as.matrix(sub[, covs]))
+#' W    <- matrix(rnorm(5L * 64L), 5L, 64L)
+#' emb  <- tanh(Z %*% W) + matrix(rnorm(60L * 64L, 0, 0.1), 60L, 64L)
+#'
+#' cmp <- qf_kernel_compare(qf_embed_reduce(emb, n_pcs = 6L)$X_q)
+#' names(cmp)          # K_quantum, K_rbf, K_linear, rbf_sigma, ...
+#' cmp$diagnostics
+#'
+#' # Read that table carefully.  Only `pair` and `frob` vary by row;
+#' # the three effrank_* columns are per-KERNEL and are repeated
+#' # identically on all three rows.
+#' nrow(unique(cmp$diagnostics[, c("effrank_quantum", "effrank_rbf")]))
+#'
+#' # And effrank_quantum ~ 59 out of n = 60 is not evidence that the
+#' # quantum kernel is richer than the RBF's ~ 4.6.  It is evidence
+#' # that it is nearly the IDENTITY: at 6 qubits the ZZFeatureMap
+#' # states are close to mutually orthogonal, so K -> I, whose
+#' # entropy-based effective rank is exactly n.
+#' frob <- function(A, B) sqrt(sum((A - B)^2))
+#' c(to_identity = frob(cmp$K_quantum, diag(60)),   # 1.33
+#'   to_rbf      = frob(cmp$K_quantum, cmp$K_rbf))  # 37.16
+#'
+#' # The collapse is driven by the qubit count, not by `reps`.  Off-
+#' # diagonal kernel mass roughly halves per PC added, while the RBF
+#' # on the identical features holds at 0.61-0.63 throughout.
+#' off <- function(K) mean(K[upper.tri(K)])
+#' t(vapply(2:6, function(p) {
+#'   k <- qf_kernel_compare(qf_embed_reduce(emb, n_pcs = p)$X_q)
+#'   c(n_pcs = p, quantum = off(k$K_quantum), rbf = off(k$K_rbf))
+#' }, numeric(3)))                  # quantum .314 .137 .065 .032 .016
+#'
+#' # Deepening the circuit does not undo it -- `reps` leaves the
+#' # off-diagonal mass where 6 qubits put it:
+#' X6 <- qf_embed_reduce(emb, n_pcs = 6L)$X_q
+#' vapply(c(1L, 2L, 4L), function(r)
+#'   off(qf_kernel_compare(X6, reps = r)$K_quantum), numeric(1))
+#'
+#' # A kernel that close to the identity gives kernel ridge nothing
+#' # to interpolate with: see the qf_krr_fit() example, where the
+#' # 6-PC fit reproduces its training set and then predicts the
+#' # training mean everywhere else.
 #' @export
 qf_kernel_compare <- function(X_q, reps = 2L, rbf_sigma = NULL) {
   stopifnot(is.matrix(X_q))
@@ -161,6 +252,59 @@ qf_kernel_compare <- function(X_q, reps = 2L, rbf_sigma = NULL) {
 #' @param n_pcs,reps,lambda See [`qf_embed_reduce()`] and
 #'   [`quantum_krr_fit()`].
 #' @return An `edaphos_qf_krr` object.
+#' @examples
+#' # Stand-in MoCo encoder output over 200 Cerrado pixels; the
+#' # target is the bundled SOC column (g/kg, 0-5 cm).
+#' set.seed(42)
+#' covs <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' sub  <- br_cerrado[sample(nrow(br_cerrado), 200L), ]
+#' Z    <- scale(as.matrix(sub[, covs]))
+#' W    <- matrix(rnorm(5L * 64L), 5L, 64L)
+#' emb  <- tanh(Z %*% W) + matrix(rnorm(200L * 64L, 0, 0.1), 200L, 64L)
+#' y    <- sub$soc
+#' tr   <- 1:140; te <- 141:200
+#'
+#' fit <- qf_krr_fit(emb[tr, ], y[tr], n_pcs = 6L, reps = 2L,
+#'                   lambda = 0.1)
+#' fit
+#' pred <- predict(fit, emb[te, ])
+#'
+#' # The only number that matters is next to the achievable null --
+#' # predicting the training mean at every unseen pixel.
+#' c(qf_krr = edaphos_rmse(y[te], pred),
+#'   train_mean = edaphos_rmse(y[te], rep(mean(y[tr]), length(te))))
+#' # 7.45 vs 7.21 g/kg: the fit is WORSE than the mean, and
+#' edaphos_r2(y[te], pred)                       # -0.074, i.e. < 0
+#'
+#' # Two diagnostics that have to be read side by side to see why.
+#' # In sample the fit is near-perfect; out of sample its predictions
+#' # barely move off the training mean.  With a 6-qubit Gram matrix
+#' # this close to the identity (see qf_kernel_compare()), KRR can
+#' # only memorise: every test pixel is near-orthogonal to every
+#' # training pixel, so the kernel expansion contributes ~ nothing
+#' # and prediction falls back on the intercept.
+#' c(rmse_in_sample = fit$fit$rmse,              # 0.63
+#'   rmse_held_out  = edaphos_rmse(y[te], pred)) # 7.45
+#' c(sd_pred = sd(pred), sd_truth = sd(y[te]))   # 1.11 vs 7.25
+#'
+#' # Fewer qubits concentrate less, but do not rescue it: over
+#' # n_pcs 3-6, reps 1-2 and lambda 1e-3..1 the best held-out R2
+#' # this fixture produced was 0.012 -- the training mean, again.
+#' fit4 <- qf_krr_fit(emb[tr, ], y[tr], n_pcs = 4L, reps = 2L,
+#'                    lambda = 1)
+#' edaphos_r2(y[te], predict(fit4, emb[te, ]))   # 0.012
+#'
+#' # Trap in predict(): the PCA centre, rotation and pi-rescale all
+#' # come from the TRAINING rows, so a held-out pixel can encode
+#' # outside the [-pi, pi] the feature map was scaled for.  Nothing
+#' # errors and nothing warns -- the encoding just extrapolates, and
+#' # the stored bounds are the only way to notice:
+#' rng <- range(fit$reduction$range_min, fit$reduction$range_max)
+#' rng                              # training PC span, pre-rescale
+#'
+#' # Keep column names on newdata as well: an unnamed matrix against
+#' # a named training embedding falls back to positional alignment
+#' # and warns "NAs introduced by coercion".
 #' @export
 qf_krr_fit <- function(embeddings, y, n_pcs = 8L,
                          reps = 2L, lambda = 0.1) {
@@ -258,6 +402,52 @@ print.edaphos_qf_krr <- function(x, ...) {
 #' @param n_pcs,reps,lambda Passed to [`qf_krr_fit()`].
 #' @return A data frame with columns `method`, `rmse`, `mae`, `r2`,
 #'   `n_train`, `n_test`.
+#' @examples
+#' # Stand-in MoCo encoder output plus the five raw covariates it was
+#' # built from, over 200 Cerrado pixels, predicting SOC (g/kg).
+#' set.seed(42)
+#' covs <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' sub  <- br_cerrado[sample(nrow(br_cerrado), 200L), ]
+#' Z    <- scale(as.matrix(sub[, covs]))
+#' W    <- matrix(rnorm(5L * 64L), 5L, 64L)
+#' emb  <- tanh(Z %*% W) + matrix(rnorm(200L * 64L, 0, 0.1), 200L, 64L)
+#' y    <- sub$soc
+#' tr   <- 1:140; te <- 141:200
+#'
+#' # set.seed() even with a fixed split: arm 1 draws 500 ranger trees
+#' # from the ambient RNG stream, so its RMSE moves without one.
+#' set.seed(7)
+#' bm <- qf_krr_benchmark(emb, as.matrix(sub[, covs]), y,
+#'                        train_ix = tr, test_ix = te,
+#'                        n_pcs = 5L, reps = 2L, lambda = 0.1)
+#' bm[, c("method", "rmse", "r2")]
+#' #   ranger (raw covariates)         5.02   0.513
+#' #   RBF-KRR on foundation PCs       4.98   0.520
+#' #   Quantum KRR on raw covariates   6.80   0.105
+#' #   Quantum KRR on foundation PCs   7.39  -0.057
+#'
+#' # The bridge's own arm comes last, and it loses to the null the
+#' # whole table has to clear first:
+#' edaphos_rmse(y[te], rep(mean(y[tr]), length(te)))   # 7.21
+#' # Only the two classical arms beat it.  The quantum lift over the
+#' # foundation PCs is worse than predicting the training mean here,
+#' # which is what a Gram matrix collapsed onto the identity looks
+#' # like downstream -- see qf_kernel_compare().
+#'
+#' # Three things that make this table less of a head-to-head than
+#' # it reads:
+#' #  * arms 2 and 3 fit their preprocessing (the PCA, and
+#' #    quantum_scale()'s column min/max) on ALL rows, test included;
+#' #    arms 1 and 4 only ever see the training rows.
+#' #  * arm 3 quantum-encodes the FIRST n_pcs covariate columns, in
+#' #    whatever order the matrix happens to have -- not a selection.
+#' colnames(as.matrix(sub[, covs]))[1:5]
+#' #  * if ncol(covariates) < n_pcs, arm 3 is dropped in silence and
+#' #    you get a three-row table with no warning:
+#' set.seed(7)
+#' nrow(qf_krr_benchmark(emb, as.matrix(sub[, covs[1:3]]), y,
+#'                       train_ix = tr, test_ix = te,
+#'                       n_pcs = 5L, reps = 2L, lambda = 0.1))   # 3
 #' @export
 qf_krr_benchmark <- function(embeddings, covariates, y,
                                train_ix = NULL, test_ix = NULL,

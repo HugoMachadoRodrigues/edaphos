@@ -31,6 +31,91 @@ predictive variance is derived analytically from the same gram
 matrix \verb{K + lambda I} that produces the point prediction. Aleatoric
 noise is estimated from leave-one-out residuals.
 }
+\examples{
+## Soil organic carbon (g/kg) from three covariates: 60 calibration
+## sites, 30 held out.
+set.seed(11)
+n    <- 90
+clay <- runif(n,   8,  62)
+ph   <- runif(n, 4.5, 7.5)
+elev <- runif(n,  60, 340)
+soc  <- 24 + 0.10 * (clay - 35) + 2.2 * (ph - 6) -
+        0.010 * (elev - 200) + rnorm(n, 0, 1.5)
+X    <- quantum_scale(cbind(clay, ph, elev))  # ZZFeatureMap wants [0, pi]
+tr <- 1:60; te <- 61:90
+
+fit  <- quantum_krr_fit(X[tr, ], soc[tr], reps = 2L, lambda = 0.1)
+set.seed(11)          # edaphos_posterior() synthesises Gaussian draws
+post <- quantum_krr_posterior(fit, X[te, ], units = "g/kg")
+post
+
+## TRAP -- `post$mean` is on the CENTRED scale. quantum_krr_fit()
+## subtracts mean(y) and predict() adds it back; this function does
+## not, so the posterior must be shifted by `fit$y_mean` before it
+## meets an observation in g/kg.
+pred <- predict(fit, X[te, ])
+round(c(post_mean = post$mean[1L], predict = pred[1L],
+        y_mean    = fit$y_mean), 3)          # 1.024, 24.430, 23.406
+
+lo <- post$mean + fit$y_mean - 1.96 * post$sd
+up <- post$mean + fit$y_mean + 1.96 * post$sd
+round(c(unshifted = edaphos_picp(soc[te], post$mean - 1.96 * post$sd,
+                                 post$mean + 1.96 * post$sd),
+        shifted   = edaphos_picp(soc[te], lo, up)), 3)   # 0.000, 0.933
+
+## 0.933 against a nominal 0.95 reads like a calibrated model. It is
+## not one: on this split the point predictions are WORSE than the
+## training mean (negative R2), while an ordinary linear fit on the
+## same three covariates is not.
+d   <- data.frame(soc, clay, ph, elev)
+lin <- lm(soc ~ clay + ph + elev, data = d[tr, ])
+round(c(qkrr   = edaphos_r2(soc[te], pred),
+        linear = edaphos_r2(soc[te], predict(lin, d[te, ]))), 3)
+#  -0.37 and 0.72
+
+## PICP cannot see that; the interval score can. A constant band
+## around the training mean -- no model at all -- is both narrower
+## and better scored.
+nl <- rep(fit$y_mean - 1.96 * sd(soc[tr]), length(te))
+nu <- rep(fit$y_mean + 1.96 * sd(soc[tr]), length(te))
+round(c(is_qkrr = edaphos_interval_score(soc[te], lo, up),   # 16.90
+        is_null = edaphos_interval_score(soc[te], nl, nu),   # 11.82
+        w_qkrr  = mean(up - lo),                             # 13.47
+        w_null  = mean(nu - nl)), 2)                         # 10.59
+
+## Which half of the decomposition earned the coverage? The aleatoric
+## one: it is a leave-one-out estimate, and it lands on the held-out
+## residual sd while the training RMSE is 3.7x optimistic.
+round(c(aleatoric  = post$aleatoric_sd[1L],   # 3.404
+        heldout_sd = sd(soc[te] - pred),      # 3.351
+        train_rmse = fit$rmse), 3)            # 0.899
+
+## The epistemic half is decoration here. k(x*, x*) = 1 for any
+## normalised state, so the implied GP prior sd is 1 g/kg by
+## construction and not from the data, and `lambda` stands in for a
+## noise variance the same residuals put two orders of magnitude
+## higher. Delete the epistemic term and nothing moves:
+a <- post$aleatoric_sd[1L]
+round(c(sigma_n2  = a^2, lambda = fit$lambda,          # 11.589, 0.100
+        picp_full = edaphos_picp(soc[te], lo, up),     # 0.933
+        picp_ale  = edaphos_picp(soc[te], pred - 1.96 * a,
+                                 pred + 1.96 * a),     # 0.933
+        is_full   = edaphos_interval_score(soc[te], lo, up),   # 16.905
+        is_ale    = edaphos_interval_score(soc[te], pred - 1.96 * a,
+                                           pred + 1.96 * a)), 3)  # 17.010
+
+## Nor does it flag extrapolation, the one job an epistemic term is
+## usually hired for: the corners of the encoding cube, far from any
+## calibration site, sit inside the range seen at the held-out sites.
+far <- X[te, ]; far[1L, ] <- 0; far[2L, ] <- pi
+set.seed(11)
+pf <- quantum_krr_posterior(fit, far)
+round(c(corner_0     = pf$epistemic_sd[1L],
+        corner_pi    = pf$epistemic_sd[2L],
+        interior_min = min(pf$epistemic_sd[-(1:2)]),
+        interior_max = max(pf$epistemic_sd[-(1:2)])), 3)
+#  0.488, 0.467, 0.294, 0.618 -- the corners are not the extremes
+}
 \references{
 Rasmussen, C. E. and Williams, C. K. I. (2006). \emph{Gaussian Processes
 for Machine Learning}. MIT Press, §2.3.

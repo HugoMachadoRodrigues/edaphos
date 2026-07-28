@@ -22,3 +22,48 @@ fields, that \code{cause} / \code{effect} belong to the canonical vocabulary
 (unless \code{strict_vocab = FALSE}), that \code{polarity} is \code{"+"} or
 \code{"-"}, and that \code{confidence} is in \verb{[0, 1]}.
 }
+\examples{
+gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+                  package = "edaphos")
+v <- llm_annotation_validate(gs)
+v$ok
+
+# The v1 seed: 30 abstracts, 72 claims, 1 to 5 claims each, clean
+# under the strict vocabulary.
+c(records = nrow(v$summary), claims = sum(v$summary$n_claims))
+range(v$summary$n_claims)
+
+# A file with one of each failure mode.  The second record has no
+# `claims` key at all.
+bad <- file.path(tempdir(), "bad.jsonl")
+writeLines(c(
+  paste0('{"abstract_id":"BAD_01","abstract_text":"Tree cover raised SOC.",',
+         '"claims":[{"cause":"tree_cover","effect":"soc",',
+         '"polarity":"positive","confidence":0.8},',
+         '{"cause":"clay","effect":"soc","polarity":"+",',
+         '"confidence":1.4}]}'),
+  '{"abstract_id":"BAD_02","abstract_text":"No claims field at all."}'
+), bad)
+llm_annotation_validate(bad)$errors
+
+# `strict_vocab = FALSE` retires the vocabulary error only -- the
+# polarity and confidence checks always run.  Use it while a new
+# term like "tree_cover" is still being argued about, not to make a
+# file pass.
+llm_annotation_validate(bad, strict_vocab = FALSE)$errors
+
+# Read `summary` next to `errors`, never alone: a record that fails
+# the required-field check is skipped before it is counted, so
+# BAD_02 has no row and nrow(summary) is not the file's length.
+c(rows_in_summary = nrow(llm_annotation_validate(bad)$summary),
+  lines_in_file   = length(readLines(bad, warn = FALSE)))
+
+# And `ok` is a schema verdict, not a coverage one.  An export that
+# dropped every claim validates perfectly, so gate a deposit on the
+# claim count as well.
+empty <- file.path(tempdir(), "empty.jsonl")
+writeLines('{"abstract_id":"E_01","abstract_text":"x","claims":[]}', empty)
+e <- llm_annotation_validate(empty)
+e$ok
+sum(e$summary$n_claims)
+}

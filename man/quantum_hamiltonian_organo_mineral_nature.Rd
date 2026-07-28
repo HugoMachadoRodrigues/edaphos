@@ -37,9 +37,10 @@ molecular energy.
 \description{
 Curated presets that build an \code{edaphos_quantum_hamiltonian} from a
 realistic molecular geometry through
-\code{\link[=quantum_hamiltonian_from_pyscf]{quantum_hamiltonian_from_pyscf()}}. Three variants are shipped,
-each chosen to expose a distinct piece of organo-mineral chemistry
-at a qubit count that is accessible to present-day hardware:
+\code{\link[=quantum_hamiltonian_from_pyscf]{quantum_hamiltonian_from_pyscf()}}. Three variants are shipped, of
+which the two closed-shell organics build; each is chosen to expose
+a distinct piece of organo-mineral chemistry at a qubit count
+accessible to present-day hardware:
 }
 \details{
 \describe{
@@ -47,23 +48,31 @@ at a qubit count that is accessible to present-day hardware:
 core frozen and a \verb{(2e, 2o)} active space. Models the
 \strong{carboxylate functional group} that is the dominant
 coordinating moiety of humic acids. After parity tapering the
-qubit Hamiltonian is 2 qubits / ~5 Pauli terms — fast enough
+qubit Hamiltonian is 2 qubits / 9 Pauli terms — fast enough
 to run on any hardware and small enough for CI.}
 \item{\code{"methanediol"}}{H\eqn{_2}C(OH)\eqn{_2} in STO-3G with the
 core frozen and a \verb{(2e, 2o)} active space. Models the
 \strong{ortho-diol} motif that underpins catechol-type Fe(III)
-chelation in humic substances. 2 qubits after tapering.}
+chelation in humic substances. 2 qubits / 5 Pauli terms after
+tapering. Note that this active space is nearly closed shell:
+it recovers only 0.5 mHartree of correlation energy against
+34.2 mHartree for \code{"formic_acid"}, so the two are not
+interchangeable as demonstrations even though they cost the
+same to run. See \code{\link[=quantum_nature_total_energy]{quantum_nature_total_energy()}}.}
 \item{\code{"ferric_formate"}}{Monodentate Fe(III)–OOCH complex in
-STO-3G. Open-shell (S = 5/2), requires a \verb{(4e, 4o)} active
-space around Fe 3d + carboxylate \eqn{\pi^*}, and produces a
-4-qubit Hamiltonian after parity tapering. This variant is
-the \emph{minimum viable} representation of an organo-mineral
-coordination event at the clay–humus interface; because the
-SCF convergence is sensitive to the initial guess we
-recommend running it on \code{backend = "aer_shots"} or
-\code{"ibmq"} with \code{"SPSA"} and at least 100 iterations, and
-consulting \code{attr(ham, "reference_energy")} as a sanity
-check.}
+STO-3G, intended as the \emph{minimum viable} representation of an
+organo-mineral coordination event at the clay–humus interface.
+\strong{This variant does not currently build.} The shipped
+geometry is neutral and open-shell (49 electrons, \code{spin = 5});
+after \code{FreezeCoreTransformer} it carries 25 active electrons,
+an odd number, and \code{ActiveSpaceTransformer} then rejects every
+reachable configuration: an even \code{num_active_electrons} leaves
+an odd inactive count (\code{'The number of inactive electrons must be even.'}) while an odd one fails the alpha/beta split
+(\code{'Incorrect Active-Space configuration.'}). Because
+\code{num_active_electrons} is coerced with \code{as.integer()} it cannot
+carry the \verb{(alpha, beta)} tuple that qiskit-nature would need,
+so no override rescues it from R. Treat it as a known gap, not
+as a slow calculation.}
 }
 }
 \examples{

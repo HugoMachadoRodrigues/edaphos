@@ -101,6 +101,42 @@
 #' @return An object of class `edaphos_quantum_hamiltonian` carrying
 #'   the Python `SparsePauliOp` handle (`$op`), the tidy
 #'   `$pauli_terms`, and `$n_qubits`.
+#' @examples
+#' \dontrun{
+#' # Everything in Pillar 6 talks to a live Qiskit stack through
+#' # reticulate; install it once with
+#' #   reticulate::py_install(c("qiskit", "qiskit-aer",
+#' #                            "qiskit-algorithms"), pip = TRUE)
+#'
+#' # Two non-interacting spins with different Zeeman energies.
+#' h <- quantum_hamiltonian(c("ZI" = 1, "IZ" = 2))
+#' h
+#'
+#' # Qubit order is the trap.  The LEFTMOST character is the HIGHEST
+#' # qubit index, so the coefficient 2 sits on qubit 0, not qubit 1.
+#' # The diagonal, in Qiskit's |q1 q0> basis order (00, 01, 10, 11),
+#' # comes back as 3, -1, 1, -3: flipping qubit 0 costs 4 = 2 * 2,
+#' # flipping qubit 1 only 2 = 2 * 1.
+#' Re(diag(h$op$to_matrix()))
+#'
+#' # `n_qubits` is inferred from the FIRST string alone, so a ragged
+#' # set of terms surfaces as an invalid-Pauli error naming the
+#' # second string, never as a length mismatch.
+#' try(quantum_hamiltonian(c("ZZI" = 1, "ZZ" = 1)))
+#'
+#' # The alphabet is {I, X, Y, Z} and it is case sensitive.
+#' try(quantum_hamiltonian(c("zz" = 1)))
+#'
+#' # An all-identity term is a pure energy offset: it shifts every
+#' # eigenvalue and no variational circuit can lower it.
+#' quantum_vqe_exact(quantum_hamiltonian(c("IIII" = -2.5)))   # -2.5
+#'
+#' # Repeated Pauli strings are NOT rejected -- SparsePauliOp adds
+#' # them up, so this is the single term ZI with coefficient 3 and a
+#' # ground state at -3.  De-duplicate upstream if that is not what
+#' # you meant; nothing downstream will warn you.
+#' quantum_vqe_exact(quantum_hamiltonian(c("ZI" = 1, "ZI" = 2)))  # -3
+#' }
 #' @export
 quantum_hamiltonian <- function(pauli_terms, n_qubits = NULL) {
   .qk_require()
@@ -142,6 +178,33 @@ quantum_hamiltonian <- function(pauli_terms, n_qubits = NULL) {
 #' @references Peruzzo, A. et al. (2014). A variational eigenvalue
 #'   solver on a photonic quantum processor. *Nature Communications*
 #'   **5**, 4213. doi:10.1038/ncomms5213.
+#' @examples
+#' \dontrun{
+#' h2 <- quantum_hamiltonian_h2()
+#' h2                                  # 2 qubits, 5 Pauli terms
+#'
+#' # The reference every VQE run in this package is scored against:
+#' # the exact STO-3G ground state at 0.735 A.
+#' round(quantum_vqe_exact(h2), 6)                      # -1.857275
+#'
+#' # -1.052373 of that is the "II" term, a constant no ansatz can
+#' # touch.  Only -0.804902 Ha is what the circuit actually has to
+#' # find, so a relative error quoted against -1.857 flatters the
+#' # fit by a factor of 2.31.
+#' h2_var <- quantum_hamiltonian(
+#'   h2$pauli_terms[names(h2$pauli_terms) != "II"])
+#' round(quantum_vqe_exact(h2_var), 6)                  # -0.804902
+#' round(quantum_vqe_exact(h2) / quantum_vqe_exact(h2_var), 2)  # 2.31
+#'
+#' # Four levels only, so the whole spectrum is inspectable.  The
+#' # 0.6127 Ha gap to the first excited state is what makes H2 a
+#' # forgiving benchmark: shot noise of order 0.02 Ha cannot confuse
+#' # the two.  Read it next to the 0.1258 Ha gap of
+#' # quantum_hamiltonian_organo_mineral(), where it can.
+#' lv <- sort(Re(eigen(h2$op$to_matrix(), only.values = TRUE)$values))
+#' round(lv, 6)     # -1.857275 -1.244584 -0.882722 -0.224911
+#' round(lv[2] - lv[1], 4)                              # 0.6127
+#' }
 #' @export
 quantum_hamiltonian_h2 <- function() {
   quantum_hamiltonian(c(
@@ -162,6 +225,42 @@ quantum_hamiltonian_h2 <- function() {
 #' @param J Nearest-neighbour coupling.
 #' @param h Transverse field strength.
 #' @return An `edaphos_quantum_hamiltonian`.
+#' @examples
+#' \dontrun{
+#' # The chain is OPEN: n - 1 couplings plus n field terms = 2n - 1.
+#' h <- quantum_hamiltonian_ising_1d(4)
+#' h$pauli_terms     # IIZZ IZZI ZZII IIIX IIXI IXII XIII
+#' length(h$pauli_terms)                                     # 7
+#'
+#' # Two limits have closed forms and make good unit checks.  With
+#' # h = 0 the chain is classical, E0 = -J (n - 1) = -3; with J = 0
+#' # the spins are free, E0 = -h n = -4.
+#' quantum_vqe_exact(quantum_hamiltonian_ising_1d(4, J = 1, h = 0))  # -3
+#' quantum_vqe_exact(quantum_hamiltonian_ising_1d(4, J = 0, h = 1))  # -4
+#'
+#' # At the critical point J = h = 1 neither limit applies.
+#' round(quantum_vqe_exact(quantum_hamiltonian_ising_1d(4)), 6)
+#'
+#' # Finite size, not the solver, is what limits this benchmark.
+#' # Energy per site creeps towards the known infinite-chain value
+#' # -4/pi = -1.273240 but is still 0.035091 Ha per site above it at
+#' # n = 10, because both end spins of an open chain are missing a
+#' # neighbour.  Do not compare a 4-qubit run to a textbook number.
+#' eps <- vapply(c(2, 4, 6, 8, 10), function(n)
+#'   quantum_vqe_exact(quantum_hamiltonian_ising_1d(n)) / n, numeric(1))
+#' round(eps, 6)     # -1.118034 -1.189693 -1.216038 -1.229744 -1.238149
+#' round(eps[5] - (-4 / pi), 6)                          # 0.035091
+#'
+#' # The sign of J is invisible in the spectrum of an open chain --
+#' # flipping every second spin gauges it away -- so the "antiferro-
+#' # magnetic" chain returns the identical ground-state energy.
+#' round(quantum_vqe_exact(quantum_hamiltonian_ising_1d(4, J = -1)), 6)
+#'
+#' # `n_qubits` is truncated, not validated: 3.7 silently builds a
+#' # 3-site chain (5 terms).  Only n < 2 is rejected.
+#' length(quantum_hamiltonian_ising_1d(3.7)$pauli_terms)     # 5
+#' try(quantum_hamiltonian_ising_1d(1))
+#' }
 #' @export
 quantum_hamiltonian_ising_1d <- function(n_qubits, J = 1, h = 1) {
   stopifnot(n_qubits >= 2L)
@@ -211,6 +310,50 @@ quantum_hamiltonian_ising_1d <- function(n_qubits, J = 1, h = 1) {
 #' @param j_fe,j_l Numeric same-sector Z-Z exchange couplings.
 #' @param t Numeric cross-sector X-X hopping amplitude.
 #' @return An `edaphos_quantum_hamiltonian` with 4 qubits.
+#' @examples
+#' \dontrun{
+#' om <- quantum_hamiltonian_organo_mineral()
+#' om                                  # 4 qubits, 8 Pauli terms
+#'
+#' # Switch the hopping off and the Hamiltonian is diagonal, i.e. a
+#' # classical Ising energy over z in {-1, +1}^4 that you can
+#' # minimise by hand.  Both routes give -1, all four spins up.
+#' g <- expand.grid(z3 = c(1, -1), z2 = c(1, -1),
+#'                  z1 = c(1, -1), z0 = c(1, -1))
+#' min(-0.5 * (g$z3 + g$z2) - 0.3 * (g$z1 + g$z0) +
+#'      0.4 * g$z3 * g$z2 + 0.2 * g$z1 * g$z0)                  # -1
+#' quantum_vqe_exact(quantum_hamiltonian_organo_mineral(t = 0))  # -1
+#'
+#' # `t` is what makes the cluster quantum: Fe-ligand tunnelling
+#' # buys 0.215809 Ha of extra binding at the default t = 0.25 and
+#' # the ground state stops being a product state.  With t = 0 there
+#' # is nothing here a VQE could tell you that expand.grid() cannot.
+#' round(quantum_vqe_exact(om), 6)                     # -1.215809
+#' round(quantum_vqe_exact(om) - (-1), 6)              # -0.215809
+#'
+#' # Why this is a harder target than quantum_hamiltonian_h2(): the
+#' # first excited state sits only 0.125771 Ha above the ground
+#' # state and is doubly degenerate, so a fit must beat that before
+#' # "ground state" means anything.  H2's gap is 0.6127.
+#' lv <- sort(Re(eigen(om$op$to_matrix(), only.values = TRUE)$values))
+#' round(lv[1:4], 6)   # -1.215809 -1.090038 -1.090038 -0.795228
+#' round(lv[2] - lv[1], 6)                             # 0.125771
+#'
+#' # Judged that way the default fit fails.  Twenty COBYLA restarts
+#' # of the EXACT statevector VQE -- no shot noise at all, about 1 s
+#' # a run -- spanned 0.031 to 0.123 Ha off: a quarter to nearly all
+#' # of the spectral gap, with not one run converging.  Read `gap`
+#' # against `lv[2] - lv[1]`, never against the energy, and never
+#' # report a single run.
+#' gaps <- replicate(5, quantum_vqe_fit(om, max_iter = 400L)$gap)
+#' round(range(gaps), 4)
+#' round(range(gaps) / (lv[2] - lv[1]), 2)
+#'
+#' # Reaching the ground state takes a deeper ansatz and far more
+#' # iterations: reps = 3 with max_iter = 2000 (about 6 s a run)
+#' # brought five restarts down to a 0.0000-0.0450 Ha spread.
+#' round(quantum_vqe_fit(om, ansatz_reps = 3L, max_iter = 2000L)$gap, 4)
+#' }
 #' @export
 quantum_hamiltonian_organo_mineral <- function(eps_fe = 0.5, eps_l = 0.3,
                                                 j_fe   = 0.4, j_l   = 0.2,
@@ -257,6 +400,82 @@ print.edaphos_quantum_hamiltonian <- function(x, ...) {
 #'
 #' @param hamiltonian An `edaphos_quantum_hamiltonian`.
 #' @return A numeric scalar — the ground-state energy.
+#' @examples
+#' \dontrun{
+#' h2 <- quantum_hamiltonian_h2()
+#'
+#' # This is the yardstick.  `$exact` inside an edaphos_quantum_vqe
+#' # object is literally this call and `$gap` is |energy - exact|; a
+#' # VQE energy means nothing except read next to it.
+#' round(quantum_vqe_exact(h2), 6)                      # -1.857275
+#'
+#' # Dense diagonalisation, so cost is 2^n.  n = 14 (a 16384-square
+#' # operator) still returns in about 0.2 s; memory, not time, is
+#' # the wall shortly above that.
+#' system.time(quantum_vqe_exact(quantum_hamiltonian_ising_1d(14)))
+#'
+#' # "Exact" is not bit-reproducible: repeated calls scatter by a
+#' # few times 1e-15 (H2) up to 6e-14 (a 10-qubit chain).  That is
+#' # six orders below the best VQE gap below, so it never matters
+#' # numerically -- but do not reach for identical() on it.
+#' v <- replicate(8, quantum_vqe_exact(h2))
+#' diff(range(v))                       # order 1e-15, not 0
+#' isTRUE(all(v == v[1]))               # FALSE
+#'
+#' # 1) Exact statevector back end.  No sampling noise whatever, so
+#' #    the gap is pure optimiser error -- and wildly variable across
+#' #    restarts: 1e-9 to 1.5e-3 in one sweep of eight, median 3e-8,
+#' #    because the ansatz start point is random (see the caveat at
+#' #    the end).  Quote the median of restarts, not one run.
+#' fit <- quantum_vqe_fit(h2, backend = "aer_statevector")
+#' c(energy = fit$energy, exact = fit$exact, gap = fit$gap)
+#'
+#' # 2) Shot-based Aer with SPSA -- the honest simulation.  4096
+#' #    shots put a 1/sqrt(4096) = 0.0156 Ha standard error on every
+#' #    energy the optimiser sees, and the gap then runs 0.002-0.034
+#' #    Ha: about five orders worse than the median of (1), none of
+#' #    it physics.  SPSA, not COBYLA, because the cost function is
+#' #    now stochastic.
+#' fs <- quantum_vqe_fit(h2, backend = "aer_shots", shots = 4096L,
+#'                       optimizer = "SPSA", max_iter = 60L)
+#' c(gap = fs$gap, shot_se = 1 / sqrt(4096))
+#'
+#' # The trap: min(fs$history) is the luckiest of ~171 noisy draws,
+#' # not a variational bound.  It came out BELOW the exact energy in
+#' # 3 of 6 runs, which is physically impossible and diagnoses noise
+#' # rather than success; even fs$energy did so twice in eleven.
+#' # Report `energy`, judge it by `gap`, and treat any gap smaller
+#' # than shot_se as luck rather than convergence.
+#' c(min_history = min(fs$history), exact = fs$exact,
+#'   n_evals = length(fs$history))
+#'
+#' # 3) Real hardware.  quantum_ibmq_available() is an offline probe
+#' #    (reticulate + qiskit_ibm_runtime + IBMQ_TOKEN) that touches
+#' #    no network.  `mitigation` is live only here: "m3" maps to IBM
+#' #    resilience_level 1, "zne" to 2; both Aer back ends ignore it
+#' #    and "aer_shots" says so out loud.  `ibmq_backend = NULL`
+#' #    picks the least-busy operational device.  Run (1) first and
+#' #    treat its gap as the floor device error sits on top of.
+#' if (quantum_ibmq_available()) {
+#'   fq <- quantum_vqe_fit(h2, backend = "ibmq",
+#'                         ibmq_backend = "ibm_brisbane",
+#'                         shots = 4096L, mitigation = "m3",
+#'                         optimizer = "SPSA", max_iter = 50L)
+#'   c(hardware = fq$gap, exact_sim = fit$gap)
+#' }
+#'
+#' # Caveat for all three: `seed` does NOT make quantum_vqe_fit()
+#' # reproducible -- it seeds numpy's legacy global RNG, not the
+#' # generator qiskit-algorithms draws the initial point from, so
+#' # five runs at seed = 1L gave gaps from 5e-10 to 1e-4.  Pass an
+#' # explicit `initial_point` (12 angles for 2 qubits at reps = 2)
+#' # and `$energy` repeats to the last bit across sessions; `$gap`
+#' # still wobbles at 1e-15 because `exact` does.
+#' p0 <- rep(0.1, 12)
+#' a <- quantum_vqe_fit(h2, initial_point = p0)$energy
+#' b <- quantum_vqe_fit(h2, initial_point = p0)$energy
+#' identical(a, b)             # TRUE, both -1.857131658135603
+#' }
 #' @export
 quantum_vqe_exact <- function(hamiltonian) {
   .qk_require()

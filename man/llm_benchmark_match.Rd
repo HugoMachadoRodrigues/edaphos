@@ -15,12 +15,14 @@ backend for a given abstract.}
 (and optional \code{polarity}). One row per annotated claim.}
 
 \item{fuzzy}{Logical; if \code{TRUE} (default), also count a predicted
-edge as TP when one of its endpoints matches by Levenshtein
-distance within \code{fuzzy_threshold}. If \code{FALSE}, require exact
-match on canonicalised labels.}
+edge as TP when the Levenshtein distances of its two endpoints
+\emph{sum} to no more than \code{fuzzy_threshold}. If \code{FALSE}, require
+exact match on canonicalised labels. Fuzzy matching needs the
+suggested package \pkg{stringdist}; without it \code{fuzzy = TRUE}
+silently degrades to exact matching.}
 
-\item{fuzzy_threshold}{Integer; maximum edit distance for a fuzzy
-endpoint match. Default \code{2}.}
+\item{fuzzy_threshold}{Integer; maximum Levenshtein distance
+summed over the cause and the effect. Default \code{2}.}
 }
 \value{
 A data frame with columns \code{abstract_id}, \code{cause}, \code{effect},
@@ -38,4 +40,61 @@ canonicalisation.  A predicted claim is a \strong{true positive} if the
 canonicalised pair appears in the gold set for the same abstract; a
 \strong{false positive} if the pair is not in gold; gold entries not in
 predictions are \strong{false negatives}.
+}
+\examples{
+# The package ships a 30-abstract Cerrado gold standard.  Flatten
+# its nested `claims` arrays into the one-row-per-edge frame the
+# matcher expects.
+gold_path <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+                         package = "edaphos")
+if (nzchar(gold_path)) {
+  recs <- lapply(readLines(gold_path), jsonlite::fromJSON)
+  gold <- do.call(rbind, lapply(recs, function(r) data.frame(
+    abstract_id = r$abstract_id, cause = r$claims$cause,
+    effect      = r$claims$effect, stringsAsFactors = FALSE)))
+  print(c(abstracts = length(recs), claims = nrow(gold)))
+
+  # CER_01 is a rainfall / temperature / SOC abstract with five gold
+  # claims.  Below is an extraction a pedologist would call four out
+  # of four correct -- only the surface strings differ from the
+  # annotator's.  Three score TP, one scores FP.
+  cer1 <- gold[gold$abstract_id == "CER_01", ]
+  pred <- data.frame(
+    abstract_id = "CER_01",
+    cause  = c("Rainfall", "MAP",        "mean annual temperature",
+               "tree cover"),
+    effect = c("TOC",      "tree cover", "Corg", "organic carbon"),
+    stringsAsFactors = FALSE)
+  print(llm_benchmark_match(pred, cer1))
+
+  # P = 0.75, R = 0.60, and BOTH losses are the matching rule rather
+  # than the model:
+  #  * "Rainfall" canonicalises to `precipitation`, the annotator
+  #    wrote `mean_annual_precipitation`, and the normaliser keeps
+  #    those deliberately apart -- so the same claim is scored as a
+  #    false positive AND leaves the gold edge as a false negative.
+  #  * gold lists `mean_annual_temperature -> soc` TWICE for CER_01,
+  #    and matching is one-to-one, so one predicted edge clears only
+  #    one of the pair.
+  print(round(unlist(llm_benchmark_metrics(
+    llm_benchmark_match(pred, cer1))[
+      c("tp", "fp", "fn", "precision", "recall")]), 3))
+
+  # That duplicate caps the whole benchmark.  Feed gold back as its
+  # own prediction, deduplicated the way any extractor would emit it,
+  # and recall stops at 71/72 -- no model can score 1.
+  ded <- gold[!duplicated(paste(gold$abstract_id, gold$cause,
+                                gold$effect)), ]
+  print(round(unlist(llm_benchmark_metrics(
+    llm_benchmark_match(ded, gold))[c("tp", "fn", "recall")]), 4))
+
+  # Trap: `fuzzy = TRUE` is the default, but it changes nothing here.
+  # The threshold is the SUM over both endpoints, and no
+  # predicted/gold pair in this vocabulary sits within 2 edits
+  # without already matching exactly.  Report the threshold you used
+  # next to F1 -- see llm_benchmark_simulate() for what raising it
+  # does.
+  print(identical(llm_benchmark_match(ded, gold, fuzzy = TRUE),
+                  llm_benchmark_match(ded, gold, fuzzy = FALSE)))
+}
 }

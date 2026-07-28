@@ -23,3 +23,44 @@ Drops claims flagged as \code{rejected}, drops draft-only claims that
 have not been reviewed, removes the internal \code{status} field, and
 re-validates the result.
 }
+\examples{
+n_claims <- function(recs) sum(vapply(recs, function(r)
+  if (is.data.frame(r$claims)) nrow(r$claims) else 0L, integer(1)))
+
+draft <- system.file("extdata", "cerrado_gold_standard_v1_draft.jsonl",
+                     package = "edaphos")
+
+# The bundled draft holds 93 machine claims, every one still at
+# status = "draft".  Export keeps NONE of them, and says so: 30
+# abstracts, 0 claims.  "draft" means no human ever looked, and an
+# unreviewed claim is not gold-standard evidence.
+kept <- llm_annotation_export(draft, file.path(tempdir(), "hollow.jsonl"))
+n_claims(kept)
+
+# Accept the first claim of each abstract and re-export.  Only the
+# `status` string decides -- nothing else in the record matters.
+reviewed <- file.path(tempdir(), "reviewed.jsonl")
+writeLines(sub('"status":"draft"', '"status":"accepted"',
+               readLines(draft, warn = FALSE), fixed = TRUE), reviewed)
+n_claims(llm_annotation_export(reviewed, file.path(tempdir(), "g2.jsonl")))
+
+# Back-compat trap in the other direction: the hand-annotated v1
+# seed has no `status` column at all, and those claims are treated
+# as already accepted, so all 72 survive.  A file with no statuses
+# keeps everything; a file with only draft statuses keeps nothing.
+gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+                  package = "edaphos")
+once <- file.path(tempdir(), "once.jsonl")
+c(once  = n_claims(llm_annotation_export(gs, once)),
+  twice = n_claims(llm_annotation_export(
+            once, file.path(tempdir(), "twice.jsonl"))))
+
+# Idempotent because `status` is stripped on the way out -- which
+# also means you cannot re-review an exported file.  Keep the
+# reviewed JSONL; the export is a derived artefact.
+
+# `include_rationale = FALSE` drops the free-text justification,
+# leaving the four fields llm_annotation_validate() requires.
+names(llm_annotation_export(gs, file.path(tempdir(), "no_rat.jsonl"),
+                            include_rationale = FALSE)[[1]]$claims)
+}

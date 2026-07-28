@@ -64,6 +64,33 @@
 #' from examples, tests and CI.
 #'
 #' @return Logical scalar.
+#' @examples
+#' \dontrun{
+#'   # The gate that every other IBMQ entry point consults first.
+#'   quantum_ibmq_available()
+#'
+#'   # It is a three-part check and the third part is only
+#'   # nzchar(Sys.getenv("IBMQ_TOKEN")). Any non-empty string passes,
+#'   # so TRUE means "a token is present", never "the token
+#'   # authenticates": junk credentials return TRUE here and then
+#'   # fail at the first network call in quantum_ibmq_backends().
+#'   old <- Sys.getenv("IBMQ_TOKEN", "")
+#'   Sys.setenv(IBMQ_TOKEN = "not-a-real-token")
+#'   quantum_ibmq_available()                       # TRUE
+#'   if (nzchar(old)) Sys.setenv(IBMQ_TOKEN = old) else
+#'     Sys.unsetenv("IBMQ_TOKEN")
+#'
+#'   # When it is FALSE, decompose it. The three preconditions fail
+#'   # for unrelated reasons and only the third is fixed by editing
+#'   # ~/.Renviron.
+#'   c(reticulate = requireNamespace("reticulate", quietly = TRUE),
+#'     runtime    = reticulate::py_module_available("qiskit_ibm_runtime"),
+#'     token      = nzchar(Sys.getenv("IBMQ_TOKEN", "")))
+#'
+#'   # The token is read from the environment and nowhere else, so
+#'   # keep it out of scripts: put IBMQ_TOKEN=<key from
+#'   # https://quantum.ibm.com/account> in ~/.Renviron and restart R.
+#' }
 #' @export
 quantum_ibmq_available <- function() {
   if (!requireNamespace("reticulate", quietly = TRUE)) return(FALSE)
@@ -82,6 +109,39 @@ quantum_ibmq_available <- function() {
 #'   if `FALSE` (default), restrict to real quantum processors.
 #' @return A character vector of backend names, or a length-0 vector
 #'   when the service is unavailable.
+#' @examples
+#' \dontrun{
+#'   # Step 2 of the discovery path: preflight, list, then pick.
+#'   stopifnot(quantum_ibmq_available())
+#'   qpus <- quantum_ibmq_backends()
+#'   qpus
+#'
+#'   # TRAP: an unavailable service is reported as character(0), not
+#'   # as an error, so a length-0 result is indistinguishable from
+#'   # "this account has no operational processor". The preflight
+#'   # above is the only thing that tells the two apart -- without it
+#'   # a missing IBMQ_TOKEN looks exactly like an empty fleet.
+#'   length(quantum_ibmq_backends())
+#'
+#'   # The difference between the two calls is the calibration queue:
+#'   # `operational_only = FALSE` also lists processors paused for
+#'   # maintenance. Read it before blaming a stalled job on your
+#'   # circuit.
+#'   setdiff(quantum_ibmq_backends(operational_only = FALSE), qpus)
+#'
+#'   # `simulator = FALSE` is the default, i.e. real processors only.
+#'   # Flip it to see whatever simulated backends the account still
+#'   # exposes; IBM has been retiring them, so an empty answer here is
+#'   # a normal outcome rather than a misconfiguration.
+#'   quantum_ibmq_backends(simulator = TRUE)
+#'
+#'   # Feed a name straight into the dispatch layer. Pinning it is
+#'   # what makes two runs comparable -- see quantum_ibmq_least_busy()
+#'   # for why leaving `ibmq_backend = NULL` does not.
+#'   quantum_vqe_fit(quantum_hamiltonian_h2(), backend = "ibmq",
+#'                    ibmq_backend = qpus[1L],
+#'                    optimizer = "SPSA", max_iter = 50L)
+#' }
 #' @export
 quantum_ibmq_backends <- function(operational_only = TRUE,
                                     simulator = FALSE) {
@@ -103,6 +163,41 @@ quantum_ibmq_backends <- function(operational_only = TRUE,
 #'   qubits on the returned backend.
 #' @return The backend name as a single character string, or
 #'   `NA_character_` when no backend matches.
+#' @examples
+#' \dontrun{
+#'   # Step 3 of the discovery path, for when you have no reason to
+#'   # prefer a particular processor.
+#'   name <- quantum_ibmq_least_busy()
+#'   name %in% quantum_ibmq_backends()        # TRUE: it is one of them
+#'
+#'   # `min_num_qubits` filters the DEVICE, and says nothing about the
+#'   # size of your problem. The 2-qubit preset from
+#'   # quantum_hamiltonian_organo_mineral_nature() is routed onto the
+#'   # full coupling map before submission, so the circuit that
+#'   # actually leaves R is as wide as the processor -- 127 qubits on
+#'   # an Eagle device. Width here is a capacity filter, not a limit.
+#'   quantum_ibmq_least_busy(min_num_qubits = 127L)
+#'
+#'   # TRAP: NA_character_ is the only failure signal and it covers
+#'   # three unrelated causes -- no token (returns before any network
+#'   # call), no backend matching the filter, and any API error (the
+#'   # service call is wrapped in tryCatch). Split them by hand:
+#'   if (is.na(quantum_ibmq_least_busy(min_num_qubits = 1000L))) {
+#'     if (!quantum_ibmq_available()) {
+#'       message("no IBMQ_TOKEN in this session")
+#'     } else {
+#'       message("token present; no backend that wide, or API error")
+#'     }
+#'   }
+#'
+#'   # "Least busy" is a queue-depth decision, not a fidelity one, and
+#'   # it can return a different processor minutes apart. Resolve it
+#'   # once and pin the name when two runs have to be comparable:
+#'   pinned <- quantum_ibmq_least_busy(min_num_qubits = 127L)
+#'   quantum_ibmq_submit(quantum_hamiltonian_h2(),
+#'                        parameters = rep(0.1, 12),
+#'                        backend_name = pinned, mitigation = "m3")
+#' }
 #' @export
 quantum_ibmq_least_busy <- function(simulator = FALSE,
                                       min_num_qubits = NULL) {
@@ -215,6 +310,59 @@ quantum_ibmq_least_busy <- function(simulator = FALSE,
 #'   \item{shots, mitigation}{Execution configuration echo.}
 #'   \item{metadata}{Raw metadata dictionary returned by the
 #'     primitive (a named list).}
+#' }
+#' @examples
+#' \dontrun{
+#'   ham <- quantum_hamiltonian_h2()          # 2 qubits, 5 Pauli terms
+#'
+#'   # `parameters` must match the ansatz length exactly: there is no
+#'   # recycling, and nothing on the R side checks it. EfficientSU2
+#'   # carries n_qubits * 2 * (reps + 1) angles, so 2 * 2 * 3 = 12 at
+#'   # the default `ansatz_reps = 2`. Compute it, do not guess it.
+#'   theta <- rep(0.1, 12)
+#'
+#'   job <- quantum_ibmq_submit(ham, parameters = theta,
+#'                               shots = 4096L, mitigation = "m3")
+#'   job
+#'
+#'   # One PUB is ONE expectation value at ONE parameter point -- this
+#'   # is not an optimisation. The noiseless value at this theta is
+#'   # -1.029329 while the ground state is -1.857275, so theta = 0.1
+#'   # sits 0.83 Hartree above the minimum. A hardware number near
+#'   # -1.03 therefore means the device worked, NOT that the chemistry
+#'   # converged; quantum_vqe_fit(backend = "ibmq") does the latter.
+#'   ref <- quantum_vqe_fit(ham, backend = "aer_statevector",
+#'                           initial_point = theta)$history[1L]
+#'   c(hardware = job$expectation, noiseless = ref,
+#'     ground_state = quantum_vqe_exact(ham))
+#'
+#'   # `std_error` is shot noise ONLY -- the EstimatorV2 standard
+#'   # error, of order 1/sqrt(shots) (0.0156 at 4096 shots).
+#'   # Quadrupling `shots` halves it and does nothing whatsoever to
+#'   # the coherent gate error, which is the bias `mitigation`
+#'   # attacks. A tight std_error next to an untreated bias is the
+#'   # classic way to over-trust a hardware run.
+#'   c(std_error = job$std_error, shot_floor = 1 / sqrt(job$shots))
+#'
+#'   # So compare mitigation levels rather than trusting one run, and
+#'   # pin `backend_name` while doing it: the default picks the
+#'   # least-busy device afresh each call, which would confound the
+#'   # comparison with a change of processor. Two queue slots.
+#'   raw <- quantum_ibmq_submit(ham, parameters = theta, shots = 4096L,
+#'                               backend_name = job$backend,
+#'                               mitigation = "none")
+#'   c(none = raw$expectation, m3 = job$expectation, noiseless = ref)
+#'
+#'   # `mitigation` is match.arg()'d here, so it is case sensitive
+#'   # even though the internal level map is not: "zne" works, "ZNE"
+#'   # errors.
+#'
+#'   # Supplying your own circuit ignores `ansatz_reps` and is
+#'   # unchecked: a handle whose width differs from ham$n_qubits gets
+#'   # past the transpiler and dies later inside apply_layout() with
+#'   # "Number of qargs does not match (3 != 2)". Match the width to
+#'   # hamiltonian$n_qubits yourself.
+#'   names(job$metadata)                      # primitive's own report
 #' }
 #' @export
 quantum_ibmq_submit <- function(hamiltonian,

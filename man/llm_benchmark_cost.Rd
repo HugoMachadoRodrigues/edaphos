@@ -37,3 +37,53 @@ Claude Sonnet-4.5 input $3 / 1M + output $15 / 1M.  Assumes mean
 abstract is 220 tokens in + 110 tokens out + 480 tokens of system
 prompt.
 }
+\examples{
+# List prices, not invoices: published per-token rates times assumed
+# token counts (700 in / 110 out).  Nothing is measured.
+str(llm_benchmark_cost("anthropic", model = "claude-sonnet-4-5",
+                       n_abstracts = 30L, claims_per_abstract = 2.4))
+
+# Scaling a Cerrado systematic review to 10 000 abstracts.  The
+# local model reads $0 because list price is all this function
+# knows -- it is blind to the GPU, and to the 15.9 s/abstract that
+# the shipped latency summary records for Gemma 4 against 3.0 s for
+# GPT-4o-mini.
+round(c(
+  ollama    = llm_benchmark_cost("ollama",
+                                 n_abstracts = 10000L)$cost_total_usd,
+  openai    = llm_benchmark_cost("openai",
+                                 n_abstracts = 10000L)$cost_total_usd,
+  anthropic = llm_benchmark_cost("anthropic",
+                                 n_abstracts = 10000L)$cost_total_usd), 2)
+
+# Trap 1: `n_abstracts` cancels out of `cost_per_1k_claims_usd`.
+# That headline is a function of the token assumptions and
+# `claims_per_abstract` alone and says nothing about your corpus.
+c(n30 = llm_benchmark_cost("openai", n_abstracts = 30L,
+         claims_per_abstract = 2.4)$cost_per_1k_claims_usd,
+  n10k = llm_benchmark_cost("openai", n_abstracts = 10000L,
+          claims_per_abstract = 2.4)$cost_per_1k_claims_usd)
+
+# Trap 2: an unrecognised backend returns NA prices rather than
+# erroring, so a typo quietly turns a paid model into a free one.
+llm_benchmark_cost("gemini", n_abstracts = 30L)$cost_total_usd
+
+# Trap 3: the denominator is claims EXTRACTED, not claims CORRECT,
+# so over-extraction buys a cheaper headline.  Re-normalise on the
+# true positives from the shipped benchmark and both backends get
+# dearer -- GPT by 1.43x, Claude by 1.22x -- and the advertised 22x
+# price gap between them narrows to 19x.
+res_path <- system.file("extdata", "llm_benchmark_results.rds",
+                        package = "edaphos")
+if (nzchar(res_path)) {
+  mt <- readRDS(res_path)$metrics_table   # rows: Gemma, GPT, Claude
+  per1k <- function(bk, claims) llm_benchmark_cost(
+    bk, n_abstracts = 30L,
+    claims_per_abstract = claims / 30)$cost_per_1k_claims_usd
+  print(round(rbind(
+    openai    = c(all = per1k("openai",    mt$n_claims[2]),
+                  tp  = per1k("openai",    mt$tp[2])),
+    anthropic = c(all = per1k("anthropic", mt$n_claims[3]),
+                  tp  = per1k("anthropic", mt$tp[3]))), 4))
+}
+}

@@ -19,3 +19,68 @@ Adds the three constant shifts carried by a
 core + active-space projection) onto the VQE-estimated electronic
 energy of the active space.
 }
+\examples{
+\dontrun{
+  ham <- quantum_hamiltonian_organo_mineral_nature("formic_acid")
+
+  # `seed` does NOT pin quantum_vqe_fit(): it seeds NumPy, while
+  # the random starting point of the ansatz is drawn by Qiskit's
+  # own RNG. Five runs at seed = 1L give five different energies:
+  # the spread was 6e-06, 7e-05 and 8e-05 Hartree in three sessions
+  # here. Fix `initial_point` when you need a stable number.
+  reps <- vapply(1:5,
+                  function(i) quantum_vqe_fit(ham, seed = 1L)$energy,
+                  numeric(1))
+  diff(range(reps))                             # not 0
+
+  fit   <- quantum_vqe_fit(ham, seed = 1L, initial_point = rep(0.1, 12))
+  e_tot <- quantum_nature_total_energy(fit)
+  sprintf("\%.6f", e_tot)                        # "-186.223195"
+
+  # The helper is arithmetic, not chemistry: <H> over the active
+  # space plus the three constants the Hamiltonian carries. The
+  # frozen-core term is two orders of magnitude larger than the
+  # part the VQE actually optimises, which is why fit$energy on its
+  # own is not an energy of anything.
+  all.equal(e_tot, fit$energy + attr(ham, "energy_shift"))
+  round(c(active_H = fit$energy,
+          nuclear  = attr(ham, "nuclear_repulsion_energy"),
+          frozen   = attr(ham, "frozen_core_shift"),
+          active_p = attr(ham, "active_space_shift")), 6)
+
+  # HONESTY CHECK -- read this next to the total energy, never the
+  # total energy alone. `reference_energy` is the full-molecule
+  # Hartree-Fock energy, so e_tot - E_HF is the correlation the
+  # (2e, 2o) active space recovered: -34.2 mHartree. CCSD/STO-3G on
+  # the same geometry is -183.1 mHartree below HF, so this 2-qubit
+  # carboxylate model captures 19\% of the correlation energy. A
+  # working pipeline; not a chemistry-grade number.
+  pyscf <- reticulate::import("pyscf")
+  mf <- pyscf$scf$RHF(pyscf$gto$M(atom = attr(ham, "geometry"),
+                                   basis = attr(ham, "basis"),
+                                   verbose = 0L))
+  e_hf <- as.numeric(mf$kernel())
+  cc <- pyscf$cc$CCSD(mf); cc$verbose <- 0L; invisible(cc$kernel())
+  round(c(vqe_corr  = e_tot - e_hf,
+          ccsd_corr = as.numeric(cc$e_tot) - e_hf,
+          fraction  = (e_tot - e_hf) /
+                      (as.numeric(cc$e_tot) - e_hf)), 4)
+
+  # That fraction is a property of the chosen active space, not of
+  # the method, so it must never be quoted as "the accuracy of the
+  # VQE". The identical 2-qubit recipe on methanediol recovers
+  # -0.5 mHartree of a -144.4 mHartree CCSD correlation -- 0.3\%,
+  # i.e. nothing -- because its frontier pair is essentially closed
+  # shell. Same qubit count, same runtime, no chemistry.
+  hm <- quantum_hamiltonian_organo_mineral_nature("methanediol")
+  round(quantum_vqe_exact(hm) + attr(hm, "energy_shift") -
+          attr(hm, "reference_energy"), 6)       # -0.000495
+
+  # The helper is class-gated: it stopifnot()s on
+  # `edaphos_quantum_hamiltonian_nature`, so a fit built from the
+  # toy quantum_hamiltonian_organo_mineral() or _h2() errors here
+  # instead of silently adding a shift that does not exist.
+  try(quantum_nature_total_energy(
+    quantum_vqe_fit(quantum_hamiltonian_h2(), seed = 1L)))
+}
+}

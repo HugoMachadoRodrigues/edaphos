@@ -113,10 +113,12 @@ llm_annotation_vocabulary <- function() {
 #'   (records must have `abstract_id` and `abstract_text`), or a list
 #'   of records already in memory.
 #' @param backend One of `"ollama"`, `"openai"`, `"anthropic"`,
-#'   `"simulator"`.  When `"simulator"` the function uses
-#'   [`llm_benchmark_simulate()`] against a pseudo-gold-standard
-#'   derived from the abstract's first sentence -- useful for demos
-#'   and CI builds without API access.  Defaults to `"ollama"` with
+#'   `"simulator"`.  When `"simulator"` the function does not call an
+#'   LLM at all: it seeds the RNG from `abstract_id` and pairs
+#'   [`llm_annotation_vocabulary()`] terms at random, ignoring
+#'   `abstract_text` entirely.  That keeps demos and CI builds
+#'   runnable without API access, but the claims it produces carry no
+#'   information about the abstract.  Defaults to `"ollama"` with
 #'   `gemma4:latest`.
 #' @param model Optional model id.  Defaults to `"gemma4:latest"` for
 #'   Ollama.
@@ -131,6 +133,76 @@ llm_annotation_vocabulary <- function() {
 #' @param ... Forwarded to [`causal_llm_extract()`].
 #' @return Invisibly, the list of records written.
 #' @export
+#' @examples
+#' # Two abstracts in memory.  `abstract_id` and `abstract_text` are
+#' # the only required fields; anything else the record carries (year,
+#' # doi, topic) is passed straight through into the draft.
+#' corpus <- list(
+#'   list(abstract_id   = "CER_A",
+#'        abstract_text = "Rainfall raised topsoil SOC on 520 Oxisols.",
+#'        year = 2021),
+#'   list(abstract_id   = "CER_B",
+#'        abstract_text = "Fire frequency cut vegetation cover on sands.",
+#'        year = 2019)
+#' )
+#' draft <- file.path(tempdir(), "cerrado_draft.jsonl")
+#' d <- llm_preannotate(corpus, backend = "simulator",
+#'                      output_path = draft, verbose = FALSE)
+#' vapply(d, function(r) nrow(r$claims), integer(1))
+#'
+#' # Every drafted claim is stamped status = "draft".  That stamp is
+#' # what makes llm_annotation_export() throw it away: nothing reaches
+#' # the gold standard until a human changes it in the reviewer.
+#' d[[1]]$claims[1:2, c("cause", "effect", "polarity", "status")]
+#'
+#' # The simulator is a placeholder, not a weak extractor.  Draft the
+#' # first 5 abstracts of the bundled gold standard and score its
+#' # (cause, effect) pairs against the human annotation: 17 drafted,
+#' # 17 true, exactly 1 pair in common.  A simulator run is never a
+#' # measurement of pre-annotation quality.
+#' gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+#'                   package = "edaphos")
+#' sim <- llm_preannotate(gs, backend = "simulator", max_abstracts = 5,
+#'                        output_path = tempfile(fileext = ".jsonl"),
+#'                        verbose = FALSE)
+#' edges <- function(recs) unlist(lapply(recs,
+#'   function(r) paste(r$claims$cause, r$claims$effect)))
+#' truth <- edges(lapply(readLines(gs, warn = FALSE)[1:5], jsonlite::fromJSON))
+#' c(true = length(truth), drafted = length(edges(sim)),
+#'   hits = length(intersect(truth, edges(sim))))
+#'
+#' # Note what that run also did: it overwrote the human `claims` of
+#' # CER_01..CER_05 with machine drafts.  Pre-annotate a corpus file,
+#' # never a gold standard you want to keep.
+#'
+#' # The simulator keys on `abstract_id` alone, so its draft is stable
+#' # across sessions -- but it does that with a bare set.seed(), which
+#' # silently resets the CALLER's stream.  Draw what you need before
+#' # the call, or re-seed after it.
+#' set.seed(42); before <- runif(1)
+#' set.seed(42)
+#' invisible(llm_preannotate(corpus, backend = "simulator", verbose = FALSE,
+#'                           output_path = tempfile(fileext = ".jsonl")))
+#' c(before = before, after = runif(1))
+#'
+#' # `cache_dir` keys on abstract_id plus the FIRST 200 CHARACTERS of
+#' # the text, so fixing a typo past character 200 is a cache hit and
+#' # silently reuses the stale extraction.  Two texts, one cache entry;
+#' # edit the opening instead and a second entry appears.
+#' if (requireNamespace("digest", quietly = TRUE)) {
+#'   head200 <- paste(rep("Cerrado Oxisol rainfall carbon", 12), collapse = " ")
+#'   cache <- file.path(tempdir(), "preann_cache")
+#'   run1 <- function(txt) llm_preannotate(
+#'     list(list(abstract_id = "CER_A", abstract_text = txt)),
+#'     backend = "simulator", cache_dir = cache, verbose = FALSE,
+#'     output_path = tempfile(fileext = ".jsonl"))
+#'   invisible(run1(paste(head200, "original tail")))
+#'   invisible(run1(paste(head200, "a completely different tail")))
+#'   n_tail <- length(list.files(cache))
+#'   invisible(run1(paste("DIFFERENT OPENING", head200)))
+#'   print(c(after_tail_edit = n_tail,
+#'           after_opening_edit = length(list.files(cache))))
+#' }
 llm_preannotate <- function(corpus,
                               backend = c("ollama", "openai",
                                            "anthropic", "simulator"),
@@ -288,6 +360,50 @@ llm_preannotate <- function(corpus,
 #' @return Named list with `ok` (logical), `errors` (character vector)
 #'   and `summary` (data frame with per-record counts).
 #' @export
+#' @examples
+#' gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+#'                   package = "edaphos")
+#' v <- llm_annotation_validate(gs)
+#' v$ok
+#'
+#' # The v1 seed: 30 abstracts, 72 claims, 1 to 5 claims each, clean
+#' # under the strict vocabulary.
+#' c(records = nrow(v$summary), claims = sum(v$summary$n_claims))
+#' range(v$summary$n_claims)
+#'
+#' # A file with one of each failure mode.  The second record has no
+#' # `claims` key at all.
+#' bad <- file.path(tempdir(), "bad.jsonl")
+#' writeLines(c(
+#'   paste0('{"abstract_id":"BAD_01","abstract_text":"Tree cover raised SOC.",',
+#'          '"claims":[{"cause":"tree_cover","effect":"soc",',
+#'          '"polarity":"positive","confidence":0.8},',
+#'          '{"cause":"clay","effect":"soc","polarity":"+",',
+#'          '"confidence":1.4}]}'),
+#'   '{"abstract_id":"BAD_02","abstract_text":"No claims field at all."}'
+#' ), bad)
+#' llm_annotation_validate(bad)$errors
+#'
+#' # `strict_vocab = FALSE` retires the vocabulary error only -- the
+#' # polarity and confidence checks always run.  Use it while a new
+#' # term like "tree_cover" is still being argued about, not to make a
+#' # file pass.
+#' llm_annotation_validate(bad, strict_vocab = FALSE)$errors
+#'
+#' # Read `summary` next to `errors`, never alone: a record that fails
+#' # the required-field check is skipped before it is counted, so
+#' # BAD_02 has no row and nrow(summary) is not the file's length.
+#' c(rows_in_summary = nrow(llm_annotation_validate(bad)$summary),
+#'   lines_in_file   = length(readLines(bad, warn = FALSE)))
+#'
+#' # And `ok` is a schema verdict, not a coverage one.  An export that
+#' # dropped every claim validates perfectly, so gate a deposit on the
+#' # claim count as well.
+#' empty <- file.path(tempdir(), "empty.jsonl")
+#' writeLines('{"abstract_id":"E_01","abstract_text":"x","claims":[]}', empty)
+#' e <- llm_annotation_validate(empty)
+#' e$ok
+#' sum(e$summary$n_claims)
 llm_annotation_validate <- function(path, strict_vocab = TRUE) {
   records <- .jsonl_read(path)
   vocab <- llm_annotation_vocabulary()
@@ -371,6 +487,46 @@ llm_annotation_validate <- function(path, strict_vocab = TRUE) {
 #'   field (default `TRUE`).
 #' @return Invisibly, the list of records written.
 #' @export
+#' @examples
+#' n_claims <- function(recs) sum(vapply(recs, function(r)
+#'   if (is.data.frame(r$claims)) nrow(r$claims) else 0L, integer(1)))
+#'
+#' draft <- system.file("extdata", "cerrado_gold_standard_v1_draft.jsonl",
+#'                      package = "edaphos")
+#'
+#' # The bundled draft holds 93 machine claims, every one still at
+#' # status = "draft".  Export keeps NONE of them, and says so: 30
+#' # abstracts, 0 claims.  "draft" means no human ever looked, and an
+#' # unreviewed claim is not gold-standard evidence.
+#' kept <- llm_annotation_export(draft, file.path(tempdir(), "hollow.jsonl"))
+#' n_claims(kept)
+#'
+#' # Accept the first claim of each abstract and re-export.  Only the
+#' # `status` string decides -- nothing else in the record matters.
+#' reviewed <- file.path(tempdir(), "reviewed.jsonl")
+#' writeLines(sub('"status":"draft"', '"status":"accepted"',
+#'                readLines(draft, warn = FALSE), fixed = TRUE), reviewed)
+#' n_claims(llm_annotation_export(reviewed, file.path(tempdir(), "g2.jsonl")))
+#'
+#' # Back-compat trap in the other direction: the hand-annotated v1
+#' # seed has no `status` column at all, and those claims are treated
+#' # as already accepted, so all 72 survive.  A file with no statuses
+#' # keeps everything; a file with only draft statuses keeps nothing.
+#' gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+#'                   package = "edaphos")
+#' once <- file.path(tempdir(), "once.jsonl")
+#' c(once  = n_claims(llm_annotation_export(gs, once)),
+#'   twice = n_claims(llm_annotation_export(
+#'             once, file.path(tempdir(), "twice.jsonl"))))
+#'
+#' # Idempotent because `status` is stripped on the way out -- which
+#' # also means you cannot re-review an exported file.  Keep the
+#' # reviewed JSONL; the export is a derived artefact.
+#'
+#' # `include_rationale = FALSE` drops the free-text justification,
+#' # leaving the four fields llm_annotation_validate() requires.
+#' names(llm_annotation_export(gs, file.path(tempdir(), "no_rat.jsonl"),
+#'                             include_rationale = FALSE)[[1]]$claims)
 llm_annotation_export <- function(reviewed_path, output_path,
                                     include_rationale = TRUE) {
   records <- .jsonl_read(reviewed_path)
@@ -439,9 +595,12 @@ llm_annotation_export <- function(reviewed_path, output_path,
 #' @param output_dir Directory to create.  Will be made if it doesn't
 #'   exist.  Existing contents are overwritten.
 #' @param title Deposit title (will appear on Zenodo).
-#' @param authors Data frame with `family_name`, `given_name`,
-#'   optional `orcid`, optional `affiliation` per row.  Defaults to a
-#'   single-author entry using `utils::maintainer()` on the package.
+#' @param authors Data frame with one row per creator and all four of
+#'   `family_name`, `given_name`, `orcid`, `affiliation` as columns.
+#'   The `orcid` and `affiliation` *values* may be `NA` (the field is
+#'   then omitted from that creator) but the *columns* must be
+#'   present, or creator assembly fails.  Defaults to a single
+#'   hard-coded entry for the package maintainer.
 #' @param description Free-text description (HTML allowed).  Defaults
 #'   to a short summary including abstract / claim counts.
 #' @param keywords Character vector of keyword tags.
@@ -451,6 +610,57 @@ llm_annotation_export <- function(reviewed_path, output_path,
 #'   `<output_dir>.zip` alongside the directory.
 #' @return Invisibly, the path to the created directory.
 #' @export
+#' @examples
+#' gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+#'                   package = "edaphos")
+#' bundle <- file.path(tempdir(), "cerrado_kg_deposit")
+#'
+#' # `zip = FALSE` because utils::zip() shells out to an external
+#' # `zip` executable that is not present everywhere.  Pass `version`
+#' # explicitly too: it defaults to Sys.Date(), so metadata.json and
+#' # README.md otherwise differ on every run and the bundle is not
+#' # reproducible.
+#' llm_annotation_to_zenodo(gs, bundle,
+#'                          title = "Cerrado gold-standard KG (v1)",
+#'                          version = "1.0.0", zip = FALSE)
+#' sort(list.files(bundle))
+#'
+#' # The 72 accepted claims become 72 reified rdf:Statement blocks,
+#' # plus 30 eda:Abstract provenance nodes carrying title and year.
+#' ttl <- readLines(file.path(bundle, "kg.ttl"), warn = FALSE)
+#' c(statements = sum(grepl("a rdf:Statement", ttl, fixed = TRUE)),
+#'   abstracts  = sum(grepl("a eda:Abstract", ttl, fixed = TRUE)))
+#'
+#' # The licence is lower-cased into metadata.json on purpose: that is
+#' # the identifier the Zenodo REST API expects, not the SPDX spelling
+#' # you passed in.
+#' md <- jsonlite::fromJSON(file.path(bundle, "metadata.json"))
+#' c(license = md$metadata$license, version = md$metadata$version)
+#'
+#' # Trap: this runs llm_annotation_export() internally, so a reviewed
+#' # file whose claims are all still "draft" produces a bundle that
+#' # SUCCEEDS, prints its usual banner, and contains zero statements.
+#' # Check the count before you mint a DOI, not the exit status.
+#' draft <- system.file("extdata", "cerrado_gold_standard_v1_draft.jsonl",
+#'                      package = "edaphos")
+#' hollow <- file.path(tempdir(), "hollow_deposit")
+#' llm_annotation_to_zenodo(draft, hollow, version = "1.0.0", zip = FALSE)
+#' sum(grepl("a rdf:Statement",
+#'           readLines(file.path(hollow, "kg.ttl"), warn = FALSE), fixed = TRUE))
+#'
+#' # `authors` must carry all four columns.  NA values are fine and
+#' # omit that field from the creator, but a missing COLUMN aborts
+#' # part-way through, leaving a half-written directory behind.
+#' who <- data.frame(family_name = c("Silva", "Costa"),
+#'                   given_name  = c("Ana", "Bruno"),
+#'                   orcid       = c("0000-0001-2345-6789", NA),
+#'                   affiliation = c("Embrapa Cerrados", NA),
+#'                   stringsAsFactors = FALSE)
+#' authored <- file.path(tempdir(), "authored_deposit")
+#' llm_annotation_to_zenodo(gs, authored, authors = who,
+#'                          version = "1.0.0", zip = FALSE)
+#' jsonlite::fromJSON(file.path(authored, "metadata.json"),
+#'                    simplifyVector = FALSE)$metadata$creators
 llm_annotation_to_zenodo <- function(reviewed_path,
                                        output_dir,
                                        title = "Cerrado gold-standard KG (edaphos)",
@@ -662,6 +872,41 @@ llm_annotation_to_zenodo <- function(reviewed_path,
 #' @return Called for its side-effect (launches app); invisibly
 #'   returns the path of the reviewed JSONL.
 #' @export
+#' @examples
+#' \dontrun{
+#' # Phase 2.  This blocks until the browser tab is closed, so it only
+#' # makes sense from an interactive session, and it needs shiny, DT,
+#' # bslib and shinyjs installed.
+#' corpus <- list(
+#'   list(abstract_id   = "CER_A",
+#'        abstract_text = "Rainfall raised topsoil SOC on 520 Oxisols.")
+#' )
+#' draft <- file.path(tempdir(), "cerrado_draft.jsonl")
+#' llm_preannotate(corpus, backend = "simulator", output_path = draft)
+#'
+#' # In-place review: `output_path` defaults to `draft_path`, and the
+#' # app rewrites the file after every abstract, so an interrupted
+#' # session loses at most the abstract you were on.
+#' llm_annotation_launch(draft)
+#'
+#' # Better for anything you will publish: keep the machine draft
+#' # pristine and write the human verdicts elsewhere.  In-place review
+#' # destroys the LLM-vs-human comparison you need to report the
+#' # extractor's precision and recall.
+#' reviewed <- file.path(tempdir(), "cerrado_reviewed.jsonl")
+#' llm_annotation_launch(draft, output_path = reviewed)
+#'
+#' # `port` only matters when the app must be reachable from outside
+#' # the R process (container, remote annotator); leave it NULL and
+#' # shiny picks a free port.
+#' llm_annotation_launch(draft, output_path = reviewed, port = 8080)
+#'
+#' # Claims the reviewer never touched are still status = "draft" and
+#' # are discarded here -- check the claim count in the message before
+#' # treating the result as a finished gold standard.
+#' llm_annotation_export(reviewed, file.path(tempdir(), "cerrado_gold.jsonl"))
+#' llm_annotation_validate(file.path(tempdir(), "cerrado_gold.jsonl"))
+#' }
 llm_annotation_launch <- function(draft_path,
                                     output_path = NULL,
                                     keyboard_shortcuts = TRUE,

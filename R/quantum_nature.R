@@ -44,6 +44,34 @@
 #' call from tests and CI.
 #'
 #' @return Logical scalar.
+#' @examples
+#' \dontrun{
+#'   quantum_nature_available()
+#'
+#'   # Four independent conditions. qiskit-nature and pyscf are
+#'   # separate pip installs and a missing pyscf is the usual culprit,
+#'   # so decompose a FALSE instead of reinstalling the whole stack.
+#'   c(reticulate = requireNamespace("reticulate", quietly = TRUE),
+#'     qiskit     = reticulate::py_module_available("qiskit"),
+#'     nature     = reticulate::py_module_available("qiskit_nature"),
+#'     pyscf      = reticulate::py_module_available("pyscf"))
+#'
+#'   # This probes the ab initio stack only; hardware dispatch is a
+#'   # separate one, and the two are independent. A laptop with PySCF
+#'   # and no IBM account reads TRUE / FALSE -- enough to build an
+#'   # organo-mineral Hamiltonian, not enough to submit it.
+#'   c(nature = quantum_nature_available(),
+#'     ibmq   = quantum_ibmq_available())
+#'
+#'   # TRUE only promises that the imports resolve. It says nothing
+#'   # about whether a given geometry is tractable: the two
+#'   # closed-shell presets build a 2-qubit Hamiltonian in under a
+#'   # second, while "ferric_formate" raises a QiskitNatureError for
+#'   # every active space (see
+#'   # quantum_hamiltonian_organo_mineral_nature()).
+#'   ham <- quantum_hamiltonian_organo_mineral_nature("formic_acid")
+#'   c(qubits = ham$n_qubits, terms = length(ham$pauli_terms))  # 2, 9
+#' }
 #' @export
 quantum_nature_available <- function() {
   if (!requireNamespace("reticulate", quietly = TRUE)) return(FALSE)
@@ -313,7 +341,7 @@ quantum_hamiltonian_from_pyscf <- function(atom,
   # functional group that dominates humic acid chemistry. 5 atoms,
   # closed-shell, nuclear charge 24. After frozen-core + (2e, 2o)
   # projection and ParityMapper tapering the Hamiltonian is 2-qubit
-  # and ~5 Pauli terms; ideal for fast, reproducible VQE examples.
+  # and 9 Pauli terms; ideal for fast VQE examples.
   formic_acid = paste(
     "C  0.00  0.40  0.00",
     "O  1.13 -0.11  0.00",
@@ -340,9 +368,14 @@ quantum_hamiltonian_from_pyscf <- function(atom,
   # Formate anion HCOO- bound to a bare Fe(III) centre via a single
   # monodentate Fe-O contact -- a minimal cartoon of a carboxylate
   # group coordinating a ferric oxide surface site in a clay-humus
-  # complex. 4 atoms plus Fe(III); open-shell (S=5/2). Provided for
-  # advanced users; requires a larger active space than the default
-  # closed-shell organic variants and is NOT executed in tests.
+  # complex. 4 atoms plus Fe(III); open-shell (S=5/2). NOT executed
+  # in tests, and currently NOT constructible: 49 electrons at
+  # spin = 5 leave 25 active electrons after FreezeCoreTransformer,
+  # an odd count that ActiveSpaceTransformer rejects for every
+  # scalar num_active_electrons. Fixing it needs an (alpha, beta)
+  # tuple, which quantum_hamiltonian_from_pyscf() cannot pass
+  # through its as.integer() coercion. See the roxygen block of
+  # quantum_hamiltonian_organo_mineral_nature() for the two errors.
   ferric_formate = paste(
     "Fe 0.00  0.00  0.00",
     "O  1.90  0.00  0.00",
@@ -357,32 +390,42 @@ quantum_hamiltonian_from_pyscf <- function(atom,
 #'
 #' Curated presets that build an `edaphos_quantum_hamiltonian` from a
 #' realistic molecular geometry through
-#' [quantum_hamiltonian_from_pyscf()]. Three variants are shipped,
-#' each chosen to expose a distinct piece of organo-mineral chemistry
-#' at a qubit count that is accessible to present-day hardware:
+#' [quantum_hamiltonian_from_pyscf()]. Three variants are shipped, of
+#' which the two closed-shell organics build; each is chosen to expose
+#' a distinct piece of organo-mineral chemistry at a qubit count
+#' accessible to present-day hardware:
 #'
 #' \describe{
 #'   \item{`"formic_acid"` (default)}{HCOOH in STO-3G with the chemical
 #'     core frozen and a `(2e, 2o)` active space. Models the
 #'     **carboxylate functional group** that is the dominant
 #'     coordinating moiety of humic acids. After parity tapering the
-#'     qubit Hamiltonian is 2 qubits / ~5 Pauli terms — fast enough
+#'     qubit Hamiltonian is 2 qubits / 9 Pauli terms — fast enough
 #'     to run on any hardware and small enough for CI.}
 #'   \item{`"methanediol"`}{H\eqn{_2}C(OH)\eqn{_2} in STO-3G with the
 #'     core frozen and a `(2e, 2o)` active space. Models the
 #'     **ortho-diol** motif that underpins catechol-type Fe(III)
-#'     chelation in humic substances. 2 qubits after tapering.}
+#'     chelation in humic substances. 2 qubits / 5 Pauli terms after
+#'     tapering. Note that this active space is nearly closed shell:
+#'     it recovers only 0.5 mHartree of correlation energy against
+#'     34.2 mHartree for `"formic_acid"`, so the two are not
+#'     interchangeable as demonstrations even though they cost the
+#'     same to run. See [quantum_nature_total_energy()].}
 #'   \item{`"ferric_formate"`}{Monodentate Fe(III)–OOCH complex in
-#'     STO-3G. Open-shell (S = 5/2), requires a `(4e, 4o)` active
-#'     space around Fe 3d + carboxylate \eqn{\pi^*}, and produces a
-#'     4-qubit Hamiltonian after parity tapering. This variant is
-#'     the *minimum viable* representation of an organo-mineral
-#'     coordination event at the clay–humus interface; because the
-#'     SCF convergence is sensitive to the initial guess we
-#'     recommend running it on `backend = "aer_shots"` or
-#'     `"ibmq"` with `"SPSA"` and at least 100 iterations, and
-#'     consulting `attr(ham, "reference_energy")` as a sanity
-#'     check.}
+#'     STO-3G, intended as the *minimum viable* representation of an
+#'     organo-mineral coordination event at the clay–humus interface.
+#'     **This variant does not currently build.** The shipped
+#'     geometry is neutral and open-shell (49 electrons, `spin = 5`);
+#'     after `FreezeCoreTransformer` it carries 25 active electrons,
+#'     an odd number, and `ActiveSpaceTransformer` then rejects every
+#'     reachable configuration: an even `num_active_electrons` leaves
+#'     an odd inactive count (`'The number of inactive electrons must
+#'     be even.'`) while an odd one fails the alpha/beta split
+#'     (`'Incorrect Active-Space configuration.'`). Because
+#'     `num_active_electrons` is coerced with `as.integer()` it cannot
+#'     carry the `(alpha, beta)` tuple that qiskit-nature would need,
+#'     so no override rescues it from R. Treat it as a known gap, not
+#'     as a slow calculation.}
 #' }
 #'
 #' @param variant Character — `"formic_acid"` (default),
@@ -464,6 +507,70 @@ quantum_hamiltonian_organo_mineral_nature <- function(
 #' @param fit A `edaphos_quantum_vqe` fit whose `hamiltonian` is a
 #'   `edaphos_quantum_hamiltonian_nature`.
 #' @return A numeric scalar — the total molecular energy in Hartree.
+#' @examples
+#' \dontrun{
+#'   ham <- quantum_hamiltonian_organo_mineral_nature("formic_acid")
+#'
+#'   # `seed` does NOT pin quantum_vqe_fit(): it seeds NumPy, while
+#'   # the random starting point of the ansatz is drawn by Qiskit's
+#'   # own RNG. Five runs at seed = 1L give five different energies:
+#'   # the spread was 6e-06, 7e-05 and 8e-05 Hartree in three sessions
+#'   # here. Fix `initial_point` when you need a stable number.
+#'   reps <- vapply(1:5,
+#'                   function(i) quantum_vqe_fit(ham, seed = 1L)$energy,
+#'                   numeric(1))
+#'   diff(range(reps))                             # not 0
+#'
+#'   fit   <- quantum_vqe_fit(ham, seed = 1L, initial_point = rep(0.1, 12))
+#'   e_tot <- quantum_nature_total_energy(fit)
+#'   sprintf("%.6f", e_tot)                        # "-186.223195"
+#'
+#'   # The helper is arithmetic, not chemistry: <H> over the active
+#'   # space plus the three constants the Hamiltonian carries. The
+#'   # frozen-core term is two orders of magnitude larger than the
+#'   # part the VQE actually optimises, which is why fit$energy on its
+#'   # own is not an energy of anything.
+#'   all.equal(e_tot, fit$energy + attr(ham, "energy_shift"))
+#'   round(c(active_H = fit$energy,
+#'           nuclear  = attr(ham, "nuclear_repulsion_energy"),
+#'           frozen   = attr(ham, "frozen_core_shift"),
+#'           active_p = attr(ham, "active_space_shift")), 6)
+#'
+#'   # HONESTY CHECK -- read this next to the total energy, never the
+#'   # total energy alone. `reference_energy` is the full-molecule
+#'   # Hartree-Fock energy, so e_tot - E_HF is the correlation the
+#'   # (2e, 2o) active space recovered: -34.2 mHartree. CCSD/STO-3G on
+#'   # the same geometry is -183.1 mHartree below HF, so this 2-qubit
+#'   # carboxylate model captures 19% of the correlation energy. A
+#'   # working pipeline; not a chemistry-grade number.
+#'   pyscf <- reticulate::import("pyscf")
+#'   mf <- pyscf$scf$RHF(pyscf$gto$M(atom = attr(ham, "geometry"),
+#'                                    basis = attr(ham, "basis"),
+#'                                    verbose = 0L))
+#'   e_hf <- as.numeric(mf$kernel())
+#'   cc <- pyscf$cc$CCSD(mf); cc$verbose <- 0L; invisible(cc$kernel())
+#'   round(c(vqe_corr  = e_tot - e_hf,
+#'           ccsd_corr = as.numeric(cc$e_tot) - e_hf,
+#'           fraction  = (e_tot - e_hf) /
+#'                       (as.numeric(cc$e_tot) - e_hf)), 4)
+#'
+#'   # That fraction is a property of the chosen active space, not of
+#'   # the method, so it must never be quoted as "the accuracy of the
+#'   # VQE". The identical 2-qubit recipe on methanediol recovers
+#'   # -0.5 mHartree of a -144.4 mHartree CCSD correlation -- 0.3%,
+#'   # i.e. nothing -- because its frontier pair is essentially closed
+#'   # shell. Same qubit count, same runtime, no chemistry.
+#'   hm <- quantum_hamiltonian_organo_mineral_nature("methanediol")
+#'   round(quantum_vqe_exact(hm) + attr(hm, "energy_shift") -
+#'           attr(hm, "reference_energy"), 6)       # -0.000495
+#'
+#'   # The helper is class-gated: it stopifnot()s on
+#'   # `edaphos_quantum_hamiltonian_nature`, so a fit built from the
+#'   # toy quantum_hamiltonian_organo_mineral() or _h2() errors here
+#'   # instead of silently adding a shift that does not exist.
+#'   try(quantum_nature_total_energy(
+#'     quantum_vqe_fit(quantum_hamiltonian_h2(), seed = 1L)))
+#' }
 #' @export
 quantum_nature_total_energy <- function(fit) {
   stopifnot(inherits(fit, "edaphos_quantum_vqe"),

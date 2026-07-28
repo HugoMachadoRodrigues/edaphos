@@ -25,9 +25,12 @@ exist.  Existing contents are overwritten.}
 
 \item{title}{Deposit title (will appear on Zenodo).}
 
-\item{authors}{Data frame with \code{family_name}, \code{given_name},
-optional \code{orcid}, optional \code{affiliation} per row.  Defaults to a
-single-author entry using \code{utils::maintainer()} on the package.}
+\item{authors}{Data frame with one row per creator and all four of
+\code{family_name}, \code{given_name}, \code{orcid}, \code{affiliation} as columns.
+The \code{orcid} and \code{affiliation} \emph{values} may be \code{NA} (the field is
+then omitted from that creator) but the \emph{columns} must be
+present, or creator assembly fails.  Defaults to a single
+hard-coded entry for the package maintainer.}
 
 \item{description}{Free-text description (HTML allowed).  Defaults
 to a short summary including abstract / claim counts.}
@@ -71,4 +74,56 @@ a personal access token which should never be hard-coded).  After the
 bundle is built the user uploads the zip / files manually at
 \url{https://zenodo.org/deposit/new} and records the minted DOI back
 into the package's CITATION.cff / .zenodo.json.
+}
+\examples{
+gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+                  package = "edaphos")
+bundle <- file.path(tempdir(), "cerrado_kg_deposit")
+
+# `zip = FALSE` because utils::zip() shells out to an external
+# `zip` executable that is not present everywhere.  Pass `version`
+# explicitly too: it defaults to Sys.Date(), so metadata.json and
+# README.md otherwise differ on every run and the bundle is not
+# reproducible.
+llm_annotation_to_zenodo(gs, bundle,
+                         title = "Cerrado gold-standard KG (v1)",
+                         version = "1.0.0", zip = FALSE)
+sort(list.files(bundle))
+
+# The 72 accepted claims become 72 reified rdf:Statement blocks,
+# plus 30 eda:Abstract provenance nodes carrying title and year.
+ttl <- readLines(file.path(bundle, "kg.ttl"), warn = FALSE)
+c(statements = sum(grepl("a rdf:Statement", ttl, fixed = TRUE)),
+  abstracts  = sum(grepl("a eda:Abstract", ttl, fixed = TRUE)))
+
+# The licence is lower-cased into metadata.json on purpose: that is
+# the identifier the Zenodo REST API expects, not the SPDX spelling
+# you passed in.
+md <- jsonlite::fromJSON(file.path(bundle, "metadata.json"))
+c(license = md$metadata$license, version = md$metadata$version)
+
+# Trap: this runs llm_annotation_export() internally, so a reviewed
+# file whose claims are all still "draft" produces a bundle that
+# SUCCEEDS, prints its usual banner, and contains zero statements.
+# Check the count before you mint a DOI, not the exit status.
+draft <- system.file("extdata", "cerrado_gold_standard_v1_draft.jsonl",
+                     package = "edaphos")
+hollow <- file.path(tempdir(), "hollow_deposit")
+llm_annotation_to_zenodo(draft, hollow, version = "1.0.0", zip = FALSE)
+sum(grepl("a rdf:Statement",
+          readLines(file.path(hollow, "kg.ttl"), warn = FALSE), fixed = TRUE))
+
+# `authors` must carry all four columns.  NA values are fine and
+# omit that field from the creator, but a missing COLUMN aborts
+# part-way through, leaving a half-written directory behind.
+who <- data.frame(family_name = c("Silva", "Costa"),
+                  given_name  = c("Ana", "Bruno"),
+                  orcid       = c("0000-0001-2345-6789", NA),
+                  affiliation = c("Embrapa Cerrados", NA),
+                  stringsAsFactors = FALSE)
+authored <- file.path(tempdir(), "authored_deposit")
+llm_annotation_to_zenodo(gs, authored, authors = who,
+                         version = "1.0.0", zip = FALSE)
+jsonlite::fromJSON(file.path(authored, "metadata.json"),
+                   simplifyVector = FALSE)$metadata$creators
 }

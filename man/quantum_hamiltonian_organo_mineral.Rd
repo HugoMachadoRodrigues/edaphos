@@ -46,3 +46,48 @@ The default parameters \eqn{(\varepsilon_\mathrm{Fe},
 (0.5, 0.3, 0.4, 0.2, 0.25)} give a non-trivial entangled ground
 state.
 }
+\examples{
+\dontrun{
+om <- quantum_hamiltonian_organo_mineral()
+om                                  # 4 qubits, 8 Pauli terms
+
+# Switch the hopping off and the Hamiltonian is diagonal, i.e. a
+# classical Ising energy over z in {-1, +1}^4 that you can
+# minimise by hand.  Both routes give -1, all four spins up.
+g <- expand.grid(z3 = c(1, -1), z2 = c(1, -1),
+                 z1 = c(1, -1), z0 = c(1, -1))
+min(-0.5 * (g$z3 + g$z2) - 0.3 * (g$z1 + g$z0) +
+     0.4 * g$z3 * g$z2 + 0.2 * g$z1 * g$z0)                  # -1
+quantum_vqe_exact(quantum_hamiltonian_organo_mineral(t = 0))  # -1
+
+# `t` is what makes the cluster quantum: Fe-ligand tunnelling
+# buys 0.215809 Ha of extra binding at the default t = 0.25 and
+# the ground state stops being a product state.  With t = 0 there
+# is nothing here a VQE could tell you that expand.grid() cannot.
+round(quantum_vqe_exact(om), 6)                     # -1.215809
+round(quantum_vqe_exact(om) - (-1), 6)              # -0.215809
+
+# Why this is a harder target than quantum_hamiltonian_h2(): the
+# first excited state sits only 0.125771 Ha above the ground
+# state and is doubly degenerate, so a fit must beat that before
+# "ground state" means anything.  H2's gap is 0.6127.
+lv <- sort(Re(eigen(om$op$to_matrix(), only.values = TRUE)$values))
+round(lv[1:4], 6)   # -1.215809 -1.090038 -1.090038 -0.795228
+round(lv[2] - lv[1], 6)                             # 0.125771
+
+# Judged that way the default fit fails.  Twenty COBYLA restarts
+# of the EXACT statevector VQE -- no shot noise at all, about 1 s
+# a run -- spanned 0.031 to 0.123 Ha off: a quarter to nearly all
+# of the spectral gap, with not one run converging.  Read `gap`
+# against `lv[2] - lv[1]`, never against the energy, and never
+# report a single run.
+gaps <- replicate(5, quantum_vqe_fit(om, max_iter = 400L)$gap)
+round(range(gaps), 4)
+round(range(gaps) / (lv[2] - lv[1]), 2)
+
+# Reaching the ground state takes a deeper ansatz and far more
+# iterations: reps = 3 with max_iter = 2000 (about 6 s a run)
+# brought five restarts down to a 0.0000-0.0450 Ha spread.
+round(quantum_vqe_fit(om, ansatz_reps = 3L, max_iter = 2000L)$gap, 4)
+}
+}
