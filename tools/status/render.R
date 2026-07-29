@@ -83,6 +83,16 @@ SEV_ORDER <- c("blocker", "high", "medium", "low", "non-issue")
 sev <- function(f) f$severity_verified %||% f$severity_reported
 sevv <- ifelse(is.na(F$severity_verified), F$severity_reported, F$severity_verified)
 F$sev <- factor(sevv, levels = SEV_ORDER)
+
+# A finding leaves the plan by one of two doors, and they are not the same
+# door.  REFUTED means verification showed it was never true.  `resolved` means
+# it was true at the audited commit and a live measurement can no longer
+# reproduce it -- the `resolution` field carries that measurement, and
+# `resolved_in` the commit.  Both are kept in the register; neither reaches the
+# work order, and the headline counts only what is still open.
+F$fixed <- if (is.null(F$resolved)) rep(FALSE, NROW(F)) else
+             !is.na(F$resolved) & as.logical(F$resolved)
+F$still_open <- F$verdict != "REFUTED" & F$sev != "non-issue" & !F$fixed
 AREA <- c(science = "Scientific reproducibility", release = "Release consistency",
           cran = "CRAN readiness", tests = "Test coverage", ci = "CI & infra",
           stubs = "Incomplete implementations", code = "Code quality",
@@ -171,8 +181,9 @@ add("## 1. Headline", "",
                 "NEWS versions with no tag", "R/ source lines",
                 "Exported functions", "Test blocks",
                 "Tests passing", "Tests skipped", "Test failures + errors",
-                "R CMD check status", "Shipped bytes",
-                "Findings open (blocker/high)"),
+                "R CMD check status", "Source tarball (CRAN cap 5 MB)",
+                "Findings open (blocker/high)",
+                "Findings closed since the audit"),
     Value = c(
       num(g$commit_count),
       sprintf("%s → %s (%s calendar days, %s with commits)",
@@ -191,14 +202,23 @@ add("## 1. Headline", "",
       if (has_test) num(tr$failed + tr$errored) else "_not measured_",
       if (has_check) paste(ck$status_line, collapse = "; ") else
         paste0("_", ck$status %||% "not measured", "_"),
-      mb(facts$size$shipped_bytes),
-      num(sum(F$sev %in% c("blocker", "high")))
+      mb(facts$size$tarball_bytes),
+      num(sum(F$still_open & F$sev %in% c("blocker", "high"))),
+      num(sum(F$fixed))
     ), stringsAsFactors = FALSE),
     align = c("---", "---")),
   "")
 
 add("### Stage assessment", "",
-    "From the audit's completeness critic (editorial, not measured):", "",
+    sprintf(paste("From the audit's completeness critic (editorial, not measured).",
+                  "It describes the tree at `%s`, not at `%s`: several of the",
+                  "specifics it cites have since been closed — see \"Closed since",
+                  "the audit\" in section 11 for which ones, and on what",
+                  "measurement. The verdict is quoted unedited because a stage",
+                  "assessment that gets revised alongside the work it judges is",
+                  "worth nothing."),
+            substr(reg$provenance$audited_commit, 1, 7),
+            facts$git$head_sha_short %||% "HEAD"), "",
     paste0("> ", strwrap(reg$critique$stage_verdict, 100)), "",
     "**Strongest single piece of evidence:**", "",
     paste0("> ", strwrap(reg$critique$strongest_evidence, 100)), "")
@@ -335,8 +355,19 @@ if (has_check) {
                   if (isTRUE(ci_$is_new_submission))
                     "**New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN"
                   else "not a new submission",
-                  sprintf("%s (CRAN guidance: %s)", mb(ci_$tarball_bytes),
-                          mb(5 * 1024^2)),
+                  # R only prints "Size of tarball:" above a threshold, so on
+                  # most runs the log is silent about it. Fall back to the
+                  # artefact on disk and say which source the figure came from,
+                  # rather than printing "not measured" beside a table that
+                  # measures it two sections later.
+                  if (!is.null(ci_$tarball_bytes) &&
+                      length(ci_$tarball_bytes) == 1L &&
+                      !is.na(ci_$tarball_bytes))
+                    sprintf("%s from the log (CRAN guidance: %s)",
+                            mb(ci_$tarball_bytes), mb(5 * 1024^2))
+                  else
+                    sprintf("%s measured on disk — the log prints this only above its own threshold (CRAN guidance: %s)",
+                            mb(facts$size$tarball_bytes), mb(5 * 1024^2)),
                   num(ci_$n_invalid_urls)),
         stringsAsFactors = FALSE)), "")
     if (length(nz(ci_$invalid_urls)))
@@ -508,17 +539,53 @@ if (NROW(sz$by_dir)) {
                          check.names = FALSE, stringsAsFactors = FALSE),
               c("---", "--:", ":-:")), "")
 }
-add(sprintf("Total shipped: **%s** against the CRAN 5 MB soft cap (%s) — %s.",
-            mb(sz$shipped_bytes), mb(sz$cran_soft_cap_bytes),
-            if (!is.na(sz$shipped_bytes) &&
-                sz$shipped_bytes > sz$cran_soft_cap_bytes)
-              "**over, so an installed-size NOTE is unavoidable**" else "under"),
-    "")
-if (NROW(sz$largest_shipped_files))
-  add("Largest shipped files:", "",
-      mdtable(data.frame(File = code(sz$largest_shipped_files$file),
-                         Size = mb(sz$largest_shipped_files$bytes),
+add(sprintf("Git-tracked bytes that ship: **%s**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.",
+            mb(sz$shipped_bytes)), "")
+if (NROW(sz$largest_shipped_files)) {
+  # The table is called "shipped", so honour the flag: findings.json (442 KB)
+  # and STATUS.md (226 KB) are the largest tracked files in the repo and
+  # neither ships -- .Rbuildignore excludes ^tools$ and ^STATUS\.md$.
+  lsf <- sz$largest_shipped_files
+  if (!is.null(lsf$ships))
+    lsf <- lsf[!is.na(lsf$ships) & lsf$ships, , drop = FALSE]
+  add("Largest tracked files that ship:", "",
+      mdtable(data.frame(File = code(lsf$file), Size = mb(lsf$bytes),
                          stringsAsFactors = FALSE), c("---", "--:")), "")
+}
+
+tc <- sz$tarball_composition
+if (!is.null(tc) && NROW(tc$by_dir)) {
+  add("### Where the tarball's bytes are", "",
+      sprintf("`%s` is **%s** compressed, against the CRAN 5 MB guidance (%s) — %s. The shares below are of its %s uncompressed contents (%s files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.",
+              sz$tarball_file %||% "the tarball", mb(sz$tarball_bytes),
+              mb(sz$cran_soft_cap_bytes),
+              if (!is.na(sz$tarball_bytes) && sz$tarball_bytes > sz$cran_soft_cap_bytes)
+                sprintf("**over by %s**", mb(sz$tarball_bytes - sz$cran_soft_cap_bytes))
+              else "under",
+              mb(tc$total_bytes), num(tc$file_count)), "")
+  bdt <- tc$by_dir[tc$by_dir$bytes > 0, , drop = FALSE]
+  add(mdtable(data.frame(
+        Directory = code(bdt$dir), Size = mb(bdt$bytes),
+        `Share` = sprintf("%.0f%%", 100 * bdt$bytes / tc$total_bytes),
+        `In the repo` = vapply(bdt$in_repo, tick, character(1)),
+        check.names = FALSE, stringsAsFactors = FALSE),
+      c("---", "--:", "--:", ":-:")), "")
+  id <- tc$inst_doc
+  if (!is.null(id))
+    add(sprintf(paste("`inst/doc` is %s of rendered vignette HTML in %s files, of which **%s (%.0f%%) is",
+                      "base64 image data inlined as `data:` URIs**. Base64 costs 4 bytes for every 3, so",
+                      "that payload is ~%s of PNG carried at %s. It is generated at build time from the",
+                      "figure sizes in `vignettes/*.Rmd`, which means it is the one large contributor that",
+                      "can be reduced without moving a single committed file."),
+                mb(id$html_bytes), num(id$html_files), mb(id$base64_bytes),
+                100 * id$base64_share_of_html, mb(id$base64_bytes * 3 / 4),
+                mb(id$base64_bytes)), "",
+        mdtable(data.frame(
+          `Vignette HTML` = code(id$largest$file), Size = mb(id$largest$bytes),
+          `of it base64` = mb(id$largest$base64_bytes),
+          check.names = FALSE, stringsAsFactors = FALSE),
+          c("---", "--:", "--:")), "")
+}
 
 # ===========================================================================
 # 9. CI
@@ -642,7 +709,23 @@ if (NROW(refuted)) {
         sprintf("  - Why it does not hold: %s", refuted$correction[i]), "")
 }
 
-open <- F[F$verdict != "REFUTED" & F$sev != "non-issue", , drop = FALSE]
+fixed <- F[F$fixed, , drop = FALSE]
+if (NROW(fixed)) {
+  fixed <- fixed[order(fixed$sev, fixed$area, fixed$id), , drop = FALSE]
+  add("### Closed since the audit (measured, not asserted)", "",
+      sprintf(paste("%d findings were true at `%s` and cannot be reproduced at",
+                    "`%s`. Each line states the measurement that closed it, not",
+                    "a claim that it was addressed."),
+              NROW(fixed), substr(reg$provenance$audited_commit, 1, 7),
+              facts$git$head_sha_short %||% "HEAD"), "",
+      mdtable(data.frame(
+        ID = fixed$id, Sev = as.character(fixed$sev),
+        Area = unname(AREA[fixed$area]), `Fixed in` = code(fixed$resolved_in),
+        Finding = fixed$title, Measurement = gsub("\n", " ", fixed$resolution),
+        check.names = FALSE, stringsAsFactors = FALSE)), "")
+}
+
+open <- F[F$still_open, , drop = FALSE]
 open <- open[order(open$sev, open$area, open$id), , drop = FALSE]
 
 add("### All open findings", "",
@@ -737,7 +820,13 @@ add("## 14. Regenerating this document", "",
     "```", "",
     "`tools/status/facts.json` is the measurement snapshot and is regenerated in",
     "full each run. `tools/status/findings.json` is frozen audit input: edit it only",
-    "to record a finding as resolved, never to change a measured number.", "")
+    "to record a finding as resolved, never to change a measured number.", "",
+    "To close a finding, add three fields to its entry — `\"resolved\": true`,",
+    "`\"resolved_in\": \"<commit>\"` and a `\"resolution\"` string holding the",
+    "measurement that no longer reproduces it. It then moves out of the work order",
+    "and into \"Closed since the audit\" above, with that measurement quoted. The",
+    "original `evidence` block describes the audited commit and stays untouched, so",
+    "the register keeps saying what was true then as well as what is true now.", "")
 
 con <- file(file.path(root, "STATUS.md"), open = "w", encoding = "UTF-8")
 writeLines(out, con, useBytes = FALSE)

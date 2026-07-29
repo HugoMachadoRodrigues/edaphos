@@ -68,15 +68,21 @@ gated <- if (NROW(gates)) gates$dependency[gates$gate_sites > 0] else character(
 section <- c(
   "",
   sprintf(paste0("- **%s passing expectations** across %s `test_that` blocks in ",
-                 "%s test files (`testthat`), measured on %s, R %s. ",
-                 "%s expectations are skipped here because their optional ",
-                 "dependency is absent; every skip is an explicit ",
-                 "`skip_if_not_installed()` gate."),
+                 "%s test files (`testthat`), measured on %s, R %s. %s; ",
+                 "every skip is an explicit `skip_if_not_installed()` gate."),
           format(tr$passed, big.mark = " "),
           format(facts$tests_static$test_that_blocks, big.mark = " "),
           format(tr$files, big.mark = " "),
           facts$environment$platform, facts$environment$r_version,
-          format(tr$skipped, big.mark = " ")),
+          # The skip count is down to 1 on this machine, so the sentence has to
+          # agree with the number it is given rather than assume a plural.
+          if (identical(as.integer(tr$skipped), 0L))
+            "Nothing is skipped here"
+          else if (identical(as.integer(tr$skipped), 1L))
+            "One expectation is skipped here, because its optional dependency is absent"
+          else sprintf(paste("%s expectations are skipped here, because their",
+                             "optional dependencies are absent"),
+                       format(tr$skipped, big.mark = " "))),
   sprintf("- **Gated dependencies:** %s.",
           if (length(gated)) paste0("`", gated, "`", collapse = ", ") else "none"),
   sprintf(paste0("- **`R CMD check --as-cran`:** `%s` at commit `%s`. ",

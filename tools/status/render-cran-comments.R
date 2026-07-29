@@ -39,8 +39,11 @@ sz <- facts$size
                             (length(a) == 1L && is.na(a))) b else a
 out <- character()
 add <- function(...) out <<- c(out, ...)
-mb  <- function(b) if (is.null(b) || !length(b) || is.na(b)) "unknown" else
-         sprintf("%.1f MB", as.numeric(b) / 1024^2)
+mb  <- function(b) {
+  if (is.null(b) || !length(b)) return("unknown")
+  vapply(as.numeric(b), function(x)
+    if (is.na(x)) "unknown" else sprintf("%.1f MB", x / 1024^2), character(1))
+}
 
 add("<!-- GENERATED FILE -- DO NOT EDIT BY HAND.",
     "     Regenerate:  Rscript tools/status/facts.R --check-log=<log>",
@@ -139,6 +142,28 @@ if (!is.null(ci_)) {
         else NULL
   if (!is.null(tb)) {
     add(sprintf("Source tarball: %s (CRAN's guidance is 5 MB).", mb(tb)), "")
+    # Say where the bytes are, measured from the tarball itself.  A reviewer
+    # reading an over-guidance figure should not have to guess, and the
+    # largest contributor is not committed payload at all.
+    tc <- sz$tarball_composition
+    if (!is.null(tc) && NROW(tc$by_dir)) {
+      bd <- tc$by_dir
+      top <- bd[order(-bd$bytes), , drop = FALSE]
+      top <- top[seq_len(min(4L, NROW(top))), , drop = FALSE]
+      add(sprintf("Uncompressed it is %s across %d files, distributed as: %s.",
+                  mb(tc$total_bytes), tc$file_count,
+                  paste(sprintf("%s %s (%.0f%%)", top$dir, mb(top$bytes),
+                                100 * top$bytes / tc$total_bytes),
+                        collapse = ", ")), "")
+      id <- tc$inst_doc
+      if (!is.null(id))
+        add(sprintf(paste("The largest single contributor, `inst/doc`, is not committed: `R CMD build`",
+                          "renders it from the vignettes. It is %s of HTML across %d files, of which %s",
+                          "(%.0f%%) is base64 image data inlined as `data:` URIs by",
+                          "`rmarkdown::html_vignette`."),
+                    mb(id$html_bytes), id$html_files, mb(id$base64_bytes),
+                    100 * id$base64_share_of_html), "")
+    }
   } else {
     add("Source tarball size: _not measured_.", "")
   }

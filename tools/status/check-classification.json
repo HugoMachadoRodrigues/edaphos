@@ -2,11 +2,11 @@
   "schema": "edaphos-status-check-classification/1",
   "provenance": {
     "purpose": "Living registry, keyed by check name, classifying each item a real `R CMD check --as-cran` run reports as a package DEFECT or an artefact of the MEASURING ENVIRONMENT. Item names, levels and verbatim text are read from the check log by tools/status/facts.R; only the classification, the source attribution and the resolved_in field are editorial. Renderers join this file against the CURRENT log, so entries for resolved items simply stop appearing.",
-    "check_command": "R CMD build . && R CMD check --as-cran --no-manual edaphos_4.1.0.tar.gz",
-    "environment_note": "_R_CHECK_FORCE_SUGGESTS_=false was required because 10 Suggests are not installable in this environment. qpdf is absent; HTML Tidy is older than R expects.",
+    "check_command": "R CMD build . && _R_CHECK_FORCE_SUGGESTS_=false R CMD check --as-cran --no-manual edaphos_4.1.0.tar.gz",
+    "environment_note": "_R_CHECK_FORCE_SUGGESTS_=false was required because 8 Suggests are not installable in this environment. qpdf is absent; HTML Tidy is older than R expects. The log is from a run with nothing else on the machine: an earlier run of the same tarball, made while a separate R session was measuring the tree, reported an extra NOTE -- 'Examples with CPU (user + system) or elapsed time > 5s', listing 11 examples. All 11 were under 5s of CPU and over 5s of wall clock, i.e. the NOTE measured the contention, not the examples: on the idle re-run the same step is 'checking examples ... [93s/100s] OK'. Timing NOTEs are only meaningful from an unloaded machine.",
     "baseline_commit": "272b378a188a3cb85a02c075b64d58cd42439267",
     "baseline_status": "2 ERRORs, 1 WARNING, 6 NOTEs",
-    "latest_status": "3 NOTEs (New submission; top-level figure/ -- since fixed; temp-dir detritus)"
+    "latest_status": "2 NOTEs (New submission; temp-dir detritus)"
   },
   "items": [
     {
@@ -14,7 +14,7 @@
       "level": "NOTE",
       "class": "informational",
       "summary": "CRAN reports this as a New submission. The two redirecting URLs it flagged at baseline have been fixed.",
-      "source": "README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr). Tarball is 15734027 bytes.",
+      "source": "README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr); both fixed. Tarball was 15734027 bytes at the baseline commit and is 6740328 bytes now.",
       "fix": "Nothing to fix: 'New submission' is accurate. Recorded because it is R's own confirmation that nothing named edaphos exists on CRAN, which contradicts every artefact implying the package is released.",
       "blocks_cran": false,
       "note": "'New submission' is R's own confirmation that nothing named edaphos exists on CRAN, at version 3.10.0 with 43 NEWS releases behind it.",
@@ -69,10 +69,10 @@
       "level": "INFO",
       "class": "defect",
       "summary": "Installed size far above the CRAN 5 MB guidance; becomes a NOTE on CRAN's incoming checks.",
-      "source": "inst/extdata (result bundles) and man/figures/logo.png",
-      "fix": "See finding FDE7C43. The single cheapest win is re-encoding man/figures/logo.png.",
+      "source": "inst/doc (vignette HTML rendered at build time), inst/extdata (result bundles), man/figures",
+      "fix": "See finding FDE7C43, but note its arithmetic is stale: the 1.9 MB logo it names is now 299 KB. The largest contributor is no longer committed payload at all -- inst/doc is 38% of the tarball and 72% of that is base64 figure data inlined by rmarkdown::html_vignette, so lowering vignette figure sizes reduces the tarball without moving a single tracked file.",
       "blocks_cran": false,
-      "cran_note": "The size is dominated by inst/extdata, which holds committed result bundles that vignettes and the README read instead of recomputing. Reducing it is tracked as an open item in the project's own status register (STATUS.md, finding FDE7C43): man/figures/logo.png is 1.8 MB on its own, and the five largest .rds bundles are not xz-compressed."
+      "cran_note": "The installed size is dominated by inst/doc, the vignette HTML that R CMD build renders from vignettes/, followed by inst/extdata, which holds committed result bundles the vignettes and README read instead of recomputing. Both are measured in STATUS.md section 8 from the tarball itself; reducing them is tracked there as finding FDE7C43."
     },
     {
       "check": "checking for hidden files and directories",
@@ -143,7 +143,7 @@
       "check": "checking package dependencies",
       "level": "INFO",
       "class": "environment",
-      "summary": "Ten Suggests are not installable on the checking machine, so the check reports them as unavailable.",
+      "summary": "Some Suggests are not installable on the checking machine, so the check reports them as unavailable. The count and the names are read from the log, not stated here -- an earlier hand-written 'Ten' outlived the 8 the log actually names.",
       "source": "measuring machine; see the Test environments section",
       "fix": "None needed in the package. CRAN installs Suggests, so this INFO does not appear there.",
       "blocks_cran": false

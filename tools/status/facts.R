@@ -617,10 +617,13 @@ size_facts <- safe({
   agg_ship  <- tapply(bytes[ship_file], top[ship_file], sum)
   is_ship <- names(agg) %in% names(agg_ship)
   big <- local({
-    o <- order(bytes, decreasing = TRUE)[seq_len(min(12, length(bytes)))]
+    # Rank among files that actually ship.  Ranking over all tracked files
+    # and flagging the rest put findings.json (442 KB) and STATUS.md (226 KB)
+    # -- both .Rbuildignore'd -- at the top of a table headed "shipped".
+    i <- which(ship_file)
+    o <- i[order(bytes[i], decreasing = TRUE)][seq_len(min(12, length(i)))]
     data.frame(file = tracked[o], bytes = unname(bytes[o]),
-               ships = ship_file[o],   # honours .Rbuildignore
-               row.names = NULL, stringsAsFactors = FALSE)
+               ships = TRUE, row.names = NULL, stringsAsFactors = FALSE)
   })
   list(
     measured_over = "git-tracked files only (build artefacts excluded)",
@@ -647,6 +650,64 @@ size_facts <- safe({
       f <- list.files(".", pattern = "^edaphos_.*\\.tar\\.gz$")
       if (!length(f)) NA_character_ else
         f[order(file.mtime(file.path(".", f)), decreasing = TRUE)][1L]
+    }),
+    # Where the tarball's bytes actually are.  The git-tracked figures above
+    # cannot answer this, because the largest single contributor -- inst/doc --
+    # does not exist in the repository: `R CMD build` renders the vignettes
+    # into it.  Any argument about the 5 MB guidance that reasons from tracked
+    # sources is therefore reasoning about the wrong artefact.  Measured by
+    # unpacking the real tarball.
+    tarball_composition = local({
+      f <- list.files(".", pattern = "^edaphos_.*\\.tar\\.gz$", full.names = TRUE)
+      if (!length(f)) return(NULL)
+      f  <- f[order(file.mtime(f), decreasing = TRUE)][1L]
+      ex <- file.path(tempdir(), "edaphos-tarball-composition")
+      unlink(ex, recursive = TRUE)
+      dir.create(ex, recursive = TRUE, showWarnings = FALSE)
+      on.exit(unlink(ex, recursive = TRUE), add = TRUE)
+      if (!identical(utils::untar(f, exdir = ex), 0L)) return(NULL)
+      rt <- file.path(ex, "edaphos")
+      if (!dir.exists(rt)) return(NULL)
+      fs  <- list.files(rt, recursive = TRUE, all.files = TRUE,
+                        full.names = TRUE, no.. = TRUE)
+      fs  <- fs[!dir.exists(fs)]
+      rel <- substring(fs, nchar(rt) + 2L)
+      bs  <- file.size(fs)
+      # group by the directory that owns the bytes: two levels under inst/ and
+      # man/, one level elsewhere, root files together
+      grp <- vapply(strsplit(rel, "/", fixed = TRUE), function(p)
+        if (length(p) == 1L) "<root>" else
+          paste(p[seq_len(min(2L, length(p) - 1L))], collapse = "/"),
+        character(1))
+      agg <- tapply(bs, grp, sum)
+      agg <- agg[order(-as.numeric(agg))]
+      # inst/doc is rendered HTML with its figures inlined as data: URIs.
+      # base64 costs 4 bytes per 3, so this is the compressible part.
+      html <- list.files(file.path(rt, "inst", "doc"), pattern = "\\.html$",
+                         full.names = TRUE)
+      b64 <- if (!length(html)) NULL else local({
+        per <- vapply(html, function(p) {
+          s <- readChar(p, file.size(p), useBytes = TRUE)
+          m <- gregexpr("base64,[A-Za-z0-9+/=]+", s, useBytes = TRUE)[[1]]
+          if (m[1L] == -1L) 0 else sum(attr(m, "match.length"))
+        }, numeric(1))
+        o <- order(-per)
+        list(html_files = length(html),
+             html_bytes = sum(file.size(html)),
+             base64_bytes = sum(per),
+             base64_share_of_html = sum(per) / max(sum(file.size(html)), 1),
+             largest = data.frame(file = basename(html)[o],
+                                  bytes = unname(file.size(html)[o]),
+                                  base64_bytes = unname(per[o]),
+                                  row.names = NULL, stringsAsFactors = FALSE)[
+                                    seq_len(min(6L, length(html))), ])
+      })
+      list(total_bytes = sum(bs), file_count = length(fs),
+           by_dir = data.frame(dir = names(agg),
+                               bytes = unname(as.numeric(agg)),
+                               in_repo = names(agg) != "inst/doc",
+                               row.names = NULL, stringsAsFactors = FALSE),
+           inst_doc = b64)
     }),
     excluded_by_rbuildignore = sum(!ship_file & top %in% c(shipped_dirs, "<root>")),
     repo_bytes    = sum(bytes, na.rm = TRUE),
