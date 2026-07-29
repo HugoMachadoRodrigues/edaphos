@@ -21,8 +21,23 @@ temporal_synth_soc_cube(
 
 \item{seed}{Integer, RNG seed for reproducibility.}
 
-\item{k_in, k_out}{Numeric rate coefficients (defaults are tuned so
-SOC stays in a physically plausible 10-50 g/kg range).}
+\item{k_in, k_out}{Numeric rate coefficients of the input and output
+terms of the mass balance. The defaults do \strong{not} reach a steady
+state: with \code{k_in} above \code{k_out} the series accumulates for as long
+as it is run. Measured at the shipped defaults, the grid mean
+starts near 20 g/kg and reaches 30.6 at \code{T_total = 6}, 52.4 at the
+default 18, and 103.7 at 60, with maxima of 38.3, 65.6 and 121.4 —
+so the cube leaves a plausible topsoil range somewhere between
+\code{T_total} 6 and 12, and is well outside it by the default. This
+documentation previously claimed the defaults kept SOC inside
+10-50 g/kg, which is true only up to \code{T_total = 6}.
+
+That is a property of a deliberately simple generator, not a bug to
+route around: the cube exists to give ConvLSTM a reproducible
+space-time signal with known dynamics, and a monotone trend is a
+legitimate thing to learn. But do not read its values as SOC
+concentrations, and set \code{k_out} closer to \code{k_in} if you want a
+series that levels off.}
 
 \item{noise}{Numeric, standard deviation of Gaussian process noise
 on the SOC evolution (per pixel, per month).}

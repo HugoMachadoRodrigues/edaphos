@@ -48,6 +48,57 @@ An \code{edaphos_dm_fit} fit.
 \description{
 Train a tiny DDPM on a collection of soil-map patches
 }
+\examples{
+data(br_cerrado)
+
+# br_cerrado is a 45 x 45 grid, so it reshapes into an image.  Model
+# `twi`: a generative model can only learn structure the field
+# actually has, and `soc` in this grid carries far less short-range
+# structure than `twi` does.
+as_grid <- function(v) {
+  ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
+  m <- matrix(NA_real_, 45L, 45L)
+  m[cbind(match(br_cerrado$x, ux), match(br_cerrado$y, uy))] <- v
+  m
+}
+lag1 <- function(z) (cor(as.vector(z[, -ncol(z)]), as.vector(z[, -1])) +
+                     cor(as.vector(z[-nrow(z), ]), as.vector(z[-1, ]))) / 2
+round(c(soc = lag1(as_grid(br_cerrado$soc)),
+        twi = lag1(as_grid(br_cerrado$twi))), 3)
+
+field  <- as_grid(br_cerrado$twi)
+field  <- (field - mean(field)) / sd(field)
+starts <- seq(1L, 38L, by = 5L)
+cells  <- expand.grid(r = starts, c = starts)
+stack  <- array(0, dim = c(nrow(cells), 8L, 8L))
+for (i in seq_len(nrow(cells)))
+  stack[i, , ] <- field[cells$r[i]:(cells$r[i] + 7L),
+                        cells$c[i]:(cells$c[i] + 7L)]
+
+fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
+              lr = 0.02, seed = 1L)
+fit
+
+# The score-matching target is standard normal, so a denoiser that
+# predicts nothing at all -- eps_theta == 0 -- scores exactly 1.
+# That is what the training loss must be read against, and the gap
+# here is small.
+round(c(initial = fit$history[1L],
+        final   = fit$history[length(fit$history)],
+        eps_hat_zero = 1), 4)
+
+# Nor does the gap close with training: `backend = "r"` fits a
+# readout over frozen random features (an ELM), and that readout has
+# already converged.  2.7 times the epochs buys 0.05.
+fit_long <- dm_fit(stack, T = 50L, epochs = 400L, hidden = 32L,
+                   lr = 0.02, seed = 1L)
+round(c(epochs_150 = fit$history[150L],
+        epochs_400 = fit_long$history[400L]), 4)
+
+# And the patches overlap by construction (stride 5, window 8), so
+# these 64 are nowhere near 64 independent training examples.
+c(n_patches = dim(stack)[1L], H = dim(stack)[2L], W = dim(stack)[3L])
+}
 \references{
 Ho, J., Jain, A. and Abbeel, P. (2020). Denoising Diffusion
 Probabilistic Models. \emph{Advances in Neural Information Processing

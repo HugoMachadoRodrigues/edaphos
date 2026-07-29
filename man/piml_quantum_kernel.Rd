@@ -33,8 +33,10 @@ which observations were taken.}
 (quantum-heavy, physics-informed but not physics-dominated).}
 
 \item{sigma}{Numeric; RBF bandwidth on the residual scale.
-Default: median absolute residual over the training set
-(Silverman's rule of thumb).}
+Default: the median absolute deviation of the training residuals
+\emph{about their median}, unscaled --- which is neither the median
+absolute residual nor \code{stats::mad()}, the latter multiplying the
+same quantity by 1.4826. The example prints all three.}
 
 \item{reps}{Integer; ZZFeatureMap repetitions (forwarded to
 \code{\link[=quantum_kernel]{quantum_kernel()}}).}
@@ -57,6 +59,68 @@ the depth-profile residuals of a fitted Pilar 2 ODE:
 where \eqn{e_i = y_i - \hat y_{ODE}(z_i, x_i)} is the residual
 between the observed \eqn{y_i} and the ODE-predicted value at
 depth \eqn{z_i}.  The output is PSD for any \eqn{\alpha \in [0, 1]}.
+}
+\examples{
+data(br_cerrado)
+set.seed(2)
+d <- br_cerrado[sample(nrow(br_cerrado), 60L), ]
+X <- quantum_scale(as.matrix(d[, c("elev", "slope", "twi", "ndvi")]))
+
+# The reference pedon the residuals are measured against. br_cerrado
+# ships a single 0-5 cm layer, so every site enters at the same
+# mid-depth of 2.5 cm --- which is where the first trap lives.
+ref <- piml_profile_fit(c(5, 15, 30, 60, 100), c(25, 18, 12, 8, 6.5))
+K <- piml_quantum_kernel(X, d$soc, depths = rep(2.5, 60L), ode_fit = ref)
+
+# TRAP. With one sampling depth the ODE prediction is one number, so
+# e_i = y_i - 27.361 and the physics half is EXACTLY a Gaussian
+# kernel on the response. 30\% of this Gram matrix is the label.
+unique(round(d$soc - attr(K, "residuals"), 6))
+Kq <- quantum_kernel(X, reps = 2L)
+Kp <- (K - 0.7 * Kq) / 0.3
+max(abs(Kp - exp(-outer(d$soc, d$soc, "-")^2 /
+                 (2 * attr(K, "sigma")^2))))
+
+# The mixture is PSD as advertised (smallest eigenvalue 0.0266) ...
+signif(min(eigen(unclass(K), symmetric = TRUE,
+                 only.values = TRUE)$values), 4)
+
+# ... but "alpha = 0.7 is quantum-heavy" is not what the numbers say
+# on these four covariates. The ZZ kernel's off-diagonals sit near
+# zero (median 0.072), so after weighting, the 30\% physics block
+# carries MORE off-diagonal variation than the 70\% quantum block,
+# and the mixture tracks the physics block more closely.
+od <- upper.tri(K)
+round(stats::quantile(Kq[od], c(0.5, 0.9, 1)), 4)
+round(c(quantum = stats::sd(0.7 * Kq[od]),
+        physics = stats::sd(0.3 * Kp[od])), 4)
+round(c(quantum = stats::cor(K[od], Kq[od]),
+        physics = stats::cor(K[od], Kp[od])), 4)
+
+# Read that next to what the quantum block encodes at all: on these
+# covariates it barely tracks feature-space proximity (r = 0.23
+# against -distance), where a plain RBF at the median-distance
+# bandwidth is nearly collinear with it (0.99).
+D <- as.matrix(stats::dist(X))
+Krbf <- exp(-D^2 / (2 * stats::median(D[od])^2))
+round(c(quantum = stats::cor(Kq[od], -D[od]),
+        rbf     = stats::cor(Krbf[od], -D[od])), 4)
+
+# The default `sigma` is the median absolute deviation of the
+# residuals about their median, unscaled --- 3.115 here, against
+# 8.221 for the median absolute residual and 4.618 for stats::mad().
+# Pass `sigma` explicitly if you meant one of the other two.
+r <- attr(K, "residuals")
+round(c(default    = attr(K, "sigma"),
+        mad_median = stats::median(abs(r - stats::median(r))),
+        median_abs = stats::median(abs(r)),
+        stats_mad  = stats::mad(r)), 4)
+
+# alpha = 1 and alpha = 0 recover the two ends exactly.
+K1 <- piml_quantum_kernel(X, d$soc, rep(2.5, 60L), ref, alpha = 1)
+K0 <- piml_quantum_kernel(X, d$soc, rep(2.5, 60L), ref, alpha = 0)
+c(alpha1_is_quantum = max(abs(unclass(K1) - Kq)),
+  alpha0_is_physics = max(abs(unclass(K0) - Kp)))
 }
 \references{
 Bishop, T. F. A. et al. (1999). Modelling soil attribute depth

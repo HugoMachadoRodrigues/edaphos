@@ -53,3 +53,47 @@ Compared to \code{\link[=piml_profile_fit]{piml_profile_fit()}}, the Neural ODE 
 \strong{non-monotone} profiles (E horizons below an A, bulge in a Bt) that
 the parametric exponential-asymptote ODE cannot represent.
 }
+\examples{
+# torch is a Suggests dependency and libtorch is a separate binary
+# download, so requireNamespace() alone is not a sufficient guard.
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  # An A-E-Bt sequence: SOC falls into a bleached E horizon at 15 cm
+  # and partly recovers in the clay-illuvial Bt below it. This is the
+  # non-monotone shape the parametric ODE cannot represent.
+  depths <- c(5, 15, 30, 50, 80)
+  soc    <- c(22, 9, 16, 14, 11)
+
+  fit <- piml_neural_ode_fit(depths, soc, epochs = 80L, n_steps = 3L,
+                             seed = 1L)
+  print(fit)
+
+  # Three numbers, never one. At the 80 epochs this example can
+  # afford, the Neural ODE is BEATEN by the 4-parameter ODE, and both
+  # beat the mean-only baseline.
+  par_fit <- piml_profile_fit(depths, soc)
+  print(round(c(neural     = fit$rmse,                     # 3.5703
+                parametric = par_fit$rmse,                 # 2.4084
+                mean_only  = sqrt(mean((soc - mean(soc))^2))), 4))
+
+  # Read the fitted vectors before trusting that ranking. The
+  # parametric fit wins on RMSE by degenerating into a step: below
+  # 15 cm its predictions are constant to 1.63e-06, i.e. it returns
+  # the mean of the four deep horizons (12.5) and models no shape.
+  print(round(par_fit$fitted, 4))
+  print(signif(max(abs(diff(par_fit$fitted[2:5]))), 3))
+  print(mean(soc[2:5]))
+
+  # The Neural ODE is smooth but, at this budget, still monotone ---
+  # it has not found the E-horizon dip either. Neither fit has earned
+  # the word "non-monotone" here.
+  print(round(fit$fitted, 4))
+  print(all(diff(fit$fitted) < 0))
+
+  # Why: the loss is still falling at the last epoch, so this is an
+  # under-trained fit rather than the model's ceiling (the default is
+  # epochs = 500L, six times this budget). Quote the trace, never the
+  # single final number.
+  print(round(fit$loss_history[c(1, 20, 40, 60, 80)], 5))
+}
+}

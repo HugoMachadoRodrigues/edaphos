@@ -99,6 +99,66 @@
 #'
 #' Cressie, N. and Wikle, C. K. (2011). *Statistics for Spatio-Temporal
 #' Data*. Wiley, Hoboken.
+#' @examples
+#' data(br_cerrado)
+#'
+#' # A contiguous 13 x 13 block of the Cerrado grid: 169 sites, 0.0080 deg
+#' # apart in longitude and 0.0068 in latitude.  bhs_fit() wants the
+#' # coordinates under lon / lat.
+#' ux  <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
+#' blk <- br_cerrado[br_cerrado$x %in% ux[10:22] &
+#'                   br_cerrado$y %in% uy[10:22], ]
+#' names(blk)[names(blk) == "x"] <- "lon"
+#' names(blk)[names(blk) == "y"] <- "lat"
+#'
+#' # phi is a RATE: it enters the correlation as exp(-phi * d), so 1 / phi
+#' # is a correlation range in the units of `coords` -- degrees here.  All
+#' # three of these fits warn that the profile-MLE pinned to the top of the
+#' # bracket, and widening does not help: the likelihood keeps improving as
+#' # the range shrinks, so whatever you cap phi at is what you get back.
+#' fit_narrow <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L)
+#' fit_wide   <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
+#'                       phi_range = c(0.1, 2000))
+#' fit_huge   <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
+#'                       phi_range = c(0.1, 1e5))
+#' fit_wide
+#'
+#' # That is not a cosmetic complaint.  The spatial share of the residual
+#' # variance, sigma^2 / (sigma^2 + tau^2), is 0.025 under the default
+#' # bracket and 0.886 under the wider one -- the same data, the same
+#' # formula, opposite conclusions about whether a latent field exists.
+#' # Widening 50x again moves phi to 1e5 and leaves the share at 0.886:
+#' # past the point where the correlation matrix is the identity there is
+#' # nothing left for phi to change.
+#' share <- function(f)
+#'   mean(f$sigma2_draws) / (mean(f$sigma2_draws) + mean(f$tau2_draws))
+#' round(c(phi_narrow = fit_narrow$phi_hat, phi_wide = fit_wide$phi_hat,
+#'         phi_huge = fit_huge$phi_hat, share_narrow = share(fit_narrow),
+#'         share_wide = share(fit_wide), share_huge = share(fit_huge)), 4)
+#'
+#' # The tie-breaker is not the likelihood, it is the geometry.  At
+#' # phi = 2000 the correlation between the two CLOSEST sites in the block
+#' # is 1e-06: exp(-phi * d) has decayed to nothing well inside one grid
+#' # cell, so w and eps are the same white noise and their split is
+#' # arbitrary.  An "89% spatial" fit whose correlation range is 55 m on a
+#' # 750 m grid is reporting a nugget under another name.
+#' d <- as.matrix(dist(as.matrix(blk[, c("lon", "lat")])))
+#' round(c(range_deg = 1 / fit_wide$phi_hat, min_spacing = min(d[d > 0]),
+#'         corr_at_min_spacing = exp(-fit_wide$phi_hat * min(d[d > 0]))), 6)
+#'
+#' # Which is also why the beta posterior sits on top of OLS: with the
+#' # correlation matrix effectively the identity, generalised least squares
+#' # has nothing to weight.  Both slopes agree to well under a third of a
+#' # posterior sd.
+#' o <- lm(soc ~ elev + slope, data = blk)
+#' round(rbind(bhs = colMeans(fit_wide$beta_draws), ols = coef(o),
+#'             post_sd = apply(fit_wide$beta_draws, 2L, sd)), 4)
+#'
+#' # `nmcmc` is the raw chain; `burn` (half of it by default) and `thin`
+#' # decide how much survives, and every downstream interval -- including
+#' # predict()'s -- is built from those kept draws alone.
+#' c(nmcmc = fit_wide$nmcmc, burn = fit_wide$burn,
+#'   kept = nrow(fit_wide$beta_draws))
 #' @export
 bhs_fit <- function(data, formula, coords = c("lon", "lat"),
                       backend = c("gibbs", "rcpp", "spBayes"),
@@ -411,6 +471,89 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
 #' @param ... Unused.
 #' @return A data frame with `newdata` rows plus columns `mean`,
 #'   `sd`, and one column per quantile.
+#' @examples
+#' data(br_cerrado)
+#'
+#' # A contiguous 13 x 13 block of the Cerrado grid, 40 cells held out.
+#' ux  <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
+#' blk <- br_cerrado[br_cerrado$x %in% ux[10:22] &
+#'                   br_cerrado$y %in% uy[10:22], ]
+#' names(blk)[names(blk) == "x"] <- "lon"
+#' names(blk)[names(blk) == "y"] <- "lat"
+#' set.seed(7)
+#' ho    <- sample(nrow(blk), 40L)
+#' train <- blk[-ho, ]; test <- blk[ho, ]
+#'
+#' fit <- bhs_fit(train, soc ~ elev + slope + twi + map_mm + ndvi,
+#'                nmcmc = 800L, phi_range = c(0.1, 2000), seed = 1L)
+#'
+#' # Every posterior draw is used twice -- once for x0'beta, once for the
+#' # kriging correction -- and observation noise is added on top, so
+#' # predict() is random.  Seed it, or the number you quote moves.
+#' set.seed(11)
+#' pred <- predict(fit, test, n_draws = 300L)
+#' head(pred, 3)
+#'
+#' # Quantile columns are named from the requested probabilities scaled by
+#' # 1000: 0.025 -> q025, 0.5 -> q500, 0.95 -> q950.
+#' names(predict(fit, test[1:3, ], quantiles = c(0.05, 0.5, 0.95),
+#'               n_draws = 50L))
+#'
+#' # Held-out accuracy against the training mean and against OLS on the
+#' # same covariates, with the coverage of the nominal 95% band.
+#' round(c(bhs  = sqrt(mean((pred$mean - test$soc)^2)),
+#'         null = sqrt(mean((mean(train$soc) - test$soc)^2)),
+#'         ols  = sqrt(mean((predict(lm(soc ~ elev + slope + twi + map_mm +
+#'                                      ndvi, data = train),
+#'                                   test) - test$soc)^2)),
+#'         picp95 = mean(test$soc >= pred$q025 & test$soc <= pred$q975)), 3)
+#'
+#' # The kriging correction is the only reason to prefer this over lm(), so
+#' # check it is doing something.  phi came back interior to its bracket
+#' # here -- 804, no warning -- and that is necessary, not sufficient: the
+#' # implied correlation range is 0.0012 degrees, a fifth of the distance
+#' # to the nearest other profile, so the "spatial" field handed 94% of the
+#' # residual variance correlates 0.004 with the closest site.
+#' d <- as.matrix(dist(as.matrix(train[, c("lon", "lat")])))
+#' s2 <- mean(fit$sigma2_draws); t2 <- mean(fit$tau2_draws)
+#' round(c(phi = fit$phi_hat, range_deg = 1 / fit$phi_hat,
+#'         min_spacing = min(d[d > 0]),
+#'         corr_at_min_spacing = exp(-fit$phi_hat * min(d[d > 0])),
+#'         spatial_share = s2 / (s2 + t2)), 4)
+#'
+#' # What that costs shows up in the predictive sd.  Ask for a prediction
+#' # AT five training coordinates and it is 1.33, because r0 = 1 there and
+#' # the model is recalling those profiles' own measurements.  Move half a
+#' # grid cell -- 0.004 deg, about 440 m -- and it is 4.02, the same as
+#' # three degrees outside the block and the same as the marginal
+#' # sqrt(sigma^2 + tau^2).
+#' half <- train[1:5, ]; half$lon <- half$lon + 0.004
+#' far  <- train[1:5, ]; far$lon  <- far$lon  + 3
+#' set.seed(3); p_at   <- predict(fit, train[1:5, ], n_draws = 300L)
+#' set.seed(3); p_half <- predict(fit, half, n_draws = 300L)
+#' set.seed(3); p_far  <- predict(fit, far,  n_draws = 300L)
+#' round(c(sd_at_site = mean(p_at$sd), sd_half_cell = mean(p_half$sd),
+#'         sd_3deg = mean(p_far$sd), marginal = sqrt(s2 + t2)), 4)
+#'
+#' # The narrow band at a training site is recall, not skill, and a map is
+#' # made between the nodes.  Quote the second number, and read it next to
+#' # the held-out picp95 above.
+#'
+#' # `n_draws` is capped at the draws the fit kept, and it buys precision
+#' # in the summaries rather than width: at 300 draws a site's posterior
+#' # mean moves by up to 0.66 g/kg between two calls, at 50 draws by 1.69.
+#' mc_gap <- function(nd) {
+#'   set.seed(1); a <- predict(fit, test[1:10, ], n_draws = nd)
+#'   set.seed(2); b <- predict(fit, test[1:10, ], n_draws = nd)
+#'   max(abs(a$mean - b$mean))
+#' }
+#' round(c(kept = nrow(fit$beta_draws), gap_300 = mc_gap(300L),
+#'         gap_50 = mc_gap(50L)), 3)
+#'
+#' # `newdata` must carry the coordinate columns under their training
+#' # names as well as every covariate; neither omission gets a friendly
+#' # message.
+#' try(predict(fit, test[, c("elev", "slope", "twi", "map_mm", "ndvi")]))
 #' @export
 predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975),
                                   n_draws = 500L, ...) {

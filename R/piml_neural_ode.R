@@ -116,6 +116,49 @@
 #' @param verbose Logical; print training loss every 50 epochs.
 #'
 #' @return A `edaphos_piml_neural_ode` object (S3).
+#' @examples
+#' # torch is a Suggests dependency and libtorch is a separate binary
+#' # download, so requireNamespace() alone is not a sufficient guard.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   # An A-E-Bt sequence: SOC falls into a bleached E horizon at 15 cm
+#'   # and partly recovers in the clay-illuvial Bt below it. This is the
+#'   # non-monotone shape the parametric ODE cannot represent.
+#'   depths <- c(5, 15, 30, 50, 80)
+#'   soc    <- c(22, 9, 16, 14, 11)
+#'
+#'   fit <- piml_neural_ode_fit(depths, soc, epochs = 80L, n_steps = 3L,
+#'                              seed = 1L)
+#'   print(fit)
+#'
+#'   # Three numbers, never one. At the 80 epochs this example can
+#'   # afford, the Neural ODE is BEATEN by the 4-parameter ODE, and both
+#'   # beat the mean-only baseline.
+#'   par_fit <- piml_profile_fit(depths, soc)
+#'   print(round(c(neural     = fit$rmse,                     # 3.5703
+#'                 parametric = par_fit$rmse,                 # 2.4084
+#'                 mean_only  = sqrt(mean((soc - mean(soc))^2))), 4))
+#'
+#'   # Read the fitted vectors before trusting that ranking. The
+#'   # parametric fit wins on RMSE by degenerating into a step: below
+#'   # 15 cm its predictions are constant to 1.63e-06, i.e. it returns
+#'   # the mean of the four deep horizons (12.5) and models no shape.
+#'   print(round(par_fit$fitted, 4))
+#'   print(signif(max(abs(diff(par_fit$fitted[2:5]))), 3))
+#'   print(mean(soc[2:5]))
+#'
+#'   # The Neural ODE is smooth but, at this budget, still monotone ---
+#'   # it has not found the E-horizon dip either. Neither fit has earned
+#'   # the word "non-monotone" here.
+#'   print(round(fit$fitted, 4))
+#'   print(all(diff(fit$fitted) < 0))
+#'
+#'   # Why: the loss is still falling at the last epoch, so this is an
+#'   # under-trained fit rather than the model's ceiling (the default is
+#'   # epochs = 500L, six times this budget). Quote the trace, never the
+#'   # single final number.
+#'   print(round(fit$loss_history[c(1, 20, 40, 60, 80)], 5))
+#' }
 #' @export
 piml_neural_ode_fit <- function(depths, values, y_surface = NULL,
                                 hidden = c(16L, 16L),
@@ -194,6 +237,55 @@ piml_neural_ode_fit <- function(depths, values, y_surface = NULL,
 #'   profile.
 #' @param ... Unused.
 #' @return Numeric vector, one value per element of `newdepths`.
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   depths <- c(5, 15, 30, 50, 80)
+#'   soc    <- c(22, 9, 16, 14, 11)
+#'   fit <- piml_neural_ode_fit(depths, soc, hidden = c(8L, 8L),
+#'                              epochs = 60L, n_steps = 2L, seed = 1L)
+#'
+#'   # On the training depths this reproduces $fitted to the last bit:
+#'   # same RK4 grid, same answer.
+#'   print(max(abs(piml_neural_ode_predict(fit, depths) - fit$fitted)))
+#'
+#'   # TRAP. `n_steps` RK4 steps are taken between CONSECUTIVE requested
+#'   # depths, so the integration grid --- and therefore the answer ---
+#'   # depends on which OTHER depths you asked for. Same fit, same 200
+#'   # cm: 2 steps when asked alone, 40 when asked on a 10 cm grid.
+#'   print(round(c(
+#'     alone  = piml_neural_ode_predict(fit, 200),
+#'     grid10 = tail(piml_neural_ode_predict(fit, seq(0, 200, by = 10)), 1),
+#'     grid2  = tail(piml_neural_ode_predict(fit, seq(0, 200, by = 2)), 1)),
+#'     4))
+#'   # 14.0248 / 13.5046 / 13.5046 --- 0.52 g/kg of pure discretisation,
+#'   # and the 10 cm grid has already converged.
+#'
+#'   # The gap shrinks inside the sampled range: 0.07 g/kg at 80 cm.
+#'   # When you need one deep value, refine the request rather than the
+#'   # model --- `n_steps` is frozen inside the fit and predict() has no
+#'   # argument to raise it.
+#'   print(round(c(
+#'     alone  = piml_neural_ode_predict(fit, 80),
+#'     grid10 = tail(piml_neural_ode_predict(fit, seq(0, 80, by = 10)), 1)),
+#'     4))
+#'   print(fit$n_steps)
+#'
+#'   # The ORDER of `newdepths` is irrelevant --- the internal sort is
+#'   # undone --- so only the set you request matters.
+#'   print(round(c(asc  = piml_neural_ode_predict(fit, c(5, 80)),
+#'                 desc = rev(piml_neural_ode_predict(fit, c(80, 5)))), 4))
+#'
+#'   # z = 0 returns the learned surface value: with y_surface = NULL,
+#'   # y0 is a free parameter and lands 1.7 g/kg below the shallowest
+#'   # observation. Pass y_surface to pin it to a measured 0 cm value.
+#'   print(round(c(z0 = piml_neural_ode_predict(fit, 0),
+#'                 shallowest_obs = soc[1]), 4))
+#'
+#'   # Depths are distances below the surface; negatives are rejected.
+#'   print(tryCatch(piml_neural_ode_predict(fit, c(0, -5)),
+#'                  error = function(e) conditionMessage(e)))
+#' }
 #' @export
 piml_neural_ode_predict <- function(object, newdepths, ...) {
   .piml_require_torch()

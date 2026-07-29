@@ -77,7 +77,10 @@ names(sub)[names(sub) == "y"] <- "lat"
 
 g <- gnn_build_graph(sub, k = 5L,
                      feature_cols = c("elev", "slope", "twi"))
-c(n_nodes = g$n, n_edges = ncol(g$edge_index))
+# `edge_index` is one EDGE PER ROW (src, dst), so the edge count is
+# nrow(); ncol() is always 2.  With self-loops on there are
+# n * (k + 1) = 720 of them.
+c(n_nodes = g$n, n_edges = nrow(g$edge_index))
 
 # "spatial" links nearest neighbours in geographic space; "feature"
 # links pedologically similar profiles however far apart they lie.

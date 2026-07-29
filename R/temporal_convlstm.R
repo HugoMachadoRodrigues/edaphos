@@ -59,6 +59,58 @@
 #' @param input_dim,hidden_dim,kernel_size See [temporal_convlstm_fit()].
 #' @return An `nn_module` cell with methods `forward(input, state)` and
 #'   `init_state(batch, height, width)`.
+#' @examples
+#' # lantern is a separate binary download, so requireNamespace() alone
+#' # is not enough -- torch_is_installed() is the half that matters.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   torch::torch_manual_seed(1)
+#'   cell <- temporal_convlstm_cell(input_dim = 2, hidden_dim = 3)
+#'
+#'   # All four gates come out of ONE convolution: out_channels is
+#'   # 4 * hidden_dim and in_channels is input_dim + hidden_dim,
+#'   # because the input and the previous h are concatenated first.
+#'   print(dim(cell$conv$weight))          # 12 5 3 3
+#'
+#'   # init_state() returns (h, c) -- both zeros, both hidden_dim
+#'   # channels. Height and width are yours to supply; the cell is
+#'   # fully convolutional and has no built-in grid size.
+#'   state <- cell$init_state(batch = 1, height = 8, width = 8)
+#'   print(vapply(state, function(s) paste(dim(s), collapse = " x "), ""))
+#'   # "1 x 3 x 8 x 8" "1 x 3 x 8 x 8"
+#'
+#'   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
+#'   tt   <- temporal_cube_to_tensor(cube)
+#'   x1 <- torch::torch_tensor(
+#'     tt$sequence[, 1, , , , drop = FALSE])$squeeze(2)
+#'   print(x1$shape)                       # 1 2 8 8 = (batch, C, H, W)
+#'
+#'   state <- cell(x1, state)
+#'   # The cell emits hidden_dim feature channels, NOT a prediction.
+#'   # The 1x1 head that turns them into one soil property lives in
+#'   # temporal_convlstm_fit()'s stack, not here.
+#'   print(state[[1]]$shape)               # 1 3 8 8
+#'
+#'   # h = o * tanh(c) with o in (0, 1), so |h| can never exceed
+#'   # |tanh(c)|. Read c as the retained memory and h as the part of
+#'   # it the next layer is allowed to see.
+#'   print(round(c(h_absmax = as.numeric(state[[1]]$abs()$max()$item()),
+#'                 c_absmax = as.numeric(state[[2]]$abs()$max()$item())), 4))
+#'   # h_absmax c_absmax
+#'   #   0.1323   0.2638
+#'
+#'   # Trap: padding is floor((kernel_size - 1) / 2), which preserves
+#'   # H and W only for ODD kernels. kernel_size = 2 gives padding 0,
+#'   # so the gates come back 7 x 7 while c_prev is still 8 x 8 and
+#'   # the cell dies on f * c_prev. There is no check for this.
+#'   torch::torch_manual_seed(1)
+#'   even <- temporal_convlstm_cell(2, 3, kernel_size = 2)
+#'   print(tryCatch(even(x1, even$init_state(1, 8, 8)),
+#'                  error = function(e) trimws(
+#'                    sub("Exception raised.*", "", conditionMessage(e)))))
+#'   # "The size of tensor a (7) must match the size of tensor b (8) at
+#'   #  non-singleton dimension 3"
+#' }
 #' @export
 temporal_convlstm_cell <- function(input_dim, hidden_dim, kernel_size = 3L) {
   .temporal_require_torch()
@@ -167,6 +219,75 @@ temporal_convlstm_cell <- function(input_dim, hidden_dim, kernel_size = 3L) {
 #'
 #' @return A `edaphos_temporal_convlstm` object (list) with the trained
 #'   model, config, and loss history.
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
+#'   tt   <- temporal_cube_to_tensor(cube)
+#'
+#'   # Sequence-to-one: six months of (elev, precip) -> the month-6 SOC
+#'   # map. `target` must keep its batch axis, so 3-D (1, H, W). The
+#'   # 2-D map that tt$target[1, 6, , ] returns is rejected by
+#'   # stopifnot(target$dim() == 3L).
+#'   y6  <- array(tt$target[1, 6, , ], dim = c(1, 8, 8))
+#'   fit <- temporal_convlstm_fit(tt$sequence, y6, hidden_dims = 4L,
+#'                                epochs = 150L, lr = 0.05, seed = 1L)
+#'   print(fit)
+#'
+#'   # A loss number alone means nothing. The reference that makes it
+#'   # readable is the constant map: mean(y6) predicted everywhere.
+#'   baseline <- mean((y6 - mean(y6))^2)
+#'   print(round(c(final = fit$final_loss, baseline = baseline,
+#'                 ratio = fit$final_loss / baseline), 4))
+#'   #   final baseline    ratio
+#'   #  0.0091   0.5382   0.0169
+#'
+#'   # Adam at lr = 0.05 is not monotone: 7 of the 149 steps go uphill,
+#'   # so never read final_loss as "the best loss reached".
+#'   print(sum(diff(fit$loss_history) > 0))          # 7
+#'
+#'   # And keep the ratio in proportion -- this fits 64 pixels with
+#'   # this many parameters and no held-out month, so 0.0169 measures
+#'   # capacity, not skill. temporal_convlstm_rollout() is where the
+#'   # same model has to face months it never saw.
+#'   print(sum(vapply(fit$model$parameters,
+#'                    function(p) prod(dim(p)), 0)))  # 885
+#'
+#'   # Trap 1: the physics regulariser is silently inert unless
+#'   # return_sequence = TRUE. physics_lambda is stored on the object
+#'   # either way, so loss_phys_history is the only proof it ever ran.
+#'   off <- temporal_convlstm_fit(tt$sequence, y6, epochs = 20L, lr = 0.05,
+#'                                seed = 1L, physics_lambda = 10)
+#'   print(c(lambda = off$physics_lambda,
+#'           phys_loss = max(off$loss_phys_history)))
+#'   #    lambda phys_loss
+#'   #        10         0
+#'
+#'   # Trap 2: when it IS active, the mass-balance term divides by the
+#'   # mean of the driver channel -- and temporal_cube_to_tensor() hands
+#'   # over a z-scored driver whose mean is zero to machine precision.
+#'   # The 1e-6 guard turns that into a division by 1e-6.
+#'   print(mean(tt$sequence[1, , 2, , ]))            # 1.225871e-16
+#'
+#'   on <- temporal_convlstm_fit(tt$sequence, tt$target, hidden_dims = 4L,
+#'                               return_sequence = TRUE, epochs = 5L,
+#'                               lr = 0.05, seed = 1L, physics_lambda = 1)
+#'   print(signif(c(fit  = on$loss_fit_history[1],
+#'                  phys = on$loss_phys_history[1],
+#'                  ratio = on$loss_phys_history[1] /
+#'                          on$loss_fit_history[1]), 3))
+#'   #      fit     phys    ratio
+#'   # 1.07e+00 2.76e+07 2.58e+07
+#'
+#'   # So the "prior" arrives ~2.6e7 times heavier than the fit term it
+#'   # is meant to regularise, and training optimises the regulariser.
+#'   # physics_k_in / physics_k_out default to 0.03 / 0.015, which are
+#'   # the RAW g/kg-per-mm rates of temporal_synth_soc_cube(), not the
+#'   # rates of the standardised problem the loss actually sees. Use
+#'   # physics_lambda > 0 only with a strictly positive driver channel
+#'   # whose mean is far from zero, and rescale both coefficients to
+#'   # match those units.
+#' }
 #' @export
 temporal_convlstm_fit <- function(sequence, target,
                                   hidden_dims = 4L, kernel_size = 3L,
@@ -279,6 +400,45 @@ temporal_convlstm_fit <- function(sequence, target,
 #' @param ... Unused.
 #' @return An R array. Shape is `(batch, T, H, W)` when
 #'   `return_sequence = TRUE`, otherwise `(batch, H, W)`.
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
+#'   tt   <- temporal_cube_to_tensor(cube)
+#'   y6   <- array(tt$target[1, 6, , ], dim = c(1, 8, 8))
+#'   fit  <- temporal_convlstm_fit(tt$sequence, y6, hidden_dims = 4L,
+#'                                 epochs = 150L, lr = 0.05, seed = 1L)
+#'
+#'   p1 <- temporal_convlstm_predict(fit, tt$sequence)
+#'   print(dim(p1))                          # 1 8 8
+#'
+#'   # return_sequence is an override, not a retrain: the same 1x1 head
+#'   # is simply read at every step instead of only the last one. So
+#'   # the last slice of the sequence output is bit-identical to the
+#'   # sequence-to-one output -- no second model is involved.
+#'   ps <- temporal_convlstm_predict(fit, tt$sequence,
+#'                                   return_sequence = TRUE)
+#'   print(dim(ps))                          # 1 6 8 8
+#'   print(max(abs(ps[1, 6, , ] - p1[1, , ])))   # 0
+#'
+#'   # The five earlier maps are not free predictions. This model was
+#'   # only ever scored on month 6, and the per-step RMSE (z units)
+#'   # says so: month 1 is off by nearly two standard deviations.
+#'   print(round(vapply(1:6, function(t)
+#'     sqrt(mean((ps[1, t, , ] - tt$target[1, t, , ])^2)), 0), 3))
+#'   # 1.883 1.727 1.463 1.153 0.703 0.095
+#'
+#'   # Output is in the z units of tt$scaling, never g/kg. Rescale
+#'   # before reporting, and read the error next to the spread of the
+#'   # month it is scoring.
+#'   sc <- tt$scaling
+#'   y6z <- tt$target[1, 6, , ]
+#'   print(round(c(
+#'     rmse_gkg  = sc$soc_sd * sqrt(mean((p1[1, , ] - y6z)^2)),
+#'     sd_month6 = sd(as.vector(cube$soc[6, , ]))), 3))
+#'   #  rmse_gkg sd_month6
+#'   #     0.410     3.189
+#' }
 #' @export
 temporal_convlstm_predict <- function(object, sequence,
                                       return_sequence = NULL, ...) {
@@ -312,6 +472,87 @@ temporal_convlstm_predict <- function(object, sequence,
 #' @param future_drivers Array `(batch, T_future, C, H, W)` with the
 #'   same channel layout as `past_sequence`.
 #' @return Array `(batch, T_future, H, W)` with per-step predictions.
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
+#'   # ONE call, so the train and forecast windows share a scaling and
+#'   # the two error numbers below are comparable at all.
+#'   tt <- temporal_cube_to_tensor(cube)
+#'   past   <- tt$sequence[, 1:4, , , , drop = FALSE]
+#'   past_y <- tt$target[,   1:4, , , drop = FALSE]
+#'   fut    <- tt$sequence[, 5:6, , , , drop = FALSE]
+#'   fut_y  <- tt$target[,   5:6, , , drop = FALSE]
+#'
+#'   fit <- temporal_convlstm_fit(past, past_y, hidden_dims = 8L,
+#'                                return_sequence = TRUE,
+#'                                epochs = 150L, lr = 0.05, seed = 1L)
+#'   fc <- temporal_convlstm_rollout(fit, past, fut)
+#'   print(dim(fc))                       # 1 2 8 8
+#'
+#'   # This rollout is NOT autoregressive. The two input channels are
+#'   # elevation and precipitation -- SOC is never one of them -- so
+#'   # the model cannot see its own predictions and nothing is fed
+#'   # back. It is exactly predict() on the concatenated window, then
+#'   # sliced to the future part.
+#'   print(dim(tt$sequence)[3])           # 2
+#'   both <- temporal_convlstm_predict(fit, tt$sequence)
+#'   print(max(abs(fc[1, , , ] - both[1, 5:6, , ])))   # 0
+#'
+#'   # The scoring that matters. A forecast has to beat carrying the
+#'   # last observed SOC map forward, so report that baseline beside
+#'   # the model, in g/kg, at every horizon.
+#'   rmse <- function(a, b) sqrt(mean((a - b)^2))
+#'   sd_  <- tt$scaling$soc_sd
+#'   print(round(rbind(
+#'     convlstm    = sd_ * c(h1 = rmse(fc[1, 1, , ], fut_y[1, 1, , ]),
+#'                           h2 = rmse(fc[1, 2, , ], fut_y[1, 2, , ])),
+#'     persistence = c(h1 = rmse(cube$soc[4, , ], cube$soc[5, , ]),
+#'                     h2 = rmse(cube$soc[4, , ], cube$soc[6, , ]))), 3))
+#'   #                h1    h2
+#'   # convlstm    1.875 4.635
+#'   # persistence 3.094 6.822
+#'
+#'   # It does beat persistence at both horizons -- and the in-sample
+#'   # error still oversells it by a factor of six at h = 1. A fitted
+#'   # window and a forecast are two different claims; print them
+#'   # together or the first will be mistaken for the second.
+#'   ins <- temporal_convlstm_predict(fit, past)
+#'   print(round(sd_ * rmse(ins, past_y), 3))          # 0.288
+#'
+#'   # Training longer widens that gap rather than closing it: the fit
+#'   # keeps improving while the forecast decays.
+#'   more <- temporal_convlstm_fit(past, past_y, hidden_dims = 8L,
+#'                                 return_sequence = TRUE,
+#'                                 epochs = 300L, lr = 0.05, seed = 1L)
+#'   fc2 <- temporal_convlstm_rollout(more, past, fut)
+#'   print(round(c(
+#'     in_sample = sd_ * rmse(temporal_convlstm_predict(more, past), past_y),
+#'     h1 = sd_ * rmse(fc2[1, 1, , ], fut_y[1, 1, , ]),
+#'     h2 = sd_ * rmse(fc2[1, 2, , ], fut_y[1, 2, , ])), 3))
+#'   # in_sample        h1        h2
+#'   #     0.176     2.451     5.685
+#'
+#'   # The cause is not compounding feedback -- there is none -- it is
+#'   # extrapolation. A third of the forecast window is wetter than
+#'   # any month the model trained on, and most of its SOC sits above
+#'   # the training range, so the head is asked for values it was
+#'   # never shown. Check this BEFORE trusting a rollout.
+#'   print(round(c(
+#'     drivers_above_train = mean(fut[1, , 2, , ] > max(past[1, , 2, , ])),
+#'     target_above_train  = mean(fut_y > max(past_y))), 3))
+#'   # drivers_above_train  target_above_train
+#'   #               0.328               0.578
+#'
+#'   # A sequence-to-one model has no per-step head to roll forward,
+#'   # and is refused rather than silently reinterpreted.
+#'   s2o <- temporal_convlstm_fit(
+#'     past, array(past_y[1, 4, , ], dim = c(1, 8, 8)),
+#'     epochs = 1L, seed = 1L)
+#'   print(tryCatch(temporal_convlstm_rollout(s2o, past, fut),
+#'                  error = function(e) conditionMessage(e)))
+#'   # "isTRUE(object$return_sequence) is not TRUE"
+#' }
 #' @export
 temporal_convlstm_rollout <- function(object, past_sequence, future_drivers) {
   .temporal_require_torch()

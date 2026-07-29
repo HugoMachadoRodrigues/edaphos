@@ -67,6 +67,67 @@ spatial linear model \verb{y_i = x_i' beta + w_i + eps_i} with a latent
 exponential-correlation Gaussian process on the residual field
 and returns full posterior draws.
 }
+\examples{
+data(br_cerrado)
+
+# A contiguous 13 x 13 block of the Cerrado grid: 169 sites, 0.0080 deg
+# apart in longitude and 0.0068 in latitude.  bhs_fit() wants the
+# coordinates under lon / lat.
+ux  <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
+blk <- br_cerrado[br_cerrado$x \%in\% ux[10:22] &
+                  br_cerrado$y \%in\% uy[10:22], ]
+names(blk)[names(blk) == "x"] <- "lon"
+names(blk)[names(blk) == "y"] <- "lat"
+
+# phi is a RATE: it enters the correlation as exp(-phi * d), so 1 / phi
+# is a correlation range in the units of `coords` -- degrees here.  All
+# three of these fits warn that the profile-MLE pinned to the top of the
+# bracket, and widening does not help: the likelihood keeps improving as
+# the range shrinks, so whatever you cap phi at is what you get back.
+fit_narrow <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L)
+fit_wide   <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
+                      phi_range = c(0.1, 2000))
+fit_huge   <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
+                      phi_range = c(0.1, 1e5))
+fit_wide
+
+# That is not a cosmetic complaint.  The spatial share of the residual
+# variance, sigma^2 / (sigma^2 + tau^2), is 0.025 under the default
+# bracket and 0.886 under the wider one -- the same data, the same
+# formula, opposite conclusions about whether a latent field exists.
+# Widening 50x again moves phi to 1e5 and leaves the share at 0.886:
+# past the point where the correlation matrix is the identity there is
+# nothing left for phi to change.
+share <- function(f)
+  mean(f$sigma2_draws) / (mean(f$sigma2_draws) + mean(f$tau2_draws))
+round(c(phi_narrow = fit_narrow$phi_hat, phi_wide = fit_wide$phi_hat,
+        phi_huge = fit_huge$phi_hat, share_narrow = share(fit_narrow),
+        share_wide = share(fit_wide), share_huge = share(fit_huge)), 4)
+
+# The tie-breaker is not the likelihood, it is the geometry.  At
+# phi = 2000 the correlation between the two CLOSEST sites in the block
+# is 1e-06: exp(-phi * d) has decayed to nothing well inside one grid
+# cell, so w and eps are the same white noise and their split is
+# arbitrary.  An "89\% spatial" fit whose correlation range is 55 m on a
+# 750 m grid is reporting a nugget under another name.
+d <- as.matrix(dist(as.matrix(blk[, c("lon", "lat")])))
+round(c(range_deg = 1 / fit_wide$phi_hat, min_spacing = min(d[d > 0]),
+        corr_at_min_spacing = exp(-fit_wide$phi_hat * min(d[d > 0]))), 6)
+
+# Which is also why the beta posterior sits on top of OLS: with the
+# correlation matrix effectively the identity, generalised least squares
+# has nothing to weight.  Both slopes agree to well under a third of a
+# posterior sd.
+o <- lm(soc ~ elev + slope, data = blk)
+round(rbind(bhs = colMeans(fit_wide$beta_draws), ols = coef(o),
+            post_sd = apply(fit_wide$beta_draws, 2L, sd)), 4)
+
+# `nmcmc` is the raw chain; `burn` (half of it by default) and `thin`
+# decide how much survives, and every downstream interval -- including
+# predict()'s -- is built from those kept draws alone.
+c(nmcmc = fit_wide$nmcmc, burn = fit_wide$burn,
+  kept = nrow(fit_wide$beta_draws))
+}
 \references{
 Banerjee, S., Carlin, B. P. and Gelfand, A. E. (2014). \emph{Hierarchical
 Modeling and Analysis for Spatial Data}, 2nd edition. Chapman and

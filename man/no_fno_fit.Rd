@@ -60,6 +60,77 @@ Learns the solution map \code{u(z) -> y(z)} from a collection of
 (covariate trajectory, target profile) pairs.  The trained
 operator predicts the depth profile at new sites without re-fitting.
 }
+\examples{
+set.seed(11)
+depths <- seq(5, 150, length.out = 8L)
+
+# A profile bank whose operator is KNOWN: the Pilar 2 pedogenetic
+# ODE solution, with its four parameters driven by site covariates.
+site <- cbind(clay   = runif(50L, 0.10, 0.60),
+              map    = runif(50L, 0.80, 1.60),
+              relief = runif(50L, 0.00, 1.00))
+profile_of <- function(s, z) {
+  y0  <- 20 + 25 * s[["clay"]];       yinf <- 2 + 6 * s[["map"]]
+  lam <- 0.05 + 0.04 * s[["relief"]]; mu <- 0.02 + 0.01 * s[["clay"]]
+  yinf + (y0 - yinf) * exp(-(lam / mu) * (1 - exp(-mu * z)))
+}
+soc <- t(apply(site, 1L, profile_of, z = depths)) +
+       matrix(rnorm(400L, 0, 0.25), 50L, 8L)
+
+# The FNO consumes a (sites, depths, channels) cube; static site
+# covariates are broadcast along the depth axis.
+cube <- function(x) {
+  a <- array(0, dim = c(nrow(x), length(depths), ncol(x)))
+  for (j in seq_len(ncol(x))) a[, , j] <- x[, j]
+  a
+}
+tr <- 1:30; te <- 31:50
+fno <- no_fno_fit(depths, soc[tr, ], cube(site[tr, ]),
+                  n_modes = 4L, width = 8L, n_blocks = 1L,
+                  epochs = 20L, lr = 0.05, seed = 1L)
+fno
+
+# Read that MSE against the only baseline that matters.  Targets are
+# standardised PER DEPTH, so predicting the mean profile scores
+# exactly 1 -- and 20 epochs have moved 4 percent off it.
+round(c(initial = fno$history[1L],
+        final   = fno$history[length(fno$history)],
+        mean_profile = 1), 4)
+
+# Same story on held-out sites, and it vanishes if you score against
+# the GRAND mean: that null does not know the shape of an average
+# profile, so +0.85 is mostly "carbon decreases with depth".
+pred <- predict(fno, cube(site[te, ]))
+null_prof <- matrix(colMeans(soc[tr, ]), length(te), length(depths),
+                    byrow = TRUE)
+round(c(rmse_fno  = sqrt(mean((pred - soc[te, ])^2)),
+        rmse_null = sqrt(mean((null_prof - soc[te, ])^2)),
+        nse_vs_mean_profile = 1 - sum((pred - soc[te, ])^2) /
+                                  sum((soc[te, ] - null_prof)^2),
+        nse_vs_grand_mean   = 1 - sum((pred - soc[te, ])^2) /
+                                  sum((soc[te, ] - mean(soc[tr, ]))^2)), 4)
+
+# Why so weak: with backend = "r" the lift and the spectral
+# multipliers stay at their random initialisation, and of the
+# decoder only the weights move -- not even its bias.  That is an
+# ELM regime, and a one-epoch fit proves it.
+fno1 <- no_fno_fit(depths, soc[tr, ], cube(site[tr, ]),
+                   n_modes = 4L, width = 8L, n_blocks = 1L,
+                   epochs = 1L, lr = 0.05, seed = 1L)
+c(lift_frozen     = identical(fno1$W_in, fno$W_in),
+  spectral_frozen = identical(fno1$R_list, fno$R_list),
+  bias_frozen     = identical(fno1$b_out, fno$b_out),
+  decoder_trained = !identical(fno1$W_out, fno$W_out))
+c(trained_weights = length(fno$W_out))
+
+# predict() takes no `newdepths`: an FNO fit is tied to its training
+# grid.  A cube with a different depth extent is silently RECYCLED
+# into that grid (with a warning) rather than rejected, so check the
+# shape of what you pass -- the result looks perfectly normal.
+short <- array(0, dim = c(length(te), 6L, 3L))
+for (j in 1:3) short[, , j] <- site[te, j]
+dim(suppressWarnings(predict(fno, short)))
+}
 \references{
 Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K.,
 Stuart, A. and Anandkumar, A. (2021). Fourier Neural Operator for

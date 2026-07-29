@@ -154,6 +154,76 @@
 #' Stuart, A. and Anandkumar, A. (2023). Neural Operator: Learning Maps
 #' Between Function Spaces With Applications to PDEs. *Journal of
 #' Machine Learning Research* **24**, 1-97.
+#' @examples
+#' set.seed(11)
+#' depths <- seq(5, 150, length.out = 8L)
+#'
+#' # A profile bank whose operator is KNOWN: the Pilar 2 pedogenetic
+#' # ODE solution, with its four parameters driven by site covariates.
+#' site <- cbind(clay   = runif(50L, 0.10, 0.60),
+#'               map    = runif(50L, 0.80, 1.60),
+#'               relief = runif(50L, 0.00, 1.00))
+#' profile_of <- function(s, z) {
+#'   y0  <- 20 + 25 * s[["clay"]];       yinf <- 2 + 6 * s[["map"]]
+#'   lam <- 0.05 + 0.04 * s[["relief"]]; mu <- 0.02 + 0.01 * s[["clay"]]
+#'   yinf + (y0 - yinf) * exp(-(lam / mu) * (1 - exp(-mu * z)))
+#' }
+#' soc <- t(apply(site, 1L, profile_of, z = depths)) +
+#'        matrix(rnorm(400L, 0, 0.25), 50L, 8L)
+#'
+#' # The FNO consumes a (sites, depths, channels) cube; static site
+#' # covariates are broadcast along the depth axis.
+#' cube <- function(x) {
+#'   a <- array(0, dim = c(nrow(x), length(depths), ncol(x)))
+#'   for (j in seq_len(ncol(x))) a[, , j] <- x[, j]
+#'   a
+#' }
+#' tr <- 1:30; te <- 31:50
+#' fno <- no_fno_fit(depths, soc[tr, ], cube(site[tr, ]),
+#'                   n_modes = 4L, width = 8L, n_blocks = 1L,
+#'                   epochs = 20L, lr = 0.05, seed = 1L)
+#' fno
+#'
+#' # Read that MSE against the only baseline that matters.  Targets are
+#' # standardised PER DEPTH, so predicting the mean profile scores
+#' # exactly 1 -- and 20 epochs have moved 4 percent off it.
+#' round(c(initial = fno$history[1L],
+#'         final   = fno$history[length(fno$history)],
+#'         mean_profile = 1), 4)
+#'
+#' # Same story on held-out sites, and it vanishes if you score against
+#' # the GRAND mean: that null does not know the shape of an average
+#' # profile, so +0.85 is mostly "carbon decreases with depth".
+#' pred <- predict(fno, cube(site[te, ]))
+#' null_prof <- matrix(colMeans(soc[tr, ]), length(te), length(depths),
+#'                     byrow = TRUE)
+#' round(c(rmse_fno  = sqrt(mean((pred - soc[te, ])^2)),
+#'         rmse_null = sqrt(mean((null_prof - soc[te, ])^2)),
+#'         nse_vs_mean_profile = 1 - sum((pred - soc[te, ])^2) /
+#'                                   sum((soc[te, ] - null_prof)^2),
+#'         nse_vs_grand_mean   = 1 - sum((pred - soc[te, ])^2) /
+#'                                   sum((soc[te, ] - mean(soc[tr, ]))^2)), 4)
+#'
+#' # Why so weak: with backend = "r" the lift and the spectral
+#' # multipliers stay at their random initialisation, and of the
+#' # decoder only the weights move -- not even its bias.  That is an
+#' # ELM regime, and a one-epoch fit proves it.
+#' fno1 <- no_fno_fit(depths, soc[tr, ], cube(site[tr, ]),
+#'                    n_modes = 4L, width = 8L, n_blocks = 1L,
+#'                    epochs = 1L, lr = 0.05, seed = 1L)
+#' c(lift_frozen     = identical(fno1$W_in, fno$W_in),
+#'   spectral_frozen = identical(fno1$R_list, fno$R_list),
+#'   bias_frozen     = identical(fno1$b_out, fno$b_out),
+#'   decoder_trained = !identical(fno1$W_out, fno$W_out))
+#' c(trained_weights = length(fno$W_out))
+#'
+#' # predict() takes no `newdepths`: an FNO fit is tied to its training
+#' # grid.  A cube with a different depth extent is silently RECYCLED
+#' # into that grid (with a warning) rather than rejected, so check the
+#' # shape of what you pass -- the result looks perfectly normal.
+#' short <- array(0, dim = c(length(te), 6L, 3L))
+#' for (j in 1:3) short[, , j] <- site[te, j]
+#' dim(suppressWarnings(predict(fno, short)))
 #' @export
 no_fno_fit <- function(depths, targets, covariates,
                          n_modes = 4L, width = 8L, n_blocks = 2L,
@@ -465,6 +535,76 @@ print.edaphos_no_fno <- function(x, ...) {
 #' operators by neural networks with arbitrary activation functions and
 #' its application to dynamical systems. *IEEE Transactions on Neural
 #' Networks* **6**, 911-917. \doi{10.1109/72.392253}
+#' @examples
+#' set.seed(11)
+#' depths <- seq(5, 150, length.out = 8L)
+#'
+#' # The same known operator used in the no_fno_fit() example: the
+#' # Pilar 2 pedogenetic ODE solution, driven by site covariates.
+#' site <- cbind(clay   = runif(50L, 0.10, 0.60),
+#'               map    = runif(50L, 0.80, 1.60),
+#'               relief = runif(50L, 0.00, 1.00))
+#' profile_of <- function(s, z) {
+#'   y0  <- 20 + 25 * s[["clay"]];       yinf <- 2 + 6 * s[["map"]]
+#'   lam <- 0.05 + 0.04 * s[["relief"]]; mu <- 0.02 + 0.01 * s[["clay"]]
+#'   yinf + (y0 - yinf) * exp(-(lam / mu) * (1 - exp(-mu * z)))
+#' }
+#' soc <- t(apply(site, 1L, profile_of, z = depths)) +
+#'        matrix(rnorm(400L, 0, 0.25), 50L, 8L)
+#' tr <- 1:30; te <- 31:50
+#'
+#' # The branch net takes a per-site covariate MATRIX -- not the depth
+#' # cube no_fno_fit() wants -- and the trunk net takes the depth.
+#' don <- no_deeponet_fit(depths, soc[tr, ], site[tr, ],
+#'                        branch_hidden = 16L, trunk_hidden = 16L,
+#'                        output_dim = 8L, epochs = 300L, lr = 0.02,
+#'                        seed = 1L)
+#' don
+#'
+#' # Targets are standardised per depth, so the mean-profile predictor
+#' # scores 1.  Unlike the FNO in the same setting, this one has
+#' # genuinely learned most of the operator.
+#' pred <- predict(don, site[te, ])
+#' null_prof <- matrix(colMeans(soc[tr, ]), length(te), length(depths),
+#'                     byrow = TRUE)
+#' round(c(train_mse = don$history[length(don$history)],
+#'         mean_profile = 1,
+#'         test_rmse = sqrt(mean((pred - soc[te, ])^2)),
+#'         nse_vs_mean_profile = 1 - sum((pred - soc[te, ])^2) /
+#'                                   sum((soc[te, ] - null_prof)^2)), 4)
+#'
+#' # The trunk accepts depths that were never in the training grid --
+#' # the property a pointwise regressor cannot have.  Score those
+#' # against the operator, with the interpolated training mean as null.
+#' z_new <- c(12, 47, 88, 131)
+#' truth <- t(apply(site[te, ], 1L, profile_of, z = z_new))
+#' off   <- predict(don, site[te, ], newdepths = z_new)
+#' null_new <- matrix(approx(depths, colMeans(soc[tr, ]), xout = z_new,
+#'                           rule = 2)$y, length(te), length(z_new),
+#'                    byrow = TRUE)
+#' round(c(rmse = sqrt(mean((off - truth)^2)),
+#'         nse  = 1 - sum((off - truth)^2) / sum((truth - null_new)^2)), 4)
+#'
+#' # Interpolating is not extrapolating.  Past the deepest training
+#' # depth the per-depth un-standardisation constants are held FLAT
+#' # (`rule = 2`) while the tanh trunk keeps drifting, so the AVERAGE
+#' # profile still looks right at 300 cm while single sites are 1.4
+#' # g/kg out -- an aggregate check would not catch it.
+#' deep       <- predict(don, site[te, ], newdepths = c(200, 300))
+#' truth_deep <- t(apply(site[te, ], 1L, profile_of, z = c(200, 300)))
+#' round(c(mean_pred_300  = mean(deep[, 2]),
+#'         mean_truth_300 = mean(truth_deep[, 2]),
+#'         worst_site_err = max(abs(deep[, 2] - truth_deep[, 2]))), 3)
+#'
+#' # backend = "r" trains the second layer of each subnet; the first
+#' # hidden layers stay at their random initialisation.
+#' don1 <- no_deeponet_fit(depths, soc[tr, ], site[tr, ],
+#'                         branch_hidden = 16L, trunk_hidden = 16L,
+#'                         output_dim = 8L, epochs = 1L, lr = 0.02,
+#'                         seed = 1L)
+#' c(branch_hidden_frozen = identical(don1$W_b1, don$W_b1),
+#'   trunk_hidden_frozen  = identical(don1$W_t1, don$W_t1),
+#'   second_layer_trained = !identical(don1$W_b2, don$W_b2))
 #' @export
 no_deeponet_fit <- function(depths, targets, covariates,
                               branch_hidden = 16L,

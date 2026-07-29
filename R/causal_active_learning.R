@@ -49,14 +49,95 @@
 #' @param n_select Integer; how many candidates to return.  Default
 #'   `5L`.
 #' @param strategy One of `"leverage"` (hat-matrix diagonal,
-#'   closed-form, fast) or `"bootstrap"` (re-bootstrap the effect for
-#'   each candidate; slow but exact under the linear-OLS estimator).
+#'   closed-form, fast, deterministic) or `"bootstrap"` (re-bootstrap
+#'   `Var(beta_hat)` once per candidate). `"bootstrap"` costs
+#'   `B * (|pool| + 1)` OLS fits and its ranking is a Monte-Carlo
+#'   estimate: at `B = 100` on 80 sites the ordering of five candidates
+#'   changes with `seed` (see the examples), so raise `B` until the
+#'   ordering stabilises before reading anything into it.
 #' @param B Bootstrap replications when `strategy = "bootstrap"`.
 #' @param seed RNG seed for bootstrap reproducibility.
 #' @return A data frame with one row per candidate, columns
 #'   `pool_index`, `leverage`, `expected_var_reduction`, sorted by
 #'   descending expected reduction.  The top-`n_select` rows are the
 #'   recommended next samples.
+#'
+#' @examples
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   # 80 labelled sites, 200 unlabelled candidates. The question is not
+#'   # "where is SOC uncertain?" but "how hard does rainfall push SOC?".
+#'   set.seed(11)
+#'   i_d  <- sample(nrow(br_cerrado), 80)
+#'   cols <- c("map_mm", "elev", "twi", "ndvi", "soc")
+#'   dat  <- br_cerrado[i_d, cols]
+#'   pool <- br_cerrado[-i_d, cols][1:200, ]
+#'
+#'   # On 80 sites the effect is not distinguishable from zero (t = 0.79).
+#'   # That is the situation this bridge exists for. (Inside a guarded
+#'   # block nothing auto-prints, hence the explicit print() calls.)
+#'   cf <- summary(stats::lm(soc ~ map_mm + elev + ndvi, dat))$coefficients
+#'   print(round(cf["map_mm", c("Estimate", "Std. Error", "t value")], 5))
+#'
+#'   dag <- dagitty::dagitty(
+#'     "dag { elev -> map_mm ; elev -> soc ; twi -> soc ;
+#'            map_mm -> ndvi ; map_mm -> soc ; ndvi -> soc }")
+#'   q <- al_query_causal(dat, pool, dag, exposure = "map_mm",
+#'                        outcome = "soc", n_select = 5L)
+#'   print(q)
+#'
+#'   # The set is inferred for the DIRECT effect, so the mediator ndvi is
+#'   # in it while twi, which opens no backdoor path, is not.
+#'   print(attr(q, "adjustment"))
+#'
+#'   # Row names are inherited from `pool`, `pool_index` is the position
+#'   # in it. Use the column; as.integer(rownames(q)) is a different row.
+#'   print(c(rowname     = rownames(q)[1],
+#'           pool_index  = q$pool_index[1],
+#'           resolves_to = rownames(pool)[q$pool_index[1]]))
+#'
+#'   # Leverage is a property of the design matrix alone: blank out every
+#'   # outcome in the pool and the ranking does not move one place.
+#'   pool_na <- pool; pool_na$soc <- NA_real_
+#'   print(identical(q$pool_index,
+#'                   al_query_causal(dat, pool_na, dag, exposure = "map_mm",
+#'                                   outcome = "soc")$pool_index))   # TRUE
+#'
+#'   # And it is JOINT, not marginal. Row 187 sits at the 40th percentile
+#'   # of the exposure yet ranks 4th, on the strength of being at the 6th
+#'   # percentile of elev and the maximum of ndvi.
+#'   top <- utils::head(q$pool_index, 5)
+#'   pct <- function(cc, i) round(100 * mean(pool[[cc]] <= pool[[cc]][i]))
+#'   print(t(sapply(top, function(i)
+#'     c(row = i, map_mm = pct("map_mm", i), elev = pct("elev", i),
+#'       ndvi = pct("ndvi", i)))))
+#'
+#'   # Classical Pillar 5 asks a different question of the same pool and
+#'   # gets a disjoint answer: 0 of its 5 picks are in the causal top 5.
+#'   set.seed(3)
+#'   m <- al_fit(dat, target = "soc",
+#'               covariates = c("map_mm", "elev", "twi", "ndvi"), seed = 3)
+#'   print(length(intersect(top, al_query(m, pool, n = 5,
+#'                                        strategy = "uncertainty"))))
+#'
+#'   # `expected_var_reduction` is h / (1 + h), a monotone relabelling of
+#'   # `leverage`: under strategy = "leverage" the two columns always
+#'   # rank identically, and neither is a variance in the units of beta.
+#'   print(stats::cor(rank(q$leverage), rank(q$expected_var_reduction)))
+#'
+#'   # strategy = "bootstrap" re-bootstraps Var(beta_hat) once per
+#'   # candidate. At B = 100 the answer is Monte-Carlo noise: three seeds
+#'   # give three orderings of the same five candidates, none of them the
+#'   # closed-form one. Raise B until the ordering stops moving.
+#'   ord <- function(s) al_query_causal(dat, pool[1:5, ], dag,
+#'                                      exposure = "map_mm",
+#'                                      outcome  = "soc",
+#'                                      strategy = "bootstrap",
+#'                                      B = 100L, seed = s)$pool_index
+#'   print(rbind(seed1 = ord(1), seed2 = ord(2), seed3 = ord(3),
+#'               leverage = al_query_causal(dat, pool[1:5, ], dag,
+#'                                          exposure = "map_mm",
+#'                                          outcome  = "soc")$pool_index))
+#' }
 #' @export
 al_query_causal <- function(data, pool, dag,
                               exposure, outcome,
@@ -98,30 +179,42 @@ al_query_causal <- function(data, pool, dag,
   expected_red <- lev / (1 + lev)
 
   if (strategy == "bootstrap") {
-    # Exact but O(B*|pool|) bootstrap: refit for each candidate,
-    # measure shrinkage of Var(beta).  Used only when `n_select` is
-    # small and the leverage approximation needs audit.
+    # O(B*|pool|) bootstrap: refit for each candidate, measure shrinkage
+    # of Var(beta).  Used only when `n_select` is small and the leverage
+    # approximation needs audit.
+    #
+    # `causal_effect_bootstrap()` always resamples clusters and validates
+    # `cluster` with is.character(), so passing NULL for un-clustered data
+    # aborted with "is.character(cluster) is not TRUE".  When the caller
+    # has not clustered the data, every row is its own cluster, which is
+    # exactly the ordinary nonparametric bootstrap.
+    clus      <- "kmeans_cluster"
+    boot_data <- data
+    boot_pool <- pool
+    if (!clus %in% names(boot_data)) {
+      boot_data[[clus]] <- seq_len(nrow(boot_data))
+      boot_pool[[clus]] <- nrow(boot_data) + seq_len(nrow(boot_pool))
+    }
     if (!is.null(seed)) set.seed(seed)
     var_base <- stats::var(
       causal_effect_bootstrap(
-        data = data, dag = dag,
+        data = boot_data, dag = dag,
         exposure = exposure, outcome = outcome,
         adjustment = adjustment,
-        cluster = if ("kmeans_cluster" %in% names(data))
-                     "kmeans_cluster" else NULL,
+        cluster = clus,
         B = B
       )
     )
     var_new <- numeric(nrow(pool))
     for (i in seq_len(nrow(pool))) {
-      d_plus <- rbind(data, pool[i, , drop = FALSE])
+      d_plus <- rbind(boot_data,
+                       boot_pool[i, names(boot_data), drop = FALSE])
       var_new[i] <- stats::var(
         causal_effect_bootstrap(
           data = d_plus, dag = dag,
           exposure = exposure, outcome = outcome,
           adjustment = adjustment,
-          cluster = if ("kmeans_cluster" %in% names(d_plus))
-                       "kmeans_cluster" else NULL,
+          cluster = clus,
           B = B
         )
       )

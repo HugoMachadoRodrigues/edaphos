@@ -214,6 +214,56 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #' machine: Theory and applications. *Neurocomputing* **70**, 489-501.
 #' \doi{10.1016/j.neucom.2005.12.126} (the random-hidden-layer regime
 #' the `backend = "r"` trainer operates in).
+#' @examples
+#' data(br_cerrado)
+#'
+#' # br_cerrado is a 45 x 45 grid, so it reshapes into an image.  Model
+#' # `twi`: a generative model can only learn structure the field
+#' # actually has, and `soc` in this grid carries far less short-range
+#' # structure than `twi` does.
+#' as_grid <- function(v) {
+#'   ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
+#'   m <- matrix(NA_real_, 45L, 45L)
+#'   m[cbind(match(br_cerrado$x, ux), match(br_cerrado$y, uy))] <- v
+#'   m
+#' }
+#' lag1 <- function(z) (cor(as.vector(z[, -ncol(z)]), as.vector(z[, -1])) +
+#'                      cor(as.vector(z[-nrow(z), ]), as.vector(z[-1, ]))) / 2
+#' round(c(soc = lag1(as_grid(br_cerrado$soc)),
+#'         twi = lag1(as_grid(br_cerrado$twi))), 3)
+#'
+#' field  <- as_grid(br_cerrado$twi)
+#' field  <- (field - mean(field)) / sd(field)
+#' starts <- seq(1L, 38L, by = 5L)
+#' cells  <- expand.grid(r = starts, c = starts)
+#' stack  <- array(0, dim = c(nrow(cells), 8L, 8L))
+#' for (i in seq_len(nrow(cells)))
+#'   stack[i, , ] <- field[cells$r[i]:(cells$r[i] + 7L),
+#'                         cells$c[i]:(cells$c[i] + 7L)]
+#'
+#' fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
+#'               lr = 0.02, seed = 1L)
+#' fit
+#'
+#' # The score-matching target is standard normal, so a denoiser that
+#' # predicts nothing at all -- eps_theta == 0 -- scores exactly 1.
+#' # That is what the training loss must be read against, and the gap
+#' # here is small.
+#' round(c(initial = fit$history[1L],
+#'         final   = fit$history[length(fit$history)],
+#'         eps_hat_zero = 1), 4)
+#'
+#' # Nor does the gap close with training: `backend = "r"` fits a
+#' # readout over frozen random features (an ELM), and that readout has
+#' # already converged.  2.7 times the epochs buys 0.05.
+#' fit_long <- dm_fit(stack, T = 50L, epochs = 400L, hidden = 32L,
+#'                    lr = 0.02, seed = 1L)
+#' round(c(epochs_150 = fit$history[150L],
+#'         epochs_400 = fit_long$history[400L]), 4)
+#'
+#' # And the patches overlap by construction (stride 5, window 8), so
+#' # these 64 are nowhere near 64 independent training examples.
+#' c(n_patches = dim(stack)[1L], H = dim(stack)[2L], W = dim(stack)[3L])
 #' @export
 dm_fit <- function(stack, conditioning = NULL,
                      T = 50L, epochs = 100L,
@@ -322,6 +372,78 @@ dm_fit <- function(stack, conditioning = NULL,
 #'   Default: zero vector for every sample (unconditional).
 #' @param seed Optional RNG seed.
 #' @return 3-D array `(n_samples, H, W)` of generated patches.
+#' @examples
+#' data(br_cerrado)
+#'
+#' as_grid <- function(v) {
+#'   ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
+#'   m <- matrix(NA_real_, 45L, 45L)
+#'   m[cbind(match(br_cerrado$x, ux), match(br_cerrado$y, uy))] <- v
+#'   m
+#' }
+#' lag1 <- function(z) (cor(as.vector(z[, -ncol(z)]), as.vector(z[, -1])) +
+#'                      cor(as.vector(z[-nrow(z), ]), as.vector(z[-1, ]))) / 2
+#'
+#' field  <- as_grid(br_cerrado$twi)
+#' field  <- (field - mean(field)) / sd(field)
+#' starts <- seq(1L, 38L, by = 5L)
+#' cells  <- expand.grid(r = starts, c = starts)
+#' stack  <- array(0, dim = c(nrow(cells), 8L, 8L))
+#' for (i in seq_len(nrow(cells)))
+#'   stack[i, , ] <- field[cells$r[i]:(cells$r[i] + 7L),
+#'                         cells$c[i]:(cells$c[i] + 7L)]
+#'
+#' fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
+#'               lr = 0.02, seed = 1L)
+#' gen <- dm_sample(fit, n_samples = 8L, seed = 7L)
+#' dim(gen)
+#'
+#' # "They look plausible" is not a result.  A generative model of a
+#' # spatial field makes a checkable promise: the SPATIAL STATISTICS of
+#' # its draws should match the data's.  Two numbers catch the usual
+#' # failure modes, and they have to be read together.
+#' stat <- function(a) c(sd = mean(apply(a, 1L, sd)),
+#'                       lag1 = mean(apply(a, 1L, lag1)))
+#' round(rbind(real = stat(stack), generated = stat(gen)), 3)
+#'
+#' # The draws are five times over-dispersed AND spatially incoherent
+#' # (lag-1 near zero against 0.32 in the data).  With `backend = "r"`
+#' # the denoiser is a readout over frozen random features and has
+#' # learned a marginal scale, not a landscape: these are not soil
+#' # maps.  Use `backend = "torch"` for anything you would publish --
+#' # and run this same two-number check on it rather than trusting it.
+#'
+#' # `conditioning` is silently IGNORED when the fit was
+#' # unconditional: cond_dim is 0, so there is no input for it to
+#' # enter through, and the draws are bit-identical to the ones above.
+#' same <- dm_sample(fit, n_samples = 8L,
+#'                   conditioning = matrix(99, 8L, 1L), seed = 7L)
+#' identical(same, gen)
+#'
+#' # Conditioning has to be supplied at fit time, and its effect judged
+#' # against the signal available.  Patch-mean elevation is nearly
+#' # perfectly anti-correlated with patch-mean twi in this grid:
+#' elev <- as_grid(br_cerrado$elev)
+#' cond <- matrix(0, nrow(cells), 1L)
+#' for (i in seq_len(nrow(cells)))
+#'   cond[i, 1L] <- mean(elev[cells$r[i]:(cells$r[i] + 7L),
+#'                            cells$c[i]:(cells$c[i] + 7L)])
+#' cond[, 1L] <- as.vector(scale(cond[, 1L]))
+#' round(cor(cond[, 1L], apply(stack, 1L, mean)), 3)
+#'
+#' # ... and yet swinging the conditioner across 3 sd moves the sample
+#' # mean by an eighth of the draw-to-draw spread, in the wrong
+#' # direction.  Read it as a demonstration of the interface, not of a
+#' # calibrated conditional simulator.
+#' fit_c <- dm_fit(stack, conditioning = cond, T = 50L, epochs = 150L,
+#'                 hidden = 32L, lr = 0.02, seed = 1L)
+#' lo <- dm_sample(fit_c, n_samples = 8L,
+#'                 conditioning = matrix(-1.5, 8L, 1L), seed = 3L)
+#' hi <- dm_sample(fit_c, n_samples = 8L,
+#'                 conditioning = matrix(1.5, 8L, 1L), seed = 3L)
+#' round(c(mean_low = mean(lo), mean_high = mean(hi),
+#'         response = mean(hi) - mean(lo),
+#'         draw_sd  = sd(apply(lo, 1L, mean))), 3)
 #' @export
 dm_sample <- function(fit, n_samples = 4L,
                         conditioning = NULL, seed = NULL) {

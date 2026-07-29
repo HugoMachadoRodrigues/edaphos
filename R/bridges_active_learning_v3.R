@@ -57,6 +57,71 @@
 #' @param seed Optional RNG seed.
 #' @return A data frame of class `edaphos_al_neural_operator_query`
 #'   sorted by descending score.
+#' @examples
+#' # br_cerrado is a surface grid and Pillar 8 needs depth curves, so
+#' # each pixel is expanded into an exponential profile whose decay
+#' # rate is driven by its own TWI.  The profiles are synthetic; what
+#' # is being demonstrated is the hand-off, not a soil result.
+#' set.seed(11)
+#' sub  <- br_cerrado[sample(nrow(br_cerrado), 90L), ]
+#' zz   <- c(5, 15, 30, 60, 100)                 # depths, cm
+#' covs <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' Xc   <- scale(as.matrix(sub[, covs]))
+#' rate <- 0.015 + 0.0015 * as.numeric(scale(sub$twi))
+#' prof <- t(vapply(seq_len(nrow(sub)), function(i)
+#'            4 + (sub$soc[i] - 4) * exp(-rate[i] * zz), numeric(5L)))
+#' tr <- 1:60; po <- 61:90
+#'
+#' no <- no_deeponet_fit(zz, prof[tr, ], Xc[tr, ], branch_hidden = 12L,
+#'                       trunk_hidden = 12L, output_dim = 6L,
+#'                       epochs = 300L, lr = 0.02, seed = 1L)
+#' # Worth checking before ranking anything by its disagreement: the
+#' # operator is ahead of the regional mean profile, but only by 21 %.
+#' c(deeponet = edaphos_rmse(prof[po, ], predict(no, Xc[po, ],
+#'                                               newdepths = zz)),
+#'   mean_profile = edaphos_rmse(prof[po, ],
+#'     matrix(colMeans(prof[tr, ]), 30L, 5L, byrow = TRUE)))
+#' # 2.72 vs 3.42 g/kg
+#'
+#' # Pillar 2 supplies the reference kinetics, fitted to the mean
+#' # training profile.
+#' ode <- piml_profile_fit(zz, colMeans(prof[tr, ]))
+#' q <- al_query_neural_operator(no, ode, Xc[po, ], pool_depths = zz,
+#'                               n_select = 5L, n_pert = 20L, seed = 1L)
+#' q
+#'
+#' # First trap: `n_select` never subsets.  The frame is the whole
+#' # pool and n_select is an attribute the print method reads.
+#' c(rows = nrow(q), n_select = attr(q, "n_select"))          # 30 and 5
+#'
+#' # Second: the ODE contributes ONE curve, not one per site --
+#' # predict.edaphos_piml_profile() is a function of depth alone.  So
+#' # `no_ode_disagreement` measures each site against a single
+#' # regional reference, and two candidates with the same operator
+#' # profile score identically however different their soils are.
+#' round(as.numeric(predict(ode, newdepths = zz)), 2)
+#' # 17.92 15.89 13.43 9.98 7.19 g/kg -- the same for all 30 sites
+#'
+#' # Third: the denominator is a perturbation proxy, not a posterior,
+#' # and it barely reorders anything.  Read the two together.
+#' c(sd_cv = sd(q$no_uncertainty_sd) / mean(q$no_uncertainty_sd),
+#'   rank_agreement = cor(rank(q$score),
+#'                        rank(q$no_ode_disagreement)))   # 0.231, 0.960
+#'
+#' # It is also the only stochastic part and there is no default seed.
+#' # Here the top five survive a change of seed but individual scores
+#' # move by half; an unseeded call is not reproducible at all.
+#' q2 <- al_query_neural_operator(no, ode, Xc[po, ], pool_depths = zz,
+#'                                n_pert = 20L, seed = 2L)
+#' identical(head(q$pool_index, 5L), head(q2$pool_index, 5L))   # TRUE
+#' max(abs(q$score[order(q$pool_index)] /
+#'         q2$score[order(q2$pool_index)] - 1))                 # 0.506
+#'
+#' # Trap for the other operator class: predict() for an FNO has no
+#' # `newdepths` argument at all, so `pool_depths` is swallowed by
+#' # `...` and the profile always comes back on the training grid.
+#' names(formals(getS3method("predict", "edaphos_no_fno")))
+#' # "object" "newcovariates" "..."
 #' @export
 al_query_neural_operator <- function(no_fit, ode_fit,
                                         pool_covariates,
@@ -170,6 +235,67 @@ print.edaphos_al_neural_operator_query <- function(x, ...) {
 #' @param seed RNG seed.
 #' @return A data frame of class `edaphos_al_diffusion_query`
 #'   sorted by descending score.
+#' @examples
+#' # Pillar 9 wants a bank of patches: cut the 45 x 45 Cerrado SOC
+#' # grid into 25 non-overlapping 9 x 9 tiles.
+#' soc_grid <- matrix(br_cerrado$soc, 45L, 45L)
+#' stack <- array(0, c(25L, 9L, 9L))
+#' k <- 0L
+#' for (i in 0:4) for (j in 0:4) {
+#'   k <- k + 1L
+#'   stack[k, , ] <- soc_grid[(i * 9L + 1L):(i * 9L + 9L),
+#'                            (j * 9L + 1L):(j * 9L + 9L)]
+#' }
+#' dm <- dm_fit(stack, T = 40L, epochs = 200L, hidden = 24L,
+#'              lr = 0.01, seed = 1L)
+#' c(first_epoch = dm$history[1L], last_epoch = dm$history[200L])
+#' # 3.64 -> 1.02 on the score-matching loss
+#'
+#' q <- al_query_diffusion(dm, n_samples = 16L, n_select = 8L, seed = 1L)
+#' q
+#'
+#' # The number that decides whether this ranking means anything is
+#' # not in the frame: the width of the posterior draws against the
+#' # variability of the maps they are meant to model.
+#' emp_sd <- apply(stack, c(2L, 3L), sd)      # per-cell sd over 25 tiles
+#' c(ddpm = mean(q$posterior_sd), data = mean(emp_sd))     # 19.3 vs 6.5
+#' # The pure-R denoiser trains a readout over frozen random features,
+#' # so its ancestral samples are three times wider than the map they
+#' # came from.  Most of "posterior SD" here is sampler noise.
+#'
+#' # Which the ranking shows directly.  Redraw with another seed: the
+#' # SD map hardly correlates with itself and one of the eight chosen
+#' # cells survives.
+#' q2 <- al_query_diffusion(dm, n_samples = 16L, n_select = 8L, seed = 2L)
+#' a <- q[order(q$row, q$col), ]; b <- q2[order(q2$row, q2$col), ]
+#' cor(a$posterior_sd, b$posterior_sd)                          # 0.070
+#' length(intersect(paste(q$row[1:8],  q$col[1:8]),
+#'                  paste(q2$row[1:8], q2$col[1:8])))           # 1 of 8
+#'
+#' # Four times the default draws lifts the seed-to-seed correlation
+#' # to 0.30 and still does not settle which cells to visit.
+#' c1 <- al_query_diffusion(dm, n_samples = 64L, n_select = 8L, seed = 1L)
+#' c2 <- al_query_diffusion(dm, n_samples = 64L, n_select = 8L, seed = 2L)
+#' cor(c1$posterior_sd[order(c1$row, c1$col)],
+#'     c2$posterior_sd[order(c2$row, c2$col)])                  # 0.299
+#'
+#' # And the structure it does have is not the map's: the DDPM SD
+#' # field is uncorrelated with where the real tiles actually differ.
+#' cor(a$posterior_sd, as.numeric(emp_sd[cbind(a$row, a$col)]))  # -0.043
+#'
+#' # `combine` is not a tweak either -- weighting by the expected
+#' # value keeps one of the same eight cells.
+#' q3 <- al_query_diffusion(dm, n_samples = 16L, n_select = 8L,
+#'                          combine = "sd_x_mean_abs", seed = 1L)
+#' length(intersect(paste(q$row[1:8],  q$col[1:8]),
+#'                  paste(q3$row[1:8], q3$col[1:8])))           # 1 of 8
+#'
+#' # `candidate_cells` restricts the pool to the sites a field team
+#' # can actually reach; `n_select`, as in the other AL bridges, is
+#' # only an attribute and never subsets the frame.
+#' reach <- expand.grid(row = 2:4, col = 2:4)
+#' nrow(al_query_diffusion(dm, candidate_cells = reach,
+#'                         n_samples = 8L, n_select = 3L, seed = 1L))  # 9
 #' @export
 al_query_diffusion <- function(dm_fit, conditioning = NULL,
                                   n_samples = 16L,
@@ -256,6 +382,79 @@ print.edaphos_al_diffusion_query <- function(x, ...) {
 #' @param n_draws Integer; number of posterior draws to average.
 #' @return `edaphos_al_bhs_query` data frame sorted by descending
 #'   average predictive variance.
+#' @examples
+#' # A contiguous 15 x 15 block of the Cerrado grid, so the candidate
+#' # spacing is the grid step and the GP range is resolvable at all.
+#' gx <- sort(unique(br_cerrado$x)); gy <- sort(unique(br_cerrado$y))
+#' blk <- br_cerrado[br_cerrado$x %in% gx[1:15] &
+#'                   br_cerrado$y %in% gy[1:15], ]
+#' names(blk)[names(blk) == "x"] <- "lon"
+#' names(blk)[names(blk) == "y"] <- "lat"
+#' set.seed(4)
+#' tr   <- sort(sample(nrow(blk), 150L))
+#' trn  <- blk[tr, ]; pool <- blk[-tr, ]     # 150 measured, 75 candidates
+#'
+#' bh <- bhs_fit(trn, soc ~ elev + twi + map_mm, coords = c("lon", "lat"),
+#'               backend = "gibbs", nmcmc = 600L, burn = 300L,
+#'               phi_range = c(0.1, 500), seed = 1L)
+#'
+#' # al_query_bhs() draws its MCMC subset from the ambient RNG and
+#' # takes no seed of its own: set one, or the variances move between
+#' # runs (the ORDER does not -- see below).
+#' set.seed(7)
+#' q <- al_query_bhs(bh, pool, n_select = 5L, n_draws = 50L)
+#' q
+#'
+#' # Read the ranking against the diagnostic that says whether it can
+#' # mean anything.  The profile-MLE correlation length is a third of
+#' # the sampling interval, so no candidate is informed by its
+#' # neighbours...
+#' c(range_deg = 1 / bh$phi_hat, grid_step = gx[2L] - gx[1L])
+#' # 0.0026 vs 0.0080 degrees
+#'
+#' # ...and every candidate's predictive variance therefore sits at
+#' # sigma^2 + tau^2, the variance of a site the model knows nothing
+#' # about.  The whole pool spans 1.3 % of that.
+#' c(min = min(q$posterior_var), max = max(q$posterior_var),
+#'   no_information = mean(bh$sigma2_draws) + mean(bh$tau2_draws))
+#' # 29.52  29.92  29.60
+#'
+#' # What survives is geometry.  Averaging over posterior draws cannot
+#' # reorder anything: var = sigma^2 (1 - k'R^-1k) + tau^2 is monotone
+#' # in the kriging term for every draw, so the ranking is identical
+#' # at 50 and at 400 draws (silently capped at the 300 stored).
+#' set.seed(7)
+#' q400 <- al_query_bhs(bh, pool, n_select = 5L, n_draws = 400L)
+#' identical(q$pool_index, q400$pool_index)   # TRUE
+#' attr(q400, "n_draws")                      # 300 -- silently capped
+#'                                            # at the draws stored
+#'
+#' # Nor do the covariates: `pool_data` must carry every training
+#' # column, but the design matrix built from them is never used --
+#' # beta uncertainty is not in the formula.  Wreck them and nothing
+#' # moves.
+#' pw <- pool
+#' pw$elev <- rev(pw$elev); pw$twi <- pw$twi * 100
+#' pw$map_mm <- pw$map_mm + 5000
+#' set.seed(7)
+#' identical(q$posterior_var,
+#'           al_query_bhs(bh, pw, n_draws = 50L)$posterior_var)   # TRUE
+#'
+#' # So what this returns is a distance-to-nearest-measurement
+#' # ranking wearing a posterior's clothes.
+#' D <- as.matrix(dist(rbind(as.matrix(trn[, c("lon", "lat")]),
+#'                           as.matrix(pool[, c("lon", "lat")]))))
+#' d_nn <- apply(D[151:225, 1:150, drop = FALSE], 1L, min)
+#' cor(q$posterior_var[order(q$pool_index)], d_nn,
+#'     method = "spearman")                                       # 0.561
+#'
+#' # Finally, the faster Pillar 7 backend is refused even though it
+#' # stores the same draws -- refit with backend = "gibbs" for AL.
+#' bhr <- bhs_fit(trn, soc ~ elev + twi + map_mm,
+#'                coords = c("lon", "lat"), backend = "rcpp",
+#'                nmcmc = 300L, burn = 150L, phi_range = c(0.1, 500),
+#'                seed = 1L)
+#' try(al_query_bhs(bhr, pool))
 #' @export
 al_query_bhs <- function(bhs_fit, pool_data,
                            n_select = 5L, n_draws = 200L) {
@@ -286,13 +485,18 @@ al_query_bhs <- function(bhs_fit, pool_data,
   idx <- sample.int(nrow(bhs_fit$beta_draws),
                      min(n_draws, nrow(bhs_fit$beta_draws)))
   pred_var <- numeric(n_pool)
-  # k(x_new, x_new) = 1 by the exponential-correlation convention
+  # k(x_new, x_new) = 1 by the exponential-correlation convention.
+  # The kriging quadratic form k' R_inv k is a function of the
+  # coordinates and phi_hat only, so it is computed ONCE.  Inside the
+  # loop it recomputed an (n_tr x n_tr) %*% (n_tr x n_pool) product
+  # `n_draws` times for a bit-identical result, which at the default
+  # n_draws = 200 is essentially the entire cost of the call.
+  quadratic <- colSums((R_tr_inv %*% R_cross) * R_cross)
   for (i in idx) {
     s2 <- bhs_fit$sigma2_draws[i]
     t2 <- bhs_fit$tau2_draws[i]
     # Per-candidate variance of the latent + noise:
     #   var_new = s2 (1 - k' R_inv k) + t2
-    quadratic <- colSums((R_tr_inv %*% R_cross) * R_cross)
     var_draw  <- s2 * pmax(1 - quadratic, 0) + t2
     pred_var <- pred_var + var_draw / length(idx)
   }

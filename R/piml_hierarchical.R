@@ -100,6 +100,70 @@
 #' @param seed,verbose As elsewhere in edaphos.
 #'
 #' @return A `edaphos_piml_hierarchical` object (S3).
+#' @examples
+#' # torch is a Suggests dependency AND the lantern binaries are a
+#' # separate download, so both halves of the guard are needed.
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   data(br_cerrado)
+#'
+#'   # Five Cerrado sites.  Each pedon is the noise-free closed-form
+#'   # solution of dy/dz = -lambda0 exp(-mu z) (y - y_inf) with
+#'   # lambda0 = 0.02 + 0.004 twi, mu = 0.02 and y_inf = 0.30 y0, so
+#'   # the covariates genuinely drive the shape of the profile.
+#'   sites <- br_cerrado[c(1, 400, 900, 1400, 1900), ]
+#'   hz <- c(5, 15, 30, 60)
+#'   pedons <- do.call(rbind, lapply(1:5, function(i) {
+#'     y0   <- sites$soc[i]
+#'     lam0 <- 0.02 + 0.004 * sites$twi[i]
+#'     data.frame(pedon = paste0("P", i), depth = hz,
+#'                soc = 0.30 * y0 + 0.70 * y0 *
+#'                      exp(-(lam0 / 0.02) * (1 - exp(-0.02 * hz))),
+#'                twi = sites$twi[i], ndvi = sites$ndvi[i],
+#'                map_mm = sites$map_mm[i])
+#'   }))
+#'
+#'   # 20 epochs, not the 500 of the default, to keep this short.
+#'   # `seed` seeds torch, so the loss below is reproducible.
+#'   fit <- piml_hierarchical_fit(
+#'     pedons, "pedon", "depth", "soc",
+#'     covariate_cols = c("twi", "ndvi", "map_mm"),
+#'     epochs = 20L, lr = 0.05, n_steps = 2L, seed = 1L)
+#'   print(fit)
+#'
+#'   # `final_loss` is an MSE in standardised units, so the number it
+#'   # has to beat is the loss of predicting the global mean of `soc`.
+#'   vn <- (pedons$soc - mean(pedons$soc)) / sd(pedons$soc)
+#'   print(round(c(global_mean = mean(tapply(vn^2, pedons$pedon, mean)),
+#'                 epoch_1     = fit$loss_history[1],
+#'                 final       = fit$final_loss), 4))
+#'
+#'   # Read that final loss against the size of what produced it: two
+#'   # MLPs, 818 weights, fitted to 20 numbers.  A five-pedon fit is an
+#'   # interface demonstration and the loss above measures
+#'   # memorisation, not pedology.  ?piml_hierarchical_predict holds
+#'   # one pedon out and the model then loses to the depthwise mean of
+#'   # the others.
+#'   print(c(weights = sum(vapply(fit$model$parameters,
+#'                                function(p) p$numel(), 0)),
+#'           values  = nrow(pedons)))
+#'
+#'   # Covariates are taken from the FIRST ROW of each pedon.  Permuting
+#'   # them among the deeper horizons -- which leaves the column mean
+#'   # and sd, hence the standardisation, untouched -- changes nothing,
+#'   # while touching the topsoil row moves the loss.  So a
+#'   # horizon-level covariate (clay of each horizon, say) is silently
+#'   # truncated to its topsoil value.
+#'   deep <- pedons$depth > 5
+#'   perm <- pedons; perm$twi[deep] <- rev(perm$twi[deep])
+#'   top  <- pedons; top$twi[!deep] <- 99
+#'   short_fit <- function(d)
+#'     piml_hierarchical_fit(d, "pedon", "depth", "soc",
+#'       covariate_cols = c("twi", "ndvi", "map_mm"),
+#'       epochs = 2L, lr = 0.05, n_steps = 2L, seed = 1L)$final_loss
+#'   print(c(base = short_fit(pedons), deep_permuted = short_fit(perm),
+#'           topsoil_changed = short_fit(top)))
+#' }
 #' @export
 piml_hierarchical_fit <- function(pedons,
                                   id_col, depth_col, value_col,
@@ -185,6 +249,73 @@ piml_hierarchical_fit <- function(pedons,
 #' @param newdepths Numeric vector of depths.
 #' @return Numeric matrix, one row per location in `new_covariates`, one
 #'   column per depth in `newdepths`.
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   data(br_cerrado)
+#'   # The five noise-free ODE pedons of ?piml_hierarchical_fit.
+#'   sites <- br_cerrado[c(1, 400, 900, 1400, 1900), ]
+#'   hz <- c(5, 15, 30, 60)
+#'   pedons <- do.call(rbind, lapply(1:5, function(i) {
+#'     y0   <- sites$soc[i]
+#'     lam0 <- 0.02 + 0.004 * sites$twi[i]
+#'     data.frame(pedon = paste0("P", i), depth = hz,
+#'                soc = 0.30 * y0 + 0.70 * y0 *
+#'                      exp(-(lam0 / 0.02) * (1 - exp(-0.02 * hz))),
+#'                twi = sites$twi[i], ndvi = sites$ndvi[i],
+#'                map_mm = sites$map_mm[i])
+#'   }))
+#'
+#'   # Hold pedon P4 out.  Its twi, ndvi and map_mm all sit INSIDE the
+#'   # range of the four training pedons, so predicting it is
+#'   # interpolation in covariate space, not extrapolation.
+#'   train <- pedons[pedons$pedon != "P4", ]
+#'   held  <- pedons[pedons$pedon == "P4", ]
+#'   print(vapply(c("twi", "ndvi", "map_mm"), function(v)
+#'     held[1L, v] > min(train[[v]]) && held[1L, v] < max(train[[v]]),
+#'     TRUE))
+#'   fit <- piml_hierarchical_fit(
+#'     train, "pedon", "depth", "soc",
+#'     covariate_cols = c("twi", "ndvi", "map_mm"),
+#'     epochs = 20L, lr = 0.05, n_steps = 2L, seed = 1L)
+#'
+#'   # One row of covariates in, one row of the profile out.  No
+#'   # horizon of the new location is needed -- or used.
+#'   unseen <- piml_hierarchical_predict(fit, held[1, ], hz)
+#'   print(dim(unseen))
+#'   print(round(rbind(pred = as.numeric(unseen), obs = held$soc), 2))
+#'
+#'   # The baseline any location-free prediction must beat is the
+#'   # depthwise mean of the training pedons.  Four pedons and 20
+#'   # epochs lose to it by a factor of five, and 60 cm comes back
+#'   # NEGATIVE: the ODE form is learned by an MLP, not imposed, so
+#'   # nothing keeps a profile positive or monotone.  This is what a
+#'   # five-pedon hierarchical fit is -- an interface, not a model.
+#'   seen  <- piml_hierarchical_predict(fit,
+#'              train[train$pedon == "P1", ][1, ], hz)
+#'   dmean <- as.numeric(
+#'     tapply(train$soc, train$depth, mean)[as.character(hz)])
+#'   print(round(c(
+#'     trained_on_this_pedon = sqrt(mean((as.numeric(seen) -
+#'                             train$soc[train$pedon == "P1"])^2)),
+#'     held_out_pedon        = sqrt(mean((as.numeric(unseen) -
+#'                             held$soc)^2)),
+#'     depthwise_mean        = sqrt(mean((dmean - held$soc)^2))), 2))
+#'
+#'   # `newdepths` need not be sorted: the integrator sorts, marches
+#'   # and un-sorts, so column j always belongs to newdepths[j].
+#'   p1 <- piml_hierarchical_predict(fit, held[1, ], c(5, 15, 30, 60))
+#'   p2 <- piml_hierarchical_predict(fit, held[1, ], c(60, 5, 30, 15))
+#'   print(all.equal(as.numeric(p1), as.numeric(p2[, c(2, 4, 3, 1)])))
+#'
+#'   # Depths are divided by the deepest TRAINING horizon, so asking
+#'   # for 100 or 200 cm marches the network past everything it saw.
+#'   # It answers anyway, and the answer leaves the observed range.
+#'   print(fit$depth_scale)
+#'   print(round(
+#'     piml_hierarchical_predict(fit, held[1, ], c(60, 100, 200)), 2))
+#'   print(round(range(train$soc), 2))
+#' }
 #' @export
 piml_hierarchical_predict <- function(object, new_covariates, newdepths) {
   .piml_require_torch()
@@ -227,16 +358,101 @@ print.edaphos_piml_hierarchical <- function(x, ...) {
 #' window driven by the local pedogenic context.
 #'
 #' @param hier_fit A `edaphos_piml_hierarchical`.
-#' @param candidate_covariate_cols Character vector with the column
-#'   names in the candidate table that correspond to the training
-#'   covariates (must be the same set, can have different order — the
-#'   function reorders them).
+#' @param candidate_covariate_cols Character vector naming the columns
+#'   of the candidate table that correspond to the training
+#'   covariates, **in the same order as** `hier_fit$covariate_cols`.
+#'   The mapping is positional — the i-th name given here is renamed
+#'   to the i-th training covariate — so this argument exists to
+#'   translate different column *names*, not a different order. A
+#'   permuted order silently feeds each covariate to the wrong input.
 #' @param safety_factor Numeric `>= 1`, widening factor on each side.
 #' @param envelope_depths Numeric, depths (same units as training) at
 #'   which the profile is probed to compute `min` and `max` for each
 #'   candidate. Defaults span surface to a deep horizon.
 #' @return A function suitable for
 #'   `al_query(..., physics_gate = <this>)`.
+#' @examples
+#' if (requireNamespace("torch", quietly = TRUE) &&
+#'     isTRUE(torch::torch_is_installed())) {
+#'   data(br_cerrado)
+#'   # The five noise-free ODE pedons of ?piml_hierarchical_fit.
+#'   sites <- br_cerrado[c(1, 400, 900, 1400, 1900), ]
+#'   hz <- c(5, 15, 30, 60)
+#'   pedons <- do.call(rbind, lapply(1:5, function(i) {
+#'     y0   <- sites$soc[i]
+#'     lam0 <- 0.02 + 0.004 * sites$twi[i]
+#'     data.frame(pedon = paste0("P", i), depth = hz,
+#'                soc = 0.30 * y0 + 0.70 * y0 *
+#'                      exp(-(lam0 / 0.02) * (1 - exp(-0.02 * hz))),
+#'                twi = sites$twi[i], ndvi = sites$ndvi[i],
+#'                map_mm = sites$map_mm[i])
+#'   }))
+#'   fit <- piml_hierarchical_fit(
+#'     pedons, "pedon", "depth", "soc",
+#'     covariate_cols = c("twi", "ndvi", "map_mm"),
+#'     epochs = 20L, lr = 0.05, n_steps = 2L, seed = 1L)
+#'
+#'   gate <- al_physics_gate_piml_hierarchical(
+#'     fit, safety_factor = 1.2, envelope_depths = c(0, 30, 60))
+#'
+#'   # The predicted means the gate judges come from the QRF, exactly
+#'   # as al_query() computes them internally.
+#'   set.seed(11)
+#'   labeled <- br_cerrado[sample(nrow(br_cerrado), 120), ]
+#'   m <- al_fit(labeled, target = "soc",
+#'               covariates = c("twi", "ndvi", "map_mm", "elev"),
+#'               num.trees = 100L)
+#'   cand <- br_cerrado[seq(2, 2025, length.out = 8), ]
+#'   pm <- predict(m$model, data = cand[, m$covariates])$predictions
+#'
+#'   # Each candidate is judged against ITS OWN predicted profile:
+#'   # [min, max] over `envelope_depths`, widened by
+#'   # (safety_factor - 1) * (max - min) on each side.
+#'   env <- piml_hierarchical_predict(fit, cand, c(0, 30, 60))
+#'   print(data.frame(pred = round(pm, 2),
+#'                    lo   = round(apply(env, 1L, min), 2),
+#'                    hi   = round(apply(env, 1L, max), 2),
+#'                    keep = gate(cand, pm)))
+#'
+#'   # Six of the eight are rejected even though every predicted value
+#'   # lies inside the SOC actually measured in br_cerrado.  The
+#'   # envelope inherits everything wrong with a five-pedon fit, so
+#'   # read the rejection rate -- and sweep safety_factor -- before
+#'   # wiring a gate into al_loop().
+#'   print(round(range(pm), 1))
+#'   print(round(range(br_cerrado$soc), 1))
+#'   print(vapply(c(1, 1.2, 2, 5), function(s)
+#'     sum(al_physics_gate_piml_hierarchical(
+#'           fit, safety_factor = s,
+#'           envelope_depths = c(0, 30, 60))(cand, pm)), 0))
+#'
+#'   # A gate can also shrink the batch: al_query() clamps `n` to the
+#'   # number of survivors, so n = 3 returns 2 rows here -- and none
+#'   # of the three ungated picks is among them.
+#'   print(al_query(m, cand, n = 3L, physics_gate = gate))
+#'   print(al_query(m, cand, n = 3L))
+#'
+#'   # `candidate_covariate_cols` is a positional rename, not a lookup.
+#'   # Given in training order it reproduces the gate above; permuted,
+#'   # it feeds rainfall into the twi input and silently flips two of
+#'   # the eight decisions -- no error, no warning.
+#'   cand2 <- cand
+#'   names(cand2)[match(c("twi", "ndvi", "map_mm"), names(cand2))] <-
+#'     c("wetness", "greenness", "rain")
+#'   ok  <- al_physics_gate_piml_hierarchical(
+#'     fit, c("wetness", "greenness", "rain"),
+#'     envelope_depths = c(0, 30, 60))
+#'   bad <- al_physics_gate_piml_hierarchical(
+#'     fit, c("rain", "greenness", "wetness"),
+#'     envelope_depths = c(0, 30, 60))
+#'   print(identical(ok(cand2, pm), gate(cand, pm)))
+#'   print(sum(ok(cand2, pm) != bad(cand2, pm)))
+#'
+#'   # Cost: one ODE integration per candidate per call, times
+#'   # length(envelope_depths).  Eight rows are instant, 400 rows with
+#'   # the default five depths take a few seconds -- gate a subset,
+#'   # not a whole raster.
+#' }
 #' @export
 al_physics_gate_piml_hierarchical <- function(
     hier_fit,

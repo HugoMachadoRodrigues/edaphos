@@ -122,6 +122,81 @@
 #'   reproduce the v3.1.0 epistemic-only behaviour.
 #' @return An `edaphos_posterior` with
 #'   `method = "bootstrap"`, `query_type = "map"`.
+#' @examples
+#' data(br_cerrado)
+#'
+#' # The wrapper checks for the response `soc` and the named covariates
+#' # and nothing else -- it never reads a coordinate column, and its
+#' # bootstrap is a plain row resample. So the split below is RANDOM, not
+#' # spatial, and the interval it produces does not account for spatial
+#' # dependence between train and test. For a spatially blocked
+#' # comparison see `data-raw/benchmark_wosis_6pilar.R`, which is what
+#' # the published six-pillar figures use.
+#' set.seed(1)
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 300L), ]
+#' covs  <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' train <- sub[1:240, ]; test <- sub[241:300, ]
+#'
+#' post <- benchmark_fit_p1_causal(train, test, covs, n_boot = 300L, seed = 1L)
+#' dim(post$samples)          # 300 bootstrap draws x 60 held-out sites
+#'
+#' # Score it against the baseline any soil map has to beat -- predicting
+#' # the training mean everywhere.  3.680 g/kg against 6.173.
+#' cal <- uncertainty_calibrate(post, truth = test$soc)
+#' round(c(rmse = cal$point_rmse,
+#'         null = sqrt(mean((mean(train$soc) - test$soc)^2))), 3)
+#'
+#' # `calibrate = TRUE` (the default) convolves the in-sample residual sd
+#' # into every draw.  The noise is centred within each test column, so the
+#' # point prediction survives untouched -- colMeans() moves by ~3e-14 --
+#' # and only the interval changes.
+#' raw <- benchmark_fit_p1_causal(train, test, covs, n_boot = 300L,
+#'                                seed = 1L, calibrate = FALSE)
+#' max(abs(colMeans(post$samples) - colMeans(raw$samples)))
+#'
+#' # Read that next to the coverage, which is the whole point of the term.
+#' # Bootstrap spread alone is the uncertainty of the FITTED MEAN, not of a
+#' # new profile: its 90% intervals are 1.99 g/kg wide and hold 22% of the
+#' # held-out truth.  With the aleatoric term they are 13.46 wide and hold
+#' # 93%, which on 60 sites is 0.9 binomial standard errors off nominal --
+#' # calibrated, as far as this test set can tell.
+#' cal_raw <- uncertainty_calibrate(raw, truth = test$soc)
+#' round(c(picp90_raw = cal_raw$picp[["0.90"]],
+#'         picp90_cal = cal$picp[["0.90"]],
+#'         mpiw90_raw = cal_raw$mpiw[["0.90"]],
+#'         mpiw90_cal = cal$mpiw[["0.90"]],
+#'         se90 = sqrt(0.9 * 0.1 / nrow(test))), 3)
+#'
+#' # TRAP: the DAG filter asks for the parents of a hard-coded outcome node
+#' # named "soc_topsoil_gkg".  A DAG that calls its outcome anything else
+#' # raises inside dagitty::parents(), and the fallback keeps every node
+#' # NAME in the graph -- so `elev` and `slope`, parents of nothing but
+#' # `ndvi` and `twi`, survive a selection advertised as causal.
+#' if (requireNamespace("dagitty", quietly = TRUE)) {
+#'   d_wrong <- dagitty::dagitty(
+#'     "dag { elev -> ndvi ; ndvi -> soc ; map_mm -> soc ; slope -> twi }")
+#'   print(dagitty::parents(d_wrong, "soc"))     # map_mm, ndvi
+#'   print(benchmark_fit_p1_causal(train, test, covs, dag = d_wrong,
+#'                                 n_boot = 50L,
+#'                                 seed = 1L)$metadata$adjusted_features)
+#'
+#'   # Name the outcome the way the wrapper expects and the parent set is
+#'   # honoured: three covariates instead of five.
+#'   d_ok <- dagitty::dagitty(
+#'     "dag { map_mm -> soc_topsoil_gkg ; ndvi -> soc_topsoil_gkg ;
+#'            twi -> soc_topsoil_gkg ; elev -> map_mm ; slope -> twi }")
+#'   print(benchmark_fit_p1_causal(train, test, covs, dag = d_ok,
+#'                                 n_boot = 50L,
+#'                                 seed = 1L)$metadata$adjusted_features)
+#'
+#'   # And a DAG leaving fewer than two covariates reverts to the full set
+#'   # rather than fitting a one-covariate model -- also silently.
+#'   # `metadata$adjusted_features` is the only place any of this shows.
+#'   d_one <- dagitty::dagitty("dag { ndvi -> soc_topsoil_gkg }")
+#'   print(benchmark_fit_p1_causal(train, test, covs, dag = d_one,
+#'                                 n_boot = 50L,
+#'                                 seed = 1L)$metadata$adjusted_features)
+#' }
 #' @export
 benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
                                         n_boot = 300L, seed = 1L,
@@ -209,6 +284,66 @@ benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
 #'   posterior sample (see Pilar-1 wrapper for the rationale).
 #' @return An `edaphos_posterior` with
 #'   `method = "ensemble"`, `query_type = "map"`.
+#' @examples
+#' data(br_cerrado)
+#' set.seed(2)
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 120L), ]
+#' names(sub)[names(sub) == "x"] <- "lon"
+#' names(sub)[names(sub) == "y"] <- "lat"
+#' covs  <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' train <- sub[1:90, ]; test <- sub[91:120, ]
+#'
+#' # `n_pcs` IS the qubit count: the simulator carries a 2^n_pcs state
+#' # vector per site and the Gram matrix needs O(n^2) of them, so keep it
+#' # small.  It also cannot exceed the number of non-constant covariates --
+#' # with these five columns the package default of 6 stops the fit.
+#' try(benchmark_fit_p6_quantum(train, test, covs, n_pcs = 6L, n_boot = 2L))
+#'
+#' post <- benchmark_fit_p6_quantum(train, test, covs, n_pcs = 4L, reps = 1L,
+#'                                  n_boot = 5L, lambda = 0.5, seed = 1L)
+#' dim(post$samples)                  # 5 bootstrap members x 30 sites
+#'
+#' # Do not read this as a working model.  Against the training mean and
+#' # against OLS on the same five covariates: 7.047 / 7.048 / 4.361.
+#' cal <- uncertainty_calibrate(post, truth = test$soc)
+#' ols <- lm(soc ~ elev + slope + twi + map_mm + ndvi, data = train)
+#' round(c(qkrr = cal$point_rmse,
+#'         null = sqrt(mean((mean(train$soc) - test$soc)^2)),
+#'         ols  = sqrt(mean((predict(ols, test) - test$soc)^2))), 3)
+#'
+#' # It ties the null because it has collapsed onto it.  At 4 qubits the
+#' # ZZFeatureMap Gram matrix is nearly the identity (mean off-diagonal
+#' # 0.063), the dual weights explain almost nothing, and predictions fall
+#' # back on the offset that quantum_krr_fit() centres the response with --
+#' # i.e. mean(train$soc).  The predictions vary by 1.75 g/kg where the
+#' # truth varies by 7.13.
+#' pt <- colMeans(post$samples)
+#' red <- qf_embed_reduce(as.matrix(rbind(train[, covs], test[, covs])),
+#'                        n_pcs = 4L)
+#' K <- quantum_kernel(red$X_q[1:90, ], reps = 1L)
+#' round(c(sd_pred = sd(pt), sd_truth = sd(test$soc),
+#'         mean_pred = mean(pt), train_mean = mean(train$soc),
+#'         gram_offdiag = mean(K[upper.tri(K)])), 3)
+#'
+#' # Note which rows went into that PCA: the wrapper reduces
+#' # rbind(train, test) jointly, so the rotation and the [-pi, pi] rescale
+#' # have seen the test covariates.  Fine for a benchmark of the kernel,
+#' # not a clean out-of-sample protocol -- PC1 takes 0.489 of the variance
+#' # jointly against 0.477 on the training rows alone.
+#' round(rbind(joint = red$variance_explained,
+#'             train_only = qf_embed_reduce(as.matrix(train[, covs]),
+#'                                          n_pcs = 4L)$variance_explained), 3)
+#'
+#' # The interval story is separate, and n_boot bounds it: a 90% interval
+#' # read off 5 members cannot be wider than their range.  More members
+#' # widen it, but they cannot rescue a posterior centred in the wrong
+#' # place -- coverage is still 0.467 at n_boot = 50.
+#' picp <- vapply(c(5L, 20L, 50L), function(nb) {
+#'   p <- benchmark_fit_p6_quantum(train, test, covs, n_pcs = 4L, reps = 1L,
+#'                                 n_boot = nb, lambda = 0.5, seed = 1L)
+#'   uncertainty_calibrate(p, truth = test$soc)$picp[["0.90"]]
+#' }, numeric(1))
+#' round(picp, 3)
 #' @export
 benchmark_fit_p6_quantum <- function(train, test, cov_cols,
                                          n_pcs = 6L, reps = 2L,
@@ -270,6 +405,83 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 #'   every posterior sample (see Pilar-1 wrapper for the rationale).
 #' @return An `edaphos_posterior` with
 #'   `method = "ensemble"`, `query_type = "map"`.
+#' @examples
+#' data(br_cerrado)
+#' set.seed(3)
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 160L), ]
+#' names(sub)[names(sub) == "x"] <- "lon"
+#' names(sub)[names(sub) == "y"] <- "lat"
+#' covs  <- c("elev", "slope", "twi", "map_mm", "ndvi")
+#' train <- sub[1:120, ]; test <- sub[121:160, ]
+#'
+#' # The k-NN graph spans train AND test, but only the training nodes carry
+#' # an observed target, so `test` never needs a `soc` column: the wrapper
+#' # fills the held-out targets with NA and masks them out of the loss.
+#' post <- benchmark_fit_p10_gat(train, test[, c("lon", "lat", covs)], covs,
+#'                               k = 6L, hidden = 8L, n_heads = 2L,
+#'                               n_layers = 2L, epochs = 40L, lr = 0.05,
+#'                               n_ensemble = 4L, seed = 1L)
+#' dim(post$samples)                 # 4 seed-distinct members x 40 sites
+#'
+#' # Two baselines, both computed here: the training mean and OLS on the
+#' # same five covariates.  5.090 / 7.289 / 4.679 -- on 120 training nodes
+#' # the attention over the co-location graph beats the mean by 30% and
+#' # still loses to the linear model by 9%.  A GAT row in a benchmark
+#' # table means nothing without that middle column.
+#' cal <- uncertainty_calibrate(post, truth = test$soc)
+#' ols <- lm(soc ~ elev + slope + twi + map_mm + ndvi, data = train)
+#' round(c(gat  = cal$point_rmse,
+#'         null = sqrt(mean((mean(train$soc) - test$soc)^2)),
+#'         ols  = sqrt(mean((predict(ols, test) - test$soc)^2))), 3)
+#'
+#' # `n_ensemble` is not only how precisely the point prediction is
+#' # averaged: the posterior IS the ensemble, so a 90% interval read off
+#' # four draws cannot be wider than their range.  Going to eight members
+#' # widens it from 7.75 to 9.62 g/kg and lifts coverage from 0.50 to
+#' # 0.60 -- closer to nominal, still well short of it.
+#' big <- benchmark_fit_p10_gat(train, test, covs, k = 6L, hidden = 8L,
+#'                              n_heads = 2L, n_layers = 2L, epochs = 40L,
+#'                              lr = 0.05, n_ensemble = 8L, seed = 1L)
+#' cal_big <- uncertainty_calibrate(big, truth = test$soc)
+#' round(c(picp90_4 = cal$picp[["0.90"]], picp90_8 = cal_big$picp[["0.90"]],
+#'         mpiw90_4 = cal$mpiw[["0.90"]], mpiw90_8 = cal_big$mpiw[["0.90"]]), 3)
+#'
+#' # Where that width comes from matters.  `calibrate = FALSE` leaves only
+#' # the seed-to-seed spread of the fitted means -- 1.10 g/kg, and 20%
+#' # coverage -- against a residual sd of 3.79.  The members disagree far
+#' # less with each other than any of them disagrees with the truth, which
+#' # is the usual state of a deep ensemble and the reason the aleatoric
+#' # term is added by default.
+#' epi <- benchmark_fit_p10_gat(train, test, covs, k = 6L, hidden = 8L,
+#'                              n_heads = 2L, n_layers = 2L, epochs = 40L,
+#'                              lr = 0.05, n_ensemble = 4L, seed = 1L,
+#'                              calibrate = FALSE)
+#' round(c(sd_epistemic = mean(apply(epi$samples, 2L, sd)),
+#'         sd_calibrated = mean(apply(post$samples, 2L, sd)),
+#'         sigma_resid = post$metadata$sigma_resid,
+#'         picp90_epistemic =
+#'           uncertainty_calibrate(epi, truth = test$soc)$picp[["0.90"]]), 3)
+#'
+#' # Member-by-member RMSE, for scale: the four seeds score 4.98 to 5.46
+#' # and their average scores 5.09 -- inside that range, not below it.  On
+#' # this problem the ensemble is buying an interval, not accuracy.
+#' round(apply(epi$samples, 1L, function(p) sqrt(mean((p - test$soc)^2))), 3)
+#'
+#' # Each member is one gnn_fit() on a single transductive graph: train
+#' # and test nodes together, held-out targets NA, loss on the training
+#' # mask.  Rebuilding member 1 by hand reproduces it exactly -- and shows
+#' # what `epochs` actually did.  gnn_fit() keeps a validation slice and
+#' # restores its best epoch, which here is epoch 2 of the 40 asked for;
+#' # it stops at 22 and discards the rest.  Nothing above is a training
+#' # curve, which is the other half of why this loses to lm().
+#' df_all <- rbind(cbind(train[, c("lon", "lat", covs)], soc = train$soc),
+#'                 cbind(test[,  c("lon", "lat", covs)], soc = NA_real_))
+#' g1 <- gnn_build_graph(df_all, k = 6L, feature_cols = covs)
+#' f1 <- gnn_fit(g1, df_all$soc, train_mask = !is.na(df_all$soc),
+#'               hidden = 8L, n_heads = 2L, n_layers = 2L, epochs = 40L,
+#'               lr = 0.05, seed = 2L)          # member b uses seed + b
+#' c(best_epoch = f1$best_epoch, epochs_run = length(f1$history))
+#' isTRUE(all.equal(predict(f1)[121:160], epi$samples[1, ]))
 #' @export
 benchmark_fit_p10_gat <- function(train, test, cov_cols,
                                       k = 8L, hidden = 12L, n_heads = 2L,

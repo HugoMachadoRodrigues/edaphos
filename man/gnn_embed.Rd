@@ -21,3 +21,40 @@ default, heads averaged) and \code{hidden * n_heads} when it is
 \description{
 Node-level embeddings from a fitted GAT
 }
+\examples{
+data(br_cerrado)
+set.seed(10)
+
+sub <- br_cerrado[sample(nrow(br_cerrado), 150L), ]
+names(sub)[names(sub) == "x"] <- "lon"
+names(sub)[names(sub) == "y"] <- "lat"
+g <- gnn_build_graph(sub, k = 6L,
+                     feature_cols = c("elev", "slope", "twi", "map_mm"))
+
+test  <- rep(c(FALSE, FALSE, TRUE), length.out = nrow(sub))
+y_obs <- sub$soc; y_obs[test] <- NA
+fit <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+               epochs = 60L, seed = 1L)
+emb <- gnn_embed(fit)
+
+# One row per NODE, not per training node: message passing ran over
+# the whole graph, so the 50 held-out profiles carry embeddings too.
+c(rows = nrow(emb), cols = ncol(emb),
+  nodes = g$n, trained_on = fit$n_train)
+
+# The embedding is NOT the design the head was fitted on.  With
+# `readout_skip` (the default) the head also saw the raw features
+# un-smoothed, so a downstream model fed `emb` alone is missing
+# four columns -- and the readout_skip comparison in [gnn_fit()]
+# shows how much of the score lives in them.
+c(emb = ncol(emb), design = ncol(fit$head_design),
+  raw_features = ncol(g$features))
+isTRUE(all.equal(fit$head_design, cbind(emb, g$features),
+                 check.attributes = FALSE))
+
+# The column count follows `average_heads`: averaged (the default)
+# gives `hidden`, concatenated gives hidden * n_heads.
+fit_cat <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+                   epochs = 60L, seed = 1L, average_heads = FALSE)
+c(averaged = ncol(emb), concatenated = ncol(gnn_embed(fit_cat)))
+}

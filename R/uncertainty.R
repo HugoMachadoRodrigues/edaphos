@@ -274,6 +274,48 @@ summary.edaphos_posterior <- function(object, ...) {
 #' @param ... Additional arguments passed to the pillar-specific
 #'   method (e.g. `query_type`, `units`).
 #' @return An `edaphos_posterior`.
+#' @examples
+#' # The default method reads a matrix as (draws x query cells): 200
+#' # draws of SOC at 3 profiles, the shape a Pillar-1 block bootstrap
+#' # or a Pillar-4 head ensemble hands back.
+#' set.seed(11)
+#' draws <- matrix(stats::rnorm(200L * 3L, mean = c(18, 22, 26), sd = 2),
+#'                 nrow = 200L, ncol = 3L, byrow = TRUE)
+#' post <- as_edaphos_posterior(draws, query_type = "sample",
+#'                              units = "g/kg")
+#' post
+#'
+#' # Nothing checks the orientation. The transpose is accepted in
+#' # silence and gives 200 query cells with 3 draws each; the per-cell
+#' # sd (3.32, 5.18, 2.63 for the first three) is then the spread
+#' # ACROSS profiles, which is not a posterior sd of anything.
+#' pT <- as_edaphos_posterior(t(draws), query_type = "sample")
+#' c(cells = length(pT$mean), draws = dim(pT$samples)[1L])
+#' round(as.numeric(pT$sd)[1:3], 2)
+#'
+#' # A bare numeric vector is n draws of ONE scalar, not n predictions.
+#' # Passing 200 per-site predictions this way collapses them to a
+#' # single query cell whose "sd" (2.08) is the spread between sites.
+#' v <- as_edaphos_posterior(as.numeric(draws[, 1L]))
+#' c(cells = length(v$mean), draws = dim(v$samples)[1L],
+#'   sd = round(as.numeric(v$sd), 3))
+#'
+#' # `method` defaults to "ensemble" whatever produced the draws, so a
+#' # bootstrap posterior mislabels its own provenance unless you say so.
+#' c(default = as_edaphos_posterior(draws)$method,
+#'   tagged  = as_edaphos_posterior(draws, method = "bootstrap")$method)
+#'
+#' # The identity method returns `x` and drops every extra argument, so
+#' # an existing posterior cannot be re-tagged through the adapter:
+#' # `units` stays "g/kg" and the object comes back untouched.
+#' identical(as_edaphos_posterior(post, units = "kg/m2"), post)
+#'
+#' # The adapter is narrower than the constructor it wraps: a
+#' # (draws x H x W) map ensemble has no default method and must go
+#' # through edaphos_posterior(samples = ) directly.
+#' arr <- array(stats::rnorm(50L * 4L * 5L), dim = c(50L, 4L, 5L))
+#' try(as_edaphos_posterior(arr))
+#' dim(edaphos_posterior(samples = arr, query_type = "map")$mean)
 #' @export
 as_edaphos_posterior <- function(x, ...) UseMethod("as_edaphos_posterior")
 
@@ -333,6 +375,8 @@ as_edaphos_posterior.default <- function(x,
 #' @return A list with:
 #' \describe{
 #'   \item{crps}{Mean sample-based CRPS across query cells.}
+#'   \item{crps_per}{Numeric vector of per-query-cell CRPS, in the
+#'     flattened order of `post$mean`; `crps` is its mean.}
 #'   \item{picp}{Named vector of empirical coverage, one per `probs`.}
 #'   \item{mpiw}{Named vector of mean interval widths, one per `probs`.}
 #'   \item{reliability_df}{Data frame with columns `nominal`,
@@ -344,6 +388,69 @@ as_edaphos_posterior.default <- function(x,
 #' Gneiting, T. and Raftery, A. E. (2007). Strictly proper scoring
 #' rules, prediction, and estimation. *Journal of the American
 #' Statistical Association* **102**(477), 359-378.
+#' @examples
+#' # A stand-in for a pillar posterior: `lm()` on 1825 Cerrado cells
+#' # gives a predictive mean for 200 held-out cells and a residual sd.
+#' # A real posterior arrives via as_edaphos_posterior() on a pillar
+#' # fit; nothing below depends on which pillar produced it.
+#' set.seed(2024)
+#' holdout <- sample(nrow(br_cerrado), 200L)
+#' test    <- br_cerrado[holdout, ]
+#' train   <- br_cerrado[-holdout, ]
+#' fit     <- stats::lm(soc ~ elev + slope + twi + map_mm + ndvi,
+#'                      data = train)
+#' mu      <- as.numeric(stats::predict(fit, newdata = test))
+#' sigma   <- summary(fit)$sigma          # 4.3064 g/kg
+#'
+#' # Same predictive mean, two claims about its spread. The second
+#' # understates the sd by a factor of three on purpose.
+#' honest <- edaphos_posterior(mean = mu, sd = rep(sigma, 200L),
+#'                             method = "gaussian",
+#'                             query_type = "sample", units = "g/kg")
+#' tight  <- edaphos_posterior(mean = mu, sd = rep(sigma / 3, 200L),
+#'                             method = "gaussian",
+#'                             query_type = "sample", units = "g/kg")
+#' cal_h <- uncertainty_calibrate(honest, test$soc)
+#' cal_t <- uncertainty_calibrate(tight,  test$soc)
+#'
+#' # `point_rmse` is blind to the difference -- the means are identical.
+#' # Accuracy and calibration are separate questions.
+#' c(honest = cal_h$point_rmse, tight = cal_t$point_rmse)
+#'
+#' # Coverage is not blind. Nominal 90% intervals hold 90.5% of the
+#' # truth for the honest posterior and 39.5% for the overconfident one.
+#' round(rbind(honest = cal_h$picp[c("0.50", "0.90")],
+#'             tight  = cal_t$picp[c("0.50", "0.90")]), 3)
+#'
+#' # Read those against sampling noise before calling it miscalibrated:
+#' # on 200 cells the binomial standard error of a 90% coverage
+#' # estimate is 0.021, so the honest posterior (0.005 off nominal) is
+#' # indistinguishable from calibrated and the tight one is 24 SEs out.
+#' round(c(se90   = sqrt(0.9 * 0.1 / 200),
+#'         honest = cal_h$picp[["0.90"]] - 0.9,
+#'         tight  = cal_t$picp[["0.90"]] - 0.9), 4)
+#'
+#' # CRPS is a proper score and does move the right way, but only by
+#' # 16% for a 3x understated sd. A report quoting CRPS alone can hide
+#' # a badly overconfident map that PICP catches instantly.
+#' round(c(crps_honest = cal_h$crps, crps_tight = cal_t$crps), 4)
+#'
+#' # The reliability curve is the readable version: all 19 nominal
+#' # levels under-covered, none over, worst by 0.51.
+#' all(cal_t$reliability_df$diff < 0)
+#' round(max(abs(cal_t$reliability_df$diff)), 3)
+#'
+#' # Coverage on its own is still not enough: it is bought with width.
+#' # Read PICP next to MPIW at the same level -- 14.1 g/kg against 4.7.
+#' round(c(mpiw90_honest = cal_h$mpiw[["0.90"]],
+#'         mpiw90_tight  = cal_t$mpiw[["0.90"]]), 3)
+#'
+#' # `crps_per` holds the 200 per-cell scores behind the scalar. Every
+#' # cell here was handed the same sd, so CRPS is monotone in |error|
+#' # and its worst cell is merely the worst residual; the per-cell
+#' # scores only add information once sd varies by cell.
+#' length(cal_h$crps_per)
+#' identical(which.max(cal_h$crps_per), which.max(abs(mu - test$soc)))
 #' @export
 uncertainty_calibrate <- function(post, truth,
                                    probs = seq(0.05, 0.95, by = 0.05)) {
@@ -366,10 +473,14 @@ uncertainty_calibrate <- function(post, truth,
   crps_per <- vapply(seq_len(n_query), function(j) {
     z <- s[, j]
     term_a <- mean(abs(z - truth[j]))
-    # 0.5 * E|Z - Z'| via an unbiased pairwise estimator that is
-    # O(N log N) rather than O(N^2): it equals the Gini mean
-    # difference of z, which for a sorted sample `zs` is
+    # 0.5 * E|Z - Z'| via a pairwise estimator that is O(N log N)
+    # rather than O(N^2): it equals the Gini mean difference of z,
+    # which for a sorted sample `zs` is
     # (2 / N^2) * sum_{i=1..N} (2 i - N - 1) * zs[i].
+    # Note this is the 1 / N^2 ("unfair") form documented above, i.e.
+    # the V-statistic including the i == j terms, so the CRPS carries
+    # the usual O(1 / N) upward finite-ensemble bias; the unbiased
+    # ("fair") variant would divide by N (N - 1) instead.
     zs <- sort(z)
     ii <- seq_len(n_samp)
     gmd <- sum((2 * ii - n_samp - 1) * zs) * 2 / (n_samp^2)
@@ -519,6 +630,56 @@ autoplot.edaphos_posterior <- function(object, ...) {
 #' @param calib List returned by [`uncertainty_calibrate()`].
 #' @param ... Ignored.
 #' @return A `ggplot` object.
+#' @examples
+#' # Two posteriors over the same 200 held-out Cerrado cells: a linear
+#' # model, and the null every soil map has to beat -- the training
+#' # marginal pasted on every cell, covariates ignored.
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   set.seed(2024)
+#'   holdout <- sample(nrow(br_cerrado), 200L)
+#'   test    <- br_cerrado[holdout, ]
+#'   train   <- br_cerrado[-holdout, ]
+#'   fit     <- stats::lm(soc ~ elev + slope + twi + map_mm + ndvi,
+#'                        data = train)
+#'   mu      <- as.numeric(stats::predict(fit, newdata = test))
+#'
+#'   model <- edaphos_posterior(mean = mu,
+#'                              sd   = rep(summary(fit)$sigma, 200L),
+#'                              method = "gaussian",
+#'                              query_type = "sample")
+#'   clim  <- edaphos_posterior(mean = rep(mean(train$soc), 200L),
+#'                              sd   = rep(stats::sd(train$soc), 200L),
+#'                              method = "gaussian",
+#'                              query_type = "sample")
+#'   cal_m <- uncertainty_calibrate(model, test$soc)
+#'   cal_c <- uncertainty_calibrate(clim,  test$soc)
+#'
+#'   p_model <- uncertainty_plot_reliability(cal_m)
+#'   p_clim  <- uncertainty_plot_reliability(cal_c)
+#'
+#'   # Both curves hug the identity line: the climatology is as well
+#'   # calibrated as the model (worst gap 0.060 against 0.045). A
+#'   # reliability diagram cannot tell a skilful map from a useless one.
+#'   print(round(c(model = max(abs(cal_m$reliability_df$diff)),
+#'                 clim  = max(abs(cal_c$reliability_df$diff))), 3))
+#'
+#'   # Which is why the title carries CRPS and RMSE -- those do separate
+#'   # them (2.4314 / 4.2480 against 3.7034 / 6.4965).
+#'   print(c(model = p_model$labels$title, clim = p_clim$labels$title))
+#'
+#'   # Sharpness is the other half and appears nowhere on the diagram:
+#'   # the climatology's 90% interval is 21.3 g/kg wide, the model's
+#'   # 14.1. Always show `mpiw` beside the plot.
+#'   print(round(c(mpiw90_model = cal_m$mpiw[["0.90"]],
+#'                 mpiw90_clim  = cal_c$mpiw[["0.90"]]), 2))
+#'
+#'   # The plot draws `reliability_df` verbatim -- 19 points, one per
+#'   # nominal level, no smoothing, no re-binning, so a wobble of one
+#'   # point is one binomial estimate and not a trend.
+#'   print(identical(p_model$data, cal_m$reliability_df))
+#'
+#'   p_model
+#' }
 #' @export
 uncertainty_plot_reliability <- function(calib, ...) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {

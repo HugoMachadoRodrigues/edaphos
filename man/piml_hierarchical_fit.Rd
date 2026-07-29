@@ -59,3 +59,68 @@ new location} given its covariates — no horizon measurement required.
 Pair with \code{\link[=al_physics_gate_piml_hierarchical]{al_physics_gate_piml_hierarchical()}} to use that per-location
 envelope as a rejection filter inside the Active Learning loop.
 }
+\examples{
+# torch is a Suggests dependency AND the lantern binaries are a
+# separate download, so both halves of the guard are needed.
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  data(br_cerrado)
+
+  # Five Cerrado sites.  Each pedon is the noise-free closed-form
+  # solution of dy/dz = -lambda0 exp(-mu z) (y - y_inf) with
+  # lambda0 = 0.02 + 0.004 twi, mu = 0.02 and y_inf = 0.30 y0, so
+  # the covariates genuinely drive the shape of the profile.
+  sites <- br_cerrado[c(1, 400, 900, 1400, 1900), ]
+  hz <- c(5, 15, 30, 60)
+  pedons <- do.call(rbind, lapply(1:5, function(i) {
+    y0   <- sites$soc[i]
+    lam0 <- 0.02 + 0.004 * sites$twi[i]
+    data.frame(pedon = paste0("P", i), depth = hz,
+               soc = 0.30 * y0 + 0.70 * y0 *
+                     exp(-(lam0 / 0.02) * (1 - exp(-0.02 * hz))),
+               twi = sites$twi[i], ndvi = sites$ndvi[i],
+               map_mm = sites$map_mm[i])
+  }))
+
+  # 20 epochs, not the 500 of the default, to keep this short.
+  # `seed` seeds torch, so the loss below is reproducible.
+  fit <- piml_hierarchical_fit(
+    pedons, "pedon", "depth", "soc",
+    covariate_cols = c("twi", "ndvi", "map_mm"),
+    epochs = 20L, lr = 0.05, n_steps = 2L, seed = 1L)
+  print(fit)
+
+  # `final_loss` is an MSE in standardised units, so the number it
+  # has to beat is the loss of predicting the global mean of `soc`.
+  vn <- (pedons$soc - mean(pedons$soc)) / sd(pedons$soc)
+  print(round(c(global_mean = mean(tapply(vn^2, pedons$pedon, mean)),
+                epoch_1     = fit$loss_history[1],
+                final       = fit$final_loss), 4))
+
+  # Read that final loss against the size of what produced it: two
+  # MLPs, 818 weights, fitted to 20 numbers.  A five-pedon fit is an
+  # interface demonstration and the loss above measures
+  # memorisation, not pedology.  ?piml_hierarchical_predict holds
+  # one pedon out and the model then loses to the depthwise mean of
+  # the others.
+  print(c(weights = sum(vapply(fit$model$parameters,
+                               function(p) p$numel(), 0)),
+          values  = nrow(pedons)))
+
+  # Covariates are taken from the FIRST ROW of each pedon.  Permuting
+  # them among the deeper horizons -- which leaves the column mean
+  # and sd, hence the standardisation, untouched -- changes nothing,
+  # while touching the topsoil row moves the loss.  So a
+  # horizon-level covariate (clay of each horizon, say) is silently
+  # truncated to its topsoil value.
+  deep <- pedons$depth > 5
+  perm <- pedons; perm$twi[deep] <- rev(perm$twi[deep])
+  top  <- pedons; top$twi[!deep] <- 99
+  short_fit <- function(d)
+    piml_hierarchical_fit(d, "pedon", "depth", "soc",
+      covariate_cols = c("twi", "ndvi", "map_mm"),
+      epochs = 2L, lr = 0.05, n_steps = 2L, seed = 1L)$final_loss
+  print(c(base = short_fit(pedons), deep_permuted = short_fit(perm),
+          topsoil_changed = short_fit(top)))
+}
+}

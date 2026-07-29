@@ -37,8 +37,12 @@ when \code{NULL}.}
 \code{5L}.}
 
 \item{strategy}{One of \code{"leverage"} (hat-matrix diagonal,
-closed-form, fast) or \code{"bootstrap"} (re-bootstrap the effect for
-each candidate; slow but exact under the linear-OLS estimator).}
+closed-form, fast, deterministic) or \code{"bootstrap"} (re-bootstrap
+\code{Var(beta_hat)} once per candidate). \code{"bootstrap"} costs
+\verb{B * (|pool| + 1)} OLS fits and its ranking is a Monte-Carlo
+estimate: at \code{B = 100} on 80 sites the ordering of five candidates
+changes with \code{seed} (see the examples), so raise \code{B} until the
+ordering stabilises before reading anything into it.}
 
 \item{B}{Bootstrap replications when \code{strategy = "bootstrap"}.}
 
@@ -55,4 +59,81 @@ Closes the loop between Pillar 1 (causal identification via
 backdoor adjustment) and Pillar 5 (autonomous active learning):
 instead of choosing candidates by marginal-Y uncertainty (classical
 AL), we choose by expected shrinkage of \verb{Var(beta_hat_\{X->Y\})}.
+}
+\examples{
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  # 80 labelled sites, 200 unlabelled candidates. The question is not
+  # "where is SOC uncertain?" but "how hard does rainfall push SOC?".
+  set.seed(11)
+  i_d  <- sample(nrow(br_cerrado), 80)
+  cols <- c("map_mm", "elev", "twi", "ndvi", "soc")
+  dat  <- br_cerrado[i_d, cols]
+  pool <- br_cerrado[-i_d, cols][1:200, ]
+
+  # On 80 sites the effect is not distinguishable from zero (t = 0.79).
+  # That is the situation this bridge exists for. (Inside a guarded
+  # block nothing auto-prints, hence the explicit print() calls.)
+  cf <- summary(stats::lm(soc ~ map_mm + elev + ndvi, dat))$coefficients
+  print(round(cf["map_mm", c("Estimate", "Std. Error", "t value")], 5))
+
+  dag <- dagitty::dagitty(
+    "dag { elev -> map_mm ; elev -> soc ; twi -> soc ;
+           map_mm -> ndvi ; map_mm -> soc ; ndvi -> soc }")
+  q <- al_query_causal(dat, pool, dag, exposure = "map_mm",
+                       outcome = "soc", n_select = 5L)
+  print(q)
+
+  # The set is inferred for the DIRECT effect, so the mediator ndvi is
+  # in it while twi, which opens no backdoor path, is not.
+  print(attr(q, "adjustment"))
+
+  # Row names are inherited from `pool`, `pool_index` is the position
+  # in it. Use the column; as.integer(rownames(q)) is a different row.
+  print(c(rowname     = rownames(q)[1],
+          pool_index  = q$pool_index[1],
+          resolves_to = rownames(pool)[q$pool_index[1]]))
+
+  # Leverage is a property of the design matrix alone: blank out every
+  # outcome in the pool and the ranking does not move one place.
+  pool_na <- pool; pool_na$soc <- NA_real_
+  print(identical(q$pool_index,
+                  al_query_causal(dat, pool_na, dag, exposure = "map_mm",
+                                  outcome = "soc")$pool_index))   # TRUE
+
+  # And it is JOINT, not marginal. Row 187 sits at the 40th percentile
+  # of the exposure yet ranks 4th, on the strength of being at the 6th
+  # percentile of elev and the maximum of ndvi.
+  top <- utils::head(q$pool_index, 5)
+  pct <- function(cc, i) round(100 * mean(pool[[cc]] <= pool[[cc]][i]))
+  print(t(sapply(top, function(i)
+    c(row = i, map_mm = pct("map_mm", i), elev = pct("elev", i),
+      ndvi = pct("ndvi", i)))))
+
+  # Classical Pillar 5 asks a different question of the same pool and
+  # gets a disjoint answer: 0 of its 5 picks are in the causal top 5.
+  set.seed(3)
+  m <- al_fit(dat, target = "soc",
+              covariates = c("map_mm", "elev", "twi", "ndvi"), seed = 3)
+  print(length(intersect(top, al_query(m, pool, n = 5,
+                                       strategy = "uncertainty"))))
+
+  # `expected_var_reduction` is h / (1 + h), a monotone relabelling of
+  # `leverage`: under strategy = "leverage" the two columns always
+  # rank identically, and neither is a variance in the units of beta.
+  print(stats::cor(rank(q$leverage), rank(q$expected_var_reduction)))
+
+  # strategy = "bootstrap" re-bootstraps Var(beta_hat) once per
+  # candidate. At B = 100 the answer is Monte-Carlo noise: three seeds
+  # give three orderings of the same five candidates, none of them the
+  # closed-form one. Raise B until the ordering stops moving.
+  ord <- function(s) al_query_causal(dat, pool[1:5, ], dag,
+                                     exposure = "map_mm",
+                                     outcome  = "soc",
+                                     strategy = "bootstrap",
+                                     B = 100L, seed = s)$pool_index
+  print(rbind(seed1 = ord(1), seed2 = ord(2), seed3 = ord(3),
+              leverage = al_query_causal(dat, pool[1:5, ], dag,
+                                         exposure = "map_mm",
+                                         outcome  = "soc")$pool_index))
+}
 }

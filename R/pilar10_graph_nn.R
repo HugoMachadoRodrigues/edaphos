@@ -88,7 +88,10 @@
 #'
 #' g <- gnn_build_graph(sub, k = 5L,
 #'                      feature_cols = c("elev", "slope", "twi"))
-#' c(n_nodes = g$n, n_edges = ncol(g$edge_index))
+#' # `edge_index` is one EDGE PER ROW (src, dst), so the edge count is
+#' # nrow(); ncol() is always 2.  With self-loops on there are
+#' # n * (k + 1) = 720 of them.
+#' c(n_nodes = g$n, n_edges = nrow(g$edge_index))
 #'
 #' # "spatial" links nearest neighbours in geographic space; "feature"
 #' # links pedologically similar profiles however far apart they lie.
@@ -466,6 +469,63 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL,
 #' Kipf, T. N. and Welling, M. (2017). Semi-Supervised Classification
 #' with Graph Convolutional Networks. *International Conference on
 #' Learning Representations*.
+#' @examples
+#' data(br_cerrado)
+#' set.seed(10)
+#'
+#' # gnn_build_graph() wants the coordinates under `lon` / `lat`.
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 150L), ]
+#' names(sub)[names(sub) == "x"] <- "lon"
+#' names(sub)[names(sub) == "y"] <- "lat"
+#' g <- gnn_build_graph(sub, k = 6L,
+#'                      feature_cols = c("elev", "slope", "twi", "map_mm"))
+#'
+#' # Hold every third profile out by setting its target to NA: the
+#' # default train_mask is !is.na(targets), so those nodes still pass
+#' # messages to their neighbours but never enter the loss.
+#' test  <- rep(c(FALSE, FALSE, TRUE), length.out = nrow(sub))
+#' y     <- sub$soc
+#' y_obs <- y; y_obs[test] <- NA
+#'
+#' fit <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+#'                epochs = 60L, seed = 1L)
+#' c(n_train = fit$n_train, n_val = fit$n_val,
+#'   epochs_run = length(fit$history), best_epoch = fit$best_epoch)
+#'
+#' # Score the held-out nodes against an achievable null -- the
+#' # TRAINING mean -- and against OLS on the same four covariates.
+#' null_mean <- mean(y[!test])
+#' nse <- function(pred)
+#'   1 - sum((pred - y[test])^2) / sum((y[test] - null_mean)^2)
+#' ols <- lm(soc ~ elev + slope + twi + map_mm, data = sub[!test, ])
+#' round(c(gat = nse(predict(fit)[test]),
+#'         ols = nse(predict(ols, sub[test, ]))), 4)
+#'
+#' # Before crediting the graph, read `best_epoch`.  It is 1 here: no
+#' # epoch of attention training beat the initialisation on the
+#' # internal validation split, so what came back is the random-init
+#' # encoder plus the closed-form ridge head -- and the four raw
+#' # covariates the readout skip hands that head do nearly all of it.
+#' fit_ns <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+#'                   epochs = 60L, seed = 1L, readout_skip = FALSE)
+#' round(c(with_skip = nse(predict(fit)[test]),
+#'         without   = nse(predict(fit_ns)[test])), 4)
+#'
+#' # Inventing a target for the held-out nodes instead of masking them
+#' # -- the training mean is the usual choice -- fits the head to
+#' # reproduce that invented value and drags the test set towards it.
+#' y_imp <- y; y_imp[test] <- null_mean
+#' fit_imp <- gnn_fit(g, y_imp, hidden = 8L, n_heads = 2L, n_layers = 2L,
+#'                    epochs = 60L, seed = 1L)
+#' round(c(masked = nse(predict(fit)[test]),
+#'         invented = nse(predict(fit_imp)[test])), 4)
+#'
+#' # `history` is the TRAINING loss and the printed "final MSE" is its
+#' # last entry.  Neither describes the parameters you got back, which
+#' # come from `best_epoch` on the validation split.
+#' round(c(train_at_best = fit$history[fit$best_epoch],
+#'         train_min     = min(fit$history),
+#'         train_at_end  = fit$history[length(fit$history)]), 4)
 #' @export
 gnn_fit <- function(graph, targets, train_mask = NULL,
                       hidden = 16L, n_heads = 4L, n_layers = 2L,
@@ -589,7 +649,18 @@ gnn_fit <- function(graph, targets, train_mask = NULL,
   # nodes supplied by the caller are never touched by any of this.
   tr_idx  <- which(train_mask)
   n_val   <- max(1L, floor(val_frac * length(tr_idx)))
-  val_idx <- if (length(tr_idx) >= 10L) sample(tr_idx, n_val) else integer(0)
+  # SORTED.  The validation loss is computed as
+  #   emb[val_sel, ] %*% W_head  vs  y_z[val_idx],
+  # and logical subsetting returns rows in ASCENDING node order while
+  # `sample()` returns `val_idx` in a random one.  Unsorted, every epoch was
+  # therefore scored against a permutation of the validation targets: the
+  # criterion measured var(pred) + var(y) instead of the error, early stopping
+  # selected whichever iterate predicted least, and `val_history` reported
+  # roughly twice the true loss (measured on `br_cerrado`: 1.78 reported
+  # against 0.78 aligned, and `best_epoch` stuck at 1 for every seed tried
+  # there, i.e. the attention training was discarded wholesale).
+  val_idx <- if (length(tr_idx) >= 10L) sort(sample(tr_idx, n_val))
+             else integer(0)
   fit_idx <- setdiff(tr_idx, val_idx)
   fit_sel <- rep(FALSE, graph$n); fit_sel[fit_idx] <- TRUE
   val_sel <- rep(FALSE, graph$n); val_sel[val_idx] <- TRUE
@@ -722,6 +793,47 @@ gnn_fit <- function(graph, targets, train_mask = NULL,
 #' @return An `edaphos_gnn_ensemble` carrying the member fits, the averaged
 #'   node predictions, and the between-member standard deviation (a cheap
 #'   epistemic spread).
+#' @examples
+#' data(br_cerrado)
+#' set.seed(10)
+#'
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 150L), ]
+#' names(sub)[names(sub) == "x"] <- "lon"
+#' names(sub)[names(sub) == "y"] <- "lat"
+#' g <- gnn_build_graph(sub, k = 6L,
+#'                      feature_cols = c("elev", "slope", "twi", "map_mm"))
+#'
+#' test  <- rep(c(FALSE, FALSE, TRUE), length.out = nrow(sub))
+#' y     <- sub$soc
+#' y_obs <- y; y_obs[test] <- NA
+#'
+#' ens <- gnn_fit_ensemble(g, y_obs, n_ensemble = 4L, seed = 1L,
+#'                         hidden = 8L, n_heads = 2L, n_layers = 2L,
+#'                         epochs = 60L)
+#' ens
+#'
+#' # Members differ only in their seed.  That alone moves the held-out
+#' # score by more than most modelling choices do, which is the whole
+#' # argument for reporting an ensemble instead of one lucky fit.
+#' null_mean <- mean(y[!test])
+#' nse <- function(pred)
+#'   1 - sum((pred - y[test])^2) / sum((y[test] - null_mean)^2)
+#' member <- vapply(ens$members, function(m) nse(predict(m)[test]),
+#'                  numeric(1))
+#' round(c(worst = min(member), mean = mean(member), best = max(member),
+#'         ensemble = nse(predict(ens)[test])), 4)
+#'
+#' # Note what averaging does and does not buy: it beats the AVERAGE
+#' # member, not the best one -- and which seed was best is knowable
+#' # only from the held-out labels you are not supposed to have.
+#'
+#' # `member_sd` is the spread BETWEEN seeds, not a predictive
+#' # interval.  It is under a fifth of the actual error here, so a
+#' # +-1.96 sd band covers a quarter of the profiles, not 95 percent.
+#' round(c(rmse       = sqrt(mean((predict(ens)[test] - y[test])^2)),
+#'         mean_sd    = mean(ens$member_sd[test]),
+#'         coverage95 = mean(abs(y[test] - predict(ens)[test]) <=
+#'                           1.96 * ens$member_sd[test])), 3)
 #' @export
 gnn_fit_ensemble <- function(graph, targets, train_mask = NULL,
                                n_ensemble = 10L, seed = NULL, ...) {
@@ -767,6 +879,42 @@ print.edaphos_gnn_ensemble <- function(x, ...) {
 #'   argument of [gnn_fit()]: `hidden` columns when it is `TRUE` (the
 #'   default, heads averaged) and `hidden * n_heads` when it is
 #'   `FALSE` (heads concatenated).
+#' @examples
+#' data(br_cerrado)
+#' set.seed(10)
+#'
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 150L), ]
+#' names(sub)[names(sub) == "x"] <- "lon"
+#' names(sub)[names(sub) == "y"] <- "lat"
+#' g <- gnn_build_graph(sub, k = 6L,
+#'                      feature_cols = c("elev", "slope", "twi", "map_mm"))
+#'
+#' test  <- rep(c(FALSE, FALSE, TRUE), length.out = nrow(sub))
+#' y_obs <- sub$soc; y_obs[test] <- NA
+#' fit <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+#'                epochs = 60L, seed = 1L)
+#' emb <- gnn_embed(fit)
+#'
+#' # One row per NODE, not per training node: message passing ran over
+#' # the whole graph, so the 50 held-out profiles carry embeddings too.
+#' c(rows = nrow(emb), cols = ncol(emb),
+#'   nodes = g$n, trained_on = fit$n_train)
+#'
+#' # The embedding is NOT the design the head was fitted on.  With
+#' # `readout_skip` (the default) the head also saw the raw features
+#' # un-smoothed, so a downstream model fed `emb` alone is missing
+#' # four columns -- and the readout_skip comparison in [gnn_fit()]
+#' # shows how much of the score lives in them.
+#' c(emb = ncol(emb), design = ncol(fit$head_design),
+#'   raw_features = ncol(g$features))
+#' isTRUE(all.equal(fit$head_design, cbind(emb, g$features),
+#'                  check.attributes = FALSE))
+#'
+#' # The column count follows `average_heads`: averaged (the default)
+#' # gives `hidden`, concatenated gives hidden * n_heads.
+#' fit_cat <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+#'                    epochs = 60L, seed = 1L, average_heads = FALSE)
+#' c(averaged = ncol(emb), concatenated = ncol(gnn_embed(fit_cat)))
 #' @export
 gnn_embed <- function(object) {
   stopifnot(inherits(object, "edaphos_gnn_gat"))

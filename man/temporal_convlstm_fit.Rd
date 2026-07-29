@@ -74,3 +74,73 @@ Trains a multi-layer ConvLSTM + 1x1 head on an input tensor shaped
 future driver channels are known (e.g. weather forecasts).
 }
 }
+\examples{
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
+  tt   <- temporal_cube_to_tensor(cube)
+
+  # Sequence-to-one: six months of (elev, precip) -> the month-6 SOC
+  # map. `target` must keep its batch axis, so 3-D (1, H, W). The
+  # 2-D map that tt$target[1, 6, , ] returns is rejected by
+  # stopifnot(target$dim() == 3L).
+  y6  <- array(tt$target[1, 6, , ], dim = c(1, 8, 8))
+  fit <- temporal_convlstm_fit(tt$sequence, y6, hidden_dims = 4L,
+                               epochs = 150L, lr = 0.05, seed = 1L)
+  print(fit)
+
+  # A loss number alone means nothing. The reference that makes it
+  # readable is the constant map: mean(y6) predicted everywhere.
+  baseline <- mean((y6 - mean(y6))^2)
+  print(round(c(final = fit$final_loss, baseline = baseline,
+                ratio = fit$final_loss / baseline), 4))
+  #   final baseline    ratio
+  #  0.0091   0.5382   0.0169
+
+  # Adam at lr = 0.05 is not monotone: 7 of the 149 steps go uphill,
+  # so never read final_loss as "the best loss reached".
+  print(sum(diff(fit$loss_history) > 0))          # 7
+
+  # And keep the ratio in proportion -- this fits 64 pixels with
+  # this many parameters and no held-out month, so 0.0169 measures
+  # capacity, not skill. temporal_convlstm_rollout() is where the
+  # same model has to face months it never saw.
+  print(sum(vapply(fit$model$parameters,
+                   function(p) prod(dim(p)), 0)))  # 885
+
+  # Trap 1: the physics regulariser is silently inert unless
+  # return_sequence = TRUE. physics_lambda is stored on the object
+  # either way, so loss_phys_history is the only proof it ever ran.
+  off <- temporal_convlstm_fit(tt$sequence, y6, epochs = 20L, lr = 0.05,
+                               seed = 1L, physics_lambda = 10)
+  print(c(lambda = off$physics_lambda,
+          phys_loss = max(off$loss_phys_history)))
+  #    lambda phys_loss
+  #        10         0
+
+  # Trap 2: when it IS active, the mass-balance term divides by the
+  # mean of the driver channel -- and temporal_cube_to_tensor() hands
+  # over a z-scored driver whose mean is zero to machine precision.
+  # The 1e-6 guard turns that into a division by 1e-6.
+  print(mean(tt$sequence[1, , 2, , ]))            # 1.225871e-16
+
+  on <- temporal_convlstm_fit(tt$sequence, tt$target, hidden_dims = 4L,
+                              return_sequence = TRUE, epochs = 5L,
+                              lr = 0.05, seed = 1L, physics_lambda = 1)
+  print(signif(c(fit  = on$loss_fit_history[1],
+                 phys = on$loss_phys_history[1],
+                 ratio = on$loss_phys_history[1] /
+                         on$loss_fit_history[1]), 3))
+  #      fit     phys    ratio
+  # 1.07e+00 2.76e+07 2.58e+07
+
+  # So the "prior" arrives ~2.6e7 times heavier than the fit term it
+  # is meant to regularise, and training optimises the regulariser.
+  # physics_k_in / physics_k_out default to 0.03 / 0.015, which are
+  # the RAW g/kg-per-mm rates of temporal_synth_soc_cube(), not the
+  # rates of the standardised problem the loss actually sees. Use
+  # physics_lambda > 0 only with a strictly positive driver channel
+  # whose mean is far from zero, and rescale both coefficients to
+  # match those units.
+}
+}

@@ -48,6 +48,63 @@ Cerrado runner (\code{data-raw/temporal_cerrado_run.R}) and produces the
 natural forecast-ensemble input for \code{\link[=temporal_kalman_update]{temporal_kalman_update()}} or
 for \code{\link[=as_edaphos_posterior]{as_edaphos_posterior()}}.
 }
+\examples{
+# Pillar 3 on a 12-month synthetic Cerrado SOC cube: 8 x 8 cells,
+# two channels (standardised elevation, monthly precipitation) and
+# SOC in g/kg. Months 1-9 are the training window.
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+
+  cube <- temporal_synth_soc_cube(H = 8L, W = 8L, T_total = 12L,
+                                  seed = 42L)
+  tt   <- temporal_cube_to_tensor(cube)
+  past_seq <- tt$sequence[, 1:9, , , , drop = FALSE]  # (1, 9, 2, 8, 8)
+  past_tgt <- tt$target[,   1:9, , , drop = FALSE]    # (1, 9, 8, 8)
+
+  # return_sequence = TRUE is not the default here, but it is what
+  # temporal_convlstm_ensemble_rollout() insists on further down.
+  ens <- temporal_convlstm_ensemble_fit(
+    sequence = past_seq, target = past_tgt,
+    hidden_dims = 4L, return_sequence = TRUE,
+    epochs = 20L, lr = 0.05, K_ens = 3L, base_seed = 7L)
+  print(ens)
+
+  # base_seed is the ONLY source of diversity: no bagging, no
+  # augmentation, every member sees the identical cube and differs
+  # purely by initialisation. At 20 epochs that has not settled --
+  # the worst member's loss is 2.1x the best member's. K_ens = 3 is
+  # kept here only for run time; it leaves the across-member sd with
+  # 2 degrees of freedom, which is why the default is 10.
+  print(round(ens$final_losses, 4))
+
+  # final_loss is MSE in the standardised units of tt$target, so
+  # quote it against the MSE of predicting the training-window mean.
+  # Even the worst member beats that trivial model 9x.
+  print(round(c(worst_member     = max(ens$final_losses),
+                predict_the_mean = mean((past_tgt -
+                                         mean(past_tgt))^2)), 4))
+
+  # Rescaled, those are in-sample RMSEs of 1.8-2.6 g/kg on a cube
+  # whose SOC spans 16.7-52.2 g/kg. In-sample only -- the forecast
+  # picture is in ?temporal_convlstm_ensemble_rollout.
+  print(round(sqrt(ens$final_losses) * tt$scaling$soc_sd, 2))
+  print(round(range(cube$soc), 1))
+
+  # loss_histories keeps the full per-member Adam trace.
+  print(round(ens$loss_histories[[1L]][c(1L, 10L, 20L)], 4))
+
+  # Trap: the default return_sequence = FALSE trains happily on a
+  # (batch, H, W) target, and only the rollout helper complains.
+  flat <- temporal_convlstm_ensemble_fit(
+    sequence = past_seq,
+    target   = array(past_tgt[1L, 9L, , ], dim = c(1L, 8L, 8L)),
+    hidden_dims = 4L, epochs = 3L, K_ens = 2L, base_seed = 7L)
+  print(tryCatch(temporal_convlstm_ensemble_rollout(
+                   flat, past_seq,
+                   tt$sequence[, 10:12, , , , drop = FALSE]),
+                 error = function(e) conditionMessage(e)))
+}
+}
 \seealso{
 \code{\link[=temporal_convlstm_rollout]{temporal_convlstm_rollout()}} to roll each member forward,
 \code{\link[=temporal_kalman_update]{temporal_kalman_update()}} to assimilate observations into the

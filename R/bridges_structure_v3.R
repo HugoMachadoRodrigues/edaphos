@@ -25,10 +25,15 @@
 #' Graph-based causal discovery (Pilar 10 x Pilar 1)
 #'
 #' Runs `causal_structure_learn()` on a feature frame augmented with
-#' GAT node embeddings.  Returns the discovered DAG restricted to the
-#' user's canonical variables; embeddings act as nuisance
-#' conditioners that absorb spatial dependence the expert DAG does
-#' not name.
+#' GAT node embeddings, which act as nuisance conditioners absorbing
+#' spatial dependence the expert DAG does not name.
+#'
+#' The returned graph is the FULL augmented DAG: the `z_emb_*`
+#' conditioners are vertices of `$graph` like any other.  The
+#' restriction to the caller's variables is attached alongside it as
+#' `$edges_feature_only`, and everything downstream that walks
+#' `$graph` -- [`causal_kg_edges()`], backdoor adjustment -- still
+#' sees the embedding nodes.
 #'
 #' @param gnn_fit An `edaphos_gnn_gat` from [`gnn_fit()`].
 #' @param feature_frame Data frame of the actual variables to form
@@ -45,7 +50,71 @@
 #' @param R_boot Integer; bootstrap resamples.
 #' @param seed Optional RNG seed.
 #' @return An `edaphos_causal_kg` from the underlying structure-learn
-#'   call, restricted to edges between variables in `feature_frame`.
+#'   call.  `$graph` is the DAG over `feature_frame` *and* the
+#'   `z_emb_*` conditioners; `$edges_feature_only` is a two-column
+#'   character matrix of the arcs whose endpoints are both in
+#'   `feature_frame` (added only when `igraph` is installed).
+#' @examples
+#' # `causal_structure_learn()` needs bnlearn AND igraph, both
+#' # Suggests, so the whole hand-off is guarded.
+#' if (requireNamespace("bnlearn", quietly = TRUE) &&
+#'     requireNamespace("igraph", quietly = TRUE)) {
+#'
+#'   set.seed(1)
+#'   sub <- br_cerrado[sample(nrow(br_cerrado), 150L), ]
+#'   names(sub)[names(sub) == "x"] <- "lon"
+#'   names(sub)[names(sub) == "y"] <- "lat"
+#'
+#'   # Pillar 10 side: a k-NN co-location graph over the pixels, then
+#'   # a GAT whose node embeddings have already absorbed each pixel's
+#'   # spatial neighbourhood.
+#'   g <- gnn_build_graph(sub, k = 6L,
+#'                        feature_cols = c("elev", "slope", "twi",
+#'                                         "map_mm", "ndvi"))
+#'   gat <- gnn_fit(g, sub$soc, hidden = 8L, n_heads = 2L,
+#'                  n_layers = 1L, epochs = 40L, seed = 1L)
+#'
+#'   # Pillar 1 side: hill-climbing over the six covariates PLUS four
+#'   # embedding dimensions carried along as conditioners.
+#'   feats <- sub[, c("elev", "slope", "twi", "map_mm", "ndvi", "soc")]
+#'   kg <- gnn_causal_discovery(gat, feats, method = "hc",
+#'                              n_emb_cols = 4L, seed = 1L)
+#'
+#'   # The restriction the name promises lives in one extra field.
+#'   # `kg$graph` is still the augmented DAG -- 10 vertices, 25 arcs,
+#'   # 17 of them touching a conditioner.  Anything that reads
+#'   # `kg$graph` gets the nuisance nodes too.
+#'   print(c(vertices     = igraph::vcount(kg$graph),
+#'           arcs         = igraph::ecount(kg$graph),
+#'           feature_only = nrow(kg$edges_feature_only)))
+#'   e <- causal_kg_edges(kg)
+#'   print(sum(grepl("^z_emb_", e$cause) | grepl("^z_emb_", e$effect)))
+#'
+#'   # What the conditioning bought, read against the same search with
+#'   # no embeddings at all: eight arcs over the six covariates
+#'   # against seven, four of them shared.
+#'   plain <- causal_structure_learn(feats, variables = names(feats),
+#'                                   method = "hc")
+#'   p <- causal_kg_edges(plain)
+#'   a_arcs <- paste(kg$edges_feature_only[, 1L], "->",
+#'                   kg$edges_feature_only[, 2L])
+#'   p_arcs <- paste(p$cause, "->", p$effect)
+#'   print(setdiff(a_arcs, p_arcs))
+#'   # "elev -> map_mm" "map_mm -> ndvi" "slope -> soc" "twi -> soc"
+#'   print(setdiff(p_arcs, a_arcs))
+#'   # "soc -> map_mm" "slope -> map_mm" "twi -> map_mm"
+#'
+#'   # Read those two lines together before believing either DAG.
+#'   # Without the embeddings three arrows run INTO mean annual
+#'   # rainfall, from carbon and from terrain; conditioning on four
+#'   # GAT dimensions removes all three, puts elevation upstream of
+#'   # rainfall instead, and sends slope and TWI straight to SOC.
+#'   # Encouraging -- but a BIC score is identical across a Markov
+#'   # equivalence class, so arc DIRECTION out of `hc` is a search
+#'   # artefact and not evidence.  Pin the arrows you already know
+#'   # with `whitelist` / `blacklist` before reading any of it
+#'   # causally.
+#' }
 #' @export
 gnn_causal_discovery <- function(gnn_fit, feature_frame,
                                     method = c("hc", "tabu", "pc-stable"),
@@ -115,17 +184,82 @@ gnn_causal_discovery <- function(gnn_fit, feature_frame,
 #' Physics-informed ConvLSTM mass-balance loss (Pilar 2 x Pilar 3)
 #'
 #' Factory that returns a `function(y_pred, y_true, driver)` closure
-#' suitable as the `physics_loss_fn` argument of
-#' [`temporal_convlstm_fit()`].  The closure penalises SOC-dynamics
-#' predictions that violate the local-rate kinetics inferred from
-#' the Pilar 2 ODE fit.
+#' penalising SOC-dynamics predictions that violate the local-rate
+#' kinetics inferred from the Pilar 2 ODE fit.
+#'
+#' [`temporal_convlstm_fit()`] has no argument that takes this
+#' closure: its physics term is the built-in mass-balance
+#' regulariser switched on by `physics_lambda` and parametrised by
+#' `physics_k_in` / `physics_k_out`.  Use the closure inside a
+#' training loop of your own, or as a post-hoc diagnostic on a
+#' predicted cube.
 #'
 #' @param ode_fit An `edaphos_piml_profile` or
 #'   `edaphos_piml_bayes` fit.
 #' @param weight Numeric; loss weight relative to the MSE term.
 #'   Default `0.1`.
-#' @return A function `loss_fn(y_pred, y_true, driver)` returning a
-#'   scalar tensor/number (same shape agnostic to torch / R).
+#' @return A function `loss_fn(y_pred, y_true, driver)`.  Only
+#'   `y_pred` is read -- `y_true` and `driver` are accepted for
+#'   signature compatibility and ignored, as is the ODE's
+#'   depth-modulation parameter `mu`.  It returns `weight` times the
+#'   mean squared deviation of the predicted per-step change from
+#'   `-lambda0 * (y - y_inf)`: a length-1 numeric for a
+#'   `(time, row, col)` R array, a scalar `torch_tensor` for a
+#'   `torch_tensor`.
+#' @examples
+#' # Pillar 2 first: fit the pedogenetic ODE to one Cerrado pedon.
+#' depths <- c(5, 15, 30, 60, 100)             # horizon mid-depths, cm
+#' soc_z  <- c(27.6, 21.2, 15.4, 10.1, 7.8)    # SOC, g/kg
+#' ode <- piml_profile_fit(depths, soc_z)
+#' round(c(lambda0 = unname(ode$params$lambda0),
+#'         y_inf   = unname(ode$params$y_inf),
+#'         rmse    = ode$rmse), 4)      # 0.0374 /cm, 6.3567 g/kg, 0.029
+#'
+#' pl <- temporal_piml_loss(ode, weight = 0.1)
+#'
+#' # The closure scores a (time, row, col) cube.  A cube that obeys
+#' # the kinetics exactly costs nothing; a random walk from the same
+#' # starting map does not, and `weight` scales that linearly.
+#' set.seed(2)
+#' y0 <- matrix(runif(16, 15, 30), 4L, 4L)
+#' obey <- walk <- array(0, c(6L, 4L, 4L))
+#' obey[1L, , ] <- walk[1L, , ] <- y0
+#' for (t in 2:6) {
+#'   obey[t, , ] <- obey[t - 1L, , ] -
+#'     ode$params$lambda0 * (obey[t - 1L, , ] - ode$params$y_inf)
+#'   walk[t, , ] <- walk[t - 1L, , ] + rnorm(16)
+#' }
+#' c(kinetic = pl(obey, obey, NULL), random_walk = pl(walk, walk, NULL))
+#' # 7.9e-32 and 0.1723
+#' temporal_piml_loss(ode, weight = 0.2)(walk, walk, NULL)   # 0.3447
+#'
+#' # Three arguments, one of them read.  Neither the observations nor
+#' # the driver enter the penalty, and neither does `mu`: this is a
+#' # regulariser on the prediction alone.
+#' o2 <- ode; o2$params$mu <- 5      # a wildly different depth decay
+#' c(y_true_ignored = pl(walk, walk, NULL) == pl(walk, 0 * walk, NULL),
+#'   mu_ignored     = pl(walk, walk, NULL) ==
+#'     temporal_piml_loss(o2, weight = 0.1)(walk, walk, NULL))  # TRUE TRUE
+#'
+#' # The unit the bridge silently changes.  `lambda0` was estimated
+#' # per CENTIMETRE down a profile and is applied here to a per-TIME-
+#' # STEP difference, so the change the penalty calls "expected" at a
+#' # 25 g/kg pixel is
+#' round(-ode$params$lambda0 * (25 - ode$params$y_inf) * c(1, 12), 3)
+#' # -0.698 per step and -8.37 over twelve of them: on monthly frames
+#' # that asserts the topsoil loses a third of its carbon every year.
+#' # Rescale lambda0 to the cube's time step before the term is
+#' # anything but a smoothness penalty.
+#'
+#' # There is also nowhere to hand it: the ConvLSTM takes rate
+#' # constants, never a loss function.
+#' "physics_loss_fn" %in% names(formals(temporal_convlstm_fit))  # FALSE
+#'
+#' # And used post hoc it needs the batch dimension dropped first --
+#' # a (batch, time, row, col) prediction is an error, not a silently
+#' # averaged one.
+#' cube4 <- array(0, c(2L, 6L, 4L, 4L))
+#' try(pl(cube4, cube4, NULL))
 #' @export
 temporal_piml_loss <- function(ode_fit, weight = 0.1) {
   # Parameters are stored differently across the two ODE-fit classes:
@@ -192,6 +326,54 @@ temporal_piml_loss <- function(ode_fit, weight = 0.1) {
 #' @param reps ZZFeatureMap repetitions.  Default `2L`.
 #' @param lambda Ridge regulariser.  Default `0.5`.
 #' @return An `edaphos_qf_krr_gat` fit.
+#' @examples
+#' set.seed(1)
+#' sub <- br_cerrado[sample(nrow(br_cerrado), 150L), ]
+#' names(sub)[names(sub) == "x"] <- "lon"
+#' names(sub)[names(sub) == "y"] <- "lat"
+#' g <- gnn_build_graph(sub, k = 6L,
+#'                      feature_cols = c("elev", "slope", "twi",
+#'                                       "map_mm", "ndvi"))
+#'
+#' # Pillar 10 transductively: the graph spans all 150 pixels, the
+#' # regression head sees only the first 100 SOC labels.
+#' tr <- 1:100; te <- 101:150
+#' y_obs <- sub$soc; y_obs[te] <- NA
+#' gat <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 1L,
+#'                epochs = 40L, seed = 1L)
+#' c(gat        = edaphos_rmse(sub$soc[te], predict(gat)[te]),
+#'   train_mean = edaphos_rmse(sub$soc[te], rep(mean(sub$soc[tr]), 50)))
+#' # 4.77 vs 6.27 g/kg -- the GAT is ahead of the null it must beat
+#'
+#' # Now the hand-off, and the first thing it demands: one y per NODE.
+#' # There is no train_mask here, so the quantum KRR is fitted on all
+#' # 150 labels, including the 50 the GAT was never shown.
+#' qk <- qf_krr_on_gat_embeddings(gat, sub$soc, n_pcs = 5L, reps = 1L,
+#'                                lambda = 0.5)
+#' qk
+#' c(nodes = nrow(gat$emb), gat_trained_on = gat$n_train,
+#'   krr_trained_on = qk$n_train)                    # 150, 100, 150
+#'
+#' # Which makes every number the returned object can produce an
+#' # in-sample one.  This looks held out and is not:
+#' edaphos_rmse(sub$soc[te], predict(qk, newdata = gat$emb[te, ]))  # 2.93
+#' edaphos_rmse(sub$soc, predict(qk))   # 2.73, predict() with no
+#'                                      # newdata scores the training
+#'                                      # embeddings
+#'
+#' # The honest version: same embedding, KRR refitted on the 100 rows
+#' # the GAT actually trained on, read against the training mean.
+#' qk_tr <- qf_krr_fit(gat$emb[tr, ], sub$soc[tr], n_pcs = 5L,
+#'                     reps = 1L, lambda = 0.5)
+#' p <- predict(qk_tr, gat$emb[te, ])
+#' c(qf_krr     = edaphos_rmse(sub$soc[te], p),
+#'   train_mean = edaphos_rmse(sub$soc[te], rep(mean(sub$soc[tr]), 50)),
+#'   r2         = edaphos_r2(sub$soc[te], p))
+#' # 6.32, 6.27, -0.049: worse than predicting the mean everywhere.
+#' # The GAT embedding the bridge feeds the ZZFeatureMap is 8-dim and
+#' # nearly rank-2 -- the first two PCs hold 94 % of its variance --
+#' # so five qubits are encoding almost no independent directions.
+#' round(qk$reduction$variance_explained, 3)
 #' @export
 qf_krr_on_gat_embeddings <- function(gnn_fit, y,
                                          n_pcs = 6L, reps = 2L,

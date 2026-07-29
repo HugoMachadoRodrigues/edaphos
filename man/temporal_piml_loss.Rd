@@ -14,13 +14,80 @@ temporal_piml_loss(ode_fit, weight = 0.1)
 Default \code{0.1}.}
 }
 \value{
-A function \code{loss_fn(y_pred, y_true, driver)} returning a
-scalar tensor/number (same shape agnostic to torch / R).
+A function \code{loss_fn(y_pred, y_true, driver)}.  Only
+\code{y_pred} is read -- \code{y_true} and \code{driver} are accepted for
+signature compatibility and ignored, as is the ODE's
+depth-modulation parameter \code{mu}.  It returns \code{weight} times the
+mean squared deviation of the predicted per-step change from
+\code{-lambda0 * (y - y_inf)}: a length-1 numeric for a
+\verb{(time, row, col)} R array, a scalar \code{torch_tensor} for a
+\code{torch_tensor}.
 }
 \description{
 Factory that returns a \verb{function(y_pred, y_true, driver)} closure
-suitable as the \code{physics_loss_fn} argument of
-\code{\link[=temporal_convlstm_fit]{temporal_convlstm_fit()}}.  The closure penalises SOC-dynamics
-predictions that violate the local-rate kinetics inferred from
-the Pilar 2 ODE fit.
+penalising SOC-dynamics predictions that violate the local-rate
+kinetics inferred from the Pilar 2 ODE fit.
+}
+\details{
+\code{\link[=temporal_convlstm_fit]{temporal_convlstm_fit()}} has no argument that takes this
+closure: its physics term is the built-in mass-balance
+regulariser switched on by \code{physics_lambda} and parametrised by
+\code{physics_k_in} / \code{physics_k_out}.  Use the closure inside a
+training loop of your own, or as a post-hoc diagnostic on a
+predicted cube.
+}
+\examples{
+# Pillar 2 first: fit the pedogenetic ODE to one Cerrado pedon.
+depths <- c(5, 15, 30, 60, 100)             # horizon mid-depths, cm
+soc_z  <- c(27.6, 21.2, 15.4, 10.1, 7.8)    # SOC, g/kg
+ode <- piml_profile_fit(depths, soc_z)
+round(c(lambda0 = unname(ode$params$lambda0),
+        y_inf   = unname(ode$params$y_inf),
+        rmse    = ode$rmse), 4)      # 0.0374 /cm, 6.3567 g/kg, 0.029
+
+pl <- temporal_piml_loss(ode, weight = 0.1)
+
+# The closure scores a (time, row, col) cube.  A cube that obeys
+# the kinetics exactly costs nothing; a random walk from the same
+# starting map does not, and `weight` scales that linearly.
+set.seed(2)
+y0 <- matrix(runif(16, 15, 30), 4L, 4L)
+obey <- walk <- array(0, c(6L, 4L, 4L))
+obey[1L, , ] <- walk[1L, , ] <- y0
+for (t in 2:6) {
+  obey[t, , ] <- obey[t - 1L, , ] -
+    ode$params$lambda0 * (obey[t - 1L, , ] - ode$params$y_inf)
+  walk[t, , ] <- walk[t - 1L, , ] + rnorm(16)
+}
+c(kinetic = pl(obey, obey, NULL), random_walk = pl(walk, walk, NULL))
+# 7.9e-32 and 0.1723
+temporal_piml_loss(ode, weight = 0.2)(walk, walk, NULL)   # 0.3447
+
+# Three arguments, one of them read.  Neither the observations nor
+# the driver enter the penalty, and neither does `mu`: this is a
+# regulariser on the prediction alone.
+o2 <- ode; o2$params$mu <- 5      # a wildly different depth decay
+c(y_true_ignored = pl(walk, walk, NULL) == pl(walk, 0 * walk, NULL),
+  mu_ignored     = pl(walk, walk, NULL) ==
+    temporal_piml_loss(o2, weight = 0.1)(walk, walk, NULL))  # TRUE TRUE
+
+# The unit the bridge silently changes.  `lambda0` was estimated
+# per CENTIMETRE down a profile and is applied here to a per-TIME-
+# STEP difference, so the change the penalty calls "expected" at a
+# 25 g/kg pixel is
+round(-ode$params$lambda0 * (25 - ode$params$y_inf) * c(1, 12), 3)
+# -0.698 per step and -8.37 over twelve of them: on monthly frames
+# that asserts the topsoil loses a third of its carbon every year.
+# Rescale lambda0 to the cube's time step before the term is
+# anything but a smoothness penalty.
+
+# There is also nowhere to hand it: the ConvLSTM takes rate
+# constants, never a loss function.
+"physics_loss_fn" \%in\% names(formals(temporal_convlstm_fit))  # FALSE
+
+# And used post hoc it needs the batch dimension dropped first --
+# a (batch, time, row, col) prediction is an error, not a silently
+# averaged one.
+cube4 <- array(0, c(2L, 6L, 4L, 4L))
+try(pl(cube4, cube4, NULL))
 }

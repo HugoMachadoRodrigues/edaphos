@@ -22,3 +22,46 @@ default method accepts already-wrapped objects, numeric vectors
 (treated as a 1-D scalar posterior), and numeric matrices (treated
 as \verb{n_samples x n_query} matrices).
 }
+\examples{
+# The default method reads a matrix as (draws x query cells): 200
+# draws of SOC at 3 profiles, the shape a Pillar-1 block bootstrap
+# or a Pillar-4 head ensemble hands back.
+set.seed(11)
+draws <- matrix(stats::rnorm(200L * 3L, mean = c(18, 22, 26), sd = 2),
+                nrow = 200L, ncol = 3L, byrow = TRUE)
+post <- as_edaphos_posterior(draws, query_type = "sample",
+                             units = "g/kg")
+post
+
+# Nothing checks the orientation. The transpose is accepted in
+# silence and gives 200 query cells with 3 draws each; the per-cell
+# sd (3.32, 5.18, 2.63 for the first three) is then the spread
+# ACROSS profiles, which is not a posterior sd of anything.
+pT <- as_edaphos_posterior(t(draws), query_type = "sample")
+c(cells = length(pT$mean), draws = dim(pT$samples)[1L])
+round(as.numeric(pT$sd)[1:3], 2)
+
+# A bare numeric vector is n draws of ONE scalar, not n predictions.
+# Passing 200 per-site predictions this way collapses them to a
+# single query cell whose "sd" (2.08) is the spread between sites.
+v <- as_edaphos_posterior(as.numeric(draws[, 1L]))
+c(cells = length(v$mean), draws = dim(v$samples)[1L],
+  sd = round(as.numeric(v$sd), 3))
+
+# `method` defaults to "ensemble" whatever produced the draws, so a
+# bootstrap posterior mislabels its own provenance unless you say so.
+c(default = as_edaphos_posterior(draws)$method,
+  tagged  = as_edaphos_posterior(draws, method = "bootstrap")$method)
+
+# The identity method returns `x` and drops every extra argument, so
+# an existing posterior cannot be re-tagged through the adapter:
+# `units` stays "g/kg" and the object comes back untouched.
+identical(as_edaphos_posterior(post, units = "kg/m2"), post)
+
+# The adapter is narrower than the constructor it wraps: a
+# (draws x H x W) map ensemble has no default method and must go
+# through edaphos_posterior(samples = ) directly.
+arr <- array(stats::rnorm(50L * 4L * 5L), dim = c(50L, 4L, 5L))
+try(as_edaphos_posterior(arr))
+dim(edaphos_posterior(samples = arr, query_type = "map")$mean)
+}
