@@ -510,10 +510,23 @@ add("## 7. Documentation coverage", "",
     stringsAsFactors = FALSE)), "")
 
 pw <- df_$pillar_wording
-if (NROW(pw))
+if (NROW(pw)) {
   add("\"six pillars\" vs \"ten pillars\", counted per file:", "",
-      mdtable(setNames(pw, c("File", "says \"six\"", "says \"ten\"")),
-              c("---", "--:", "--:")), "")
+      mdtable(setNames(pw, c("File", "says \"six\"", "— unqualified",
+                             "says \"ten\"")),
+              c("---", "--:", "--:", "--:")), "")
+  # The distinction is the whole point: a row saying "the six pillars that
+  # existed at v1.7.0" is true, and only the unqualified column can be wrong.
+  bad <- if (is.null(pw$says_six_unqualified)) NULL else
+    pw$file[!is.na(pw$says_six_unqualified) & pw$says_six_unqualified > 0]
+  add(sprintf(paste("\"— unqualified\" excludes occurrences whose surrounding",
+                    "sentence scopes them to a past release. Those are correct",
+                    "history. %s"),
+              if (!length(bad))
+                "No file makes an unqualified six-pillar claim."
+              else sprintf("Files still making one: %s.",
+                           paste(code(bad), collapse = ", "))), "")
+}
 
 add(sprintf("Occurrences of `getting-started` in README.md: **%s**.",
             num(df_$readme_mentions_getting_started)), "")

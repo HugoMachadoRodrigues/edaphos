@@ -270,20 +270,39 @@ doc_facts <- safe({
     vignettes                  = basename(Sys.glob("vignettes/*.Rmd")),
     article_count              = length(Sys.glob("articles/*.Rmd")),
     cheatsheet_count           = length(Sys.glob("cheatsheets/*.md")),
-    # the six-vs-ten pillar schism, counted rather than asserted
-    pillar_wording = data.frame(
-      file = c("DESCRIPTION", "R/pillars_roadmap.R", "R/edaphos-package.R", "README.md"),
-      says_six = vapply(c("DESCRIPTION", "R/pillars_roadmap.R",
-                          "R/edaphos-package.R", "README.md"),
-        function(f) if (file.exists(f))
-          sum(grepl("six (research )?pillars", readLines(f, warn = FALSE),
-                    ignore.case = TRUE)) else NA_integer_, integer(1)),
-      says_ten = vapply(c("DESCRIPTION", "R/pillars_roadmap.R",
-                          "R/edaphos-package.R", "README.md"),
-        function(f) if (file.exists(f))
-          sum(grepl("ten (research )?pillars", readLines(f, warn = FALSE),
-                    ignore.case = TRUE)) else NA_integer_, integer(1)),
-      row.names = NULL, stringsAsFactors = FALSE),
+    # The six-vs-ten pillar schism, counted rather than asserted.  Two things
+    # the earlier version of this could not do: it omitted the three metadata
+    # artefacts the finding was actually about (CITATION.cff, .zenodo.json,
+    # _pkgdown.yml), and it counted every "six pillars" alike -- including
+    # README rows that correctly describe history ("the six pillars that existed
+    # at v1.7.0").  A historical statement is not a stale claim, so count the
+    # unqualified ones separately: those are the only ones that are wrong.
+    pillar_wording = local({
+      files <- c("DESCRIPTION", "R/pillars_roadmap.R", "R/edaphos-package.R",
+                 "README.md", "CITATION.cff", ".zenodo.json", "_pkgdown.yml")
+      # YAML folded scalars and long JSON strings wrap mid-sentence, so match
+      # over a whitespace-collapsed window of the line and its neighbours.
+      hist_pat <- paste0("(that existed|of that release|of v1[.]|then-six|",
+                         "that existed then|of v1[.]7[.]0, integrated)")
+      count <- function(f, pat, only_unqualified = FALSE) {
+        if (!file.exists(f)) return(NA_integer_)
+        ln <- readLines(f, warn = FALSE)
+        hit <- grep(pat, ln, ignore.case = TRUE)
+        if (!only_unqualified) return(length(hit))
+        sum(vapply(hit, function(i) {
+          ctx <- gsub("\\s+", " ", paste(
+            ln[max(1, i - 1):min(length(ln), i + 1)], collapse = " "))
+          !grepl(hist_pat, ctx, perl = TRUE)
+        }, logical(1)))
+      }
+      data.frame(
+        file = files,
+        says_six = vapply(files, count, integer(1), "six (research )?pillars"),
+        says_six_unqualified = vapply(files, count, integer(1),
+                                      "six (research )?pillars", TRUE),
+        says_ten = vapply(files, count, integer(1), "ten (research )?pillars"),
+        row.names = NULL, stringsAsFactors = FALSE)
+    }),
     readme_bytes = if (file.exists("README.md")) file.size("README.md") else NA_integer_,
     readme_mentions_getting_started = if (file.exists("README.md"))
       sum(grepl("getting-started", readLines("README.md", warn = FALSE),

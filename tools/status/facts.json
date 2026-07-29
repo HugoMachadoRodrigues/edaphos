@@ -1,7 +1,7 @@
 {
   "schema": "edaphos-status-facts/1",
   "environment": {
-    "measured_at_utc": "2026-07-29T20:24:15Z",
+    "measured_at_utc": "2026-07-29T21:29:12Z",
     "r_version": "4.6.1",
     "r_nickname": "Happy Hop",
     "platform": "aarch64-apple-darwin23",
@@ -9,16 +9,16 @@
     "os_release": "25.6.0"
   },
   "git": {
-    "head_sha": "28dac7dcdd1aab5a2555a07415fb95ef07eb9e75",
-    "head_sha_short": "28dac7d",
+    "head_sha": "a5495282ed527de1c3518011fbaaa3b2d9615bd2",
+    "head_sha_short": "a549528",
     "branch": "Hugo/edaphos-dev-status-222f14",
     "remote_url": "https://github.com/HugoMachadoRodrigues/edaphos.git",
-    "commit_count": 94,
+    "commit_count": 96,
     "first_commit": "2026-04-20T23:44:43-04:00",
     "first_subject": "Initial release of edaphos 0.1.0",
-    "last_commit": "2026-07-29T00:18:39-04:00",
-    "last_subject": "docs: every exported function now has an example, and four claims corrected",
-    "span_days": 99.0235648148148,
+    "last_commit": "2026-07-29T16:58:27-04:00",
+    "last_subject": "metadata: ten pillars where three files still said six, and one version number",
+    "span_days": 99.7178703703704,
     "active_days": 12,
     "commits_per_day": {
       "2026-04-20": 1,
@@ -32,15 +32,15 @@
       "2026-07-26": 6,
       "2026-07-27": 4,
       "2026-07-28": 1,
-      "2026-07-29": 1
+      "2026-07-29": 3
     },
-    "days_since_last": 0.670562667650757,
+    "days_since_last": 0.0213596813656666,
     "tags": ["v0.1.0", "v0.2.0", "v0.3.0", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0", "v0.8.0", "v0.9.0", "v1.0.0", "v1.1.0", "v1.2.0", "v1.3.0", "v1.3.1", "v1.4.0", "v1.5.0", "v1.6.0", "v3.10.0", "v4.0.0"],
     "tag_count": 19,
     "worktree_clean": false,
     "ahead_behind_origin_main": "0\t7",
     "remote_tag_count": 19,
-    "commits_since_last_tag": 5,
+    "commits_since_last_tag": 7,
     "last_tag": "v4.0.0"
   },
   "description": {
@@ -75,7 +75,7 @@
       "DESCRIPTION": "4.1.0",
       "NEWS.md": "4.1.0",
       "README.md": "2.8.0",
-      "CITATION.cff": "4.0.0",
+      "CITATION.cff": "4.1.0",
       "zenodo.json_has_version": true
     },
     "readme_install_refs": []
@@ -156,25 +156,47 @@
       {
         "file": "DESCRIPTION",
         "says_six": 0,
+        "says_six_unqualified": 0,
         "says_ten": 1
       },
       {
         "file": "R/pillars_roadmap.R",
         "says_six": 0,
+        "says_six_unqualified": 0,
         "says_ten": 1
       },
       {
         "file": "R/edaphos-package.R",
         "says_six": 0,
+        "says_six_unqualified": 0,
         "says_ten": 2
       },
       {
         "file": "README.md",
         "says_six": 4,
+        "says_six_unqualified": 0,
         "says_ten": 4
+      },
+      {
+        "file": "CITATION.cff",
+        "says_six": 1,
+        "says_six_unqualified": 0,
+        "says_ten": 1
+      },
+      {
+        "file": ".zenodo.json",
+        "says_six": 1,
+        "says_six_unqualified": 0,
+        "says_ten": 1
+      },
+      {
+        "file": "_pkgdown.yml",
+        "says_six": 1,
+        "says_six_unqualified": 0,
+        "says_ten": 1
       }
     ],
-    "readme_bytes": 97879,
+    "readme_bytes": 97865,
     "readme_mentions_getting_started": 0
   },
   "rd_portability": {
@@ -939,7 +961,7 @@
     "warnings": 0,
     "files": 74,
     "results": 505,
-    "real_seconds": 400.5,
+    "real_seconds": 476.9,
     "failing_files": []
   },
   "dependencies": {
@@ -950,7 +972,7 @@
   "check": {
     "log_path": "tools/status/check.log",
     "log_lines": 99,
-    "log_sha256": "97edbd71ade57ad89d3e69a76ec17ddbb742171f8421c1df1e6b538f10110b6c",
+    "log_sha256": "a327d096f7c9fe5e3f73739065a66e5da69cec322cc74e7ede7c2669cd19bbbe",
     "status_line": "Status: 2 NOTEs",
     "n_errors": 0,
     "n_warnings": 0,
@@ -1252,7 +1274,7 @@
       {
         "step": "checking tests",
         "level": "OK",
-        "detail": "  Running testthat.R [450s/464s] |  [450s/465s] OK"
+        "detail": "  Running testthat.R [401s/402s] |  [401s/402s] OK"
       },
       {
         "step": "checking for unstated dependencies in vignettes",
@@ -1277,7 +1299,7 @@
       {
         "step": "checking for detritus in the temp directory",
         "level": "NOTE",
-        "detail": "Found the following files/directories: |   tmp9lao7pgd | * DONE | Status: 2 NOTEs | See |   /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log | for details."
+        "detail": "Found the following files/directories: |   tmp5zaz4pn5 | * DONE | Status: 2 NOTEs | See |   /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log | for details."
       }
     ],
     "errors": [],
@@ -1291,11 +1313,11 @@
       "invalid_urls": [],
       "n_invalid_urls": 0,
       "tarball_bytes": null,
-      "block": ["* checking CRAN incoming feasibility ... [5s/31s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission"]
+      "block": ["* checking CRAN incoming feasibility ... [5s/33s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission"]
     },
     "test_summary": [],
     "suggests_unavailable": ["'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges',", "'ontologyIndex', 'spBayes'"],
-    "tail": ["* checking examples ... [93s/100s] OK", "* checking examples with --run-donttest ... [98s/133s] OK", "* checking for unstated dependencies in tests ... OK", "* checking tests ...", "  Running testthat.R [450s/464s]", " [450s/465s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [254s/259s] OK", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmp9lao7pgd", "* DONE", "", "Status: 2 NOTEs", "See", "  /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log", "for details.", ""]
+    "tail": ["* checking examples ... [87s/85s] OK", "* checking examples with --run-donttest ... [90s/89s] OK", "* checking for unstated dependencies in tests ... OK", "* checking tests ...", "  Running testthat.R [401s/402s]", " [401s/402s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [276s/321s] OK", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmp5zaz4pn5", "* DONE", "", "Status: 2 NOTEs", "See", "  /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log", "for details.", ""]
   },
   "size": {
     "measured_over": "git-tracked files only (build artefacts excluded)",
@@ -1318,12 +1340,12 @@
       },
       {
         "dir": "tools",
-        "bytes": 666319,
+        "bytes": 672227,
         "ships_in_tarball": false
       },
       {
         "dir": "<root>",
-        "bytes": 486789,
+        "bytes": 485964,
         "ships_in_tarball": true
       },
       {
@@ -1367,17 +1389,17 @@
         "ships_in_tarball": false
       }
     ],
-    "shipped_bytes": 6537612,
+    "shipped_bytes": 6537598,
     "shipped_file_count": 393,
-    "tarball_bytes": 6740328,
+    "tarball_bytes": 6742842,
     "tarball_file": "edaphos_4.1.0.tar.gz",
     "tarball_composition": {
-      "total_bytes": 10616421,
+      "total_bytes": 10618891,
       "file_count": 447,
       "by_dir": [
         {
           "dir": "inst/doc",
-          "bytes": 4077918,
+          "bytes": 4080402,
           "in_repo": false
         },
         {
@@ -1412,7 +1434,7 @@
         },
         {
           "dir": "<root>",
-          "bytes": 198957,
+          "bytes": 198943,
           "in_repo": true
         },
         {
@@ -1453,9 +1475,9 @@
       ],
       "inst_doc": {
         "html_files": 18,
-        "html_bytes": 3664434,
-        "base64_bytes": 2629422,
-        "base64_share_of_html": 0.717552014854136,
+        "html_bytes": 3666918,
+        "base64_bytes": 2631906,
+        "base64_share_of_html": 0.71774334741055,
         "largest": [
           {
             "file": "capstone-cerrado-campaign.html",
@@ -1474,8 +1496,8 @@
           },
           {
             "file": "pilar6-quantum.html",
-            "bytes": 259397,
-            "base64_bytes": 188442
+            "bytes": 255917,
+            "base64_bytes": 184962
           },
           {
             "file": "pilar4-simclr-embeddings.html",
@@ -1491,7 +1513,7 @@
       }
     },
     "excluded_by_rbuildignore": 16,
-    "repo_bytes": 7885455,
+    "repo_bytes": 7890538,
     "cran_soft_cap_bytes": 5242880,
     "largest_shipped_files": [
       {
@@ -1531,7 +1553,7 @@
       },
       {
         "file": "README.md",
-        "bytes": 97879,
+        "bytes": 97865,
         "ships": true
       },
       {
@@ -1555,7 +1577,7 @@
         "ships": true
       }
     ],
-    "untracked_files": "edaphos.Rcheck/"
+    "untracked_files": []
   },
   "ci": {
     "workflows": ["pkgdown.yaml", "R-CMD-check.yaml", "test-coverage.yaml"],

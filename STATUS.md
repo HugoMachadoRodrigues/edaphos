@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `28dac7d` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `4.1.0` — **measured** 2026-07-29T20:24:15Z
+**Commit** `a549528` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `4.1.0` — **measured** 2026-07-29T21:29:12Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,9 +18,9 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 94 |
-| First → last commit | 2026-04-20 → 2026-07-29 (99.0 calendar days, 12 with commits) |
-| Days since last commit | 1 |
+| Commits | 96 |
+| First → last commit | 2026-04-20 → 2026-07-29 (99.7 calendar days, 12 with commits) |
+| Days since last commit | 0 |
 | NEWS release sections | 45 |
 | Git tags | 19 |
 | NEWS versions with no tag | 33 |
@@ -32,12 +32,12 @@ adversarial audit of commit `272b378`.
 | Test failures + errors | 0 |
 | R CMD check status | Status: 2 NOTEs |
 | Source tarball (CRAN cap 5 MB) | 6.43 MB |
-| Findings open (blocker/high) | 22 |
-| Findings closed since the audit | 11 |
+| Findings open (blocker/high) | 21 |
+| Findings closed since the audit | 14 |
 
 ### Stage assessment
 
-From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `28dac7d`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
+From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `a549528`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
 
 > Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and
 > nowhere near release-candidate. The eight audits read the artefact as a mature project that had
@@ -91,7 +91,7 @@ are a floor, not a total.
 
 ## 3. The git clock
 
-`28dac7d` — 94 commits across 12 active days.
+`a549528` — 96 commits across 12 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -106,11 +106,11 @@ are a floor, not a total.
 | 2026-07-26 | 6 |
 | 2026-07-27 | 4 |
 | 2026-07-28 | 1 |
-| 2026-07-29 | 1 |
+| 2026-07-29 | 3 |
 
 Releases declared in `NEWS.md`: **45**. Git tags: **19**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`, `v4.0.0`.
-Commits since the newest tag (`v4.0.0`): **5**.
+Commits since the newest tag (`v4.0.0`): **7**.
 
 `NEWS.md` versions with **no git tag** (33): `4.1.0`, `3.9.0`, `3.8.0`, `3.7.0`, `3.6.0`, `3.5.0`, `3.4.0`, `3.3.0`, `3.2.0`, `3.1.0`, `3.0.0`, `2.9.1`, `2.9.0`, `2.8.0`, `2.7.0`, `2.6.0`, `2.5.0`, `2.4.0`, `2.3.0`, `2.2.1`, `2.2.0`, `2.1.3`, `2.1.0`, `2.0.0`, `1.9.2`, `1.9.1`, `1.9.0`, `1.8.2`, `1.8.1`, `1.8.0`, `1.7.2`, `1.7.1`, `1.7.0`.
 
@@ -120,7 +120,7 @@ Commits since the newest tag (`v4.0.0`): **5**.
 | --- | --- |
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `4.1.0`, NEWS `4.1.0`) |
 | DESCRIPTION version has a git tag | ❌ (`v4.1.0`) |
-| HEAD is the tagged release commit | ❌ (5 commits past `v4.0.0`) |
+| HEAD is the tagged release commit | ❌ (7 commits past `v4.0.0`) |
 | Every NEWS release is tagged | ❌ (33 of 45 untagged) |
 
 Version strings each artefact claims for the package:
@@ -130,7 +130,7 @@ Version strings each artefact claims for the package:
 | DESCRIPTION | `4.1.0` |
 | NEWS.md | `4.1.0` |
 | README.md | `2.8.0` |
-| CITATION.cff | `4.0.0` |
+| CITATION.cff | `4.1.0` |
 | .zenodo.json | has a version field |
 
 Conversely, git tags with **no `NEWS.md` section**: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`.
@@ -177,22 +177,22 @@ Installed size, verbatim from the log:
     help      1.6Mb
 ```
 
-Log: `tools/status/check.log` (99 lines, sha256 `97edbd71ade57ad8`). Verbatim tail:
+Log: `tools/status/check.log` (99 lines, sha256 `a327d096f7c9fe5e`). Verbatim tail:
 
 ```
-* checking examples ... [93s/100s] OK
-* checking examples with --run-donttest ... [98s/133s] OK
+* checking examples ... [87s/85s] OK
+* checking examples with --run-donttest ... [90s/89s] OK
 * checking for unstated dependencies in tests ... OK
 * checking tests ...
-  Running testthat.R [450s/464s]
- [450s/465s] OK
+  Running testthat.R [401s/402s]
+ [401s/402s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [254s/259s] OK
+* checking re-building of vignette outputs ... [276s/321s] OK
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  tmp9lao7pgd
+  tmp5zaz4pn5
 * DONE
 Status: 2 NOTEs
 See
@@ -283,7 +283,7 @@ Live run in this environment:
 | Failed | 0 |
 | Errored | 0 |
 | Warnings | 0 |
-| Wall clock (s) | 400.5 |
+| Wall clock (s) | 476.9 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -320,12 +320,17 @@ Exported functions never named in any test (**13**): `causal_ontology_agrovoc`, 
 
 "six pillars" vs "ten pillars", counted per file:
 
-| File | says "six" | says "ten" |
-| --- | --: | --: |
-| DESCRIPTION | 0 | 1 |
-| R/pillars_roadmap.R | 0 | 1 |
-| R/edaphos-package.R | 0 | 2 |
-| README.md | 4 | 4 |
+| File | says "six" | — unqualified | says "ten" |
+| --- | --: | --: | --: |
+| DESCRIPTION | 0 | 0 | 1 |
+| R/pillars_roadmap.R | 0 | 0 | 1 |
+| R/edaphos-package.R | 0 | 0 | 2 |
+| README.md | 4 | 0 | 4 |
+| CITATION.cff | 1 | 0 | 1 |
+| .zenodo.json | 1 | 0 | 1 |
+| _pkgdown.yml | 1 | 0 | 1 |
+
+"— unqualified" excludes occurrences whose surrounding sentence scopes them to a past release. Those are correct history. No file makes an unqualified six-pillar claim.
 
 Occurrences of `getting-started` in README.md: **0**.
 
@@ -338,7 +343,7 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 | `inst` | 2.74 MB | ✅ |
 | `man` | 1.39 MB | ✅ |
 | `R` | 1.18 MB | ✅ |
-| `tools` | 651 KB | ❌ |
+| `tools` | 656 KB | ❌ |
 | `<root>` | 475 KB | ✅ |
 | `tests` | 352 KB | ✅ |
 | `data-raw` | 317 KB | ❌ |
@@ -370,7 +375,7 @@ Largest tracked files that ship:
 
 ### Where the tarball's bytes are
 
-`edaphos_4.1.0.tar.gz` is **6.43 MB** compressed, against the CRAN 5 MB guidance (5.00 MB) — **over by 1.43 MB**. The shares below are of its 10.12 MB uncompressed contents (447 files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.
+`edaphos_4.1.0.tar.gz` is **6.43 MB** compressed, against the CRAN 5 MB guidance (5.00 MB) — **over by 1.43 MB**. The shares below are of its 10.13 MB uncompressed contents (447 files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.
 
 | Directory | Size | Share | In the repo |
 | --- | --: | --: | :-: |
@@ -390,14 +395,14 @@ Largest tracked files that ship:
 | `build` | 1 KB | 0% | ✅ |
 | `tests` | 0 KB | 0% | ✅ |
 
-`inst/doc` is 3.49 MB of rendered vignette HTML in 18 files, of which **2.51 MB (72%) is base64 image data inlined as `data:` URIs**. Base64 costs 4 bytes for every 3, so that payload is ~1.88 MB of PNG carried at 2.51 MB. It is generated at build time from the figure sizes in `vignettes/*.Rmd`, which means it is the one large contributor that can be reduced without moving a single committed file.
+`inst/doc` is 3.50 MB of rendered vignette HTML in 18 files, of which **2.51 MB (72%) is base64 image data inlined as `data:` URIs**. Base64 costs 4 bytes for every 3, so that payload is ~1.88 MB of PNG carried at 2.51 MB. It is generated at build time from the figure sizes in `vignettes/*.Rmd`, which means it is the one large contributor that can be reduced without moving a single committed file.
 
 | Vignette HTML | Size | of it base64 |
 | --- | --: | --: |
 | `capstone-cerrado-campaign.html` | 1.03 MB | 889 KB |
 | `case-cerrado-end-to-end.html` | 459 KB | 424 KB |
 | `pilar1-pilar4-iv.html` | 296 KB | 214 KB |
-| `pilar6-quantum.html` | 253 KB | 184 KB |
+| `pilar6-quantum.html` | 250 KB | 181 KB |
 | `pilar4-simclr-embeddings.html` | 231 KB | 155 KB |
 | `causal-discovery-trio.html` | 207 KB | 144 KB |
 
@@ -511,18 +516,21 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-11 findings were true at `272b378` and cannot be reproduced at `28dac7d`. Each line states the measurement that closed it, not a claim that it was addressed.
+14 findings were true at `272b378` and cannot be reproduced at `a549528`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |
 | FAC0043 | high | Code quality | `a809ec9` | foundation_weights_load() gates on torch before validating its own arguments — the live ERROR 2 | foundation_weights_load("no-such-id") without torch now returns "Unknown pretrained encoder 'no-such-id'. Run foundation_weights_list() to see available names." -- the registry lookup runs before the torch gate. |
 | FA81F77 | high | CRAN readiness | `3f2d005` | Undeclared `utils` and `tools` namespaces — guaranteed R CMD check WARNING that cran-comments.md denies | DESCRIPTION Imports: clhs, deSolve (>= 1.40), httr2, jsonlite, ranger, Rcpp (>= 1.0.0), stats, tools, utils. The 'checking dependencies in R code' WARNING no longer appears in the check log. |
 | FCBA23B | high | CRAN readiness | `28dac7d` | 134 of 169 exported functions have no examples; only 10 have an example R CMD check executes | NAMESPACE has 170 export() lines and 0 exports without an \examples block; 172 Rd files carry one, 129 of them outside \dontrun. The audit measured 134 of 169 exports with no example and 10 with a runnable one. |
-| FBAF1FD | high | Roadmap promises | `3bd1938` | DESCRIPTION promises ten research pillars; every document shipped in the CRAN tarball documents six, and pillars 7-10 have no roadmap row, no README section and no vignette | vignettes/ has 18 Rmd files including pilar7-bayesian-hierarchical, pilar8-neural-operators, pilar9-diffusion-models and pilar10-graph-attention; README carries a section for each of pillars 7-10; R/pillars_roadmap.R has a row for each and no longer calls itself the roadmap of six pillars. The related metadata claim is NOT closed -- see F545DD7, still open. |
+| F5EF8F6 | high | Release consistency | `a549528` | Four mutually exclusive citation versions: DESCRIPTION 3.10.0, README 2.8.0, CITATION.cff 2.1.0, CITATION.cff preferred-citation 1.6.0 | Every artefact that states a version now states 4.1.0: DESCRIPTION, CITATION.cff (both the top-level field and preferred-citation), .zenodo.json, the README version badge and the top NEWS section. One distinct value across six artefacts, against the four mutually exclusive ones the audit found. Separately still true and still open: 4.1.0 has no git tag (last tag is v4.0.0) -- see FEA55C5. |
+| FBAF1FD | high | Roadmap promises | `3bd1938` | DESCRIPTION promises ten research pillars; every document shipped in the CRAN tarball documents six, and pillars 7-10 have no roadmap row, no README section and no vignette | vignettes/ has 18 Rmd files including pilar7-bayesian-hierarchical, pilar8-neural-operators, pilar9-diffusion-models and pilar10-graph-attention; README carries a section for each of pillars 7-10; R/pillars_roadmap.R has a row for each and no longer calls itself the roadmap of six pillars. The related metadata claim, F545DD7, was open when this line was first written and was closed in the same session at a549528. |
 | F60AE85 | high | Test coverage | `3bd1938` | bhs_fit has no rank check on the model matrix: a constant covariate yields NA rgamma rates (the 2 live WARNINGs) then a cryptic Cholesky death | R/pilar7_bayesian_hierarchical.R now computes qr(X)$rank and names the aliased columns; the rank-deficient fit raises one informative error and zero warnings, against the 2 warnings the audit measured. |
+| F9C6DD9 | medium | CI & infra | `a549528` | Distribution metadata is 9 minor versions stale: CITATION.cff says 2.1.0, README says 2.8.0, .zenodo.json has no version at all | Same measurement as F5EF8F6. .zenodo.json carries a version field (it had none) and the README badge reads 4.1.0 rather than 3.10.0; the badge is now generated by patch-readme-metrics.R from DESCRIPTION, and its link points at /releases rather than at a per-tag URL, because the DESCRIPTION version routinely leads the last tag. |
 | F3E0E05 | medium | Code quality | `28dac7d` | gnn_embed() returns a different column count per backend and its documented @return is wrong for backend="torch" | man/gnn_embed.Rd documents the average_heads argument and the column count each setting produces; the pure-R path in R/pilar10_graph_nn.R implements the same argument, so both backends are described by one \value. |
 | F4ED689 | medium | Code quality | `3bd1938` | Rank-deficient design matrix poisons the entire BHS Gibbs chain to NA on iteration 1, then hard-errors — and the test's own comment about it is wrong | Same measurement as FD825FD: the rank-deficient design is rejected before the Gibbs loop starts, so neither of the two "NAs produced" warnings is emitted. |
 | F00A9C3 | medium | CRAN readiness | `3f2d005` | `Depends: R (>= 3.5)` is falsified by two features requiring R 4.0.0 and R 3.6.0 | DESCRIPTION Depends: R (>= 4.0). |
+| F545DD7 | medium | Release consistency | `a549528` | The "ten pillars" identity exists only in the unreleased HEAD; every other metadata artefact still says six | CITATION.cff, .zenodo.json and _pkgdown.yml now say ten research pillars and enumerate all ten; DESCRIPTION, README.md, R/pillars_roadmap.R and R/edaphos-package.R already did. The only surviving "six pillars" strings are historical and correct -- the v1.7.0 capstone integrated the six pillars that existed then. Measured by grepping for the phrase and excluding occurrences qualified by that/then/of-v1.x. |
 | FAEC54C | medium | Incomplete implementations | `3f2d005` | al_fit() performs no validation of num.trees against nrow(labeled), producing an opaque ranger error; the guarding test is unseeded and fails ~12% of runs | al_fit(<20 rows>, num.trees = 3) now stops with "[al_fit] num.trees = 3 is too small for out-of-bag quantile regression on 20 labeled rows" instead of the opaque ranger error. |
 | FC68E1D | medium | Incomplete implementations | `a809ec9` | foundation_weights_load() requires torch BEFORE resolving the registry, so the placeholder v2 entry reports the wrong reason for failing | Same measurement as FAC0043. |
 | FD825FD | medium | Incomplete implementations | `3bd1938` | bhs_fit() returns an all-NaN posterior for a rank-deficient design matrix, and the edge-case test is written to accept it | bhs_fit(dd, y ~ x1 + const, ...) on a design with a constant column now stops with "[bhs_fit] design matrix is rank-deficient: rank 2 for 3 columns. Aliased column(s): const." instead of returning an all-NaN posterior. |
@@ -539,7 +547,6 @@ original auditor reported.
 | F52C0B8 | high | partial | CRAN readiness | inconsistency | hours | cran-comments.md is self-contradictory and every quantitative claim in it is stale or wrong |
 | FDE7C43 | high | confirmed | CRAN readiness | tech-debt | hours | Installed size will NOTE: inst/extdata 9.98 MB + man/figures 2.3 MB, of which a 1.9 MB PNG logo |
 | F36D2FE | high | confirmed | Release consistency | process-gap | hours | The "v3.11.0" work is committed and self-referenced in shipped code, but no version exists: no DESCRIPTION bump, no NEWS section, no tag |
-| F5EF8F6 | high | confirmed | Release consistency | inconsistency | hours | Four mutually exclusive citation versions: DESCRIPTION 3.10.0, README 2.8.0, CITATION.cff 2.1.0, CITATION.cff preferred-citation 1.6.0 |
 | F5F7D9A | high | confirmed | Release consistency | doc-gap | hours | The "1 345 tests" figure is unreproducible, mis-attributed, and the NEWS test-count chain contains two arithmetic breaks |
 | F7DC6A4 | high | confirmed | Release consistency | bug | minutes | The README's only install command pins a git ref that does not exist (`@v2.8.0`) |
 | FA01BFB | high | confirmed | Release consistency | bug | minutes | CITATION.cff assigns the identical DOI 10.5281/zenodo.19710162 to twelve different "Version DOI" entries |
@@ -557,7 +564,6 @@ original auditor reported.
 | F3D7BED | medium | partial | CI & infra | process-gap | days | 33 of 43 NEWS.md releases have no git tag and there is no release-automation workflow, contradicting CONTRIBUTING's tagging promise |
 | F5E91CE | medium | partial | CI & infra | tech-debt | days | Dockerfile is not a reproducibility artefact: builds from GitHub main, unpinned libtorch, R 4.4.1 in no CI leg, v2.1.0 metadata, missing Suggests |
 | F6F101E | medium | partial | CI & infra | process-gap | hours | CI builds vignettes, but 3 of 14 self-truncate to a one-line stub without libtorch -- and CONTRIBUTING tells contributors to skip vignette building entirely |
-| F9C6DD9 | medium | confirmed | CI & infra | inconsistency | hours | Distribution metadata is 9 minor versions stale: CITATION.cff says 2.1.0, README says 2.8.0, .zenodo.json has no version at all |
 | FD3C0C1 | medium | confirmed | CI & infra | bug | minutes | Chunk option in pilar4-simclr vignette calls `reticulate::` unguarded with broken `&&`/`\|\|` precedence -- hard error in exactly the Docker configuration |
 | FD941E5 | medium | confirmed | CI & infra | inconsistency | hours | cran-comments.md test-suite and install-size figures are contradicted by the tree they describe |
 | FDC9573 | medium | confirmed | CI & infra | process-gap | hours | No CI leg ever installs libtorch: 25% of R/ and 70 of 460 test blocks are unreachable in all three workflows |
@@ -573,7 +579,6 @@ original auditor reported.
 | F4EC093 | medium | confirmed | CRAN readiness | incomplete-implementation | minutes | `src/Makevars.win` documents a Unix `src/Makevars` that does not exist |
 | F83F26A | medium | confirmed | CRAN readiness | inconsistency | hours | RELEASE-CHECKLIST-v3.10.0.md instructs the maintainer to upload two artefacts that do not exist, and asserts a green state contradicted by the live test run |
 | F00AF5C | medium | confirmed | Release consistency | tech-debt | hours | Two overlapping release checklists disagree with each other and both claim to be the authoritative list of remaining steps |
-| F545DD7 | medium | confirmed | Release consistency | inconsistency | days | The "ten pillars" identity exists only in the unreleased HEAD; every other metadata artefact still says six |
 | FB9DA9E | medium | confirmed | Release consistency | doc-gap | days | The 84 KB README documents nothing after v2.8.0; its only 3.x reference is the version badge |
 | FBB414A | medium | confirmed | Release consistency | missing-work | hours | .zenodo.json carries no version field at all and its description is frozen at v1.8.0 |
 | FC9610C | medium | partial | Release consistency | missing-work | hours | The only DOI badge is a concept DOI the repo itself says resolves to v0.2.0, and nothing after v1.5.0 was ever deposited |
@@ -840,26 +845,6 @@ original auditor reported.
 **Action**
 
 > Decide the number once, then make it consistent in one commit: set DESCRIPTION:3 to `Version: 3.11.0`, prepend a `# edaphos 3.11.0` section to NEWS.md covering 05cb516 (31-channel IV refit), 7400a2c (MoCo v2 hand-off), 272b378 (MPS/CUDA resume fix), 01b7836 (covr workflow), 0adabef (governance docs), fd4ab0b (301-claim corpus), and tag it `git tag -a v3.11.0`. If v3.11.0 is not to be released, revert the v3.11.0 strings in R/foundation_weights.R:82, R/foundation_embed_coords.R:186,204,220 and re-roxygenise so man/ stops claiming a nonexistent version.
-
-#### F5EF8F6 — Four mutually exclusive citation versions: DESCRIPTION 3.10.0, README 2.8.0, CITATION.cff 2.1.0, CITATION.cff preferred-citation 1.6.0
-
-`Release consistency` · inconsistency · high · effort: hours · verdict: **CONFIRMED**
-
-**Evidence**
-
-> DESCRIPTION:3 `Version: 3.10.0`. README.md:1727 "Rodrigues, H. (2026). *edaphos ...* (Version 2.8.0) [Software]. Zenodo." and README.md:1734 bibtex `version   = {2.8.0}`. CITATION.cff:109 `version: "2.1.0"` with CITATION.cff:110 `date-released: "2026-04-23"`. CITATION.cff:184 `preferred-citation: ... version: "1.6.0"` -- i.e. the block CFF consumers prefer names a fifth-oldest release. `ls inst/CITATION` -> ABSENT, so `citation("edaphos")` falls back to DESCRIPTION and returns yet another answer (3.10.0), which README.md:1745-1747 actively directs users to ("An auto-generated citation is also available in R: `citation("edaphos")`"). CITATION.cff's abstract is also frozen: CITATION.cff:7 "It is organised across six research pillars" and the narrative stops at v2.1.0 (CITATION.cff:97-107), so the .cff describes a 6-pillar package while DESCRIPTION:8-9 describes a 10-pillar one.
-
-**Impact**
-
-> GitHub renders the "Cite this repository" widget from CITATION.cff, so the repo's most prominent citation surface advertises v2.1.0 released 2026-04-23. Zenodo, Zotero, and rOpenSci tooling ingest the same file. A reader who cites via GitHub gets 2.1.0, via README gets 2.8.0, via `citation()` gets 3.10.0, via a CFF parser honouring preferred-citation gets 1.6.0. None of 2.8.0, 2.1.0 or 1.6.0 corresponds to a resolvable git ref except 1.6.0. This is unfixable after publication -- wrong versions propagate into other people's bibliographies.
-
-**Verification correction**
-
-> none — all four verified: DESCRIPTION:3 `Version: 3.10.0`; README.md:1727 "(Version 2.8.0)" and README.md:1734 `version = {2.8.0}`; CITATION.cff:109 `version: "2.1.0"` with :110 `date-released: "2026-04-23"`; preferred-citation `version: "1.6.0"`. `ls inst/CITATION` -> No such file. CITATION.cff:7 "organised across six research pillars" vs DESCRIPTION:8-9 "ten research pillars". Of 2.8.0 / 2.1.0 / 1.6.0 only v1.6.0 is a real tag (tag list ends v1.6.0 then jumps to v3.10.0).
-
-**Action**
-
-> Make CITATION.cff the single source and derive it: set CITATION.cff:109 `version` and :110 `date-released` to the real release, delete or sync the redundant :184 `version` inside preferred-citation, refresh the :4-107 abstract to the 10-pillar description from DESCRIPTION:8-28, and update README.md:1727 and :1734 to the same number. Add a release-checklist step (or a CI job running `cffconvert --validate` plus a version-equality assertion against DESCRIPTION) so the four never drift again.
 
 #### F5F7D9A — The "1 345 tests" figure is unreproducible, mis-attributed, and the NEWS test-count chain contains two arithmetic breaks
 
@@ -1207,9 +1192,6 @@ original auditor reported.
 - **F6F101E** (CI & infra, hours) — CI builds vignettes, but 3 of 14 self-truncate to a one-line stub without libtorch -- and CONTRIBUTING tells contributors to skip vignette building entirely
   - Add a post-build assertion step to R-CMD-check.yaml that greps the rendered `inst/doc/*.html` for the knit_exit sentinel strings and fails if any vignette is a stub, or gate that assertion to the new libtorch leg from finding 1. Align CONTRIBUTING.md:44-45 and .github/PULL_REQUEST_TEMPLATE.md:23 with the actual CI invocation (drop `--no-build-vignettes`, or state explicitly that CI is stricter). Update cran-comments.md:24-26 to state which vignettes are stubs and why.
 
-- **F9C6DD9** (CI & infra, hours) — Distribution metadata is 9 minor versions stale: CITATION.cff says 2.1.0, README says 2.8.0, .zenodo.json has no version at all
-  - Update CITATION.cff:109-110 and the README citation block to the DESCRIPTION Version, add a `"version"` key to .zenodo.json, and add a CI step (or a `usethis`-style helper in the release checklist) that asserts DESCRIPTION Version == CITATION.cff version == .zenodo.json version == newest NEWS.md heading. Add a `cff-validator` action so a malformed CITATION.cff is caught. Correct the stale `v3.0.0 CRAN + rOpenSci` roadmap row in README.md.
-
 - **FD3C0C1** (CI & infra, minutes) — Chunk option in pilar4-simclr vignette calls `reticulate::` unguarded with broken `&&`/`||` precedence -- hard error in exactly the Docker configuration
   - Replace the chunk option at vignettes/pilar4-simclr-embeddings.Rmd:361 with `eval=.torch_ok` (semantically identical, no reticulate dependency), or if the Python path is genuinely intended write `eval=.torch_ok && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_available()`. Add `reticulate` to the Dockerfile install list, or leave it out and confirm the vignette renders. Add a grep-based lint (or an explicit item in the release checklist) for `[a-zA-Z]+::` appearing in a chunk option without a preceding `requireNamespace` in the same expression.
 
@@ -1254,9 +1236,6 @@ original auditor reported.
 
 - **F00AF5C** (Release consistency, hours) — Two overlapping release checklists disagree with each other and both claim to be the authoritative list of remaining steps
   - Delete RELEASE.md (its v2.9.1 content is superseded), rename the survivor to a version-free `RELEASE-CHECKLIST.md`, and change .Rbuildignore:24 to `^RELEASE-CHECKLIST.*\.md$` so it stays excluded across releases. Reconcile the install-size numbers to one figure and fold RELEASE.md:16-18's concept-DOI-resolves-to-v0.2.0 warning into the surviving checklist.
-
-- **F545DD7** (Release consistency, days) — The "ten pillars" identity exists only in the unreleased HEAD; every other metadata artefact still says six
-  - In one commit, propagate the ten-pillar wording from DESCRIPTION:8-28 to CITATION.cff:4-107, .zenodo.json:3, _pkgdown.yml:43-48 and :66, and R/pillars_roadmap.R:1 (whose roxygen table also needs rows for Pilares 7-10, then re-roxygenise man/edaphos-roadmap.Rd). Update README.md:371 and its anchor consumers (README.md:10, :210). Tie the whole change to the version bump from finding #1 so "ten pillars" first appears in a numbered, tagged release.
 
 - **FB9DA9E** (Release consistency, days) — The 84 KB README documents nothing after v2.8.0; its only 3.x reference is the version badge
   - Either add Pillar 7-10 sections and TOC entries and retitle README.md:371 to "The ten pillars at a glance" (updating the anchor at README.md:10 and the TOC entry at README.md:210), or drop the "10/10 pillars" badge until the README backs it. Delete the stale "🆕" prefixes at README.md:147 and :230, correct README.md:1674-1675 to the real check status (see finding #4), and change "six" to "seven" at README.md:364.
@@ -1617,10 +1596,8 @@ _One version number, asserted in one place, tagged once._
 | Done | ID | Sev | Effort | Item |
 | --- | --- | --- | --- | --- |
 | [ ] | F36D2FE | high | hours | The "v3.11.0" work is committed and self-referenced in shipped code, but no version exists: no DESCRIPTION bump, no NEWS section, no tag |
-| [ ] | F5EF8F6 | high | hours | Four mutually exclusive citation versions: DESCRIPTION 3.10.0, README 2.8.0, CITATION.cff 2.1.0, CITATION.cff preferred-citation 1.6.0 |
 | [ ] | F7DC6A4 | high | minutes | The README's only install command pins a git ref that does not exist (`@v2.8.0`) |
 | [ ] | FA01BFB | high | minutes | CITATION.cff assigns the identical DOI 10.5281/zenodo.19710162 to twelve different "Version DOI" entries |
-| [ ] | F545DD7 | medium | days | The "ten pillars" identity exists only in the unreleased HEAD; every other metadata artefact still says six |
 | [ ] | FB9DA9E | medium | days | The 84 KB README documents nothing after v2.8.0; its only 3.x reference is the version badge |
 | [ ] | F00AF5C | medium | hours | Two overlapping release checklists disagree with each other and both claim to be the authoritative list of remaining steps |
 | [ ] | FBB414A | medium | hours | .zenodo.json carries no version field at all and its description is frozen at v1.8.0 |
@@ -1659,7 +1636,6 @@ _Only meaningful once phases 0-3 hold._
 | [ ] | F4484D7 | medium | days | 5 of 14 vignettes are written in Portuguese while DESCRIPTION declares `Language: en-US` |
 | [ ] | F29E750 | medium | hours | Two competing release checklists contradict each other and describe a deploy action the pkgdown workflow does not use; referenced artefacts do not exist |
 | [ ] | F6F101E | medium | hours | CI builds vignettes, but 3 of 14 self-truncate to a one-line stub without libtorch -- and CONTRIBUTING tells contributors to skip vignette building entirely |
-| [ ] | F9C6DD9 | medium | hours | Distribution metadata is 9 minor versions stale: CITATION.cff says 2.1.0, README says 2.8.0, .zenodo.json has no version at all |
 | [ ] | FD941E5 | medium | hours | cran-comments.md test-suite and install-size figures are contradicted by the tree they describe |
 | [ ] | FDC9573 | medium | hours | No CI leg ever installs libtorch: 25% of R/ and 70 of 460 test blocks are unreachable in all three workflows |
 | [ ] | F4BEBBD | medium | hours | DESCRIPTION Title/Description violate CRAN style: marketing adjectives, unquoted software names, zero method references |
