@@ -42,10 +42,12 @@ development:
 home:
   title: edaphos — Frontier algorithms for Digital Soil Mapping
   description: >
-    Six research pillars confronting specific methodological gaps in
+    Ten research pillars confronting specific methodological gaps in
     DSM: Causal AI (with LLM-driven KG), Physics-Informed ML, 4D
-    Pedometry, Foundation Models, Autonomous Active Learning, and
-    Quantum ML. Unified uncertainty API + cross-pillar bridges.
+    Pedometry, Foundation Models, Autonomous Active Learning,
+    Quantum ML, Bayesian Hierarchical Spatial models, Neural
+    Operators, Diffusion Models, and Graph Attention Networks.
+    Unified uncertainty API + cross-pillar bridges.
   links:
   - text: Pedometrics community
     href: https://pedometrics.org
@@ -64,7 +66,7 @@ navbar:
     articles:
       text: Vignettes
       menu:
-      - text: "Capstone — six pillars integrated"
+      - text: "Capstone — the six pillars of v1.7.0, integrated"
       - text: Cross-pillar campaign
         href: articles/capstone-cerrado-campaign.html
       - text: -------

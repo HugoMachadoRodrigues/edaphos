@@ -45,6 +45,13 @@ replace_one <- function(pattern, value, what) {
 # --- badges ----------------------------------------------------------------
 replace_one("(?<=badge/tests-)[0-9]+(?=%20pass)",
             format(tr$passed, scientific = FALSE), "tests badge")
+# The version badge read 3.10.0 -- ten minor versions behind DESCRIPTION -- and
+# linked to releases/tag/v3.10.0. Take the number from DESCRIPTION, and note
+# that the LINK must stay on /releases rather than /releases/tag/vX: the
+# DESCRIPTION version is routinely ahead of any tag (last tag here is
+# git$last_tag), so a per-tag link is a 404 waiting to happen.
+replace_one("(?<=badge/version-)[0-9]+[.][0-9]+[.][0-9]+(?=-informational)",
+            facts$description$version, "version badge")
 replace_one("(?<=badge/vignettes-)[0-9]+(?=-)",
             format(facts$docs$vignette_count, scientific = FALSE),
             "vignettes badge")

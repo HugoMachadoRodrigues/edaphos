@@ -4,7 +4,7 @@ title: "edaphos: Disruptive Algorithms for Digital Soil Mapping"
 abstract: >-
   edaphos is a research-oriented R package implementing frontier
   algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
-  state of the art. It is organised across six research pillars,
+  state of the art. It is organised across ten research pillars,
   each confronting a specific methodological gap of the literature:
   (1) Causal AI with backdoor-adjusted effect estimation on
   pedogenetic Directed Acyclic Graphs, demonstrated on 1095 real
@@ -26,12 +26,23 @@ abstract: >-
   state-vector simulator of the ZZFeatureMap encoding, a quantum
   kernel Gram matrix and a closed-form Kernel Ridge Regression
   wrapper, optionally dispatched to IBM Quantum Runtime via
-  qiskit. A unified uncertainty API based on a common
+  qiskit; (7) Bayesian Hierarchical Spatial models fitted by a
+  profile-MLE Gibbs sampler with an RcppArmadillo backend, whose
+  predictive distribution carries the full kriging variance rather
+  than the nugget alone; (8) Neural Operators -- DeepONet and a
+  Fourier Neural Operator -- learning maps over depth function
+  space rather than pointwise regressions; (9) Diffusion Models
+  (DDPM, cosine schedule) that draw whole soil-property map
+  patches as joint realisations instead of per-pixel quantiles;
+  and (10) Graph Attention Networks over k-NN co-location graphs
+  of profiles, with multi-head attention and an optional torch
+  backend. A unified uncertainty API based on a common
   `edaphos_posterior` S3 class plus a CRPS / PICP / MPIW
   calibration diagnostic exposes every pillar through the same
   three-line recipe (v1.6.0). v1.7.0 introduces a capstone
-  cross-pillar vignette that integrates all six pillars in a
-  single Cerrado sampling-campaign narrative, causally grounded
+  cross-pillar vignette that integrates the six pillars that
+  existed at that release in a single Cerrado sampling-campaign
+  narrative, causally grounded
   in the generative DSM framework of Zhang and Wadoux (2026).
   v1.7.1 adds a native-query calibration bundle, evaluating
   each pillar in its natural domain (scalar effect, depth
@@ -105,8 +116,8 @@ abstract: >-
   new pillars (Bayesian hierarchical, Neural operators, Diffusion
   models, Graph Neural Networks).
 type: software
-version: "4.0.0"
-date-released: "2026-07-26"
+version: "4.1.0"
+date-released: "2026-07-27"
 license: MIT
 doi: "10.5281/zenodo.19683708"
 url: "https://github.com/HugoMachadoRodrigues/edaphos"
@@ -154,7 +165,7 @@ preferred-citation:
       email: "rodrigues.machado.hugo@gmail.com"
       orcid: "https://orcid.org/0000-0002-8070-8126"
   year: 2026
-  version: "4.0.0"
+  version: "4.1.0"
   doi: "10.5281/zenodo.19683708"
   url: "https://github.com/HugoMachadoRodrigues/edaphos"
 references:
