@@ -1,0 +1,7 @@
+manuscript_files/
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.spl
