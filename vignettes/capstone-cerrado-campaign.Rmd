@@ -281,20 +281,29 @@ claims <- causal_llm_extract(
 ```{r llm-claims-table}
 claims <- R$llm_claims
 knitr::kable(
-  claims[, c("cause", "effect", "confidence", "evidence")],
+  utils::head(claims[, c("cause", "effect", "confidence")], 12),
   digits  = 2,
   caption = paste0(
-    "Arestas causais extraídas pelo Gemma 4 a partir de um fragmento ",
-    "representativo da literatura sobre pedogênese no Cerrado. ",
-    "Confidence em [0, 1]; 0,9 = evidência causal inequívoca."
+    "Amostra das ", nrow(claims), " arestas causais que o Gemma 4 extraiu dos ",
+    "10 abstracts reais do Cerrado embarcados em `cerrado_abstracts.jsonl`, ",
+    "via `causal_llm_extract(backend = \"ollama\", model = \"gemma4\")`. O ",
+    "modelo atribui confiança ~0,9 de forma quase uniforme, então a ",
+    "confiança não discrimina arestas aqui."
   )
 )
 ```
 
-As arestas de alta confiança (≥ 0,75) são fundidas ao DAG base via
-`causal_augment_dag()`. O DAG resultante tem **`r R$dag_info$n_nodes` nós**
-e **`r R$dag_info$n_edges` arestas** cobrindo relevo, clima, textura,
-vegetação e COS.
+De todas as `r nrow(claims)` arestas extraídas, apenas
+**`r length(R$dag_info$llm_edges)`** têm ambos os extremos expressáveis
+entre as `r R$dag_info$n_nodes` covariáveis do DAG
+(`r if (length(R$dag_info$llm_edges)) paste(R$dag_info$llm_edges, collapse=", ") else "nenhuma"`),
+e essa já é uma aresta do DAG expert. As demais nomeiam processos —
+decomposição, dissolução de minerais primários, capacidade de troca
+catiônica, umidade superficial — que **não têm contrapartida no conjunto
+de covariáveis**. O gargalo não é o extrator; é o conjunto de covariáveis
+observadas. Este é o mesmo achado, aqui reproduzido sobre saída real do
+LLM: o KG do Gemma 4 amplia o *vocabulário causal* muito além do que 10
+covariáveis conseguem identificar.
 
 ## DAG aumentado pelo Gemma 4
 
@@ -330,14 +339,18 @@ com bootstrap espacial em blocos (k-means sobre lon/lat).
 ```{r causal-effects-table}
 eff <- R$causal_effects
 knitr::kable(
-  eff,
+  eff[, c("exposure", "estimate", "ci_lo", "ci_hi", "RV", "adjustment")],
   digits  = 3,
-  col.names = c("Exposição", "Resultado", "Efeito direto", "IC 2,5%",
-                "IC 97,5%", "Ajuste backdoor"),
+  col.names = c("Exposição", "Associação ajustada", "IC 2,5%", "IC 97,5%",
+                "RV", "Ajuste backdoor"),
   caption = paste0(
-    "Efeitos causais diretos identificados por backdoor adjustment no DAG ",
-    "do Cerrado (estimador LM, bootstrap espacial B = 500, ",
-    nrow(R$wosis_profiles), " perfis WoSIS)."
+    "Associações ajustadas por backdoor no DAG do Cerrado (estimador LM, ",
+    "bootstrap espacial em blocos B = 500 sobre ",
+    R$causal_provenance$n_profiles, " perfis WoSIS reais). Seguindo ",
+    "Zhang & Wadoux (2026), reportamos associações ajustadas — não efeitos ",
+    "causais identificados — cada uma com o valor de robustez de ",
+    "Cinelli–Hazlett (RV): a fração da variância residual que um confundidor ",
+    "não observado precisaria explicar em ambos para zerar a estimativa."
   )
 )
 ```
@@ -371,14 +384,21 @@ ggplot(draws_df, aes(x = draw, fill = exposure)) +
   )
 ```
 
-**Interpretação à luz de @Zhang2026causal.** A visão *generativa* requer
-que os efeitos não derivem apenas de associações, mas de processos
-pedogenéticos bem especificados. A precipitação (MAP) tem efeito positivo
-sobre o COS — coerente com o mecanismo: mais chuva → maior
-produtividade vegetal → maior aporte de matéria orgânica → mais COS. O
-efeito da temperatura é negativo (acelera a decomposição microbiana), e
-o NDVI captura indiretamente a qualidade do aporte orgânico. Esses sinais
-validam o DAG contra os mecanismos do Pilar 2.
+**Interpretação à luz de @Zhang2026causal.** Estas são *associações
+ajustadas*, não efeitos causais identificados — e a tabela é lida pela
+robustez, não pelo sinal isolado. Duas sobrevivem como associações
+robustas e mecanicamente coerentes: **precipitação** (MAP) e **argila**
+elevam o COS (RV 0,16 e 0,18 — um confundidor precisaria explicar ~16–18 %
+da variância residual em ambos para zerá-las), consistentes com maior
+aporte de matéria orgânica sob mais chuva e com a estabilização
+organo-mineral pela argila. O efeito da **temperatura** tem o sinal
+esperado (decomposição) mas não se distingue de zero. A **cobertura
+arbórea** é a demonstração de confundimento: sua associação bruta (2,86)
+praticamente desaparece após o ajuste por clima (0,35, IC cruzando zero,
+RV 0,01) — o sinal cru era ancestralidade climática compartilhada, não
+efeito. A alegação causal *generativa* propriamente dita não vem daqui;
+vem do Pilar 2, cuja ODE pedogenética modela explicitamente os processos
+— é a essa altura que @Zhang2026causal situam a inferência causal em MDS.
 
 ---
 

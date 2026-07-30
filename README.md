@@ -891,9 +891,9 @@ iv_fit
 #> <edaphos_causal_iv>
 #>   map -> soc  (estimator: 2SLS, n = 3020)
 #>   instruments : PC_1, PC_2, PC_3, PC_4, PC_5
-#>   effect      : 0.0079  (OLS was 0.0063)
-#>   stage-1 F   : 4630   (instruments very relevant)
-#>   Sargan J    : chi2(4) = 84.4, p < 1e-16
+#>   effect      : 0.0039  (OLS 0.0063; backdoor OLS 0.0075)
+#>   stage-1 F   : 1955   (instruments very relevant)
+#>   Sargan J    : p = 3.4e-13   (over-identification rejected)
 ```
 
 **Synthetic DGP validation (known truth β = 1.5):**
@@ -909,8 +909,8 @@ its assumptions hold. The real-data result is a **negative** one, and
 that is the point. The MoCo v2 encoder here is real — 7 channels, 12 000
 tiles, 3 000 epochs on-device (Metal), InfoNCE 7.2 → 5.2 — not a proxy.
 Its embedding PCs are *extremely* relevant instruments (stage-1
-F ≈ 4 600), yet they decisively **fail the Sargan over-identification
-test** (χ²(4) = 84.4, p < 10⁻¹⁵). A learned landscape representation
+F ≈ 1 955, covariate-adjusted 2SLS), yet they decisively **fail the
+Sargan over-identification test** (p ≈ 3 × 10⁻¹³). A learned landscape representation
 does not manufacture a valid instrument: it encodes climate, terrain,
 soil and vegetation together, so it reaches SOC through many paths and
 violates the exclusion restriction. This is the empirical face of

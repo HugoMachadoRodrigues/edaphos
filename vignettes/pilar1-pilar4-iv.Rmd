@@ -195,54 +195,41 @@ ggplot(df_plot, aes(x = draw, fill = method)) +
 
 ---
 
-# Aplicação: 1 095 perfis reais do Cerrado
+# Aplicação: perfis reais do Cerrado
 
 ## Setup
 
-Usamos os mesmos 1 095 perfis WoSIS da vignette
-`vignette("pilar1-causal-real")`, com o mesmo DAG expert
+Usamos os `r B$n_profiles` perfis WoSIS reais do Cerrado embarcados em
+`causal_cerrado_real_v2.rds` (`data-raw/causal_cerrado_real_rebuild.R`),
+com o mesmo DAG expert
 (11 nós, 22 arestas). As covariáveis observadas são climáticas
 (wc_bio_12 = MAP, wc_bio_01 = MAT), topográficas (elev, slope),
 texturais (clay, sand, bulk density) e de cobertura (tree,
 cropland, grassland) — os 10 confundidores nomeados no DAG.
 
-## Pseudo-embeddings como *proxy* do MoCo v2
+## Embeddings reais do MoCo v2
 
-O encoder MoCo v2 v1.3.2 (em treinamento) ainda não está disponível
-para extração em escala. Nesta v1.9.0, implementamos um **proxy
-principiado**: um vetor de 27 features engenheiradas que representa o
-que um encoder contrastivo plausivelmente aprenderia em *patches*
-Cerrado — interações, razões, transformações não-lineares e uma base
-espacial:
+Os instrumentos vêm de um encoder MoCo-v2 **real**, treinado por
+auto-supervisão contrastiva sobre *patches* do stack de covariáveis do
+Cerrado — **sem jamais ver o COS** — e reproduzido por
+`data-raw/foundation_encoder_iv.R`:
 
-```{r proxy-features}
-features_disp <- data.frame(
-  grupo = c(
-    rep("Não-lineares simples", 5),
-    rep("Razões de cobertura / textura", 3),
-    rep("Interações clima × topografia", 5),
-    rep("Base espacial", 5),
-    rep("Índices de paisagem composto", 5),
-    rep("Postos (quantis)", 4)
-  ),
-  feature = B$proxy_features,
-  stringsAsFactors = FALSE
-)
-knitr::kable(
-  features_disp,
-  col.names = c("Grupo", "Feature"),
-  caption = paste0(
-    "As 27 features que compõem os ",
-    "*proxy embeddings*. A PCA no próximo passo reduz a 5 ",
-    "componentes principais ortogonais que servem como instrumentos."
-  )
-)
+```{r encoder-config}
+enc <- B$encoder
+data.frame(
+  parâmetro = c("canais do stack", "tiles (24×24)", "épocas",
+                "dispositivo", "InfoNCE final"),
+  valor = c(enc$channels, enc$tiles, enc$epochs, enc$device,
+            round(enc$min_loss, 2)))
 ```
 
-**Redução dimensional**: PCA centrada + escalada nas 27 features,
-retendo as **5 componentes principais** de maior variância. Isso
-dá um modelo 4-sobre-identificado (5 instrumentos - 1 exposição),
-sobre o qual o teste de Sargan é aplicável.
+`foundation_embed_at_coords()` extrai um embedding de
+`r B$embedding_dim` dimensões para a paisagem de cada perfil.
+
+**Redução dimensional**: PCA centrada + escalada nos embeddings,
+retendo as **5 componentes principais** de maior variância — um modelo
+4-sobre-identificado (5 instrumentos − 1 exposição) sobre o qual o teste
+de Sargan é aplicável.
 
 ## Resultado central: os três estimadores lado a lado
 
@@ -395,16 +382,17 @@ O resultado está embarcado em `causal_cerrado_real_v2.rds` e é lido
 diretamente aqui:
 
 ```{r real-embed-results}
-iv <- readRDS(system.file("extdata", "causal_cerrado_real_v2.rds",
-                          package = "edaphos"))$iv
+mb <- B$benchmark_table[B$benchmark_table$exposure == "map", ]
+tsls <- mb[mb$estimator == "2SLS (real MoCo v2)", ]
 data.frame(
-  quantidade = c("n perfis", "instrumentos (PCs)", "Stage-1 F",
-                 "OLS (MAP→COS)", "2SLS (MAP→COS)",
-                 "Sargan χ²", "Sargan gl", "Sargan p"),
-  valor = c(iv$n, iv$K, round(iv$first_stage_F),
-            signif(iv$ols, 3), signif(iv$tsls, 3),
-            round(iv$sargan_stat, 1), iv$sargan_df,
-            formatC(iv$sargan_p, format = "e", digits = 1)))
+  quantidade = c("n perfis", "instrumentos (PCs)", "OLS naïve (MAP→COS)",
+                 "Backdoor OLS", "2SLS (embeddings reais)",
+                 "Stage-1 F", "Sargan p"),
+  valor = c(B$n_profiles, B$n_pcs_default,
+            signif(mb$beta[mb$estimator == "OLS naive"], 3),
+            signif(mb$beta[mb$estimator == "Backdoor OLS"], 3),
+            signif(tsls$beta, 3), round(tsls$stage1_F),
+            formatC(tsls$sargan_p, format = "e", digits = 1)))
 ```
 
 **O resultado é negativo, e é esse o ponto.** Os instrumentos derivados
@@ -545,7 +533,7 @@ que o framework de Pearl idealiza.
 
 - **v1.9.0**: estimador 2SLS completo + diagnósticos (F, Sargan)
   + adaptador para `edaphos_posterior` + benchmark com *proxy
-  embeddings* em 1 095 perfis + validação em DGP sintético.
+  embeddings* nos perfis reais + validação em DGP sintético.
   Sargan rejeitou (p < 10⁻⁹) — diagnóstico honesto.
 - **v1.9.1**: `foundation_embed_at_coords()` + um encoder MoCo-v2 real
   treinado sobre o stack do Cerrado (`data-raw/foundation_encoder_iv.R`).
