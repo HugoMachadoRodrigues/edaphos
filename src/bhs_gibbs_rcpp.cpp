@@ -129,7 +129,13 @@ List bhs_gibbs_rcpp(const arma::vec& y,
         beta_draws.row(iter)  = beta.t();
         sigma2_draws[iter]    = sigma2;
         tau2_draws[iter]      = tau2;
-        if (iter > burn) {
+        // Post-burn spatial-effect mean. The kept region is [burn, nmcmc)
+        // (see the thinning loop below), which is `nmcmc - burn` iterations,
+        // so accumulation must start AT `burn`: `iter >= burn`, not `> burn`.
+        // The old strict `>` summed only nmcmc-burn-1 terms while dividing by
+        // nmcmc-burn, biasing w_post_mean low and disagreeing with the R
+        // (gibbs) backend on the same data.
+        if (iter >= burn) {
             w_mean += w_cur / static_cast<double>(nmcmc - burn);
         }
     }
