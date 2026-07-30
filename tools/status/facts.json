@@ -1,7 +1,7 @@
 {
   "schema": "edaphos-status-facts/1",
   "environment": {
-    "measured_at_utc": "2026-07-29T21:29:12Z",
+    "measured_at_utc": "2026-07-30T06:24:39Z",
     "r_version": "4.6.1",
     "r_nickname": "Happy Hop",
     "platform": "aarch64-apple-darwin23",
@@ -9,17 +9,17 @@
     "os_release": "25.6.0"
   },
   "git": {
-    "head_sha": "a5495282ed527de1c3518011fbaaa3b2d9615bd2",
-    "head_sha_short": "a549528",
+    "head_sha": "84cd97ccaa7664a24dfffca67b8405a8641095ff",
+    "head_sha_short": "84cd97c",
     "branch": "Hugo/edaphos-dev-status-222f14",
     "remote_url": "https://github.com/HugoMachadoRodrigues/edaphos.git",
-    "commit_count": 96,
+    "commit_count": 109,
     "first_commit": "2026-04-20T23:44:43-04:00",
     "first_subject": "Initial release of edaphos 0.1.0",
-    "last_commit": "2026-07-29T16:58:27-04:00",
-    "last_subject": "metadata: ten pillars where three files still said six, and one version number",
-    "span_days": 99.7178703703704,
-    "active_days": 12,
+    "last_commit": "2026-07-30T02:24:25-04:00",
+    "last_subject": "test: fix the two non-deterministic failures the NEWS collapse and torch-default exposed",
+    "span_days": 100.110902777778,
+    "active_days": 13,
     "commits_per_day": {
       "2026-04-20": 1,
       "2026-04-21": 10,
@@ -32,19 +32,20 @@
       "2026-07-26": 6,
       "2026-07-27": 4,
       "2026-07-28": 1,
-      "2026-07-29": 3
+      "2026-07-29": 9,
+      "2026-07-30": 7
     },
-    "days_since_last": 0.0213596813656666,
+    "days_since_last": 0.000169786366599577,
     "tags": ["v0.1.0", "v0.2.0", "v0.3.0", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0", "v0.8.0", "v0.9.0", "v1.0.0", "v1.1.0", "v1.2.0", "v1.3.0", "v1.3.1", "v1.4.0", "v1.5.0", "v1.6.0", "v3.10.0", "v4.0.0"],
     "tag_count": 19,
     "worktree_clean": false,
     "ahead_behind_origin_main": "0\t7",
     "remote_tag_count": 19,
-    "commits_since_last_tag": 7,
+    "commits_since_last_tag": 20,
     "last_tag": "v4.0.0"
   },
   "description": {
-    "version": "4.1.0",
+    "version": "0.9.0",
     "depends": "R",
     "imports": ["clhs", "deSolve", "httr2", "jsonlite", "ranger", "Rcpp", "stats", "tools", "utils"],
     "suggests": ["abind", "aqp", "bnlearn", "bslib", "dagitty", "dbarts", "devtools", "DiagrammeR", "digest", "dplyr", "DT", "ecmwfr", "fmsb", "geobr", "geodata", "ggdag", "ggnewscale", "ggplot2", "ggridges", "gstat", "igraph", "knitr", "MASS", "Matrix", "ontologyIndex", "patchwork", "RColorBrewer", "reticulate", "rmarkdown", "scales", "sf", "shiny", "shinyjs", "sp", "spBayes", "stringdist", "terra", "testthat", "tidyr", "torch"],
@@ -53,38 +54,38 @@
     "linkingto": ["Rcpp", "RcppArmadillo"],
     "license": "MIT + file LICENSE",
     "language": "en-US",
-    "title": "Disruptive Algorithms for Digital Soil Mapping",
+    "title": "Digital Soil Mapping with Causal, Physics-Informed and Generative Methods",
     "lazydata": "true"
   },
   "news": {
-    "section_count": 45,
-    "newest_version": "4.1.0",
-    "oldest_version": "0.8.0",
-    "versions": ["4.1.0", "4.0.0", "3.10.0", "3.9.0", "3.8.0", "3.7.0", "3.6.0", "3.5.0", "3.4.0", "3.3.0", "3.2.0", "3.1.0", "3.0.0", "2.9.1", "2.9.0", "2.8.0", "2.7.0", "2.6.0", "2.5.0", "2.4.0", "2.3.0", "2.2.1", "2.2.0", "2.1.3", "2.1.0", "2.0.0", "1.9.2", "1.9.1", "1.9.0", "1.8.2", "1.8.1", "1.8.0", "1.7.2", "1.7.1", "1.7.0", "1.6.0", "1.5.0", "1.4.0", "1.3.1", "1.3.0", "1.2.0", "1.1.0", "1.0.0", "0.9.0", "0.8.0"],
-    "headings": ["4.1.0", "4.0.0", "3.10.0", "3.9.0", "3.8.0", "3.7.0", "3.6.0", "3.5.0", "3.4.0", "3.3.0", "3.2.0", "3.1.0", "3.0.0", "2.9.1", "2.9.0", "2.8.0", "2.7.0", "2.6.0", "2.5.0", "2.4.0", "2.3.0", "2.2.1", "2.2.0", "2.1.3", "2.1.0", "2.0.0", "1.9.2", "1.9.1", "1.9.0", "1.8.2", "1.8.1", "1.8.0", "1.7.2", "1.7.1", "1.7.0", "1.6.0", "1.5.0", "1.4.0", "1.3.1", "1.3.0", "1.2.0 (in development)", "1.1.0", "1.0.0", "0.9.0", "0.8.0"]
+    "section_count": 1,
+    "newest_version": "0.9.0",
+    "oldest_version": "0.9.0",
+    "versions": "0.9.0",
+    "headings": "0.9.0 (development version <U+2014> not yet released)"
   },
   "versioning": {
-    "news_versions_without_tag": ["4.1.0", "3.9.0", "3.8.0", "3.7.0", "3.6.0", "3.5.0", "3.4.0", "3.3.0", "3.2.0", "3.1.0", "3.0.0", "2.9.1", "2.9.0", "2.8.0", "2.7.0", "2.6.0", "2.5.0", "2.4.0", "2.3.0", "2.2.1", "2.2.0", "2.1.3", "2.1.0", "2.0.0", "1.9.2", "1.9.1", "1.9.0", "1.8.2", "1.8.1", "1.8.0", "1.7.2", "1.7.1", "1.7.0"],
-    "n_news_without_tag": 33,
-    "tags_without_news": ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"],
-    "description_version": "4.1.0",
-    "newest_news_version": "4.1.0",
+    "news_versions_without_tag": [],
+    "n_news_without_tag": 0,
+    "tags_without_news": ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0", "1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.3.1", "1.4.0", "1.5.0", "1.6.0", "3.10.0", "4.0.0"],
+    "description_version": "0.9.0",
+    "newest_news_version": "0.9.0",
     "description_matches_news": true,
-    "description_has_tag": false,
+    "description_has_tag": true,
     "claims": {
-      "DESCRIPTION": "4.1.0",
-      "NEWS.md": "4.1.0",
-      "README.md": "2.8.0",
-      "CITATION.cff": "4.1.0",
+      "DESCRIPTION": "0.9.0",
+      "NEWS.md": "0.9.0",
+      "README.md": [],
+      "CITATION.cff": "0.9.0",
       "zenodo.json_has_version": true
     },
     "readme_install_refs": []
   },
   "code": {
     "r_file_count": 70,
-    "r_loc": 28209,
+    "r_loc": 28339,
     "src_file_count": 3,
-    "src_loc": 401,
+    "src_loc": 407,
     "largest_r_files": [
       {
         "file": "foundation_moco.R",
@@ -92,19 +93,19 @@
       },
       {
         "file": "pilar10_graph_nn.R",
-        "lines": 970
+        "lines": 971
       },
       {
         "file": "llm_annotation.R",
         "lines": 943
       },
       {
-        "file": "causal_ontology.R",
-        "lines": 823
+        "file": "pilar8_neural_operators.R",
+        "lines": 826
       },
       {
-        "file": "pilar8_neural_operators.R",
-        "lines": 811
+        "file": "causal_ontology.R",
+        "lines": 823
       },
       {
         "file": "quantum_vqe.R",
@@ -132,8 +133,8 @@
     "n_s3_methods": 75,
     "ordinal_named_r_files": ["pilar10_graph_nn_torch.R", "pilar10_graph_nn.R", "pilar7_bayesian_hierarchical.R", "pilar8_neural_operators_torch.R", "pilar8_neural_operators.R", "pilar9_diffusion_models.R", "pilar9_diffusion_torch.R"],
     "files_saying_pillar": ["benchmark_wosis.R", "causal_posterior.R", "core_utils.R", "data.R", "edaphos_zenodo_release.R", "edaphos-package.R", "pilar10_graph_nn.R", "pilar8_neural_operators.R", "pilar9_diffusion_models.R", "pillars_roadmap.R", "uncertainty.R"],
-    "raw_stop_calls": 144,
-    "raw_warning_calls": 12,
+    "raw_stop_calls": 142,
+    "raw_warning_calls": 13,
     "stopf_calls": 16,
     "not_implemented": ["R/pilar7_bayesian_hierarchical.R:44", "R/pilar7_bayesian_hierarchical.R:561"],
     "undeclared_base_namespaces": []
@@ -196,17 +197,17 @@
         "says_ten": 1
       }
     ],
-    "readme_bytes": 97865,
+    "readme_bytes": 100269,
     "readme_mentions_getting_started": 0
   },
   "rd_portability": {
-    "rd_files_with_non_latin1": ["man/al_initial_design.Rd", "man/al_loop.Rd", "man/al_physics_gate_piml_hierarchical.Rd", "man/al_physics_gate_piml.Rd", "man/al_query_batchbald.Rd", "man/al_query.Rd", "man/causal_adjustment_set.Rd", "man/causal_augment_dag.Rd", "man/causal_augment_diff.Rd", "man/causal_corpus_deduplicate.Rd", "man/causal_estimate_effect.Rd", "man/causal_kg_add_edge.Rd", "man/causal_kg_alignment.Rd", "man/causal_kg_new.Rd", "man/causal_kg_rank_edges.Rd", "man/causal_kg_save.Rd", "man/causal_kg_to_turtle.Rd", "man/causal_llm_extract.Rd", "man/causal_llm_ingest_corpus.Rd", "man/causal_llm_vote.Rd", "man/causal_ontology_agrovoc_align_batch.Rd", "man/causal_ontology_agrovoc_align.Rd", "man/causal_ontology_cerrado.Rd", "man/causal_structure_learn.Rd", "man/edaphos-package.Rd", "man/edaphos-roadmap.Rd", "man/foundation_fit_classifier.Rd", "man/foundation_fit_regressor.Rd", "man/foundation_simclr_embed.Rd", "man/foundation_weights_download.Rd", "man/foundation_weights_list.Rd", "man/foundation_weights_load.Rd", "man/gnn_fit.Rd", "man/piml_hierarchical_fit.Rd", "man/piml_neural_ode_fit_ensemble.Rd", "man/piml_neural_ode_fit.Rd", "man/piml_profile_fit_bayesian.Rd", "man/piml_profile_fit.Rd", "man/predict.edaphos_foundation_classifier.Rd", "man/predict.edaphos_foundation_regressor.Rd", "man/predict.edaphos_piml_bayes.Rd", "man/predict.edaphos_piml_neural_ode_ensemble.Rd", "man/quantum_feature_map.Rd", "man/quantum_hamiltonian_from_pyscf.Rd", "man/quantum_hamiltonian_h2.Rd", "man/quantum_hamiltonian_organo_mineral_nature.Rd", "man/quantum_hamiltonian.Rd", "man/quantum_ibmq_backends.Rd", "man/quantum_ibmq_least_busy.Rd", "man/quantum_ibmq_submit.Rd", "man/quantum_kernel.Rd", "man/quantum_krr_fit.Rd", "man/quantum_nature_available.Rd", "man/quantum_nature_total_energy.Rd", "man/quantum_scale.Rd", "man/quantum_vqe_exact.Rd", "man/quantum_vqe_fit.Rd", "man/temporal_convlstm_fit.Rd", "man/temporal_convlstm_rollout.Rd", "man/temporal_cube_to_tensor.Rd", "man/temporal_kalman_update.Rd", "man/temporal_synth_soc_cube.Rd"],
-    "n_rd_files_with_non_latin1": 62,
+    "rd_files_with_non_latin1": ["man/al_initial_design.Rd", "man/al_loop.Rd", "man/al_physics_gate_piml_hierarchical.Rd", "man/al_physics_gate_piml.Rd", "man/al_query_batchbald.Rd", "man/al_query.Rd", "man/causal_adjustment_set.Rd", "man/causal_augment_dag.Rd", "man/causal_augment_diff.Rd", "man/causal_corpus_deduplicate.Rd", "man/causal_estimate_effect.Rd", "man/causal_kg_add_edge.Rd", "man/causal_kg_alignment.Rd", "man/causal_kg_new.Rd", "man/causal_kg_rank_edges.Rd", "man/causal_kg_save.Rd", "man/causal_kg_to_turtle.Rd", "man/causal_llm_extract.Rd", "man/causal_llm_ingest_corpus.Rd", "man/causal_llm_vote.Rd", "man/causal_ontology_agrovoc_align_batch.Rd", "man/causal_ontology_agrovoc_align.Rd", "man/causal_ontology_cerrado.Rd", "man/causal_structure_learn.Rd", "man/edaphos-package.Rd", "man/edaphos-roadmap.Rd", "man/foundation_fit_classifier.Rd", "man/foundation_fit_regressor.Rd", "man/foundation_simclr_embed.Rd", "man/foundation_weights_download.Rd", "man/foundation_weights_list.Rd", "man/foundation_weights_load.Rd", "man/gnn_fit.Rd", "man/no_deeponet_fit.Rd", "man/piml_hierarchical_fit.Rd", "man/piml_neural_ode_fit_ensemble.Rd", "man/piml_neural_ode_fit.Rd", "man/piml_profile_fit_bayesian.Rd", "man/piml_profile_fit.Rd", "man/predict.edaphos_foundation_classifier.Rd", "man/predict.edaphos_foundation_regressor.Rd", "man/predict.edaphos_piml_bayes.Rd", "man/predict.edaphos_piml_neural_ode_ensemble.Rd", "man/quantum_feature_map.Rd", "man/quantum_hamiltonian_from_pyscf.Rd", "man/quantum_hamiltonian_h2.Rd", "man/quantum_hamiltonian_organo_mineral_nature.Rd", "man/quantum_hamiltonian.Rd", "man/quantum_ibmq_backends.Rd", "man/quantum_ibmq_least_busy.Rd", "man/quantum_ibmq_submit.Rd", "man/quantum_kernel.Rd", "man/quantum_krr_fit.Rd", "man/quantum_nature_available.Rd", "man/quantum_nature_total_energy.Rd", "man/quantum_scale.Rd", "man/quantum_vqe_exact.Rd", "man/quantum_vqe_fit.Rd", "man/temporal_convlstm_fit.Rd", "man/temporal_convlstm_rollout.Rd", "man/temporal_cube_to_tensor.Rd", "man/temporal_kalman_update.Rd", "man/temporal_synth_soc_cube.Rd"],
+    "n_rd_files_with_non_latin1": 63,
     "non_latin1_chars": [
       {
         "char": "<U+2014>",
         "codepoint": "U+2014",
-        "occurrences": 185
+        "occurrences": 186
       },
       {
         "char": "<U+2013>",
@@ -441,22 +442,22 @@
       },
       {
         "file": "R/foundation_embed_coords.R",
-        "line": 307,
+        "line": 317,
         "version": "4.0.0"
       },
       {
         "file": "R/foundation_embed_coords.R",
-        "line": 335,
+        "line": 345,
         "version": "4.0.0"
       },
       {
         "file": "R/foundation_embed_coords.R",
-        "line": 358,
+        "line": 368,
         "version": "4.0.0"
       },
       {
         "file": "R/foundation_embed_coords.R",
-        "line": 423,
+        "line": 433,
         "version": "4.0.0"
       },
       {
@@ -630,11 +631,6 @@
         "version": "4.1.0"
       },
       {
-        "file": "R/pilar8_neural_operators.R",
-        "line": 142,
-        "version": "2.7.0"
-      },
-      {
         "file": "R/pilar9_diffusion_models.R",
         "line": 2,
         "version": "2.5.0"
@@ -646,12 +642,7 @@
       },
       {
         "file": "R/pilar9_diffusion_models.R",
-        "line": 199,
-        "version": "2.7.0"
-      },
-      {
-        "file": "R/pilar9_diffusion_models.R",
-        "line": 330,
+        "line": 338,
         "version": "3.2.0"
       },
       {
@@ -810,11 +801,6 @@
         "version": "1.4.0"
       },
       {
-        "file": "man/dm_fit.Rd",
-        "line": 40,
-        "version": "2.7.0"
-      },
-      {
         "file": "man/edaphos-roadmap.Rd",
         "line": 15,
         "version": "1.4.0"
@@ -865,11 +851,6 @@
         "version": "1.0.0"
       },
       {
-        "file": "man/no_fno_fit.Rd",
-        "line": 50,
-        "version": "2.7.0"
-      },
-      {
         "file": "man/qf_krr_benchmark.Rd",
         "line": 43,
         "version": "2.0.0"
@@ -885,10 +866,281 @@
         "version": "1.5.0"
       }
     ],
-    "versions_not_declared_in_news": "0.1.0",
-    "phantom_versions": [],
-    "n_phantom_versions": 0,
-    "sites_claiming_phantom_version": null
+    "versions_not_declared_in_news": ["1.6.0", "3.1.0", "3.4.0", "3.10.0", "3.0.0", "1.5.0", "2.0.0", "2.2.1", "1.4.0", "0.1.0", "1.3.1", "1.9.0", "1.9.2", "3.8.0", "2.1.0", "1.2.0", "1.9.1", "4.0.0", "1.8.1", "1.8.0", "1.0.0", "2.7.0", "2.6.0", "3.6.0", "2.3.0", "3.5.0", "3.2.0", "2.4.0", "4.1.0", "2.5.0", "1.3.0", "2.2.0", "2.1.3"],
+    "phantom_versions": ["3.1.0", "3.4.0", "3.0.0", "2.0.0", "2.2.1", "1.9.0", "1.9.2", "3.8.0", "2.1.0", "1.9.1", "1.8.1", "1.8.0", "2.7.0", "2.6.0", "3.6.0", "2.3.0", "3.5.0", "3.2.0", "2.4.0", "4.1.0", "2.5.0", "2.2.0", "2.1.3"],
+    "n_phantom_versions": 23,
+    "sites_claiming_phantom_version": [
+      {
+        "file": "R/benchmark_wosis.R",
+        "line": 1,
+        "version": "3.1.0"
+      },
+      {
+        "file": "R/benchmark_wosis.R",
+        "line": 21,
+        "version": "3.4.0"
+      },
+      {
+        "file": "R/benchmark_wosis.R",
+        "line": 29,
+        "version": "3.1.0"
+      },
+      {
+        "file": "R/benchmark_wosis.R",
+        "line": 34,
+        "version": "3.4.0"
+      },
+      {
+        "file": "R/benchmark_wosis.R",
+        "line": 107,
+        "version": "3.1.0"
+      },
+      {
+        "file": "R/benchmark_wosis.R",
+        "line": 122,
+        "version": "3.1.0"
+      },
+      {
+        "file": "R/bridges_active_learning_v3.R",
+        "line": 1,
+        "version": "3.0.0"
+      },
+      {
+        "file": "R/bridges_structure_v3.R",
+        "line": 1,
+        "version": "3.0.0"
+      },
+      {
+        "file": "R/bridges_structure_v3.R",
+        "line": 313,
+        "version": "2.0.0"
+      },
+      {
+        "file": "R/causal_4d_bridge.R",
+        "line": 2,
+        "version": "2.2.1"
+      },
+      {
+        "file": "R/causal_iv.R",
+        "line": 1,
+        "version": "1.9.0"
+      },
+      {
+        "file": "R/causal_sensitivity.R",
+        "line": 1,
+        "version": "1.9.2"
+      },
+      {
+        "file": "R/core_utils.R",
+        "line": 29,
+        "version": "3.8.0"
+      },
+      {
+        "file": "R/edaphos_zenodo_release.R",
+        "line": 1,
+        "version": "2.1.0"
+      },
+      {
+        "file": "R/foundation_embed_coords.R",
+        "line": 1,
+        "version": "1.9.1"
+      },
+      {
+        "file": "R/foundation_embed_coords.R",
+        "line": 8,
+        "version": "1.9.0"
+      },
+      {
+        "file": "R/foundation_embed_coords.R",
+        "line": 15,
+        "version": "1.9.0"
+      },
+      {
+        "file": "R/foundation_embed_coords.R",
+        "line": 24,
+        "version": "1.9.1"
+      },
+      {
+        "file": "R/llm_annotation.R",
+        "line": 1,
+        "version": "1.8.1"
+      },
+      {
+        "file": "R/llm_annotation.R",
+        "line": 4,
+        "version": "1.8.0"
+      },
+      {
+        "file": "R/llm_benchmark.R",
+        "line": 1,
+        "version": "1.8.0"
+      },
+      {
+        "file": "R/pilar10_graph_nn_torch.R",
+        "line": 1,
+        "version": "2.7.0"
+      },
+      {
+        "file": "R/pilar10_graph_nn_torch.R",
+        "line": 3,
+        "version": "2.6.0"
+      },
+      {
+        "file": "R/pilar10_graph_nn.R",
+        "line": 2,
+        "version": "2.6.0"
+      },
+      {
+        "file": "R/pilar10_graph_nn.R",
+        "line": 209,
+        "version": "3.6.0,2.6.0"
+      },
+      {
+        "file": "R/pilar10_graph_nn.R",
+        "line": 213,
+        "version": "2.6.0"
+      },
+      {
+        "file": "R/pilar10_graph_nn.R",
+        "line": 234,
+        "version": "2.6.0"
+      },
+      {
+        "file": "R/pilar10_graph_nn.R",
+        "line": 459,
+        "version": "2.7.0"
+      },
+      {
+        "file": "R/pilar7_bayesian_hierarchical.R",
+        "line": 1,
+        "version": "2.3.0"
+      },
+      {
+        "file": "R/pilar7_bayesian_hierarchical.R",
+        "line": 58,
+        "version": "2.3.0"
+      },
+      {
+        "file": "R/pilar7_bayesian_hierarchical.R",
+        "line": 326,
+        "version": "3.5.0"
+      },
+      {
+        "file": "R/pilar7_bayesian_hierarchical.R",
+        "line": 327,
+        "version": "3.2.0"
+      },
+      {
+        "file": "R/pilar7_bayesian_hierarchical.R",
+        "line": 380,
+        "version": "3.2.0"
+      },
+      {
+        "file": "R/pilar7_bayesian_hierarchical.R",
+        "line": 393,
+        "version": "2.3.0"
+      },
+      {
+        "file": "R/pilar8_neural_operators_torch.R",
+        "line": 1,
+        "version": "2.7.0"
+      },
+      {
+        "file": "R/pilar8_neural_operators_torch.R",
+        "line": 3,
+        "version": "2.4.0"
+      },
+      {
+        "file": "R/pilar8_neural_operators.R",
+        "line": 2,
+        "version": "2.4.0"
+      },
+      {
+        "file": "R/pilar8_neural_operators.R",
+        "line": 59,
+        "version": "4.1.0"
+      },
+      {
+        "file": "R/pilar9_diffusion_models.R",
+        "line": 2,
+        "version": "2.5.0"
+      },
+      {
+        "file": "R/pilar9_diffusion_models.R",
+        "line": 168,
+        "version": "3.2.0"
+      },
+      {
+        "file": "R/pilar9_diffusion_models.R",
+        "line": 338,
+        "version": "3.2.0"
+      },
+      {
+        "file": "R/pilar9_diffusion_torch.R",
+        "line": 2,
+        "version": "2.7.0"
+      },
+      {
+        "file": "R/pilar9_diffusion_torch.R",
+        "line": 4,
+        "version": "2.5.0"
+      },
+      {
+        "file": "R/piml_quantum_bridge.R",
+        "line": 2,
+        "version": "2.2.0"
+      },
+      {
+        "file": "R/piml_quantum_bridge.R",
+        "line": 34,
+        "version": "2.0.0"
+      },
+      {
+        "file": "R/quantum_foundation.R",
+        "line": 2,
+        "version": "2.0.0"
+      },
+      {
+        "file": "R/quantum_foundation.R",
+        "line": 390,
+        "version": "2.0.0"
+      },
+      {
+        "file": "R/quantum_foundation.R",
+        "line": 530,
+        "version": "2.0.0"
+      },
+      {
+        "file": "R/quantum_kernel.R",
+        "line": 185,
+        "version": "2.1.3"
+      },
+      {
+        "file": "man/benchmark_fit_p1_causal.Rd",
+        "line": 35,
+        "version": "3.1.0"
+      },
+      {
+        "file": "man/benchmark_fit_p1_causal.Rd",
+        "line": 46,
+        "version": "3.1.0"
+      },
+      {
+        "file": "man/bhs_fit.Rd",
+        "line": 65,
+        "version": "2.3.0"
+      },
+      {
+        "file": "man/gnn_fit.Rd",
+        "line": 73,
+        "version": "2.7.0"
+      },
+      {
+        "file": "man/qf_krr_benchmark.Rd",
+        "line": 43,
+        "version": "2.0.0"
+      }
+    ]
   },
   "phantoms": {
     "files_scanned": ["cheatsheets/pilar1.md", "cheatsheets/pilar10.md", "cheatsheets/pilar2.md", "cheatsheets/pilar3.md", "cheatsheets/pilar4.md", "cheatsheets/pilar5.md", "cheatsheets/pilar6.md", "cheatsheets/pilar7.md", "cheatsheets/pilar8.md", "cheatsheets/pilar9.md", "cheatsheets/README.md", "INTRO.md"],
@@ -897,12 +1149,12 @@
     "n_phantom": 9
   },
   "tests_static": {
-    "test_file_count": 74,
-    "test_that_blocks": 505,
-    "expect_calls": 1266,
+    "test_file_count": 75,
+    "test_that_blocks": 510,
+    "expect_calls": 1283,
     "skip_if_not_installed": 75,
     "skip_on_cran": 8,
-    "set_seed_calls": 126,
+    "set_seed_calls": 127,
     "gate_counts": [
       {
         "dependency": "torch",
@@ -949,19 +1201,19 @@
         "gate_sites": 11
       }
     ],
-    "tests_reading_extdata": ["test-headline-claims.R", "test-llm-annotation.R"],
-    "result_bundles": ["benchmark_wosis_6pilar.rds", "benchmark_wosis_p4_p5_p7.rds", "capstone_campaign_results.rds", "capstone_native_calibration.rds", "case_cerrado_results.rds", "causal_cerrado_real.rds", "causal_discovery_results.rds", "causal_iv_cerrado_real.rds", "causal_iv_cerrado.rds", "causal_sensitivity_cerrado.rds", "llm_benchmark_results.rds", "pilar10_gat_tuning.rds", "quantum_foundation_cerrado.rds", "temporal_cerrado_results.rds"],
+    "tests_reading_extdata": ["test-causal-real-bundle.R", "test-headline-claims.R", "test-llm-annotation.R"],
+    "result_bundles": ["benchmark_wosis_6pilar.rds", "benchmark_wosis_p4_p5_p7.rds", "capstone_campaign_results.rds", "capstone_native_calibration.rds", "case_cerrado_results.rds", "causal_cerrado_real_v2.rds", "causal_cerrado_real.rds", "causal_discovery_results.rds", "causal_iv_cerrado_real.rds", "causal_iv_cerrado.rds", "causal_sensitivity_cerrado.rds", "llm_benchmark_results.rds", "pilar10_gat_tuning.rds", "quantum_foundation_cerrado.rds", "temporal_cerrado_results.rds"],
     "exports_never_in_tests": ["causal_ontology_agrovoc", "causal_ontology_envo", "edaphos_zenodo_release", "foundation_build_cerrado_stack", "foundation_tile_source_era5", "foundation_tile_source_modis", "foundation_tile_source_soilgrids", "foundation_tile_source_srtm", "foundation_tile_source_worldclim", "gnn_fit_ensemble", "llm_annotation_launch", "piml_neural_ode_predict", "temporal_convlstm_predict"]
   },
   "tests_run": {
-    "passed": 1578,
+    "passed": 1601,
     "failed": 0,
     "errored": 0,
     "skipped": 1,
     "warnings": 0,
-    "files": 74,
-    "results": 505,
-    "real_seconds": 476.9,
+    "files": 75,
+    "results": 510,
+    "real_seconds": 414.6,
     "failing_files": []
   },
   "dependencies": {
@@ -971,25 +1223,25 @@
   },
   "check": {
     "log_path": "tools/status/check.log",
-    "log_lines": 99,
-    "log_sha256": "a327d096f7c9fe5e3f73739065a66e5da69cec322cc74e7ede7c2669cd19bbbe",
-    "status_line": "Status: 2 NOTEs",
+    "log_lines": 104,
+    "log_sha256": "ca86d3436770ceee978c20e99b2295de38162adfb0f751b035ddbb0f2de7fe0b",
+    "status_line": "Status: 3 NOTEs",
     "n_errors": 0,
     "n_warnings": 0,
-    "n_notes": 2,
+    "n_notes": 3,
     "parsed_counts": {
       "ERROR": 0,
       "WARNING": 0,
-      "NOTE": 2,
+      "NOTE": 3,
       "INFO": 2,
-      "OK": 59
+      "OK": 58
     },
     "counts_reconcile": true,
     "items": [
       {
         "step": "checking for file edaphos/DESCRIPTION",
         "level": "OK",
-        "detail": "* this is package edaphos version 4.1.0 | * package encoding: UTF-8"
+        "detail": "* this is package edaphos version 0.9.0 | * package encoding: UTF-8"
       },
       {
         "step": "checking CRAN incoming feasibility",
@@ -1044,7 +1296,7 @@
       {
         "step": "checking installed package size",
         "level": "INFO",
-        "detail": "  installed size is  9.7Mb |   sub-directories of 1Mb or more: |     doc       4.0Mb |     extdata   2.7Mb |     help      1.6Mb"
+        "detail": "  installed size is  9.6Mb |   sub-directories of 1Mb or more: |     doc       4.0Mb |     extdata   2.8Mb |     help      1.5Mb"
       },
       {
         "step": "checking package directory",
@@ -1258,8 +1510,8 @@
       },
       {
         "step": "checking examples",
-        "level": "OK",
-        "detail": ""
+        "level": "NOTE",
+        "detail": "Examples with CPU (user + system) or elapsed time > 5s |                       user system elapsed | dm_fit             147.300 99.758 165.872 | dm_sample           86.942 56.483  97.824 | al_query_diffusion  46.141 20.943  50.727"
       },
       {
         "step": "checking examples with --run-donttest",
@@ -1274,7 +1526,7 @@
       {
         "step": "checking tests",
         "level": "OK",
-        "detail": "  Running testthat.R [401s/402s] |  [401s/402s] OK"
+        "detail": "  Running testthat.R [404s/388s] |  [404s/388s] OK"
       },
       {
         "step": "checking for unstated dependencies in vignettes",
@@ -1299,68 +1551,68 @@
       {
         "step": "checking for detritus in the temp directory",
         "level": "NOTE",
-        "detail": "Found the following files/directories: |   tmp5zaz4pn5 | * DONE | Status: 2 NOTEs | See |   /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log | for details."
+        "detail": "Found the following files/directories: |   tmpkbkhldu_ | * DONE | Status: 3 NOTEs | See |   /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log | for details."
       }
     ],
     "errors": [],
     "warnings": [],
-    "notes": ["checking CRAN incoming feasibility", "checking for detritus in the temp directory"],
+    "notes": ["checking CRAN incoming feasibility", "checking examples", "checking for detritus in the temp directory"],
     "infos": ["checking package dependencies", "checking installed package size"],
-    "installed_size": ["  installed size is  9.7Mb", "  sub-directories of 1Mb or more:", "    doc       4.0Mb", "    extdata   2.7Mb", "    help      1.6Mb"],
+    "installed_size": ["  installed size is  9.6Mb", "  sub-directories of 1Mb or more:", "    doc       4.0Mb", "    extdata   2.8Mb", "    help      1.5Mb"],
     "cran_incoming": {
       "is_new_submission": true,
       "maintainer": "Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>",
       "invalid_urls": [],
       "n_invalid_urls": 0,
       "tarball_bytes": null,
-      "block": ["* checking CRAN incoming feasibility ... [5s/33s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission"]
+      "block": ["* checking CRAN incoming feasibility ... [4s/32s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission"]
     },
     "test_summary": [],
     "suggests_unavailable": ["'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges',", "'ontologyIndex', 'spBayes'"],
-    "tail": ["* checking examples ... [87s/85s] OK", "* checking examples with --run-donttest ... [90s/89s] OK", "* checking for unstated dependencies in tests ... OK", "* checking tests ...", "  Running testthat.R [401s/402s]", " [401s/402s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [276s/321s] OK", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmp5zaz4pn5", "* DONE", "", "Status: 2 NOTEs", "See", "  /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log", "for details.", ""]
+    "tail": ["al_query_diffusion  46.141 20.943  50.727", "* checking examples with --run-donttest ... [546s/402s] OK", "* checking for unstated dependencies in tests ... OK", "* checking tests ...", "  Running testthat.R [404s/388s]", " [404s/388s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [227s/212s] OK", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmpkbkhldu_", "* DONE", "", "Status: 3 NOTEs", "See", "  /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log", "for details.", ""]
   },
   "size": {
     "measured_over": "git-tracked files only (build artefacts excluded)",
-    "tracked_file_count": 475,
+    "tracked_file_count": 480,
     "by_dir": [
       {
         "dir": "inst",
-        "bytes": 2875330,
+        "bytes": 2933915,
         "ships_in_tarball": true
       },
       {
         "dir": "man",
-        "bytes": 1460748,
+        "bytes": 1402342,
         "ships_in_tarball": true
       },
       {
         "dir": "R",
-        "bytes": 1237626,
+        "bytes": 1245601,
         "ships_in_tarball": true
       },
       {
         "dir": "tools",
-        "bytes": 672227,
+        "bytes": 678464,
         "ships_in_tarball": false
       },
       {
         "dir": "<root>",
-        "bytes": 485964,
+        "bytes": 405679,
         "ships_in_tarball": true
       },
       {
         "dir": "tests",
-        "bytes": 360826,
+        "bytes": 366606,
         "ships_in_tarball": true
       },
       {
         "dir": "data-raw",
-        "bytes": 324222,
+        "bytes": 354129,
         "ships_in_tarball": false
       },
       {
         "dir": "vignettes",
-        "bytes": 321934,
+        "bytes": 323137,
         "ships_in_tarball": true
       },
       {
@@ -1374,14 +1626,14 @@
         "ships_in_tarball": false
       },
       {
+        "dir": "src",
+        "bytes": 16264,
+        "ships_in_tarball": true
+      },
+      {
         "dir": "cheatsheets",
         "bytes": 16216,
         "ships_in_tarball": false
-      },
-      {
-        "dir": "src",
-        "bytes": 15833,
-        "ships_in_tarball": true
       },
       {
         "dir": ".github",
@@ -1389,52 +1641,52 @@
         "ships_in_tarball": false
       }
     ],
-    "shipped_bytes": 6537598,
+    "shipped_bytes": 6469432,
     "shipped_file_count": 393,
-    "tarball_bytes": 6742842,
-    "tarball_file": "edaphos_4.1.0.tar.gz",
+    "tarball_bytes": 6731190,
+    "tarball_file": "edaphos_0.9.0.tar.gz",
     "tarball_composition": {
-      "total_bytes": 10618891,
+      "total_bytes": 10560501,
       "file_count": 447,
       "by_dir": [
         {
           "dir": "inst/doc",
-          "bytes": 4080402,
+          "bytes": 4091339,
           "in_repo": false
         },
         {
           "dir": "inst/extdata",
-          "bytes": 2820905,
+          "bytes": 2879490,
           "in_repo": true
         },
         {
           "dir": "R",
-          "bytes": 1237626,
+          "bytes": 1245601,
           "in_repo": true
         },
         {
           "dir": "man/figures",
-          "bytes": 793509,
+          "bytes": 734231,
           "in_repo": true
         },
         {
           "dir": "man",
-          "bytes": 667239,
+          "bytes": 668111,
           "in_repo": true
         },
         {
           "dir": "tests/testthat",
-          "bytes": 360432,
+          "bytes": 365038,
           "in_repo": true
         },
         {
           "dir": "vignettes",
-          "bytes": 321923,
+          "bytes": 323126,
           "in_repo": true
         },
         {
           "dir": "<root>",
-          "bytes": 198943,
+          "bytes": 115222,
           "in_repo": true
         },
         {
@@ -1454,7 +1706,7 @@
         },
         {
           "dir": "src",
-          "bytes": 15833,
+          "bytes": 16264,
           "in_repo": true
         },
         {
@@ -1475,14 +1727,14 @@
       ],
       "inst_doc": {
         "html_files": 18,
-        "html_bytes": 3666918,
-        "base64_bytes": 2631906,
-        "base64_share_of_html": 0.71774334741055,
+        "html_bytes": 3677349,
+        "base64_bytes": 2640154,
+        "base64_share_of_html": 0.717950349558881,
         "largest": [
           {
             "file": "capstone-cerrado-campaign.html",
-            "bytes": 1083209,
-            "base64_bytes": 910651
+            "bytes": 1101391,
+            "base64_bytes": 922419
           },
           {
             "file": "case-cerrado-end-to-end.html",
@@ -1491,13 +1743,13 @@
           },
           {
             "file": "pilar1-pilar4-iv.html",
-            "bytes": 302696,
-            "base64_bytes": 218960
+            "bytes": 290416,
+            "base64_bytes": 212732
           },
           {
             "file": "pilar6-quantum.html",
-            "bytes": 255917,
-            "base64_bytes": 184962
+            "bytes": 258745,
+            "base64_bytes": 187790
           },
           {
             "file": "pilar4-simclr-embeddings.html",
@@ -1513,7 +1765,7 @@
       }
     },
     "excluded_by_rbuildignore": 16,
-    "repo_bytes": 7890538,
+    "repo_bytes": 7861965,
     "cran_soft_cap_bytes": 5242880,
     "largest_shipped_files": [
       {
@@ -1528,7 +1780,7 @@
       },
       {
         "file": "inst/extdata/capstone_campaign_results.rds",
-        "bytes": 556352,
+        "bytes": 560024,
         "ships": true
       },
       {
@@ -1553,7 +1805,7 @@
       },
       {
         "file": "README.md",
-        "bytes": 97865,
+        "bytes": 100269,
         "ships": true
       },
       {
@@ -1562,13 +1814,13 @@
         "ships": true
       },
       {
-        "file": "NEWS.md",
-        "bytes": 90116,
+        "file": "man/figures/pillar5-al-map.png",
+        "bytes": 87909,
         "ships": true
       },
       {
-        "file": "man/figures/pillar5-al-map.png",
-        "bytes": 87909,
+        "file": "inst/extdata/causal_cerrado_real_v2.rds",
+        "bytes": 71924,
         "ships": true
       },
       {
@@ -1577,7 +1829,7 @@
         "ships": true
       }
     ],
-    "untracked_files": []
+    "untracked_files": "edaphos.Rcheck/"
   },
   "ci": {
     "workflows": ["pkgdown.yaml", "R-CMD-check.yaml", "test-coverage.yaml"],
@@ -1703,7 +1955,7 @@
     },
     "r2_clamp_sites": [],
     "synthetic_covariate_sites": ["data-raw/causal_iv_benchmark_real.R:138", "data-raw/quantum_foundation_benchmark.R:53"],
-    "bundles_read_by_tests": ["test-headline-claims.R", "test-llm-annotation.R"],
-    "n_result_bundles": 14
+    "bundles_read_by_tests": ["test-causal-real-bundle.R", "test-headline-claims.R", "test-llm-annotation.R"],
+    "n_result_bundles": 15
   }
 }

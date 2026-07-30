@@ -6,12 +6,12 @@
     GNU Fortran (GCC) 14.2.0
 * running under: macOS Tahoe 26.6
 * using session charset: UTF-8
-* current time: 2026-07-29 21:02:39 UTC
+* current time: 2026-07-30 05:18:11 UTC
 * using options ‘--no-manual --as-cran’
 * checking for file ‘edaphos/DESCRIPTION’ ... OK
-* this is package ‘edaphos’ version ‘4.1.0’
+* this is package ‘edaphos’ version ‘0.9.0’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [5s/33s] NOTE
+* checking CRAN incoming feasibility ... [4s/32s] NOTE
 Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
 
 New submission
@@ -26,15 +26,15 @@ Packages suggested but not available for checking:
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
-* checking whether package ‘edaphos’ can be installed ... [12s/13s] OK
+* checking whether package ‘edaphos’ can be installed ... [11s/12s] OK
 * used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.1.1.101)’
 * used SDK: ‘MacOSX26.5.sdk’
 * checking installed package size ... INFO
-  installed size is  9.7Mb
+  installed size is  9.6Mb
   sub-directories of 1Mb or more:
     doc       4.0Mb
-    extdata   2.7Mb
-    help      1.6Mb
+    extdata   2.8Mb
+    help      1.5Mb
 * checking package directory ... OK
 * checking for future file timestamps ... OK
 * checking ‘build’ directory ... OK
@@ -55,7 +55,7 @@ Packages suggested but not available for checking:
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
-* checking R code for possible problems ... [10s/10s] OK
+* checking R code for possible problems ... OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
 * checking Rd line widths ... OK
@@ -77,22 +77,27 @@ Packages suggested but not available for checking:
 * checking compiled code ... OK
 * checking installed files from ‘inst/doc’ ... OK
 * checking files in ‘vignettes’ ... OK
-* checking examples ... [87s/85s] OK
-* checking examples with --run-donttest ... [90s/89s] OK
+* checking examples ... [544s/398s] NOTE
+Examples with CPU (user + system) or elapsed time > 5s
+                      user system elapsed
+dm_fit             147.300 99.758 165.872
+dm_sample           86.942 56.483  97.824
+al_query_diffusion  46.141 20.943  50.727
+* checking examples with --run-donttest ... [546s/402s] OK
 * checking for unstated dependencies in ‘tests’ ... OK
 * checking tests ...
-  Running ‘testthat.R’ [401s/402s]
- [401s/402s] OK
+  Running ‘testthat.R’ [404s/388s]
+ [404s/388s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [276s/321s] OK
+* checking re-building of vignette outputs ... [227s/212s] OK
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  ‘tmp5zaz4pn5’
+  ‘tmpkbkhldu_’
 * DONE
 
-Status: 2 NOTEs
+Status: 3 NOTEs
 See
   ‘/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log’
 for details.

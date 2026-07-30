@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `a549528` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `4.1.0` — **measured** 2026-07-29T21:29:12Z
+**Commit** `84cd97c` (`Hugo/edaphos-dev-status-222f14`) — **DESCRIPTION version** `0.9.0` — **measured** 2026-07-30T06:24:39Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,26 +18,26 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 96 |
-| First → last commit | 2026-04-20 → 2026-07-29 (99.7 calendar days, 12 with commits) |
+| Commits | 109 |
+| First → last commit | 2026-04-20 → 2026-07-30 (100.1 calendar days, 13 with commits) |
 | Days since last commit | 0 |
-| NEWS release sections | 45 |
+| NEWS release sections | 1 |
 | Git tags | 19 |
-| NEWS versions with no tag | 33 |
-| R/ source lines | 28 209 |
+| NEWS versions with no tag | 0 |
+| R/ source lines | 28 339 |
 | Exported functions | 170 |
-| Test blocks | 505 |
-| Tests passing | 1 578 |
+| Test blocks | 510 |
+| Tests passing | 1 601 |
 | Tests skipped | 1 |
 | Test failures + errors | 0 |
-| R CMD check status | Status: 2 NOTEs |
-| Source tarball (CRAN cap 5 MB) | 6.43 MB |
+| R CMD check status | Status: 3 NOTEs |
+| Source tarball (CRAN cap 5 MB) | 6.42 MB |
 | Findings open (blocker/high) | 21 |
 | Findings closed since the audit | 14 |
 
 ### Stage assessment
 
-From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `a549528`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
+From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `84cd97c`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
 
 > Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and
 > nowhere near release-candidate. The eight audits read the artefact as a mature project that had
@@ -91,7 +91,7 @@ are a floor, not a total.
 
 ## 3. The git clock
 
-`a549528` — 96 commits across 12 active days.
+`84cd97c` — 109 commits across 13 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -106,49 +106,108 @@ are a floor, not a total.
 | 2026-07-26 | 6 |
 | 2026-07-27 | 4 |
 | 2026-07-28 | 1 |
-| 2026-07-29 | 3 |
+| 2026-07-29 | 9 |
+| 2026-07-30 | 7 |
 
-Releases declared in `NEWS.md`: **45**. Git tags: **19**.
+Releases declared in `NEWS.md`: **1**. Git tags: **19**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`, `v4.0.0`.
-Commits since the newest tag (`v4.0.0`): **7**.
-
-`NEWS.md` versions with **no git tag** (33): `4.1.0`, `3.9.0`, `3.8.0`, `3.7.0`, `3.6.0`, `3.5.0`, `3.4.0`, `3.3.0`, `3.2.0`, `3.1.0`, `3.0.0`, `2.9.1`, `2.9.0`, `2.8.0`, `2.7.0`, `2.6.0`, `2.5.0`, `2.4.0`, `2.3.0`, `2.2.1`, `2.2.0`, `2.1.3`, `2.1.0`, `2.0.0`, `1.9.2`, `1.9.1`, `1.9.0`, `1.8.2`, `1.8.1`, `1.8.0`, `1.7.2`, `1.7.1`, `1.7.0`.
+Commits since the newest tag (`v4.0.0`): **20**.
 
 ## 4. Version coherence
 
 | Check | Result |
 | --- | --- |
-| DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `4.1.0`, NEWS `4.1.0`) |
-| DESCRIPTION version has a git tag | ❌ (`v4.1.0`) |
-| HEAD is the tagged release commit | ❌ (7 commits past `v4.0.0`) |
-| Every NEWS release is tagged | ❌ (33 of 45 untagged) |
+| DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `0.9.0`, NEWS `0.9.0`) |
+| DESCRIPTION version has a git tag | ✅ (`v0.9.0`) |
+| HEAD is the tagged release commit | ❌ (20 commits past `v4.0.0`) |
+| Every NEWS release is tagged | ✅ (0 of 1 untagged) |
 
 Version strings each artefact claims for the package:
 
 | Artefact | Claims |
 | --- | --- |
-| DESCRIPTION | `4.1.0` |
-| NEWS.md | `4.1.0` |
-| README.md | `2.8.0` |
-| CITATION.cff | `4.1.0` |
+| DESCRIPTION | `0.9.0` |
+| NEWS.md | `0.9.0` |
+| README.md | _none_ |
+| CITATION.cff | `0.9.0` |
 | .zenodo.json | has a version field |
 
-Conversely, git tags with **no `NEWS.md` section**: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`.
+Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md` section nor a git tag declares** (23): `3.1.0`, `3.4.0`, `3.0.0`, `2.0.0`, `2.2.1`, `1.9.0`, `1.9.2`, `3.8.0`, `2.1.0`, `1.9.1`, `1.8.1`, `1.8.0`, `2.7.0`, `2.6.0`, `3.6.0`, `2.3.0`, `3.5.0`, `3.2.0`, `2.4.0`, `4.1.0` … (+3 more). Each names a release that never existed.
+
+| File | Line | Version |
+| --- | --: | --- |
+| `R/benchmark_wosis.R` | 1 | `3.1.0` |
+| `R/benchmark_wosis.R` | 21 | `3.4.0` |
+| `R/benchmark_wosis.R` | 29 | `3.1.0` |
+| `R/benchmark_wosis.R` | 34 | `3.4.0` |
+| `R/benchmark_wosis.R` | 107 | `3.1.0` |
+| `R/benchmark_wosis.R` | 122 | `3.1.0` |
+| `R/bridges_active_learning_v3.R` | 1 | `3.0.0` |
+| `R/bridges_structure_v3.R` | 1 | `3.0.0` |
+| `R/bridges_structure_v3.R` | 313 | `2.0.0` |
+| `R/causal_4d_bridge.R` | 2 | `2.2.1` |
+| `R/causal_iv.R` | 1 | `1.9.0` |
+| `R/causal_sensitivity.R` | 1 | `1.9.2` |
+| `R/core_utils.R` | 29 | `3.8.0` |
+| `R/edaphos_zenodo_release.R` | 1 | `2.1.0` |
+| `R/foundation_embed_coords.R` | 1 | `1.9.1` |
+| `R/foundation_embed_coords.R` | 8 | `1.9.0` |
+| `R/foundation_embed_coords.R` | 15 | `1.9.0` |
+| `R/foundation_embed_coords.R` | 24 | `1.9.1` |
+| `R/llm_annotation.R` | 1 | `1.8.1` |
+| `R/llm_annotation.R` | 4 | `1.8.0` |
+| `R/llm_benchmark.R` | 1 | `1.8.0` |
+| `R/pilar10_graph_nn_torch.R` | 1 | `2.7.0` |
+| `R/pilar10_graph_nn_torch.R` | 3 | `2.6.0` |
+| `R/pilar10_graph_nn.R` | 2 | `2.6.0` |
+| `R/pilar10_graph_nn.R` | 209 | `3.6.0,2.6.0` |
+| `R/pilar10_graph_nn.R` | 213 | `2.6.0` |
+| `R/pilar10_graph_nn.R` | 234 | `2.6.0` |
+| `R/pilar10_graph_nn.R` | 459 | `2.7.0` |
+| `R/pilar7_bayesian_hierarchical.R` | 1 | `2.3.0` |
+| `R/pilar7_bayesian_hierarchical.R` | 58 | `2.3.0` |
+| `R/pilar7_bayesian_hierarchical.R` | 326 | `3.5.0` |
+| `R/pilar7_bayesian_hierarchical.R` | 327 | `3.2.0` |
+| `R/pilar7_bayesian_hierarchical.R` | 380 | `3.2.0` |
+| `R/pilar7_bayesian_hierarchical.R` | 393 | `2.3.0` |
+| `R/pilar8_neural_operators_torch.R` | 1 | `2.7.0` |
+| `R/pilar8_neural_operators_torch.R` | 3 | `2.4.0` |
+| `R/pilar8_neural_operators.R` | 2 | `2.4.0` |
+| `R/pilar8_neural_operators.R` | 59 | `4.1.0` |
+| `R/pilar9_diffusion_models.R` | 2 | `2.5.0` |
+| `R/pilar9_diffusion_models.R` | 168 | `3.2.0` |
+| `R/pilar9_diffusion_models.R` | 338 | `3.2.0` |
+| `R/pilar9_diffusion_torch.R` | 2 | `2.7.0` |
+| `R/pilar9_diffusion_torch.R` | 4 | `2.5.0` |
+| `R/piml_quantum_bridge.R` | 2 | `2.2.0` |
+| `R/piml_quantum_bridge.R` | 34 | `2.0.0` |
+| `R/quantum_foundation.R` | 2 | `2.0.0` |
+| `R/quantum_foundation.R` | 390 | `2.0.0` |
+| `R/quantum_foundation.R` | 530 | `2.0.0` |
+| `R/quantum_kernel.R` | 185 | `2.1.3` |
+| `man/benchmark_fit_p1_causal.Rd` | 35 | `3.1.0` |
+| `man/benchmark_fit_p1_causal.Rd` | 46 | `3.1.0` |
+| `man/bhs_fit.Rd` | 65 | `2.3.0` |
+| `man/gnn_fit.Rd` | 73 | `2.7.0` |
+| `man/qf_krr_benchmark.Rd` | 43 | `2.0.0` |
+
+Conversely, git tags with **no `NEWS.md` section**: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`, `v4.0.0`.
 
 ## 5. `R CMD build` / `R CMD check --as-cran`
 
 | Result | Value |
 | --- | --- |
-| Status | Status: 2 NOTEs |
+| Status | Status: 3 NOTEs |
 | ERRORs | 0 |
 | WARNINGs | 0 |
-| NOTEs | 2 |
+| NOTEs | 3 |
 
 Counts are taken from R's own `Status:` line; an independent walk of the log agrees.
 
 **NOTES:**
 
 - `checking CRAN incoming feasibility`
+- `checking examples`
 - `checking for detritus in the temp directory`
 
 **INFOS:**
@@ -162,7 +221,7 @@ Counts are taken from R's own `Status:` line; an independent walk of the log agr
 | --- | --- |
 | Maintainer | `Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>` |
 | CRAN status | **New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN |
-| Tarball size | 6.43 MB measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
+| Tarball size | 6.42 MB measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
 | URLs flagged as invalid | 0 |
 
 Suggests unavailable to the check (so their tests and vignette chunks were skipped): 'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges', 'ontologyIndex', 'spBayes'.
@@ -170,31 +229,31 @@ Suggests unavailable to the check (so their tests and vignette chunks were skipp
 Installed size, verbatim from the log:
 
 ```
-  installed size is  9.7Mb
+  installed size is  9.6Mb
   sub-directories of 1Mb or more:
     doc       4.0Mb
-    extdata   2.7Mb
-    help      1.6Mb
+    extdata   2.8Mb
+    help      1.5Mb
 ```
 
-Log: `tools/status/check.log` (99 lines, sha256 `a327d096f7c9fe5e`). Verbatim tail:
+Log: `tools/status/check.log` (104 lines, sha256 `ca86d3436770ceee`). Verbatim tail:
 
 ```
-* checking examples ... [87s/85s] OK
-* checking examples with --run-donttest ... [90s/89s] OK
+al_query_diffusion  46.141 20.943  50.727
+* checking examples with --run-donttest ... [546s/402s] OK
 * checking for unstated dependencies in tests ... OK
 * checking tests ...
-  Running testthat.R [401s/402s]
- [401s/402s] OK
+  Running testthat.R [404s/388s]
+ [404s/388s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [276s/321s] OK
+* checking re-building of vignette outputs ... [227s/212s] OK
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  tmp5zaz4pn5
+  tmpkbkhldu_
 * DONE
-Status: 2 NOTEs
+Status: 3 NOTEs
 See
   /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log
 for details.
@@ -245,11 +304,11 @@ Fixes, per item:
 
 ### Rd portability (the source of the PDF-manual check items)
 
-`man/*.Rd` files containing characters outside latin1: **62** of 183. Most are cosmetic — R's Rd-to-LaTeX pass maps dashes and ellipses. Distinct characters found:
+`man/*.Rd` files containing characters outside latin1: **63** of 183. Most are cosmetic — R's Rd-to-LaTeX pass maps dashes and ellipses. Distinct characters found:
 
 | Character | Codepoint | Occurrences | Breaks LaTeX |
 | --- | --- | --: | :-: |
-| <U+2014> | `U+2014` | 185 | ❌ |
+| <U+2014> | `U+2014` | 186 | ❌ |
 | <U+2013> | `U+2013` | 18 | ❌ |
 | <U+0107> | `U+0107` | 3 | ✅ |
 | <U+010D> | `U+010D` | 3 | ✅ |
@@ -267,23 +326,23 @@ Fixes, per item:
 
 | Measure | Value |
 | --- | --- |
-| Test files | 74 |
-| `test_that` blocks | 505 |
-| `expect_*` calls | 1 266 |
+| Test files | 75 |
+| `test_that` blocks | 510 |
+| `expect_*` calls | 1 283 |
 | `skip_if_not_installed` gates | 75 |
 | `skip_on_cran` gates | 8 |
-| `set.seed` calls | 126 |
+| `set.seed` calls | 127 |
 
 Live run in this environment:
 
 | Outcome | Count |
 | --- | --- |
-| Passed | 1 578 |
+| Passed | 1 601 |
 | Skipped | 1 |
 | Failed | 0 |
 | Errored | 0 |
 | Warnings | 0 |
-| Wall clock (s) | 476.9 |
+| Wall clock (s) | 414.6 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -297,7 +356,7 @@ Conditional skipping by dependency (static gate count):
 | reticulate | 2 | ✅ |
 | dbarts | 1 | ✅ |
 
-Result bundles in `inst/extdata/`: **14**. Test files that read `inst/extdata`: `test-headline-claims.R`, `test-llm-annotation.R`.
+Result bundles in `inst/extdata/`: **15**. Test files that read `inst/extdata`: `test-causal-real-bundle.R`, `test-headline-claims.R`, `test-llm-annotation.R`.
 
 Exported functions never named in any test (**13**): `causal_ontology_agrovoc`, `causal_ontology_envo`, `edaphos_zenodo_release`, `foundation_build_cerrado_stack`, `foundation_tile_source_era5`, `foundation_tile_source_modis`, `foundation_tile_source_soilgrids`, `foundation_tile_source_srtm`, `foundation_tile_source_worldclim`, `gnn_fit_ensemble`, `llm_annotation_launch`, `piml_neural_ode_predict`, `temporal_convlstm_predict`.
 
@@ -316,7 +375,7 @@ Exported functions never named in any test (**13**): `causal_ontology_agrovoc`, 
 | Vignettes | 18 |
 | Root `articles/` | 4 |
 | Cheatsheets | 11 |
-| README size | 96 KB |
+| README size | 98 KB |
 
 "six pillars" vs "ten pillars", counted per file:
 
@@ -340,21 +399,21 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 
 | Directory | Size | Ships in tarball |
 | --- | --: | :-: |
-| `inst` | 2.74 MB | ✅ |
-| `man` | 1.39 MB | ✅ |
-| `R` | 1.18 MB | ✅ |
-| `tools` | 656 KB | ❌ |
-| `<root>` | 475 KB | ✅ |
-| `tests` | 352 KB | ✅ |
-| `data-raw` | 317 KB | ❌ |
-| `vignettes` | 314 KB | ✅ |
+| `inst` | 2.80 MB | ✅ |
+| `man` | 1.34 MB | ✅ |
+| `R` | 1.19 MB | ✅ |
+| `tools` | 663 KB | ❌ |
+| `<root>` | 396 KB | ✅ |
+| `tests` | 358 KB | ✅ |
+| `data-raw` | 346 KB | ❌ |
+| `vignettes` | 316 KB | ✅ |
 | `data` | 64 KB | ✅ |
 | `articles` | 43 KB | ❌ |
+| `src` | 16 KB | ✅ |
 | `cheatsheets` | 16 KB | ❌ |
-| `src` | 15 KB | ✅ |
 | `.github` | 10 KB | ❌ |
 
-Git-tracked bytes that ship: **6.23 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
+Git-tracked bytes that ship: **6.17 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
 
 Largest tracked files that ship:
 
@@ -362,47 +421,47 @@ Largest tracked files that ship:
 | --- | --: |
 | `inst/extdata/case_cerrado_results.rds` | 812 KB |
 | `inst/extdata/capstone_native_calibration.rds` | 741 KB |
-| `inst/extdata/capstone_campaign_results.rds` | 543 KB |
+| `inst/extdata/capstone_campaign_results.rds` | 547 KB |
 | `man/figures/logo.png` | 299 KB |
 | `inst/extdata/temporal_cerrado_results.rds` | 194 KB |
 | `inst/extdata/causal_sensitivity_cerrado.rds` | 142 KB |
 | `man/figures/pillar6-quantum.png` | 121 KB |
-| `README.md` | 96 KB |
+| `README.md` | 98 KB |
 | `inst/extdata/cerrado_claims_real_corpus.jsonl` | 94 KB |
-| `NEWS.md` | 88 KB |
 | `man/figures/pillar5-al-map.png` | 86 KB |
+| `inst/extdata/causal_cerrado_real_v2.rds` | 70 KB |
 | `man/figures/pillar2-piml.png` | 67 KB |
 
 ### Where the tarball's bytes are
 
-`edaphos_4.1.0.tar.gz` is **6.43 MB** compressed, against the CRAN 5 MB guidance (5.00 MB) — **over by 1.43 MB**. The shares below are of its 10.13 MB uncompressed contents (447 files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.
+`edaphos_0.9.0.tar.gz` is **6.42 MB** compressed, against the CRAN 5 MB guidance (5.00 MB) — **over by 1.42 MB**. The shares below are of its 10.07 MB uncompressed contents (447 files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.
 
 | Directory | Size | Share | In the repo |
 | --- | --: | --: | :-: |
-| `inst/doc` | 3.89 MB | 38% | ❌ |
-| `inst/extdata` | 2.69 MB | 27% | ✅ |
-| `R` | 1.18 MB | 12% | ✅ |
-| `man/figures` | 775 KB | 7% | ✅ |
+| `inst/doc` | 3.90 MB | 39% | ❌ |
+| `inst/extdata` | 2.75 MB | 27% | ✅ |
+| `R` | 1.19 MB | 12% | ✅ |
+| `man/figures` | 717 KB | 7% | ✅ |
 | `man` | 652 KB | 6% | ✅ |
-| `tests/testthat` | 352 KB | 3% | ✅ |
-| `vignettes` | 314 KB | 3% | ✅ |
-| `<root>` | 194 KB | 2% | ✅ |
+| `tests/testthat` | 356 KB | 3% | ✅ |
+| `vignettes` | 316 KB | 3% | ✅ |
+| `<root>` | 113 KB | 1% | ✅ |
 | `data` | 64 KB | 1% | ✅ |
 | `inst/shiny-apps` | 28 KB | 0% | ✅ |
 | `inst` | 17 KB | 0% | ✅ |
-| `src` | 15 KB | 0% | ✅ |
+| `src` | 16 KB | 0% | ✅ |
 | `inst/rosc` | 8 KB | 0% | ✅ |
 | `build` | 1 KB | 0% | ✅ |
 | `tests` | 0 KB | 0% | ✅ |
 
-`inst/doc` is 3.50 MB of rendered vignette HTML in 18 files, of which **2.51 MB (72%) is base64 image data inlined as `data:` URIs**. Base64 costs 4 bytes for every 3, so that payload is ~1.88 MB of PNG carried at 2.51 MB. It is generated at build time from the figure sizes in `vignettes/*.Rmd`, which means it is the one large contributor that can be reduced without moving a single committed file.
+`inst/doc` is 3.51 MB of rendered vignette HTML in 18 files, of which **2.52 MB (72%) is base64 image data inlined as `data:` URIs**. Base64 costs 4 bytes for every 3, so that payload is ~1.89 MB of PNG carried at 2.52 MB. It is generated at build time from the figure sizes in `vignettes/*.Rmd`, which means it is the one large contributor that can be reduced without moving a single committed file.
 
 | Vignette HTML | Size | of it base64 |
 | --- | --: | --: |
-| `capstone-cerrado-campaign.html` | 1.03 MB | 889 KB |
+| `capstone-cerrado-campaign.html` | 1.05 MB | 901 KB |
 | `case-cerrado-end-to-end.html` | 459 KB | 424 KB |
-| `pilar1-pilar4-iv.html` | 296 KB | 214 KB |
-| `pilar6-quantum.html` | 250 KB | 181 KB |
+| `pilar1-pilar4-iv.html` | 284 KB | 208 KB |
+| `pilar6-quantum.html` | 253 KB | 183 KB |
 | `pilar4-simclr-embeddings.html` | 231 KB | 155 KB |
 | `causal-discovery-trio.html` | 207 KB | 144 KB |
 
@@ -516,7 +575,7 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-14 findings were true at `272b378` and cannot be reproduced at `a549528`. Each line states the measurement that closed it, not a claim that it was addressed.
+14 findings were true at `272b378` and cannot be reproduced at `84cd97c`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |
