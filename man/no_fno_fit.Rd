@@ -14,7 +14,7 @@ no_fno_fit(
   epochs = 200L,
   lr = 0.01,
   seed = NULL,
-  backend = c("r", "torch"),
+  backend = c("auto", "r", "torch"),
   device = c("cpu", "mps", "cuda")
 )
 }
@@ -45,9 +45,13 @@ spectral convolution.  Default \code{4L}.}
 
 \item{seed}{RNG seed.}
 
-\item{backend}{\code{"r"} (default, pure-R ELM-style) or \code{"torch"}
-(full autograd via \code{torch::optim_adam}; requires the \code{torch}
-Suggests dependency).  v2.7.0 upgrade.}
+\item{backend}{One of \code{"auto"} (default), \code{"torch"} or \code{"r"}. \code{"auto"}
+uses the trained torch operator when a working libtorch is present and
+otherwise falls back to the pure-R path. The pure-R path is a
+\strong{frozen-spectral random-feature reference} that does not learn the
+operator (near-zero skill); it exists for illustration and torch-less
+checks, and emits a one-time note when used. Use \code{"torch"} for the trained
+Fourier Neural Operator (full autograd via \code{torch::optim_adam}).}
 
 \item{device}{\code{"cpu"} (default), \code{"mps"} (Apple Silicon) or
 \code{"cuda"} when \code{backend = "torch"}.}

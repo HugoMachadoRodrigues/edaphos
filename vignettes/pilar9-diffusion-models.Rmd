@@ -167,12 +167,13 @@ par(op)
 
 ```{r fit}
 fit <- dm_fit(
-  stack  = stack,
-  T      = 100L,
-  epochs = 250L,
-  hidden = 48L,
-  lr     = 0.02,
-  seed   = 1L
+  stack   = stack,
+  backend = "r",   # reference path, so the vignette knits with no libtorch
+  T       = 100L,
+  epochs  = 250L,
+  hidden  = 48L,
+  lr      = 0.02,
+  seed    = 1L
 )
 
 length(fit$history)
@@ -242,9 +243,11 @@ explains why, and Section 7 what to do about it.
 
 ## 6. Why: what the R backend actually trains
 
-With `backend = "r"` — the default, used here so the vignette knits
-with no system dependencies — the denoiser's hidden layers are randomly
-initialised and **frozen**; only the readout layer is fit. That is an
+With `backend = "r"` — requested explicitly here so the vignette knits
+with no system dependencies (the package default is `"auto"`, which uses
+torch when libtorch is present and falls back to this R path otherwise)
+— the denoiser's hidden layers are randomly initialised and **frozen**;
+only the readout layer is fit. That is an
 Extreme Learning Machine regime [@Huang2006elm]: fast, dependency-free,
 genuinely trained, and far less expressive than a full network.
 
@@ -299,8 +302,8 @@ for (i in seq_len(nrow(grid))) {
 }
 cond[, 1L] <- as.vector(scale(cond[, 1L]))
 
-fit_c <- dm_fit(stack, conditioning = cond, T = 100L, epochs = 250L,
-                hidden = 48L, lr = 0.02, seed = 1L)
+fit_c <- dm_fit(stack, conditioning = cond, backend = "r", T = 100L,
+                epochs = 250L, hidden = 48L, lr = 0.02, seed = 1L)
 
 low  <- dm_sample(fit_c, n_samples = 12L,
                   conditioning = matrix(-1.5, 12L, 1L), seed = 3L)

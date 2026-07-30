@@ -166,6 +166,7 @@ don <- no_deeponet_fit(
   depths        = depths,
   targets       = y_tr,
   covariates    = x_tr,
+  backend       = "r",   # reference path; knits without libtorch
   branch_hidden = 24L,
   trunk_hidden  = 24L,
   output_dim    = 10L,
@@ -195,6 +196,7 @@ fno <- no_fno_fit(
   depths     = depths,
   targets    = y_tr,
   covariates = cube(x_tr),
+  backend    = "r",   # reference path; knits without libtorch
   n_modes    = 6L,
   width      = 8L,
   n_blocks   = 1L,

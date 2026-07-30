@@ -12,7 +12,7 @@ dm_fit(
   hidden = 32L,
   lr = 0.01,
   seed = NULL,
-  backend = c("r", "torch"),
+  backend = c("auto", "r", "torch"),
   device = c("cpu", "mps", "cuda")
 )
 }
@@ -35,9 +35,12 @@ network as conditioning.  Default \code{NULL}.}
 
 \item{seed}{Optional RNG seed.}
 
-\item{backend}{\code{"r"} (default, ELM-style MLP denoiser) or \code{"torch"}
-(autograd U-Net denoiser via \code{torch::optim_adam}; requires the
-\code{torch} Suggests dependency).  v2.7.0 upgrade.}
+\item{backend}{One of \code{"auto"} (default), \code{"torch"} or \code{"r"}. \code{"auto"}
+uses the torch U-Net denoiser when a working libtorch is present and
+otherwise falls back to the pure-R path. The pure-R denoiser is an
+\strong{uncalibrated reference}: its samples are over-dispersed and spatially
+incoherent (see the Pillar 9 vignette), so publication figures must use
+\code{"torch"}. The R path emits a one-time note when used.}
 
 \item{device}{\code{"cpu"} (default), \code{"mps"}, or \code{"cuda"} when
 \code{backend = "torch"}.}

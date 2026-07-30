@@ -137,9 +137,13 @@
 #' @param epochs Integer; SGD epochs.
 #' @param lr Learning rate.
 #' @param seed RNG seed.
-#' @param backend `"r"` (default, pure-R ELM-style) or `"torch"`
-#'   (full autograd via `torch::optim_adam`; requires the `torch`
-#'   Suggests dependency).  v2.7.0 upgrade.
+#' @param backend One of `"auto"` (default), `"torch"` or `"r"`. `"auto"`
+#'   uses the trained torch operator when a working libtorch is present and
+#'   otherwise falls back to the pure-R path. The pure-R path is a
+#'   **frozen-spectral random-feature reference** that does not learn the
+#'   operator (near-zero skill); it exists for illustration and torch-less
+#'   checks, and emits a one-time note when used. Use `"torch"` for the trained
+#'   Fourier Neural Operator (full autograd via `torch::optim_adam`).
 #' @param device `"cpu"` (default), `"mps"` (Apple Silicon) or
 #'   `"cuda"` when `backend = "torch"`.
 #' @return An `edaphos_no_fno` fit.
@@ -228,17 +232,19 @@
 no_fno_fit <- function(depths, targets, covariates,
                          n_modes = 4L, width = 8L, n_blocks = 2L,
                          epochs = 200L, lr = 0.01, seed = NULL,
-                         backend = c("r", "torch"),
+                         backend = c("auto", "r", "torch"),
                          device = c("cpu", "mps", "cuda")) {
-  backend <- match.arg(backend)
   device  <- match.arg(device)
-  if (backend == "torch") {
-    if (!requireNamespace("torch", quietly = TRUE))
-      stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
+  backend <- .resolve_backend(
+    backend, fn = "no_fno_fit",
+    r_note = paste0("backend = 'r' is a frozen-spectral random-feature ",
+                    "reference and does NOT learn the operator; use ",
+                    "backend = 'torch' (the default when libtorch is present) ",
+                    "for the trained Fourier Neural Operator."))
+  if (backend == "torch")
     return(.torch_fno_fit(depths, targets, covariates,
                             n_modes, width, n_blocks,
                             epochs, lr, seed, device))
-  }
   stopifnot(is.numeric(depths),
              is.matrix(targets),
              ncol(targets) == length(depths),
@@ -521,7 +527,10 @@ print.edaphos_no_fno <- function(x, ...) {
 #'   (`p` in the notes above).
 #' @param epochs,lr Training hyperparameters.
 #' @param seed RNG seed.
-#' @param backend `"r"` (default) or `"torch"` (full autograd).
+#' @param backend One of `"auto"` (default; torch when libtorch is present,
+#'   else pure-R), `"torch"` (full autograd), or `"r"`. The pure-R path
+#'   freezes the branch/trunk hidden layers and trains a random-feature
+#'   readout — it does learn, but is not the full DeepONet.
 #' @param device `"cpu"`, `"mps"`, or `"cuda"` when
 #'   `backend = "torch"`.
 #'
@@ -611,17 +620,19 @@ no_deeponet_fit <- function(depths, targets, covariates,
                               trunk_hidden  = 16L,
                               output_dim    = 8L,
                               epochs = 300L, lr = 0.02, seed = NULL,
-                              backend = c("r", "torch"),
+                              backend = c("auto", "r", "torch"),
                               device = c("cpu", "mps", "cuda")) {
-  backend <- match.arg(backend)
   device  <- match.arg(device)
-  if (backend == "torch") {
-    if (!requireNamespace("torch", quietly = TRUE))
-      stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
+  backend <- .resolve_backend(
+    backend, fn = "no_deeponet_fit",
+    r_note = paste0("backend = 'r' freezes the branch/trunk hidden layers and ",
+                    "trains a random-feature readout; use backend = 'torch' ",
+                    "(the default when libtorch is present) to train the full ",
+                    "DeepONet."))
+  if (backend == "torch")
     return(.torch_deeponet_fit(depths, targets, covariates,
                                    branch_hidden, trunk_hidden,
                                    output_dim, epochs, lr, seed, device))
-  }
   .assert_type(is.numeric(depths), "depths", "numeric",
                   class(depths)[1L])
   .assert_type(is.matrix(targets), "targets", "a matrix",

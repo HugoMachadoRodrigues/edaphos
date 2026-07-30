@@ -14,7 +14,7 @@ no_deeponet_fit(
   epochs = 300L,
   lr = 0.02,
   seed = NULL,
-  backend = c("r", "torch"),
+  backend = c("auto", "r", "torch"),
   device = c("cpu", "mps", "cuda")
 )
 }
@@ -39,7 +39,10 @@ branch and trunk MLPs.}
 
 \item{seed}{RNG seed.}
 
-\item{backend}{\code{"r"} (default) or \code{"torch"} (full autograd).}
+\item{backend}{One of \code{"auto"} (default; torch when libtorch is present,
+else pure-R), \code{"torch"} (full autograd), or \code{"r"}. The pure-R path
+freezes the branch/trunk hidden layers and trains a random-feature
+readout — it does learn, but is not the full DeepONet.}
 
 \item{device}{\code{"cpu"}, \code{"mps"}, or \code{"cuda"} when
 \code{backend = "torch"}.}

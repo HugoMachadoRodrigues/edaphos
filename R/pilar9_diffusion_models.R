@@ -194,9 +194,12 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #' @param hidden Integer; hidden width of the denoising MLP.
 #' @param lr Numeric; learning rate.
 #' @param seed Optional RNG seed.
-#' @param backend `"r"` (default, ELM-style MLP denoiser) or `"torch"`
-#'   (autograd U-Net denoiser via `torch::optim_adam`; requires the
-#'   `torch` Suggests dependency).  v2.7.0 upgrade.
+#' @param backend One of `"auto"` (default), `"torch"` or `"r"`. `"auto"`
+#'   uses the torch U-Net denoiser when a working libtorch is present and
+#'   otherwise falls back to the pure-R path. The pure-R denoiser is an
+#'   **uncalibrated reference**: its samples are over-dispersed and spatially
+#'   incoherent (see the Pillar 9 vignette), so publication figures must use
+#'   `"torch"`. The R path emits a one-time note when used.
 #' @param device `"cpu"` (default), `"mps"`, or `"cuda"` when
 #'   `backend = "torch"`.
 #' @return An `edaphos_dm_fit` fit.
@@ -268,16 +271,19 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 dm_fit <- function(stack, conditioning = NULL,
                      T = 50L, epochs = 100L,
                      hidden = 32L, lr = 0.01, seed = NULL,
-                     backend = c("r", "torch"),
+                     backend = c("auto", "r", "torch"),
                      device = c("cpu", "mps", "cuda")) {
-  backend <- match.arg(backend)
   device  <- match.arg(device)
-  if (backend == "torch") {
-    if (!requireNamespace("torch", quietly = TRUE))
-      stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
+  backend <- .resolve_backend(
+    backend, fn = "dm_fit",
+    r_note = paste0("backend = 'r' is a reference sampler whose draws are ",
+                    "over-dispersed and spatially incoherent (not calibrated ",
+                    "to the field's spatial statistics); use backend = 'torch' ",
+                    "(the default when libtorch is present) for coherent ",
+                    "samples."))
+  if (backend == "torch")
     return(.torch_ddpm_fit(stack, conditioning, T, epochs, hidden,
                               lr, seed, device))
-  }
   if (!is.array(stack) || length(dim(stack)) != 3L) {
     .stopf("`stack` must be a 3-D array (n_patches, H, W), got %s of dim %s.",
             class(stack)[1L],

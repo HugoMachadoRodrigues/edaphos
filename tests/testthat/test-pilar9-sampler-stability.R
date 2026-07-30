@@ -68,7 +68,7 @@ test_that("the unclipped schedule would have produced a singular final step", {
 
 test_that("dm_sample stays on the scale of the training data", {
   stack <- .mk_field_patches()
-  fit   <- dm_fit(stack, T = 100L, epochs = 150L, hidden = 32L,
+  fit   <- dm_fit(stack, backend = "r", T = 100L, epochs = 150L, hidden = 32L,
                   lr = 0.02, seed = 1L)
   s <- dm_sample(fit, n_samples = 12L, seed = 7L)
 
@@ -87,7 +87,7 @@ test_that("dm_sample does not blow up as the number of steps grows", {
   stack <- .mk_field_patches()
 
   scale_at <- function(Tt) {
-    fit <- dm_fit(stack, T = Tt, epochs = 120L, hidden = 32L,
+    fit <- dm_fit(stack, backend = "r", T = Tt, epochs = 120L, hidden = 32L,
                   lr = 0.02, seed = 1L)
     mean(apply(dm_sample(fit, n_samples = 8L, seed = 7L), 1L, stats::sd))
   }
@@ -103,7 +103,7 @@ test_that("dm_sample does not blow up as the number of steps grows", {
 
 test_that("dm_sample respects the x_0 clip bound", {
   stack <- .mk_field_patches()
-  fit   <- dm_fit(stack, T = 100L, epochs = 100L, hidden = 32L,
+  fit   <- dm_fit(stack, backend = "r", T = 100L, epochs = 100L, hidden = 32L,
                   lr = 0.02, seed = 1L)
   s <- dm_sample(fit, n_samples = 20L, seed = 5L)
 
