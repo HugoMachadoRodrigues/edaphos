@@ -86,7 +86,8 @@ test_that("the ten-pillar claim is consistent across DESCRIPTION and docs", {
 
   desc <- paste(readLines(file.path(root, "DESCRIPTION"), warn = FALSE),
                 collapse = " ")
-  expect_match(desc, "ten research pillars")
+  # "ten pillars" or "ten research pillars" -- both assert ten, not six.
+  expect_match(desc, "ten (research )?pillars")
 
   # No shipped documentation may still advertise six as a *current*
   # claim.  Changelog rows describing what a past release contained are
