@@ -4,6 +4,18 @@
 # init, analytic gradient only on the linear head) with full
 # backprop through every attention layer.
 #
+# v2.7.x port: the first autograd version trained a plain linear head
+# end-to-end with no input skip and no early stopping, and overfit badly
+# on the small transductive graphs this package targets -- NSE ~ -0.40
+# (worse than the mean) on held-out Cerrado nodes. It now carries the two
+# mechanisms the R backend already had: a READOUT SKIP (raw node features
+# concatenated to the head input, so a node keeps direct access to its own
+# covariates past the neighbourhood averaging) and BEST-VALIDATION early
+# stopping (a held-out fifth of the training nodes selects the iterate,
+# instead of training loss, which returns the most overfit model). With
+# both, the torch GAT reaches NSE ~ 0.52 -- competitive with the R backend
+# and OLS, though not beating them.
+#
 # Vectorisation
 # -------------
 # For a graph with `n` nodes, `E` edges and a hidden width `d`, the
@@ -76,7 +88,7 @@
 # ---------------------------------------------------------------------------
 
 .torch_gat_module <- function(d_in, hidden, n_heads, n_layers,
-                                 d_out = 1L) {
+                                 d_out = 1L, readout_skip = TRUE) {
   torch::nn_module(
     "edaphos_gat",
     initialize = function() {
@@ -89,17 +101,32 @@
         curr <- if (concat_l) hidden * n_heads else hidden
       }
       self$layers <- torch::nn_module_list(layers)
-      self$head   <- torch::nn_linear(curr, d_out)
+      self$emb_dim <- curr
+      self$readout_skip <- readout_skip
+      # Readout skip: hand the raw node features to the head alongside the
+      # aggregated embedding. Every GAT layer averages over a neighbourhood,
+      # smoothing each node's covariates towards its local mean; without a path
+      # from the input to the readout the aggregated-only model scored below a
+      # plain OLS. Concatenating the input makes the linear model a special case
+      # of the GAT rather than a competitor to it -- the same fix the R backend
+      # carries -- and is what lifts the torch GAT off its previous NSE < 0.
+      self$head <- torch::nn_linear(curr + if (readout_skip) d_in else 0L, d_out)
       self$n_layers <- n_layers
     },
-    forward = function(h, edge_index, edge_weight) {
+    # returns the GAT embedding (before the skip concat), for gnn_embed()
+    encode = function(h, edge_index, edge_weight) {
       for (l in seq_len(self$n_layers)) {
         h <- self$layers[[l]](h, edge_index, edge_weight)
-        if (l < self$n_layers) {
+        if (l < self$n_layers)
           h <- torch::nnf_leaky_relu(h, negative_slope = 0.2)
-        }
       }
-      self$head(h)$squeeze(2L)
+      h
+    },
+    forward = function(h, edge_index, edge_weight) {
+      h0 <- h
+      z  <- self$encode(h, edge_index, edge_weight)
+      if (self$readout_skip) z <- torch::torch_cat(list(z, h0), dim = 2L)
+      self$head(z)$squeeze(2L)
     }
   )()
 }
@@ -110,7 +137,8 @@
 
 .torch_gnn_fit <- function(graph, targets, hidden, n_heads,
                               n_layers, epochs, lr, seed, device_pref,
-                              train_mask = NULL) {
+                              train_mask = NULL, readout_skip = TRUE,
+                              val_frac = 0.2) {
   # See gnn_fit(): the graph spans train and test nodes, but the loss is
   # restricted to nodes whose target is observed.
   if (is.null(train_mask)) train_mask <- !is.na(targets)
@@ -146,36 +174,59 @@
                                       device = dev)
   y_t <- torch::torch_tensor(y_z, dtype = torch::torch_float(),
                                 device = dev)
-  tr_idx <- torch::torch_tensor(which(train_mask), dtype = torch::torch_long(),
-                                   device = dev)
+  # Internal validation split for early stopping. A multi-head GAT reaches
+  # near-zero TRAINING loss on these node counts while test error rises, so
+  # selecting by training loss returns the most overfitted iterate -- which is
+  # how the torch GAT previously scored below the mean. Hold out a fifth of the
+  # training nodes, score every epoch on them, and keep the best-validation
+  # parameters. The caller's held-out nodes are never touched.
+  tr_all  <- which(train_mask)
+  n_val   <- if (length(tr_all) >= 10L)
+               max(1L, floor(val_frac * length(tr_all))) else 0L
+  val_idx <- if (n_val > 0L) sort(sample(tr_all, n_val)) else integer(0)
+  fit_idx <- setdiff(tr_all, val_idx)
+  fit_t <- torch::torch_tensor(fit_idx, dtype = torch::torch_long(), device = dev)
+  val_t <- if (length(val_idx))
+             torch::torch_tensor(val_idx, dtype = torch::torch_long(),
+                                 device = dev) else NULL
 
-  mod <- .torch_gat_module(d_in, hidden, n_heads, n_layers)
+  mod <- .torch_gat_module(d_in, hidden, n_heads, n_layers,
+                             readout_skip = readout_skip)
   mod$to(device = dev)
-  opt <- torch::optim_adam(mod$parameters, lr = lr,
-                              weight_decay = 1e-4)
-  history <- numeric(epochs)
-  for (ep in seq_len(epochs)) {
-    opt$zero_grad()
-    pred <- mod(h_t, edge_idx_t, edge_w_t)
-    loss <- torch::nnf_mse_loss(pred[tr_idx], y_t[tr_idx])
-    loss$backward()
-    opt$step()
-    history[ep] <- as.numeric(loss$detach()$to(device = "cpu"))
-    if (is.finite(history[ep]) && history[ep] < 1e-6) break
-  }
+  opt <- torch::optim_adam(mod$parameters, lr = lr, weight_decay = 1e-4)
 
-  # Final node embeddings (last GAT layer output, before head)
-  # We run through all but the head to get (n, emb_dim)
+  history <- numeric(epochs); val_history <- rep(NA_real_, epochs)
+  best <- list(loss = Inf, epoch = NA_integer_, state = NULL)
+  patience <- max(20L, ceiling(epochs / 5)); since_improve <- 0L
+  clone_state <- function() lapply(mod$state_dict(), function(t) t$detach()$clone())
+
+  ep_run <- 0L
+  for (ep in seq_len(epochs)) {
+    ep_run <- ep
+    mod$train(); opt$zero_grad()
+    loss <- torch::nnf_mse_loss(mod(h_t, edge_idx_t, edge_w_t)[fit_t], y_t[fit_t])
+    loss$backward(); opt$step()
+    history[ep] <- as.numeric(loss$detach()$to(device = "cpu"))
+    vloss <- if (!is.null(val_t)) {
+      mod$eval()
+      as.numeric(torch::with_no_grad(
+        torch::nnf_mse_loss(mod(h_t, edge_idx_t, edge_w_t)[val_t],
+                            y_t[val_t]))$to(device = "cpu"))
+    } else history[ep]
+    val_history[ep] <- vloss
+    if (is.finite(vloss) && vloss < best$loss - 1e-8) {
+      best <- list(loss = vloss, epoch = ep, state = clone_state())
+      since_improve <- 0L
+    } else since_improve <- since_improve + 1L
+    if (since_improve >= patience) break
+    if (is.finite(history[ep]) && history[ep] < 1e-8) break
+  }
+  if (!is.null(best$state)) mod$load_state_dict(best$state)
+
+  # Node embeddings = GAT encoder output (before the skip concat and head),
+  # matching gnn_embed() semantics.
   mod$eval()
-  emb_t <- torch::with_no_grad({
-    e <- h_t
-    for (l in seq_len(mod$n_layers)) {
-      e <- mod$layers[[l]](e, edge_idx_t, edge_w_t)
-      if (l < mod$n_layers)
-        e <- torch::nnf_leaky_relu(e, negative_slope = 0.2)
-    }
-    e
-  })
+  emb_t <- torch::with_no_grad(mod$encode(h_t, edge_idx_t, edge_w_t))
   emb_mat <- as.matrix(as.array(emb_t$detach()$to(device = "cpu")))
 
   structure(list(
@@ -185,8 +236,11 @@
     emb = emb_mat,
     y_mu = y_mu, y_sigma = y_sigma,
     train_mask = train_mask, n_train = sum(train_mask),
+    n_val = length(val_idx), readout_skip = readout_skip,
     hidden = hidden, n_heads = n_heads, n_layers = n_layers,
     emb_dim = ncol(emb_mat),
-    history = history[history > 0 | is.na(history)]
+    best_epoch = best$epoch,
+    history = history[seq_len(ep_run)],
+    val_history = val_history[seq_len(ep_run)]
   ), class = "edaphos_gnn_gat")
 }

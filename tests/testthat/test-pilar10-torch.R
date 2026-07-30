@@ -67,3 +67,28 @@ test_that("torch GAT handles multi-head concatenation correctly", {
   emb <- gnn_embed(fit)
   expect_equal(ncol(emb), 4L)  # hidden only (mean-pool final head)
 })
+
+test_that("ported torch GAT (skip + early stopping) beats the mean on held-out nodes", {
+  .skip_if_no_torch()
+  # Regression guard for the v2.7.x port. Before it, the torch GAT trained a
+  # linear head end-to-end with no input skip and no validation early stopping,
+  # and scored NSE ~ -0.40 (worse than predicting the mean) on held-out Cerrado
+  # nodes. readout_skip + best-validation selection lift it to a positive,
+  # competitive NSE. This does NOT claim the GAT beats OLS -- it does not (see
+  # the README): the bar here is only that torch is no longer broken.
+  # (.skip_if_no_torch already skips on CRAN, where libtorch is absent.)
+  set.seed(11)
+  dat <- .mk_torch_network(n = 120L, seed = 11L)
+  g <- gnn_build_graph(dat, k = 6L, feature_cols = c("x1", "x2", "x3"))
+  test <- sample(nrow(dat), 24L)
+  tm <- rep(TRUE, nrow(dat)); tm[test] <- FALSE
+  targ <- dat$y; targ[test] <- NA
+  fit <- gnn_fit(g, targ, train_mask = tm, backend = "torch", device = "cpu",
+                 hidden = 8L, n_heads = 4L, epochs = 150L, lr = 5e-3, seed = 11L)
+  pred <- predict(fit)[test]
+  nse <- 1 - sum((dat$y[test] - pred)^2) / sum((dat$y[test] - mean(dat$y[test]))^2)
+  expect_true(is.finite(nse))
+  expect_gt(nse, 0)                      # was ~ -0.40 before the port
+  expect_true(isTRUE(fit$readout_skip))
+  expect_true(!is.null(fit$best_epoch))
+})

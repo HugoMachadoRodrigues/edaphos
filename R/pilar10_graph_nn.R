@@ -551,7 +551,8 @@ gnn_fit <- function(graph, targets, train_mask = NULL,
       stop("Install `torch` to use backend = 'torch'.", call. = FALSE)
     return(.torch_gnn_fit(graph, targets, hidden, n_heads, n_layers,
                              epochs, lr, seed, device,
-                             train_mask = train_mask))
+                             train_mask = train_mask,
+                             readout_skip = readout_skip, val_frac = val_frac))
   }
   stopifnot(inherits(graph, "edaphos_gnn_graph"),
              length(targets) == graph$n,

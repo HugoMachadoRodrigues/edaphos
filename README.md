@@ -280,6 +280,15 @@ versus "does a tuned GAT beat a tuned forest". Runner:
 `data-raw/pilar10_gat_tuning.R`; bundle
 `inst/extdata/pilar10_gat_tuning.rds`.
 
+**The torch backend, fixed.** An earlier `backend = "torch"` GAT trained a
+linear head end-to-end with no input skip and no early stopping, and scored
+NSE ≈ **−0.40** — worse than predicting the mean — on held-out Cerrado nodes.
+Porting the R backend's readout skip and best-validation selection into it
+lifts it to NSE ≈ **0.52** across four 20 %-held-out splits (OLS 0.55, R-GAT
+0.54 on the same splits): competitive, not superior. The default backend stays
+`"r"` — marginally better here and dependency-free — while `"torch"` is now a
+correct, non-degenerate alternative rather than a broken one.
+
 **Earlier releases published a different table** — RMSE ≈ 14.1 g/kg and
 R² of 0.034 / 0.064 / 0.070 for P4 / P5 / P7, described as a three-way
 tie. Those figures came from the raw g/kg scale, where 11 profiles (1 %
