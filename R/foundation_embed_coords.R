@@ -205,6 +205,16 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
   means    <- dataset$means
   sds      <- dataset$sds
   enc      <- moco$encoder_q
+  # The encoder may have been trained on "mps"/"cuda", leaving its weights on
+  # that device, while the patch tensors below are built on the CPU. Running a
+  # CPU input through GPU-resident weights throws a device mismatch (surfacing
+  # on macOS as "Mismatched Tensor types in NNPack convolutionOutput"). Embedding
+  # is a one-shot forward pass, so move the encoder to the CPU for it and put it
+  # in eval mode; the returned embeddings are already `$cpu()` below.
+  if (inherits(enc, "nn_module")) {
+    enc <- enc$to(device = torch::torch_device("cpu"))
+    enc$eval()
+  }
 
   # Convert (lon, lat) -> (row, col) centres in the raster
   xy <- as.matrix(coords[, c("lon", "lat")])
