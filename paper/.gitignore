@@ -5,3 +5,7 @@ manuscript_files/
 *.bbl
 *.blg
 *.spl
+*.nav
+*.snm
+*.toc
+*.vrb

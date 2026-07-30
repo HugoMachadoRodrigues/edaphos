@@ -1,0 +1,140 @@
+---
+title: "Frontier methods for digital soil mapping, evaluated honestly"
+subtitle: "A reproducible benchmark on real WoSIS Cerrado profiles"
+author: "Hugo Rodrigues"
+date: ""
+output:
+  beamer_presentation:
+    theme: default
+    colortheme: dove
+    fonttheme: default
+    slide_level: 2
+    latex_engine: pdflatex
+    incremental: false
+header-includes:
+  - \setbeamertemplate{navigation symbols}{}
+  - \setbeamertemplate{frametitle}[default][left]
+  - \setbeamercolor{structure}{fg=black}
+  - \setbeamerfont{title}{series=\bfseries}
+  - \setbeamerfont{frametitle}{series=\bfseries}
+  - \providecommand{\pandocbounded}[1]{#1}
+---
+
+## The problem
+
+- Digital soil mapping now has many "frontier" methods: causal inference,
+  deep learning, graph networks, quantum kernels.
+
+- They are rarely compared under one protocol, and their predictions are
+  rarely reported with calibrated uncertainty.
+
+- So a simple question usually goes unanswered: is any of them actually better
+  than a random forest?
+
+## A conceptual worry: causality
+
+- Variable importance in a predictive model is routinely read as evidence that
+  a covariate *causes* the soil property.
+
+- Zhang and Wadoux (2026) argue causal inference in DSM needs conditions that
+  observational soil data rarely meet.
+
+- Tempting shortcut: can a learned representation act as an instrument and
+  rescue causal identification? We test it directly.
+
+## edaphos
+
+- One R framework, ten method families.
+
+- Every method returns the same object -- a posterior.
+
+- One calibration scorer for all of them: CRPS, interval coverage, width.
+
+- That common currency is what makes a like-for-like comparison possible.
+
+## The test
+
+- 1095 real WoSIS topsoil organic-carbon profiles, Brazilian Cerrado.
+
+- Covariates from WorldClim, SoilGrids, Copernicus tree cover.
+
+- Spatially blocked cross-validation, matched ensemble budgets.
+
+- Scored against the achievable null: each fold's training-fold mean.
+
+## Result 1 -- the benchmark
+
+\centering
+
+| Method                    | RMSE  | R^2    |
+|:--------------------------|:-----:|:------:|
+| OLS (DAG covariates)      | 0.583 | 0.067  |
+| Random forest             | 0.589 | 0.051  |
+| Bayesian spatial          | 0.597 | 0.041  |
+| Foundation + forest       | 0.613 | -0.003 |
+| Graph attention           | 0.621 | -0.080 |
+| Quantum kernel            | 0.663 | -0.184 |
+
+\raggedright
+\vspace{1em}
+
+Lower RMSE better; R^2 above 0 beats the null.
+
+## Result 1 -- what it says
+
+- A plain OLS on DAG-selected covariates is the most accurate and
+  best-calibrated method.
+
+- The three deep or exotic methods fall *below* the achievable null.
+
+- The quantum kernel is the least accurate, and about 300 times slower.
+
+- Elaboration did not pay, here.
+
+## Result 2 -- causal associations
+
+- Backdoor adjustment returns *associations with sensitivity bounds*, not
+  identified causal effects.
+
+- Precipitation and clay: robust and significant (robustness value 0.16-0.18).
+
+- Tree cover: naive 2.86, adjusted 0.35 once climate is controlled for.
+
+- The raw tree-cover "effect" was mostly shared climatic confounding.
+
+## Result 3 -- a negative IV result
+
+- We trained a real foundation-model encoder and used its embedding as an
+  instrument for precipitation.
+
+- The instruments are very strong: first-stage F about 4630.
+
+- But they fail the validity test: Sargan p about 3e-13.
+
+- A representation that captures everything cannot satisfy the exclusion
+  restriction. It is the wrong tool.
+
+## What it means
+
+- Not "deep learning cannot work" -- the sample and signal are small, and a
+  linear model on good covariates is hard to beat at this scale.
+
+- A matched, calibration-aware protocol *shows* this; an accuracy-only,
+  single-method report hides it.
+
+- Backdoor adjustment is useful, but honest about what it returns.
+
+- The learned-representation shortcut to identification is exactly wrong.
+
+## Conclusion
+
+- The contribution is not a new best predictor.
+
+- It is a reproducible apparatus for asking *which* method helps -- and the
+  discipline to say plainly when none does.
+
+- Every number in this talk is regenerated from the bundled data.
+
+\vspace{1.5em}
+\centering
+github.com/HugoMachadoRodrigues/edaphos
