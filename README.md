@@ -669,20 +669,38 @@ Pillar 1 is not just an in-memory toy:
   `mmhc`) with whitelist / blacklist of pedological priors + bootstrap
   edge strengths.
 
-### Real-data results: 1095 Cerrado profiles
+### Real-data results: 3 077 Cerrado profiles
 
-Running the adjusted + naive comparison on **1 095 real WoSIS Cerrado
-topsoil profiles** (v1.4.0) with a block-bootstrap over k-means
-clusters:
+We estimate backdoor-**adjusted associations** — not identified causal
+effects — on **3 077 real WoSIS topsoil profiles** over the Cerrado,
+with covariates drawn from WorldClim 2.1, SoilGrids and Copernicus tree
+cover (all fetched from public endpoints; see
+`data-raw/causal_cerrado_real_rebuild.R`). Following
+[Zhang & Wadoux (2026)][zhang2026], we do not claim causal sufficiency;
+instead each effect carries a Cinelli–Hazlett **robustness value (RV)**:
+the share of residual variance an unobserved confounder would need to
+explain in *both* exposure and outcome to drive the estimate to zero.
+Confidence intervals are a block bootstrap (B = 500) over 20 k-means
+spatial clusters. Every figure below is reproduced from the shipped
+`causal_cerrado_real_v2.rds` and pinned by `test-causal-real-bundle.R`.
 
-| Exposure | Naive β (g/kg per unit) | Adjusted β (g/kg per unit) | Confounding factor | Backdoor adjustment set                         |
-|:---|---:|---:|---:|:---|
-| MAP (mm/a)            | 0.013 | **0.009** | 1.5× | slope, T2M, land-cover fractions |
-| Tree cover (%)        | 0.42  | **0.31**  | 1.4× | MAP, T2M                        |
-| Clay (%)              | 0.38  | **0.25**  | 1.5× | slope, bulk density, sand        |
+| Exposure | Naive β | Adjusted β | 95% CI | Significant? | RV |
+|:---|---:|---:|:---:|:---:|---:|
+| MAP (g/kg per mm)        | 0.0082 | **0.0097** | [0.0028, 0.0186] | yes | 0.16 |
+| MAT (g/kg per °C)        | −0.467 | **−0.824** | [−1.37, 0.22]    | no  | 0.08 |
+| Tree cover (g/kg per 0–1)| 2.86   | **0.35**   | [−3.31, 2.94]    | no  | 0.01 |
+| Clay (g/kg per %)        | 0.446  | **0.449**  | [0.29, 0.64]     | yes | 0.18 |
 
-Every effect is accompanied by an `edaphos_posterior` with a
-block-bootstrap sample (B = 500) or a native BART posterior — so
+Two effects survive as robust, mechanistically coherent associations:
+**precipitation** and **clay content** both raise topsoil carbon, and
+each would need a confounder explaining ~16–18 % of residual variance to
+overturn. The temperature effect has the expected (decomposition) sign
+but is not distinguishable from zero. The **tree-cover** row is the
+confounding demonstration: its naive association (2.86) all but
+disappears once climate is adjusted for (0.35, CI spanning zero, RV
+0.01) — the raw signal was mostly shared climatic ancestry, exactly the
+pattern [Zhang & Wadoux (2026)][zhang2026] warn is misread as causal.
+Each effect is returned as an `edaphos_posterior`, so
 `uncertainty_calibrate()` applies uniformly (see
 [§9](#unified-uncertainty-api-v160)).
 
@@ -871,11 +889,11 @@ iv_fit <- edaphos::causal_iv_from_embeddings(
 )
 iv_fit
 #> <edaphos_causal_iv>
-#>   map -> soc  (estimator: 2SLS, n = 1095)
+#>   map -> soc  (estimator: 2SLS, n = 3020)
 #>   instruments : PC_1, PC_2, PC_3, PC_4, PC_5
-#>   effect      : 0.0081  (se = 0.0027, 95% CI [0.0028, 0.0134])
-#>   stage-1 F   : 20014 (p < 2e-16)  partial R^2 = 0.948
-#>   Sargan J    : chi2(4) = 49.4, p = 4.7e-10
+#>   effect      : 0.0079  (OLS was 0.0063)
+#>   stage-1 F   : 4630   (instruments very relevant)
+#>   Sargan J    : chi2(4) = 84.4, p < 1e-16
 ```
 
 **Synthetic DGP validation (known truth β = 1.5):**
@@ -886,13 +904,20 @@ iv_fit
 | **2SLS (IV)** | **1.46** | **[1.39, 1.53]** |
 | True | 1.50 | — |
 
-**Honest finding on 1 095 real Cerrado profiles.** With proxy
-embeddings (engineered features as a stand-in for MoCo v2, which is
-still training), Stage-1 F ≈ 20 000 (instruments very relevant) but
-**Sargan p < 10⁻⁹** — the framework correctly flags that the proxy
-features **don't satisfy exclusion**. This isn't a bug; it's the
-framework doing its job, and it demonstrates why we need the real
-MoCo v2 encoder (v1.9.1) rather than engineered proxies.
+The synthetic check confirms the estimator recovers a known truth when
+its assumptions hold. The real-data result is a **negative** one, and
+that is the point. The MoCo v2 encoder here is real — 7 channels, 12 000
+tiles, 3 000 epochs on-device (Metal), InfoNCE 7.2 → 5.2 — not a proxy.
+Its embedding PCs are *extremely* relevant instruments (stage-1
+F ≈ 4 600), yet they decisively **fail the Sargan over-identification
+test** (χ²(4) = 84.4, p < 10⁻¹⁵). A learned landscape representation
+does not manufacture a valid instrument: it encodes climate, terrain,
+soil and vegetation together, so it reaches SOC through many paths and
+violates the exclusion restriction. This is the empirical face of
+[Zhang & Wadoux (2026)][zhang2026]'s argument that causal sufficiency —
+and, here, instrument validity — is seldom achievable in DSM from
+observational data. IV does not rescue identification; the honest report
+is the failed test, not a headline effect.
 
 📖 Vignette: `vignette("pilar1-pilar4-iv")`.
 
