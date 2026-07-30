@@ -235,6 +235,12 @@ no_fno_fit <- function(depths, targets, covariates,
                          backend = c("auto", "r", "torch"),
                          device = c("cpu", "mps", "cuda")) {
   device  <- match.arg(device)
+  # Backend-independent input validation (before the dispatch, so a torch call
+  # gives the same error as an R call).
+  stopifnot(is.numeric(depths),
+             is.matrix(targets),
+             ncol(targets) == length(depths),
+             length(depths) >= 4L)
   backend <- .resolve_backend(
     backend, fn = "no_fno_fit",
     r_note = paste0("backend = 'r' is a frozen-spectral random-feature ",
@@ -245,10 +251,6 @@ no_fno_fit <- function(depths, targets, covariates,
     return(.torch_fno_fit(depths, targets, covariates,
                             n_modes, width, n_blocks,
                             epochs, lr, seed, device))
-  stopifnot(is.numeric(depths),
-             is.matrix(targets),
-             ncol(targets) == length(depths),
-             length(depths) >= 4L)
   if (is.matrix(covariates)) {
     # Broadcast to n_obs x n_depths x 1
     covariates <- array(covariates,
@@ -623,16 +625,8 @@ no_deeponet_fit <- function(depths, targets, covariates,
                               backend = c("auto", "r", "torch"),
                               device = c("cpu", "mps", "cuda")) {
   device  <- match.arg(device)
-  backend <- .resolve_backend(
-    backend, fn = "no_deeponet_fit",
-    r_note = paste0("backend = 'r' freezes the branch/trunk hidden layers and ",
-                    "trains a random-feature readout; use backend = 'torch' ",
-                    "(the default when libtorch is present) to train the full ",
-                    "DeepONet."))
-  if (backend == "torch")
-    return(.torch_deeponet_fit(depths, targets, covariates,
-                                   branch_hidden, trunk_hidden,
-                                   output_dim, epochs, lr, seed, device))
+  # Backend-independent input validation (before the dispatch, so a torch call
+  # gives the same helpful error as an R call).
   .assert_type(is.numeric(depths), "depths", "numeric",
                   class(depths)[1L])
   .assert_type(is.matrix(targets), "targets", "a matrix",
@@ -651,6 +645,16 @@ no_deeponet_fit <- function(depths, targets, covariates,
             nrow(covariates), nrow(targets),
             hint = "Each row of both must describe the same observation.")
   }
+  backend <- .resolve_backend(
+    backend, fn = "no_deeponet_fit",
+    r_note = paste0("backend = 'r' freezes the branch/trunk hidden layers and ",
+                    "trains a random-feature readout; use backend = 'torch' ",
+                    "(the default when libtorch is present) to train the full ",
+                    "DeepONet."))
+  if (backend == "torch")
+    return(.torch_deeponet_fit(depths, targets, covariates,
+                                   branch_hidden, trunk_hidden,
+                                   output_dim, epochs, lr, seed, device))
   if (!is.null(seed)) set.seed(seed)
   n_obs    <- nrow(targets)
   n_depths <- length(depths)

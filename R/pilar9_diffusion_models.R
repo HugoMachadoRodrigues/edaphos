@@ -274,16 +274,10 @@ dm_fit <- function(stack, conditioning = NULL,
                      backend = c("auto", "r", "torch"),
                      device = c("cpu", "mps", "cuda")) {
   device  <- match.arg(device)
-  backend <- .resolve_backend(
-    backend, fn = "dm_fit",
-    r_note = paste0("backend = 'r' is a reference sampler whose draws are ",
-                    "over-dispersed and spatially incoherent (not calibrated ",
-                    "to the field's spatial statistics); use backend = 'torch' ",
-                    "(the default when libtorch is present) for coherent ",
-                    "samples."))
-  if (backend == "torch")
-    return(.torch_ddpm_fit(stack, conditioning, T, epochs, hidden,
-                              lr, seed, device))
+  # Input validation is backend-independent: a bad `stack`/`conditioning` must
+  # raise the same helpful error whether the torch or R path runs. (The torch
+  # dispatch used to sit before these checks, so backend = 'torch'/'auto'
+  # skipped them and surfaced a cryptic tensor error instead.)
   if (!is.array(stack) || length(dim(stack)) != 3L) {
     .stopf("`stack` must be a 3-D array (n_patches, H, W), got %s of dim %s.",
             class(stack)[1L],
@@ -303,11 +297,19 @@ dm_fit <- function(stack, conditioning = NULL,
               n_patches, nrow(conditioning),
               hint = "The order of `conditioning` rows must match the first dim of `stack`.")
     }
-    cond_dim <- ncol(conditioning)
-  } else {
-    conditioning <- matrix(0, n_patches, 0L)
-    cond_dim <- 0L
   }
+  backend <- .resolve_backend(
+    backend, fn = "dm_fit",
+    r_note = paste0("backend = 'r' is a reference sampler whose draws are ",
+                    "over-dispersed and spatially incoherent (not calibrated ",
+                    "to the field's spatial statistics); use backend = 'torch' ",
+                    "(the default when libtorch is present) for coherent ",
+                    "samples."))
+  if (backend == "torch")
+    return(.torch_ddpm_fit(stack, conditioning, T, epochs, hidden,
+                              lr, seed, device))
+  cond_dim <- if (!is.null(conditioning)) ncol(conditioning) else 0L
+  if (is.null(conditioning)) conditioning <- matrix(0, n_patches, 0L)
   if (!is.null(seed)) set.seed(seed)
 
   sched <- dm_cosine_schedule(T = T)
