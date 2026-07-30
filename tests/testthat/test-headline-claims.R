@@ -368,7 +368,20 @@ test_that("no shipped source claims a version that was never released", {
     sub("^v", "", system2("git", c("-C", shQuote(repo), "tag", "-l"),
                            stdout = TRUE)),
     error = function(e) character())
-  known <- unique(c(declared, tagged, "0.0.0"))
+  # NEWS was collapsed to a single 0.9.0 development entry (the 43+ intra-sprint
+  # version-numbered sections were withdrawn as they were labels, not releases).
+  # Source comments still annotate the development iteration a change belongs to
+  # ("v2.7.0 upgrade"); those labels DID exist as NEWS sections, so mine the git
+  # history of NEWS.md for every "# edaphos X.Y.Z" ever declared. A genuine
+  # phantom -- a version that was never a section nor a tag anywhere in history
+  # -- is still caught.
+  news_hist <- tryCatch(
+    system2("git", c("-C", shQuote(repo), "log", "-p", "--", "NEWS.md"),
+            stdout = TRUE, stderr = FALSE),
+    error = function(e) character())
+  declared_hist <- sub("\\s.*$", "", sub("^[+]?# edaphos ", "",
+                    grep("^[+]?# edaphos [0-9]", news_hist, value = TRUE)))
+  known <- unique(c(declared, declared_hist, tagged, "0.0.0"))
 
   src <- c(Sys.glob(file.path(repo, "R", "*.R")),
            Sys.glob(file.path(repo, "man", "*.Rd")))
