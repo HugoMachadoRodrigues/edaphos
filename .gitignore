@@ -64,3 +64,6 @@ pkgdown/
 tools/zenodo_release/
 tools/zenodo_release.zip
 figure/
+
+# R CMD check build directory
+*.Rcheck/
