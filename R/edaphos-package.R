@@ -1,4 +1,4 @@
-#' edaphos: Disruptive Algorithms for Digital Soil Mapping
+#' edaphos: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods
 #'
 #' From Greek \eqn{\epsilon\delta\alpha\phi o\varsigma} — "soil, ground."
 #'

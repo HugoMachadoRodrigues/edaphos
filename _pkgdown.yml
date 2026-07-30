@@ -31,7 +31,7 @@ template:
   opengraph:
     image:
       src: man/figures/logo.png
-      alt: "edaphos — Disruptive algorithms for Digital Soil Mapping"
+      alt: "edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"
     twitter:
       creator: "@Hugo_MRodrigues"
       card: summary_large_image

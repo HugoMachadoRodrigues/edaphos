@@ -4,7 +4,7 @@
 \name{edaphos-package}
 \alias{edaphos}
 \alias{edaphos-package}
-\title{edaphos: Disruptive Algorithms for Digital Soil Mapping}
+\title{edaphos: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods}
 \description{
 \code{edaphos} is a research-oriented R package that implements frontier
 algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
@@ -248,11 +248,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Hugo Rodrigues \email{rodrigues.machado.hugo@gmail.com} (\href{https://orcid.org/0000-0002-8070-8126}{ORCID})
+\strong{Maintainer}: Hugo Rodrigues \email{rodrigues.machado.hugo@gmail.com} (\href{https://orcid.org/0000-0002-8070-8126}{ORCID}) [copyright holder]
 
 Authors:
 \itemize{
-  \item Hugo Rodrigues \email{rodrigues.machado.hugo@gmail.com} (\href{https://orcid.org/0000-0002-8070-8126}{ORCID})
+  \item Hugo Rodrigues \email{rodrigues.machado.hugo@gmail.com} (\href{https://orcid.org/0000-0002-8070-8126}{ORCID}) [copyright holder]
 }
 
 }

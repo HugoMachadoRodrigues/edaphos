@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "edaphos: Disruptive Algorithms for Digital Soil Mapping"
+title: "edaphos: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"
 abstract: >-
   edaphos is a research-oriented R package implementing frontier
   algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
@@ -116,7 +116,7 @@ abstract: >-
   new pillars (Bayesian hierarchical, Neural operators, Diffusion
   models, Graph Neural Networks).
 type: software
-version: "4.1.0"
+version: "0.9.0"
 date-released: "2026-07-27"
 license: MIT
 doi: "10.5281/zenodo.19683708"
@@ -158,14 +158,14 @@ keywords:
   - "R package"
 preferred-citation:
   type: software
-  title: "edaphos: Disruptive Algorithms for Digital Soil Mapping"
+  title: "edaphos: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"
   authors:
     - family-names: "Rodrigues"
       given-names: "Hugo"
       email: "rodrigues.machado.hugo@gmail.com"
       orcid: "https://orcid.org/0000-0002-8070-8126"
   year: 2026
-  version: "4.1.0"
+  version: "0.9.0"
   doi: "10.5281/zenodo.19683708"
   url: "https://github.com/HugoMachadoRodrigues/edaphos"
 references:

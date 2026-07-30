@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-4.1.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases)
+[![Version](https://img.shields.io/badge/version-0.9.0--dev-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases)
 [![Pillars](https://img.shields.io/badge/pillars-10%2F10%20shipped-success)](#the-ten-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-18-9cf)](#vignettes)
 [![Tests](https://img.shields.io/badge/tests-1578%20pass-brightgreen)](#testing-and-continuous-integration)
@@ -2022,22 +2022,21 @@ bibliography (`vignettes/references.bib`).
 
 ## Citation
 
-Every release is archived on Zenodo with a permanent DOI. The
-**concept DOI** below resolves to the latest version and is the
-citation to use in publications:
+This package is a development version and has not been released. To cite
+the current development version:
 
-> Rodrigues, H. (2026). *edaphos: Disruptive Algorithms for Digital
-> Soil Mapping* (Version 2.8.0) [Software]. Zenodo.
-> <https://doi.org/10.5281/zenodo.19683708>
+> Rodrigues, H. (2026). *edaphos: Digital Soil Mapping with Causal,
+> Physics-Informed and Generative Methods* (version 0.9.0, development)
+> [Software]. <https://github.com/HugoMachadoRodrigues/edaphos>
 
 ```bibtex
 @software{Rodrigues_edaphos_2026,
   author    = {Rodrigues, Hugo},
-  title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},
+  title     = {edaphos: Digital Soil Mapping with Causal, Physics-Informed
+               and Generative Methods},
   year      = {2026},
-  version   = {2.8.0},
-  publisher = {Zenodo},
-  doi       = {10.5281/zenodo.19683708},
+  version   = {0.9.0},
+  note      = {Development version; not yet released},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
 }
 ```

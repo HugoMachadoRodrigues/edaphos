@@ -1,31 +1,32 @@
 Package: edaphos
-Title: Disruptive Algorithms for Digital Soil Mapping
-Version: 4.1.0
+Title: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods
+Version: 0.9.0
 Authors@R:
     person("Hugo", "Rodrigues", , "rodrigues.machado.hugo@gmail.com",
-           role = c("aut", "cre"),
+           role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-8070-8126"))
-Description: Frontier algorithms for Digital Soil Mapping organised
-    around ten research pillars: Causal AI with backdoor-adjusted
-    effect estimation on pedogenetic Directed Acyclic Graphs and
-    LLM-driven Knowledge Graphs; Physics-Informed Machine Learning
-    via a parametric pedogenetic Ordinary Differential Equation and
-    a differentiable Neural ODE; 4D Pedometry with stacked
-    Convolutional Long Short-Term Memory networks plus an Ensemble
-    Kalman Filter for sequential assimilation; Foundation Models
-    via SimCLR / MoCo contrastive pre-training on raster patches;
-    Active Learning with hybrid uncertainty + diversity batch
-    policies and physics-informed gates; Quantum Machine Learning
-    via a pure-R ZZFeatureMap state-vector simulator and quantum
-    kernel ridge regression; Bayesian Hierarchical Spatial models
-    with a profile-MLE Gibbs sampler (RcppArmadillo backend); Neural
-    Operators (DeepONet and Fourier Neural Operator) over depth
-    function space; Diffusion Models (DDPM) for soil-property maps;
-    and Graph Attention Networks on k-NN co-location graphs of
-    profiles. Six v3.0.0 cross-pillar bridges and a unified
-    edaphos_posterior calibration class let every method be scored
-    with the same diagnostics. A synthesised Cerrado dataset is
-    bundled so every vignette runs offline.
+Description: Digital soil mapping methods beyond regression trees,
+    organised as ten pillars: causal inference with backdoor
+    adjustment on pedogenetic directed acyclic graphs, instrumental
+    variables and sensitivity analysis (Cinelli and Hazlett, 2020,
+    <doi:10.1111/rssb.12348>); physics-informed learning with a
+    pedogenetic ordinary differential equation and a differentiable
+    neural ordinary differential equation; four-dimensional pedometry
+    with stacked convolutional long short-term memory networks and an
+    ensemble Kalman filter; foundation models via 'SimCLR' and 'MoCo'
+    contrastive pre-training on raster patches; active learning with
+    hybrid uncertainty and diversity policies; quantum machine
+    learning with a state-vector feature-map simulator and quantum
+    kernel ridge regression; Bayesian hierarchical spatial models with
+    a Gibbs sampler ('RcppArmadillo' backend); neural operators
+    ('DeepONet' and the Fourier neural operator) over depth-function
+    space; denoising diffusion probabilistic models for soil-property
+    maps; and graph attention networks (Velickovic and others, 2018,
+    <doi:10.48550/arXiv.1710.10903>). A shared calibration class scores
+    every method with the same uncertainty diagnostics. A synthesised
+    Cerrado dataset is bundled so vignettes run offline. See McBratney,
+    Mendonca Santos and Minasny (2003, <doi:10.1016/S0016-7061(03)00223-4>)
+    for the digital soil mapping framework.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US

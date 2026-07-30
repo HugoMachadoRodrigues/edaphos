@@ -23,7 +23,7 @@ devtools::load_all(".")
 edaphos_zenodo_release(
   output_dir = "tools/zenodo_release",
   title = sprintf(
-    "edaphos %s — Disruptive algorithms for Digital Soil Mapping",
+    "edaphos %s — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods",
     utils::packageVersion("edaphos")
   ),
   include_tarball = TRUE,   # requires devtools
