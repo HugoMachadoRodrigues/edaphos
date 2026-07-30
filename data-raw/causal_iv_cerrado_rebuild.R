@@ -76,7 +76,8 @@ sens <- do.call(rbind, lapply(c(3L, 5L, 7L, 10L), function(K) {
   fit  <- causal_iv_fit_2sls(ivdf, "map", "soc", instruments = paste0("PC", 1:K), covariates = covs)
   fs   <- causal_iv_first_stage(ivdf, "map", instruments = paste0("PC", 1:K), covariates = covs)
   sar  <- causal_iv_sargan_test(ivdf, "map", "soc", instruments = paste0("PC", 1:K), covariates = covs)
-  data.frame(n_pcs = K, beta_iv = g(fit, "effect", "estimate"), se = g(fit, "se"),
+  b <- g(fit, "effect", "estimate"); s <- g(fit, "se"); z <- stats::qnorm(0.975)
+  data.frame(n_pcs = K, beta_iv = b, se = s, ci_lo = b - z * s, ci_hi = b + z * s,
              stage1_F = g(fs, "F", "stage1_F"), sargan_p = g(sar, "p"))
 }))
 
