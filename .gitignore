@@ -67,3 +67,4 @@ figure/
 
 # R CMD check build directory
 *.Rcheck/
+.positai

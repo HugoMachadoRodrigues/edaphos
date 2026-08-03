@@ -29,3 +29,6 @@
 ^\.git$
 ^figure$
 ^paper$
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.positai$
