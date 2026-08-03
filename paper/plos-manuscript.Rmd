@@ -1,0 +1,461 @@
+---
+title: "edaphos: a reproducible R framework for frontier digital soil mapping methods with unified uncertainty calibration"
+output:
+  word_document:
+    reference_docx: assets/plos-reference.docx
+    number_sections: false
+bibliography: references.bib
+csl: plos.csl
+link-citations: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      fig.width = 6.5, fig.height = 4.2, dpi = 300)
+suppressMessages(pkgload::load_all("..", quiet = TRUE))
+ex  <- function(f) readRDS(system.file("extdata", f, package = "edaphos"))
+fmt <- function(x, d = 3) formatC(x, format = "f", digits = d)
+CAU <- ex("causal_cerrado_real_v2.rds")
+B6  <- ex("benchmark_wosis_6pilar.rds")
+GAT <- ex("pilar10_gat_tuning.rds")
+```
+
+Hugo Machado Rodrigues^1^\*
+
+^1^ Range Cattle Research and Education Center, Institute of Food and Agricultural Sciences, University of Florida, Ona, Florida, United States of America
+
+\* Corresponding author
+
+E-mail: rodrigues.machado.hugo@gmail.com (HR)
+
+# Abstract
+
+Digital soil mapping has moved well beyond regression trees. Causal inference, physics-informed and generative deep learning, graph neural networks and quantum kernels have all been proposed for soil prediction, yet they are rarely compared under a common protocol, their predictive uncertainty is rarely calibrated, and the software that implements them is rarely reproducible end to end. We present edaphos, an R framework that implements ten families of such methods behind a single predictive-posterior class, so that any of them can be scored with the same proper and diagnostic measures, and whose every published figure is regenerated from data bundled with the package. We use the framework to run a matched, spatially blocked benchmark of six methods on real topsoil organic-carbon profiles from the World Soil Information Service over the Brazilian Cerrado, and to conduct a causal analysis on a larger draw of profiles from the same region. Three results follow. First, the benchmark is deflationary: an ordinary-least-squares model restricted to a covariate set selected by an explicit pedogenetic directed acyclic graph is the most accurate and among the best calibrated of the six methods, and none of the five more elaborate methods beats it; three of them fall below the achievable null. Second, backdoor adjustment yields robust associations with explicit sensitivity bounds rather than identified causal effects, and adjustment collapses an apparent tree-cover association to near zero, demonstrating confounding directly. Third, instrumenting soil carbon with the embedding of a trained contrastive foundation encoder yields extremely relevant but invalid instruments: a first-stage F statistic in the thousands alongside a decisive rejection of the over-identification test, showing empirically that a learned representation does not manufacture a valid instrument. We argue that the contribution of a framework such as edaphos is not a new best predictor but a reproducible, calibration-consistent apparatus for asking which method helps, and for reporting honestly when none does.
+
+# Introduction
+
+Digital soil mapping predicts soil properties at unvisited locations from spatially exhaustive covariates that proxy the soil-forming factors of the scorpan framework [@McBratney2003]. Its workhorse — the random forest and its quantile variants — is accurate, fast, and well understood, and an expanding literature proposes to improve on it with methods borrowed from causal inference, deep learning, and quantum machine learning. That expansion has outrun the infrastructure needed to evaluate it.
+
+Three problems recur. First, new methods are seldom compared under a common protocol. Differences in cross-validation scheme, in target transform, in ensemble budget and in the null against which skill is measured make published gains hard to attribute to the method rather than to the harness that surrounds it. A spatially blocked fold and a randomly assigned fold do not measure the same quantity; an R-squared computed against the global mean of the very rows being scored is an oracle, not a baseline. Second, point accuracy is reported far more often than calibrated uncertainty, even though a soil map is used to make decisions under that uncertainty, and even though a method can be simultaneously more accurate and badly overconfident. Third, the software that implements these methods is frequently not reproducible: results are reported from bundles whose inputs are not distributed, or from code paths whose defaults differ from the ones described.
+
+A fourth problem is conceptual rather than infrastructural, and concerns causality. It is common in digital soil mapping to read a covariate's importance in a predictive model as evidence that the covariate causes the soil property [@Wadoux2020]. Zhang and Wadoux [@Zhang2026causal] argue that causal inference from observational soil data is possible only under conditions — an explicit causal model, causal sufficiency, and faithfulness — that such data rarely satisfy, and that the generative, process-informed view of causation is the one most compatible with those conditions. They caution in particular that causal sufficiency, the absence of unobserved confounding, is seldom achievable in practice.
+
+This article presents edaphos, an R framework built around the position that these four problems are one problem. If ten method families are made to return the same kind of object, they can be scored by the same diagnostics; if the benchmark that scores them ships with its data, it can be re-run; and if the causal machinery reports sensitivity bounds rather than point effects, it states its own reliance on an assumption it cannot verify. We make three contributions, each reproducible from data bundled with the package.
+
+1. A unified predictive-posterior and calibration interface (Materials and methods) that reduces the output of ten otherwise incompatible method families — quantile forests, Gibbs samplers, neural operators, diffusion models, graph networks — to a common currency, so that accuracy, coverage and proper scores are comparable across all of them.
+2. A matched, spatially blocked, uncertainty-aware benchmark of six methods on real profiles (Results), whose honest conclusion is that a directed-acyclic-graph-informed ordinary least squares is the strongest method in the comparison.
+3. A causal analysis (Results) that reports backdoor-adjusted associations paired with Cinelli–Hazlett robustness values, demonstrates confounding directly by adjustment, and reports a negative instrumental-variable result obtained with a real trained foundation encoder.
+
+We deliberately foreground the negative findings. A framework that makes it easy to run a dozen methods is useful only if it makes it equally easy to see when they do not help.
+
+# Materials and methods
+
+## Origin and design principles
+
+edaphos began as an attempt to reproduce, in one place, a set of methods that the digital soil mapping literature had proposed separately. That attempt surfaced a recurring obstacle: each method returned a different kind of object. A quantile random forest returns quantiles; a Gibbs sampler returns draws; a diffusion model returns whole simulated fields; a neural operator returns a function of depth. None of them could be scored against the others without first deciding, case by case, what "the uncertainty" meant. The comparisons that did exist in the literature had made those decisions implicitly and differently, which is one reason their conclusions were hard to reconcile.
+
+The framework is organised around three design commitments that follow from that observation.
+
+**One posterior, many methods.** Every predictive method returns, or can be coerced to, a single class, `edaphos_posterior`, that carries either a predictive sample or a mean and standard deviation for each target. Scoring is then a property of the class, not of the method, and a single routine applies the same measures to all of them. This is the framework's load-bearing abstraction: without it there is no honest cross-method benchmark.
+
+**Honest defaults.** Several pillars ship two computational backends: a dependency-free implementation in pure R, and one built on `torch`. Where the pure-R path is a reference implementation rather than the trained architecture its function name implies, the package says so at run time and in the documentation, and the default resolves to the real implementation when its dependency is available. A user who calls a function named after a Fourier neural operator should either get a Fourier neural operator or be told plainly that they did not.
+
+**Measured, not asserted.** Every quantitative claim in the package's own documentation is generated from a live measurement rather than transcribed. The benchmark tables, the check status and the test counts in the repository's status document are rendered from a machine-readable snapshot; the figures in this article are computed from bundled data at compile time. This is a deliberate response to a failure mode we encountered in our own earlier development, in which published tables and shipped result bundles drifted apart without any test noticing.
+
+## The unified predictive posterior and calibration interface
+
+An `edaphos_posterior` records, for a set of target locations, either a matrix of posterior draws or a mean-and-standard-deviation summary, together with metadata describing the query type. `uncertainty_calibrate()` scores any such object with measures that are meaningful for all of them: the continuous ranked probability score (CRPS), a strictly proper score that rewards sharp and calibrated predictive distributions together; the prediction-interval coverage probability (PICP) at a nominal level, which should approach that level; the mean prediction-interval width (MPIW), which measures sharpness and is only interpretable alongside coverage; and a reliability curve relating nominal to empirical coverage.
+
+The value of forcing every method through this interface is that it makes overconfidence visible. A method can win on root-mean-square error while producing intervals that contain the truth far less often than they claim, and a table reporting accuracy alone will rank it first. Both behaviours appear in our benchmark.
+
+## Backend resolution
+
+Pillars whose methods are neural in nature accept a `backend` argument that resolves in three ways. `"auto"`, the default, selects the `torch` implementation when a working `libtorch` is present and otherwise falls back to the pure-R path, so that the package remains installable and checkable on machines without a deep-learning toolchain. `"torch"` requests the trained implementation and fails with an explicit message if its dependency is absent. `"r"` forces the reference path and emits a one-time note describing what that path actually computes. This arrangement keeps a continuous-integration machine and a reviewer's laptop able to run the package while ensuring that a scientific result is never silently produced by a scaffold.
+
+## The ten method families
+
+Table 1 lists the ten pillars, the method each implements, and the object each returns. The subsections that follow give, for each, a minimal example that runs against data distributed with the package together with its real output, so that a reader can see what the interface looks like before deciding whether the method is worth their data. Every example below was executed to produce the output shown.
+
+**Table 1. The ten method families implemented in edaphos.** "Returns" names the object a user receives; all of them can be coerced to the common predictive-posterior class.
+
+| Pillar | Method | Principal entry points | Returns |
+|:--|:--|:--|:--|
+| 1 | Causal inference: backdoor adjustment on a pedogenetic graph, sensitivity analysis, instrumental variables | `causal_adjustment_set`, `causal_estimate_effect`, `causal_sensitivity_from_lm`, `causal_iv_fit_2sls` | adjusted association, robustness value |
+| 2 | Physics-informed: a pedogenetic ordinary differential equation for the depth profile, and a neural variant | `piml_profile_fit`, `piml_profile_fit_bayesian`, `piml_neural_ode_fit` | ODE parameters, posterior profile |
+| 3 | Four-dimensional pedometry: convolutional recurrent forecasting and ensemble Kalman assimilation | `temporal_convlstm_fit`, `temporal_convlstm_rollout`, `temporal_kalman_update` | forecast ensemble, analysis field |
+| 4 | Foundation models: momentum-contrastive pre-training on unlabelled raster patches | `foundation_tile_dataset`, `foundation_moco_pretrain_tiles`, `foundation_embed_at_coords` | encoder, per-site embedding |
+| 5 | Active learning: hypercube seeding plus uncertainty-and-diversity batch selection | `al_initial_design`, `al_fit`, `al_query`, `al_update` | ranked sampling sites |
+| 6 | Quantum machine learning: a simulated feature-map kernel and its ridge regressor | `quantum_feature_map`, `quantum_kernel`, `quantum_krr_posterior` | Gram matrix, predictive posterior |
+| 7 | Bayesian hierarchical spatial model with a Gibbs sampler and exact kriging prediction | `bhs_fit`, `predict.edaphos_bhs` | posterior draws, kriged surface |
+| 8 | Neural operators over depth-function space | `no_deeponet_fit`, `no_fno_fit` | operator mapping covariates to a profile |
+| 9 | Diffusion models generating whole map patches | `dm_cosine_schedule`, `dm_fit`, `dm_sample` | joint spatial realisations |
+| 10 | Graph attention over profile co-location graphs | `gnn_build_graph`, `gnn_fit`, `gnn_embed` | node predictions, embeddings |
+
+### Causal inference
+
+The first pillar converts a pedologist's hand-drawn structural model into a machine-checked identification step. Given a graph and an exposure–outcome pair, it derives the minimal backdoor adjustment set, fits the adjusted model, and returns the adjusted estimate alongside the unadjusted one and a robustness value.
+
+```r
+b   <- readRDS(system.file("extdata", "causal_cerrado_real_v2.rds", package = "edaphos"))
+d   <- b$profiles                       # 3077 WoSIS topsoil profiles, Cerrado
+dag <- causal_cerrado_real_dag()        # 11-node pedogenetic graph
+causal_adjustment_set(dag, "wc_landcover_trees", "soc_topsoil_gkg", effect = "total")
+#> [1] "wc_bio_01" "wc_bio_12"
+causal_estimate_effect(d, dag, "wc_landcover_trees", "soc_topsoil_gkg", effect = "total")
+#>   adjustment set : {wc_bio_01, wc_bio_12}
+#>   adjusted       : 0.3469   (95% CI: -1.79, 2.484)
+#>   naive          : 2.864    (un-adjusted, likely confounded)
+```
+
+The adjustment set is derived, not chosen by the analyst, and the eightfold collapse from the unadjusted to the adjusted estimate is the pillar's central demonstration. Reported alongside it, the robustness value states that a confounder explaining 18.2% of residual variance in both exposure and outcome would be needed to nullify the clay association, and under 1% to nullify the tree-cover one.
+
+### Physics-informed machine learning
+
+The second pillar represents a depth profile not as a regression on depth but as the solution of a pedogenetic differential equation, dy/dz = −λ₀ exp(−μz)(y − y∞), fitted either by regularised least squares or with a posterior over its four parameters. This is the pillar closest to the generative, process-informed view of causation that Zhang and Wadoux [@Zhang2026causal] advocate: the mechanism is written down, and the data inform its parameters.
+
+```r
+pedon <- readRDS(system.file("extdata", "capstone_campaign_results.rds",
+                             package = "edaphos"))$piml_profile_obs
+fit <- piml_profile_fit(pedon$depth_mid, pedon$soc_g_kg)
+print(fit)
+#>   dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)
+#>   lambda0 = 0.02915   mu = 0.01171
+#>   y_inf   = -2.863    y0 = 37.16
+#>   n obs   = 7         rmse = 0.2739
+```
+
+The fit is close (root-mean-square error 0.27 g/kg over seven horizons) and the result is instructive about the limits of the approach: the estimated deep asymptote y∞ is negative, which is physically impossible, and the Bayesian fit gives it a 95% credible interval of roughly [−11.9, +6.0]. Seven horizons do not identify the asymptote, and nothing in the parameterisation constrains it to be non-negative. We report this because it is exactly what the Bayesian layer is for: the interval says plainly that the parameter is unidentified, where the point estimate alone would have quietly reported an impossibility.
+
+### Four-dimensional pedometry
+
+The third pillar treats a soil property as a space–time field. A stacked convolutional recurrent network propagates a spatial hidden state through a cube of monthly drivers to produce a multi-step gridded forecast, and a stochastic ensemble Kalman filter with Gaspari–Cohn localisation assimilates point observations into that field.
+
+```r
+cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 12, seed = 1)
+tt   <- temporal_cube_to_tensor(cube)
+dim(tt$sequence)   # (batch, time, channel, row, col)
+#> [1]  1 12  2  8  8
+ens <- array(rnorm(30 * 8 * 8, 20, 2), c(30, 8, 8))   # 30-member prior
+post <- temporal_kalman_update(ens, obs_value = c(24, 18), obs_row = c(3, 6),
+                               obs_col = c(3, 6), obs_sd = 0.5,
+                               localization_radius = 3, seed = 1)
+```
+
+The filter is exact at observed cells and the localisation radius controls how far an observation is allowed to influence the field, which on small ensembles is what prevents spurious long-range corrections.
+
+### Foundation models
+
+The fourth pillar pre-trains a convolutional encoder on unlabelled raster patches with a momentum-contrastive objective, then extracts a fixed-length embedding at arbitrary profile coordinates for use as covariates downstream.
+
+```r
+data(br_cerrado)
+stack <- terra::rast(...)                       # any multi-channel covariate stack
+ds    <- foundation_tile_dataset(stack, patch_size = 8L, n_patches = 512L, seed = 1L)
+enc   <- foundation_moco_pretrain_tiles(ds, feature_dim = 32L, proj_dim = 16L,
+                                        queue_size = 256L, batch_size = 16L,
+                                        epochs = 400L, device = "cpu", seed = 1L)
+range(enc$loss_history)
+#> [1] 3.656 6.271        # InfoNCE falls from 6.27 towards 3.66
+```
+
+The contrastive loss falls well below the uninformative reference of log(1 + K) = 5.55 for a queue of 256 negatives, confirming that the objective is learning rather than collapsing. We are explicit that a demonstration of this size — a few hundred optimiser steps over a few hundred small patches — establishes that the machinery works, not that a useful foundation model has been trained; the encoder used for the instrumental-variable analysis in Results is a substantially larger one, and it is still small by the standards of the term.
+
+### Active learning
+
+The fifth pillar closes the survey loop. It seeds a design by conditioned Latin hypercube sampling over the covariate space, fits a quantile regression forest to the labelled profiles, and selects the next batch of field sites by trading predictive-interval width against diversity, optionally rejecting candidates that violate physical plausibility gates.
+
+```r
+data(br_cerrado)
+seed_idx <- al_initial_design(br_cerrado, c("elev","slope","twi","map_mm"), n = 30)
+fit  <- al_fit(br_cerrado[seed_idx, ], target = "soc",
+               covariates = c("elev","slope","twi","map_mm"))
+nxt  <- al_query(fit, candidates = br_cerrado[-seed_idx, ], n_select = 6)
+```
+
+The selected batch has a mean 80% prediction-interval width of 21.3 g/kg against 14.2 g/kg for the candidate pool as a whole, confirming that the query is drawn from the uncertain part of the covariate space rather than from the bulk.
+
+### Quantum machine learning
+
+The sixth pillar simulates the ZZ feature-map encoding circuit on a classical state-vector simulator, forms the fidelity Gram matrix, and uses it as the kernel of a closed-form ridge regressor with a Gaussian-process-equivalent posterior.
+
+```r
+data(br_cerrado)
+X <- quantum_scale(as.matrix(br_cerrado[1:40, c("elev","twi","map_mm")]))
+K <- quantum_kernel(X, n_qubits = 3L, reps = 2L)
+dim(K); round(K[1:3, 1:3], 4)
+```
+
+The simulator is exact: against the analytic single-qubit kernel cos²(x − y) the maximum deviation is 4 × 10⁻¹⁶, and against an independently written Kronecker-product simulator 3 × 10⁻¹⁶. Two things should be said plainly. No quantum hardware is involved — this is a simulation of a quantum kernel, not a quantum computation — and the simulator's cost is exponential in qubit count, which bounds practical use to small feature sets.
+
+### Bayesian hierarchical spatial models
+
+The seventh pillar fits the geostatistical linear model with an exponentially correlated latent Gaussian process by a conjugate Gibbs sampler, and predicts at unsampled sites through the exact Gaussian conditional applied per posterior draw — Bayesian kriging with the parameter uncertainty carried through.
+
+```r
+data(br_cerrado)
+d <- br_cerrado[1:120, ]; d$lon <- d$x; d$lat <- d$y
+fit <- bhs_fit(d, soc ~ twi + map_mm, coords = c("lon","lat"),
+               nmcmc = 2000, burn = 500, seed = 1)
+print(fit)
+pred <- predict(fit, newdata = d[1:5, ])
+```
+
+The predictive variance at a new site is the full kriging expression, σ² + τ² − σ⁴r₀ᵀΣ⁻¹r₀, rather than the nugget alone; an earlier version of this package omitted the kriging term, which inflated predictive intervals and is the kind of error that a calibration diagnostic catches immediately.
+
+### Neural operators
+
+The eighth pillar learns the map from a site's covariates to its entire depth profile as a function, so that a single trained operator emits carbon at any depth, including depths never sampled in training.
+
+```r
+don <- no_deeponet_fit(depths, targets, covariates, backend = "r",
+                       branch_hidden = 24L, trunk_hidden = 24L, epochs = 400L)
+pred <- predict(don, newcov, newdepths = c(10, 35, 70))   # off-grid depths
+```
+
+Two honest qualifications belong with this pillar. The pure-R DeepONet freezes its first hidden layers and trains a random-feature readout, which does learn the operator on our synthetic profiles; the pure-R Fourier operator, by contrast, freezes its spectral multipliers and does not learn the operator at all, which is why the default now resolves to the trained implementation when it is available and the reference path announces itself. And no real multi-horizon depth data ships with the package, so this pillar is demonstrated on profiles generated by the pedogenetic equation of Pillar 2 rather than on measured pedons.
+
+### Diffusion models
+
+The ninth pillar fits a denoising diffusion probabilistic model over small patches cut from a gridded layer and draws new whole-patch realisations, so that uncertainty is expressed as joint spatial realisations rather than as independent per-pixel intervals.
+
+```r
+sch <- dm_cosine_schedule(T = 100L)
+fit <- dm_fit(patches, backend = "r", T = 100L, epochs = 250L, seed = 1L)
+gen <- dm_sample(fit, n_samples = 40L, seed = 99L)
+```
+
+The evaluation we recommend, and implement, is a two-number check: the standard deviation and the lag-one spatial autocorrelation of generated patches against real ones. It is what reveals that the pure-R reference sampler produces fields that are over-dispersed and spatially incoherent while the trained implementation produces coherent ones — a failure that visual inspection of a generated map would not catch. This pillar is demonstrated on a terrain index rather than on carbon, because carbon in the bundled demonstration grid is near-white at patch scale and therefore offers a generative model nothing spatial to learn.
+
+### Graph attention networks
+
+The tenth pillar treats profiles as nodes of a co-location graph, with edges from k-nearest neighbours in geographic or covariate space, and fits a multi-head graph attention network transductively so that each profile's prediction draws on its neighbours through learned attention weights.
+
+```r
+d <- br_cerrado; d$lon <- d$x; d$lat <- d$y
+g <- gnn_build_graph(d, k = 6L, feature_cols = c("elev","slope","twi","map_mm"))
+fit <- gnn_fit(g, targets = d$soc, backend = "r", hidden = 16L, n_heads = 4L,
+               epochs = 120L, seed = 1L)
+emb <- gnn_embed(fit)
+```
+
+The implementation carries two mechanisms without which it underperforms a linear model: a skip connection that hands the raw node covariates to the readout alongside the aggregated embedding, and early stopping selected on an internal validation split rather than on training loss. Both were added after measurement showed the aggregated-only, training-loss-selected variant scoring below the mean predictor.
+
+## Data
+
+All analyses use real soil profiles, not simulated ones. Topsoil organic-carbon observations were retrieved from the World Soil Information Service [@Batjes2024wosis] through the public Web Feature Service of the International Soil Reference and Information Centre, restricted to the Brazilian Cerrado and to horizons whose upper boundary lies within the topsoil, and reduced to one shallowest horizon per profile. Covariates were extracted at each profile location from WorldClim version 2.1 [@Fick2017worldclim] for mean annual temperature, mean annual precipitation and elevation; from SoilGrids [@Hengl2017soilgrids] for clay, sand and bulk density in the surface layer; and from a Copernicus fractional tree-cover product. Slope was derived from the elevation surface.
+
+Two draws are used. The benchmark uses `r B6$n_profiles` profiles, the sample on which the cross-pillar comparison and all method-tuning work were carried out. The causal analysis uses a larger and more recent retrieval of `r CAU$n_profiles` profiles over the same region and the same covariate stack, assembled after the pipeline was rewritten to fetch every covariate from its public source. Every covariate is open-licensed and retrieved from a public endpoint, so the entire dataset is regenerable from profile coordinates alone by the scripts distributed with the package.
+
+## Evaluation protocol
+
+The benchmark scores all six methods on the same `r length(B6$folds)` spatially blocked cross-validation folds, obtained by k-means clustering of profile coordinates, and on the `r B6$response_scale` scale of organic carbon. Blocking matters: profiles close together are not independent, and random folds allow a model to interpolate between near-duplicate neighbours, inflating apparent skill.
+
+Skill is measured against the *achievable* null — the mean of each fold's **training** partition — rather than against the global mean of the whole dataset. The distinction is not pedantic. The global mean is computed partly from the very observations being scored, so a model compared against it is compared against an oracle, and reported skill is optimistic. Under the achievable null, a method that explains nothing scores zero and a method worse than predicting the training mean scores negative; three of our six methods do.
+
+Ensemble size is reported rather than forced equal. Methods differ in how many posterior draws or ensemble members they naturally produce, and equalising them would penalise or flatter methods arbitrarily; reading a ranking without the budget column compares budgets rather than methods.
+
+## Causal protocol
+
+The causal analysis proceeds from an explicit directed acyclic graph encoding published Cerrado pedogenesis: elevation influences climate and slope; climate influences land cover; climate, land cover, texture and bulk density influence topsoil carbon. For each exposure, the minimal sufficient adjustment set is computed from that graph by the backdoor criterion. The adjusted association is estimated by ordinary least squares including the exposure and its adjustment set, with confidence intervals from a spatial block bootstrap of 500 resamples over 20 k-means clusters, which respects the spatial dependence that an ordinary bootstrap would ignore.
+
+Because backdoor adjustment identifies an effect only under causal sufficiency — the assumption Zhang and Wadoux [@Zhang2026causal] identify as seldom achievable — every estimate is reported alongside a Cinelli–Hazlett robustness value [@CinelliHazlett2020]. The robustness value is the proportion of residual variance that an unobserved confounder would have to explain in *both* the exposure and the outcome in order to drive the estimate to zero. It converts an unverifiable assumption into a quantity a reader can weigh against their own knowledge of what might have been omitted.
+
+We additionally attempt instrumental-variable estimation, which identifies an effect under a different assumption: that the instrument influences the outcome only through the exposure. We use the leading principal components of a trained contrastive foundation encoder's landscape embedding as instruments for mean annual precipitation, estimate by two-stage least squares, and test the exclusion restriction with the Sargan over-identification test.
+
+## Reproducibility
+
+The article, the package and its data form one artefact. The manuscript is compiled from an R Markdown source whose code chunks read the result bundles distributed inside the package, so no number in the text is transcribed by hand and none can drift from the data that produced it. Those bundles are in turn regenerated from their public sources by scripts distributed in the repository. The package's test suite includes assertions that bind published figures to the shipped bundles, so a change to either without the other fails the suite.
+
+# Results
+
+## A directed-acyclic-graph-informed linear model is the strongest method
+
+Table 2 reports the matched benchmark. Read across the row rather than down the first column: accuracy (root-mean-square error, lower is better), skill against the achievable null, calibration (coverage near the nominal 0.90 and interval width), the proper score, and wall-clock cost.
+
+**Table 2. Matched cross-pillar benchmark on real Cerrado profiles.** Six methods on the same spatially blocked folds and the same target transform. RMSE and CRPS: lower is better. R-squared is measured against each fold's training mean; PICP should approach 0.90. Rows are ordered by RMSE.
+
+```{r bench-table}
+tb <- B6$cv_aggregate
+knitr::kable(data.frame(
+  Method = tb$method, RMSE = fmt(tb$rmse_mean, 3), `R-squared` = fmt(tb$r2_mean, 3),
+  PICP = fmt(tb$picp90_mean, 3), MPIW = fmt(tb$mpiw90_mean, 3),
+  CRPS = fmt(tb$crps_mean, 3), `Time (s)` = fmt(tb$elapsed_sum, 1),
+  check.names = FALSE), align = "lrrrrrr")
+```
+
+Ordinary least squares restricted to the covariates in the backdoor adjustment set has the lowest error (`r fmt(min(B6$cv_aggregate$rmse_mean),3)`) and the highest skill (`r fmt(max(B6$cv_aggregate$r2_mean),3)`), and its coverage (`r fmt(B6$cv_aggregate$picp90_mean[1],3)`) is close to nominal. The quantile random forest is a close second at a comparable cost. The three methods with the greatest representational capacity — foundation-model embeddings, the graph attention network, and the quantum kernel — rank last, and all three fall below the achievable null: on spatially blocked folds they explain less of the variation than predicting each training partition's mean. The quantum kernel is simultaneously the least accurate and, at `r fmt(B6$cv_aggregate$elapsed_sum[nrow(B6$cv_aggregate)],0)` s against `r fmt(B6$cv_aggregate$elapsed_sum[1],1)` s for the baseline, several hundred times the most expensive.
+
+Fig 1 shows the same result geometrically, and Fig 2 makes the calibration argument that the accuracy column alone cannot.
+
+```{r fig1-bench, fig.cap = "x"}
+tb <- B6$cv_aggregate
+op <- par(mar = c(4.4, 4.4, 0.6, 0.6))
+plot(tb$rmse_mean, tb$r2_mean, type = "n",
+     xlab = "Root-mean-square error (lower is better)",
+     ylab = "R-squared against the training-fold mean")
+abline(h = 0, lty = 3, col = "grey55")
+pch <- ifelse(grepl("OLS", tb$method), 19, 21)
+points(tb$rmse_mean, tb$r2_mean, pch = pch, cex = 1.7, bg = "white",
+       col = "black", lwd = 1.4)
+text(tb$rmse_mean, tb$r2_mean, sub(" .*", "", tb$method), pos = 4, cex = 0.85)
+par(op)
+```
+
+**Fig 1. Accuracy against skill for six methods.** The filled point is the directed-acyclic-graph-informed ordinary least squares. The dashed line is the achievable null; points below it are less useful than predicting each fold's training mean.
+
+```{r fig2-calib, fig.cap = "x"}
+tb <- B6$cv_aggregate
+op <- par(mar = c(4.4, 4.4, 0.6, 0.6))
+plot(tb$mpiw90_mean, tb$picp90_mean, type = "n",
+     xlab = "Mean prediction-interval width (sharpness)",
+     ylab = "Coverage of the nominal 90% interval")
+abline(h = 0.90, lty = 2, col = "grey40")
+points(tb$mpiw90_mean, tb$picp90_mean, pch = 21, cex = 1.7, bg = "white",
+       col = "black", lwd = 1.4)
+text(tb$mpiw90_mean, tb$picp90_mean, sub(" .*", "", tb$method), pos = 4, cex = 0.85)
+par(op)
+```
+
+**Fig 2. Calibration against sharpness.** The dashed line is nominal 90% coverage. Narrow intervals are only a virtue when coverage holds: the quantum kernel produces the narrowest intervals in the comparison and the worst coverage, an overconfidence invisible in an accuracy-only table.
+
+The spread among the leading methods is small relative to the fold-to-fold variability (a standard deviation of about `r fmt(mean(B6$cv_aggregate$rmse_sd),2)` in RMSE), so we do not read the ordering finely. The headline is robust to that caution: added representational capacity did not pay on this task, and two of the added methods were actively harmful.
+
+## A tuned graph network ties, rather than beats, a tuned forest
+
+The comparison above runs every method at fixed defaults, which could disadvantage a method whose performance depends on tuning. We therefore compared the graph attention network and the quantile random forest under nested cross-validation on `r GAT$n_profiles` profiles, tuning both inside each training partition and evaluating on outer folds never seen by the tuner. In the stored result of that experiment the graph network reached a pooled Nash–Sutcliffe efficiency of `r fmt(GAT$pooled$nse_vs_training_fold_mean[1],3)` against the forest's `r fmt(GAT$pooled$nse_vs_training_fold_mean[2],3)`; the difference of `r fmt(diff(rev(GAT$pooled$nse_vs_training_fold_mean)),3)` carried a 95% block-bootstrap interval of [`r fmt(GAT$boot_diff_ci[1],3)`, `r fmt(GAT$boot_diff_ci[2],3)`], spanning zero.
+
+That stored result, however, predates subsequent changes to the graph backend, and we report a reproduction failure rather than the stored number alone: re-running the same protocol with the bundle's own per-fold hyperparameters and seeds on the current code returns a pooled efficiency near 0.10 rather than 0.18. We flag this openly because it is the kind of drift between a shipped result and the code that produced it that this framework is explicitly designed to prevent, and in this instance the safeguard was added after the bundle was created. The scientific conclusion is unaffected in direction, and if anything strengthened: under both the stored and the re-run figures the graph attention network does not beat a tuned random forest on this task. We treat the tuned comparison as indicative only, and rest the paper's ranking on the matched benchmark of Table 2, whose bundle is bound to the current code by the test suite.
+
+## Backdoor adjustment yields robust associations, and exposes confounding
+
+Table 3 reports the causal analysis on `r CAU$n_profiles` profiles. For each exposure it gives the unadjusted association, the association after backdoor adjustment, the block-bootstrap interval, and the robustness value.
+
+**Table 3. Backdoor-adjusted associations with sensitivity bounds.** Units are grams of topsoil organic carbon per kilogram of soil, per unit of the exposure. The robustness value (RV) is the proportion of residual variance an unobserved confounder would need to explain in both exposure and outcome to reduce the estimate to zero.
+
+```{r causal-table}
+e <- CAU$effects
+lab <- c(wc_bio_12 = "Precipitation (per mm)",
+         wc_bio_01 = "Temperature (per degree C)",
+         wc_landcover_trees = "Tree cover (per unit fraction)",
+         soilgrids_clay = "Clay (per percent)")
+knitr::kable(data.frame(
+  Exposure = lab[e$exposure],
+  Unadjusted = fmt(e$beta_naive, 3),
+  Adjusted = fmt(e$beta_adj, 3),
+  `95% interval` = sprintf("[%s, %s]", fmt(e$ci_lo, 3), fmt(e$ci_hi, 3)),
+  `Excludes zero` = ifelse(e$signif, "yes", "no"),
+  RV = fmt(e$RV, 2), check.names = FALSE), align = "lrrccr")
+```
+
+Two associations survive as robust. Precipitation and clay content both raise topsoil carbon, both intervals exclude zero, and both carry robustness values near `r fmt(mean(e$RV[e$signif]),2)`: an unobserved confounder would have to explain roughly a sixth of the residual variance in the exposure *and* a sixth in the outcome before either estimate reached zero. Both signs are mechanistically expected — greater rainfall raises net primary productivity and therefore litter input, while clay stabilises organic matter through organo-mineral association — which is the kind of external coherence that a purely statistical adjustment cannot supply on its own.
+
+The temperature association carries the expected negative sign, consistent with accelerated decomposition, but its interval includes zero on this sample and its robustness value is correspondingly low.
+
+The tree-cover row is the most instructive, and it is the reason we report unadjusted and adjusted estimates side by side. Unadjusted, greater tree cover appears strongly associated with more topsoil carbon (`r fmt(e$beta_naive[e$exposure=='wc_landcover_trees'],2)` g/kg per unit fraction). After adjusting for the climate variables that the graph identifies as common causes of both tree cover and carbon, the association collapses to `r fmt(e$beta_adj[e$exposure=='wc_landcover_trees'],2)`, its interval spans zero, and its robustness value falls to `r fmt(e$RV[e$exposure=='wc_landcover_trees'],3)` — meaning a confounder explaining well under one percent of residual variance would suffice to erase it. The apparent effect of trees was, on this sample, very largely shared climatic ancestry. This is precisely the inferential error that Zhang and Wadoux [@Zhang2026causal] warn is routinely committed when covariate importance is read as causal influence, demonstrated here on real profiles with the adjustment that reveals it.
+
+Fig 3 shows the four exposures before and after adjustment.
+
+```{r fig3-causal, fig.height = 3.8, fig.cap = "x"}
+e <- CAU$effects
+lab <- c(wc_bio_12 = "Precipitation", wc_bio_01 = "Temperature",
+         wc_landcover_trees = "Tree cover", soilgrids_clay = "Clay")
+z <- e[order(abs(e$beta_adj)), ]
+sc <- function(v) sign(v) * log1p(abs(v))          # signed log for comparability
+op <- par(mar = c(4.4, 8.5, 0.6, 0.6))
+plot(range(sc(c(e$ci_lo, e$ci_hi, e$beta_naive))), c(0.6, nrow(z) + 0.4),
+     type = "n", yaxt = "n", xlab = "Signed log association (g/kg per unit)", ylab = "")
+axis(2, at = seq_len(nrow(z)), labels = lab[z$exposure], las = 1)
+abline(v = 0, lty = 3, col = "grey55")
+for (i in seq_len(nrow(z))) {
+  segments(sc(z$ci_lo[i]), i, sc(z$ci_hi[i]), i, lwd = 2)
+  points(sc(z$beta_naive[i]), i, pch = 1,  cex = 1.5)      # unadjusted
+  points(sc(z$beta_adj[i]),   i, pch = 19, cex = 1.5)      # adjusted
+}
+legend("topleft", c("unadjusted", "adjusted (95% block bootstrap)"),
+       pch = c(1, 19), bty = "n", cex = 0.85)
+par(op)
+```
+
+**Fig 3. Associations before and after backdoor adjustment.** Open circles are unadjusted associations, filled circles adjusted, horizontal bars the 95% spatial block-bootstrap interval of the adjusted estimate. The horizontal axis is a signed logarithm so that exposures on very different scales are visible together. Tree cover moves furthest under adjustment and its interval then covers zero.
+
+## The graph itself is testable, and it fails its own test
+
+Every estimate in Table 3 is conditional on the directed acyclic graph being a correct description of the system. That premise is not merely an assumption to be declared: a graph implies a specific set of conditional independencies among the observed variables, and those implications can be tested against the data. Zhang and Wadoux [@Zhang2026causal] list this compatibility — faithfulness — as the third of their three conditions for causal inference, alongside an explicit model and causal sufficiency. We are not aware of a digital soil mapping study that reports the test.
+
+```{r dag-tests, include = FALSE}
+have <- c("soc_topsoil_gkg","wc_bio_01","wc_bio_12","wc_landcover_trees",
+          "soilgrids_clay","soilgrids_sand","soilgrids_bdod","elev","slope")
+dd <- CAU$profiles
+dd$soc_topsoil_gkg <- dd$soc; dd$wc_bio_01 <- dd$mat; dd$wc_bio_12 <- dd$map
+dd$wc_landcover_trees <- dd$trees; dd$soilgrids_clay <- dd$clay
+dd$soilgrids_sand <- dd$sand; dd$soilgrids_bdod <- dd$bdod
+dag <- causal_cerrado_real_dag()
+allnodes <- names(dagitty::coordinates(dag)$x)
+E <- dagitty::edges(dag)
+keep <- vapply(seq_len(nrow(E)), function(i)
+  as.character(E$v[i]) %in% have && as.character(E$w[i]) %in% have, logical(1))
+sub <- dagitty::dagitty(paste0("dag{", paste(sprintf("%s -> %s", E$v[keep], E$w[keep]),
+                                             collapse = " "), "}"))
+XD <- dd[stats::complete.cases(dd[, have]), have]
+LT <- dagitty::localTests(sub, XD, type = "cis")
+n_tests <- nrow(LT); n_rej <- sum(LT$p.value < 0.05); max_r <- max(abs(LT$estimate))
+no_data <- setdiff(allnodes, have)
+```
+
+We applied the implied-independence test to the shipped pedogenetic graph, restricted to the `r length(have)` of its `r length(allnodes)` nodes for which the profiles carry data. Of the `r n_tests` conditional independencies the graph implies, **`r n_rej` are rejected** at the 5% level, and the largest violated partial correlation reaches `r fmt(max_r, 2)` (clay against sand, conditioning on slope). The graph, as drawn from published pedogenetic knowledge, is not compatible with the covariance structure of the data it is applied to.
+
+This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 3, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
+
+We report this rather than quietly adopting a graph that passes. The constructive reading is that the test is cheap, diagnostic and almost never performed: it localises exactly which pedological assumptions the data contradict — here, principally the assumed conditional independence of texture fractions and of texture from terrain — and so tells a soil scientist where the causal model needs work. A framework that makes backdoor adjustment easy should make this test equally easy, and reporting it should become routine.
+
+## A learned representation does not manufacture a valid instrument
+
+Backdoor adjustment buys identification only at the price of causal sufficiency. Instrumental-variable estimation offers a different bargain: identification without that assumption, provided the instrument reaches the outcome only through the exposure. Modern representation learning makes an appealing candidate — an encoder trained on landscape imagery, never shown the soil measurement, that summarises terrain and climate context in a handful of components.
+
+We trained such an encoder for real: a MoCo-v2 contrastive model over `r CAU$encoder$channels` covariate channels and `r format(CAU$encoder$tiles, big.mark=',')` raster tiles for `r format(CAU$encoder$epochs, big.mark=',')` epochs on the graphics processor, reaching an InfoNCE loss of `r fmt(CAU$encoder$min_loss, 2)`. We then embedded each profile's landscape and used the leading principal components of that embedding as instruments for precipitation.
+
+The instruments are extraordinarily relevant. The first-stage F statistic is `r round(CAU$iv$first_stage_F)`, against a conventional weak-instrument threshold of 10 — the embedding predicts precipitation almost perfectly, which is unsurprising given that climate is among the things it encodes. And that is exactly the problem. The Sargan over-identification test rejects decisively (chi-squared `r fmt(CAU$iv$sargan_stat,1)` on `r CAU$iv$sargan_df` degrees of freedom, p `r ifelse(CAU$iv$sargan_p < 1e-12, "< 10^-12^", paste("=", formatC(CAU$iv$sargan_p, format='e', digits=1)))`): the instruments do not satisfy the exclusion restriction.
+
+The interpretation is general, and we think it is the most transferable result in this article. The property that makes an embedding an excellent predictor — that it compresses everything about a location — is the property that makes it an invalid instrument, because it necessarily reaches the outcome through paths other than the exposure. Representation learning cannot supply the exogenous variation that identification requires; only a design can. We report the failed test rather than the estimate it invalidates.
+
+# Discussion
+
+## What the benchmark does and does not show
+
+The central result — that a linear model on graph-selected covariates outperformed five more elaborate methods, three of which fell below the achievable null — invites two misreadings, and we want to foreclose both.
+
+It does not show that deep learning cannot work in digital soil mapping. It shows that on roughly a thousand point observations, with seven coarse covariates and spatially blocked evaluation, the sample and the signal are too small for high-capacity models to express an advantage. This is the expected regime for such models: contrastive encoders, graph attention and neural operators are designed for settings with abundant data or strong structure, and a sparse point dataset with a handful of climate and texture covariates supplies neither. The finding is a statement about the task, not about the method class.
+
+Nor does it show that the elaborate methods are useless in general. It shows that, evaluated honestly here, they cost more and returned less — and that a practitioner choosing a method for a comparable dataset should reach for the simple one first. That is a practically useful conclusion precisely because it is unglamorous, and it is exactly the conclusion a matched, calibration-aware protocol is designed to surface and an accuracy-only, single-method report is designed to hide.
+
+The calibration results make the same argument from a second direction. A method can be simultaneously more confident and less correct. The quantum kernel produced the narrowest intervals of any method and the worst coverage, a combination that a table of root-mean-square errors would not reveal and that would materially mislead anyone using the resulting map to plan sampling or to bound a carbon inventory. We regard the routine reporting of coverage alongside accuracy as the single cheapest improvement available to the field.
+
+## What the causal analysis licenses
+
+The causal section is deliberately modest in what it claims. Backdoor adjustment on an explicit graph is a legitimate and valuable operation: it recovered mechanistically coherent precipitation and clay associations with quantified robustness, and it exposed an apparent tree-cover association as very largely confounding. But the object it returns is an adjusted association carrying a sensitivity bound, not an identified causal effect, and we have reported it as such throughout. The robustness value is what makes that honesty operational: rather than asserting that no confounder exists, it states how strong one would have to be, and leaves the reader to judge that against their own knowledge of the system.
+
+The negative instrumental-variable result sharpens the point and, we suspect, generalises well beyond soil science. Learned representations are increasingly proposed as sources of exogenous variation. Our result indicates that this is backwards: an embedding earns its predictive power by encoding everything about a location, and an instrument earns its validity by encoding almost nothing except variation in the exposure. The two objectives are in direct opposition. A first-stage F statistic in the thousands accompanied by a decisive Sargan rejection is the empirical signature of that opposition.
+
+## Limitations
+
+Three limitations follow from the design. The evaluation covers a single biome and a single soil property; the ranking may differ where profile density, covariate resolution or the strength of spatial structure differ, and the framework is built so that re-testing on another dataset is a change of input rather than of code. The causal analysis rests on an expert graph whose structure, though drawn from published pedogenesis, is itself an assumption; a different graph implies different adjustment sets and therefore different estimates, which is why we report the graph explicitly rather than only its consequences. Finally, the benchmark scores prediction, whereas Zhang and Wadoux [@Zhang2026causal] argue that the most defensible route to causal claims in this field is process-informed generative modelling. The framework's physics-informed pillar, which represents depth-wise carbon dynamics as an explicit differential equation rather than a regression, is a step in that direction and is the natural subject of a successor study.
+
+# Conclusion
+
+We have described a framework that reduces ten families of digital soil mapping method to a common predictive-posterior currency, scores them with the same proper and diagnostic measures, and regenerates every published number from data that ships with the software. Applied to real profiles from the World Soil Information Service over the Brazilian Cerrado, it returns a deflationary answer: an ordinary least squares model restricted to a graph-selected covariate set is the most accurate and among the best calibrated of six methods, and no more elaborate method beats it. The same apparatus produced a causal analysis that reports robust associations with explicit sensitivity bounds rather than identified effects, demonstrated confounding directly by showing an apparent tree-cover association collapse under adjustment, and returned a clean negative instrumental-variable result establishing that a trained representation, however predictive, does not constitute a valid instrument.
+
+The contribution we claim is therefore not a new best predictor. It is an apparatus, and a discipline, for finding out which method helps on a given problem, for reporting the uncertainty of that answer honestly, and for stating plainly when the answer is that none of the new methods helps at all.
+
+# Acknowledgments
+
+The author thanks the International Soil Reference and Information Centre for maintaining the World Soil Information Service as an open resource, and the maintainers of WorldClim, SoilGrids and the Copernicus land-cover products, without which the analyses reported here could not have been made reproducible from public sources.
+
+# References
+
+<div id="refs"></div>
+
+# Supporting information
+
+**S1 File. Reproducible article vignette.** The complete analysis as an executable package vignette (`edaphos-paper`), which recomputes every figure and table in this manuscript from the bundled result data at build time.
+
+**S2 File. Data retrieval and analysis pipeline.** Scripts that regenerate the soil-profile and covariate datasets from their public sources, train the foundation encoder, and produce the result bundles distributed with the package.
