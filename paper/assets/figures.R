@@ -116,8 +116,8 @@ cov_p <- ggplot(covlong, aes(x = value, fill = var)) +
   theme_edaphos() + theme(legend.position = "none",
                           axis.text.y = element_blank())
 
-fig1 <- (map | dens) / cov_p + plot_layout(heights = c(1.45, 1))
-save_fig(fig1, "Fig1", 9.2, 8.0)
+fig_area <- (map | dens) / cov_p + plot_layout(heights = c(1.45, 1))
+save_fig(fig_area, "Fig1", 9.2, 8.0)
 
 # =============================================================================
 # Fig 2 — benchmark (accuracy, skill, calibration, cost)
@@ -191,8 +191,8 @@ pd <- ggplot(tb, aes(x = elapsed_sum, y = label, fill = label)) +
        x = "Seconds (log scale)", y = NULL) +
   theme_edaphos()
 
-fig3 <- (pa | pb) / (pc | pd) + plot_layout(heights = c(1, 1.15))
-save_fig(fig3, "Fig2", 9.2, 7.4)
+fig_bench <- (pa | pb) / (pc | pd) + plot_layout(heights = c(1, 1.15))
+save_fig(fig_bench, "Fig7", 9.2, 7.4)
 
 # =============================================================================
 # Fig 3 — causal: forest plot + adjustment effect
@@ -239,8 +239,8 @@ pr <- ggplot(rv, aes(x = RV, y = lab, fill = RV)) +
        x = "Robustness value", y = NULL) +
   theme_edaphos()
 
-fig4 <- pf / pr + plot_layout(heights = c(1.25, 1))
-save_fig(fig4, "Fig3", 7.6, 7.2)
+fig_causal <- pf / pr + plot_layout(heights = c(1.25, 1))
+save_fig(fig_causal, "Fig8", 7.6, 7.2)
 
 # =============================================================================
 # Fig 4 — Pillar 2: the depth profile and its unidentified asymptote
@@ -284,7 +284,267 @@ ppar <- ggplot(ptab, aes(y = param, colour = ident)) +
   theme(axis.text.y = element_blank(), legend.position = "top",
         strip.placement = "outside", strip.text.y.left = element_text(angle = 0))
 
-fig5 <- pprof | ppar
-save_fig(fig5, "Fig4", 9.0, 4.6)
+fig_ode <- pprof | ppar
+save_fig(fig_ode, "Fig2", 9.0, 4.6)
 
 message("done -> ", OUT)
+
+# =============================================================================
+# Fig 5 — Pillar 3: space-time forecasting and sequential assimilation
+# =============================================================================
+message("Fig 5: 4D pedometry")
+TT   <- ex("temporal_cerrado_results.rds")
+meta <- TT$meta
+grid_df <- function(m, lab) {
+  data.frame(lon = rep(meta$lons, times = meta$W),
+             lat = rep(meta$lats, each  = meta$H),
+             z = as.vector(m), panel = lab)
+}
+# three lead times from the ensemble-mean forecast, against the truth
+leads <- c(1L, 18L, 36L)
+fc_mean <- apply(TT$ensemble_forecast, c(2, 3, 4), mean)
+maps <- do.call(rbind, c(
+  lapply(leads, function(k) { d <- grid_df(TT$truth_future[k, , ], "Observed");
+                              d$month <- sprintf("Month %d", k); d }),
+  lapply(leads, function(k) { d <- grid_df(fc_mean[k, , ], "ConvLSTM forecast");
+                              d$month <- sprintf("Month %d", k); d })))
+maps$panel <- factor(maps$panel, levels = c("Observed", "ConvLSTM forecast"))
+maps$month <- factor(maps$month, levels = sprintf("Month %d", leads))
+
+p3a <- ggplot(maps, aes(lon, lat, fill = z)) +
+  geom_raster() +
+  facet_grid(panel ~ month, switch = "y") +
+  scale_fill_viridis_c(option = "viridis", name = "NDVI (z)") +
+  coord_equal(expand = FALSE) +
+  labs(title = "A  A soil-vegetation field forecast forward in time",
+       subtitle = "stacked convolutional LSTM, 10 x 10 cells over the Cerrado, 36 months ahead",
+       x = NULL, y = NULL) +
+  theme_edaphos() +
+  theme(axis.text = element_blank(), panel.grid = element_blank(),
+        legend.position = "right", strip.placement = "outside",
+        strip.text.y.left = element_text(angle = 90, face = "bold"),
+        panel.spacing = unit(0.35, "lines"))
+
+# ensemble trajectory at the cell the filter corrects most
+gr <- which(abs(TT$analysis$mean - TT$prior$mean) ==
+              max(abs(TT$analysis$mean - TT$prior$mean)), arr.ind = TRUE)[1, ]
+traj <- data.frame(
+  month = rep(seq_len(dim(TT$ensemble_forecast)[2]), dim(TT$ensemble_forecast)[1]),
+  value = as.vector(t(TT$ensemble_forecast[, , gr[1], gr[2]])),
+  member = rep(seq_len(dim(TT$ensemble_forecast)[1]),
+               each = dim(TT$ensemble_forecast)[2]))
+truth_line <- data.frame(month = seq_len(dim(TT$truth_future)[1]),
+                         value = TT$truth_future[, gr[1], gr[2]])
+
+p3b <- ggplot() +
+  geom_line(data = traj, aes(month, value, group = member),
+            colour = "#1B6CA8", alpha = 0.35, linewidth = 0.4) +
+  geom_line(data = truth_line, aes(month, value), colour = PAL[["accent"]],
+            linewidth = 1) +
+  annotate("text", x = Inf, y = Inf, label = "observed", hjust = 1.1, vjust = 1.6,
+           colour = PAL[["accent"]], size = 3, fontface = "bold") +
+  annotate("text", x = Inf, y = -Inf, label = "10 ensemble members", hjust = 1.1,
+           vjust = -0.8, colour = "#1B6CA8", size = 3) +
+  labs(title = "B  Forecast ensemble at the cell the filter corrects most",
+       x = "Months ahead", y = "NDVI (z)") +
+  theme_edaphos()
+
+enkf <- rbind(grid_df(TT$prior$mean, "Prior (forecast)"),
+              grid_df(TT$analysis$mean, "Analysis (after assimilation)"),
+              grid_df(TT$analysis$mean - TT$prior$mean, "Increment"))
+enkf$panel <- factor(enkf$panel, levels = c("Prior (forecast)",
+                                            "Analysis (after assimilation)", "Increment"))
+obs_pts <- data.frame(lon = meta$lons[TT$obs$col], lat = meta$lats[TT$obs$row],
+                      panel = factor("Analysis (after assimilation)",
+                                     levels = levels(enkf$panel)))
+p3c <- ggplot(enkf, aes(lon, lat, fill = z)) +
+  geom_raster() +
+  geom_point(data = obs_pts, aes(lon, lat), inherit.aes = FALSE,
+             shape = 21, size = 2.2, stroke = 0.8, colour = "white", fill = "black") +
+  facet_wrap(~panel, nrow = 1) +
+  scale_fill_gradient2(low = "#2166AC", mid = "grey96", high = "#B2182B",
+                       midpoint = 0, name = "NDVI (z)") +
+  coord_equal(expand = FALSE) +
+  labs(title = "C  Ensemble Kalman assimilation of eight in-situ observations",
+       subtitle = sprintf("localised update; ensemble spread falls by %.0f%% at the observed cells",
+                          100 * TT$sd_reduction),
+       x = NULL, y = NULL) +
+  theme_edaphos() +
+  theme(axis.text = element_blank(), panel.grid = element_blank())
+
+fig_temporal <- p3a / (p3b | p3c) + plot_layout(heights = c(1.15, 1))
+save_fig(fig_temporal, "Fig3", 9.4, 7.6)
+
+# =============================================================================
+# Fig 6 — Pillar 6: the simulated quantum kernel
+# =============================================================================
+message("Fig 6: quantum kernel")
+data(br_cerrado, envir = environment())
+set.seed(4)
+idx <- sample(nrow(br_cerrado), 60)
+Xq  <- quantum_scale(as.matrix(br_cerrado[idx, c("elev", "twi", "map_mm")]))
+ord <- order(br_cerrado$soc[idx])
+Xq  <- Xq[ord, , drop = FALSE]
+Kq  <- quantum_kernel(Xq, reps = 2L)
+d2  <- as.matrix(dist(Xq))^2
+Kr  <- exp(-d2 / (2 * median(d2[upper.tri(d2)])))
+
+gram <- rbind(
+  data.frame(i = rep(seq_len(nrow(Kq)), nrow(Kq)), j = rep(seq_len(nrow(Kq)), each = nrow(Kq)),
+             k = as.vector(Kq), panel = "Quantum fidelity kernel"),
+  data.frame(i = rep(seq_len(nrow(Kr)), nrow(Kr)), j = rep(seq_len(nrow(Kr)), each = nrow(Kr)),
+             k = as.vector(Kr), panel = "Gaussian (RBF) kernel"))
+gram$panel <- factor(gram$panel, levels = c("Quantum fidelity kernel", "Gaussian (RBF) kernel"))
+
+p6a <- ggplot(gram, aes(i, j, fill = k)) +
+  geom_raster() + facet_wrap(~panel) +
+  scale_fill_viridis_c(option = "magma", name = "K(x, x')", limits = c(0, 1)) +
+  coord_equal(expand = FALSE) +
+  labs(title = "A  Two similarity matrices over the same 60 profiles",
+       subtitle = "profiles ordered by organic carbon; the quantum kernel is the fidelity of two encoded states",
+       x = "Profile", y = "Profile") +
+  theme_edaphos() + theme(panel.grid = element_blank())
+
+# the encoding circuit's effect: kernel value against covariate distance
+dd <- data.frame(dist = sqrt(d2[upper.tri(d2)]),
+                 quantum = Kq[upper.tri(Kq)], rbf = Kr[upper.tri(Kr)])
+ddl <- rbind(data.frame(dist = dd$dist, k = dd$quantum, kind = "Quantum fidelity"),
+             data.frame(dist = dd$dist, k = dd$rbf,     kind = "Gaussian (RBF)"))
+p6b <- ggplot(ddl, aes(dist, k, colour = kind)) +
+  geom_point(alpha = 0.25, size = 0.7) +
+  geom_smooth(se = FALSE, method = "loess", formula = y ~ x, linewidth = 1) +
+  scale_colour_manual(values = c("Quantum fidelity" = "#7B2D8E",
+                                 "Gaussian (RBF)" = "#1B6CA8"), name = NULL) +
+  labs(title = "B  Similarity against distance in covariate space",
+       subtitle = "the Gaussian kernel decays monotonically; the ZZ feature map does not,\nwhich is the property it is proposed for -- and, here, why it generalises worse",
+       x = "Euclidean distance between standardised covariates",
+       y = "Kernel value") +
+  theme_edaphos() + theme(legend.position = "top")
+
+fig_quantum <- p6a / p6b + plot_layout(heights = c(1, 0.95))
+save_fig(fig_quantum, "Fig4", 8.4, 7.2)
+
+# =============================================================================
+# Fig 7 — Pillar 9: diffusion, reference vs trained sampler
+# =============================================================================
+message("Fig 7: diffusion (fits two models, ~1 min)")
+g <- 45L
+ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
+as_grid <- function(v) { m <- matrix(NA_real_, g, g)
+  m[cbind(match(br_cerrado$x, ux), match(br_cerrado$y, uy))] <- v; m }
+fieldz <- { f <- as_grid(br_cerrado$twi); (f - mean(f)) / stats::sd(f) }
+P <- 8L; st <- seq(1L, g - P + 1L, by = 3L); gg <- expand.grid(r = st, c = st)
+stack <- array(0, dim = c(nrow(gg), P, P))
+for (i in seq_len(nrow(gg)))
+  stack[i, , ] <- fieldz[gg$r[i]:(gg$r[i] + P - 1L), gg$c[i]:(gg$c[i] + P - 1L)]
+
+lag1 <- function(p) {
+  h <- stats::cor(as.vector(p[, -ncol(p)]), as.vector(p[, -1]))
+  v <- stats::cor(as.vector(p[-nrow(p), ]), as.vector(p[-1, ])); (h + v) / 2
+}
+fit_r <- dm_fit(stack, backend = "r", T = 100L, epochs = 250L, hidden = 48L,
+                lr = 0.02, seed = 1L)
+gen_r <- dm_sample(fit_r, n_samples = 40L, seed = 7L)
+has_t <- isTRUE(tryCatch(torch::torch_is_installed(), error = function(e) FALSE))
+if (has_t) {
+  fit_t <- dm_fit(stack, backend = "torch", device = "cpu", T = 100L, epochs = 700L,
+                  hidden = 64L, lr = 1e-3, seed = 1L)
+  gen_t <- dm_sample(fit_t, n_samples = 40L, seed = 7L)
+}
+patch_df <- function(a, idx, lab) do.call(rbind, lapply(seq_along(idx), function(k)
+  data.frame(x = rep(1:P, P), y = rep(1:P, each = P),
+             z = as.vector(a[idx[k], , ]), rep = k, panel = lab)))
+sel <- 1:4
+pl <- rbind(patch_df(stack, c(1, 20, 60, 110), "Real"),
+            patch_df(gen_r, sel, "Pure-R\nreference"))
+if (has_t) pl <- rbind(pl, patch_df(gen_t, sel, "Trained\n(torch)"))
+pl$panel <- factor(pl$panel, levels = c("Real", "Pure-R\nreference", "Trained\n(torch)"))
+p9a <- ggplot(pl, aes(x, y, fill = z)) +
+  geom_raster() + facet_grid(panel ~ rep, switch = "y") +
+  scale_fill_gradientn(colours = hcl.colors(64, "Terrain2"), name = "z",
+                       limits = c(-2.5, 2.5), oob = scales::squish) +
+  coord_equal(expand = FALSE) +
+  labs(title = "A  Whole-patch realisations, not per-pixel intervals",
+       subtitle = "8 x 8 topographic wetness patches. Colour is clipped at +/-2.5 sd, so the\nreference sampler's saturated cells are themselves the diagnostic",
+       x = NULL, y = NULL) +
+  theme_edaphos() +
+  theme(axis.text = element_blank(), panel.grid = element_blank(),
+        strip.text.x = element_blank(), strip.placement = "outside",
+        strip.text.y.left = element_text(angle = 0, face = "bold", size = 7.5,
+                                         hjust = 1))
+
+stats_df <- rbind(
+  data.frame(set = "Real patches", sd = apply(stack, 1, stats::sd), l1 = apply(stack, 1, lag1)),
+  data.frame(set = "Pure-R reference sampler", sd = apply(gen_r, 1, stats::sd),
+             l1 = apply(gen_r, 1, lag1)))
+if (has_t) stats_df <- rbind(stats_df,
+  data.frame(set = "Trained (torch) sampler", sd = apply(gen_t, 1, stats::sd),
+             l1 = apply(gen_t, 1, lag1)))
+stats_df$set <- factor(stats_df$set, levels = levels(pl$panel))
+SETCOL <- c("Real patches" = "#4B2E15", "Pure-R reference sampler" = "#A8322D",
+            "Trained (torch) sampler" = "#2E7D5B")
+p9b <- ggplot(stats_df, aes(l1, sd, colour = set, fill = set)) +
+  geom_vline(xintercept = mean(apply(stack, 1, lag1)), linetype = 2, colour = "grey55") +
+  geom_hline(yintercept = mean(apply(stack, 1, stats::sd)), linetype = 2, colour = "grey55") +
+  geom_point(alpha = 0.55, size = 1.6) +
+  stat_ellipse(level = 0.8, linewidth = 0.8, show.legend = FALSE) +
+  scale_colour_manual(values = SETCOL, name = NULL) +
+  scale_fill_manual(values = SETCOL, guide = "none") +
+  labs(title = "B  The two-number check a generative soil model must pass",
+       subtitle = "dashed lines are the real patches' means. The reference sampler misses on\nboth axes: too variable, and spatially incoherent (lag-1 near zero)",
+       x = "Lag-1 spatial autocorrelation", y = "Within-patch standard deviation") +
+  theme_edaphos() + theme(legend.position = "top")
+
+fig_diff <- p9a / p9b + plot_layout(heights = c(1, 1.05))
+save_fig(fig_diff, "Fig5", 8.6, 7.4)
+
+# =============================================================================
+# Fig 8 — Pillar 10: the co-location graph
+# =============================================================================
+message("Fig 8: graph attention")
+set.seed(11)
+sub_i <- sample(nrow(prof), 320)
+gd <- prof[sub_i, ]
+gd$lon <- gd$lon; gd$lat <- gd$lat
+G <- gnn_build_graph(gd, k = 6L, feature_cols = c("mat", "map", "clay", "elev"))
+ei <- G$edge_index
+edges <- data.frame(
+  x = gd$lon[ei[, 1]], y = gd$lat[ei[, 1]],
+  xend = gd$lon[ei[, 2]], yend = gd$lat[ei[, 2]],
+  w = G$edge_weight)
+
+p10a <- ggplot() +
+  geom_sf(data = cerrado, fill = "#F7F2EA", colour = "#B08968", linewidth = 0.35) +
+  geom_segment(data = edges, aes(x = x, y = y, xend = xend, yend = yend, alpha = w),
+               colour = "#1B6CA8", linewidth = 0.22) +
+  geom_point(data = gd, aes(lon, lat, fill = soc), shape = 21, size = 1.5,
+             stroke = 0.15, colour = "white") +
+  scale_alpha_continuous(range = c(0.05, 0.55), guide = "none") +
+  scale_fill_viridis_c(option = "inferno", direction = -1, trans = "sqrt",
+                       name = expression(paste("SOC (g kg"^-1, ")"))) +
+  coord_sf(xlim = c(-60, -41), ylim = c(-24, -2), expand = FALSE) +
+  labs(title = "A  Profiles as nodes of a co-location graph",
+       subtitle = sprintf("%d profiles, k = 6 nearest neighbours, %d edges; edge opacity is the inverse-distance weight",
+                          nrow(gd), nrow(ei))) +
+  theme_map() + theme(legend.position = "right")
+
+# degree and edge-length distributions: what the graph actually encodes
+deg <- as.vector(table(factor(c(ei[, 1], ei[, 2]), levels = seq_len(nrow(gd)))))
+elen <- sqrt((edges$x - edges$xend)^2 + (edges$y - edges$yend)^2)
+gstat <- rbind(data.frame(v = deg,  panel = "Node degree"),
+               data.frame(v = elen, panel = "Edge length (degrees)"))
+gstat$panel <- factor(gstat$panel, levels = c("Node degree", "Edge length (degrees)"))
+p10b <- ggplot(gstat, aes(v, fill = panel)) +
+  geom_histogram(bins = 34, colour = "white", linewidth = 0.15) +
+  facet_wrap(~panel, scales = "free", nrow = 1) +
+  scale_fill_manual(values = c("Node degree" = "#7B5AA6",
+                               "Edge length (degrees)" = "#2E7D5B"), guide = "none") +
+  labs(title = "B  What the graph encodes",
+       subtitle = sprintf(paste("the k-nearest-neighbour relation is asymmetric, so after symmetrising,",
+                                "degree\nranges %d-%d rather than sitting at k = 6; most edges are short but a tail",
+                                "reaches\nacross sparsely surveyed ground"), min(deg), max(deg)),
+       x = NULL, y = "Count") +
+  theme_edaphos()
+
+fig_graph <- p10a / p10b + plot_layout(heights = c(1.5, 1))
+save_fig(fig_graph, "Fig6", 7.8, 8.0)
