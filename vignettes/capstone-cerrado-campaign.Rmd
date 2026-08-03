@@ -456,9 +456,10 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
     y     = "Profundidade (cm)",
     title = "Pilar 2 — Posterior bayesiano da ODE pedogenética",
     caption = paste0(
-      "Parâmetros: k1 = ", round(R$piml_params$k1, 3),
-      "  k2 = ", round(R$piml_params$k2, 3),
-      "  sigma = ", round(R$piml_params$sigma, 3)
+      "Parâmetros posteriores: lambda0 = ", signif(R$piml_params$lambda0, 3),
+      "  mu = ", signif(R$piml_params$mu, 3),
+      "  y_inf = ", signif(R$piml_params$y_inf, 3),
+      "  y0 = ", signif(R$piml_params$y0, 3)
     )
   ) +
   scale_y_continuous(breaks = seq(0, -100, by = -20),
@@ -472,11 +473,15 @@ knitr::kable(
   R$piml_params_table,
   digits  = 4,
   col.names = c("Parâmetro", "Significado físico", "Média posterior",
-                "IC 2,5%", "IC 97,5%"),
+                "DP posterior", "IC 2,5%", "IC 97,5%"),
   caption = paste0(
-    "Parâmetros da ODE pedogenética estimados por aproximação de Laplace ",
-    "(perfil representativo do Cerrado). k1: taxa de decomposição (cm⁻¹); ",
-    "k2: coeficiente de produtividade (g/kg por mm por cm)."
+    "Parâmetros da ODE pedogenética dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf), ",
+    "estimados por aproximação de Laplace sobre as 7 horizontes do pedon. Os ",
+    "intervalos são quantis reais da posterior. Note que y_inf (assíntota ",
+    "profunda) NÃO é identificado por estes dados: o intervalo cobre valores ",
+    "negativos, fisicamente impossíveis para um teor de carbono. É exatamente ",
+    "o que a camada bayesiana existe para revelar — uma estimativa pontual ",
+    "sozinha reportaria o valor negativo sem sinalizar que ele não tem suporte."
   )
 )
 ```

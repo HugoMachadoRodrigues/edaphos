@@ -225,41 +225,56 @@ if (!is.null(piml_fit)) {
                           n_draws = 500L, units = "g/kg"),
     error = function(e) NULL
   )
-  cf <- tryCatch(coef(piml_fit),
-                  error = function(e) c(k1 = 0.025, k2 = 9.5e-5, sigma = 2.1))
-  piml_params <- list(
-    k1    = if ("k1"    %in% names(cf)) cf["k1"]    else 0.025,
-    k2    = if ("k2"    %in% names(cf)) cf["k2"]    else 9.5e-5,
-    sigma = if ("sigma" %in% names(cf)) cf["sigma"] else 2.1
+  # Posterior summary of the ACTUAL fitted ODE parameters.
+  #
+  # This used to call coef(piml_fit). There is no coef method for class
+  # edaphos_piml_bayes, so coef() returned NULL, the tryCatch fallback fired,
+  # and `piml_params` silently became three hard-coded numbers -- named k1, k2
+  # and sigma, which are not even parameters of this model. summary() is the
+  # documented accessor and returns the real posterior mean, sd and quantiles
+  # for the four parameters the ODE actually has.
+  piml_summary <- summary(piml_fit)
+  stopifnot(is.data.frame(piml_summary),
+            all(c("parameter", "mean", "q2.5", "q97.5") %in% names(piml_summary)))
+  piml_params <- stats::setNames(as.list(piml_summary$mean), piml_summary$parameter)
+} else {
+  piml_post    <- NULL
+  piml_summary <- NULL
+  piml_params  <- NULL
+}
+
+# If the Bayesian fit or its posterior failed, STOP. The previous version
+# fabricated a stand-in posterior here -- rnorm() draws around an exponential
+# curve with hard-coded constants -- and shipped it in the bundle labelled
+# `method = "bayesian"`, indistinguishable downstream from a real fit. A
+# missing result must be visible, not simulated.
+if (is.null(piml_fit) || is.null(piml_post)) {
+  stop("Pillar 2: the Bayesian profile fit or its posterior failed; refusing to ",
+       "ship a synthesised stand-in. Fix the fit and re-run.", call. = FALSE)
+}
+
+# Parameter table straight from the posterior. The intervals are the 2.5% and
+# 97.5% posterior quantiles; the previous version multiplied the mean by 0.75
+# and 1.25 (0.80/1.20 for the third row), which is not an interval of anything.
+if (!is.null(piml_summary)) {
+  .piml_meaning <- c(
+    lambda0 = "Surface decay rate of the pedogenetic ODE (cm^-1)",
+    mu      = "Depth attenuation of that rate (cm^-1)",
+    y_inf   = "Deep asymptote of soil organic carbon (g/kg)",
+    y0      = "Fitted surface soil organic carbon (g/kg)"
+  )
+  piml_params_table <- data.frame(
+    param   = piml_summary$parameter,
+    meaning = unname(.piml_meaning[piml_summary$parameter]),
+    mean    = piml_summary$mean,
+    sd      = piml_summary$sd,
+    ci_lo   = piml_summary$q2.5,
+    ci_hi   = piml_summary$q97.5,
+    stringsAsFactors = FALSE
   )
 } else {
-  piml_post <- NULL
-  piml_params <- list(k1 = 0.025, k2 = 9.5e-5, sigma = 2.1)
+  piml_params_table <- NULL
 }
-
-if (is.null(piml_post)) {
-  k1 <- piml_params$k1; k2 <- piml_params$k2; sigma <- piml_params$sigma
-  mu  <- pmax(32 * exp(-k1 * depths_seq), 0)
-  mat_draw <- matrix(
-    rnorm(500 * length(depths_seq), rep(mu, each = 500), sigma),
-    nrow = 500, ncol = length(depths_seq)
-  )
-  piml_post <- edaphos_posterior(
-    samples = mat_draw, method = "bayesian",
-    query_type = "sample", units = "g/kg"
-  )
-}
-
-piml_params_table <- data.frame(
-  param   = c("k1", "k2", "sigma"),
-  meaning = c("Taxa de decomposição (cm⁻¹)",
-              "Coef. de produtividade (g/kg/(mm·cm))",
-              "Ruído observacional (g/kg)"),
-  mean    = c(piml_params$k1, piml_params$k2, piml_params$sigma),
-  ci_lo   = c(piml_params$k1 * 0.75, piml_params$k2 * 0.75, piml_params$sigma * 0.80),
-  ci_hi   = c(piml_params$k1 * 1.25, piml_params$k2 * 1.25, piml_params$sigma * 1.20),
-  stringsAsFactors = FALSE
-)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Pillar 3 — 4D  (load existing cache)

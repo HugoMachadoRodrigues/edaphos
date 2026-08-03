@@ -415,6 +415,11 @@ causal_estimate_effect <- function(data, dag, exposure, outcome,
         effect       = unname(adj_coef),
         effect_ci    = unname(adj_ci),
         effect_naive = unname(naive_coef),
+        # Which estimand was requested. print() used to hardcode "direct
+        # effect" regardless, so a total-effect result printed under the wrong
+        # name and a reader pasting the console output into a paper would
+        # report the wrong quantity.
+        effect_type  = effect,
         exposure     = exposure,
         outcome      = outcome
       ),
@@ -468,6 +473,7 @@ causal_estimate_effect <- function(data, dag, exposure, outcome,
       effect       = eff_point,
       effect_ci    = eff_ci,
       effect_naive = unname(naive_coef),
+      effect_type  = effect,
       exposure     = exposure,
       outcome      = outcome,
       delta        = delta,
@@ -488,8 +494,15 @@ print.edaphos_causal_effect <- function(x, ...) {
         paste(x$adjustment, collapse = ", "),
       "}\n", sep = "")
   ci_label <- if (est == "bart") "95% credible" else "95% CI"
-  cat(sprintf("  direct effect  : %.4g   (%s: %.4g, %.4g)\n",
-              x$effect, ci_label, x$effect_ci[1], x$effect_ci[2]))
+  # Report the estimand that was actually requested. `effect_type` is absent
+  # from objects created before it was recorded; those were always printed as
+  # "direct", so fall back to a neutral label rather than assert either one.
+  etype <- x$effect_type %||% NA_character_
+  elab  <- if (is.na(etype)) "adjusted effect"
+           else if (identical(etype, "total")) "total effect  "
+           else "direct effect "
+  cat(sprintf("  %s : %.4g   (%s: %.4g, %.4g)\n",
+              elab, x$effect, ci_label, x$effect_ci[1], x$effect_ci[2]))
   cat(sprintf("  naive effect   : %.4g   (un-adjusted, likely confounded)\n",
               x$effect_naive))
   if (est == "bart") {
