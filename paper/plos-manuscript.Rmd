@@ -4,6 +4,7 @@ output:
   word_document:
     reference_docx: assets/plos-reference.docx
     number_sections: false
+    pandoc_args: ["--lua-filter=assets/strip-bookmarks.lua"]
 bibliography: references.bib
 csl: plos.csl
 link-citations: false
@@ -72,6 +73,20 @@ The value of forcing every method through this interface is that it makes overco
 
 Pillars whose methods are neural in nature accept a `backend` argument that resolves in three ways. `"auto"`, the default, selects the `torch` implementation when a working `libtorch` is present and otherwise falls back to the pure-R path, so that the package remains installable and checkable on machines without a deep-learning toolchain. `"torch"` requests the trained implementation and fails with an explicit message if its dependency is absent. `"r"` forces the reference path and emits a one-time note describing what that path actually computes. This arrangement keeps a continuous-integration machine and a reviewer's laptop able to run the package while ensuring that a scientific result is never silently produced by a scaffold.
 
+## Data
+
+All analyses use real soil profiles, not simulated ones. Topsoil organic-carbon observations were retrieved from the World Soil Information Service [@Batjes2024wosis] through the public Web Feature Service of the International Soil Reference and Information Centre, restricted to the Brazilian Cerrado and to horizons whose upper boundary lies within the topsoil, and reduced to one shallowest horizon per profile. Covariates were extracted at each profile location from WorldClim version 2.1 [@Fick2017worldclim] for mean annual temperature, mean annual precipitation and elevation; from SoilGrids [@Hengl2017soilgrids] for clay, sand and bulk density in the surface layer; and from a Copernicus fractional tree-cover product. Slope was derived from the elevation surface.
+
+The study area and the data are shown in Fig 1.
+
+```{r fig1, out.width="100%"}
+knitr::include_graphics("figures/Fig1.png")
+```
+
+**Fig 1. Study area, response and covariates.** (A) The Cerrado biome (shaded) within Brazil, with the WoSIS topsoil profiles used in the causal analysis coloured by organic carbon on a square-root scale. (B) The response is strongly right-skewed, which is why the benchmark models a log transform. (C) Marginal distributions of the four covariates that appear in the causal analysis, extracted at the profile locations.
+
+Two draws are used. The benchmark uses `r B6$n_profiles` profiles, the sample on which the cross-pillar comparison and all method-tuning work were carried out. The causal analysis uses a larger and more recent retrieval of `r CAU$n_profiles` profiles over the same region and the same covariate stack, assembled after the pipeline was rewritten to fetch every covariate from its public source. Every covariate is open-licensed and retrieved from a public endpoint, so the entire dataset is regenerable from profile coordinates alone by the scripts distributed with the package.
+
 ## The ten method families
 
 Table 1 lists the ten pillars, the method each implements, and the object each returns. The subsections that follow give, for each, a minimal example that runs against data distributed with the package together with its real output, so that a reader can see what the interface looks like before deciding whether the method is worth their data. Every example below was executed to produce the output shown.
@@ -109,6 +124,14 @@ causal_estimate_effect(d, dag, "wc_landcover_trees", "soc_topsoil_gkg", effect =
 #>   naive effect   : 2.864   (un-adjusted, likely confounded)
 ```
 
+Fig 2 renders the graph, the adjustment set the criterion returns, and the graph's own falsification test.
+
+```{r fig2, out.width="100%"}
+knitr::include_graphics("figures/Fig2.png")
+```
+
+**Fig 2. A pedogenetic graph and its test.** (A) The shipped Cerrado graph, with the exposure, the outcome, and the adjustment set the backdoor criterion returns for the total effect of tree cover highlighted. (B) Every conditional independence the graph implies, tested against the profiles: most are rejected, so the graph as drawn is not compatible with the data it is applied to.
+
 The adjustment set is derived, not chosen by the analyst, and the eightfold collapse from the unadjusted to the adjusted estimate is the pillar's central demonstration. Reported alongside it, the robustness value states that a confounder explaining 18.2% of residual variance in both exposure and outcome would be needed to nullify the clay association, and under 1% to nullify the tree-cover one.
 
 The printed label names the estimand that was requested, which matters more than it may appear: on these data the total effect of clay on carbon is 0.449 g/kg per percent while its direct effect, additionally blocking the texture and bulk-density mediators, is 0.044 with an interval covering zero. The two differ by an order of magnitude, and reporting one under the other's name would misstate the finding.
@@ -143,6 +166,14 @@ knitr::kable(data.frame(
   check.names = FALSE), align = "llrrrr")
 ```
 
+Fig 3 shows the fitted profile and the posterior of its four parameters.
+
+```{r fig3, out.width="100%"}
+knitr::include_graphics("figures/Fig3.png")
+```
+
+**Fig 3. A depth profile as the solution of a pedogenetic equation.** (A) The fitted mean (line) and 95% posterior band against the seven measured horizons (points). (B) Posterior mean and 95% interval for each parameter; the deep asymptote spans physically impossible negative carbon, and is the one parameter these data do not identify.
+
 The surface rate λ₀ and the surface concentration y₀ are tightly determined; the depth attenuation μ is poorly determined; and the deep asymptote y∞ is not determined at all, its interval running from about −12 to +6 g/kg. Seven horizons that all lie in the upper metre simply do not constrain the value the profile approaches at depth, and nothing in the parameterisation restricts it to be non-negative. We report this rather than suppress it, because it is precisely the service the Bayesian layer performs: the point estimate quietly returns a physical impossibility, while the interval states plainly that the parameter is unidentified by these data. It also indicates the obvious remedy — a prior constraining y∞ to be non-negative, or horizons deep enough to see the asymptote.
 
 ### Four-dimensional pedometry
@@ -160,7 +191,13 @@ post <- temporal_kalman_update(ens, obs_value = c(24, 18), obs_row = c(3, 6),
                                localization_radius = 3, seed = 1)
 ```
 
-The filter is exact at observed cells and the localisation radius controls how far an observation is allowed to influence the field, which on small ensembles is what prevents spurious long-range corrections.
+The filter is exact at observed cells and the localisation radius controls how far an observation is allowed to influence the field, which on small ensembles is what prevents spurious long-range corrections. Fig 4 shows both halves of the pillar on a real Cerrado cube.
+
+```{r fig4, out.width="100%"}
+knitr::include_graphics("figures/Fig4.png")
+```
+
+**Fig 4. Forecasting a field and assimilating observations into it.** (A) Observed and forecast vegetation index at three lead times over a 10 x 10 Cerrado grid. (B) The ten-member forecast ensemble at the cell the filter corrects most, against the observed trajectory. (C) Ensemble Kalman assimilation of eight in-situ observations (points): the prior field, the analysis, and the increment between them. The update is localised, so distant cells are left alone.
 
 ### Foundation models
 
@@ -177,6 +214,14 @@ range(enc$loss_history)
 #> [1] 3.656 6.271        # InfoNCE falls from 6.27 towards 3.66
 ```
 
+Fig 5 shows what the objective does and what the resulting embedding organises by.
+
+```{r fig5, out.width="100%"}
+knitr::include_graphics("figures/Fig5.png")
+```
+
+**Fig 5. Self-supervised pre-training on unlabelled raster patches.** (A) The InfoNCE objective over patches drawn from the bundled covariate grid, against the uninformative reference log(1 + K) for a queue of K negatives. (B) The first two principal components of the encoder output, coloured by the mean topographic wetness of each patch — a covariate the encoder is never given as a target, yet which the representation separates.
+
 The contrastive loss falls well below the uninformative reference of log(1 + K) = 5.55 for a queue of 256 negatives, confirming that the objective is learning rather than collapsing. We are explicit that a demonstration of this size — a few hundred optimiser steps over a few hundred small patches — establishes that the machinery works, not that a useful foundation model has been trained; the encoder used for the instrumental-variable analysis in Results is a substantially larger one, and it is still small by the standards of the term.
 
 ### Active learning
@@ -191,6 +236,14 @@ fit  <- al_fit(br_cerrado[seed_idx, ], target = "soc",
 nxt  <- al_query(fit, candidates = br_cerrado[-seed_idx, ], n_select = 6)
 ```
 
+Fig 6 shows the decision the pillar exists to make.
+
+```{r fig6, out.width="100%"}
+knitr::include_graphics("figures/Fig6.png")
+```
+
+**Fig 6. Choosing where to sample next.** (A) The predictive-interval width over the demonstration grid, the profiles already labelled, and the batch of eight the policy selects. (B) The batch is drawn from the uncertain tail of the candidate pool. (C) Where that batch falls in covariate space: it spreads along wetness but concentrates at high precipitation, because the policy chases variance and variance here is not uniformly distributed.
+
 The selected batch has a mean 80% prediction-interval width of 21.3 g/kg against 14.2 g/kg for the candidate pool as a whole, confirming that the query is drawn from the uncertain part of the covariate space rather than from the bulk.
 
 ### Quantum machine learning
@@ -204,7 +257,15 @@ K <- quantum_kernel(X, n_qubits = 3L, reps = 2L)
 dim(K); round(K[1:3, 1:3], 4)
 ```
 
-The simulator is exact: against the analytic single-qubit kernel cos²(x − y) the maximum deviation is 4 × 10⁻¹⁶, and against an independently written Kronecker-product simulator 3 × 10⁻¹⁶. Two things should be said plainly. No quantum hardware is involved — this is a simulation of a quantum kernel, not a quantum computation — and the simulator's cost is exponential in qubit count, which bounds practical use to small feature sets.
+The simulator is exact: against the analytic single-qubit kernel cos²(x − y) the maximum deviation is 4 × 10⁻¹⁶, and against an independently written Kronecker-product simulator 3 × 10⁻¹⁶. Fig 7 contrasts the resulting similarity structure with a Gaussian kernel on the same profiles.
+
+```{r fig7, out.width="100%"}
+knitr::include_graphics("figures/Fig7.png")
+```
+
+**Fig 7. What the quantum feature map does to similarity.** (A) Gram matrices over the same 60 profiles, ordered by organic carbon. (B) Kernel value against distance in covariate space: the Gaussian kernel decays monotonically, while the ZZ feature map does not — the non-monotone structure is the property the method is proposed for, and on this task also the reason it generalises worst of the six methods compared below.
+
+Two things should be said plainly. No quantum hardware is involved — this is a simulation of a quantum kernel, not a quantum computation — and the simulator's cost is exponential in qubit count, which bounds practical use to small feature sets.
 
 ### Bayesian hierarchical spatial models
 
@@ -219,6 +280,14 @@ print(fit)
 pred <- predict(fit, newdata = d[1:5, ])
 ```
 
+Fig 8 shows the surface and, more importantly, its uncertainty.
+
+```{r fig8, out.width="100%"}
+knitr::include_graphics("figures/Fig8.png")
+```
+
+**Fig 8. Bayesian kriging with the parameter uncertainty carried through.** (A) Posterior mean surface conditioned on 150 observations. (B) Posterior standard deviation: it contracts near data and widens away from it. (C) The same relationship directly — predictive uncertainty against distance to the nearest observation. A nugget-only interval would be flat here, which is how the omission in an earlier version of this package was caught.
+
 The predictive variance at a new site is the full kriging expression, σ² + τ² − σ⁴r₀ᵀΣ⁻¹r₀, rather than the nugget alone; an earlier version of this package omitted the kriging term, which inflated predictive intervals and is the kind of error that a calibration diagnostic catches immediately.
 
 ### Neural operators
@@ -231,6 +300,14 @@ don <- no_deeponet_fit(depths, targets, covariates, backend = "r",
 pred <- predict(don, newcov, newdepths = c(10, 35, 70))   # off-grid depths
 ```
 
+Fig 9 shows the property that distinguishes an operator from a per-depth regression.
+
+```{r fig9, out.width="100%"}
+knitr::include_graphics("figures/Fig9.png")
+```
+
+**Fig 9. One operator, evaluated at any depth.** (A) Held-out sites: the trained operator's profile (solid) against the generating profile (dashed), with the six training depths marked. The curve is evaluated every 2 cm, including depths never seen in training. (B) Error by depth, distinguishing the six trained depths from the rest — the operator interpolates the depth axis rather than treating each depth as a separate task.
+
 Two honest qualifications belong with this pillar. The pure-R DeepONet freezes its first hidden layers and trains a random-feature readout, which does learn the operator on our synthetic profiles; the pure-R Fourier operator, by contrast, freezes its spectral multipliers and does not learn the operator at all, which is why the default now resolves to the trained implementation when it is available and the reference path announces itself. And no real multi-horizon depth data ships with the package, so this pillar is demonstrated on profiles generated by the pedogenetic equation of Pillar 2 rather than on measured pedons.
 
 ### Diffusion models
@@ -242,6 +319,14 @@ sch <- dm_cosine_schedule(T = 100L)
 fit <- dm_fit(patches, backend = "r", T = 100L, epochs = 250L, seed = 1L)
 gen <- dm_sample(fit, n_samples = 40L, seed = 99L)
 ```
+
+Fig 10 shows why this pillar needs a quantitative check rather than a visual one.
+
+```{r fig10, out.width="100%"}
+knitr::include_graphics("figures/Fig10.png")
+```
+
+**Fig 10. Generated map patches and the check that separates them.** (A) Real patches and draws from the pure-R reference sampler and the trained sampler; colour is clipped so the reference sampler's saturated cells are themselves diagnostic. (B) Within-patch standard deviation against lag-one spatial autocorrelation, one point per patch, with 80% ellipses. The trained sampler's cloud overlaps the real patches; the reference sampler sits far from both axes' targets.
 
 The evaluation we recommend, and implement, is a two-number check: the standard deviation and the lag-one spatial autocorrelation of generated patches against real ones. It is what reveals that the pure-R reference sampler produces fields that are over-dispersed and spatially incoherent while the trained implementation produces coherent ones — a failure that visual inspection of a generated map would not catch. This pillar is demonstrated on a terrain index rather than on carbon, because carbon in the bundled demonstration grid is near-white at patch scale and therefore offers a generative model nothing spatial to learn.
 
@@ -257,13 +342,15 @@ fit <- gnn_fit(g, targets = d$soc, backend = "r", hidden = 16L, n_heads = 4L,
 emb <- gnn_embed(fit)
 ```
 
+Fig 11 shows the graph that this pillar builds before any learning happens.
+
+```{r fig11, out.width="100%"}
+knitr::include_graphics("figures/Fig11.png")
+```
+
+**Fig 11. The co-location graph.** (A) A sample of profiles as nodes over the Cerrado, joined to their six nearest neighbours in geographic space, with edge opacity proportional to the inverse-distance weight and nodes coloured by organic carbon. (B) Degree and edge-length distributions: symmetrising the nearest-neighbour relation lifts degree above k, and while most edges are short, a tail of long edges spans sparsely surveyed ground.
+
 The implementation carries two mechanisms without which it underperforms a linear model: a skip connection that hands the raw node covariates to the readout alongside the aggregated embedding, and early stopping selected on an internal validation split rather than on training loss. Both were added after measurement showed the aggregated-only, training-loss-selected variant scoring below the mean predictor.
-
-## Data
-
-All analyses use real soil profiles, not simulated ones. Topsoil organic-carbon observations were retrieved from the World Soil Information Service [@Batjes2024wosis] through the public Web Feature Service of the International Soil Reference and Information Centre, restricted to the Brazilian Cerrado and to horizons whose upper boundary lies within the topsoil, and reduced to one shallowest horizon per profile. Covariates were extracted at each profile location from WorldClim version 2.1 [@Fick2017worldclim] for mean annual temperature, mean annual precipitation and elevation; from SoilGrids [@Hengl2017soilgrids] for clay, sand and bulk density in the surface layer; and from a Copernicus fractional tree-cover product. Slope was derived from the elevation surface.
-
-Two draws are used. The benchmark uses `r B6$n_profiles` profiles, the sample on which the cross-pillar comparison and all method-tuning work were carried out. The causal analysis uses a larger and more recent retrieval of `r CAU$n_profiles` profiles over the same region and the same covariate stack, assembled after the pipeline was rewritten to fetch every covariate from its public source. Every covariate is open-licensed and retrieved from a public endpoint, so the entire dataset is regenerable from profile coordinates alone by the scripts distributed with the package.
 
 ## Evaluation protocol
 
@@ -304,38 +391,13 @@ knitr::kable(data.frame(
 
 Ordinary least squares restricted to the covariates in the backdoor adjustment set has the lowest error (`r fmt(min(B6$cv_aggregate$rmse_mean),3)`) and the highest skill (`r fmt(max(B6$cv_aggregate$r2_mean),3)`), and its coverage (`r fmt(B6$cv_aggregate$picp90_mean[1],3)`) is close to nominal. The quantile random forest is a close second at a comparable cost. The three methods with the greatest representational capacity — foundation-model embeddings, the graph attention network, and the quantum kernel — rank last, and all three fall below the achievable null: on spatially blocked folds they explain less of the variation than predicting each training partition's mean. The quantum kernel is simultaneously the least accurate and, at `r fmt(B6$cv_aggregate$elapsed_sum[nrow(B6$cv_aggregate)],0)` s against `r fmt(B6$cv_aggregate$elapsed_sum[1],1)` s for the baseline, several hundred times the most expensive.
 
-Fig 1 shows the same result geometrically, and Fig 2 makes the calibration argument that the accuracy column alone cannot.
+Fig 12 shows the same result geometrically, and makes the calibration and cost arguments that the accuracy column alone cannot.
 
-```{r fig1-bench, fig.cap = "x"}
-tb <- B6$cv_aggregate
-op <- par(mar = c(4.4, 4.4, 0.6, 0.6))
-plot(tb$rmse_mean, tb$r2_mean, type = "n",
-     xlab = "Root-mean-square error (lower is better)",
-     ylab = "R-squared against the training-fold mean")
-abline(h = 0, lty = 3, col = "grey55")
-pch <- ifelse(grepl("OLS", tb$method), 19, 21)
-points(tb$rmse_mean, tb$r2_mean, pch = pch, cex = 1.7, bg = "white",
-       col = "black", lwd = 1.4)
-text(tb$rmse_mean, tb$r2_mean, sub(" .*", "", tb$method), pos = 4, cex = 0.85)
-par(op)
+```{r fig12, out.width="100%"}
+knitr::include_graphics("figures/Fig12.png")
 ```
 
-**Fig 1. Accuracy against skill for six methods.** The filled point is the directed-acyclic-graph-informed ordinary least squares. The dashed line is the achievable null; points below it are less useful than predicting each fold's training mean.
-
-```{r fig2-calib, fig.cap = "x"}
-tb <- B6$cv_aggregate
-op <- par(mar = c(4.4, 4.4, 0.6, 0.6))
-plot(tb$mpiw90_mean, tb$picp90_mean, type = "n",
-     xlab = "Mean prediction-interval width (sharpness)",
-     ylab = "Coverage of the nominal 90% interval")
-abline(h = 0.90, lty = 2, col = "grey40")
-points(tb$mpiw90_mean, tb$picp90_mean, pch = 21, cex = 1.7, bg = "white",
-       col = "black", lwd = 1.4)
-text(tb$mpiw90_mean, tb$picp90_mean, sub(" .*", "", tb$method), pos = 4, cex = 0.85)
-par(op)
-```
-
-**Fig 2. Calibration against sharpness.** The dashed line is nominal 90% coverage. Narrow intervals are only a virtue when coverage holds: the quantum kernel produces the narrowest intervals in the comparison and the worst coverage, an overconfidence invisible in an accuracy-only table.
+**Fig 12. Six methods on the same folds.** (A) Predictive accuracy; bars are red where the method explains less than the achievable null. (B) Skill against that null. (C) Calibration against sharpness: the shaded band is within four points of nominal 90% coverage, and the quantum kernel is both the sharpest and the least covered, an overconfidence invisible in panel A. (D) Wall-clock cost on a log scale; the least accurate method is also the most expensive.
 
 The spread among the leading methods is small relative to the fold-to-fold variability (a standard deviation of about `r fmt(mean(B6$cv_aggregate$rmse_sd),2)` in RMSE), so we do not read the ordering finely. The headline is robust to that caution: added representational capacity did not pay on this task, and two of the added methods were actively harmful.
 
@@ -372,30 +434,13 @@ The temperature association carries the expected negative sign, consistent with 
 
 The tree-cover row is the most instructive, and it is the reason we report unadjusted and adjusted estimates side by side. Unadjusted, greater tree cover appears strongly associated with more topsoil carbon (`r fmt(e$beta_naive[e$exposure=='wc_landcover_trees'],2)` g/kg per unit fraction). After adjusting for the climate variables that the graph identifies as common causes of both tree cover and carbon, the association collapses to `r fmt(e$beta_adj[e$exposure=='wc_landcover_trees'],2)`, its interval spans zero, and its robustness value falls to `r fmt(e$RV[e$exposure=='wc_landcover_trees'],3)` — meaning a confounder explaining well under one percent of residual variance would suffice to erase it. The apparent effect of trees was, on this sample, very largely shared climatic ancestry. This is precisely the inferential error that Zhang and Wadoux [@Zhang2026causal] warn is routinely committed when covariate importance is read as causal influence, demonstrated here on real profiles with the adjustment that reveals it.
 
-Fig 3 shows the four exposures before and after adjustment.
+Fig 13 shows the four exposures before and after adjustment, together with the confounding each estimate could withstand.
 
-```{r fig3-causal, fig.height = 3.8, fig.cap = "x"}
-e <- CAU$effects
-lab <- c(wc_bio_12 = "Precipitation", wc_bio_01 = "Temperature",
-         wc_landcover_trees = "Tree cover", soilgrids_clay = "Clay")
-z <- e[order(abs(e$beta_adj)), ]
-sc <- function(v) sign(v) * log1p(abs(v))          # signed log for comparability
-op <- par(mar = c(4.4, 8.5, 0.6, 0.6))
-plot(range(sc(c(e$ci_lo, e$ci_hi, e$beta_naive))), c(0.6, nrow(z) + 0.4),
-     type = "n", yaxt = "n", xlab = "Signed log association (g/kg per unit)", ylab = "")
-axis(2, at = seq_len(nrow(z)), labels = lab[z$exposure], las = 1)
-abline(v = 0, lty = 3, col = "grey55")
-for (i in seq_len(nrow(z))) {
-  segments(sc(z$ci_lo[i]), i, sc(z$ci_hi[i]), i, lwd = 2)
-  points(sc(z$beta_naive[i]), i, pch = 1,  cex = 1.5)      # unadjusted
-  points(sc(z$beta_adj[i]),   i, pch = 19, cex = 1.5)      # adjusted
-}
-legend("topleft", c("unadjusted", "adjusted (95% block bootstrap)"),
-       pch = c(1, 19), bty = "n", cex = 0.85)
-par(op)
+```{r fig13, out.width="100%"}
+knitr::include_graphics("figures/Fig13.png")
 ```
 
-**Fig 3. Associations before and after backdoor adjustment.** Open circles are unadjusted associations, filled circles adjusted, horizontal bars the 95% spatial block-bootstrap interval of the adjusted estimate. The horizontal axis is a signed logarithm so that exposures on very different scales are visible together. Tree cover moves furthest under adjustment and its interval then covers zero.
+**Fig 13. Backdoor adjustment and its sensitivity.** (A) Open circles are unadjusted associations, filled circles adjusted, bars the 95% spatial block-bootstrap interval; the arrow shows the movement under adjustment, and effects are scaled by each covariate's standard deviation so that exposures on different units are comparable. Tree cover moves furthest and its interval then covers zero. (B) The Cinelli–Hazlett robustness value for each estimate: the residual variance an unobserved confounder would have to explain in both exposure and outcome to reduce it to zero.
 
 ## The graph itself is testable, and it fails its own test
 
