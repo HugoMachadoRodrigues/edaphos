@@ -54,6 +54,11 @@ theme_map <- function(base = 9) {
           legend.title = element_text(size = base - 0.5))
 }
 
+# Regenerate only what is missing unless EDAPHOS_FIGS_FORCE=1. Some blocks
+# train models (diffusion, MoCo, MCMC), so a full rebuild is minutes.
+FORCE <- identical(Sys.getenv("EDAPHOS_FIGS_FORCE", "0"), "1")
+need <- function(name) FORCE || !file.exists(file.path(OUT, paste0(name, ".png")))
+
 save_fig <- function(p, name, w, h) {
   ggsave(file.path(OUT, paste0(name, ".png")), p, width = w, height = h,
          dpi = 300, bg = "white")
@@ -192,7 +197,7 @@ pd <- ggplot(tb, aes(x = elapsed_sum, y = label, fill = label)) +
   theme_edaphos()
 
 fig_bench <- (pa | pb) / (pc | pd) + plot_layout(heights = c(1, 1.15))
-save_fig(fig_bench, "Fig7", 9.2, 7.4)
+save_fig(fig_bench, "Fig12", 9.2, 7.4)
 
 # =============================================================================
 # Fig 3 — causal: forest plot + adjustment effect
@@ -240,7 +245,7 @@ pr <- ggplot(rv, aes(x = RV, y = lab, fill = RV)) +
   theme_edaphos()
 
 fig_causal <- pf / pr + plot_layout(heights = c(1.25, 1))
-save_fig(fig_causal, "Fig8", 7.6, 7.2)
+save_fig(fig_causal, "Fig13", 7.6, 7.2)
 
 # =============================================================================
 # Fig 4 — Pillar 2: the depth profile and its unidentified asymptote
@@ -285,7 +290,7 @@ ppar <- ggplot(ptab, aes(y = param, colour = ident)) +
         strip.placement = "outside", strip.text.y.left = element_text(angle = 0))
 
 fig_ode <- pprof | ppar
-save_fig(fig_ode, "Fig2", 9.0, 4.6)
+save_fig(fig_ode, "Fig3", 9.0, 4.6)
 
 message("done -> ", OUT)
 
@@ -373,7 +378,7 @@ p3c <- ggplot(enkf, aes(lon, lat, fill = z)) +
   theme(axis.text = element_blank(), panel.grid = element_blank())
 
 fig_temporal <- p3a / (p3b | p3c) + plot_layout(heights = c(1.15, 1))
-save_fig(fig_temporal, "Fig3", 9.4, 7.6)
+save_fig(fig_temporal, "Fig4", 9.4, 7.6)
 
 # =============================================================================
 # Fig 6 — Pillar 6: the simulated quantum kernel
@@ -422,12 +427,13 @@ p6b <- ggplot(ddl, aes(dist, k, colour = kind)) +
   theme_edaphos() + theme(legend.position = "top")
 
 fig_quantum <- p6a / p6b + plot_layout(heights = c(1, 0.95))
-save_fig(fig_quantum, "Fig4", 8.4, 7.2)
+save_fig(fig_quantum, "Fig7", 8.4, 7.2)
 
 # =============================================================================
 # Fig 7 — Pillar 9: diffusion, reference vs trained sampler
 # =============================================================================
-message("Fig 7: diffusion (fits two models, ~1 min)")
+if (need("Fig10")) {
+message("diffusion (fits two models)")
 g <- 45L
 ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
 as_grid <- function(v) { m <- matrix(NA_real_, g, g)
@@ -496,7 +502,8 @@ p9b <- ggplot(stats_df, aes(l1, sd, colour = set, fill = set)) +
   theme_edaphos() + theme(legend.position = "top")
 
 fig_diff <- p9a / p9b + plot_layout(heights = c(1, 1.05))
-save_fig(fig_diff, "Fig5", 8.6, 7.4)
+save_fig(fig_diff, "Fig10", 8.6, 7.4)
+}
 
 # =============================================================================
 # Fig 8 — Pillar 10: the co-location graph
@@ -547,4 +554,332 @@ p10b <- ggplot(gstat, aes(v, fill = panel)) +
   theme_edaphos()
 
 fig_graph <- p10a / p10b + plot_layout(heights = c(1.5, 1))
-save_fig(fig_graph, "Fig6", 7.8, 8.0)
+save_fig(fig_graph, "Fig11", 7.8, 8.0)
+
+# =============================================================================
+# Pillar 5 — active learning: where to sample next
+# =============================================================================
+if (need("Fig6")) {
+message("Pillar 5: active learning")
+COVS <- c("elev", "slope", "twi", "map_mm")
+set.seed(7)
+seed_idx <- al_initial_design(br_cerrado, COVS, n = 30L, seed = 7L)
+al_lab   <- br_cerrado[seed_idx, ]
+al_cand  <- br_cerrado[-seed_idx, ]
+al_mod   <- al_fit(al_lab, target = "soc", covariates = COVS)
+al_next  <- al_query(al_mod, candidates = al_cand, n = 8L)
+nxt_rows <- if (is.data.frame(al_next)) al_next else al_cand[al_next, ]
+
+# predictive-interval width over the whole grid = the uncertainty surface
+pred_all <- predict(al_mod$model, data = br_cerrado[, COVS], type = "quantiles",
+                    quantiles = c(0.1, 0.9))$predictions
+unc <- pred_all[, 2] - pred_all[, 1]
+surf <- data.frame(x = br_cerrado$x, y = br_cerrado$y, unc = unc, soc = br_cerrado$soc)
+
+p5a <- ggplot(surf, aes(x, y)) +
+  geom_raster(aes(fill = unc)) +
+  geom_point(data = al_lab, aes(x, y), shape = 21, size = 1.5, stroke = 0.35,
+             fill = "white", colour = "grey20") +
+  geom_point(data = nxt_rows, aes(x, y), shape = 23, size = 3.4, stroke = 0.9,
+             fill = "#C1440E", colour = "white") +
+  scale_fill_viridis_c(option = "mako", direction = -1,
+                       name = expression(paste("80% interval\nwidth (g kg"^-1, ")"))) +
+  coord_equal(expand = FALSE) +
+  labs(title = "A  The survey decides where to go next",
+       subtitle = "bundled 45 x 45 Cerrado demonstration grid. Background: quantile-forest interval\nwidth. White circles: 30 labelled profiles. Orange diamonds: the batch of 8 selected",
+       x = NULL, y = NULL) +
+  theme_map() + theme(legend.position = "right")
+
+pool_w <- data.frame(w = unc[-seed_idx], set = "All candidates")
+sel_i  <- which(paste(al_cand$x, al_cand$y) %in% paste(nxt_rows$x, nxt_rows$y))
+batch_w <- data.frame(w = unc[-seed_idx][sel_i], set = "Selected batch")
+p5b <- ggplot(rbind(pool_w, batch_w), aes(w, fill = set)) +
+  geom_density(alpha = 0.6, colour = NA) +
+  scale_fill_manual(values = c("All candidates" = "#8A8F98",
+                               "Selected batch" = "#C1440E"), name = NULL) +
+  labs(title = "B  The batch is drawn from the uncertain tail",
+       subtitle = sprintf("mean interval width: pool %.1f, batch %.1f g kg-1",
+                          mean(pool_w$w), mean(batch_w$w)),
+       x = expression(paste("80% predictive-interval width (g kg"^-1, ")")),
+       y = "Density") +
+  theme_edaphos() + theme(legend.position = "top")
+
+# covariate-space coverage: the batch should also spread, not cluster
+cs <- rbind(
+  data.frame(x = br_cerrado$twi, y = br_cerrado$map_mm, set = "Candidate pool"),
+  data.frame(x = al_lab$twi,   y = al_lab$map_mm,   set = "Labelled"),
+  data.frame(x = nxt_rows$twi, y = nxt_rows$map_mm, set = "Selected batch"))
+p5c <- ggplot(cs, aes(x, y, colour = set, size = set, alpha = set)) +
+  geom_point() +
+  scale_colour_manual(values = c("Candidate pool" = "grey78", "Labelled" = "#1B6CA8",
+                                 "Selected batch" = "#C1440E"), name = NULL) +
+  scale_size_manual(values = c(0.5, 1.6, 3), guide = "none") +
+  scale_alpha_manual(values = c(0.5, 0.9, 1), guide = "none") +
+  labs(title = "C  Where the batch sits in covariate space",
+       subtitle = "the batch spreads along wetness but concentrates at high precipitation --\nthe policy chases variance, and variance here is not uniformly distributed",
+       x = "Topographic wetness index", y = "Mean annual precipitation (mm)") +
+  theme_edaphos() + theme(legend.position = "top")
+
+fig_al <- p5a / (p5b | p5c) + plot_layout(heights = c(1.25, 1))
+save_fig(fig_al, "Fig6", 9.0, 8.0)
+}
+
+# =============================================================================
+# Pillar 7 — Bayesian hierarchical spatial: kriged surface and its uncertainty
+# =============================================================================
+if (need("Fig8")) {
+message("Pillar 7: Bayesian kriging")
+set.seed(3)
+bh_i  <- sample(nrow(br_cerrado), 150)
+bh_d  <- br_cerrado[bh_i, ]; bh_d$lon <- bh_d$x; bh_d$lat <- bh_d$y
+bh_fit <- bhs_fit(bh_d, soc ~ twi + map_mm, coords = c("lon", "lat"),
+                  nmcmc = 3000L, burn = 1000L, seed = 3L)
+newd <- br_cerrado; newd$lon <- newd$x; newd$lat <- newd$y
+bh_pr <- predict(bh_fit, newdata = newd, n_draws = 400L)
+krig <- data.frame(x = newd$x, y = newd$y, mean = bh_pr$mean, sd = bh_pr$sd)
+
+kA <- ggplot(krig, aes(x, y, fill = mean)) + geom_raster() +
+  geom_point(data = bh_d, aes(x, y), inherit.aes = FALSE, shape = 21, size = 1.1,
+             stroke = 0.3, fill = "white", colour = "grey25") +
+  scale_fill_viridis_c(option = "inferno", direction = -1,
+                       name = expression(paste("SOC (g kg"^-1, ")"))) +
+  coord_equal(expand = FALSE) +
+  labs(title = "A  Posterior mean surface", x = NULL, y = NULL,
+       subtitle = "white circles are the 150 conditioning observations") +
+  theme_map()
+
+kB <- ggplot(krig, aes(x, y, fill = sd)) + geom_raster() +
+  geom_point(data = bh_d, aes(x, y), inherit.aes = FALSE, shape = 21, size = 1.1,
+             stroke = 0.3, fill = "white", colour = "grey25") +
+  scale_fill_viridis_c(option = "cividis", name = "Posterior SD") +
+  coord_equal(expand = FALSE) +
+  labs(title = "B  Predictive standard deviation", x = NULL, y = NULL,
+       subtitle = "nearly uniform here, because the fitted spatial term is negligible (panel C)") +
+  theme_map()
+
+# Why the uncertainty surface is nearly flat: the profile-MLE of phi rails at
+# its bracket, so the fitted field is almost all nugget. The package warns about
+# exactly this, and the honest figure is the diagnostic, not a prettier surface.
+phi_grid <- exp(seq(log(0.05), log(30), length.out = 40))
+ll <- vapply(phi_grid, function(ph) {
+  f <- suppressWarnings(bhs_fit(bh_d, soc ~ twi + map_mm, coords = c("lon", "lat"),
+        nmcmc = 300L, burn = 100L, phi_range = c(ph, ph * 1.0001), seed = 3L))
+  mean(f$sigma2_draws) / (mean(f$sigma2_draws) + mean(f$tau2_draws))
+}, numeric(1))
+kC <- ggplot(data.frame(phi = phi_grid, frac = ll), aes(phi, frac)) +
+  geom_line(colour = "#1B6CA8", linewidth = 1) +
+  geom_point(colour = "#1B6CA8", size = 1.2) +
+  geom_vline(xintercept = bh_fit$phi_hat, linetype = 2, colour = PAL[["accent"]]) +
+  annotate("text", x = bh_fit$phi_hat, y = Inf, hjust = 1.08, vjust = 1.6, size = 2.7,
+           colour = PAL[["accent"]],
+           label = sprintf("profile-MLE rails at phi = %.1f", bh_fit$phi_hat)) +
+  scale_x_continuous(trans = "log10") +
+  labs(title = "C  Why panel B is nearly flat, and how the package says so",
+       subtitle = sprintf(paste("the spatial share of variance collapses as the correlation rate grows;",
+                                "the\nfitted field is %.0f%% nugget, and bhs_fit() emits a boundary warning"),
+                          100 * (1 - mean(bh_fit$sigma2_draws) /
+                                   (mean(bh_fit$sigma2_draws) + mean(bh_fit$tau2_draws)))),
+       x = expression(paste("Correlation rate ", phi, " (log scale)")),
+       y = "Spatial share of variance") +
+  theme_edaphos()
+
+fig_bhs <- (kA | kB) / kC + plot_layout(heights = c(1.3, 1))
+save_fig(fig_bhs, "Fig8", 9.2, 7.2)
+}
+
+# =============================================================================
+# Pillar 1 — the causal graph, its adjustment set, and its falsification
+# =============================================================================
+if (need("Fig2")) {
+message("Pillar 1: causal graph")
+dag_r <- causal_cerrado_real_dag()
+nice <- c(elev = "Elevation", slope = "Slope", wc_bio_01 = "Temperature",
+          wc_bio_12 = "Precipitation", wc_landcover_trees = "Tree cover",
+          wc_landcover_cropland = "Cropland", wc_landcover_grassland = "Grassland",
+          soilgrids_clay = "Clay", soilgrids_sand = "Sand",
+          soilgrids_bdod = "Bulk density", soc_topsoil_gkg = "Topsoil carbon")
+co <- dagitty::coordinates(dag_r)
+nd <- data.frame(name = names(co$x), x = as.numeric(co$x), y = -as.numeric(co$y))
+nd$lab <- nice[nd$name]
+E <- dagitty::edges(dag_r)
+ed <- data.frame(from = as.character(E$v), to = as.character(E$w))
+ed$x    <- nd$x[match(ed$from, nd$name)]; ed$y    <- nd$y[match(ed$from, nd$name)]
+ed$xend <- nd$x[match(ed$to,   nd$name)]; ed$yend <- nd$y[match(ed$to,   nd$name)]
+
+aset <- causal_adjustment_set(dag_r, "wc_landcover_trees", "soc_topsoil_gkg",
+                              effect = "total")
+nd$role <- "other"
+nd$role[nd$name %in% aset] <- "adjustment set"
+nd$role[nd$name == "wc_landcover_trees"] <- "exposure"
+nd$role[nd$name == "soc_topsoil_gkg"]    <- "outcome"
+ed$hl <- ed$from %in% c("wc_landcover_trees", aset) & ed$to == "soc_topsoil_gkg" |
+         ed$from %in% aset & ed$to == "wc_landcover_trees"
+
+pd1 <- ggplot() +
+  geom_segment(data = ed[!ed$hl, ], aes(x, y, xend = xend, yend = yend),
+               colour = "grey80", linewidth = 0.4,
+               arrow = arrow(length = unit(0.055, "in"), type = "closed")) +
+  geom_segment(data = ed[ed$hl, ], aes(x, y, xend = xend, yend = yend),
+               colour = "#C1440E", linewidth = 0.85,
+               arrow = arrow(length = unit(0.075, "in"), type = "closed")) +
+  geom_point(data = nd, aes(x, y, fill = role), shape = 21, size = 8.5,
+             stroke = 0.5, colour = "white") +
+  ggrepel::geom_text_repel(data = nd, aes(x, y, label = lab), size = 2.7,
+                           colour = "grey15", seed = 2, box.padding = 0.55,
+                           point.padding = 0.5, min.segment.length = 0.4,
+                           segment.colour = "grey75") +
+  scale_fill_manual(values = c(exposure = "#C1440E", outcome = "#4B2E15",
+                               `adjustment set` = "#1B6CA8", other = "grey72"),
+                    name = NULL,
+                    breaks = c("exposure", "outcome", "adjustment set")) +
+  labs(title = "A  A pedogenetic graph is an explicit, checkable claim",
+       subtitle = sprintf("total effect of tree cover on carbon; the backdoor criterion returns {%s}",
+                          paste(nice[aset], collapse = ", "))) +
+  theme_map() + theme(legend.position = "top")
+
+# the graph's own implied independencies, tested
+have9 <- c("soc_topsoil_gkg","wc_bio_01","wc_bio_12","wc_landcover_trees",
+           "soilgrids_clay","soilgrids_sand","soilgrids_bdod","elev","slope")
+dd9 <- prof
+dd9$soc_topsoil_gkg <- dd9$soc; dd9$wc_bio_01 <- dd9$mat; dd9$wc_bio_12 <- dd9$map
+dd9$wc_landcover_trees <- dd9$trees; dd9$soilgrids_clay <- dd9$clay
+dd9$soilgrids_sand <- dd9$sand; dd9$soilgrids_bdod <- dd9$bdod
+keep9 <- vapply(seq_len(nrow(E)), function(i)
+  as.character(E$v[i]) %in% have9 && as.character(E$w[i]) %in% have9, logical(1))
+sub9 <- dagitty::dagitty(paste0("dag{", paste(sprintf("%s -> %s", E$v[keep9], E$w[keep9]),
+                                              collapse = " "), "}"))
+LT <- dagitty::localTests(sub9, dd9[stats::complete.cases(dd9[, have9]), have9],
+                          type = "cis")
+LT$reject <- LT$p.value < 0.05
+pd2 <- ggplot(LT, aes(x = abs(estimate), fill = reject)) +
+  geom_histogram(bins = 26, colour = "white", linewidth = 0.15) +
+  scale_fill_manual(values = c(`FALSE` = "#2E7D5B", `TRUE` = "#A8322D"),
+                    labels = c("compatible", "rejected at 5%"), name = NULL) +
+  labs(title = "B  ... and this graph fails its own test",
+       subtitle = sprintf("%d of %d implied conditional independencies are rejected; the largest\nviolated partial correlation is %.2f",
+                          sum(LT$reject), nrow(LT), max(abs(LT$estimate))),
+       x = "Absolute partial correlation that the graph implies should be zero",
+       y = "Count") +
+  theme_edaphos() + theme(legend.position = "top")
+
+fig_dag <- pd1 / pd2 + plot_layout(heights = c(1.35, 1))
+save_fig(fig_dag, "Fig2", 8.2, 8.2)
+}
+
+# =============================================================================
+# Pillar 8 — neural operators over depth-function space
+# =============================================================================
+if (need("Fig9")) {
+message("Pillar 8: neural operators")
+set.seed(5)
+n_site <- 140L
+dep_tr <- c(5, 15, 30, 50, 75, 100)          # training depths
+site   <- br_cerrado[sample(nrow(br_cerrado), n_site), c("twi", "map_mm", "elev", "slope")]
+Xs     <- scale(as.matrix(site))
+# depth profiles generated by the Pillar-2 pedogenetic equation, per site
+lam <- 0.02 + 0.02 * plogis(Xs[, "twi"]); mu_ <- 0.008 + 0.008 * plogis(Xs[, "map_mm"])
+y0_ <- 30 + 8 * Xs[, "map_mm"]; yinf <- 3 + 1.5 * Xs[, "elev"]
+prof_fun <- function(z, i) yinf[i] + (y0_[i] - yinf[i]) *
+  exp(-lam[i] / mu_[i] * (1 - exp(-mu_[i] * z)))
+Ytr <- t(vapply(seq_len(n_site), function(i) prof_fun(dep_tr, i) +
+                  stats::rnorm(length(dep_tr), 0, 0.4), numeric(length(dep_tr))))
+tr <- 1:110; te <- 111:n_site
+don <- no_deeponet_fit(dep_tr, Ytr[tr, ], Xs[tr, ], backend = "r",
+                       branch_hidden = 24L, trunk_hidden = 24L, epochs = 500L,
+                       lr = 0.02, seed = 5L)
+dep_new <- seq(2, 110, by = 2)               # includes depths never trained on
+pr <- predict(don, Xs[te, ], newdepths = dep_new)
+truth <- t(vapply(te, function(i) prof_fun(dep_new, i), numeric(length(dep_new))))
+
+show_i <- 1:6
+pf <- do.call(rbind, lapply(show_i, function(k) rbind(
+  data.frame(z = dep_new, y = truth[k, ], kind = "Truth", site = k),
+  data.frame(z = dep_new, y = pr[k, ],    kind = "Operator prediction", site = k))))
+obs <- do.call(rbind, lapply(show_i, function(k)
+  data.frame(z = dep_tr, y = Ytr[te[k], ], site = k)))
+p8a <- ggplot(pf, aes(y, -z)) +
+  geom_path(aes(colour = kind, linetype = kind), linewidth = 0.8) +
+  geom_point(data = obs, aes(y, -z), inherit.aes = FALSE, size = 1.2,
+             colour = "grey25") +
+  facet_wrap(~site, nrow = 2, labeller = labeller(site = function(v) paste("Site", v))) +
+  scale_colour_manual(values = c(Truth = "grey45",
+                                 `Operator prediction` = "#7B2D8E"), name = NULL) +
+  scale_linetype_manual(values = c(Truth = 2, `Operator prediction` = 1), name = NULL) +
+  scale_y_continuous(breaks = seq(0, -100, by = -25), labels = abs(seq(0, 100, by = 25))) +
+  labs(title = "A  One trained operator emits the whole profile, at any depth",
+       subtitle = "held-out sites; points are the six training depths, the curve is evaluated every 2 cm",
+       x = expression(paste("Organic carbon (g kg"^-1, ")")), y = "Depth (cm)") +
+  theme_edaphos() + theme(legend.position = "top")
+
+err <- data.frame(z = dep_new,
+                  rmse = sqrt(colMeans((truth - pr)^2)),
+                  trained = dep_new %in% dep_tr)
+p8b <- ggplot(err, aes(z, rmse)) +
+  geom_col(aes(fill = trained), width = 1.6) +
+  scale_fill_manual(values = c(`FALSE` = "#B8B3AC", `TRUE` = "#7B2D8E"),
+                    labels = c("depth never seen in training", "training depth"),
+                    name = NULL) +
+  labs(title = "B  Error at depths the operator was never trained on",
+       subtitle = "the operator interpolates the depth axis rather than treating each depth as a task",
+       x = "Depth (cm)", y = expression(paste("RMSE across held-out sites (g kg"^-1, ")"))) +
+  theme_edaphos() + theme(legend.position = "top")
+
+fig_no <- p8a / p8b + plot_layout(heights = c(1.5, 1))
+save_fig(fig_no, "Fig9", 8.6, 7.6)
+}
+
+# =============================================================================
+# Pillar 4 — self-supervised foundation encoder
+# =============================================================================
+if (need("Fig5")) {
+message("Pillar 4: foundation encoder (trains a small MoCo)")
+gg2 <- 45L
+uxx <- sort(unique(br_cerrado$x)); uyy <- sort(unique(br_cerrado$y))
+lay <- lapply(c("elev", "slope", "twi", "map_mm", "ndvi"), function(v) {
+  m <- matrix(NA_real_, gg2, gg2)
+  m[cbind(match(br_cerrado$x, uxx), match(br_cerrado$y, uyy))] <- br_cerrado[[v]]
+  (m - mean(m, na.rm = TRUE)) / stats::sd(m, na.rm = TRUE)
+})
+stk <- terra::rast(lapply(lay, function(m) terra::rast(m)))
+names(stk) <- c("elev", "slope", "twi", "map_mm", "ndvi")
+ds4 <- foundation_tile_dataset(stk, patch_size = 8L, n_patches = 700L, seed = 2L)
+moc <- foundation_moco_pretrain_tiles(ds4, feature_dim = 48L, proj_dim = 24L,
+                                      queue_size = 256L, batch_size = 32L,
+                                      epochs = 700L, lr = 1e-3, device = "cpu",
+                                      seed = 2L, verbose = FALSE)
+lh <- moc$loss_history
+p4a <- ggplot(data.frame(step = seq_along(lh), loss = lh), aes(step, loss)) +
+  geom_hline(yintercept = log(1 + moc$queue_size), linetype = 2, colour = "grey45") +
+  annotate("text", x = length(lh), y = log(1 + moc$queue_size),
+           label = "uninformative reference, log(1 + K)", hjust = 1.02, vjust = -0.6,
+           size = 2.6, colour = "grey40") +
+  geom_line(colour = "#1B6CA8", alpha = 0.35, linewidth = 0.3) +
+  geom_smooth(se = FALSE, method = "loess", formula = y ~ x, span = 0.3,
+              colour = "#1B6CA8", linewidth = 1) +
+  labs(title = "A  Contrastive pre-training, no labels used",
+       subtitle = sprintf("InfoNCE over %d unlabelled patches; falls from %.2f to %.2f, well below chance",
+                          ds4$n_patches, lh[1], min(lh)),
+       x = "Optimiser step", y = "InfoNCE loss") +
+  theme_edaphos()
+
+set.seed(21)
+patch4 <- ds4$sample(600L)                 # $sample is a sampler function
+emb4 <- foundation_moco_embed(moc, patch4)
+pc4  <- stats::prcomp(emb4, center = TRUE, scale. = TRUE)
+vex  <- 100 * pc4$sdev^2 / sum(pc4$sdev^2)
+cent <- ds4$patch_cells
+pdf4 <- data.frame(PC1 = pc4$x[, 1], PC2 = pc4$x[, 2],
+                   twi  = apply(patch4[, which(names(stk) == "twi"), , ], 1, mean),
+                   elev = apply(patch4[, which(names(stk) == "elev"), , ], 1, mean))
+p4b <- ggplot(pdf4, aes(PC1, PC2, colour = twi)) +
+  geom_point(size = 1.1, alpha = 0.85) +
+  scale_colour_viridis_c(option = "mako", direction = -1, name = "mean TWI\nin patch") +
+  labs(title = "B  The embedding organises by landscape position",
+       subtitle = sprintf("principal components of the %d-dimensional encoder output (%.0f%% and %.0f%% of variance);\ncolour is a covariate the encoder was never told about explicitly",
+                          ncol(emb4), vex[1], vex[2]),
+       x = sprintf("PC1 (%.0f%%)", vex[1]), y = sprintf("PC2 (%.0f%%)", vex[2])) +
+  theme_edaphos()
+
+fig_fnd <- p4a / p4b + plot_layout(heights = c(1, 1.2))
+save_fig(fig_fnd, "Fig5", 8.2, 7.0)
+}
