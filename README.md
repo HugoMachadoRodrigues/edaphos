@@ -282,8 +282,12 @@ these 1,095 profiles. (12.3 km is the corresponding figure for the denser
 3,077-profile causal extract, a different data set; earlier versions of
 this README quoted it here by mistake.) Blocking without a dead zone
 under-states generalisation error (Roberts et al. 2017), and 15.2 km sits
-well inside the 55–68 km range at which the fitted depth-function
-parameters are still correlated.
+well inside the 70 km range at which the one fitted depth-function
+parameter with an identified variogram is still correlated. (Earlier
+versions said "the 55–68 km range" from two identified parameters; those
+variograms were computed on Gaussian-likelihood fits. Under the lognormal
+likelihood the package now defaults to, only one of the four parameters
+has an identified range — see `data-raw/piml_parameter_variograms.R`.)
 
 **What the buffer is worth, measured rather than asserted.** Earlier
 versions of this README stated that P10 GAT "went from RMSE 0.617 to
