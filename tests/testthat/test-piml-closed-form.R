@@ -410,3 +410,32 @@ test_that("the depth benchmark's domain stratifier does not read the test horizo
   jump <- abs(r$obs - r$copy_near)
   expect_lt(max(jump[r$monotone_full_profile]), max(jump[r$monotone]))
 })
+
+test_that("the external anchors are stored with the sign and strength measured", {
+  f <- system.file("extdata", "piml_external_anchors.rds", package = "edaphos")
+  skip_if(f == "", "anchors bundle not installed")
+  A <- readRDS(f)
+
+  # Anchor 1: Hassink. The mechanism predicts a POSITIVE slope of the deep
+  # floor on clay + silt. Pin the sign, and pin that we are not overstating it:
+  # the relation is significant and explains under 1% of the variance, and a
+  # future change that made it look strong would be the thing to check.
+  ct <- summary(A$hassink$model)$coefficients
+  expect_gt(ct[2, 1], 0)
+  expect_lt(ct[2, 4], 0.05)
+  expect_lt(summary(A$hassink$model)$r.squared, 0.05)
+  expect_gt(A$hassink$n, 500)
+
+  # Anchor 2: Jobbagy-Jackson. The implied beta lands in a plausible band...
+  qb <- A$beta$quantiles
+  expect_true(all(qb > 0.9 & qb < 1))
+  # ...but does NOT move with vegetation, which is that paper's central claim.
+  expect_gt(summary(A$beta$model_trees)$coefficients[2, 4], 0.05)
+
+  # And it is not external evidence at all: it is largely a re-expression of
+  # our own fitted surface concentration. This is the reason the manuscript
+  # withdraws it as an anchor, so it is pinned.
+  d <- A$profiles
+  d <- d[d$monotone & is.finite(d$beta) & is.finite(d$y0), ]
+  expect_gt(summary(stats::lm(beta ~ y0, data = d))$r.squared, 0.5)
+})

@@ -135,6 +135,35 @@ repository's own scripts, which then kept only the shallowest horizon of each.
   far the deepest horizon travelled toward `y(Inf)`) and `surface_ratio` (`y0`
   reached 775 g/kg on one real profile), and `print()` says so.
 
+## The parameters were confronted with something outside the fit
+
+Pillar 2 claimed its parameters were identified and interpretable. Identified
+it demonstrated; interpretable it asserted. `data-raw/piml_external_anchors.R`
+tests two directional predictions the mechanism makes and a curve-fitting
+device does not. They come out differently, and both are reported.
+
+- **Hassink (1997) saturation: passes, weakly.** If `y(Inf)` is a
+  mineral-associated floor it must rise with clay + silt. Across 812 monotone
+  profiles with a texture estimate within 5 km it does — slope +0.0067 per
+  percentage point, p = 0.03, Spearman rho = 0.10 — and the attained value of
+  the attenuating-rate form gives the same sign more strongly (p = 0.002).
+  Texture explains 0.5% of the variance, though, and it is a SoilGrids
+  prediction from a product trained partly on the same WoSIS archive. Reported
+  as consistent with the mechanism and much weaker than a confirmation.
+- **Jobbagy & Jackson (2000) beta: fails, and is withdrawn as an anchor.** The
+  implied beta is plausible in level (median 0.971, 5-95% 0.957-0.980) but
+  moves with nothing outside the fit: tree cover R^2 = 0.00003, clay
+  R^2 < 0.0001, precipitation R^2 = 0.0005. The one external variable it tracks
+  is how deep the profile happened to be dug (R^2 = 0.024), a property of the
+  survey. Meanwhile 63% of its variance is explained by our own fitted surface
+  concentration. A statistic two-thirds determined by a parameter of the model
+  it is meant to validate is not external evidence.
+
+The constant-density assumption behind the beta calculation was measured
+rather than asserted: on the eight profiles carrying bulk density, computing
+the cumulative from mass rather than concentration moves the median beta by
+less than 0.0001.
+
 ## Three method defects that invalidated published numbers
 
 A full verification sweep of the specialist panel's 266 findings -- deduplicated
