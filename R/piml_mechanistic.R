@@ -11,8 +11,9 @@
 # 2016) with a fourth shape parameter attached. A reviewer who knows the
 # depth-function literature recognises it on sight.
 #
-# On real multi-horizon profiles the derived model below is also the more
-# accurate of the two, so the choice does not cost anything.
+# On real multi-horizon profiles the two are equally accurate once both are
+# fitted with a correctly specified likelihood, so preferring the derived one
+# costs nothing in prediction and gains a derivation.
 #
 # There IS a derivable equation for soil organic carbon with depth. Take the
 # standard steady-state advection-reaction-diffusion balance (Elzein &
@@ -104,14 +105,16 @@
 }
 
 .pmech_loss <- function(theta, depths, obs, y_surface, lambda_reg, center,
-                        top = NULL, bottom = NULL) {
+                        top = NULL, bottom = NULL, family = "gaussian") {
   p <- .pmech_unpack(theta, y_surface)
   pred <- tryCatch(
     if (is.null(top) || is.null(bottom)) .pmech_solution(depths, p)
     else .pmech_layer_mean(top, bottom, p),
     error = function(e) NULL)
   if (is.null(pred) || any(!is.finite(pred))) return(1e12)
-  sum((pred - obs)^2) + lambda_reg * sum((theta - center)^2)
+  dev <- .piml_deviance(obs, pred, family)
+  if (!is.finite(dev)) return(1e12)
+  dev + lambda_reg * sum((theta - center)^2)
 }
 
 #' Fit the depth profile derived from a steady-state carbon balance (Pillar 2b)
@@ -131,13 +134,19 @@
 #' the *target*, following root input, and every parameter is positive with a
 #' literature prior.
 #'
-#' It also fits better, which was not the expected outcome. On the nine-horizon
-#' WoSIS profile shipped with the package it reaches an RMSE of 0.415 g/kg
-#' against 1.342 for the attenuating-rate form, and on leave-the-deepest-out
-#' prediction across the 875 monotone profiles in
-#' `inst/extdata/piml_wosis_cerrado.rds` it leads at 1.511 against 1.653,
-#' winning on 467 of them (paired Wilcoxon p = 2e-6). On a single hand-typed
-#' seven-point profile the ordering was the other way round.
+#' On accuracy the two are a tie, and the honest statement of that took two
+#' attempts. Under a Gaussian likelihood this model appeared to win decisively
+#' on leave-the-deepest-horizon-out prediction across the 875 monotone profiles
+#' in `inst/extdata/piml_wosis_cerrado.rds` (p = 2e-6). Correcting the
+#' likelihood for BOTH models removed the difference: RMSE 1.483 against 1.507,
+#' winning on 454 of 875 profiles against 421, paired Wilcoxon p = 0.25. The
+#' Gaussian had been penalising the attenuating-rate form more heavily, because
+#' weighting every horizon by the same absolute error hurts the model whose
+#' flexibility lies in the deep tail.
+#'
+#' Prefer this model because it can be defended, not because it predicts
+#' better. On the nine-horizon pedon shipped with the package it does fit
+#' markedly better (RMSE 0.44 against 2.52 g/kg), but one pedon is one pedon.
 #'
 #' @param depths Numeric vector of horizon mid-depths (cm).
 #' @param values Numeric vector of concentrations, same length, strictly
@@ -147,6 +156,10 @@
 #' @param top,bottom Optional horizon boundaries. When supplied each datum is
 #'   compared to the model's depth-average over its horizon (analytic here,
 #'   since every term is an exponential) rather than to a point evaluation.
+#' @param family Observation family, as in [piml_profile_fit()]. Defaults to
+#'   `"lognormal"`: soil carbon is positive and right-skewed, and a Gaussian
+#'   on g/kg weights every horizon by the same absolute error, so a profile
+#'   spanning 30 to 2 g/kg is fitted almost entirely by its topsoil.
 #' @param reg L2 shrinkage toward the data-driven start, on the log scale.
 #' @param control `stats::optim` control list.
 #'
@@ -193,8 +206,11 @@
 #' fit
 piml_profile_fit_mechanistic <- function(depths, values, y_surface = NULL,
                                          top = NULL, bottom = NULL,
+                                         family = c("lognormal", "gaussian",
+                                                    "gamma"),
                                          reg = 1e-3,
                                          control = list(maxit = 4000)) {
+  family <- match.arg(family)
   stopifnot(length(depths) == length(values), length(depths) >= 3L,
             all(is.finite(depths)), all(is.finite(values)), all(depths >= 0))
   if (any(values <= 0)) {
@@ -229,6 +245,7 @@ piml_profile_fit_mechanistic <- function(depths, values, y_surface = NULL,
     f <- tryCatch(stats::optim(s, .pmech_loss, depths = depths, obs = values,
                                y_surface = y_surface, lambda_reg = reg,
                                center = s, top = top, bottom = bottom,
+                               family = family,
                                method = "Nelder-Mead", control = control),
                   error = function(e) NULL)
     if (!is.null(f) && (is.null(fit) || f$value < fit$value)) fit <- f
@@ -243,7 +260,7 @@ piml_profile_fit_mechanistic <- function(depths, values, y_surface = NULL,
   structure(list(params = params, theta = fit$par, objective = fit$value,
                  converged = fit$convergence == 0L,
                  depths = depths, values = values, y_surface = y_surface,
-                 top = top, bottom = bottom, fitted = pred,
+                 top = top, bottom = bottom, family = family, fitted = pred,
                  rmse = .rmse(values, pred)),
             class = "edaphos_piml_mech")
 }

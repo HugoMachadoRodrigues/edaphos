@@ -74,7 +74,7 @@
 # with s0 set from the spread of the observations, plus the log Jacobian.
 .piml_bayes_neg_log_post <- function(theta, depths, obs, y_surface,
                                        sigma = NULL, prior, top = NULL,
-                                       bottom = NULL) {
+                                       bottom = NULL, family = "gaussian") {
   if (is.null(sigma)) {
     np    <- length(theta) - 1L
     sigma <- exp(theta[np + 1L])
@@ -91,10 +91,11 @@
     error = function(e) NULL)
   if (is.null(pred) || any(!is.finite(pred))) return(1e9)
 
-  # Gaussian likelihood
-  n     <- length(obs)
-  nll   <- 0.5 * n * log(2 * pi * sigma^2) +
-           sum((obs - pred)^2) / (2 * sigma^2)
+  # Observation likelihood. For "gaussian" sigma is an SD in the property's
+  # units; for "lognormal" and "gamma" it is a coefficient of variation, and
+  # both are parameterised so the prediction is the MEAN of the observation.
+  nll <- .piml_nll(obs, pred, sigma, family)
+  if (!is.finite(nll)) return(1e9)
 
   # Priors. All expressed as `0.5 * ((x - mu) / sd)^2 + const` so they
   # are additive in -log-posterior.
@@ -137,7 +138,8 @@
 # published values, so the circularity can be tested rather than assumed
 # harmless. Only log_mu_mean (sampling geometry, not outcome) and
 # log_kappa_mean (a modelling convention) are free of the response.
-.piml_bayes_default_prior <- function(depths, obs, y_surface) {
+.piml_bayes_default_prior <- function(depths, obs, y_surface,
+                                      family = "gaussian") {
   o <- order(depths)
   zmax <- max(depths, na.rm = TRUE)
   y_deep <- max(obs[o[length(o)]], 1e-3)
@@ -157,8 +159,11 @@
     log_y_asym_sd    = 1,
     log_y0_mean      = log(y_top),
     log_y0_sd        = 1,
-    # scale of the half-t prior on the observation noise
-    sigma_scale      = max(stats::sd(obs, na.rm = TRUE), 1e-3)
+    # Scale of the half-t prior on the observation noise. Its UNITS depend on
+    # the family: an SD in g/kg for "gaussian", a coefficient of variation for
+    # the other two. A prior centred on sd(obs) would be absurd for a CV.
+    sigma_scale      = if (identical(family, "gaussian"))
+                         max(stats::sd(obs, na.rm = TRUE), 1e-3) else 0.3
   )
 }
 
@@ -273,7 +278,7 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
 # --- Laplace fit -------------------------------------------------------
 
 .piml_laplace_fit <- function(depths, values, y_surface, prior,
-                                top = NULL, bottom = NULL,
+                                top = NULL, bottom = NULL, family = "gaussian",
                                 start, control) {
   # Stage 1: locate the parameters at a provisional noise scale. This is only
   # an initialisation -- sigma is a sampled parameter, not a plug-in.
@@ -285,6 +290,7 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
     y_surface = y_surface,
     top       = top,
     bottom    = bottom,
+    family    = family,
     sigma     = 1.0,
     prior     = prior,
     method    = "Nelder-Mead",
@@ -306,6 +312,7 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
     y_surface = y_surface,
     top       = top,
     bottom    = bottom,
+    family    = family,
     sigma     = NULL,
     prior     = prior,
     method    = "Nelder-Mead",
@@ -321,6 +328,7 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
     y_surface = y_surface,
     top       = top,
     bottom    = bottom,
+    family    = family,
     sigma     = NULL,
     prior     = prior
   )
@@ -499,6 +507,12 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
 #' @param depths,values Numeric vectors — same as [piml_profile_fit()].
 #' @param y_surface Optional fixed surface value.
 #' @param method One of `"laplace"` (default) or `"mcmc"`.
+#' @param family Observation family, as in [piml_profile_fit()]. `"gaussian"`
+#'   (default) puts predictive mass below zero and weights every horizon by
+#'   the same absolute error; `"lognormal"` and `"gamma"` are strictly
+#'   positive, mean-preserving, and weight by relative error. When it is not
+#'   `"gaussian"`, `sigma` is a coefficient of variation rather than an SD in
+#'   the property's units, and the default prior on it changes accordingly.
 #' @param top,bottom Optional horizon boundaries — same as
 #'   [piml_profile_fit()]. When supplied, each observation is compared to
 #'   the model's depth-average over its horizon rather than to a point
@@ -584,6 +598,8 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
 #' @export
 piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
                                         top = NULL, bottom = NULL,
+                                        family = c("lognormal", "gaussian",
+                                                   "gamma"),
                                         method  = c("laplace", "mcmc"),
                                         prior   = NULL,
                                         start   = NULL,
@@ -599,17 +615,19 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
             all(is.finite(depths)), all(is.finite(values)),
             all(depths >= 0))
   method <- match.arg(method)
+  family <- match.arg(family)
 
   if (is.null(prior)) prior <- .piml_bayes_default_prior(depths, values,
-                                                            y_surface)
+                                                            y_surface, family)
   if (is.null(start)) {
     start <- piml_profile_fit(depths, values, y_surface = y_surface,
-                                top = top, bottom = bottom,
+                                top = top, bottom = bottom, family = family,
                                 control = control)$theta
   }
 
   lap <- .piml_laplace_fit(depths, values, y_surface, prior, start,
-                             control, top = top, bottom = bottom)
+                             control, top = top, bottom = bottom,
+                             family = family)
 
   if (method == "laplace") {
     # 2000 draws for downstream predict().
@@ -626,7 +644,8 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
     nlp_closure <- function(th) {
       .piml_bayes_neg_log_post(th, depths = depths, obs = values,
                                  y_surface = y_surface, sigma = NULL,
-                                 prior = prior, top = top, bottom = bottom)
+                                 prior = prior, top = top, bottom = bottom,
+                                 family = family)
     }
     # Several chains from dispersed starts. One chain cannot be checked for
     # convergence: R-hat compares between-chain to within-chain variance, and
@@ -697,6 +716,7 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
       draws       = draws,
       summary     = summ,
       accept_rate = accept_rate,
+      family      = family,
       # NULL for the Laplace path, which is not a sampler and for which these
       # diagnostics are undefined.
       diagnostics = diag_,
@@ -812,9 +832,28 @@ predict.edaphos_piml_bayes <- function(object, newdepths,
   if (isTRUE(include_obs_noise)) {
     # Per-draw noise scale: sigma is a sampled parameter, so its uncertainty
     # belongs in the predictive interval rather than being fixed at one value.
+    # And the noise must be drawn from the family the model was FITTED with --
+    # adding Gaussian noise to a gamma fit would put predictive mass below
+    # zero, which is the defect the family argument exists to remove.
     sd_draw <- exp(object$draws[ix, ncol(object$draws)])
-    pred <- pred + matrix(stats::rnorm(length(pred), sd = rep(sd_draw, ncol(pred))),
-                           nrow = nrow(pred), ncol = ncol(pred))
+    fam <- object$family %||% "gaussian"
+    if (!identical(fam, "gaussian")) {
+      cv <- rep(sd_draw, ncol(pred))
+      pred <- if (identical(fam, "gamma")) {
+        matrix(stats::rgamma(length(pred), shape = 1 / cv^2,
+                             rate = 1 / (cv^2 * pmax(as.numeric(pred), 1e-12))),
+               nrow(pred), ncol(pred))
+      } else {
+        s2 <- log1p(cv^2)
+        matrix(stats::rlnorm(length(pred),
+                             meanlog = log(pmax(as.numeric(pred), 1e-12)) - s2 / 2,
+                             sdlog = sqrt(s2)), nrow(pred), ncol(pred))
+      }
+    } else {
+      pred <- pred + matrix(stats::rnorm(length(pred),
+                                         sd = rep(sd_draw, ncol(pred))),
+                            nrow = nrow(pred), ncol = ncol(pred))
+    }
   }
 
   if (is.null(interval)) return(pred)

@@ -209,9 +209,14 @@ for (i in seq_len(nrow(pedon))) {
     error = function(e) NULL
   )
   if (!is.null(fit)) {
+    # include_obs_noise = TRUE, because this table scores the predictive
+    # distribution against a MEASURED value. Without it the interval is the
+    # one for the mean function, which structurally cannot cover a noisy
+    # observation, and the resulting PICP understates the model's calibration
+    # rather than measuring it.
     draws <- tryCatch(
       predict(fit, newdepths = pedon$depth_mid[i],
-              n_draws = 300L, seed = 200L + i),
+              n_draws = 300L, include_obs_noise = TRUE, seed = 200L + i),
       error = function(e) NULL
     )
     if (!is.null(draws)) {

@@ -10,6 +10,7 @@ piml_profile_fit_mechanistic(
   y_surface = NULL,
   top = NULL,
   bottom = NULL,
+  family = c("lognormal", "gaussian", "gamma"),
   reg = 0.001,
   control = list(maxit = 4000)
 )
@@ -26,6 +27,11 @@ estimated.}
 \item{top, bottom}{Optional horizon boundaries. When supplied each datum is
 compared to the model's depth-average over its horizon (analytic here,
 since every term is an exponential) rather than to a point evaluation.}
+
+\item{family}{Observation family, as in \code{\link[=piml_profile_fit]{piml_profile_fit()}}. Defaults to
+\code{"lognormal"}: soil carbon is positive and right-skewed, and a Gaussian
+on g/kg weights every horizon by the same absolute error, so a profile
+spanning 30 to 2 g/kg is fitted almost entirely by its topsoil.}
 
 \item{reg}{L2 shrinkage toward the data-driven start, on the log scale.}
 
@@ -52,13 +58,19 @@ equilibrium coordinate outside the admissible range; this model attenuates
 the \emph{target}, following root input, and every parameter is positive with a
 literature prior.
 
-It also fits better, which was not the expected outcome. On the nine-horizon
-WoSIS profile shipped with the package it reaches an RMSE of 0.415 g/kg
-against 1.342 for the attenuating-rate form, and on leave-the-deepest-out
-prediction across the 875 monotone profiles in
-\code{inst/extdata/piml_wosis_cerrado.rds} it leads at 1.511 against 1.653,
-winning on 467 of them (paired Wilcoxon p = 2e-6). On a single hand-typed
-seven-point profile the ordering was the other way round.
+On accuracy the two are a tie, and the honest statement of that took two
+attempts. Under a Gaussian likelihood this model appeared to win decisively
+on leave-the-deepest-horizon-out prediction across the 875 monotone profiles
+in \code{inst/extdata/piml_wosis_cerrado.rds} (p = 2e-6). Correcting the
+likelihood for BOTH models removed the difference: RMSE 1.483 against 1.507,
+winning on 454 of 875 profiles against 421, paired Wilcoxon p = 0.25. The
+Gaussian had been penalising the attenuating-rate form more heavily, because
+weighting every horizon by the same absolute error hurts the model whose
+flexibility lies in the deep tail.
+
+Prefer this model because it can be defended, not because it predicts
+better. On the nine-horizon pedon shipped with the package it does fit
+markedly better (RMSE 0.44 against 2.52 g/kg), but one pedon is one pedon.
 }
 \section{What this model does not identify}{
 

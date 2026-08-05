@@ -1841,7 +1841,7 @@ shared map query — gives the scientifically honest table:
 | Pillar       | Native query            | n   | CRPS   | PICP (90%) | MPIW (90%) | RMSE  |
 |:-------------|:------------------------|----:|-------:|-----------:|-----------:|------:|
 | P1 Causal    | effect β (g/kg per mm)  |  40 | 0.004  |   **0.775** |      0.020 | 0.007 |
-| P2 PIML      | depth profile y(z)      |   9 | 2.117  |      0.444 |      3.256 | 3.535 |
+| P2 PIML      | depth profile y(z)      |   9 | 1.971  |      0.778 |      6.608 | 4.096 |
 | P3 4D        | future map NDVI(t★)     | 100 | 0.366  |   **0.700** |      1.268 | 0.637 |
 | P4 Found.    | 5-fold spatial CV       | 250 | 7.621  |      0.268 |      8.353 | 12.41 |
 | **P5 AL**    | held-out map            |  71 | 6.375  |   **0.930** |     37.816 | 12.86 |
@@ -1853,14 +1853,19 @@ spatial-query pillars; P1 (0.78) and P3 (0.70) are acceptable in their
 own domains despite small n. Two rows flag real failure modes, both
 reported rather than papered over. **P4's 0.27** comes from naïve
 ensembles of `ranger` heads underestimating epistemic SD, because
-`ranger` already marginalises over trees. **P2's 0.44** is new, and it
-is the price of using real data: this row used to read 0.71 with an RMSE
-of 0.83, measured by leaving one horizon out of a seven-point profile
-that had been typed in by hand. Re-run on a real nine-horizon WoSIS
-profile reaching 550 cm, the same procedure gives an RMSE of 3.54 and
-covers 44% of held-out horizons at a nominal 90%. The pedogenetic ODE is
-markedly overconfident when it has to predict a horizon it did not see.
-See
+`ranger` already marginalises over trees. **P2's 0.78** is the residue of two
+corrections. The row used to read 0.71 with an RMSE of 0.83, measured by
+leaving one horizon out of a seven-point profile that had been typed in
+by hand; on a real nine-horizon WoSIS profile reaching 550 cm the same
+procedure gave 0.44. Two things were wrong with that number and both are
+fixed. The interval being scored excluded observation noise, so a
+mean-function interval was being asked to cover a measured value it
+structurally cannot — restoring it takes the coverage to 0.67. And the
+likelihood was Gaussian on g/kg, which puts predictive mass below zero and
+weights every horizon by the same absolute error; a lognormal takes it to
+0.78 and removes the negative draws entirely. The pedogenetic ODE is still
+overconfident at a nominal 0.90, and that is now the honest residual
+rather than an artefact of how it was scored. See
 `vignette("capstone-cerrado-campaign")` §10 for the side-by-side
 comparison with the naïve unified-query table and its caveats.
 

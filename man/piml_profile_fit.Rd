@@ -10,6 +10,7 @@ piml_profile_fit(
   y_surface = NULL,
   top = NULL,
   bottom = NULL,
+  family = c("lognormal", "gaussian", "gamma"),
   start = NULL,
   reg = 0.001,
   control = list(maxit = 2000)
@@ -35,6 +36,16 @@ are known: the point-at-midpoint shortcut predicts too low on a convex
 profile, by the mid-point rule error. The correction is concentrated in
 the thick, strongly curved surface horizons — across 207 WoSIS pedons it
 moves the fitted \code{y0} by a median 0.28 g/kg and the asymptote by 0.03.}
+
+\item{family}{Observation family. \code{"gaussian"} (default, for backward
+compatibility) assumes additive error of constant absolute size;
+\code{"lognormal"} and \code{"gamma"} assume multiplicative error of constant
+\emph{relative} size, which is what laboratory error on a concentration looks
+like, and both keep the prediction as the mean of the observation. The
+choice is not cosmetic: with a constant absolute error, a profile running
+from 30 g/kg at the surface to 2 g/kg at 5 m is fitted almost entirely by
+its topsoil, and the deep horizons that carry the asymptote contribute
+almost nothing.}
 
 \item{start}{Optional named numeric vector of starting parameters on the
 internal log scale (\code{log_kappa}, \code{log_mu}, \code{log_y_asym}, and optionally

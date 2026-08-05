@@ -246,9 +246,76 @@ piml_profile_predict <- function(params, depths) {
   all(diff(v) <= 0) || all(diff(v) >= 0)
 }
 
+# --- observation families ------------------------------------------------
+#
+# The likelihood used to be Gaussian on g/kg with a single sigma. That is wrong
+# in three ways for a soil concentration, and the third is the one that bites.
+#
+#   1. Support. A Gaussian puts mass below zero. The fitted profile cannot go
+#      negative under the positive parameterisation, but the OBSERVATION model
+#      can, so a predictive interval for a deep horizon routinely reaches into
+#      impossible concentrations.
+#   2. Error structure. Laboratory error on organic carbon is closer to
+#      multiplicative than additive: a 5% error on 40 g/kg is 2 g/kg, on 2 g/kg
+#      it is 0.1.
+#   3. WEIGHTING, which is the consequential one. With sigma constant, every
+#      horizon contributes to the loss in the same absolute units, so a profile
+#      running from 30 g/kg at the surface to 2 g/kg at 5 m is fitted almost
+#      entirely by its topsoil. The deep horizons -- the ones that carry all
+#      the information about the asymptote -- are effectively ignored.
+#
+# Two mean-preserving alternatives are offered, both parameterised so that
+# `sigma` is the coefficient of variation and the model's prediction is the
+# MEAN of the observation. Mean-preserving matters here because the prediction
+# is a horizon average, i.e. a mass-preserving quantity; a median-preserving
+# lognormal would bias every layer downward by exp(sigma^2/2).
+.piml_families <- c("gaussian", "lognormal", "gamma")
+
+# Negative log-likelihood. `sigma` is the SD in the property's units for
+# "gaussian", and the coefficient of variation for the other two.
+.piml_nll <- function(obs, pred, sigma, family = "gaussian") {
+  n <- length(obs)
+  if (!is.finite(sigma) || sigma <= 0) return(Inf)
+  if (any(!is.finite(pred))) return(Inf)
+  switch(family,
+    gaussian = 0.5 * n * log(2 * pi * sigma^2) +
+               sum((obs - pred)^2) / (2 * sigma^2),
+    lognormal = {
+      if (any(pred <= 0) || any(obs <= 0)) return(Inf)
+      s2 <- log1p(sigma^2)                    # log-scale variance for CV sigma
+      # location shifted by -s2/2 so that E[obs] = pred
+      mu <- log(pred) - s2 / 2
+      sum(log(obs)) + 0.5 * n * log(2 * pi * s2) +
+        sum((log(obs) - mu)^2) / (2 * s2)
+    },
+    gamma = {
+      if (any(pred <= 0) || any(obs <= 0)) return(Inf)
+      shape <- 1 / sigma^2                    # CV = 1/sqrt(shape)
+      -sum(stats::dgamma(obs, shape = shape, rate = shape / pred, log = TRUE))
+    },
+    stop("unknown family: ", family, call. = FALSE))
+}
+
+# The discrepancy a point fit minimises: the family's deviance, which is the
+# negative log-likelihood with the scale profiled out.
+.piml_deviance <- function(obs, pred, family = "gaussian") {
+  if (any(!is.finite(pred))) return(Inf)
+  switch(family,
+    gaussian  = sum((obs - pred)^2),
+    lognormal = {
+      if (any(pred <= 0)) return(Inf)
+      sum((log(obs) - log(pred))^2)
+    },
+    gamma = {
+      if (any(pred <= 0)) return(Inf)
+      2 * sum(-log(obs / pred) + (obs - pred) / pred)
+    },
+    stop("unknown family: ", family, call. = FALSE))
+}
+
 .piml_loss <- function(theta, depths, obs, y_surface = NULL,
                        lambda_reg = 1e-3, top = NULL, bottom = NULL,
-                       center = NULL) {
+                       center = NULL, family = "gaussian") {
   params <- .piml_unpack(theta, y_surface)
   # A laboratory value is the average over a horizon, not a point reading at
   # its mid-depth. When the horizon boundaries are known, compare the datum to
@@ -270,7 +337,8 @@ piml_profile_predict <- function(params, depths) {
     error = function(e) rep(NA_real_, length(obs))
   )
   if (any(!is.finite(pred))) return(1e12)
-  sse <- sum((pred - obs)^2)
+  sse <- .piml_deviance(obs, pred, family)
+  if (!is.finite(sse)) return(1e12)
   # Ridge toward the data-driven start, not toward the origin.
   #
   # On the log coordinates, shrinking theta to 0 means shrinking every rate and
@@ -313,6 +381,15 @@ piml_profile_predict <- function(params, depths) {
 #'   profile, by the mid-point rule error. The correction is concentrated in
 #'   the thick, strongly curved surface horizons — across 207 WoSIS pedons it
 #'   moves the fitted `y0` by a median 0.28 g/kg and the asymptote by 0.03.
+#' @param family Observation family. `"gaussian"` (default, for backward
+#'   compatibility) assumes additive error of constant absolute size;
+#'   `"lognormal"` and `"gamma"` assume multiplicative error of constant
+#'   *relative* size, which is what laboratory error on a concentration looks
+#'   like, and both keep the prediction as the mean of the observation. The
+#'   choice is not cosmetic: with a constant absolute error, a profile running
+#'   from 30 g/kg at the surface to 2 g/kg at 5 m is fitted almost entirely by
+#'   its topsoil, and the deep horizons that carry the asymptote contribute
+#'   almost nothing.
 #' @param start Optional named numeric vector of starting parameters on the
 #'   internal log scale (`log_kappa`, `log_mu`, `log_y_asym`, and optionally
 #'   `log_y0`). If `NULL`, several data-driven starts are tried and the best
@@ -360,8 +437,10 @@ piml_profile_predict <- function(params, depths) {
 #'                  bottom = c(10, 20, 40, 80, 120))
 piml_profile_fit <- function(depths, values, y_surface = NULL,
                              top = NULL, bottom = NULL,
+                             family = c("lognormal", "gaussian", "gamma"),
                              start = NULL, reg = 1e-3,
                              control = list(maxit = 2000)) {
+  family <- match.arg(family)
   stopifnot(length(depths) == length(values),
             length(depths) >= 2L,
             all(is.finite(depths)), all(is.finite(values)),
@@ -411,7 +490,7 @@ piml_profile_fit <- function(depths, values, y_surface = NULL,
       stats::optim(par = s, fn = .piml_loss,
                    depths = depths, obs = values, y_surface = y_surface,
                    lambda_reg = reg, top = top, bottom = bottom,
-                   center = s,
+                   center = s, family = family,
                    method = "Nelder-Mead", control = control),
       error = function(e) NULL)
     if (!is.null(f) && (is.null(fit) || f$value < fit$value)) fit <- f
@@ -434,6 +513,7 @@ piml_profile_fit <- function(depths, values, y_surface = NULL,
       y_surface = y_surface,
       top       = top,
       bottom    = bottom,
+      family    = family,
       fitted    = pred,
       rmse      = .rmse(values, pred),
       # Fraction of the y0 -> y(Inf) journey the deepest horizon reached. Below

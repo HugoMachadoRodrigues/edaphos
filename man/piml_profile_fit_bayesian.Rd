@@ -10,6 +10,7 @@ piml_profile_fit_bayesian(
   y_surface = NULL,
   top = NULL,
   bottom = NULL,
+  family = c("lognormal", "gaussian", "gamma"),
   method = c("laplace", "mcmc"),
   prior = NULL,
   start = NULL,
@@ -31,6 +32,13 @@ piml_profile_fit_bayesian(
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}. When supplied, each observation is compared to
 the model's depth-average over its horizon rather than to a point
 evaluation at the mid-depth.}
+
+\item{family}{Observation family, as in \code{\link[=piml_profile_fit]{piml_profile_fit()}}. \code{"gaussian"}
+(default) puts predictive mass below zero and weights every horizon by
+the same absolute error; \code{"lognormal"} and \code{"gamma"} are strictly
+positive, mean-preserving, and weight by relative error. When it is not
+\code{"gaussian"}, \code{sigma} is a coefficient of variation rather than an SD in
+the property's units, and the default prior on it changes accordingly.}
 
 \item{method}{One of \code{"laplace"} (default) or \code{"mcmc"}.}
 

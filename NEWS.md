@@ -127,6 +127,51 @@ repository's own scripts, which then kept only the shallowest horizon of each.
   far the deepest horizon travelled toward `y(Inf)`) and `surface_ratio` (`y0`
   reached 775 g/kg on one real profile), and `print()` says so.
 
+## The likelihood was wrong for a soil concentration
+
+`piml_profile_fit()`, `piml_profile_fit_bayesian()` and
+`piml_profile_fit_mechanistic()` gain a `family` argument, and the default
+is now `"lognormal"` rather than Gaussian on g/kg.
+
+A Gaussian likelihood on a concentration makes three errors. It places
+predictive mass below zero; it assumes additive error where laboratory
+error is multiplicative; and — the one that costs accuracy — it weights
+every horizon by the same *absolute* discrepancy, so a profile running from
+29 g/kg at the surface to 2.3 g/kg at 5 m is fitted almost entirely by its
+topsoil while the deep horizons that carry the asymptote contribute almost
+nothing.
+
+- Both alternatives are parameterised so that the model's prediction is the
+  **mean** of the observation, and `sigma` is a coefficient of variation. Mean-
+  preserving matters because the prediction is a horizon average, a mass-
+  preserving quantity; a median-preserving lognormal would bias every layer
+  down by `exp(sigma^2/2)`.
+- On the shipped pedon the Gaussian fit misses the deepest horizon by 90% of
+  its value; the lognormal caps its worst relative residual at 23%.
+- On leave-the-deepest-horizon-out prediction across the 875 monotone WoSIS
+  profiles, the lognormal wins on 579 of them (paired Wilcoxon p = 1e-24) and
+  wins on RMSE too — 1.507 against 1.653 — even though RMSE is the criterion
+  the Gaussian optimises by construction.
+- `predict()` draws observation noise from the family the model was fitted
+  with. Adding Gaussian noise to a positive fit would reintroduce the defect
+  the argument exists to remove.
+
+**This changed a published conclusion.** Under the Gaussian, the derived
+advection-reaction model appeared to beat the attenuating-rate ODE decisively
+on held-out prediction (p = 2e-6). Fitting both with a correctly specified
+likelihood removes the difference: RMSE 1.483 against 1.507, winning on 454
+of 875 profiles against 421, p = 0.25. The Gaussian had been penalising the
+attenuating-rate form more, because over-weighting the topsoil hurts the model
+whose flexibility lies in the deep tail. The derived model is now recommended
+on the grounds that it can be derived, not on grounds of accuracy, where the
+honest answer is a tie.
+
+Two related corrections to the native calibration table. Its predictive
+interval excluded observation noise while being scored against measured
+values, which a mean-function interval structurally cannot cover: restoring it
+takes the Pillar-2 PICP from 0.44 to 0.67, and the lognormal takes it to 0.78
+while eliminating negative predictive draws entirely.
+
 ## Inference and unit-consistency fixes
 
 - **`sigma` is sampled, not plugged in.** It was estimated once from the MAP
