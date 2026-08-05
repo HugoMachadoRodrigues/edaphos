@@ -413,6 +413,24 @@ save_fig(p4, "Fig4", 8.6, 6.2)
 
 message("done -> ", OUT)
 
+# ---------------------------------------------------------------------------
+# factor() with hard-coded levels fails SILENTLY when a level does not match a
+# value: every unmatched row becomes NA, the plot loses the distinction the
+# figure exists to show, and the legend reads "NA". That shipped in Fig 11 --
+# panel B's three clouds were levelled on panel A's shorter labels and the
+# published figure carries one grey cloud under a caption describing three.
+# Nothing in ggplot warns. This does.
+# ---------------------------------------------------------------------------
+.fct <- function(x, levels, what = deparse(substitute(x))) {
+  missing_lv <- setdiff(unique(as.character(x)), levels)
+  if (length(missing_lv))
+    stop(sprintf("%s: %d value(s) match no level -- {%s}; levels are {%s}",
+                 what, length(missing_lv),
+                 paste(missing_lv, collapse = ", "),
+                 paste(levels, collapse = ", ")), call. = FALSE)
+  factor(x, levels = levels)
+}
+
 # =============================================================================
 # Fig 5 — Pillar 3: space-time forecasting and sequential assimilation
 # =============================================================================
@@ -432,8 +450,8 @@ maps <- do.call(rbind, c(
                               d$month <- sprintf("Month %d", k); d }),
   lapply(leads, function(k) { d <- grid_df(fc_mean[k, , ], "ConvLSTM forecast");
                               d$month <- sprintf("Month %d", k); d })))
-maps$panel <- factor(maps$panel, levels = c("Observed", "ConvLSTM forecast"))
-maps$month <- factor(maps$month, levels = sprintf("Month %d", leads))
+maps$panel <- .fct(maps$panel, c("Observed", "ConvLSTM forecast"))
+maps$month <- .fct(maps$month, sprintf("Month %d", leads))
 
 p3a <- ggplot(maps, aes(lon, lat, fill = z)) +
   geom_raster() +
@@ -476,8 +494,8 @@ p3b <- ggplot() +
 enkf <- rbind(grid_df(TT$prior$mean, "Prior (forecast)"),
               grid_df(TT$analysis$mean, "Analysis (after assimilation)"),
               grid_df(TT$analysis$mean - TT$prior$mean, "Increment"))
-enkf$panel <- factor(enkf$panel, levels = c("Prior (forecast)",
-                                            "Analysis (after assimilation)", "Increment"))
+enkf$panel <- .fct(enkf$panel, c("Prior (forecast)",
+                                 "Analysis (after assimilation)", "Increment"))
 obs_pts <- data.frame(lon = meta$lons[TT$obs$col], lat = meta$lats[TT$obs$row],
                       panel = factor("Analysis (after assimilation)",
                                      levels = levels(enkf$panel)))
@@ -518,7 +536,7 @@ gram <- rbind(
              k = as.vector(Kq), panel = "Quantum fidelity kernel"),
   data.frame(i = rep(seq_len(nrow(Kr)), nrow(Kr)), j = rep(seq_len(nrow(Kr)), each = nrow(Kr)),
              k = as.vector(Kr), panel = "Gaussian (RBF) kernel"))
-gram$panel <- factor(gram$panel, levels = c("Quantum fidelity kernel", "Gaussian (RBF) kernel"))
+gram$panel <- .fct(gram$panel, c("Quantum fidelity kernel", "Gaussian (RBF) kernel"))
 
 p6a <- ggplot(gram, aes(i, j, fill = k)) +
   geom_raster() + facet_wrap(~panel) +
@@ -583,7 +601,7 @@ sel <- 1:4
 pl <- rbind(patch_df(stack, c(1, 20, 60, 110), "Real"),
             patch_df(gen_r, sel, "Pure-R\nreference"))
 if (has_t) pl <- rbind(pl, patch_df(gen_t, sel, "Trained\n(torch)"))
-pl$panel <- factor(pl$panel, levels = c("Real", "Pure-R\nreference", "Trained\n(torch)"))
+pl$panel <- .fct(pl$panel, intersect(c("Real", "Pure-R\nreference", "Trained\n(torch)"), pl$panel))
 p9a <- ggplot(pl, aes(x, y, fill = z)) +
   geom_raster() + facet_grid(panel ~ rep, switch = "y") +
   scale_fill_gradientn(colours = hcl.colors(64, "Terrain2"), name = "z",
@@ -605,7 +623,15 @@ stats_df <- rbind(
 if (has_t) stats_df <- rbind(stats_df,
   data.frame(set = "Trained (torch) sampler", sd = apply(gen_t, 1, stats::sd),
              l1 = apply(gen_t, 1, lag1)))
-stats_df$set <- factor(stats_df$set, levels = levels(pl$panel))
+# Panel B's labels are NOT panel A's. Forcing pl$panel's levels ("Real",
+# "Pure-R\nreference", "Trained\n(torch)") onto values spelled "Real patches",
+# "Pure-R reference sampler" and "Trained (torch) sampler" matched nothing and
+# silently turned every row into NA -- which is what shipped: one grey cloud, a
+# legend reading "NA", and a single ellipse, under a caption describing three
+# distinguishable clouds. Level them on their own values.
+SET_LEVELS <- c("Real patches", "Pure-R reference sampler",
+                "Trained (torch) sampler")
+stats_df$set <- .fct(stats_df$set, intersect(SET_LEVELS, stats_df$set))
 SETCOL <- c("Real patches" = "#4B2E15", "Pure-R reference sampler" = "#A8322D",
             "Trained (torch) sampler" = "#2E7D5B")
 p9b <- ggplot(stats_df, aes(l1, sd, colour = set, fill = set)) +
@@ -663,7 +689,7 @@ elen <- vapply(seq_len(nrow(edges)), function(i)
                    cbind(edges$xend[i], edges$yend[i]))[1, 1], numeric(1))
 gstat <- rbind(data.frame(v = deg,  panel = "Node degree"),
                data.frame(v = elen, panel = "Edge length (km)"))
-gstat$panel <- factor(gstat$panel, levels = c("Node degree", "Edge length (km)"))
+gstat$panel <- .fct(gstat$panel, c("Node degree", "Edge length (km)"))
 p10b <- ggplot(gstat, aes(v, fill = panel)) +
   geom_histogram(bins = 34, colour = "white", linewidth = 0.15) +
   facet_wrap(~panel, scales = "free", nrow = 1) +

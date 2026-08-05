@@ -94,8 +94,44 @@
   resid <- resid[is.finite(resid)]
   n <- length(resid)
   if (n < 2L) return(0)
-  df <- max(n - as.integer(n_params), 1L)
+  df <- max(n - n_params, 1)
   sqrt(sum(resid^2) / df)
+}
+
+# ---------------------------------------------------------------------------
+# The predictive interval of an ensemble method is (member spread) + injected
+# aleatoric noise. Getting the second term right is not a detail: three of the
+# six benchmarked methods build their interval this way, and until now all
+# three estimated the noise from TRAINING residuals with `n_params = 1L`.
+#
+# For P1 that is defensible -- ordinary least squares passes its true
+# coefficient count and the classical df correction is exact. For a kernel
+# ridge and a graph attention network it is not: both absorb a large part of
+# the training response, so their training residuals are optimistic, the
+# injected noise is too small, and the published coverage is too low for a
+# reason that has nothing to do with the method. P6 and P10 report the two
+# worst PICP values in the benchmark (0.471 and 0.729 against a nominal 0.90),
+# and they are two of the three using this recipe. That confound had to be
+# removed before either number could be read as a property of the method.
+#
+# `.bench_edf_krr` supplies the exact effective degrees of freedom for kernel
+# ridge, tr(K (K + lambda I)^-1) -- a closed form, not an approximation. The
+# GAT has no such expression, so its residual scale is estimated by an inner
+# spatially blocked CV inside the training partition (see the P10 fitter).
+# ---------------------------------------------------------------------------
+.bench_edf_krr <- function(K, lambda) {
+  n <- nrow(K)
+  sum(diag(solve(K + lambda * diag(n), K)))
+}
+
+# Total predictive SD is (ensemble variance) + (injected variance). Given a
+# target total, the injected part is what the ensemble does not already carry;
+# adding a full out-of-sample sigma on top of the member spread would count
+# the epistemic component twice.
+.bench_aleatoric_gap <- function(sigma_total, pred_mat) {
+  if (!is.finite(sigma_total) || sigma_total <= 0) return(0)
+  v_ens <- mean(apply(pred_mat, 2L, stats::var))
+  sqrt(max(0, sigma_total^2 - v_ens))
 }
 
 #' Benchmark wrapper: Pilar 1 -- DAG-adjusted OLS + parametric bootstrap
@@ -371,8 +407,13 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
   sigma_resid <- 0
   if (isTRUE(calibrate)) {
     full_fit <- quantum_krr_fit(Xq_tr, y_tr, reps = reps, lambda = lambda)
-    sigma_resid <- .bench_residual_sd(y_tr,
-                                          stats::predict(full_fit, Xq_tr))
+    # Exact effective degrees of freedom for kernel ridge. The previous call
+    # used the `n_params = 1L` default, dividing by n - 1 a residual sum that
+    # a model with tens of effective parameters had already shrunk.
+    edf <- .bench_edf_krr(full_fit$K_train, lambda)
+    sigma_total <- .bench_residual_sd(y_tr, stats::predict(full_fit, Xq_tr),
+                                          n_params = edf)
+    sigma_resid <- .bench_aleatoric_gap(sigma_total, pred_mat)
     pred_mat <- .bench_inject_aleatoric(pred_mat, sigma_resid, seed = seed)
   }
   edaphos_posterior(samples = pred_mat, method = "ensemble",
@@ -380,7 +421,8 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
                       metadata = list(n_pcs = n_pcs, reps = reps,
                                         lambda = lambda, n_boot = n_boot,
                                         calibrate = calibrate,
-                                        sigma_resid = sigma_resid))
+                                        sigma_resid = sigma_resid,
+                                        edf = if (isTRUE(calibrate)) edf else NA_real_))
 }
 
 #' Benchmark wrapper: Pilar 10 -- GAT seed-ensemble on k-NN graph
@@ -483,6 +525,52 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 #' c(best_epoch = f1$best_epoch, epochs_run = length(f1$history))
 #' isTRUE(all.equal(predict(f1)[121:160], epi$samples[1, ]))
 #' @export
+# Out-of-sample residual scale for the GAT, by inner spatially blocked CV
+# inside the training partition. The network has no closed-form effective
+# degrees of freedom, so the only honest estimate of how large its errors are
+# at an unseen location is to hold locations out and look.
+#
+# The inner blocking mirrors the outer protocol -- same helper, same buffer --
+# so the residual scale is estimated under the same spatial regime it will be
+# applied in. Nothing outside `train` is touched.
+#
+# Returns NA if the training partition cannot carry the inner blocking (too
+# few profiles survive the buffer), so the caller can fall back and SAY it
+# fell back rather than silently reverting to training residuals.
+.p10_inner_sigma <- function(train, cov_cols, k, hidden, n_heads, n_layers,
+                                epochs, lr, n_ensemble, seed,
+                                n_inner = 3L, buffer_km = 68) {
+  co <- cbind(train$lon, train$lat)
+  SF <- tryCatch(spatial_block_folds(co, k = n_inner, buffer_km = buffer_km,
+                                        seed = seed),
+                   error = function(e) NULL)
+  if (is.null(SF)) return(NA_real_)
+
+  res <- vector("list", n_inner)
+  for (fd in seq_len(n_inner)) {
+    tr_ix <- SF$train[[fd]]; te_ix <- SF$test[[fd]]
+    if (length(tr_ix) < 30L || length(te_ix) < 5L) return(NA_real_)
+    itr <- train[tr_ix, , drop = FALSE]; ite <- train[te_ix, , drop = FALSE]
+    df_all <- rbind(
+      cbind(itr[, c("lon", "lat", cov_cols)], soc = itr$soc),
+      cbind(ite[, c("lon", "lat", cov_cols)], soc = NA_real_))
+    g <- gnn_build_graph(df_all, k = k, feature_cols = cov_cols)
+    n_i <- nrow(itr); n_a <- nrow(df_all)
+    mask <- c(rep(TRUE, n_i), rep(FALSE, n_a - n_i))
+    P <- matrix(NA_real_, nrow = n_ensemble, ncol = nrow(ite))
+    for (b in seq_len(n_ensemble)) {
+      f <- gnn_fit(g, targets = df_all$soc, train_mask = mask,
+                     hidden = hidden, n_heads = n_heads, n_layers = n_layers,
+                     epochs = epochs, lr = lr, seed = seed + 1000L * fd + b)
+      P[b, ] <- stats::predict(f)[seq(n_i + 1L, n_a)]
+    }
+    res[[fd]] <- ite$soc - colMeans(P)
+  }
+  r <- unlist(res); r <- r[is.finite(r)]
+  if (length(r) < 10L) return(NA_real_)
+  sqrt(mean(r^2))
+}
+
 benchmark_fit_p10_gat <- function(train, test, cov_cols,
                                       k = 8L, hidden = 12L, n_heads = 2L,
                                       n_layers = 2L, epochs = 100L,
@@ -522,11 +610,27 @@ benchmark_fit_p10_gat <- function(train, test, cov_cols,
   }
   sigma_resid <- 0
   if (isTRUE(calibrate)) {
-    # Use the ensemble-mean training predictions as the representative
-    # point predictor for residual SD estimation -- avoids the cost of
-    # an additional full-data fit while keeping the noise estimate
-    # decoupled from the per-member seeds.
-    sigma_resid <- .bench_residual_sd(train$soc, colMeans(train_pred_mat))
+    # Training residuals will not do here. A network with a few hundred
+    # parameters absorbs much of the training response, so `sd(train$soc -
+    # fitted)` measures how well it memorised, not how wrong it will be at an
+    # unsurveyed site -- and the injected noise, and therefore the published
+    # coverage, comes out too small for a reason that is not about the method.
+    sigma_total <- .p10_inner_sigma(train, cov_cols, k = k, hidden = hidden,
+                                        n_heads = n_heads, n_layers = n_layers,
+                                        epochs = epochs, lr = lr,
+                                        n_ensemble = n_ensemble, seed = seed)
+    sigma_source <- "inner blocked CV"
+    if (!is.finite(sigma_total)) {
+      # Fall back, but on the record: an interval built from training
+      # residuals is known to be too narrow and must not pass as calibrated.
+      sigma_total <- .bench_residual_sd(train$soc, colMeans(train_pred_mat))
+      sigma_source <- "training residuals (inner blocking failed)"
+      warning("P10: inner blocked CV could not run on this training ",
+                "partition; the residual scale falls back to training ",
+                "residuals and the interval is expected to undercover.",
+                call. = FALSE)
+    }
+    sigma_resid <- .bench_aleatoric_gap(sigma_total, pred_mat)
     pred_mat <- .bench_inject_aleatoric(pred_mat, sigma_resid, seed = seed)
   }
   edaphos_posterior(samples = pred_mat, method = "ensemble",
@@ -536,5 +640,7 @@ benchmark_fit_p10_gat <- function(train, test, cov_cols,
                                         n_layers = n_layers,
                                         n_ensemble = n_ensemble,
                                         calibrate = calibrate,
-                                        sigma_resid = sigma_resid))
+                                        sigma_resid = sigma_resid,
+                                        sigma_total = if (isTRUE(calibrate)) sigma_total else NA_real_,
+                                        sigma_source = if (isTRUE(calibrate)) sigma_source else NA_character_))
 }

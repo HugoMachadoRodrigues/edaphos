@@ -1609,18 +1609,27 @@ bm <- edaphos::qf_krr_benchmark(embeddings, covariates, y,
 **Honest finding.** Under synthetic embeddings (random Gaussian
 rasters), the quantum lift on foundation PCs **matches but does not
 surpass** ranger. The four regressors are statistically
-indistinguishable on this benchmark. Three testable explanations for
-v2.0.x:
+indistinguishable on this benchmark.
 
-1. Synthetic stack carries no real spatial signal → encoder sees
-   noise → embeddings uninformative. Test: `EDAPHOS_IV_REAL_STACK=1`.
-2. Encoder v1 was undertrained (20k InfoNCE). Test: v2 (200k steps,
-   currently training).
-3. 6 qubits too few. Test: scale to 8–10 qubits.
+Earlier versions of this section listed three "testable explanations"
+for the null result — a synthetic stack, an undertrained encoder, too
+few qubits — and left them standing as though they were reasons to
+expect a different answer later. They are not. Each is a reason the run
+was *uninformative*; none is evidence that a corrected run would favour
+the quantum kernel. Two of the three have since been run, and both
+answered against it.
+
+| Proposed test | Status | Result |
+|:--------------|:-------|:-------|
+| **1.** Real covariate stack instead of synthetic | **Run** | Negative. The six-method benchmark (`inst/extdata/benchmark_wosis_6pilar.rds`) scores quantum KRR on the real SoilGrids / WorldClim / SRTM covariates over 1,095 WoSIS profiles and 5 spatially blocked folds with a 68 km buffer: RMSE 0.663 against 0.583 for DAG-restricted OLS, **NSE −0.024** — below the achievable null of the training-fold mean — and PICP90 0.663 against a nominal 0.90. It is also the most expensive method by a factor of 337 (762 s against 2.3 s). |
+| **2.** Encoder trained 10× longer (`moco-v2`, 200k steps) | **Run** | Negative, indirectly. Foundation embeddings do reach the benchmark, as P4, and rank **fourth of six** (RMSE 0.616, NSE 0.118) — below both plain OLS and a quantile forest on raw covariates. The embedding route does not carry information the covariates lack; see the instrumental-variable result, where those embeddings are extremely *relevant* and decisively *invalid*. |
+| **3.** 8–10 qubits instead of 6 | **Not run** | Open. We do not claim it would fail; we claim nothing about it, which is the honest position for an experiment nobody has done. |
 
 **The contribution is infrastructure.** `qf_*` functions formalise
-the Pilar 4 × Pilar 6 fusion and ship a reproducible benchmark that
-decides the question empirically when richer inputs become available.
+the Pilar 4 × Pilar 6 fusion and ship a reproducible benchmark. That
+benchmark has now been run on real inputs and returned a negative
+result, which is reported here rather than deferred to a future
+version.
 
 📖 Vignette: `vignette("pilar4-pilar6-quantum")`.
 

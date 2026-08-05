@@ -85,7 +85,12 @@
 #'   fraction can be off by an order of magnitude.
 #' @param seed Optional RNG seed.
 #' @param verbose Logical.
-#' @return An `edaphos_bhs` S3 object.
+#' @return An `edaphos_bhs` S3 object. Among its fields, `phi_hat` is the
+#'   profile-MLE of the rate, and `phi_railed` / `phi_rail_edge` record
+#'   whether that MLE landed on an endpoint of `phi_range` and which one.
+#'   The warning alone is not enough: a downstream script that reads
+#'   `phi_hat` or the spatial variance fraction needs to branch on whether
+#'   the data or the bracket produced them.
 #'
 #' @references
 #' Banerjee, S., Carlin, B. P. and Gelfand, A. E. (2014). *Hierarchical
@@ -305,9 +310,16 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
   # present.  phi is a *rate* with units of 1/distance, so the usable
   # bracket depends on the units of `coords` (degrees, metres, km).
   tol <- 1e-3 * max(1, diff(range(phi_range)))
-  if (isTRUE(abs(phi_hat - phi_range[1L]) < tol) ||
-      isTRUE(abs(phi_hat - phi_range[2L]) < tol)) {
-    edge <- if (abs(phi_hat - phi_range[1L]) < tol) "lower" else "upper"
+  # Recorded on the object, not only warned about: a caller that reads
+  # `phi_hat` or the spatial variance fraction needs to know programmatically
+  # whether the data or the bracket produced it, and a warning is not
+  # something a downstream script can branch on.
+  phi_railed <- isTRUE(abs(phi_hat - phi_range[1L]) < tol) ||
+                isTRUE(abs(phi_hat - phi_range[2L]) < tol)
+  phi_rail_edge <- if (!phi_railed) NA_character_ else
+    if (abs(phi_hat - phi_range[1L]) < tol) "lower" else "upper"
+  if (phi_railed) {
+    edge <- phi_rail_edge
     warning(sprintf(paste(
       "bhs_fit(): the profile-MLE of phi (%.4g) is at the %s end of",
       "phi_range = c(%.4g, %.4g), so the bracket -- not the data --",
@@ -340,6 +352,9 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
       sigma2_draws = as.numeric(out_rcpp$sigma2_draws),
       tau2_draws   = as.numeric(out_rcpp$tau2_draws),
       phi_hat      = phi_hat,
+      phi_range    = phi_range,
+      phi_railed   = phi_railed,
+      phi_rail_edge = phi_rail_edge,
       w_post_mean  = as.numeric(out_rcpp$w_post_mean),
       X = X, y = y, coords = S,
       formula = formula,
@@ -444,6 +459,9 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
     sigma2_draws = sigma2_draws[keep],
     tau2_draws   = tau2_draws[keep],
     phi_hat      = phi_hat,
+    phi_range    = phi_range,
+    phi_railed   = phi_railed,
+    phi_rail_edge = phi_rail_edge,
     w_post_mean  = w_mean,
     X = X, y = y, coords = S,
     formula = formula,
