@@ -49,10 +49,12 @@ test_that("piml_profile_fit_group fits multiple pedons", {
   expect_true(all(sapply(fits, inherits, "edaphos_piml_profile")))
   # Every pedon should be well-fit in absolute terms.
   expect_true(all(sapply(fits, function(f) f$rmse) < 1.5))
-  # Pedon C starts the highest and ends near 7 -> its asymptote must
-  # sit below the initial value by more than pedon B's (which is flat).
-  drop_C <- fits$C$params$y0 - fits$C$params$y_inf
-  drop_B <- fits$B$params$y0 - fits$B$params$y_inf
+  # Pedon C starts the highest and ends near 7 -> the drop it ACTUALLY
+  # makes must exceed pedon B's (which is flat). Measure that against the
+  # attained deep value, not y_inf: y_inf is an ODE coordinate the profile
+  # never reaches, so `y0 - y_inf` can order the pedons backwards.
+  drop_C <- fits$C$params$y0 - edaphos:::.piml_asymptote(fits$C$params)
+  drop_B <- fits$B$params$y0 - edaphos:::.piml_asymptote(fits$B$params)
   expect_gt(drop_C, drop_B)
 })
 

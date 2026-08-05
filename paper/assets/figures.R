@@ -248,24 +248,42 @@ fig_causal <- pf / pr + plot_layout(heights = c(1.25, 1))
 save_fig(fig_causal, "Fig13", 7.6, 7.2)
 
 # =============================================================================
-# Fig 4 — Pillar 2: the depth profile and its unidentified asymptote
+# Fig 3 — Pillar 2: the attained deep value vs the equation's coordinate
 # =============================================================================
-message("Fig 4: pedogenetic ODE")
+message("Fig 3: pedogenetic ODE")
 CAP <- ex("capstone_campaign_results.rds")
 ped <- CAP$piml_profile_obs
 fitb <- piml_profile_fit_bayesian(ped$depth_mid, ped$soc_g_kg, method = "laplace", seed = 7L)
-dz <- seq(0, 150, by = 2)
+dz <- seq(0, 400, by = 2)
 pp <- predict(fitb, newdepths = dz, interval = 0.95)
 pdf_ <- data.frame(depth = dz, mean = pp$mean, lo = pp$lower, hi = pp$upper)
+# Annotate with the POSTERIOR MEANS, which is what the drawn curve and Table 2
+# both report. Using the MAP here instead would put numbers on the figure that
+# disagree with the table beside it.
+.ps  <- CAP$piml_params_table
+y_as <- .ps$mean[.ps$param == "y_asym"]
+y_in <- .ps$mean[.ps$param == "y_inf"]
 
+# Panel A carries the whole point: the solution flattens onto y(Inf), well
+# above zero, while y_inf sits far off to the left at a value no profile
+# reaches. Extending to 400 cm makes the plateau visible.
 pprof <- ggplot() +
+  geom_vline(xintercept = 0, colour = "grey80", linewidth = 0.35) +
   geom_ribbon(data = pdf_, aes(y = -depth, xmin = lo, xmax = hi),
               fill = PAL[["soc"]], alpha = 0.18) +
   geom_path(data = pdf_, aes(x = mean, y = -depth), colour = PAL[["soc"]], linewidth = 1) +
+  geom_vline(xintercept = y_as, colour = PAL[["cool"]], linetype = 2, linewidth = 0.7) +
+  geom_vline(xintercept = y_in, colour = PAL[["bad"]], linetype = 3, linewidth = 0.7) +
+  annotate("text", x = y_as, y = -335, hjust = -0.06, size = 2.7,
+           colour = PAL[["cool"]], fontface = "bold",
+           label = sprintf("y(inf) = %.2f\nattained", y_as)) +
+  annotate("text", x = y_in, y = -140, hjust = -0.06, size = 2.7,
+           colour = PAL[["bad"]], fontface = "bold",
+           label = sprintf("y-inf = %.1f\nnever reached", y_in)) +
   geom_point(data = ped, aes(x = soc_g_kg, y = -depth_mid), colour = PAL[["accent"]],
              size = 2.6) +
-  scale_y_continuous(breaks = seq(0, -150, by = -25), labels = abs(seq(0, 150, by = 25))) +
-  labs(title = "A  Depth profile as the solution of an equation",
+  scale_y_continuous(breaks = seq(0, -400, by = -100), labels = abs(seq(0, 400, by = 100))) +
+  labs(title = "A  The profile settles above zero, not on y-infinity",
        subtitle = expression(paste("d", italic(y), "/d", italic(z), " = -", lambda[0],
                                    " exp(-", mu, italic(z), ")(", italic(y), " - ",
                                    italic(y)[infinity], "); ribbon is the 95% posterior")),
@@ -273,24 +291,34 @@ pprof <- ggplot() +
   theme_edaphos()
 
 ptab <- CAP$piml_params_table
-ptab$param <- factor(ptab$param, levels = rev(c("lambda0", "mu", "y0", "y_inf")))
+ptab <- ptab[ptab$param %in% c("lambda0", "mu", "y0", "kappa", "y_asym", "y_inf"), ]
+.lab <- c(lambda0 = "lambda[0]", mu = "mu", y0 = "y[0]", kappa = "kappa",
+          y_asym = "y(infinity)~~attained", y_inf = "y[infinity]~~coordinate")
+ptab$param <- factor(ptab$param,
+                     levels = c("lambda0", "mu", "kappa", "y0", "y_asym", "y_inf"))
+ptab$lab <- factor(.lab[as.character(ptab$param)], levels = .lab)
 ptab$ident <- ifelse(ptab$param == "y_inf", "not identified", "identified")
-ppar <- ggplot(ptab, aes(y = param, colour = ident)) +
-  geom_vline(xintercept = 0, linetype = 2, colour = "grey55") +
-  geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.16, linewidth = 0.9) +
+ppar <- ggplot(ptab, aes(y = 1, colour = ident)) +
+  # A zero reference only where crossing zero is the point. On y0 it would
+  # stretch the axis to 0-40 and hide an interval 1.2 g/kg wide.
+  geom_vline(data = ptab[ptab$param %in% c("y_asym", "y_inf"), ],
+             aes(xintercept = 0), linetype = 2, colour = "grey55") +
+  geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.14, linewidth = 0.9) +
   geom_point(aes(x = mean), size = 3.2) +
-  facet_wrap(~param, scales = "free", ncol = 1, strip.position = "left") +
+  facet_wrap(~lab, scales = "free_x", ncol = 1, strip.position = "left",
+             labeller = label_parsed) +
   scale_colour_manual(values = c(identified = PAL[["cool"]],
                                  `not identified` = PAL[["bad"]]), name = NULL) +
-  labs(title = "B  Posterior of the four parameters",
-       subtitle = "y-infinity, the deep asymptote, spans physically impossible\nnegative carbon: seven upper-metre horizons do not constrain it",
+  labs(title = "B  What the seven horizons identify",
+       subtitle = "The attainable deep value is pinned above zero; y-infinity, the\ncoordinate, is 14.8x wider and lies entirely below it",
        x = "Posterior mean and 95% interval", y = NULL) +
   theme_edaphos() +
-  theme(axis.text.y = element_blank(), legend.position = "top",
-        strip.placement = "outside", strip.text.y.left = element_text(angle = 0))
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(),
+        legend.position = "top", strip.placement = "outside",
+        strip.text.y.left = element_text(angle = 0))
 
 fig_ode <- pprof | ppar
-save_fig(fig_ode, "Fig3", 9.0, 4.6)
+save_fig(fig_ode, "Fig3", 9.4, 5.2)
 
 message("done -> ", OUT)
 

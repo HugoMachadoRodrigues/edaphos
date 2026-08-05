@@ -56,7 +56,8 @@
 #'     producing an `edaphos_causal_kg` that can be unioned with the
 #'     LLM-derived Knowledge Graph.}
 #'   \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
-#'     Ordinary Differential Equation integrated by `deSolve` —
+#'     Ordinary Differential Equation, solved in closed form and fitted
+#'     through a horizon-average observation operator —
 #'     [piml_profile_fit()]; Neural ODE with differentiable Runge-Kutta
 #'     integrator on `torch` — [piml_neural_ode_fit()]; hierarchical
 #'     covariate-conditioned Neural ODE jointly fit across pedons —

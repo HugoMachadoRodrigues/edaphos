@@ -15,7 +15,17 @@ test_that("the shipped PIML parameter table names the model's actual parameters"
   skip_if(f == "", "capstone bundle not installed")
   tab <- readRDS(f)$piml_params_table
   expect_s3_class(tab, "data.frame")
-  expect_setequal(tab$param, c("lambda0", "mu", "y_inf", "y0"))
+  expect_setequal(tab$param,
+                  c("lambda0", "mu", "y_inf", "y0", "kappa", "y_asym"))
+  # y_inf must not be advertised as the deep asymptote: the profile never
+  # reaches it. The attainable value is y_asym, and on this pedon the two
+  # differ in sign.
+  expect_false(grepl("asymptote", tab$meaning[tab$param == "y_inf"],
+                     ignore.case = TRUE))
+  expect_lt(tab$mean[tab$param == "y_inf"], 0)
+  expect_gt(tab$mean[tab$param == "y_asym"], 0)
+  # and the attainable value must be identified: strictly positive interval.
+  expect_gt(tab$ci_lo[tab$param == "y_asym"], 0)
   # the fabricated version named parameters the ODE does not have
   expect_false(any(c("k1", "k2", "sigma") %in% tab$param))
   expect_true(all(c("mean", "ci_lo", "ci_hi") %in% names(tab)))

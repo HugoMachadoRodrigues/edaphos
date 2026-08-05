@@ -53,14 +53,25 @@
 
 # --- forward model + log-density helpers -------------------------------
 
-# Negative log-posterior at theta = (log lambda0, mu, y_inf, y0). The
-# log-prior is weakly informative so that the Laplace approximation is
-# stabilised against pathological optima.
+# Negative log-posterior at theta = (log kappa, log mu, log y_asym, log y0),
+# the identified coordinates of `.piml_unpack()`. Every coordinate is a log,
+# so each prior below is log-normal on its natural scale -- which is the right
+# family for a rate, a depth scale and a concentration, and which puts zero
+# mass on the impossible region (negative carbon, rates growing with depth)
+# that the previous free-sign parameterisation left open.
+#
+# Priors are placed on kappa and y_asym rather than on lambda0 and y_inf
+# deliberately: those are the coordinates the data identify. A prior on y_inf
+# is a prior on a value the profile never attains, and it leaks into the fit
+# through a ratio the likelihood barely constrains.
 .piml_bayes_neg_log_post <- function(theta, depths, obs, y_surface,
-                                       sigma, prior) {
+                                       sigma, prior, top = NULL,
+                                       bottom = NULL) {
   params <- .piml_unpack(theta, y_surface)
-  pred   <- tryCatch(piml_profile_predict(params, depths),
-                      error = function(e) NULL)
+  pred   <- tryCatch(
+    if (is.null(top) || is.null(bottom)) .piml_solution(depths, params)
+    else .piml_layer_mean(top, bottom, params),
+    error = function(e) NULL)
   if (is.null(pred) || any(!is.finite(pred))) return(1e9)
 
   # Gaussian likelihood
@@ -71,33 +82,43 @@
   # Priors. All expressed as `0.5 * ((x - mu) / sd)^2 + const` so they
   # are additive in -log-posterior.
   nlp <- 0
-  # log(lambda0) ~ N(prior$log_lambda0_mean, prior$log_lambda0_sd^2)
-  nlp <- nlp + 0.5 * ((theta[1L] - prior$log_lambda0_mean) /
-                        prior$log_lambda0_sd)^2
-  # mu ~ N(0, prior$mu_sd^2) -- centred at 0 (depth-invariant by default)
-  nlp <- nlp + 0.5 * (theta[2L] / prior$mu_sd)^2
-  # y_inf ~ N(prior$y_inf_mean, prior$y_inf_sd^2)
-  nlp <- nlp + 0.5 * ((theta[3L] - prior$y_inf_mean) /
-                        prior$y_inf_sd)^2
+  # log(kappa) ~ N(prior$log_kappa_mean, prior$log_kappa_sd^2)
+  nlp <- nlp + 0.5 * ((theta[1L] - prior$log_kappa_mean) /
+                        prior$log_kappa_sd)^2
+  # log(mu) ~ N(prior$log_mu_mean, prior$log_mu_sd^2)
+  nlp <- nlp + 0.5 * ((theta[2L] - prior$log_mu_mean) / prior$log_mu_sd)^2
+  # log(y_asym) ~ N(prior$log_y_asym_mean, prior$log_y_asym_sd^2)
+  nlp <- nlp + 0.5 * ((theta[3L] - prior$log_y_asym_mean) /
+                        prior$log_y_asym_sd)^2
   if (is.null(y_surface)) {
-    # y0 ~ N(prior$y0_mean, prior$y0_sd^2)
-    nlp <- nlp + 0.5 * ((theta[4L] - prior$y0_mean) /
-                          prior$y0_sd)^2
+    # log(y0) ~ N(prior$log_y0_mean, prior$log_y0_sd^2)
+    nlp <- nlp + 0.5 * ((theta[4L] - prior$log_y0_mean) /
+                          prior$log_y0_sd)^2
   }
   nll + nlp
 }
 
 .piml_bayes_default_prior <- function(depths, obs, y_surface) {
-  # Weakly informative, data-driven prior.
+  # Weakly informative, data-driven prior on the identified coordinates.
   o <- order(depths)
+  zmax <- max(depths, na.rm = TRUE)
+  y_deep <- max(obs[o[length(o)]], 1e-3)
+  y_top  <- max(if (is.null(y_surface)) obs[o[1L]] else y_surface, 1e-3)
   list(
-    log_lambda0_mean = log(1e-2),  # ~1% decay / cm default
-    log_lambda0_sd   = 2,          # 2 orders of magnitude spread
-    mu_sd            = 0.5,        # |mu| < ~1 / cm covers realistic rates
-    y_inf_mean       = obs[o[length(o)]],
-    y_inf_sd         = max(stats::sd(obs, na.rm = TRUE), 1),
-    y0_mean          = if (is.null(y_surface)) obs[o[1L]] else y_surface,
-    y0_sd            = max(stats::sd(obs, na.rm = TRUE), 1)
+    # kappa = lambda0/mu is the total relaxation: kappa = 3 means the profile
+    # traverses 95% of its y0 -> y_inf gap. Centre there, 1.5 log units wide.
+    log_kappa_mean   = log(3),
+    log_kappa_sd     = 1.5,
+    # mu sets the depth over which the decay rate itself decays; centre it on
+    # the observed profile length, which is the only scale the data can speak
+    # to, and allow two orders of magnitude either side.
+    log_mu_mean      = log(2 / max(zmax, 1)),
+    log_mu_sd        = 2,
+    # the attainable deep value: centre on the deepest observation.
+    log_y_asym_mean  = log(y_deep),
+    log_y_asym_sd    = 1,
+    log_y0_mean      = log(y_top),
+    log_y0_sd        = 1
   )
 }
 
@@ -142,6 +163,7 @@
 # --- Laplace fit -------------------------------------------------------
 
 .piml_laplace_fit <- function(depths, values, y_surface, prior,
+                                top = NULL, bottom = NULL,
                                 start, control) {
   # MAP by optim on -log posterior.
   fit <- stats::optim(
@@ -150,6 +172,8 @@
     depths    = depths,
     obs       = values,
     y_surface = y_surface,
+    top       = top,
+    bottom    = bottom,
     sigma     = 1.0,            # provisional; updated below
     prior     = prior,
     method    = "Nelder-Mead",
@@ -158,7 +182,8 @@
   # Empirical sigma from the MAP residuals, then refit with that sigma
   # so the prior / likelihood balance uses the right noise scale.
   params0 <- .piml_unpack(fit$par, y_surface)
-  pred0   <- piml_profile_predict(params0, depths)
+  pred0   <- if (is.null(top)) .piml_solution(depths, params0) else
+    .piml_layer_mean(top, bottom, params0)
   sigma   <- max(sqrt(mean((values - pred0)^2)), 1e-6)
   fit <- stats::optim(
     par       = fit$par,
@@ -166,6 +191,8 @@
     depths    = depths,
     obs       = values,
     y_surface = y_surface,
+    top       = top,
+    bottom    = bottom,
     sigma     = sigma,
     prior     = prior,
     method    = "Nelder-Mead",
@@ -177,6 +204,8 @@
     depths    = depths,
     obs       = values,
     y_surface = y_surface,
+    top       = top,
+    bottom    = bottom,
     sigma     = sigma,
     prior     = prior
   )
@@ -293,10 +322,18 @@
 #' @param depths,values Numeric vectors — same as [piml_profile_fit()].
 #' @param y_surface Optional fixed surface value.
 #' @param method One of `"laplace"` (default) or `"mcmc"`.
-#' @param prior Named list of hyperparameters for the priors. See the
-#'   source for the default structure (fields
-#'   `log_lambda0_mean`, `log_lambda0_sd`, `mu_sd`, `y_inf_mean`,
-#'   `y_inf_sd`, `y0_mean`, `y0_sd`).
+#' @param top,bottom Optional horizon boundaries — same as
+#'   [piml_profile_fit()]. When supplied, each observation is compared to
+#'   the model's depth-average over its horizon rather than to a point
+#'   evaluation at the mid-depth.
+#' @param prior Named list of hyperparameters for the priors, placed on the
+#'   identified log coordinates (fields `log_kappa_mean`, `log_kappa_sd`,
+#'   `log_mu_mean`, `log_mu_sd`, `log_y_asym_mean`, `log_y_asym_sd`,
+#'   `log_y0_mean`, `log_y0_sd`). Each is log-normal on its natural scale,
+#'   which is the right family for a rate, a depth scale and a
+#'   concentration, and which puts no mass on the impossible region. Note
+#'   there is no prior on `y_inf`: it is a derived coordinate the profile
+#'   never attains, and the data do not identify it.
 #' @param start Optional starting vector. Defaults to
 #'   [piml_profile_fit()]'s point-estimate theta for the MAP search.
 #' @param control `optim` control list for the MAP step.
@@ -359,6 +396,7 @@
 #'              c("mean", "q2.5", "q97.5")), 5)
 #' @export
 piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
+                                        top = NULL, bottom = NULL,
                                         method  = c("laplace", "mcmc"),
                                         prior   = NULL,
                                         start   = NULL,
@@ -378,11 +416,12 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
                                                             y_surface)
   if (is.null(start)) {
     start <- piml_profile_fit(depths, values, y_surface = y_surface,
+                                top = top, bottom = bottom,
                                 control = control)$theta
   }
 
   lap <- .piml_laplace_fit(depths, values, y_surface, prior, start,
-                             control)
+                             control, top = top, bottom = bottom)
 
   if (method == "laplace") {
     # 2000 draws for downstream predict().
@@ -398,7 +437,7 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
     nlp_closure <- function(th) {
       .piml_bayes_neg_log_post(th, depths = depths, obs = values,
                                  y_surface = y_surface, sigma = lap$sigma,
-                                 prior = prior)
+                                 prior = prior, top = top, bottom = bottom)
     }
     mc <- .piml_mcmc_adaptive_rwm(
       neg_log_post_fn = nlp_closure,
@@ -418,7 +457,8 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
   # Natural-scale posterior summaries.
   nat <- t(apply(draws, 1L, function(th) {
     p <- .piml_unpack(th, y_surface)
-    c(lambda0 = p$lambda0, mu = p$mu, y_inf = p$y_inf, y0 = p$y0)
+    c(lambda0 = p$lambda0, mu = p$mu, y_inf = p$y_inf, y0 = p$y0,
+      kappa = p$kappa, y_asym = .piml_asymptote(p))
   }))
   summ <- data.frame(
     parameter = colnames(nat),

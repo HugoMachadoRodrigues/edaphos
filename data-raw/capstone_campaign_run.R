@@ -260,8 +260,14 @@ if (!is.null(piml_summary)) {
   .piml_meaning <- c(
     lambda0 = "Surface decay rate of the pedogenetic ODE (cm^-1)",
     mu      = "Depth attenuation of that rate (cm^-1)",
-    y_inf   = "Deep asymptote of soil organic carbon (g/kg)",
-    y0      = "Fitted surface soil organic carbon (g/kg)"
+    # y_inf is NOT the deep asymptote -- labelling it so was wrong. Because the
+    # rate decays with depth, the profile traverses only 1 - exp(-kappa) of the
+    # y0 -> y_inf gap and settles at y_asym. y_inf is reported because it
+    # appears in the equation, flagged for what it is.
+    y_inf   = "Equilibrium coordinate of the ODE, not attained (g/kg)",
+    y0      = "Fitted surface soil organic carbon (g/kg)",
+    kappa   = "Total relaxation lambda0/mu; fraction of gap closed = 1-exp(-kappa)",
+    y_asym  = "Attainable deep soil organic carbon, y(Inf) (g/kg)"
   )
   piml_params_table <- data.frame(
     param   = piml_summary$parameter,

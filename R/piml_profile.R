@@ -17,21 +17,117 @@
 # Jenny 1941 / Minasny & McBratney pedogenic dynamics when mu -> 0.
 
 .piml_unpack <- function(theta, y_surface = NULL) {
-  # theta[1] = log(lambda0)   (reparametrised for positivity)
-  # theta[2] = mu             (free sign; depth-change of decay rate)
-  # theta[3] = y_inf          (free)
-  # theta[4] = y0             (only if y_surface is NULL)
+  # Identified, positivity-constrained coordinates.
+  #
+  # The original parameterisation was (log lambda0, mu, y_inf, y0) with mu and
+  # y_inf free-signed. It had three defects, all of which bit on real data:
+  #
+  #   * y_inf is not the asymptote (see .piml_asymptote), so the parameter the
+  #     user reads and puts priors on is not the quantity they think it is;
+  #   * lambda0 and mu are near-collinear -- the likelihood constrains their
+  #     ratio kappa = lambda0/mu far better than either alone;
+  #   * nothing kept mu >= 0 or the concentrations positive, so fits returned
+  #     rates that GROW exponentially with depth and negative surface carbon.
+  #
+  # We therefore estimate (y0, A, kappa, mu) on the log scale, where A = y(Inf)
+  # is the attainable deep value and kappa = lambda0/mu is the total relaxation.
+  # All four are positive by construction and each means something a soil
+  # scientist can put a prior on. lambda0 and y_inf are recovered for the public
+  # interface, inverting y(Inf) = y_inf + (y0 - y_inf) e^{-kappa}.
+  #
+  #   theta[1] = log(kappa)
+  #   theta[2] = log(mu)
+  #   theta[3] = log(A)
+  #   theta[4] = log(y0)   (only when y_surface is NULL)
+  kappa <- exp(theta[1])
+  mu    <- exp(theta[2])
+  A     <- exp(theta[3])
+  y0    <- if (is.null(y_surface)) exp(theta[4]) else y_surface
+  ek    <- exp(-kappa)
+  # y_inf = (A - y0 e^{-kappa}) / (1 - e^{-kappa}); guard the kappa -> 0 branch,
+  # where the profile barely relaxes and y_inf is not recoverable from A.
+  y_inf <- if (1 - ek < 1e-10) A else (A - y0 * ek) / (1 - ek)
   list(
-    lambda0 = exp(theta[1]),
-    mu      = theta[2],
-    y_inf   = theta[3],
-    y0      = if (is.null(y_surface)) theta[4] else y_surface
+    lambda0 = kappa * mu,
+    mu      = mu,
+    y_inf   = y_inf,
+    y0      = y0,
+    # the identified coordinates, carried through for reporting
+    kappa   = kappa,
+    y_asym  = A
   )
 }
 
 .piml_dydz <- function(z, y, parms) {
   lambda <- parms$lambda0 * exp(-parms$mu * z)
   list(-lambda * (y - parms$y_inf))
+}
+
+# Closed-form solution of dy/dz = -lambda0 e^{-mu z} (y - y_inf).
+#
+# Separating and integrating gives
+#     y(z) = y_inf + (y0 - y_inf) exp( -(lambda0/mu) (1 - e^{-mu z}) ).
+# The equation has an analytic solution, so numerically integrating it (as this
+# file used to, via deSolve::lsoda) is both slower and less accurate. It also
+# made the depth-averaged forward operator below impractical.
+#
+# The mu -> 0 limit is (lambda0/mu)(1 - e^{-mu z}) -> lambda0 z, i.e. a plain
+# exponential; expm1 keeps that branch accurate for small |mu z|.
+.piml_solution <- function(z, params) {
+  l0 <- params$lambda0; mu <- params$mu
+  kz <- if (abs(mu) < 1e-8) l0 * z else -(l0 / mu) * expm1(-mu * z)
+  params$y_inf + (params$y0 - params$y_inf) * exp(-kz)
+}
+
+# The value the profile ACTUALLY converges to as z -> Inf.
+#
+# This is NOT y_inf. Because the rate lambda(z) = lambda0 e^{-mu z} decays with
+# depth, the exponent saturates at -kappa with kappa = lambda0/mu, so the
+# solution only traverses a fraction 1 - e^{-kappa} of the y0 -> y_inf gap:
+#
+#     y(Inf) = y_inf + (y0 - y_inf) e^{-kappa}.
+#
+# Reporting y_inf as "the deep asymptote" (as this package did) therefore
+# reports a coordinate the profile never reaches. On the bundled pedon the
+# difference is stark: y_inf = -2.86 g/kg, an impossible negative carbon, while
+# the true asymptote is +0.46 g/kg. For mu <= 0 the rate does not decay and the
+# solution does reach y_inf (or diverges), so the limit is y_inf itself.
+.piml_asymptote <- function(params) {
+  if (!is.finite(params$mu) || params$mu <= 0) return(params$y_inf)
+  kappa <- params$lambda0 / params$mu
+  params$y_inf + (params$y0 - params$y_inf) * exp(-kappa)
+}
+
+# Depth-averaged forward operator: the prediction that corresponds to a horizon.
+#
+# A horizon is an INTERVAL [zu, zl] and its reported value is a layer average,
+# not a point reading at the mid-depth. Fitting g(z_mid) to it is a
+# mis-specified observation operator -- the same equal-area / mass-preserving
+# spline problem the depth-function literature solves explicitly (Bishop et al.
+# 1999; Malone et al. 2009). Gauss-Legendre on the closed form is exact enough
+# at 8 nodes for this smooth integrand and costs nothing.
+.piml_layer_mean <- function(zu, zl, params, n_node = 8L) {
+  gl <- .piml_gauss_legendre(n_node)
+  vapply(seq_along(zu), function(i) {
+    a <- zu[i]; b <- zl[i]
+    if (!is.finite(a) || !is.finite(b) || b <= a) return(.piml_solution(a, params))
+    zz <- 0.5 * (b - a) * gl$x + 0.5 * (a + b)
+    sum(gl$w * .piml_solution(zz, params)) * 0.5
+  }, numeric(1))
+}
+
+# Gauss-Legendre nodes/weights on [-1, 1], computed once per call via the
+# Golub-Welsch eigenvalue construction (no external dependency).
+.piml_gauss_legendre <- function(n) {
+  n <- as.integer(n)
+  i <- seq_len(n - 1L)
+  b <- i / sqrt(4 * i^2 - 1)
+  J <- matrix(0, n, n)
+  J[cbind(i, i + 1L)] <- b
+  J[cbind(i + 1L, i)] <- b
+  e <- eigen(J, symmetric = TRUE)
+  o <- order(e$values)
+  list(x = e$values[o], w = 2 * (e$vectors[1L, o])^2)
 }
 
 #' Forward-integrate a Physics-Informed depth profile
@@ -70,33 +166,68 @@ piml_profile_predict <- function(params, depths) {
   stopifnot(is.list(params),
             all(c("lambda0", "mu", "y_inf", "y0") %in% names(params)))
   stopifnot(is.numeric(depths), all(depths >= 0))
-  times <- sort(unique(c(0, depths)))
-  sol <- deSolve::ode(
-    y      = c(y = params$y0),
-    times  = times,
-    func   = .piml_dydz,
-    parms  = params,
-    method = "lsoda"
-  )
-  sol <- as.data.frame(sol)
-  idx <- match(depths, sol$time)
-  if (anyNA(idx)) {
-    # Fallback: nearest-time interpolation (handles floating-point drift)
-    idx <- sapply(depths, function(d) which.min(abs(sol$time - d)))
-  }
-  as.numeric(sol$y[idx])
+  # The ODE has a closed-form solution, so evaluate it directly. This used to
+  # call deSolve::lsoda for every prediction, which was slower, less accurate
+  # and made the depth-averaged operator impractical. `.piml_solution()` is
+  # checked against the numerical integrator in the test suite.
+  as.numeric(.piml_solution(depths, params))
+}
+
+# How far down the y0 -> y(Inf) journey the deepest observation actually got.
+#
+# This is the diagnostic that says whether the deep value is estimated or
+# extrapolated. If the deepest horizon has traversed most of the gap, the
+# plateau is inside the data; if it has barely started, y(Inf) is whatever the
+# curve happens to point at, and the fit cannot be read as a parent-material
+# value however plausible the number looks.
+.piml_progress <- function(params, depths) {
+  zmax <- max(depths)
+  y_end <- .piml_asymptote(params)
+  gap <- y_end - params$y0
+  if (!is.finite(gap) || abs(gap) < 1e-12) return(1)
+  travelled <- .piml_solution(zmax, params) - params$y0
+  min(max(travelled / gap, 0), 1)
 }
 
 .piml_loss <- function(theta, depths, obs, y_surface = NULL,
-                       lambda_reg = 1e-3) {
+                       lambda_reg = 1e-3, top = NULL, bottom = NULL,
+                       center = NULL) {
   params <- .piml_unpack(theta, y_surface)
+  # A laboratory value is the average over a horizon, not a point reading at
+  # its mid-depth. When the horizon boundaries are known, compare the datum to
+  # the model's depth-average over that interval; otherwise fall back to the
+  # point evaluation.
+  #
+  # For a convex profile the point-at-midpoint shortcut predicts too low, by
+  # the mid-point rule error f''(z) h^2 / 24. That is quadratic in horizon
+  # thickness but proportional to curvature, and curvature collapses with
+  # depth -- so on real profiles the correction lands almost entirely on the
+  # surface horizons. Across 207 WoSIS pedons it moves the fitted y0 by a
+  # median 0.28 g/kg and the asymptote by only 0.03.
   pred <- tryCatch(
-    piml_profile_predict(params, depths),
-    error = function(e) rep(NA_real_, length(depths))
+    if (is.null(top) || is.null(bottom)) {
+      .piml_solution(depths, params)
+    } else {
+      .piml_layer_mean(top, bottom, params)
+    },
+    error = function(e) rep(NA_real_, length(obs))
   )
   if (any(!is.finite(pred))) return(1e12)
   sse <- sum((pred - obs)^2)
-  sse + lambda_reg * sum(theta^2)
+  # Ridge toward the data-driven start, not toward the origin.
+  #
+  # On the log coordinates, shrinking theta to 0 means shrinking every rate and
+  # every concentration toward 1 -- meaningless for g/kg or clay percent. Worse,
+  # the previous version penalised the RAW y_inf, so the penalty scaled with the
+  # square of the property's units and silently did part of the fitting: on the
+  # `sp4` colusa pedon it pinned y_inf at 61.9% clay, a value the README then
+  # reported as "the argillic-horizon asymptote". With the penalty removed the
+  # same data give 533%. That number was imposed, not estimated.
+  #
+  # Centring makes the penalty a scale-free shrinkage toward the observed range
+  # and keeps `reg` interpretable as "log-units of allowed departure".
+  dev <- if (is.null(center)) theta else theta - center
+  sse + lambda_reg * sum(dev^2)
 }
 
 #' Fit a Physics-Informed depth-profile model (Pillar 2)
@@ -116,21 +247,46 @@ piml_profile_predict <- function(params, depths) {
 #' @param y_surface Optional numeric; if supplied, the surface value
 #'   `y(0) = y_surface` is fixed and not optimised. Use this when you
 #'   have a reliable 0 cm observation (or a laboratory A-horizon value).
-#' @param start Optional named numeric vector of starting parameters
-#'   (`log_lambda0`, `mu`, `y_inf`, and optionally `y0`). If `NULL`, a
-#'   data-driven guess is built from the observed range and depths.
+#' @param top,bottom Optional numeric vectors giving the upper and lower
+#'   boundary of each horizon, same length as `values`. When supplied, each
+#'   observation is compared to the model's **depth-average over its horizon**
+#'   rather than to a point evaluation at the mid-depth, which is what a
+#'   laboratory value actually measures. Recommended whenever the boundaries
+#'   are known: the point-at-midpoint shortcut predicts too low on a convex
+#'   profile, by the mid-point rule error. The correction is concentrated in
+#'   the thick, strongly curved surface horizons — across 207 WoSIS pedons it
+#'   moves the fitted `y0` by a median 0.28 g/kg and the asymptote by 0.03.
+#' @param start Optional named numeric vector of starting parameters on the
+#'   internal log scale (`log_kappa`, `log_mu`, `log_y_asym`, and optionally
+#'   `log_y0`). If `NULL`, several data-driven starts are tried and the best
+#'   is kept.
 #' @param reg Numeric L2 regularisation strength on the parameter
 #'   vector.
 #' @param control List passed to `stats::optim`'s `control` argument
 #'   (default is `list(maxit = 2000)`).
 #'
+#' @section Parameterisation:
+#' The model is estimated in the identified, positive coordinates
+#' \eqn{(y_0, A, \kappa, \mu)}, where \eqn{A = y(\infty)} is the **attainable
+#' deep value** and \eqn{\kappa = \lambda_0/\mu} is the total relaxation. The
+#' familiar `lambda0` and `y_inf` are recovered for reporting. This matters
+#' because \eqn{y_\infty} is *not* the asymptote of the solution: since the rate
+#' decays with depth, the profile only traverses a fraction \eqn{1 - e^{-\kappa}}
+#' of the \eqn{y_0 \to y_\infty} gap. Estimating \eqn{A} directly also removes
+#' the near-collinearity of \eqn{\lambda_0} and \eqn{\mu} (the data constrain
+#' their ratio far better than either alone) and, because all four coordinates
+#' are exponentiated, it rules out the physically impossible fits the old
+#' free-sign parameterisation returned on real data: negative surface carbon and
+#' rates that *grow* exponentially with depth.
+#'
 #' @return A `edaphos_piml_profile` object with components:
 #'   \describe{
-#'     \item{params}{Named list with the fitted `lambda0`, `mu`, `y_inf`, `y0`.}
+#'     \item{params}{Named list with the fitted `lambda0`, `mu`, `y_inf`, `y0`,
+#'       plus the identified coordinates `kappa` and `y_asym`.}
 #'     \item{theta}{The unconstrained parameter vector the optimiser found.}
 #'     \item{objective}{Final regularised SSE loss.}
 #'     \item{converged}{Logical, whether `optim` reported convergence.}
-#'     \item{depths, values, y_surface}{Inputs echoed back.}
+#'     \item{depths, values, y_surface, top, bottom}{Inputs echoed back.}
 #'     \item{rmse}{Unregularised RMSE on the training data.}
 #'   }
 #' @export
@@ -140,54 +296,76 @@ piml_profile_predict <- function(params, depths) {
 #' fit <- piml_profile_fit(depths, values)
 #' fit
 #' piml_profile_predict(fit$params, c(10, 50))
+#'
+#' # With horizon boundaries, each value is matched to the layer average:
+#' piml_profile_fit(depths, values,
+#'                  top    = c(0, 10, 20, 40, 80),
+#'                  bottom = c(10, 20, 40, 80, 120))
 piml_profile_fit <- function(depths, values, y_surface = NULL,
+                             top = NULL, bottom = NULL,
                              start = NULL, reg = 1e-3,
                              control = list(maxit = 2000)) {
   stopifnot(length(depths) == length(values),
             length(depths) >= 2L,
             all(is.finite(depths)), all(is.finite(values)),
             all(depths >= 0))
-  if (is.null(start)) {
-    # Data-driven guess that works for both decaying (SOC, nutrients:
-    # y0 > y_inf) and ascending (argillic clay: y0 < y_inf) profiles.
-    # Initialise y0 from the shallowest horizon and y_inf from the
-    # deepest — the ODE handles both cases through the sign of
-    # (y0 - y_inf).
+  if (!is.null(top) || !is.null(bottom)) {
+    stopifnot(!is.null(top), !is.null(bottom),
+              length(top) == length(values), length(bottom) == length(values),
+              all(is.finite(top)), all(is.finite(bottom)),
+              all(top >= 0), all(bottom > top))
+  }
+  # The likelihood is on positive concentrations; a non-positive observation has
+  # no place on this scale and signals a units or missing-value problem.
+  if (any(values <= 0)) {
+    stop("piml_profile_fit() models a positive soil property; ",
+         sum(values <= 0), " of ", length(values),
+         " observed values are <= 0. Check units and missing-value codes.",
+         call. = FALSE)
+  }
+  starts <- if (!is.null(start)) list(start) else {
     ord <- order(depths)
     zd  <- depths[ord]; yd <- values[ord]
-    y0_guess    <- if (is.null(y_surface)) yd[1L] else y_surface
-    y_inf_guess <- yd[length(yd)]
-    # Surface derivative from the first two horizons.
+    y0_guess <- if (is.null(y_surface)) yd[1L] else y_surface
+    # The attainable deep value is bracketed by the deepest observation; start
+    # at it, and also below it, since the profile may still be descending.
+    A_guess <- max(yd[length(yd)], 1e-3)
     dy0 <- (yd[2L] - yd[1L]) / max(zd[2L] - zd[1L], 1e-3)
-    denom <- max(abs(y0_guess - y_inf_guess), 1e-3)
+    denom <- max(abs(y0_guess - A_guess), 1e-3)
     lambda0_guess <- max(abs(dy0) / denom, 1e-4)
-    if (is.null(y_surface)) {
-      start <- c(
-        log_lambda0 = log(lambda0_guess),
-        mu          = 0.0,
-        y_inf       = y_inf_guess,
-        y0          = y0_guess
-      )
-    } else {
-      start <- c(
-        log_lambda0 = log(lambda0_guess),
-        mu          = 0.0,
-        y_inf       = y_inf_guess
-      )
-    }
+    zmax <- max(zd)
+    # mu sets the depth scale over which the rate decays; sweep it across the
+    # observed range (fast, slow, essentially constant). kappa follows from
+    # lambda0/mu. The surface is a poor place to start a Nelder-Mead simplex on
+    # a ridge-shaped likelihood, so use several and keep the best.
+    grid <- expand.grid(mu_scale = c(0.5, 2, 20) / max(zmax, 1),
+                        A_mult   = c(1, 0.5))
+    lapply(seq_len(nrow(grid)), function(i) {
+      mu0 <- grid$mu_scale[i]
+      th <- c(log_kappa  = log(max(lambda0_guess / mu0, 1e-6)),
+              log_mu     = log(mu0),
+              log_y_asym = log(max(A_guess * grid$A_mult[i], 1e-4)))
+      if (is.null(y_surface)) c(th, log_y0 = log(max(y0_guess, 1e-4))) else th
+    })
   }
-  fit <- stats::optim(
-    par        = start,
-    fn         = .piml_loss,
-    depths     = depths,
-    obs        = values,
-    y_surface  = y_surface,
-    lambda_reg = reg,
-    method     = "Nelder-Mead",
-    control    = control
-  )
+  fit <- NULL
+  for (s in starts) {
+    f <- tryCatch(
+      stats::optim(par = s, fn = .piml_loss,
+                   depths = depths, obs = values, y_surface = y_surface,
+                   lambda_reg = reg, top = top, bottom = bottom,
+                   center = s,
+                   method = "Nelder-Mead", control = control),
+      error = function(e) NULL)
+    if (!is.null(f) && (is.null(fit) || f$value < fit$value)) fit <- f
+  }
+  if (is.null(fit)) {
+    stop("piml_profile_fit(): the optimiser failed from every starting point.",
+         call. = FALSE)
+  }
   params <- .piml_unpack(fit$par, y_surface)
-  pred   <- piml_profile_predict(params, depths)
+  pred   <- if (is.null(top)) piml_profile_predict(params, depths) else
+    .piml_layer_mean(top, bottom, params)
   structure(
     list(
       params    = params,
@@ -197,8 +375,14 @@ piml_profile_fit <- function(depths, values, y_surface = NULL,
       depths    = depths,
       values    = values,
       y_surface = y_surface,
+      top       = top,
+      bottom    = bottom,
       fitted    = pred,
-      rmse      = .rmse(values, pred)
+      rmse      = .rmse(values, pred),
+      # Fraction of the y0 -> y(Inf) journey the deepest horizon reached. Below
+      # ~0.5 the deep value is an extrapolation the data do not support, and
+      # print() says so rather than letting the number stand unqualified.
+      progress  = .piml_progress(params, depths)
     ),
     class = "edaphos_piml_profile"
   )
@@ -210,11 +394,25 @@ print.edaphos_piml_profile <- function(x, ...) {
   cat("  dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)\n")
   cat(sprintf("  lambda0 = %-8.4g  mu = %-8.4g\n",
               x$params$lambda0, x$params$mu))
-  cat(sprintf("  y_inf   = %-8.4g  y0 = %-8.4g\n",
-              x$params$y_inf, x$params$y0))
-  cat(sprintf("  n obs   = %d         rmse = %.4g\n",
-              length(x$depths), x$rmse))
+  cat(sprintf("  y0      = %-8.4g  y(Inf) = %-8.4g   (kappa = %.3g)\n",
+              x$params$y0, .piml_asymptote(x$params),
+              x$params$lambda0 / x$params$mu))
+  # y_inf is a coordinate of the differential equation, not a depth the profile
+  # reaches; print it as such so it is never read as "the deep value".
+  cat(sprintf("  y_inf   = %-8.4g  (ODE coordinate, not the attained value)\n",
+              x$params$y_inf))
+  cat(sprintf("  n obs   = %d %s        rmse = %.4g\n",
+              length(x$values),
+              if (is.null(x$top)) "(point)" else "(layer) ", x$rmse))
   cat("  converged =", x$converged, "\n")
+  pg <- x$progress %||% .piml_progress(x$params, x$depths)
+  if (is.finite(pg) && pg < 0.5) {
+    cat(sprintf(paste0("  NOTE: the deepest horizon (%g cm) has travelled only ",
+                       "%.0f%% of the\n        way to y(Inf), so the deep value ",
+                       "is an extrapolation, not an\n        estimate. Do not ",
+                       "read it as a parent-material value.\n"),
+                max(x$depths), 100 * pg))
+  }
   invisible(x)
 }
 

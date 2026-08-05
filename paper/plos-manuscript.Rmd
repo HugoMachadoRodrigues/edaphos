@@ -31,7 +31,7 @@ E-mail: rodrigues.machado.hugo@gmail.com (HR)
 
 # Abstract
 
-Digital soil mapping has moved well beyond regression trees. Causal inference, physics-informed and generative deep learning, graph neural networks and quantum kernels have all been proposed for soil prediction, yet they are rarely compared under a common protocol, their predictive uncertainty is rarely calibrated, and the software that implements them is rarely reproducible end to end. We present edaphos, an R framework that implements ten families of such methods behind a single predictive-posterior class, so that any of them can be scored with the same proper and diagnostic measures, and whose every published figure is regenerated from data bundled with the package. We use the framework to run a matched, spatially blocked benchmark of six methods on real topsoil organic-carbon profiles from the World Soil Information Service over the Brazilian Cerrado, and to conduct a causal analysis on a larger draw of profiles from the same region. Three results follow. First, the benchmark is deflationary: an ordinary-least-squares model restricted to a covariate set selected by an explicit pedogenetic directed acyclic graph is the most accurate and among the best calibrated of the six methods, and none of the five more elaborate methods beats it; three of them fall below the achievable null. Second, backdoor adjustment yields robust associations with explicit sensitivity bounds rather than identified causal effects, and adjustment collapses an apparent tree-cover association to near zero, demonstrating confounding directly. Third, instrumenting soil carbon with the embedding of a trained contrastive foundation encoder yields extremely relevant but invalid instruments: a first-stage F statistic in the thousands alongside a decisive rejection of the over-identification test, showing empirically that a learned representation does not manufacture a valid instrument. We argue that the contribution of a framework such as edaphos is not a new best predictor but a reproducible, calibration-consistent apparatus for asking which method helps, and for reporting honestly when none does.
+Digital soil mapping has moved well beyond regression trees. Causal inference, physics-informed and generative deep learning, graph neural networks and quantum kernels have all been proposed for soil prediction, yet they are rarely compared under a common protocol, their predictive uncertainty is rarely calibrated, and the software that implements them is rarely reproducible end to end. We present edaphos, an R framework that implements ten families of such methods behind a single predictive-posterior class, so that any of them can be scored with the same proper and diagnostic measures, and whose every published figure is regenerated from data bundled with the package. We use the framework to run a matched, spatially blocked benchmark of six methods on real topsoil organic-carbon profiles from the World Soil Information Service over the Brazilian Cerrado, and to conduct a causal analysis on a larger draw of profiles from the same region. Four results follow. First, writing the mechanism down pays: the depth-profile equation dy/dz = −λ₀e^(−μz)(y − y∞) has a closed-form solution whose deep limit is not y∞, and estimating it in the identified, positive coordinates the solution implies removes a physically inadmissible fit in 56% of 207 multi-horizon profiles — 113 of which had a decay rate that grew exponentially with depth — while narrowing the interval on the attainable deep carbon concentration by a factor of 5.5 and moving it out of negative territory. Second, the benchmark is deflationary: an ordinary-least-squares model restricted to a covariate set selected by an explicit pedogenetic directed acyclic graph is the most accurate and among the best calibrated of the six methods, and none of the five more elaborate methods beats it; three of them fall below the achievable null. Third, backdoor adjustment yields robust associations with explicit sensitivity bounds rather than identified causal effects, and adjustment collapses an apparent tree-cover association to near zero, demonstrating confounding directly. Fourth, instrumenting soil carbon with the embedding of a trained contrastive foundation encoder yields extremely relevant but invalid instruments: a first-stage F statistic in the thousands alongside a decisive rejection of the over-identification test, showing empirically that a learned representation does not manufacture a valid instrument. We argue that the contribution of a framework such as edaphos is not a new best predictor but a reproducible, calibration-consistent apparatus for asking which method helps, and for reporting honestly when none does.
 
 # Introduction
 
@@ -96,7 +96,7 @@ Table 1 lists the ten pillars, the method each implements, and the object each r
 | Pillar | Method | Principal entry points | Returns |
 |:--|:--|:--|:--|
 | 1 | Causal inference: backdoor adjustment on a pedogenetic graph, sensitivity analysis, instrumental variables | `causal_adjustment_set`, `causal_estimate_effect`, `causal_sensitivity_from_lm`, `causal_iv_fit_2sls` | adjusted association, robustness value |
-| 2 | Physics-informed: a pedogenetic ordinary differential equation for the depth profile, and a neural variant | `piml_profile_fit`, `piml_profile_fit_bayesian`, `piml_neural_ode_fit` | ODE parameters, posterior profile |
+| 2 | Physics-informed: a pedogenetic ordinary differential equation for the depth profile, and a neural variant | `piml_profile_fit`, `piml_profile_fit_bayesian`, `piml_neural_ode_fit` | attainable deep value, ODE parameters, posterior profile |
 | 3 | Four-dimensional pedometry: convolutional recurrent forecasting and ensemble Kalman assimilation | `temporal_convlstm_fit`, `temporal_convlstm_rollout`, `temporal_kalman_update` | forecast ensemble, analysis field |
 | 4 | Foundation models: momentum-contrastive pre-training on unlabelled raster patches | `foundation_tile_dataset`, `foundation_moco_pretrain_tiles`, `foundation_embed_at_coords` | encoder, per-site embedding |
 | 5 | Active learning: hypercube seeding plus uncertainty-and-diversity batch selection | `al_initial_design`, `al_fit`, `al_query`, `al_update` | ranked sampling sites |
@@ -138,7 +138,27 @@ The printed label names the estimand that was requested, which matters more than
 
 ### Physics-informed machine learning
 
-The second pillar represents a depth profile not as a regression on depth but as the solution of a pedogenetic differential equation, dy/dz = −λ₀ exp(−μz)(y − y∞), fitted either by regularised least squares or with a posterior over its four parameters. This is the pillar closest to the generative, process-informed view of causation that Zhang and Wadoux [@Zhang2026causal] advocate: the mechanism is written down, and the data inform its parameters.
+The second pillar represents a depth profile not as a regression on depth but as the solution of a pedogenetic differential equation,
+
+$$\frac{dy}{dz} = -\lambda_0 e^{-\mu z}\,(y - y_\infty),$$
+
+fitted either by regularised least squares or with a posterior over its parameters. This is the pillar closest to the generative, process-informed view of causation that Zhang and Wadoux [@Zhang2026causal] advocate: the mechanism is written down, and the data inform its parameters. It is also where writing the mechanism down repays the effort most directly, because the equation can be solved rather than approximated, and the solution says something the equation's symbols do not.
+
+**The equation has a closed form, and it does not converge to y∞.** Separating and integrating gives
+
+$$y(z) = y_\infty + (y_0 - y_\infty)\exp\!\left[-\frac{\lambda_0}{\mu}\left(1 - e^{-\mu z}\right)\right],$$
+
+so that, writing κ = λ₀/μ,
+
+$$y(\infty) = y_\infty + (y_0 - y_\infty)\,e^{-\kappa}.$$
+
+The profile does not reach y∞. Because the rate λ(z) = λ₀e^(−μz) decays with depth, the exponent saturates at −κ and the profile traverses only a fraction 1 − e^(−κ) of the y₀ → y∞ gap before the dynamics run out. The symbol y∞ is an equilibrium coordinate of the differential equation, not a soil property; the attainable deep value is y(∞). Across 207 multi-horizon WoSIS profiles the median κ is 2.19, meaning the median profile closes 89% of its gap and stops.
+
+The distinction is not cosmetic. On the pedon distributed with the package, y∞ is −5.9 g/kg — an impossible negative carbon concentration — while the value the profile actually approaches is +0.70 g/kg. Reporting the former as "the deep asymptote", as earlier versions of this package did, reports a coordinate no soil ever occupies.
+
+**Estimating what the data identify.** Three consequences follow, and the pillar is built around them. First, λ₀ and μ are near-collinear: the likelihood constrains their ratio κ far better than either alone. Second, y∞ enters the solution only through the combination above, so a prior on y∞ is a prior on an unattained quantity that leaks into the fit through a ratio the data barely determine. Third, nothing in the free-sign parameterisation kept μ ≥ 0 or the concentrations positive. We therefore estimate the model in the coordinates (y₀, A, κ, μ), where A = y(∞), all four exponentiated, and recover λ₀ and y∞ for reporting.
+
+Fitting all 207 WoSIS profiles under each parameterisation measures what this buys. Under the original coordinates, 116 profiles (56%) returned a physically inadmissible fit: 113 had μ < 0, a decay rate that *grows* exponentially with depth, and two had negative surface carbon. Under the positive coordinates, none do, while the four genuinely ascending profiles — argillic clay increasing with depth — are still fitted as such. Solving the equation rather than integrating it numerically is also 281 times faster and agrees with the integrator to 4 × 10⁻⁵ g/kg, which is what makes the horizon-average operator below affordable.
 
 ```r
 pedon <- readRDS(system.file("extdata", "capstone_campaign_results.rds",
@@ -147,15 +167,16 @@ fit <- piml_profile_fit(pedon$depth_mid, pedon$soc_g_kg)
 print(fit)
 #> <edaphos_piml_profile>
 #>   dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)
-#>   lambda0 = 0.02915   mu = 0.01171
-#>   y_inf   = -2.863    y0 = 37.16
-#>   n obs   = 7         rmse = 0.2739
+#>   lambda0 = 0.02741   mu = 0.01458
+#>   y0      = 37.27     y(Inf) = 0.7042     (kappa = 1.88)
+#>   y_inf   = -5.883    (ODE coordinate, not the attained value)
+#>   n obs   = 7 (point)        rmse = 0.2689
 #>   converged = TRUE
 ```
 
-The point fit reproduces the pedon closely — a root-mean-square error of 0.27 g/kg over seven horizons — and yet it reports a deep asymptote of −2.9 g/kg, a negative carbon concentration. The Bayesian layer explains why, and Table 2 gives its posterior.
+Table 2 gives the posterior.
 
-**Table 2. Posterior summary of the pedogenetic equation's parameters.** Laplace approximation over the seven-horizon pedon distributed with the package. Intervals are 2.5% and 97.5% posterior quantiles.
+**Table 2. Posterior summary of the pedogenetic equation's parameters.** Laplace approximation over the seven-horizon pedon distributed with the package. Intervals are 2.5% and 97.5% posterior quantiles. The first four rows are the equation's symbols; the last two are the coordinates the model is estimated in.
 
 ```{r piml-table}
 tb <- ex("capstone_campaign_results.rds")$piml_params_table
@@ -166,15 +187,21 @@ knitr::kable(data.frame(
   check.names = FALSE), align = "llrrrr")
 ```
 
-Fig 3 shows the fitted profile and the posterior of its four parameters.
-
 ```{r fig3, out.width="100%"}
 knitr::include_graphics("figures/Fig3.png")
 ```
 
-**Fig 3. A depth profile as the solution of a pedogenetic equation.** (A) The fitted mean (line) and 95% posterior band against the seven measured horizons (points). (B) Posterior mean and 95% interval for each parameter; the deep asymptote spans physically impossible negative carbon, and is the one parameter these data do not identify.
+**Fig 3. A depth profile as the solution of a pedogenetic equation.** (A) The fitted mean (line) and 95% posterior band against the seven measured horizons (points), with the attained deep value y(∞) and the unattained coordinate y∞ marked. (B) Posterior mean and 95% interval for each parameter; the attainable deep value is identified and strictly positive, while y∞ is not identified and lies entirely below zero.
 
-The surface rate λ₀ and the surface concentration y₀ are tightly determined; the depth attenuation μ is poorly determined; and the deep asymptote y∞ is not determined at all, its interval running from about −12 to +6 g/kg. Seven horizons that all lie in the upper metre simply do not constrain the value the profile approaches at depth, and nothing in the parameterisation restricts it to be non-negative. We report this rather than suppress it, because it is precisely the service the Bayesian layer performs: the point estimate quietly returns a physical impossibility, while the interval states plainly that the parameter is unidentified by these data. It also indicates the obvious remedy — a prior constraining y∞ to be non-negative, or horizons deep enough to see the asymptote.
+The surface concentration y₀ is tightly determined, at 37.39 g/kg with an interval of 1.2 g/kg. The attainable deep value is identified and admissible: 1.60 g/kg, interval [0.50, 3.78]. The coordinate y∞ is not identified at all — its interval, [−48.97, −0.19], is 14.8 times wider and lies entirely in impossible territory. Against what earlier versions of the package reported as the asymptote, [−11.93, 6.03], the interval on the attainable value is 5.5 times narrower and no longer covers impossible values. Seven horizons in the upper metre do constrain where the profile is heading; what they cannot do is locate a coordinate the profile never visits. Estimating the attainable value directly is what converts an interval spanning negative carbon into one that a soil scientist can act on.
+
+This also disciplines what depends on it. The package's active-learning physics gate builds an admissibility envelope from a profile fit; built from y∞ it certified an SOC of −10 g/kg as plausible while rejecting 178 of 399 legitimate candidates. Built from y(∞) it rejects the negative value and 89 of 399 — still too many, because one pedon's dynamics should not constrain a regional map, but no longer incoherent.
+
+**The observation operator.** A laboratory value is the average of a property over a horizon, not a point reading at its mid-depth; matching the model's point evaluation to it is a mis-specified operator, the same problem equal-area splines address explicitly [@Bishop1999; @Malone2009]. Because the solution is closed-form, the depth-average over each horizon is available by eight-node Gauss–Legendre quadrature at negligible cost, and `piml_profile_fit()` uses it whenever horizon boundaries are supplied. The bias it removes follows the mid-point rule, f''(z)h²/24: quadratic in horizon thickness but proportional to curvature, and curvature collapses with depth. The correction therefore lands almost entirely on the surface horizons — across the 207 profiles it moves the fitted y₀ by a median 0.25 g/kg and the deep value by 0.03.
+
+**What the depth attenuation buys, and what it does not.** We tested μ against its own null by leaving the deepest horizon out of each of the 207 profiles and predicting it from the rest, comparing the full equation with its nested μ = 0 special case, the plain exponential. The result is split and we report both halves. The full model predicts the held-out horizon better on 154 profiles against 53 (Wilcoxon paired p < 0.001), so on a typical profile the depth-decaying rate earns its parameter. But its root-mean-square error over the same 207 predictions is worse — 2.92 against 2.50 g/kg — because when the extra flexibility fails it fails by more. The honest summary is that μ improves the median profile and degrades the tail, which is a reason to report the extrapolation diagnostic (below) rather than a reason to prefer either model unconditionally.
+
+That diagnostic is the second thing the closed form makes cheap. `piml_profile_fit()` reports how far down the y₀ → y(∞) journey the deepest horizon actually travelled. Where that fraction is small the deep value is not an estimate but wherever the fitted curve happens to point, and the package says so instead of printing the number unqualified. On the `aqp::sp4` reference pedons it flags two of ten — both with three or four horizons in the top 42 cm and clay still rising at the deepest one — and on neither does the four-parameter equation improve on a two-parameter straight line (root-mean-square error 3.018 against 3.016, and 0.839 against 0.836). Earlier versions returned a plausible-looking asymptote for one of them, 61.9% clay; that value was not estimated from the data but imposed by an L2 penalty applied to the raw y∞, which scaled with the square of the property's units. With the penalty removed the same four horizons give 533%. The regulariser is now a scale-free shrinkage toward the observed range, and an unidentified asymptote is reported as unidentified.
 
 ### Four-dimensional pedometry
 

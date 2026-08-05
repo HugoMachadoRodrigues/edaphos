@@ -8,6 +8,8 @@ piml_profile_fit_bayesian(
   depths,
   values,
   y_surface = NULL,
+  top = NULL,
+  bottom = NULL,
   method = c("laplace", "mcmc"),
   prior = NULL,
   start = NULL,
@@ -24,12 +26,21 @@ piml_profile_fit_bayesian(
 
 \item{y_surface}{Optional fixed surface value.}
 
+\item{top, bottom}{Optional horizon boundaries — same as
+\code{\link[=piml_profile_fit]{piml_profile_fit()}}. When supplied, each observation is compared to
+the model's depth-average over its horizon rather than to a point
+evaluation at the mid-depth.}
+
 \item{method}{One of \code{"laplace"} (default) or \code{"mcmc"}.}
 
-\item{prior}{Named list of hyperparameters for the priors. See the
-source for the default structure (fields
-\code{log_lambda0_mean}, \code{log_lambda0_sd}, \code{mu_sd}, \code{y_inf_mean},
-\code{y_inf_sd}, \code{y0_mean}, \code{y0_sd}).}
+\item{prior}{Named list of hyperparameters for the priors, placed on the
+identified log coordinates (fields \code{log_kappa_mean}, \code{log_kappa_sd},
+\code{log_mu_mean}, \code{log_mu_sd}, \code{log_y_asym_mean}, \code{log_y_asym_sd},
+\code{log_y0_mean}, \code{log_y0_sd}). Each is log-normal on its natural scale,
+which is the right family for a rate, a depth scale and a
+concentration, and which puts no mass on the impossible region. Note
+there is no prior on \code{y_inf}: it is a derived coordinate the profile
+never attains, and the data do not identify it.}
 
 \item{start}{Optional starting vector. Defaults to
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}'s point-estimate theta for the MAP search.}

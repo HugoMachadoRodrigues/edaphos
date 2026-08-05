@@ -1,4 +1,4 @@
-* using log directory ‘/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck’
+* using log directory ‘/private/tmp/edcheck3/edaphos.Rcheck’
 * using R version 4.6.1 (2026-06-24)
 * using platform: aarch64-apple-darwin23
 * R was compiled by
@@ -6,33 +6,32 @@
     GNU Fortran (GCC) 14.2.0
 * running under: macOS Tahoe 26.6
 * using session charset: UTF-8
-* current time: 2026-07-30 05:18:11 UTC
+* current time: 2026-08-04 23:36:17 UTC
 * using options ‘--no-manual --as-cran’
 * checking for file ‘edaphos/DESCRIPTION’ ... OK
 * this is package ‘edaphos’ version ‘0.9.0’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [4s/32s] NOTE
+* checking CRAN incoming feasibility ... [4s/31s] NOTE
 Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
 
 New submission
 * checking package namespace information ... OK
 * checking package dependencies ... INFO
 Packages suggested but not available for checking:
-  'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges',
-  'ontologyIndex', 'spBayes'
+  'DiagrammeR', 'ecmwfr', 'fmsb', 'ontologyIndex', 'spBayes'
 * checking if this is a source package ... OK
 * checking if there is a namespace ... OK
 * checking for executable files ... OK
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
-* checking whether package ‘edaphos’ can be installed ... [11s/12s] OK
+* checking whether package ‘edaphos’ can be installed ... [12s/13s] OK
 * used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.1.1.101)’
 * used SDK: ‘MacOSX26.5.sdk’
 * checking installed package size ... INFO
-  installed size is  9.6Mb
+  installed size is 10.1Mb
   sub-directories of 1Mb or more:
-    doc       4.0Mb
+    doc       4.5Mb
     extdata   2.8Mb
     help      1.5Mb
 * checking package directory ... OK
@@ -55,7 +54,7 @@ Packages suggested but not available for checking:
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
-* checking R code for possible problems ... OK
+* checking R code for possible problems ... [10s/11s] OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
 * checking Rd line widths ... OK
@@ -77,28 +76,28 @@ Packages suggested but not available for checking:
 * checking compiled code ... OK
 * checking installed files from ‘inst/doc’ ... OK
 * checking files in ‘vignettes’ ... OK
-* checking examples ... [544s/398s] NOTE
+* checking examples ... [553s/423s] NOTE
 Examples with CPU (user + system) or elapsed time > 5s
-                      user system elapsed
-dm_fit             147.300 99.758 165.872
-dm_sample           86.942 56.483  97.824
-al_query_diffusion  46.141 20.943  50.727
-* checking examples with --run-donttest ... [546s/402s] OK
+                      user  system elapsed
+dm_fit             154.341 101.083 182.724
+dm_sample           87.987  54.985 102.735
+al_query_diffusion  47.272  24.092  55.583
+* checking examples with --run-donttest ... [567s/446s] OK
 * checking for unstated dependencies in ‘tests’ ... OK
 * checking tests ...
-  Running ‘testthat.R’ [404s/388s]
- [404s/388s] OK
+  Running ‘testthat.R’ [410s/402s]
+ [410s/402s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [227s/212s] OK
+* checking re-building of vignette outputs ... [229s/222s] OK
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  ‘tmpkbkhldu_’
+  ‘tmpyfdnghwt’
 * DONE
 
 Status: 3 NOTEs
 See
-  ‘/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log’
+  ‘/private/tmp/edcheck3/edaphos.Rcheck/00check.log’
 for details.
 

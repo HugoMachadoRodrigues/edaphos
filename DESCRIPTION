@@ -40,6 +40,7 @@ Suggests:
     bslib,
     dagitty,
     dbarts,
+    deSolve (>= 1.40),
     devtools,
     DiagrammeR,
     digest,
@@ -77,7 +78,6 @@ Suggests:
 Config/testthat/edition: 3
 Imports:
     clhs,
-    deSolve (>= 1.40),
     httr2,
     jsonlite,
     ranger,

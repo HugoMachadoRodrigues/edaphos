@@ -458,8 +458,8 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
     caption = paste0(
       "Parâmetros posteriores: lambda0 = ", signif(R$piml_params$lambda0, 3),
       "  mu = ", signif(R$piml_params$mu, 3),
-      "  y_inf = ", signif(R$piml_params$y_inf, 3),
-      "  y0 = ", signif(R$piml_params$y0, 3)
+      "  y0 = ", signif(R$piml_params$y0, 3),
+      "  y(inf) = ", signif(R$piml_params$y_asym, 3)
     )
   ) +
   scale_y_continuous(breaks = seq(0, -100, by = -20),
@@ -476,12 +476,12 @@ knitr::kable(
                 "DP posterior", "IC 2,5%", "IC 97,5%"),
   caption = paste0(
     "Parâmetros da ODE pedogenética dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf), ",
-    "estimados por aproximação de Laplace sobre as 7 horizontes do pedon. Os ",
-    "intervalos são quantis reais da posterior. Note que y_inf (assíntota ",
-    "profunda) NÃO é identificado por estes dados: o intervalo cobre valores ",
-    "negativos, fisicamente impossíveis para um teor de carbono. É exatamente ",
-    "o que a camada bayesiana existe para revelar — uma estimativa pontual ",
-    "sozinha reportaria o valor negativo sem sinalizar que ele não tem suporte."
+    "estimados por aproximação de Laplace sobre os 7 horizontes do pedon. Os ",
+    "intervalos são quantis reais da posterior. y_inf NÃO é a assíntota: como ",
+    "a taxa decai com a profundidade, o perfil percorre apenas 1-exp(-kappa) ",
+    "do intervalo y0 -> y_inf e estaciona em y_asym. Aqui y_inf é negativo e ",
+    "não identificado (o intervalo é 5,5x mais largo), enquanto y_asym, o valor ",
+    "que o perfil de fato alcança, é positivo e identificado."
   )
 )
 ```

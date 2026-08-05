@@ -1,7 +1,7 @@
 {
   "schema": "edaphos-status-facts/1",
   "environment": {
-    "measured_at_utc": "2026-07-30T06:24:39Z",
+    "measured_at_utc": "2026-08-05T00:03:02Z",
     "r_version": "4.6.1",
     "r_nickname": "Happy Hop",
     "platform": "aarch64-apple-darwin23",
@@ -9,17 +9,17 @@
     "os_release": "25.6.0"
   },
   "git": {
-    "head_sha": "84cd97ccaa7664a24dfffca67b8405a8641095ff",
-    "head_sha_short": "84cd97c",
-    "branch": "Hugo/edaphos-dev-status-222f14",
+    "head_sha": "175445719cfea8f8100c74175189cc75e068b067",
+    "head_sha_short": "1754457",
+    "branch": "main",
     "remote_url": "https://github.com/HugoMachadoRodrigues/edaphos.git",
-    "commit_count": 109,
+    "commit_count": 122,
     "first_commit": "2026-04-20T23:44:43-04:00",
     "first_subject": "Initial release of edaphos 0.1.0",
-    "last_commit": "2026-07-30T02:24:25-04:00",
-    "last_subject": "test: fix the two non-deterministic failures the NEWS collapse and torch-default exposed",
-    "span_days": 100.110902777778,
-    "active_days": 13,
+    "last_commit": "2026-08-04T17:15:31-04:00",
+    "last_subject": "Merge branch 'Hugo/edaphos-dev-status-222f14'",
+    "span_days": 105.729722222222,
+    "active_days": 15,
     "commits_per_day": {
       "2026-04-20": 1,
       "2026-04-21": 10,
@@ -33,24 +33,26 @@
       "2026-07-27": 4,
       "2026-07-28": 1,
       "2026-07-29": 9,
-      "2026-07-30": 7
+      "2026-07-30": 12,
+      "2026-08-03": 6,
+      "2026-08-04": 2
     },
-    "days_since_last": 0.000169786366599577,
+    "days_since_last": 0.116339464179344,
     "tags": ["v0.1.0", "v0.2.0", "v0.3.0", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0", "v0.8.0", "v0.9.0", "v1.0.0", "v1.1.0", "v1.2.0", "v1.3.0", "v1.3.1", "v1.4.0", "v1.5.0", "v1.6.0", "v3.10.0", "v4.0.0"],
     "tag_count": 19,
     "worktree_clean": false,
-    "ahead_behind_origin_main": "0\t7",
+    "ahead_behind_origin_main": "0\t0",
     "remote_tag_count": 19,
-    "commits_since_last_tag": 20,
+    "commits_since_last_tag": 33,
     "last_tag": "v4.0.0"
   },
   "description": {
     "version": "0.9.0",
     "depends": "R",
-    "imports": ["clhs", "deSolve", "httr2", "jsonlite", "ranger", "Rcpp", "stats", "tools", "utils"],
-    "suggests": ["abind", "aqp", "bnlearn", "bslib", "dagitty", "dbarts", "devtools", "DiagrammeR", "digest", "dplyr", "DT", "ecmwfr", "fmsb", "geobr", "geodata", "ggdag", "ggnewscale", "ggplot2", "ggridges", "gstat", "igraph", "knitr", "MASS", "Matrix", "ontologyIndex", "patchwork", "RColorBrewer", "reticulate", "rmarkdown", "scales", "sf", "shiny", "shinyjs", "sp", "spBayes", "stringdist", "terra", "testthat", "tidyr", "torch"],
-    "n_imports": 9,
-    "n_suggests": 40,
+    "imports": ["clhs", "httr2", "jsonlite", "ranger", "Rcpp", "stats", "tools", "utils"],
+    "suggests": ["abind", "aqp", "bnlearn", "bslib", "dagitty", "dbarts", "deSolve", "devtools", "DiagrammeR", "digest", "dplyr", "DT", "ecmwfr", "fmsb", "geobr", "geodata", "ggdag", "ggnewscale", "ggplot2", "ggridges", "gstat", "igraph", "knitr", "MASS", "Matrix", "ontologyIndex", "patchwork", "RColorBrewer", "reticulate", "rmarkdown", "scales", "sf", "shiny", "shinyjs", "sp", "spBayes", "stringdist", "terra", "testthat", "tidyr", "torch"],
+    "n_imports": 8,
+    "n_suggests": 41,
     "linkingto": ["Rcpp", "RcppArmadillo"],
     "license": "MIT + file LICENSE",
     "language": "en-US",
@@ -83,7 +85,7 @@
   },
   "code": {
     "r_file_count": 70,
-    "r_loc": 28339,
+    "r_loc": 28608,
     "src_file_count": 3,
     "src_loc": 407,
     "largest_r_files": [
@@ -133,7 +135,7 @@
     "n_s3_methods": 75,
     "ordinal_named_r_files": ["pilar10_graph_nn_torch.R", "pilar10_graph_nn.R", "pilar7_bayesian_hierarchical.R", "pilar8_neural_operators_torch.R", "pilar8_neural_operators.R", "pilar9_diffusion_models.R", "pilar9_diffusion_torch.R"],
     "files_saying_pillar": ["benchmark_wosis.R", "causal_posterior.R", "core_utils.R", "data.R", "edaphos_zenodo_release.R", "edaphos-package.R", "pilar10_graph_nn.R", "pilar8_neural_operators.R", "pilar9_diffusion_models.R", "pillars_roadmap.R", "uncertainty.R"],
-    "raw_stop_calls": 142,
+    "raw_stop_calls": 144,
     "raw_warning_calls": 13,
     "stopf_calls": 16,
     "not_implemented": ["R/pilar7_bayesian_hierarchical.R:44", "R/pilar7_bayesian_hierarchical.R:561"],
@@ -149,8 +151,8 @@
     "n_exports_without_examples": 0,
     "exports_without_rd": [],
     "rd_with_references": 31,
-    "vignette_count": 18,
-    "vignettes": ["capstone-cerrado-campaign.Rmd", "case-cerrado-end-to-end.Rmd", "causal-discovery-trio.Rmd", "getting-started.Rmd", "llm-annotation-workflow.Rmd", "pilar1-causal.Rmd", "pilar1-pilar4-iv.Rmd", "pilar10-graph-attention.Rmd", "pilar2-piml-profile.Rmd", "pilar3-4d-soc.Rmd", "pilar4-pilar6-quantum.Rmd", "pilar4-simclr-embeddings.Rmd", "pilar5-active-learning.Rmd", "pilar6-quantum.Rmd", "pilar7-bayesian-hierarchical.Rmd", "pilar8-neural-operators.Rmd", "pilar9-diffusion-models.Rmd", "uncertainty-unified.Rmd"],
+    "vignette_count": 19,
+    "vignettes": ["capstone-cerrado-campaign.Rmd", "case-cerrado-end-to-end.Rmd", "causal-discovery-trio.Rmd", "edaphos-paper.Rmd", "getting-started.Rmd", "llm-annotation-workflow.Rmd", "pilar1-causal.Rmd", "pilar1-pilar4-iv.Rmd", "pilar10-graph-attention.Rmd", "pilar2-piml-profile.Rmd", "pilar3-4d-soc.Rmd", "pilar4-pilar6-quantum.Rmd", "pilar4-simclr-embeddings.Rmd", "pilar5-active-learning.Rmd", "pilar6-quantum.Rmd", "pilar7-bayesian-hierarchical.Rmd", "pilar8-neural-operators.Rmd", "pilar9-diffusion-models.Rmd", "uncertainty-unified.Rmd"],
     "article_count": 4,
     "cheatsheet_count": 11,
     "pillar_wording": [
@@ -197,7 +199,7 @@
         "says_ten": 1
       }
     ],
-    "readme_bytes": 100269,
+    "readme_bytes": 101283,
     "readme_mentions_getting_started": 0
   },
   "rd_portability": {
@@ -207,7 +209,7 @@
       {
         "char": "<U+2014>",
         "codepoint": "U+2014",
-        "occurrences": 186
+        "occurrences": 190
       },
       {
         "char": "<U+2013>",
@@ -245,7 +247,7 @@
     "latex_breaking_sites": [
       {
         "file": "man/edaphos-package.Rd",
-        "line": 188,
+        "line": 189,
         "text": "(Veli\\enc{<U+010D>}{c}kovi\\enc{<U+0107>}{c} et al., 2018) over a k-NN"
       },
       {
@@ -263,7 +265,7 @@
     "roxygen_sources_to_fix": [
       {
         "file": "R/edaphos-package.R",
-        "line": 181,
+        "line": 182,
         "text": "#'     (Veli\\enc{<U+010D>}{c}kovi\\enc{<U+0107>}{c} et al., 2018) over a k-NN"
       },
       {
@@ -1149,12 +1151,12 @@
     "n_phantom": 9
   },
   "tests_static": {
-    "test_file_count": 75,
-    "test_that_blocks": 510,
-    "expect_calls": 1283,
-    "skip_if_not_installed": 75,
+    "test_file_count": 77,
+    "test_that_blocks": 523,
+    "expect_calls": 1341,
+    "skip_if_not_installed": 77,
     "skip_on_cran": 8,
-    "set_seed_calls": 127,
+    "set_seed_calls": 129,
     "gate_counts": [
       {
         "dependency": "torch",
@@ -1162,7 +1164,7 @@
       },
       {
         "dependency": "dagitty",
-        "gate_sites": 8
+        "gate_sites": 9
       },
       {
         "dependency": "bnlearn",
@@ -1201,30 +1203,30 @@
         "gate_sites": 11
       }
     ],
-    "tests_reading_extdata": ["test-causal-real-bundle.R", "test-headline-claims.R", "test-llm-annotation.R"],
+    "tests_reading_extdata": ["test-causal-real-bundle.R", "test-headline-claims.R", "test-llm-annotation.R", "test-piml-closed-form.R", "test-piml-params-table-real.R"],
     "result_bundles": ["benchmark_wosis_6pilar.rds", "benchmark_wosis_p4_p5_p7.rds", "capstone_campaign_results.rds", "capstone_native_calibration.rds", "case_cerrado_results.rds", "causal_cerrado_real_v2.rds", "causal_cerrado_real.rds", "causal_discovery_results.rds", "causal_iv_cerrado_real.rds", "causal_iv_cerrado.rds", "causal_sensitivity_cerrado.rds", "llm_benchmark_results.rds", "pilar10_gat_tuning.rds", "quantum_foundation_cerrado.rds", "temporal_cerrado_results.rds"],
     "exports_never_in_tests": ["causal_ontology_agrovoc", "causal_ontology_envo", "edaphos_zenodo_release", "foundation_build_cerrado_stack", "foundation_tile_source_era5", "foundation_tile_source_modis", "foundation_tile_source_soilgrids", "foundation_tile_source_srtm", "foundation_tile_source_worldclim", "gnn_fit_ensemble", "llm_annotation_launch", "piml_neural_ode_predict", "temporal_convlstm_predict"]
   },
   "tests_run": {
-    "passed": 1601,
+    "passed": 1677,
     "failed": 0,
     "errored": 0,
     "skipped": 1,
     "warnings": 0,
-    "files": 75,
-    "results": 510,
-    "real_seconds": 414.6,
+    "files": 77,
+    "results": 523,
+    "real_seconds": 453.8,
     "failing_files": []
   },
   "dependencies": {
-    "suggests_installed": ["abind", "aqp", "bnlearn", "bslib", "dagitty", "dbarts", "devtools", "digest", "dplyr", "DT", "geodata", "ggnewscale", "ggplot2", "gstat", "igraph", "knitr", "MASS", "Matrix", "patchwork", "RColorBrewer", "reticulate", "rmarkdown", "scales", "sf", "shiny", "shinyjs", "sp", "stringdist", "terra", "testthat", "tidyr", "torch"],
-    "suggests_missing": ["DiagrammeR", "ecmwfr", "fmsb", "geobr", "ggdag", "ggridges", "ontologyIndex", "spBayes"],
-    "n_missing": 8
+    "suggests_installed": ["abind", "aqp", "bnlearn", "bslib", "dagitty", "dbarts", "deSolve", "devtools", "digest", "dplyr", "DT", "geobr", "geodata", "ggdag", "ggnewscale", "ggplot2", "ggridges", "gstat", "igraph", "knitr", "MASS", "Matrix", "patchwork", "RColorBrewer", "reticulate", "rmarkdown", "scales", "sf", "shiny", "shinyjs", "sp", "stringdist", "terra", "testthat", "tidyr", "torch"],
+    "suggests_missing": ["DiagrammeR", "ecmwfr", "fmsb", "ontologyIndex", "spBayes"],
+    "n_missing": 5
   },
   "check": {
-    "log_path": "tools/status/check.log",
-    "log_lines": 104,
-    "log_sha256": "ca86d3436770ceee978c20e99b2295de38162adfb0f751b035ddbb0f2de7fe0b",
+    "log_path": "/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/tools/status/check.log",
+    "log_lines": 103,
+    "log_sha256": "943748740ab9c517fb9c51c5e7391bc9631e3fa33089178a912f714419672e37",
     "status_line": "Status: 3 NOTEs",
     "n_errors": 0,
     "n_warnings": 0,
@@ -1256,7 +1258,7 @@
       {
         "step": "checking package dependencies",
         "level": "INFO",
-        "detail": "Packages suggested but not available for checking: |   'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges', |   'ontologyIndex', 'spBayes'"
+        "detail": "Packages suggested but not available for checking: |   'DiagrammeR', 'ecmwfr', 'fmsb', 'ontologyIndex', 'spBayes'"
       },
       {
         "step": "checking if this is a source package",
@@ -1296,7 +1298,7 @@
       {
         "step": "checking installed package size",
         "level": "INFO",
-        "detail": "  installed size is  9.6Mb |   sub-directories of 1Mb or more: |     doc       4.0Mb |     extdata   2.8Mb |     help      1.5Mb"
+        "detail": "  installed size is 10.1Mb |   sub-directories of 1Mb or more: |     doc       4.5Mb |     extdata   2.8Mb |     help      1.5Mb"
       },
       {
         "step": "checking package directory",
@@ -1511,7 +1513,7 @@
       {
         "step": "checking examples",
         "level": "NOTE",
-        "detail": "Examples with CPU (user + system) or elapsed time > 5s |                       user system elapsed | dm_fit             147.300 99.758 165.872 | dm_sample           86.942 56.483  97.824 | al_query_diffusion  46.141 20.943  50.727"
+        "detail": "Examples with CPU (user + system) or elapsed time > 5s |                       user  system elapsed | dm_fit             154.341 101.083 182.724 | dm_sample           87.987  54.985 102.735 | al_query_diffusion  47.272  24.092  55.583"
       },
       {
         "step": "checking examples with --run-donttest",
@@ -1526,7 +1528,7 @@
       {
         "step": "checking tests",
         "level": "OK",
-        "detail": "  Running testthat.R [404s/388s] |  [404s/388s] OK"
+        "detail": "  Running testthat.R [410s/402s] |  [410s/402s] OK"
       },
       {
         "step": "checking for unstated dependencies in vignettes",
@@ -1551,68 +1553,73 @@
       {
         "step": "checking for detritus in the temp directory",
         "level": "NOTE",
-        "detail": "Found the following files/directories: |   tmpkbkhldu_ | * DONE | Status: 3 NOTEs | See |   /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log | for details."
+        "detail": "Found the following files/directories: |   tmpyfdnghwt | * DONE | Status: 3 NOTEs | See |   /private/tmp/edcheck3/edaphos.Rcheck/00check.log | for details."
       }
     ],
     "errors": [],
     "warnings": [],
     "notes": ["checking CRAN incoming feasibility", "checking examples", "checking for detritus in the temp directory"],
     "infos": ["checking package dependencies", "checking installed package size"],
-    "installed_size": ["  installed size is  9.6Mb", "  sub-directories of 1Mb or more:", "    doc       4.0Mb", "    extdata   2.8Mb", "    help      1.5Mb"],
+    "installed_size": ["  installed size is 10.1Mb", "  sub-directories of 1Mb or more:", "    doc       4.5Mb", "    extdata   2.8Mb", "    help      1.5Mb"],
     "cran_incoming": {
       "is_new_submission": true,
       "maintainer": "Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>",
       "invalid_urls": [],
       "n_invalid_urls": 0,
       "tarball_bytes": null,
-      "block": ["* checking CRAN incoming feasibility ... [4s/32s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission"]
+      "block": ["* checking CRAN incoming feasibility ... [4s/31s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission"]
     },
     "test_summary": [],
-    "suggests_unavailable": ["'DiagrammeR', 'ecmwfr', 'fmsb', 'geobr', 'ggdag', 'ggridges',", "'ontologyIndex', 'spBayes'"],
-    "tail": ["al_query_diffusion  46.141 20.943  50.727", "* checking examples with --run-donttest ... [546s/402s] OK", "* checking for unstated dependencies in tests ... OK", "* checking tests ...", "  Running testthat.R [404s/388s]", " [404s/388s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [227s/212s] OK", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmpkbkhldu_", "* DONE", "", "Status: 3 NOTEs", "See", "  /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/.claude/worktrees/edaphos-dev-status-222f14/edaphos.Rcheck/00check.log", "for details.", ""]
+    "suggests_unavailable": "'DiagrammeR', 'ecmwfr', 'fmsb', 'ontologyIndex', 'spBayes'",
+    "tail": ["al_query_diffusion  47.272  24.092  55.583", "* checking examples with --run-donttest ... [567s/446s] OK", "* checking for unstated dependencies in tests ... OK", "* checking tests ...", "  Running testthat.R [410s/402s]", " [410s/402s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [229s/222s] OK", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... NOTE", "Found the following files/directories:", "  tmpyfdnghwt", "* DONE", "", "Status: 3 NOTEs", "See", "  /private/tmp/edcheck3/edaphos.Rcheck/00check.log", "for details.", ""]
   },
   "size": {
     "measured_over": "git-tracked files only (build artefacts excluded)",
-    "tracked_file_count": 480,
+    "tracked_file_count": 522,
     "by_dir": [
       {
+        "dir": "paper",
+        "bytes": 18809509,
+        "ships_in_tarball": false
+      },
+      {
         "dir": "inst",
-        "bytes": 2933915,
+        "bytes": 2982671,
         "ships_in_tarball": true
       },
       {
         "dir": "man",
-        "bytes": 1402342,
+        "bytes": 1405697,
         "ships_in_tarball": true
       },
       {
         "dir": "R",
-        "bytes": 1245601,
+        "bytes": 1261078,
         "ships_in_tarball": true
       },
       {
         "dir": "tools",
-        "bytes": 678464,
+        "bytes": 678252,
         "ships_in_tarball": false
       },
       {
         "dir": "<root>",
-        "bytes": 405679,
+        "bytes": 410649,
         "ships_in_tarball": true
       },
       {
         "dir": "tests",
-        "bytes": 366606,
+        "bytes": 371894,
         "ships_in_tarball": true
       },
       {
         "dir": "data-raw",
-        "bytes": 354129,
+        "bytes": 355520,
         "ships_in_tarball": false
       },
       {
         "dir": "vignettes",
-        "bytes": 323137,
+        "bytes": 347460,
         "ships_in_tarball": true
       },
       {
@@ -1641,27 +1648,27 @@
         "ships_in_tarball": false
       }
     ],
-    "shipped_bytes": 6469432,
-    "shipped_file_count": 393,
-    "tarball_bytes": 6731190,
+    "shipped_bytes": 6571609,
+    "shipped_file_count": 395,
+    "tarball_bytes": 7125545,
     "tarball_file": "edaphos_0.9.0.tar.gz",
     "tarball_composition": {
-      "total_bytes": 10560501,
-      "file_count": 447,
+      "total_bytes": 11137799,
+      "file_count": 453,
       "by_dir": [
         {
           "dir": "inst/doc",
-          "bytes": 4091339,
+          "bytes": 4557227,
           "in_repo": false
         },
         {
           "dir": "inst/extdata",
-          "bytes": 2879490,
+          "bytes": 2928246,
           "in_repo": true
         },
         {
           "dir": "R",
-          "bytes": 1245601,
+          "bytes": 1261078,
           "in_repo": true
         },
         {
@@ -1671,22 +1678,22 @@
         },
         {
           "dir": "man",
-          "bytes": 668111,
+          "bytes": 671466,
           "in_repo": true
         },
         {
           "dir": "tests/testthat",
-          "bytes": 365038,
+          "bytes": 379523,
           "in_repo": true
         },
         {
           "dir": "vignettes",
-          "bytes": 323126,
+          "bytes": 347449,
           "in_repo": true
         },
         {
           "dir": "<root>",
-          "bytes": 115222,
+          "bytes": 120147,
           "in_repo": true
         },
         {
@@ -1716,7 +1723,7 @@
         },
         {
           "dir": "build",
-          "bytes": 1260,
+          "bytes": 1349,
           "in_repo": true
         },
         {
@@ -1726,15 +1733,15 @@
         }
       ],
       "inst_doc": {
-        "html_files": 18,
-        "html_bytes": 3677349,
-        "base64_bytes": 2640154,
-        "base64_share_of_html": 0.717950349558881,
+        "html_files": 19,
+        "html_bytes": 4114970,
+        "base64_bytes": 3034282,
+        "base64_share_of_html": 0.737376457179518,
         "largest": [
           {
             "file": "capstone-cerrado-campaign.html",
-            "bytes": 1101391,
-            "base64_bytes": 922419
+            "bytes": 1281222,
+            "base64_bytes": 1101517
           },
           {
             "file": "case-cerrado-end-to-end.html",
@@ -1747,25 +1754,25 @@
             "base64_bytes": 212732
           },
           {
+            "file": "edaphos-paper.html",
+            "bytes": 235620,
+            "base64_bytes": 199954
+          },
+          {
             "file": "pilar6-quantum.html",
-            "bytes": 258745,
-            "base64_bytes": 187790
+            "bytes": 256557,
+            "base64_bytes": 185602
           },
           {
             "file": "pilar4-simclr-embeddings.html",
             "bytes": 236805,
             "base64_bytes": 158577
-          },
-          {
-            "file": "causal-discovery-trio.html",
-            "bytes": 211915,
-            "base64_bytes": 147321
           }
         ]
       }
     },
     "excluded_by_rbuildignore": 16,
-    "repo_bytes": 7861965,
+    "repo_bytes": 26774822,
     "cran_soft_cap_bytes": 5242880,
     "largest_shipped_files": [
       {
@@ -1780,7 +1787,7 @@
       },
       {
         "file": "inst/extdata/capstone_campaign_results.rds",
-        "bytes": 560024,
+        "bytes": 608780,
         "ships": true
       },
       {
@@ -1805,7 +1812,7 @@
       },
       {
         "file": "README.md",
-        "bytes": 100269,
+        "bytes": 101283,
         "ships": true
       },
       {
@@ -1829,7 +1836,7 @@
         "ships": true
       }
     ],
-    "untracked_files": "edaphos.Rcheck/"
+    "untracked_files": ["docs/", "manuscript/", "tests/testthat/test-piml-closed-form.R", "tools/pretrain/zenodo-upload.zip"]
   },
   "ci": {
     "workflows": ["pkgdown.yaml", "R-CMD-check.yaml", "test-coverage.yaml"],
@@ -1955,7 +1962,7 @@
     },
     "r2_clamp_sites": [],
     "synthetic_covariate_sites": ["data-raw/causal_iv_benchmark_real.R:138", "data-raw/quantum_foundation_benchmark.R:53"],
-    "bundles_read_by_tests": ["test-causal-real-bundle.R", "test-headline-claims.R", "test-llm-annotation.R"],
+    "bundles_read_by_tests": ["test-causal-real-bundle.R", "test-headline-claims.R", "test-llm-annotation.R", "test-piml-closed-form.R", "test-piml-params-table-real.R"],
     "n_result_bundles": 15
   }
 }

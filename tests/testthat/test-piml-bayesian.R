@@ -11,10 +11,11 @@ test_that("piml_profile_fit_bayesian(method='laplace') returns a posterior", {
   expect_identical(fit$method, "laplace")
   # 2000 draws sampled from N(MAP, Sigma).
   expect_equal(nrow(fit$draws), 2000L)
-  expect_equal(ncol(fit$draws), 4L)
-  # Posterior summary is a data frame with the four natural parameters.
+  expect_equal(ncol(fit$draws), 4L)   # 4 estimated coordinates
+  # Posterior summary carries the four natural parameters plus the two
+  # identified coordinates the model is actually estimated in.
   expect_setequal(fit$summary$parameter,
-                   c("lambda0", "mu", "y_inf", "y0"))
+                   c("lambda0", "mu", "y_inf", "y0", "kappa", "y_asym"))
   # MAP lambda0 must be strictly positive (posterior lives on
   # log-lambda0 so this checks unpacking).
   expect_gt(fit$map$lambda0, 0)
@@ -25,17 +26,29 @@ test_that("piml_profile_fit_bayesian(method='laplace') returns a posterior", {
 })
 
 test_that("piml_profile_fit_bayesian recovers the MAP of piml_profile_fit", {
-  # The MAP of the Bayesian fit should match the NLS point estimate
-  # to within a few percent when the prior is weakly informative.
+  # The point fit and the MAP agree on what the data identify -- the fitted
+  # curve, the surface value and the attainable deep value. They need not agree
+  # on the individual rate parameters, which trade off along a ridge: lambda0
+  # and mu are near-collinear and the likelihood pins their ratio, not each of
+  # them. Asserting agreement on y_inf (as this test used to) asserts something
+  # the likelihood does not determine at all. Test the identified quantities.
   nls_fit <- piml_profile_fit(.depths_fixture, .values_fixture)
   bay_fit <- piml_profile_fit_bayesian(.depths_fixture, .values_fixture,
                                         method = "laplace", seed = 1L)
-  # Relative tolerance of 15% on lambda0 — priors regularise the
-  # Bayesian fit so exact equality isn't expected.
-  expect_lt(abs(log(bay_fit$map$lambda0) - log(nls_fit$params$lambda0)),
-             log(1.5))
-  expect_lt(abs(bay_fit$map$y_inf - nls_fit$params$y_inf),
-             max(2, 0.2 * abs(nls_fit$params$y_inf)))
+  zz <- seq(0, 150, by = 5)
+  p_nls <- piml_profile_predict(nls_fit$params, zz)
+  p_map <- piml_profile_predict(bay_fit$map, zz)
+  expect_lt(max(abs(p_nls - p_map)), 0.05 * diff(range(.values_fixture)))
+  # Surface value: within 5%.
+  expect_lt(abs(log(bay_fit$map$y0 / nls_fit$params$y0)), log(1.05))
+  # Attainable deep value: within 25% (it is the least-constrained of the
+  # identified quantities, being an extrapolation past the deepest horizon).
+  expect_lt(abs(log(edaphos:::.piml_asymptote(bay_fit$map) /
+                      edaphos:::.piml_asymptote(nls_fit$params))), log(1.25))
+  # Both parameterisations stay inside the physically admissible region.
+  expect_gt(bay_fit$map$lambda0, 0)
+  expect_gt(bay_fit$map$mu, 0)
+  expect_gt(bay_fit$map$y0, 0)
 })
 
 test_that("predict.edaphos_piml_bayes gives a credible interval", {
@@ -87,7 +100,7 @@ test_that("print + summary methods dispatch on edaphos_piml_bayes", {
   expect_true(any(grepl("posterior summary", out)))
   s <- summary(fit)
   expect_s3_class(s, "data.frame")
-  expect_equal(nrow(s), 4L)
+  expect_equal(nrow(s), 6L)
 })
 
 test_that("include_obs_noise widens the predictive interval", {

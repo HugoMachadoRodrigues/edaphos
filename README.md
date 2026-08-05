@@ -386,7 +386,7 @@ plan and TODO checklist.
 ## Installation
 
 ```r
-# Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)
+# Core package (light: clhs + httr2 + jsonlite + ranger + stats)
 remotes::install_github("HugoMachadoRodrigues/edaphos",
                          build_vignettes = TRUE)
 
@@ -1078,8 +1078,10 @@ $$
 \qquad\text{(Neural ODE).}
 $$
 
-The **parametric** form is integrated by `deSolve::lsoda`; the
-**Neural ODE** form by a fixed-step Runge-Kutta integrator in `torch`
+The **parametric** form is separable, so it is solved in closed form
+rather than integrated numerically, and fitted through a horizon-average
+observation operator; the **Neural ODE** form uses a fixed-step
+Runge-Kutta integrator in `torch`
 so training back-propagates through the whole trajectory
 [[Chen et al. 2018][chen2018]].
 
@@ -1110,12 +1112,30 @@ predict(fit, newdepths = c(10, 20, 40, 80),
         interval = 0.95, include_obs_noise = TRUE, seed = 1L)
 ```
 
-The fitted parameters **are** the pedological interpretation:
-`y0 ≈ 23 %` is the clay at the surface horizon, `y_inf ≈ 62 %` is the
-argillic-horizon asymptote, `mu` tells us whether translocation
-accelerates or slows with depth. The Neural ODE fits the same four
-horizons to tighter RMSE and is the default for non-monotonic profiles
-(E-below-A, buried paleosols).
+The fitted parameters carry pedological meaning — `y0 ≈ 19 %` is the clay
+extrapolated to the surface, `mu` says whether translocation accelerates
+or slows with depth — but this pedon also shows the limit of that reading.
+Its four horizons stop at 42 cm and the clay is *still rising*, so the
+model has no information about where the argillic horizon levels off, and
+`print()` says so:
+
+```
+  NOTE: the deepest horizon (36 cm) has travelled only 0% of the
+        way to y(Inf), so the deep value is an extrapolation, not an
+        estimate. Do not read it as a parent-material value.
+```
+
+Earlier versions of this README quoted `y_inf ≈ 62 %` here and called it
+the argillic asymptote. That number was not estimated from the data: the
+L2 penalty was applied to the raw `y_inf`, so it scaled with the square of
+the property's units and pinned the value. Removing the penalty on the
+same four horizons gives 533 %. The regulariser is now a scale-free
+shrinkage toward the observed range, and an unidentified asymptote is
+reported as unidentified. To estimate a parent-material value you need
+horizons deep enough to see the profile flatten.
+
+The Neural ODE fits the same four horizons to tighter RMSE and is the
+default for non-monotonic profiles (E-below-A, buried paleosols).
 
 <p align="center">
   <img src="man/figures/pillar2-piml.png" width="620"

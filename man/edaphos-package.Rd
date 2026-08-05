@@ -63,7 +63,8 @@ pc-stable, mmhc) with optional bootstrap edge confidence,
 producing an \code{edaphos_causal_kg} that can be unioned with the
 LLM-derived Knowledge Graph.}
 \item{\strong{2. Physics-Informed ML.}}{Parametric pedogenetic
-Ordinary Differential Equation integrated by \code{deSolve} —
+Ordinary Differential Equation, solved in closed form and fitted
+through a horizon-average observation operator —
 \code{\link[=piml_profile_fit]{piml_profile_fit()}}; Neural ODE with differentiable Runge-Kutta
 integrator on \code{torch} — \code{\link[=piml_neural_ode_fit]{piml_neural_ode_fit()}}; hierarchical
 covariate-conditioned Neural ODE jointly fit across pedons —

@@ -28,8 +28,9 @@ mathematical object disconnected from pedogenesis. The **Pillar 2** of
 `edaphos` replaces that spline with two Physics-Informed Machine
 Learning (PIML) [@Raissi2019; @Karniadakis2021; @Willcox2021pinns]
 models of the soil depth profile: a parametric pedogenetic Ordinary
-Differential Equation (ODE) integrated by `deSolve`
-[@Soetaert2010desolve], and a Neural ODE [@Chen2018neuralode] trained
+Differential Equation (ODE), solved in closed form and fitted through a
+horizon-average observation operator, and a Neural ODE
+[@Chen2018neuralode] trained
 by back-propagation through a fixed-step Runge-Kutta integrator on
 `torch` [@PichlerRtorch]. Both models are demonstrated on the
 `aqp::sp4` reference pedons and a hierarchical covariate-conditioned
@@ -49,17 +50,43 @@ towards a parent-material asymptote \(y_{\infty}\) with rate
 \]
 Parameters \((\lambda_{0},\mu,y_{\infty},y_{0})\) carry explicit
 physical meaning: \(\lambda_{0}\) is the surface pedogenetic rate;
-\(\mu\) controls how quickly that rate decays with depth; \(y_{0}\) is
-the surface intercept; and \(y_{\infty}\) is the parent-material
-extrapolation. The implementation
-[`piml_profile_fit()`][piml_profile_fit] integrates (1) via
-`deSolve::lsoda` at every loss evaluation and minimises
+\(\mu\) controls how quickly that rate decays with depth; and \(y_{0}\)
+is the surface intercept.
+
+\(y_{\infty}\) needs care, because it is **not** the value the profile
+reaches. Equation (1) is separable and its solution is
+\[
+y(z)=y_{\infty}+(y_{0}-y_{\infty})
+      \exp\!\Bigl[-\tfrac{\lambda_{0}}{\mu}\bigl(1-e^{-\mu z}\bigr)\Bigr],
+\tag{2}
+\]
+so, with \(\kappa=\lambda_{0}/\mu\),
+\(y(\infty)=y_{\infty}+(y_{0}-y_{\infty})e^{-\kappa}\). Because the rate
+\(\lambda(z)\) decays with depth, the profile traverses only a fraction
+\(1-e^{-\kappa}\) of the \(y_{0}\to y_{\infty}\) gap and then stops.
+\(y_{\infty}\) is an equilibrium coordinate of the differential equation;
+the parent-material extrapolation is \(y(\infty)\), and the two can differ
+in sign. The fit is carried out in the identified, positive coordinates
+\((y_{0}, y(\infty), \kappa, \mu)\), with \(\lambda_{0}\) and
+\(y_{\infty}\) recovered for reporting. The implementation
+[`piml_profile_fit()`][piml_profile_fit] evaluates (2) directly — the
+equation has a solution, so integrating it numerically is only slower and
+less accurate — and minimises
 \[
 \mathcal{J}(\theta)\;=\;
-\sum_{j}\bigl(y(z_{j};\theta)-y_{j}\bigr)^{2}
-\;+\;\eta\|\theta\|_{2}^{2},\tag{2}
+\sum_{j}\bigl(\bar y(z_{j}^{\text{top}},z_{j}^{\text{bot}};\theta)-y_{j}\bigr)^{2}
+\;+\;\eta\|\theta-\theta_{0}\|_{2}^{2},\tag{3}
 \]
-with Nelder--Mead and Tikhonov regularisation \(\eta\).[^psn]
+with Nelder--Mead from several starting points. Two details matter. The
+forward operator \(\bar y\) is the model's **average over the horizon**
+\([z^{\text{top}}_j, z^{\text{bot}}_j]\), by Gauss--Legendre quadrature on
+(2), rather than a point evaluation at the mid-depth — a laboratory value
+is a layer average, which is the same observation-operator issue the
+equal-area spline literature addresses [@Bishop1999; @Malone2009]. And the
+Tikhonov term is centred on the data-driven start \(\theta_0\): on log
+coordinates an uncentred penalty shrinks every concentration toward 1, and
+in earlier versions, applied to the raw \(y_\infty\), it scaled with the
+square of the property's units and silently did part of the fitting.[^psn]
 
 [^psn]: Physics is imposed by the *forward model itself* — the
 optimiser cannot produce a profile that violates the exponential
@@ -140,15 +167,37 @@ tab <- do.call(rbind, lapply(names(fits), function(k) {
   p <- fits[[k]]$params
   data.frame(
     pedon   = k,
-    lambda0 = signif(p$lambda0, 3),
-    mu      = signif(p$mu,      3),
-    y_inf   = signif(p$y_inf,   3),
-    y0      = signif(p$y0,      3),
-    rmse    = signif(fits[[k]]$rmse, 3)
+    lambda0  = signif(p$lambda0, 3),
+    mu       = signif(p$mu,      3),
+    kappa    = signif(p$kappa,   3),
+    y0       = signif(p$y0,      3),
+    # the value the profile reaches -- NOT y_inf, which is reported
+    # alongside it to show how far apart the two can be
+    y_attain = signif(edaphos:::.piml_asymptote(p), 3),
+    y_inf    = signif(p$y_inf,   3),
+    rmse     = signif(fits[[k]]$rmse, 3)
   )
 }))
 tab
 ```
+
+Read this table with `y_attain` — the value the profile reaches — and not
+`y_inf`. On `colusa` and `tehama` the two differ by orders of magnitude,
+and both are absurd: those pedons have three or four horizons, all in the
+top 42 cm, with clay still rising at the deepest one. There is simply no
+information in them about where the argillic horizon levels off, so the
+curve is fitted through the observations and then points off to nowhere.
+`print()` flags exactly these two, reporting how far down the
+\(y_0 \to y(\infty)\) journey the deepest horizon actually got:
+
+```{r flagged}
+vapply(fits, function(f) f$progress, numeric(1))
+```
+
+On neither flagged pedon does the four-parameter equation improve on a
+two-parameter straight line (next section: 3.018 against 3.016, and 0.839
+against 0.836), which is the right outcome — the model should not be
+credited for a shape it did not determine.
 
 ## 5. Non-physical baselines
 
@@ -181,7 +230,7 @@ Neural ODE alternative [@Chen2018neuralode]:
 \[
 \frac{dy}{dz}=f_{\theta}(z,y),\qquad
 f_{\theta}=\text{MLP}(z,y;\,\theta).
-\tag{3}
+\tag{4}
 \]
 The forward map is a fixed-step RK4 integrator written directly in
 `torch`, so training back-propagates the squared-error loss through
