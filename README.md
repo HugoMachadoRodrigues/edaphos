@@ -492,8 +492,32 @@ light and the scientific boundary between pillars explicit.
 | 8   | **Neural Operators**         | `no_*`          | ✅ v2.4.0      | Solution operator $\mathcal{G}: u(z) \mapsto y(z)$ between depth-function spaces — FNO $(\mathcal{K}v)(z) = \mathcal{F}^{-1}(R_\theta \cdot \mathcal{F}v)(z)$ [[Li et al. 2021][li2021fno]] and DeepONet $\sum_k b_k(u)\,t_k(z)$ [[Lu et al. 2021][lu2021deeponet]]; off-grid depth queries |
 | 9   | **Diffusion Models**         | `dm_*`          | ✅ v2.5.0      | DDPM [[Ho et al. 2020][ho2020ddpm]] over map patches: forward $q(x_t \mid x_0) = N(\sqrt{\bar\alpha_t}x_0, (1-\bar\alpha_t)I)$ on the cosine schedule [[Nichol & Dhariwal 2021][nichol2021]], denoiser $\epsilon_\theta(x_t,t)$, ancestral sampling with $x_0$ clipping |
 | 10  | **Graph Neural Networks**    | `gnn_*`         | ✅ v2.6.0      | GAT [[Veličković et al. 2018][velickovic2018]] on a k-NN co-location graph: $\alpha_{ij} = \mathrm{softmax}_j(\mathrm{LeakyReLU}(a^\top[Wh_i \Vert Wh_j]))$ by analytic reverse-mode gradients, transductive train mask, closed-form ridge readout |
-| **🔗**   | **Unified uncertainty API** | `uncertainty_*` | ✅ v1.6.0      | `edaphos_posterior` S3 class + `uncertainty_calibrate()` returning CRPS / PICP / MPIW / reliability diagram for *every* pillar                                                                         |
+| **🔗**   | **Unified uncertainty API** | `uncertainty_*` | ✅ v1.6.0      | `edaphos_posterior` S3 class + `uncertainty_calibrate()` returning CRPS / PICP / MPIW / reliability diagram. **7 of the 10 pillars** carry an `as_edaphos_posterior()` method (1, 2, 3, 4, 5, 6, 7); pillars 8, 9 and 10 do not — see the note below |
 | **🎬**   | **Capstone vignette**       | —               | ✅ v1.7.0      | "Uma decisão de amostragem sob incerteza no Cerrado" — integrating the six pillars that existed at v1.7.0, causally grounded in [Zhang & Wadoux (2026)][zhang2026]                                                           |
+
+> **Which pillars reach the uncertainty API, and why three do not.**
+> `methods("as_edaphos_posterior")` returns 12 methods covering pillars 1
+> through 7. Pillars 8 (neural operators), 9 (diffusion) and 10 (graph
+> attention) have none, and this row previously claimed "every pillar".
+>
+> For pillar 10 the omission is deliberate rather than pending. A fitted
+> GAT exposes only `member_sd`, the spread between ensemble members that
+> differ in their random seed. That is not a predictive distribution: it
+> measures initialisation variance, and the function's own documentation
+> concedes that a ±1.96·sd band covers about a quarter of the profiles.
+> Wrapping it in `edaphos_posterior()` would make a calibration number
+> computable and meaningless. The benchmark instead builds an interval
+> explicitly, as member spread plus a noise term whose scale is estimated
+> by inner spatially blocked CV, and reports it as such
+> (`benchmark_fit_p10_gat()`). Even so, that interval carries no
+> information about extrapolation distance — see
+> `data-raw/interval_width_vs_extrapolation.R`, where its width correlates
+> −0.08 with distance to the nearest training profile while its error
+> correlates +0.11.
+>
+> Pillars 8 and 9 return field-valued objects (operator outputs, map
+> patches), for which a per-site scalar posterior is the wrong shape; they
+> are evaluated by their own task-appropriate diagnostics instead.
 
 Every pillar ships with (i) a mathematically explicit governing
 object; (ii) an R function family; (iii) one or more vignettes deriving
