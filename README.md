@@ -72,9 +72,21 @@ And they distinguish two competing views of causality:
 | **Generative** | Soil-forming factors act through **explicit processes** that produce soil properties | Requires process-informed models; directly satisfies condition 1 |
 
 Each of `edaphos`'s ten pillars addresses one of these gaps with a
-concrete, reproducible computational machinery. The package is the
-first R stack that — taken together — operationalises the generative
-DSM paradigm end-to-end, with quantified uncertainty at every step.
+concrete, reproducible computational machinery, with quantified
+uncertainty at every step.
+
+It is worth being precise about how far that goes. The generative
+paradigm asks for models in which soil properties arise from explicitly
+specified processes. Pillar 2 does that for the depth dimension, and
+`piml_profile_fit_mechanistic()` derives its equation from a carbon
+balance. Pillar 1's graph, however, is over **observed state variables**
+— climate, terrain, texture — not over process parameters, and the
+shipped graph is rejected by `causal_dag_test()` on 33 of the 37
+conditional independencies it implies (28 of 37 after removing spatial
+structure). So the package operationalises pieces of the generative
+paradigm and gives you the tools to find out where they fail; it does
+not deliver it end-to-end, and the failures are reported rather than
+hidden.
 
 ---
 
@@ -423,8 +435,8 @@ light and the scientific boundary between pillars explicit.
 
 | Nº  | Pillar                       | Namespace       | Status        | Governing object                                                                                                                                                                                   |
 |-----|------------------------------|-----------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1   | **Causal AI + LLM KG**       | `causal_*`      | ✅ v1.4.0      | Pedogenetic DAG $G = (V, E)$ + backdoor-adjusted $\beta_{x \to y}^{\text{do}}$ [[Pearl 2009][pearl2009]] **+ LLM-extracted claims** via Gemma 4 / GPT / Claude (multi-backend voting + AGROVOC)     |
-| 2   | **Physics-Informed ML**      | `piml_*`        | ✅ v1.1.0      | Pedogenetic ODE $\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)$; Bayesian posterior over $(\lambda_0, \mu, y_\infty)$; Neural ODE $\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})$               |
+| 1   | **Causal inference**         | `causal_*`      | ✅ v1.4.0      | Pedogenetic DAG $G = (V, E)$, backdoor-adjusted $\beta_{x \to y}^{\text{do}}$ [[Pearl 2009][pearl2009]], Cinelli–Hazlett sensitivity, and `causal_dag_test()` which falsifies the graph against the data. LLM knowledge-graph tooling is supplementary and is not used for any published result |
+| 2   | **Physics-Informed ML**      | `piml_*`        | ✅ v1.1.0      | Pedogenetic ODE $\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)$, solved in closed form and estimated in the identified coordinates $(y_0, y(\infty), \kappa, \mu)$; the derived advection-reaction alternative $v\,\dfrac{dC}{dz} = I(z) - kC$; Neural ODE $\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})$ |
 | 3   | **4D Pedometry**             | `temporal_*`    | ✅ v1.5.0      | Stacked ConvLSTM [[Shi et al. 2015][shi2015]] with seq-to-seq + multi-step rollout + mass-balance physics loss; stochastic EnKF with Gaspari-Cohn localization                                       |
 | 4   | **Foundation Models**        | `foundation_*`  | ✅ v1.2.0      | SimCLR + MoCo v2 contrastive pre-training [[He et al. 2020][he2020moco]; [Chen et al. 2020b][chen2020moco2]] on planetary-scale patches; **Zenodo-published Cerrado encoder** + fine-tune ensemble |
 | 5   | **Autonomous Active Learning** | `al_*`        | ✅ v1.1.0      | Hybrid policy $\pi(\mathbf{x}) = \alpha\,\tilde u(\mathbf{x}) + (1-\alpha)\,\tilde d(\mathbf{x})$ with PIML physics gate + BatchBALD                                                                   |
@@ -444,7 +456,7 @@ shared `vignettes/references.bib`.
 
 ---
 
-## Pillar 1 — Causal AI + LLM Knowledge Graphs
+## Pillar 1 — Causal inference on a pedogenetic graph
 
 ### Motivation
 
@@ -1060,11 +1072,20 @@ parameterised either analytically or by a neural network and
 integrated end-to-end.
 
 **Alignment with [Zhang & Wadoux (2026)][zhang2026].** The pedogenetic
-ODE is the purest form of their **generative causality**: the soil
-property arises from a process explicitly specified by the modeller.
-This simultaneously satisfies conditions 1 (explicit causal model) and
-3 (faithfulness), and gives the pedologist a mechanistic handle that
-variable-importance metrics never deliver.
+ODE is the closest this package comes to their **generative causality**:
+the soil property arises from a process the modeller writes down, which
+is their condition 1 (an explicit model). It does *not* satisfy their
+condition 3, faithfulness — that is a property of the data relative to a
+graph, not of an equation, and the DAG this package ships fails its own
+implied-independence test (see `causal_dag_test()`). Earlier versions of
+this README claimed both conditions; the claim about faithfulness was a
+category error.
+
+Note also that the equation in this section is not itself derived from a
+process: it is the Russell & Moore (1968) exponential depth function with
+a fourth shape parameter. `piml_profile_fit_mechanistic()` is the derived
+alternative, from the steady-state advection-reaction balance, and on
+real multi-horizon profiles it is also the more accurate of the two.
 
 ### Governing object
 
