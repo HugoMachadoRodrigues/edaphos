@@ -52,6 +52,7 @@ An \code{edaphos_dm_fit} fit.
 Train a tiny DDPM on a collection of soil-map patches
 }
 \examples{
+\donttest{
 data(br_cerrado)
 
 # br_cerrado is a 45 x 45 grid, so it reshapes into an image.  Model
@@ -101,6 +102,7 @@ round(c(epochs_150 = fit$history[150L],
 # And the patches overlap by construction (stride 5, window 8), so
 # these 64 are nowhere near 64 independent training examples.
 c(n_patches = dim(stack)[1L], H = dim(stack)[2L], W = dim(stack)[3L])
+}
 }
 \references{
 Ho, J., Jain, A. and Abbeel, P. (2020). Denoising Diffusion

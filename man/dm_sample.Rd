@@ -26,6 +26,7 @@ walk back to t=0.  Optional conditioning vector c is passed in at
 every step.
 }
 \examples{
+\donttest{
 data(br_cerrado)
 
 as_grid <- function(v) {
@@ -97,4 +98,5 @@ hi <- dm_sample(fit_c, n_samples = 8L,
 round(c(mean_low = mean(lo), mean_high = mean(hi),
         response = mean(hi) - mean(lo),
         draw_sd  = sd(apply(lo, 1L, mean))), 3)
+}
 }

@@ -46,6 +46,7 @@ labelling there delivers the largest reduction in model entropy
 per sample.
 }
 \examples{
+\donttest{
 # Pillar 9 wants a bank of patches: cut the 45 x 45 Cerrado SOC
 # grid into 25 non-overlapping 9 x 9 tiles.
 soc_grid <- matrix(br_cerrado$soc, 45L, 45L)
@@ -106,4 +107,5 @@ length(intersect(paste(q$row[1:8],  q$col[1:8]),
 reach <- expand.grid(row = 2:4, col = 2:4)
 nrow(al_query_diffusion(dm, candidate_cells = reach,
                         n_samples = 8L, n_select = 3L, seed = 1L))  # 9
+}
 }

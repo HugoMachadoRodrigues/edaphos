@@ -218,6 +218,7 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #' \doi{10.1016/j.neucom.2005.12.126} (the random-hidden-layer regime
 #' the `backend = "r"` trainer operates in).
 #' @examples
+#' \donttest{
 #' data(br_cerrado)
 #'
 #' # br_cerrado is a 45 x 45 grid, so it reshapes into an image.  Model
@@ -267,6 +268,7 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #' # And the patches overlap by construction (stride 5, window 8), so
 #' # these 64 are nowhere near 64 independent training examples.
 #' c(n_patches = dim(stack)[1L], H = dim(stack)[2L], W = dim(stack)[3L])
+#' }
 #' @export
 dm_fit <- function(stack, conditioning = NULL,
                      T = 50L, epochs = 100L,
@@ -381,6 +383,7 @@ dm_fit <- function(stack, conditioning = NULL,
 #' @param seed Optional RNG seed.
 #' @return 3-D array `(n_samples, H, W)` of generated patches.
 #' @examples
+#' \donttest{
 #' data(br_cerrado)
 #'
 #' as_grid <- function(v) {
@@ -452,6 +455,7 @@ dm_fit <- function(stack, conditioning = NULL,
 #' round(c(mean_low = mean(lo), mean_high = mean(hi),
 #'         response = mean(hi) - mean(lo),
 #'         draw_sd  = sd(apply(lo, 1L, mean))), 3)
+#' }
 #' @export
 dm_sample <- function(fit, n_samples = 4L,
                         conditioning = NULL, seed = NULL) {

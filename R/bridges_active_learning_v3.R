@@ -236,6 +236,7 @@ print.edaphos_al_neural_operator_query <- function(x, ...) {
 #' @return A data frame of class `edaphos_al_diffusion_query`
 #'   sorted by descending score.
 #' @examples
+#' \donttest{
 #' # Pillar 9 wants a bank of patches: cut the 45 x 45 Cerrado SOC
 #' # grid into 25 non-overlapping 9 x 9 tiles.
 #' soc_grid <- matrix(br_cerrado$soc, 45L, 45L)
@@ -296,6 +297,7 @@ print.edaphos_al_neural_operator_query <- function(x, ...) {
 #' reach <- expand.grid(row = 2:4, col = 2:4)
 #' nrow(al_query_diffusion(dm, candidate_cells = reach,
 #'                         n_samples = 8L, n_select = 3L, seed = 1L))  # 9
+#' }
 #' @export
 al_query_diffusion <- function(dm_fit, conditioning = NULL,
                                   n_samples = 16L,
