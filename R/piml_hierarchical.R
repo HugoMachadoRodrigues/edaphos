@@ -84,6 +84,24 @@
 #' Pair with [al_physics_gate_piml_hierarchical()] to use that per-location
 #' envelope as a rejection filter inside the Active Learning loop.
 #'
+#' @section What the `piml_` prefix does and does not mean here:
+#' Despite the prefix, this function shares the family name with
+#' [piml_profile_fit()] and not its physics. There, the depth function IS the
+#' closed-form solution of a stated equation and the four fitted numbers are
+#' that equation's symbols. Here, \eqn{f_\theta} is an unconstrained
+#' multi-layer perceptron taking \eqn{(z, y, \mathbf{x})} as input channels;
+#' the covariates do not enter as \eqn{\lambda_0(\mathbf{x})},
+#' \eqn{\mu(\mathbf{x})}, \eqn{y_\infty(\mathbf{x})}, and no conservation law
+#' or monotonicity constrains the result.
+#'
+#' Two consequences follow and neither is hypothetical. The state can cross
+#' zero, so a strictly positive property can be predicted negative — see the
+#' `clamp` argument of [piml_hierarchical_predict()]. And the fitted
+#' parameters are not interpretable as rates or asymptotes, so none of the
+#' identifiability results reported for [piml_profile_fit_bayesian()] carry
+#' over. Treat this as a flexible depth-profile regressor conditioned on
+#' covariates, which is what it is.
+#'
 #' @param pedons Data frame in long form (one row per horizon) with
 #'   columns for pedon id, depth, value, and one or more covariates.
 #' @param id_col,depth_col,value_col Character, column names.
@@ -230,6 +248,12 @@ piml_hierarchical_fit <- function(pedons,
       depth_scale   = depth_scale,
       value_mu      = value_mu,
       value_sd      = value_sd,
+      # The observed range of the response. Both the prediction guard and the
+      # physics gate need it: without it, each is anchored only to what this
+      # network happens to output, so a badly fitted model certifies its own
+      # errors as plausible and rejects candidates the data call ordinary.
+      value_range   = range(pedons[[value_col]], na.rm = TRUE),
+      value_positive = all(pedons[[value_col]] > 0, na.rm = TRUE),
       cov_mu        = cov_mu,
       cov_sd        = cov_sd,
       n_pedons      = length(split_data),
@@ -247,6 +271,13 @@ piml_hierarchical_fit <- function(pedons,
 #' @param new_covariates Data frame with at least the covariate columns
 #'   used at training time (one row per location).
 #' @param newdepths Numeric vector of depths.
+#' @param clamp Logical, default `TRUE`. When the training response was
+#'   strictly positive and the model returns negative predictions, clamp them
+#'   to zero and warn. The model has **no structural positivity** -- the state
+#'   is integrated by RK4 over an unconstrained network -- so a negative
+#'   prediction means the fit has gone wrong, and the clamp is a guard against
+#'   publishing impossible numbers rather than a repair. `FALSE` returns them
+#'   unmodified, still with a warning.
 #' @return Numeric matrix, one row per location in `new_covariates`, one
 #'   column per depth in `newdepths`.
 #' @examples
@@ -317,7 +348,8 @@ piml_hierarchical_fit <- function(pedons,
 #'   print(round(range(train$soc), 2))
 #' }
 #' @export
-piml_hierarchical_predict <- function(object, new_covariates, newdepths) {
+piml_hierarchical_predict <- function(object, new_covariates, newdepths,
+                                     clamp = TRUE) {
   .piml_require_torch()
   stopifnot(inherits(object, "edaphos_piml_hierarchical"))
   .assert_covariates(new_covariates, object$covariate_cols)
@@ -337,6 +369,36 @@ piml_hierarchical_predict <- function(object, new_covariates, newdepths) {
       out[i, ] <- as.numeric(pred_t) * object$value_sd + object$value_mu
     }
   })
+  # NO STRUCTURAL POSITIVITY. The state is marched by RK4 over an
+  # unconstrained MLP vector field, so nothing stops a profile from crossing
+  # zero -- and the function's own documented example did exactly that,
+  # returning -2.56 g/kg of organic carbon at 60 cm and -10.46 at 200 cm.
+  #
+  # Clamping is a guard, not a fix: a model that predicts negative carbon has
+  # gone wrong somewhere the clamp does not reach. So it clamps AND says so,
+  # with the worst value, rather than quietly returning zeros that look like
+  # data.
+  if (isTRUE(object$value_positive) && any(out < 0, na.rm = TRUE)) {
+    n_bad <- sum(out < 0, na.rm = TRUE)
+    worst <- min(out, na.rm = TRUE)
+    if (isTRUE(clamp)) {
+      out[out < 0] <- 0
+      warning(sprintf(paste(
+        "piml_hierarchical_predict(): %d of %d predicted values were negative",
+        "(worst %.3g) for a strictly positive training response, and have been",
+        "clamped to 0. The model has no positivity constraint -- the state is",
+        "integrated over an unconstrained network -- so this is a symptom, not",
+        "a rounding issue. Inspect the fit before using these predictions;",
+        "`clamp = FALSE` returns them unmodified."),
+        n_bad, length(out), worst), call. = FALSE)
+    } else {
+      warning(sprintf(paste(
+        "piml_hierarchical_predict(): %d of %d predicted values are negative",
+        "(worst %.3g) for a strictly positive training response, and are",
+        "returned unmodified because `clamp = FALSE`."),
+        n_bad, length(out), worst), call. = FALSE)
+    }
+  }
   out
 }
 
@@ -473,7 +535,28 @@ al_physics_gate_piml_hierarchical <- function(
     maxs <- apply(profiles, 1L, max, na.rm = TRUE)
     slack <- safety_factor - 1
     span  <- pmax(abs(maxs - mins), 1e-9)
-    predicted_mean >= mins - slack * span &
-      predicted_mean <= maxs + slack * span
+    lo <- mins - slack * span
+    hi <- maxs + slack * span
+
+    # ANCHOR TO THE DATA, NOT ONLY TO THE MODEL. The envelope above is built
+    # entirely from this network's own predictions, so a fit that came out low
+    # rejects candidates the training data call ordinary. On the function's own
+    # documented example it rejected 6 of 8 candidates whose predicted means
+    # all sat inside the observed range of the response.
+    #
+    # A physics gate is meant to exclude the impossible, not the unfamiliar.
+    # Widening the envelope to at least the observed range restores that: a
+    # candidate is rejected only if it falls outside BOTH what the model
+    # expects and what has actually been measured.
+    if (!is.null(hier_fit$value_range)) {
+      lo <- pmin(lo, hier_fit$value_range[1L])
+      hi <- pmax(hi, hier_fit$value_range[2L])
+    }
+    # And floor at zero for a strictly positive response, the same correction
+    # al_physics_gate_piml() already carries. Without it the `slack * span`
+    # widening certifies negative carbon as plausible.
+    if (isTRUE(hier_fit$value_positive)) lo <- pmax(lo, 0)
+
+    predicted_mean >= lo & predicted_mean <= hi
   }
 }

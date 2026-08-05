@@ -48,25 +48,57 @@ test_that("its intervals are posterior quantiles, not the mean times a constant"
   expect_false(isTRUE(all.equal(r_lo, rep(0.75, length(r_lo)), tolerance = 1e-6)))
 })
 
-test_that("the table reproduces a live Laplace fit of the shipped pedon", {
+test_that("the table reproduces a live fit of the shipped pedon, by the method it declares", {
+  skip_on_cran()
   f <- system.file("extdata", "capstone_campaign_results.rds", package = "edaphos")
   skip_if(f == "", "capstone bundle not installed")
   B <- readRDS(f)
   p <- B$piml_profile_obs
   skip_if(is.null(p), "pedon observations not in bundle")
 
+  # The bundle records which path produced it, and the refit must use that
+  # path rather than a hard-coded one. This test caught the switch from
+  # Laplace to MCMC by failing on every row -- which is what it is for, but it
+  # only works if the method is read from the bundle instead of pinned here.
+  method <- B$piml_method %||% "laplace"
+  expect_true(method %in% c("laplace", "mcmc"))
+
   # Horizon boundaries are part of the shipped pedon now that it is a real
   # WoSIS profile, and the bundle was built with the layer operator; refitting
   # without them would not reproduce it.
   fit <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
                                    top = p$top, bottom = p$bottom,
-                                   method = "laplace", seed = 7L)
+                                   method = method, seed = 7L)
   s <- summary(fit)
   tab <- B$piml_params_table[match(s$parameter, B$piml_params_table$param), ]
 
   expect_equal(tab$mean,  s$mean,  tolerance = 1e-6)
   expect_equal(tab$ci_lo, s$q2.5,  tolerance = 1e-6)
   expect_equal(tab$ci_hi, s$q97.5, tolerance = 1e-6)
+})
+
+test_that("the reported path is MCMC and carries its convergence diagnostics", {
+  f <- system.file("extdata", "capstone_campaign_results.rds", package = "edaphos")
+  skip_if(f == "", "capstone bundle not installed")
+  B <- readRDS(f)
+  skip_if(is.null(B$piml_params_table), "params table not in bundle")
+
+  # Laplace was the reported path and it misrepresents this posterior: five of
+  # seven intervals come out narrower, the observation noise by a factor of
+  # 1.8. A regression to it would be silent without this.
+  expect_equal(B$piml_method, "mcmc")
+  expect_true(all(c("rhat", "ess") %in% names(B$piml_params_table)))
+  expect_lt(max(B$piml_params_table$rhat, na.rm = TRUE), 1.01)
+  expect_gt(min(B$piml_params_table$ess, na.rm = TRUE), 400)
+
+  # and the comparison the manuscript reports has to be in the bundle,
+  # because a claim that an approximation is too confident needs its evidence
+  lc <- B$piml_laplace_vs_mcmc
+  expect_false(is.null(lc))
+  expect_true(all(c("width_ratio", "mean_mcmc", "mean_laplace") %in% names(lc)))
+  expect_gt(sum(lc$width_ratio > 1.05), 3)
+  # the identified quantity should be the one that does NOT move
+  expect_lt(abs(lc$width_ratio[lc$parameter == "y_asym"] - 1), 0.1)
 })
 
 test_that("print.edaphos_causal_effect names the estimand it was asked for", {
