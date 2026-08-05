@@ -46,8 +46,19 @@ also requires seeding \code{\link[=piml_profile_fit_bayesian]{piml_profile_fit_b
 \item{...}{Unused; present for S3 \code{predict} generic compatibility.}
 }
 \value{
-Either a matrix (when \code{interval} is NULL) or a data frame
-with columns \code{depth}, \code{mean}, \code{sd}, \code{lower}, \code{upper}.
+Either a matrix (when \code{interval} is NULL) or a data frame with
+columns \code{depth}, \code{mean}, \code{sd}, \code{lower}, \code{upper}, \code{lower_sim} and
+\code{upper_sim}.
+
+\code{lower}/\code{upper} are POINTWISE: each depth taken alone is covered with
+probability \code{interval}. \code{lower_sim}/\code{upper_sim} are SIMULTANEOUS -- the
+sup-t band of Montiel Olea and Plagborg-Moller (2019), which covers the
+whole curve with that probability. Over a few hundred depths the two
+differ substantially, and a ribbon drawn from the pointwise pair and
+described as a band for the profile overstates its coverage. The
+calibrated one-sided level behind the simultaneous pair is on
+\code{attr(out, "supt_level")}; it is at most \code{(1 - interval) / 2}, so the
+simultaneous band always contains the pointwise one.
 }
 \description{
 Propagates the full posterior over ODE parameters through the

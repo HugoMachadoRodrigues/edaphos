@@ -59,7 +59,18 @@ fraction can be off by an order of magnitude.}
 \item{verbose}{Logical.}
 }
 \value{
-An \code{edaphos_bhs} S3 object.
+An \code{edaphos_bhs} S3 object. Among its fields, \code{phi_hat} is the
+profile-MLE of the rate, and \code{phi_railed} / \code{phi_rail_edge} record
+whether that MLE landed on an endpoint of \code{phi_range} and which one.
+The warning alone is not enough: a downstream script that reads
+\code{phi_hat} or the spatial variance fraction needs to branch on whether
+the data or the bracket produced them. \code{spatial} carries
+\code{spatial_share}, its complement \code{nugget_sill_ratio}, the practical
+range \code{3 / phi}, the nearest-neighbour \code{min_spacing}, and
+\code{range_below_spacing} -- TRUE when the correlation has decayed to 0.05
+inside the closest pair of observations, in which case the latent field
+and the nugget are the same white noise and the share is not
+interpretable.
 }
 \description{
 The v2.3.0 activation of the Pilar 7 scaffold.  Fits a Bayesian
@@ -98,11 +109,18 @@ fit_wide
 # Widening 50x again moves phi to 1e5 and leaves the share at 0.886:
 # past the point where the correlation matrix is the identity there is
 # nothing left for phi to change.
-share <- function(f)
-  mean(f$sigma2_draws) / (mean(f$sigma2_draws) + mean(f$tau2_draws))
+# `$spatial` carries the share so no consumer has to recompute it, and
+# `$phi_railed` says whether the bracket or the data produced phi.
 round(c(phi_narrow = fit_narrow$phi_hat, phi_wide = fit_wide$phi_hat,
-        phi_huge = fit_huge$phi_hat, share_narrow = share(fit_narrow),
-        share_wide = share(fit_wide), share_huge = share(fit_huge)), 4)
+        phi_huge = fit_huge$phi_hat,
+        share_narrow = fit_narrow$spatial$spatial_share,
+        share_wide = fit_wide$spatial$spatial_share,
+        share_huge = fit_huge$spatial$spatial_share), 4)
+
+# And the share is only worth reading when the correlation survives to the
+# closest pair of observations. Here it does not, in any of the three:
+vapply(list(fit_narrow, fit_wide, fit_huge),
+       function(f) f$spatial$range_below_spacing, logical(1))
 
 # The tie-breaker is not the likelihood, it is the geometry.  At
 # phi = 2000 the correlation between the two CLOSEST sites in the block

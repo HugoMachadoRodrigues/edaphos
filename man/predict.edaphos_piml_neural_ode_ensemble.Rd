@@ -36,8 +36,13 @@ draw. Only consulted when \code{include_obs_noise = TRUE}.}
 \item{...}{Unused.}
 }
 \value{
-Either a numeric matrix (when \code{interval} is NULL) or a
-data frame with columns \code{depth}, \code{mean}, \code{sd}, \code{lower}, \code{upper}.
+Either a numeric matrix (when \code{interval} is NULL) or a data frame
+with columns \code{depth}, \code{mean}, \code{sd}, \code{lower}, \code{upper}, \code{lower_sim} and
+\code{upper_sim}. \code{lower}/\code{upper} are pointwise -- each depth covered
+separately -- while \code{lower_sim}/\code{upper_sim} cover the whole curve at
+the same nominal level. Drawing the pointwise pair as a ribbon over a
+profile and calling it the band for that profile overstates its
+coverage; see \code{\link[=predict.edaphos_piml_bayes]{predict.edaphos_piml_bayes()}}.
 }
 \description{
 Evaluates every ensemble member at the requested depths and returns

@@ -26,7 +26,9 @@ An \code{edaphos_spatial_folds} object: a list with \code{fold} (an integer
 vector of block assignments), \code{train} and \code{test} (lists of row-index
 vectors, one per fold), \code{n_buffered} (rows removed per fold),
 \code{min_dist_km} (the realised minimum training-to-test distance per fold,
-which should be at least \code{buffer_km}), and the settings.
+which should be at least \code{buffer_km}), \code{min_dist_km_unbuffered} (the same
+distance the unbuffered split would have allowed, so the buffer's effect
+can be quoted rather than asserted), and the settings.
 }
 \description{
 Assigns rows to \code{k} spatial blocks by k-means on the coordinates, then, for

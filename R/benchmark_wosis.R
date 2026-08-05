@@ -425,6 +425,53 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
                                         edf = if (isTRUE(calibrate)) edf else NA_real_))
 }
 
+# Out-of-sample residual scale for the GAT, by inner spatially blocked CV
+# inside the training partition. The network has no closed-form effective
+# degrees of freedom, so the only honest estimate of how large its errors are
+# at an unseen location is to hold locations out and look.
+#
+# The inner blocking mirrors the outer protocol -- same helper, same buffer --
+# so the residual scale is estimated under the same spatial regime it will be
+# applied in. Nothing outside `train` is touched.
+#
+# Returns NA if the training partition cannot carry the inner blocking (too
+# few profiles survive the buffer), so the caller can fall back and SAY it
+# fell back rather than silently reverting to training residuals.
+.p10_inner_sigma <- function(train, cov_cols, k, hidden, n_heads, n_layers,
+                                epochs, lr, n_ensemble, seed,
+                                n_inner = 3L, buffer_km = 68) {
+  co <- cbind(train$lon, train$lat)
+  SF <- tryCatch(spatial_block_folds(co, k = n_inner, buffer_km = buffer_km,
+                                        seed = seed),
+                   error = function(e) NULL)
+  if (is.null(SF)) return(NA_real_)
+
+  res <- vector("list", n_inner)
+  for (fd in seq_len(n_inner)) {
+    tr_ix <- SF$train[[fd]]; te_ix <- SF$test[[fd]]
+    if (length(tr_ix) < 30L || length(te_ix) < 5L) return(NA_real_)
+    itr <- train[tr_ix, , drop = FALSE]; ite <- train[te_ix, , drop = FALSE]
+    df_all <- rbind(
+      cbind(itr[, c("lon", "lat", cov_cols)], soc = itr$soc),
+      cbind(ite[, c("lon", "lat", cov_cols)], soc = NA_real_))
+    g <- gnn_build_graph(df_all, k = k, feature_cols = cov_cols)
+    n_i <- nrow(itr); n_a <- nrow(df_all)
+    mask <- c(rep(TRUE, n_i), rep(FALSE, n_a - n_i))
+    P <- matrix(NA_real_, nrow = n_ensemble, ncol = nrow(ite))
+    for (b in seq_len(n_ensemble)) {
+      f <- gnn_fit(g, targets = df_all$soc, train_mask = mask,
+                     hidden = hidden, n_heads = n_heads, n_layers = n_layers,
+                     epochs = epochs, lr = lr, seed = seed + 1000L * fd + b)
+      P[b, ] <- stats::predict(f)[seq(n_i + 1L, n_a)]
+    }
+    res[[fd]] <- ite$soc - colMeans(P)
+  }
+  r <- unlist(res); r <- r[is.finite(r)]
+  if (length(r) < 10L) return(NA_real_)
+  sqrt(mean(r^2))
+}
+
+
 #' Benchmark wrapper: Pilar 10 -- GAT seed-ensemble on k-NN graph
 #'
 #' Builds a joint k-NN co-location graph on `rbind(train, test)`
@@ -525,52 +572,6 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 #' c(best_epoch = f1$best_epoch, epochs_run = length(f1$history))
 #' isTRUE(all.equal(predict(f1)[121:160], epi$samples[1, ]))
 #' @export
-# Out-of-sample residual scale for the GAT, by inner spatially blocked CV
-# inside the training partition. The network has no closed-form effective
-# degrees of freedom, so the only honest estimate of how large its errors are
-# at an unseen location is to hold locations out and look.
-#
-# The inner blocking mirrors the outer protocol -- same helper, same buffer --
-# so the residual scale is estimated under the same spatial regime it will be
-# applied in. Nothing outside `train` is touched.
-#
-# Returns NA if the training partition cannot carry the inner blocking (too
-# few profiles survive the buffer), so the caller can fall back and SAY it
-# fell back rather than silently reverting to training residuals.
-.p10_inner_sigma <- function(train, cov_cols, k, hidden, n_heads, n_layers,
-                                epochs, lr, n_ensemble, seed,
-                                n_inner = 3L, buffer_km = 68) {
-  co <- cbind(train$lon, train$lat)
-  SF <- tryCatch(spatial_block_folds(co, k = n_inner, buffer_km = buffer_km,
-                                        seed = seed),
-                   error = function(e) NULL)
-  if (is.null(SF)) return(NA_real_)
-
-  res <- vector("list", n_inner)
-  for (fd in seq_len(n_inner)) {
-    tr_ix <- SF$train[[fd]]; te_ix <- SF$test[[fd]]
-    if (length(tr_ix) < 30L || length(te_ix) < 5L) return(NA_real_)
-    itr <- train[tr_ix, , drop = FALSE]; ite <- train[te_ix, , drop = FALSE]
-    df_all <- rbind(
-      cbind(itr[, c("lon", "lat", cov_cols)], soc = itr$soc),
-      cbind(ite[, c("lon", "lat", cov_cols)], soc = NA_real_))
-    g <- gnn_build_graph(df_all, k = k, feature_cols = cov_cols)
-    n_i <- nrow(itr); n_a <- nrow(df_all)
-    mask <- c(rep(TRUE, n_i), rep(FALSE, n_a - n_i))
-    P <- matrix(NA_real_, nrow = n_ensemble, ncol = nrow(ite))
-    for (b in seq_len(n_ensemble)) {
-      f <- gnn_fit(g, targets = df_all$soc, train_mask = mask,
-                     hidden = hidden, n_heads = n_heads, n_layers = n_layers,
-                     epochs = epochs, lr = lr, seed = seed + 1000L * fd + b)
-      P[b, ] <- stats::predict(f)[seq(n_i + 1L, n_a)]
-    }
-    res[[fd]] <- ite$soc - colMeans(P)
-  }
-  r <- unlist(res); r <- r[is.finite(r)]
-  if (length(r) < 10L) return(NA_real_)
-  sqrt(mean(r^2))
-}
-
 benchmark_fit_p10_gat <- function(train, test, cov_cols,
                                       k = 8L, hidden = 12L, n_heads = 2L,
                                       n_layers = 2L, epochs = 100L,
