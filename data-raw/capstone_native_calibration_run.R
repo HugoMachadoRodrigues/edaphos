@@ -181,10 +181,16 @@ results$p1_truth    <- p1_truth
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [2/7] P2 PIML — LOO horizon calibration ===")
 
-pedon <- data.frame(
-  depth_mid = c(5,  15,  25,  40,  60,  80, 100),
-  soc_g_kg  = c(32,  24,  18,  13,   9,   6,   4)
-)
+# The same real WoSIS profile the capstone campaign uses. This block used to
+# hard-code seven typed-in numbers, which meant the package's leave-one-horizon-
+# out calibration for Pillar 2 was calibrated against an invented profile.
+.nc_src  <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+.nc_cand <- .nc_src$profiles[.nc_src$profiles$monotone_decreasing, ]
+.nc_cand <- .nc_cand[order(-.nc_cand$n_hor, -.nc_cand$z_max), ]
+pedon <- .nc_src$horizons[.nc_src$horizons$profile_id == .nc_cand$profile_id[1L], ]
+pedon <- pedon[order(pedon$top), c("top", "bottom", "depth_mid", "soc_g_kg")]
+message(sprintf("  pedon: WoSIS %s, %d horizons to %g cm (real)",
+                .nc_cand$profile_id[1L], nrow(pedon), max(pedon$bottom)))
 
 p2_loo_pred   <- numeric(nrow(pedon))
 p2_loo_samps  <- matrix(NA_real_, nrow = 300L, ncol = nrow(pedon))
@@ -195,6 +201,8 @@ for (i in seq_len(nrow(pedon))) {
     piml_profile_fit_bayesian(
       depths = train$depth_mid,
       values = train$soc_g_kg,
+      top    = train$top,
+      bottom = train$bottom,
       method = "laplace",
       seed   = 100L + i
     ),
@@ -215,10 +223,14 @@ for (i in seq_len(nrow(pedon))) {
     }
   }
   if (any(is.na(p2_loo_samps[, i]))) {
-    # Synthetic fallback: exponential decay fit
-    mu <- 32 * exp(-0.025 * pedon$depth_mid[i])
-    p2_loo_samps[, i] <- rnorm(300L, mu, 2.0)
-    p2_loo_pred[i]    <- mu
+    # No synthetic fallback. This used to fill the column with
+    # rnorm(300, 32 * exp(-0.025 * z), 2) -- draws around a hard-coded
+    # exponential -- and ship them in a bundle labelled `method = "bayesian"`,
+    # indistinguishable downstream from a real posterior. A calibration table
+    # built on invented draws measures nothing. A missing fit must be visible.
+    stop("Pillar 2: the leave-one-out Bayesian fit failed at horizon ", i,
+         " (", pedon$top[i], "-", pedon$bottom[i], " cm). Refusing to ",
+         "substitute synthetic draws. Fix the fit and re-run.", call. = FALSE)
   }
 }
 

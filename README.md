@@ -1841,7 +1841,7 @@ shared map query — gives the scientifically honest table:
 | Pillar       | Native query            | n   | CRPS   | PICP (90%) | MPIW (90%) | RMSE  |
 |:-------------|:------------------------|----:|-------:|-----------:|-----------:|------:|
 | P1 Causal    | effect β (g/kg per mm)  |  40 | 0.004  |   **0.775** |      0.020 | 0.007 |
-| P2 PIML      | depth profile y(z)      |   7 | 0.408  |   **0.714** |      2.015 | 0.826 |
+| P2 PIML      | depth profile y(z)      |   9 | 2.117  |      0.444 |      3.256 | 3.535 |
 | P3 4D        | future map NDVI(t★)     | 100 | 0.366  |   **0.700** |      1.268 | 0.637 |
 | P4 Found.    | 5-fold spatial CV       | 250 | 7.621  |      0.268 |      8.353 | 12.41 |
 | **P5 AL**    | held-out map            |  71 | 6.375  |   **0.930** |     37.816 | 12.86 |
@@ -1849,11 +1849,18 @@ shared map query — gives the scientifically honest table:
 
 **How to read this table.** The 90% nominal PICP should be close to
 0.90. **P5 AL (0.93) and P6 Q-KRR (0.84) are the best-calibrated**
-spatial-query pillars. P1 (0.78), P2 (0.71) and P3 (0.70) are
-well-calibrated in their own domains despite small n. **P4's 0.27 PICP
-flags a real failure mode**: naïve ensembles of `ranger` heads
-underestimate epistemic SD because ranger already marginalises over
-trees — honestly reported rather than papered over. See
+spatial-query pillars; P1 (0.78) and P3 (0.70) are acceptable in their
+own domains despite small n. Two rows flag real failure modes, both
+reported rather than papered over. **P4's 0.27** comes from naïve
+ensembles of `ranger` heads underestimating epistemic SD, because
+`ranger` already marginalises over trees. **P2's 0.44** is new, and it
+is the price of using real data: this row used to read 0.71 with an RMSE
+of 0.83, measured by leaving one horizon out of a seven-point profile
+that had been typed in by hand. Re-run on a real nine-horizon WoSIS
+profile reaching 550 cm, the same procedure gives an RMSE of 3.54 and
+covers 44% of held-out horizons at a nominal 90%. The pedogenetic ODE is
+markedly overconfident when it has to predict a horizon it did not see.
+See
 `vignette("capstone-cerrado-campaign")` §10 for the side-by-side
 comparison with the naïve unified-query table and its caveats.
 
