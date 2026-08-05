@@ -238,3 +238,34 @@ test_that("piml_prior_literature is independent of the data it is used on", {
   d <- edaphos:::.piml_bayes_default_prior(c(5, 20, 50), c(25, 14, 7), NULL)
   expect_setequal(names(a), names(d))
 })
+
+test_that("causal_dag_test falsifies the shipped graph on both tests", {
+  skip_if_not_installed("dagitty")
+  f <- system.file("extdata", "causal_cerrado_real_v2.rds", package = "edaphos")
+  skip_if(f == "", "causal bundle not installed")
+  d <- readRDS(f)$profiles
+  d$soc_topsoil_gkg <- d$soc; d$wc_bio_01 <- d$mat; d$wc_bio_12 <- d$map
+  d$wc_landcover_trees <- d$trees; d$soilgrids_clay <- d$clay
+  d$soilgrids_sand <- d$sand; d$soilgrids_bdod <- d$bdod
+
+  tst <- causal_dag_test(causal_cerrado_real_dag(), d)
+  expect_s3_class(tst, "edaphos_dag_test")
+  expect_gt(tst$n_tests, 30)
+  # The graph fails its own test. This is the paper's negative result, and it
+  # is pinned so that a change to the graph or the bundle cannot quietly turn
+  # a falsified graph into a passing one.
+  expect_gt(tst$n_rejected / tst$n_tests, 0.5)
+  expect_gt(tst$max_abs_r, 0.5)
+  # Nodes with no data column are reported, not silently dropped.
+  expect_true(length(tst$nodes_without_data) > 0)
+  expect_false(any(tst$nodes_without_data %in% names(d)))
+
+  # The spatial variant must be genuinely different, and less severe: pooling
+  # spatially autocorrelated profiles overstates the effective sample size.
+  skip_if_not_installed("mgcv")
+  tsp <- causal_dag_test(causal_cerrado_real_dag(), d, coords = c("lon", "lat"))
+  expect_false(is.na(tsp$n_rejected_spatial))
+  expect_lt(tsp$n_rejected_spatial, tsp$n_rejected)
+  # but the graph still fails
+  expect_gt(tsp$n_rejected_spatial / tsp$n_tests, 0.5)
+})

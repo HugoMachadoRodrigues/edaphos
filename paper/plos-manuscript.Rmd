@@ -507,13 +507,18 @@ keep <- vapply(seq_len(nrow(E)), function(i)
   as.character(E$v[i]) %in% have && as.character(E$w[i]) %in% have, logical(1))
 sub <- dagitty::dagitty(paste0("dag{", paste(sprintf("%s -> %s", E$v[keep], E$w[keep]),
                                              collapse = " "), "}"))
-XD <- dd[stats::complete.cases(dd[, have]), have]
-LT <- dagitty::localTests(sub, XD, type = "cis")
-n_tests <- nrow(LT); n_rej <- sum(LT$p.value < 0.05); max_r <- max(abs(LT$estimate))
-no_data <- setdiff(allnodes, have)
+dd$lon <- dd$lon; dd$lat <- dd$lat
+DT <- causal_dag_test(dag, dd, coords = c("lon", "lat"))
+LT <- DT$pooled
+n_tests <- DT$n_tests; n_rej <- DT$n_rejected
+n_rej_sp <- DT$n_rejected_spatial
+max_r <- DT$max_abs_r
+no_data <- DT$nodes_without_data
 ```
 
-We applied the implied-independence test to the shipped pedogenetic graph, restricted to the `r length(have)` of its `r length(allnodes)` nodes for which the profiles carry data. Of the `r n_tests` conditional independencies the graph implies, **`r n_rej` are rejected** at the 5% level, and the largest violated partial correlation reaches `r fmt(max_r, 2)` (clay against sand, conditioning on slope). The graph, as drawn from published pedogenetic knowledge, is not compatible with the covariance structure of the data it is applied to.
+We applied the implied-independence test to the shipped pedogenetic graph, restricted to the `r length(have)` of its `r length(allnodes)` nodes for which the profiles carry data. Of the `r n_tests` conditional independencies the graph implies, **`r n_rej` are rejected** at the 5% level, and the largest violated partial correlation reaches `r fmt(max_r, 2)` (clay against sand, conditioning on slope).
+
+That pooled test has an obvious objection, and it is worth answering rather than leaving open. Soil profiles are spatially autocorrelated, so treating `r format(DT$n, big.mark = ",")` of them as independent observations overstates the effective sample size and will reject independencies a spatially aware test would not. Residualising every variable on a thin-plate spline of position before testing — and charging the smoother its degrees of freedom — reduces the count to **`r n_rej_sp` of `r n_tests`**. Nine individual independencies change verdict in one direction or the other. The conclusion is unchanged in kind: the graph, as drawn from published pedogenetic knowledge, is not compatible with the covariance structure of the data it is applied to, on either test. But the *count* moves with the treatment of spatial structure, and we report both rather than the more striking one. `causal_dag_test()` runs both on any graph and data frame.
 
 This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 5, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
 
