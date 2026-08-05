@@ -292,6 +292,15 @@ while eliminating negative predictive draws entirely.
   pedon it moves the attainable deep value from 2.22 [0.95, 4.48] to
   2.45 [1.18, 4.56], so the circularity is not load-bearing here — but that is
   now a measurement rather than an assumption.
+
+  EXTENDED IN A LATER RELEASE. That was one parameter of seven under one
+  alternative prior, and reading "the circularity is not load-bearing" off it
+  was too generous. `data-raw/piml_prior_sensitivity.R` now runs all seven
+  under three priors, by MCMC on every arm and at a budget where all three
+  converge. One parameter, mu, moves by more than half a posterior standard
+  deviation (0.67); the rest move between 0.10 and 0.34. So the conclusion
+  survives, narrowly, and it is concentrated on the depth-attenuation rate --
+  the same parameter whose variogram fails to identify a range.
 - **`al_physics_gate_piml()` no longer certifies negative carbon.** Rebuilding
   its envelope from the attained value closed one route to a negative floor;
   the `(safety_factor - 1) * span` widening was the other. On 300 real WoSIS

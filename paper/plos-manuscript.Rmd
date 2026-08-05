@@ -22,6 +22,9 @@ EXTRA <- ex("interval_width_vs_extrapolation.rds")
 CAP <- ex("capstone_campaign_results.rds")
 ktail <- CAP$piml_kappa_tail
 lc <- CAP$piml_laplace_vs_mcmc
+PS <- ex("piml_prior_sensitivity.rds")
+sw <- PS$budget_sweep
+pt <- PS$table
 BUFEF <- ex("buffer_effect.rds")
 GAT <- ex("pilar10_gat_tuning.rds")
 ```
@@ -232,13 +235,56 @@ The derived coordinate $y_\infty$ disagrees far more than the rest, and the reas
 
 We therefore report MCMC throughout and keep the Laplace path available for speed, with the caveat attached to it rather than to the reader.
 
+**$y_\infty$ has no posterior mean, and the sampler shows it.** Calling a parameter unidentified is usually supported by a wide interval. Something stronger holds here, and it is worth demonstrating because it decides how the row in Table 2 should be read. Since $y_\infty$ has a pole at $\kappa \to 0$ and the posterior places mass arbitrarily close to it, a longer chain simply reaches further into that tail. If the mean existed, the estimate would settle as the budget grew.
+
+```{r ysweep}
+sw <- PS$budget_sweep
+knitr::kable(data.frame(
+  `MCMC iterations` = format(sw$n_iter, big.mark = ","),
+  `y-inf mean` = fmt(sw$y_inf_mean, 2), `y-inf 2.5%` = fmt(sw$y_inf_q2.5, 1),
+  `y(Inf) mean` = fmt(sw$y_asym_mean, 3), `sigma mean` = fmt(sw$sigma_mean, 4),
+  check.names = FALSE), align = "rrrrr")
+```
+
+**Table 4. The same posterior at three sampling budgets.** Only the chain length changes; the data, likelihood, operator, prior and seed are fixed.
+
+It does not settle. The posterior mean of $y_\infty$ moves by `r fmt(100*abs(sw$y_inf_mean[3]/sw$y_inf_mean[1]-1),0)`% between the shortest and longest run and its lower quantile follows, while over the same sweep the attainable deep value moves `r fmt(100*abs(sw$y_asym_mean[3]/sw$y_asym_mean[1]-1),1)`% and the observation noise `r fmt(100*abs(sw$sigma_mean[3]/sw$sigma_mean[1]-1),1)`%. The number in the $y_\infty$ row of Table 2 is therefore a statement about how long we sampled, not about the soil, and we report it only because the symbol appears in the equation. The identified quantities are settled by the second row of Table 4.
+
+**How much of this posterior is the prior?** The package's default prior is empirical Bayes and the source says so: three of its hyperparameters are functions of the response being fitted. A posterior built that way cannot be presented as though the data alone produced it, so `piml_prior_literature()` supplies a non-circular alternative whose hyperparameters come from published depth-function work and which takes no data at all. We refit under both, and under a third arm that widens the literature prior threefold on every scale, by MCMC throughout and at a budget large enough that all three converge (maximum split-$\hat{R}$ `r fmt(max(PS$convergence$max_rhat),3)`, minimum bulk ESS `r fmt(min(PS$convergence$min_ess),0)`).
+
+```{r prior-sens}
+pt <- PS$table
+knitr::kable(data.frame(
+  Parameter = pt$parameter,
+  `Empirical Bayes` = fmt(pt[["mean_empirical Bayes (default)"]], 4),
+  `Literature` = fmt(pt$mean_literature, 4),
+  `Literature, 3x wider` = fmt(pt[["mean_literature, 3x wider"]], 4),
+  `Shift (posterior SD)` = fmt(pt$shift_sd, 2),
+  `Width ratio` = fmt(pt$width_ratio, 2),
+  check.names = FALSE), align = "lrrrrr")
+```
+
+**Table 5. Prior sensitivity on the reported pedon.** Posterior means under three priors. "Shift" is the movement between the circular default and the non-circular literature prior in units of the default's posterior standard deviation; "width ratio" is the literature interval over the default one.
+
+```{r prior-sens-words, include=FALSE}
+.sym <- c(mu = "$\\mu$", kappa = "$\\kappa$", lambda0 = "$\\lambda_0$",
+          y0 = "$y_0$", y_asym = "$y(\\infty)$", y_inf = "$y_\\infty$",
+          sigma = "$\\sigma$")
+.n_moved <- sum(pt$shift_sd > 0.5)
+.moved <- paste(unname(.sym[pt$parameter[pt$shift_sd > 0.5]]), collapse = " and ")
+```
+
+`r if (.n_moved == 0) "No parameter moves" else if (.n_moved == 1) paste0("One parameter, ", .moved, ", moves") else paste0(.n_moved, " parameters (", .moved, ") move")` by more than half a posterior standard deviation when the circular prior is replaced by one that never saw these data, and the largest shift is `r fmt(max(pt$shift_sd),2)` standard deviations. The circularity is therefore mild rather than absent, and it is concentrated where the data are weakest — $\mu$ is the depth-attenuation rate, the parameter whose variogram in Fig 4 also fails to identify a range. We do not claim the default prior is harmless; we report how much it moves each number and let a reader who prefers the non-circular one read that column instead.
+
+One methodological note belongs here rather than in a supplement. An earlier run of this comparison, at the package's default 20,000 iterations, put the shift for $y_\infty$ at 0.87 standard deviations and would have supported a stronger claim about circularity. The widest arm had not converged (split-$\hat{R}$ 1.035, bulk ESS 177), and at a budget where it does the shift falls to `r fmt(pt$shift_sd[pt$parameter=="y_inf"],2)`. The convergence guard in the script caught it; without one, an under-mixed chain would have been reported as a finding.
+
 **Does the mechanism buy anything?** This is the question a depth model must answer. We ran two pre-declared tasks over all 1,105 profiles — hold out an interior horizon (interpolation), and hold out the deepest horizon (extrapolation) — against six competitors including an equal-area spline, a pooled depth-as-covariate random forest that sees other profiles' data, and two zero-parameter baselines. The equal-area spline does not extrapolate below the observed range and abstains from the second task; that is reported rather than papered over by clamping it to its last value.
 
 Root-mean-square error is the wrong statistic to lead with here, and saying why is part of the result. On the extrapolation task every method lands near 14 g/kg — the ODE at 14.04, copying the nearest measured horizon at 14.05, the random forest at 14.05 — and those numbers are not measuring the methods. Ten profiles out of 935, 1.1% of the set, account for 99% of the ODE's sum of squares; removing them takes its RMSE from 14.74 to 1.54. The extreme case is a profile whose horizon at 125 cm holds 430 g/kg of carbon with 3.0 g/kg immediately above it: a buried organic horizon, which a monotone depth function cannot represent and, more importantly, cannot anticipate. We therefore report mean absolute error as the primary criterion and RMSE alongside it, and treat the difference between them as the finding rather than as a nuisance.
 
-On that criterion the mechanism does help (Table 4). The ODE reaches MAE 1.82 g/kg with a median absolute error of 0.76, against 2.06 for copying the nearest horizon, 2.07 for its own nested $\mu = 0$ special case and 2.67 for the pooled random forest. Paired across profiles it beats copying the nearest horizon on 579 of 935 (Wilcoxon $p = 3\times10^{-16}$), its nested special case on 646 (${p = 1\times10^{-42}}$) and the random forest on 679 (${p = 4\times10^{-50}}$).
+On that criterion the mechanism does help (Table 6). The ODE reaches MAE 1.82 g/kg with a median absolute error of 0.76, against 2.06 for copying the nearest horizon, 2.07 for its own nested $\mu = 0$ special case and 2.67 for the pooled random forest. Paired across profiles it beats copying the nearest horizon on 579 of 935 (Wilcoxon $p = 3\times10^{-16}$), its nested special case on 646 (${p = 1\times10^{-42}}$) and the random forest on 679 (${p = 4\times10^{-50}}$).
 
-**Table 4. Leave-the-deepest-horizon-out prediction on 935 WoSIS profiles.** The profiles whose *training* horizons are monotone — the model's declared validity domain, judged without reading the horizon being predicted. MAE is the primary criterion: RMSE on this task is dominated by ten profiles with buried organic horizons and separates the methods by less than 0.5%.
+**Table 6. Leave-the-deepest-horizon-out prediction on 935 WoSIS profiles.** The profiles whose *training* horizons are monotone — the model's declared validity domain, judged without reading the horizon being predicted. MAE is the primary criterion: RMSE on this task is dominated by ten profiles with buried organic horizons and separates the methods by less than 0.5%.
 
 ```{r piml-bench}
 bt <- ex("piml_depth_benchmark.rds")$extrapolation_monotone$table
@@ -506,11 +552,11 @@ The article, the package and its data form one artefact. The manuscript is compi
 
 ## A directed-acyclic-graph-informed linear model is the strongest method
 
-Table 5 reports the matched benchmark. Read across the row rather than down the first column: accuracy (root-mean-square error, lower is better), skill against each of two nulls, calibration (coverage near the nominal 0.90 and interval width), the proper score, and wall-clock cost.
+Table 7 reports the matched benchmark. Read across the row rather than down the first column: accuracy (root-mean-square error, lower is better), skill against each of two nulls, calibration (coverage near the nominal 0.90 and interval width), the proper score, and wall-clock cost.
 
 Two columns report skill because the choice of null decides the headline, and the two are easy to conflate. **NSE** is measured against the mean of each fold's *training* rows — a null a deployed map could actually use. **R-squared** is measured against the mean of the *test* rows, which is what the conventional formula does and which no map has access to; it is the harder bar, because the test mean is by construction the best constant predictor of the test set. An earlier version of this paper reported the second under the first's name, and the difference is not cosmetic: three methods fall below the oracle null and two below the achievable one.
 
-**Table 5. Matched cross-pillar benchmark on real Cerrado profiles.** Six methods on the same spatially blocked folds and the same target transform. Folds carry a 68 km buffer: training rows within that distance of any test row are discarded, which cost 88 training rows across the five folds (2.0% of the fold-wise training rows) and raised the realised minimum training-to-test distance from 15.2 to 68.5 km. Those distances are for the 1,095 benchmark profiles; the denser 3,077-profile causal extract, which is a different data set, would give 12.3 km unbuffered. RMSE and CRPS: lower is better. NSE is skill against the training-fold mean, R-squared against the test-fold mean; PICP should approach 0.90. Rows are ordered by RMSE.
+**Table 7. Matched cross-pillar benchmark on real Cerrado profiles.** Six methods on the same spatially blocked folds and the same target transform. Folds carry a 68 km buffer: training rows within that distance of any test row are discarded, which cost 88 training rows across the five folds (2.0% of the fold-wise training rows) and raised the realised minimum training-to-test distance from 15.2 to 68.5 km. Those distances are for the 1,095 benchmark profiles; the denser 3,077-profile causal extract, which is a different data set, would give 12.3 km unbuffered. RMSE and CRPS: lower is better. NSE is skill against the training-fold mean, R-squared against the test-fold mean; PICP should approach 0.90. Rows are ordered by RMSE.
 
 ```{r bench-table}
 tb <- B6$cv_aggregate[order(B6$cv_aggregate$rmse_mean), ]
@@ -545,7 +591,7 @@ knitr::kable(data.frame(
   check.names = FALSE), align = "lrrrrr")
 ```
 
-**Table 6. What the 68 km buffer costs each method.** RMSE on the log1p scale, five methods on identical test blocks; the only difference is which training rows are discarded. Pillar 4 is scored in a separate harness and is not re-run here, so it is absent rather than omitted silently.
+**Table 8. What the 68 km buffer costs each method.** RMSE on the log1p scale, five methods on identical test blocks; the only difference is which training rows are discarded. Pillar 4 is scored in a separate harness and is not re-run here, so it is absent rather than omitted silently.
 
 The buffer costs every method a little and the graph attention network the most (`r fmt(max(bc$d_rmse),3)` against at most `r fmt(sort(bc$d_rmse, decreasing = TRUE)[2],3)` for any other), which is the direction the mechanism predicts: a network whose representation is a graph over spatial neighbours is the method that gains most from training points immediately across a block boundary. But the effect is an order of magnitude smaller than we previously reported, and **the ranking is identical with and without it**. The buffer is the right protocol on principle — a model must not be scored on rows it could interpolate from near-duplicates — and we keep it for that reason, not because it rescues a conclusion. On these data it does not change one.
 
@@ -576,7 +622,7 @@ knitr::kable(data.frame(
   align = "lrrrr")
 ```
 
-**Table 7. Does interval width track extrapolation distance?** Spearman correlations over `r nrow(EXTRA$per_profile)` held-out profiles across the `r EXTRA$n_folds` buffered folds. "partial" removes covariate-space distance, so what remains is geographic.
+**Table 9. Does interval width track extrapolation distance?** Spearman correlations over `r nrow(EXTRA$per_profile)` held-out profiles across the `r EXTRA$n_folds` buffered folds. "partial" removes covariate-space distance, so what remains is geographic.
 
 The three methods answer differently, and the difference is not subtle. The Bayesian hierarchical model's width tracks distance strongly ($\rho = `r fmt(et$width_rho[et$method=='P7'],3)`$), and it survives the covariate control almost intact ($`r fmt(et$width_rho_pc[et$method=='P7'],3)`$) — the widening is geographic, which is what a kriging variance is built to do. The quantile forest widens weakly and mostly for covariate reasons. The graph attention network does not widen at all: its correlation is `r fmt(et$width_rho[et$method=='P10'],3)` raw and `r fmt(et$width_rho_pc[et$method=='P10'],3)` partial — if anything slightly *narrower* further from the data.
 
@@ -590,13 +636,13 @@ Two consequences follow for practice. First, a coverage rate should be read alon
 
 The comparison above runs every method at fixed defaults, which could disadvantage a method whose performance depends on tuning. We therefore compared the graph attention network and the quantile random forest under nested cross-validation on `r GAT$n_profiles` profiles, tuning both inside each training partition and evaluating on outer folds never seen by the tuner. In the stored result of that experiment the graph network reached a pooled Nash–Sutcliffe efficiency of `r fmt(GAT$pooled$nse_vs_training_fold_mean[1],3)` against the forest's `r fmt(GAT$pooled$nse_vs_training_fold_mean[2],3)`; the difference of `r fmt(diff(rev(GAT$pooled$nse_vs_training_fold_mean)),3)` carried a 95% block-bootstrap interval of [`r fmt(GAT$boot_diff_ci[1],3)`, `r fmt(GAT$boot_diff_ci[2],3)`], spanning zero.
 
-That stored result, however, predates subsequent changes to the graph backend, and we report a reproduction failure rather than the stored number alone: re-running the same protocol with the bundle's own per-fold hyperparameters and seeds on the current code returns a pooled efficiency near 0.10 rather than 0.18. We flag this openly because it is the kind of drift between a shipped result and the code that produced it that this framework is explicitly designed to prevent, and in this instance the safeguard was added after the bundle was created. The scientific conclusion is unaffected in direction, and if anything strengthened: under both the stored and the re-run figures the graph attention network does not beat a tuned random forest on this task. We treat the tuned comparison as indicative only, and rest the paper's ranking on the matched benchmark of Table 5, whose bundle is bound to the current code by the test suite.
+That stored result, however, predates subsequent changes to the graph backend, and we report a reproduction failure rather than the stored number alone: re-running the same protocol with the bundle's own per-fold hyperparameters and seeds on the current code returns a pooled efficiency near 0.10 rather than 0.18. We flag this openly because it is the kind of drift between a shipped result and the code that produced it that this framework is explicitly designed to prevent, and in this instance the safeguard was added after the bundle was created. The scientific conclusion is unaffected in direction, and if anything strengthened: under both the stored and the re-run figures the graph attention network does not beat a tuned random forest on this task. We treat the tuned comparison as indicative only, and rest the paper's ranking on the matched benchmark of Table 7, whose bundle is bound to the current code by the test suite.
 
 ## Backdoor adjustment yields robust associations, and exposes confounding
 
-Table 8 reports the causal analysis on `r CAU$n_profiles` profiles. For each exposure it gives the unadjusted association, the association after backdoor adjustment, the block-bootstrap interval, and the robustness value.
+Table 10 reports the causal analysis on `r CAU$n_profiles` profiles. For each exposure it gives the unadjusted association, the association after backdoor adjustment, the block-bootstrap interval, and the robustness value.
 
-**Table 8. Backdoor-adjusted associations with sensitivity bounds.** Units are grams of topsoil organic carbon per kilogram of soil, per unit of the exposure. The robustness value (RV) is the proportion of residual variance an unobserved confounder would need to explain in both exposure and outcome to reduce the estimate to zero.
+**Table 10. Backdoor-adjusted associations with sensitivity bounds.** Units are grams of topsoil organic carbon per kilogram of soil, per unit of the exposure. The robustness value (RV) is the proportion of residual variance an unobserved confounder would need to explain in both exposure and outcome to reduce the estimate to zero.
 
 ```{r causal-table}
 e <- CAU$effects
@@ -633,7 +679,7 @@ knitr::include_graphics("figures/Fig14.png")
 
 ## The graph itself is testable, and it fails its own test
 
-Every estimate in Table 8 is conditional on the directed acyclic graph being a correct description of the system. That premise is not merely an assumption to be declared: a graph implies a specific set of conditional independencies among the observed variables, and those implications can be tested against the data. Zhang and Wadoux [@Zhang2026causal] list this compatibility — faithfulness — as the third of their three conditions for causal inference, alongside an explicit model and causal sufficiency. We are not aware of a digital soil mapping study that reports the test.
+Every estimate in Table 10 is conditional on the directed acyclic graph being a correct description of the system. That premise is not merely an assumption to be declared: a graph implies a specific set of conditional independencies among the observed variables, and those implications can be tested against the data. Zhang and Wadoux [@Zhang2026causal] list this compatibility — faithfulness — as the third of their three conditions for causal inference, alongside an explicit model and causal sufficiency. We are not aware of a digital soil mapping study that reports the test.
 
 ```{r dag-tests, include = FALSE}
 have <- c("soc_topsoil_gkg","wc_bio_01","wc_bio_12","wc_landcover_trees",
@@ -662,7 +708,7 @@ We applied the implied-independence test to the shipped pedogenetic graph, restr
 
 That pooled test has an obvious objection, and it is worth answering rather than leaving open. Soil profiles are spatially autocorrelated, so treating `r format(DT$n, big.mark = ",")` of them as independent observations overstates the effective sample size and will reject independencies a spatially aware test would not. Residualising every variable on a thin-plate spline of position before testing — and charging the smoother its degrees of freedom — reduces the count to **`r n_rej_sp` of `r n_tests`**. Nine individual independencies change verdict in one direction or the other. The conclusion is unchanged in kind: the graph, as drawn from published pedogenetic knowledge, is not compatible with the covariance structure of the data it is applied to, on either test. But the *count* moves with the treatment of spatial structure, and we report both rather than the more striking one. `causal_dag_test()` runs both on any graph and data frame.
 
-This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 8, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
+This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 10, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
 
 We report this rather than quietly adopting a graph that passes. The constructive reading is that the test is cheap, diagnostic and almost never performed: it localises exactly which pedological assumptions the data contradict — here, principally the assumed conditional independence of texture fractions and of texture from terrain — and so tells a soil scientist where the causal model needs work. A framework that makes backdoor adjustment easy should make this test equally easy, and reporting it should become routine.
 
