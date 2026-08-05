@@ -54,8 +54,8 @@ results, the active-learning gate and the manuscript.
   surface carbon — against none under the new one. Genuinely ascending profiles
   (argillic clay) are still fitted as such.
 - **The posterior now identifies what matters.** On the shipped pedon the 95%
-  interval for the attainable deep value is [2.85, 6.25] g/kg, against
-  [−10.62, 5.46] for the quantity previously reported as the asymptote: 4.7
+  interval for the attainable deep value is [0.95, 4.48] g/kg, against
+  [−20.5, 3.2] for the quantity previously reported as the asymptote: 6.7
   times narrower and no longer reaching into impossible values. `summary()` gains
   `kappa` and `y_asym` rows, and the Bayesian priors are placed on the
   identified coordinates rather than on `y_inf`.
@@ -105,19 +105,21 @@ repository's own scripts, which then kept only the shallowest horizon of each.
   `inst/extdata/piml_wosis_cerrado.rds`. The capstone pedon is now WoSIS
   profile 1115679 — nine horizons to 550 cm — selected by a criterion fixed
   before any fit was inspected.
-- **A derivable alternative that wins.** `piml_profile_fit_mechanistic()`
-  implements the advection-reaction limit of the standard soil-carbon depth
-  balance, `v dC/dz = I(z) - kC` with root input `I(z) = I0 exp(-z/z_r)`:
-  constant rate, depth-varying target. Closed form, analytic layer averages,
-  every parameter positive with a literature prior. It fits the shipped pedon
-  3.2x better than the attenuating-rate form (RMSE 0.415 vs 1.342) and leads
-  the benchmark below.
+- **A derivable alternative.** `piml_profile_fit_mechanistic()` implements the
+  advection-reaction limit of the standard soil-carbon depth balance,
+  `v dC/dz = I(z) - kC` with root input `I(z) = I0 exp(-z/z_r)`: constant rate,
+  depth-varying target. Closed form, analytic layer averages, every parameter
+  positive with a literature prior. It fits the shipped pedon markedly better
+  (RMSE 0.44 vs 2.52), but across the 875 monotone profiles the two are
+  statistically indistinguishable once both are fitted with a correct
+  likelihood — see the likelihood section below, which cost this entry its
+  original claim.
 - **A benchmark, reported whatever it says.** `data-raw/piml_depth_benchmark.R`
   runs two pre-declared tasks over all 1,105 profiles against six competitors,
   including an equal-area spline and a pooled depth-as-covariate random forest.
-  Over all profiles the mechanism buys nothing: RMSE 14.15 g/kg against 14.05
+  Over all profiles the mechanism buys nothing: RMSE 14.04 g/kg against 14.05
   for copying the nearest measured horizon. Restricted to the 875 profiles
-  inside the model's declared domain, RMSE falls to 1.65 and the derived form
+  inside the model's declared domain, RMSE falls to 1.51 and the derived form
   leads at 1.51. The equal-area spline does not extrapolate and abstains from
   the second task, which is reported rather than papered over.
 - **The domain is now declared and enforced.** `lambda0 > 0` with a first-order
@@ -189,8 +191,9 @@ while eliminating negative predictive draws entirely.
   hyperparameters are functions of the response. `piml_prior_literature()`
   provides a non-circular alternative built from published values, so the
   dependence can be measured rather than assumed harmless: on the shipped
-  pedon it moves the attainable deep value from 4.28 [2.85, 6.25] to
-  4.42 [3.03, 6.27].
+  pedon it moves the attainable deep value from 2.22 [0.95, 4.48] to
+  2.45 [1.18, 4.56], so the circularity is not load-bearing here — but that is
+  now a measurement rather than an assumption.
 - **`al_physics_gate_piml()` no longer certifies negative carbon.** Rebuilding
   its envelope from the attained value closed one route to a negative floor;
   the `(safety_factor - 1) * span` widening was the other. On 300 real WoSIS
