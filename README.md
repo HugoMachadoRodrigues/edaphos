@@ -181,7 +181,7 @@ sequenceDiagram
     LIT->>P1: Gemma 4 extracts causal edges
     P1->>P1: Backdoor adjustment on DAG
     P1->>P2: Identify exposures (MAP, cover, clay)
-    P2->>P2: Fit pedogenetic ODE (Laplace)
+    P2->>P2: Fit pedogenetic ODE (MCMC)
     P2->>P5: Physics gate -- exclude implausible sites
     P3->>P5: Kalman gain priorities
     P4->>P5: Encoder embeddings (128D)
@@ -1193,9 +1193,11 @@ colusa <- subset(sp4, id == "colusa")
 # Point estimate
 param  <- piml_profile_fit(colusa$depth, colusa$clay)
 
-# Bayesian posterior (Laplace by default; adaptive RWM available)
+# Bayesian posterior. Laplace is the fast default; MCMC is what the paper
+# reports, because on a real pedon Laplace narrows 5 of 7 intervals -- the
+# observation noise by 1.8x -- being Gaussian on the log coordinates.
 fit    <- piml_profile_fit_bayesian(colusa$depth, colusa$clay,
-                                     method = "laplace", seed = 1L)
+                                     method = "mcmc", seed = 1L)
 
 # Neural ODE
 neural <- piml_neural_ode_fit(
@@ -1879,7 +1881,7 @@ identically for every pillar.
 flowchart LR
     subgraph NATIVE["Per-pillar native objects"]
         N1[P1 bootstrap<br/>effect vector]
-        N2[P2 Laplace<br/>MCMC draws]
+        N2[P2 MCMC<br/>4 chains]
         N3[P3 ensemble +<br/>Kalman posterior]
         N4[P4 fine-tune<br/>ensemble]
         N5[P5 QRF<br/>quantile grid]

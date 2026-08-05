@@ -353,6 +353,29 @@ that posterior through two nested approximations:
    warm-up period — so non-Gaussian or multimodal posteriors are
    captured faithfully where Laplace would paper over them.
 
+**Which to use, measured rather than asserted.** On the WoSIS pedon the
+manuscript reports (1115679, nine horizons to 550 cm, lognormal family,
+horizon-average operator, same seed), the two paths were compared
+parameter by parameter. Five of the seven 95% intervals are narrower
+under Laplace — \(\kappa\) and \(y_\infty\) by more than a factor of
+two, the observation noise by 1.8, so its coefficient of variation reads
+0.168 against 0.230 from the sampler.
+
+The split is not arbitrary. The attainable deep value \(y(\infty)\),
+which these data identify, is essentially unchanged (width ratio 1.01),
+and \(\mu\) is actually wider under Laplace. What moves is what is not
+identified. The derived \(y_\infty = (A - y_0 e^{-\kappa})/(1 -
+e^{-\kappa})\) has a pole at \(\kappa \to 0\); the sampler puts 5.3%
+of its draws below \(\kappa = 0.5\) and reaches 0.080, while Laplace
+puts 0.5% there and stops at 0.285. Conditioning both on \(\kappa \ge
+0.5\) brings them into agreement.
+
+So the practical rule is the one the description above already implies,
+now with a measurement behind it: Laplace is fine for the identified
+coordinates and for anything you intend to use as a point estimate, and
+it is not fine for a derived quantity whose map is unstable in a tail it
+cannot reach. The package's reported numbers use MCMC.
+
 ```{r bayes-laplace, eval=TRUE}
 library(edaphos)
 

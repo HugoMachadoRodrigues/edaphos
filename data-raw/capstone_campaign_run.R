@@ -235,7 +235,24 @@ piml_fit <- tryCatch(
     # boundaries, which is one reason the point operator went unquestioned.
     top    = pedon_obs$top,
     bottom = pedon_obs$bottom,
-    method = "laplace",
+    # MCMC, not Laplace. The Laplace approximation was the reported path for
+    # every Bayesian number in the paper, and on this pedon it materially
+    # misrepresents the posterior: it is Gaussian on the log coordinates and
+    # therefore too light-tailed, so every interval comes out too narrow --
+    # the observation-noise coefficient of variation reads 0.168 under Laplace
+    # against 0.230 under a converged 4-chain MCMC (max split-Rhat 1.007, min
+    # bulk ESS 760). A 17% relative error and a 23% one are different claims
+    # about a laboratory measurement.
+    #
+    # The derived y_inf disagrees far more (-2.29 against -5.29), and that has
+    # a diagnosable cause rather than being sampler noise:
+    # y_inf = (A - y0 e^-kappa)/(1 - e^-kappa) has a pole at kappa -> 0. MCMC
+    # puts 5.3% of its draws below kappa = 0.5 and reaches kappa = 0.080;
+    # Laplace puts 0.5% there and stops at 0.285. Conditioning on kappa >= 0.5
+    # the two agree (-2.12 against -2.22), so the gap IS the tail the Laplace
+    # cannot see -- which is exactly the region where the quantity the paper
+    # calls unidentified becomes numerically unstable.
+    method = "mcmc",
     seed   = 7L
   ),
   error = function(e) {
@@ -243,6 +260,16 @@ piml_fit <- tryCatch(
     NULL
   }
 )
+
+# The Laplace fit is kept alongside, not discarded: the manuscript reports the
+# comparison, and a claim that one approximation misrepresents a posterior has
+# to ship the evidence.
+piml_fit_laplace <- tryCatch(
+  piml_profile_fit_bayesian(
+    depths = pedon_obs$depth_mid, values = pedon_obs$soc_g_kg,
+    top = pedon_obs$top, bottom = pedon_obs$bottom,
+    method = "laplace", seed = 7L),
+  error = function(e) NULL)
 
 depths_seq <- seq(0, max(pedon_obs$bottom), length.out = 120L)
 
@@ -303,10 +330,50 @@ if (!is.null(piml_summary)) {
     sd      = piml_summary$sd,
     ci_lo   = piml_summary$q2.5,
     ci_hi   = piml_summary$q97.5,
+    rhat    = piml_summary$rhat %||% NA_real_,
+    ess     = piml_summary$ess  %||% NA_real_,
     stringsAsFactors = FALSE
   )
+
+  # Laplace against MCMC, parameter by parameter, so the manuscript's claim
+  # that the approximation is too light-tailed is a table rather than an
+  # assertion. `width_ratio` is the MCMC interval divided by the Laplace one:
+  # above 1 means Laplace was too confident.
+  piml_laplace_vs_mcmc <- NULL
+  if (!is.null(piml_fit_laplace)) {
+    ls <- summary(piml_fit_laplace)
+    cmp <- merge(piml_summary[, c("parameter", "mean", "q2.5", "q97.5")],
+                 ls[, c("parameter", "mean", "q2.5", "q97.5")],
+                 by = "parameter", suffixes = c("_mcmc", "_laplace"))
+    cmp$width_mcmc    <- cmp$q97.5_mcmc    - cmp$q2.5_mcmc
+    cmp$width_laplace <- cmp$q97.5_laplace - cmp$q2.5_laplace
+    cmp$width_ratio   <- cmp$width_mcmc / cmp$width_laplace
+    piml_laplace_vs_mcmc <- cmp
+  }
+
+  # The mechanism behind the y_inf gap, measured rather than asserted:
+  # y_inf = (A - y0 e^-kappa)/(1 - e^-kappa) has a pole at kappa -> 0, and the
+  # two paths explore that tail very differently.
+  .kappa_of <- function(f) {
+    n <- ncol(f$draws) - 1L
+    vapply(seq_len(nrow(f$draws)),
+           function(i) .piml_unpack(f$draws[i, seq_len(n)], f$y_surface)$kappa,
+           numeric(1))
+  }
+  piml_kappa_tail <- tryCatch({
+    kM <- .kappa_of(piml_fit)
+    kL <- if (is.null(piml_fit_laplace)) NA_real_ else .kappa_of(piml_fit_laplace)
+    data.frame(path = c("mcmc", "laplace"),
+               kappa_min = c(min(kM), if (length(kL) > 1) min(kL) else NA_real_),
+               frac_below_half = c(mean(kM < 0.5),
+                                   if (length(kL) > 1) mean(kL < 0.5) else NA_real_),
+               n_draws = c(length(kM), if (length(kL) > 1) length(kL) else NA_integer_),
+               stringsAsFactors = FALSE)
+  }, error = function(e) NULL)
 } else {
   piml_params_table <- NULL
+  piml_laplace_vs_mcmc <- NULL
+  piml_kappa_tail <- NULL
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -813,6 +880,9 @@ R_out <- list(
   piml_profile_posterior = piml_post,
   piml_params            = piml_params,
   piml_params_table      = piml_params_table,
+  piml_laplace_vs_mcmc   = piml_laplace_vs_mcmc,
+  piml_kappa_tail        = piml_kappa_tail,
+  piml_method            = "mcmc",
 
   # P3
   temporal_results = temporal_results,

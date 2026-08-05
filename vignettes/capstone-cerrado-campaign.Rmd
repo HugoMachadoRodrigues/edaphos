@@ -419,9 +419,12 @@ mecanismo, satisfazemos a condição de @Zhang2026causal: *"os processos
 são 'plenamente determinados' pela especificação do modelador, oferecendo
 um meio estruturado de controlar o confundimento"*.
 
-O ajuste bayesiano (`piml_profile_fit_bayesian`, método Laplace)
-propaga a incerteza dos parâmetros {$k_1, k_2, \sigma$} para o perfil
-predito.
+O ajuste bayesiano (`piml_profile_fit_bayesian`, método MCMC de quatro
+cadeias) propaga a incerteza dos parâmetros para o perfil predito. O
+caminho reportado deixou de ser a aproximação de Laplace: neste pedon ela
+subestima cinco dos sete intervalos, o do ruído de observação por um fator
+de 1,8, porque é gaussiana nas coordenadas logarítmicas e portanto tem
+caudas leves demais.
 
 ```{r piml-posterior, fig.cap = "Perfil preditivo bayesiano da ODE pedogenética para um pedon representativo do Cerrado. Linha sólida: média posterior. Faixa escura: IC 50%. Faixa clara: IC 95%. Pontos: observações WoSIS."}
 # Dados do perfil e posterior Bayesiano (pré-computado)
@@ -480,11 +483,11 @@ knitr::kable(
                 "DP posterior", "IC 2,5%", "IC 97,5%"),
   caption = paste0(
     "Parâmetros da ODE pedogenética dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf), ",
-    "estimados por aproximação de Laplace sobre os 7 horizontes do pedon. Os ",
+    "estimados por MCMC de quatro cadeias sobre os horizontes do pedon. Os ",
     "intervalos são quantis reais da posterior. y_inf NÃO é a assíntota: como ",
     "a taxa decai com a profundidade, o perfil percorre apenas 1-exp(-kappa) ",
-    "do intervalo y0 -> y_inf e estaciona em y_asym. Aqui y_inf é negativo e ",
-    "não identificado (o intervalo é 5,5x mais largo), enquanto y_asym, o valor ",
+    "do intervalo y0 -> y_inf e estaciona em y_asym. y_inf é negativo e ",
+    "não identificado, enquanto y_asym, o valor ",
     "que o perfil de fato alcança, é positivo e identificado."
   )
 )
