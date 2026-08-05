@@ -47,7 +47,9 @@
 #'   vector of block assignments), `train` and `test` (lists of row-index
 #'   vectors, one per fold), `n_buffered` (rows removed per fold),
 #'   `min_dist_km` (the realised minimum training-to-test distance per fold,
-#'   which should be at least `buffer_km`), and the settings.
+#'   which should be at least `buffer_km`), `min_dist_km_unbuffered` (the same
+#'   distance the unbuffered split would have allowed, so the buffer's effect
+#'   can be quoted rather than asserted), and the settings.
 #'
 #' @references
 #' Roberts DR, Bahn V, Ciuti S, et al. (2017). Cross-validation strategies for
@@ -91,7 +93,7 @@ spatial_block_folds <- function(coords, k = 5L, buffer_km = 68, seed = NULL) {
   gc_dist <- .gc_km
 
   train <- test <- vector("list", k)
-  n_buf <- min_d <- numeric(k)
+  n_buf <- min_d <- min_d0 <- numeric(k)
   for (i in seq_len(k)) {
     te <- which(fold == i)
     tr_all <- which(fold != i)
@@ -102,6 +104,11 @@ spatial_block_folds <- function(coords, k = 5L, buffer_km = 68, seed = NULL) {
     test[[i]]  <- te
     n_buf[i]   <- sum(!keep)
     min_d[i]   <- if (any(keep)) min(nearest[keep]) else NA_real_
+    # The same quantity WITHOUT the buffer -- what the split would have
+    # allowed. Reporting only the buffered distance states that the buffer
+    # worked; reporting both states what it was worth, which is the number a
+    # reader needs and the one a caption otherwise has to hard-code.
+    min_d0[i]  <- min(nearest)
   }
   if (any(vapply(train, length, 0L) < 2L)) {
     stop("buffer_km = ", buffer_km, " leaves fewer than two training rows in ",
@@ -111,6 +118,7 @@ spatial_block_folds <- function(coords, k = 5L, buffer_km = 68, seed = NULL) {
 
   structure(list(fold = fold, train = train, test = test,
                  n_buffered = n_buf, min_dist_km = min_d,
+                 min_dist_km_unbuffered = min_d0,
                  k = k, buffer_km = buffer_km, n = nrow(coords)),
             class = "edaphos_spatial_folds")
 }
