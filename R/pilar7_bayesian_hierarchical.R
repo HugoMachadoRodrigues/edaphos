@@ -90,7 +90,13 @@
 #'   whether that MLE landed on an endpoint of `phi_range` and which one.
 #'   The warning alone is not enough: a downstream script that reads
 #'   `phi_hat` or the spatial variance fraction needs to branch on whether
-#'   the data or the bracket produced them.
+#'   the data or the bracket produced them. `spatial` carries
+#'   `spatial_share`, its complement `nugget_sill_ratio`, the practical
+#'   range `3 / phi`, the nearest-neighbour `min_spacing`, and
+#'   `range_below_spacing` -- TRUE when the correlation has decayed to 0.05
+#'   inside the closest pair of observations, in which case the latent field
+#'   and the nugget are the same white noise and the share is not
+#'   interpretable.
 #'
 #' @references
 #' Banerjee, S., Carlin, B. P. and Gelfand, A. E. (2014). *Hierarchical
@@ -135,11 +141,18 @@
 #' # Widening 50x again moves phi to 1e5 and leaves the share at 0.886:
 #' # past the point where the correlation matrix is the identity there is
 #' # nothing left for phi to change.
-#' share <- function(f)
-#'   mean(f$sigma2_draws) / (mean(f$sigma2_draws) + mean(f$tau2_draws))
+#' # `$spatial` carries the share so no consumer has to recompute it, and
+#' # `$phi_railed` says whether the bracket or the data produced phi.
 #' round(c(phi_narrow = fit_narrow$phi_hat, phi_wide = fit_wide$phi_hat,
-#'         phi_huge = fit_huge$phi_hat, share_narrow = share(fit_narrow),
-#'         share_wide = share(fit_wide), share_huge = share(fit_huge)), 4)
+#'         phi_huge = fit_huge$phi_hat,
+#'         share_narrow = fit_narrow$spatial$spatial_share,
+#'         share_wide = fit_wide$spatial$spatial_share,
+#'         share_huge = fit_huge$spatial$spatial_share), 4)
+#'
+#' # And the share is only worth reading when the correlation survives to the
+#' # closest pair of observations. Here it does not, in any of the three:
+#' vapply(list(fit_narrow, fit_wide, fit_huge),
+#'        function(f) f$spatial$range_below_spacing, logical(1))
 #'
 #' # The tie-breaker is not the likelihood, it is the geometry.  At
 #' # phi = 2000 the correlation between the two CLOSEST sites in the block
@@ -352,6 +365,8 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
       sigma2_draws = as.numeric(out_rcpp$sigma2_draws),
       tau2_draws   = as.numeric(out_rcpp$tau2_draws),
       phi_hat      = phi_hat,
+      spatial      = .bhs_spatial_summary(out_rcpp$sigma2_draws,
+                                          out_rcpp$tau2_draws, phi_hat, S),
       phi_range    = phi_range,
       phi_railed   = phi_railed,
       phi_rail_edge = phi_rail_edge,
@@ -459,6 +474,8 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
     sigma2_draws = sigma2_draws[keep],
     tau2_draws   = tau2_draws[keep],
     phi_hat      = phi_hat,
+    spatial      = .bhs_spatial_summary(sigma2_draws[keep], tau2_draws[keep],
+                                        phi_hat, S),
     phi_range    = phi_range,
     phi_railed   = phi_railed,
     phi_rail_edge = phi_rail_edge,
@@ -681,6 +698,37 @@ as_edaphos_posterior.edaphos_bhs <- function(x, units = NULL, ...) {
   )
 }
 
+
+# ---------------------------------------------------------------------------
+# The two numbers that decide whether a fitted "spatial" field is spatial.
+#
+# Every consumer in this package -- two roxygen examples, two vignette chunks,
+# a figure script and a test -- recomputed mean(sigma2)/(mean(sigma2)+mean(tau2))
+# by hand, and none of them compared the fitted correlation range against the
+# spacing of the data. Both belong on the object.
+#
+# spatial_share is the fraction of residual variance the latent field carries;
+# it is the complement of the nugget-to-sill ratio of Cambardella et al. (1994).
+# On its own it is not enough: an exponential correlation whose practical range
+# (3/phi, where rho has decayed to 0.05) is shorter than the nearest-neighbour
+# spacing has decayed to nothing between any two observations, so the field and
+# the nugget are the same white noise and their split is arbitrary. A fit can
+# report an 89% spatial share on a correlation range of 55 m over a 750 m grid;
+# that is a nugget under another name, and `range_below_spacing` says so.
+# ---------------------------------------------------------------------------
+.bhs_spatial_summary <- function(sigma2_draws, tau2_draws, phi_hat, coords) {
+  s2 <- mean(sigma2_draws); t2 <- mean(tau2_draws)
+  share <- if (is.finite(s2 + t2) && (s2 + t2) > 0) s2 / (s2 + t2) else NA_real_
+  rng <- if (is.finite(phi_hat) && phi_hat > 0) 3 / phi_hat else NA_real_
+  d <- stats::dist(coords)
+  spacing <- if (length(d)) min(d[d > 0]) else NA_real_
+  list(spatial_share = share,
+       nugget_sill_ratio = if (is.na(share)) NA_real_ else 1 - share,
+       practical_range = rng,
+       min_spacing = spacing,
+       range_below_spacing = isTRUE(rng < spacing))
+}
+
 #' @export
 print.edaphos_bhs <- function(x, ...) {
   cat("<edaphos_bhs>  (Pilar 7 -- Bayesian Hierarchical Spatial)\n")
@@ -703,5 +751,19 @@ print.edaphos_bhs <- function(x, ...) {
                mean(x$sigma2_draws)))
   cat(sprintf("  tau^2   posterior mean : %.4f\n",
                mean(x$tau2_draws)))
+  sp <- x$spatial
+  if (!is.null(sp)) {
+    cat(sprintf("  spatial share sigma^2/(sigma^2 + tau^2) : %.3f\n",
+                 sp$spatial_share))
+    cat(sprintf("  practical range 3/phi : %.4g (nearest-neighbour spacing %.4g, same units as coords)\n",
+                 sp$practical_range, sp$min_spacing))
+    if (isTRUE(sp$range_below_spacing))
+      cat("  <-- the correlation has decayed to 0.05 BELOW the closest pair of\n",
+          "      observations, so the latent field and the nugget are the same\n",
+          "      white noise and the spatial share above is not interpretable\n")
+    if (isTRUE(x$phi_railed))
+      cat(sprintf("  <-- phi railed at the %s end of its bracket; the bracket, not\n      the data, set the correlation rate\n",
+                   x$phi_rail_edge))
+  }
   invisible(x)
 }
