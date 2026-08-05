@@ -86,21 +86,9 @@ spatial_block_folds <- function(coords, k = 5L, buffer_km = 68, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
   fold <- stats::kmeans(coords, centers = k, nstart = 10L)$cluster
 
-  # Great-circle distance in km. sp::spDists does this; fall back to an inline
-  # haversine so the helper does not hard-depend on sp for a 5-line formula.
-  gc_dist <- function(a, b) {
-    if (requireNamespace("sp", quietly = TRUE)) {
-      return(sp::spDists(a, b, longlat = TRUE))
-    }
-    R <- 6371.0087714
-    la1 <- a[, 2] * pi / 180; lo1 <- a[, 1] * pi / 180
-    la2 <- b[, 2] * pi / 180; lo2 <- b[, 1] * pi / 180
-    outer(seq_len(nrow(a)), seq_len(nrow(b)), function(i, j) {
-      dla <- la2[j] - la1[i]; dlo <- lo2[j] - lo1[i]
-      h <- sin(dla / 2)^2 + cos(la1[i]) * cos(la2[j]) * sin(dlo / 2)^2
-      2 * R * asin(pmin(1, sqrt(h)))
-    })
-  }
+  # Great-circle distance in km; see .gc_km() in core_utils.R for the
+  # spherical-approximation accuracy budget.
+  gc_dist <- .gc_km
 
   train <- test <- vector("list", k)
   n_buf <- min_d <- numeric(k)

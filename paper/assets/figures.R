@@ -656,15 +656,19 @@ p10a <- ggplot() +
 
 # degree and edge-length distributions: what the graph actually encodes
 deg <- as.vector(table(factor(c(ei[, 1], ei[, 2]), levels = seq_len(nrow(gd)))))
-elen <- sqrt((edges$x - edges$xend)^2 + (edges$y - edges$yend)^2)
+# Great-circle km, not Euclidean degrees: a degree of longitude at 24 S is 9%
+# shorter than a degree of latitude, so a degree axis is not a length axis.
+elen <- vapply(seq_len(nrow(edges)), function(i)
+  edaphos:::.gc_km(cbind(edges$x[i], edges$y[i]),
+                   cbind(edges$xend[i], edges$yend[i]))[1, 1], numeric(1))
 gstat <- rbind(data.frame(v = deg,  panel = "Node degree"),
-               data.frame(v = elen, panel = "Edge length (degrees)"))
-gstat$panel <- factor(gstat$panel, levels = c("Node degree", "Edge length (degrees)"))
+               data.frame(v = elen, panel = "Edge length (km)"))
+gstat$panel <- factor(gstat$panel, levels = c("Node degree", "Edge length (km)"))
 p10b <- ggplot(gstat, aes(v, fill = panel)) +
   geom_histogram(bins = 34, colour = "white", linewidth = 0.15) +
   facet_wrap(~panel, scales = "free", nrow = 1) +
   scale_fill_manual(values = c("Node degree" = "#7B5AA6",
-                               "Edge length (degrees)" = "#2E7D5B"), guide = "none") +
+                               "Edge length (km)" = "#2E7D5B"), guide = "none") +
   labs(title = "B  What the graph encodes",
        subtitle = sprintf(paste("the k-nearest-neighbour relation is asymmetric, so after symmetrising,",
                                 "degree\nranges %d-%d rather than sitting at k = 6; most edges are short but a tail",

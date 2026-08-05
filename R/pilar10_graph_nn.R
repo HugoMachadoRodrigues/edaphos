@@ -13,7 +13,7 @@
 # Architecture (pure R, self-contained; no torch dependency)
 # -----------------------------------------------------------
 #
-#   Build graph :  k-NN over (lon, lat) with inverse-geodesic edge
+#   Build graph :  k-NN over (lon, lat) with inverse-great-circle edge
 #                   weights.
 #   GAT layer   :  h_i' = sigma( sum_{j in N(i)} alpha_{ij} W h_j )
 #                   alpha_{ij} = softmax_j ( LeakyReLU( a' [W h_i || W h_j] ) )
@@ -148,8 +148,16 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL,
   # `feature` joins each node to its k nearest neighbours in standardised
   # covariate space instead, so a held-out node can attend to pedologically
   # similar labelled profiles wherever they are.  `hybrid` takes the union.
-  knn_from <- function(M) {
-    D <- as.matrix(stats::dist(M))
+  # DISTANCE. The spatial branch must use great-circle distance in km, not
+  # Euclidean distance on raw degrees. The file header calls the edge weight
+  # "inverse-geodesic" and it was not: stats::dist() on (lon, lat) treats a
+  # degree of longitude as equal to a degree of latitude, which over the
+  # Cerrado's 22 degrees of latitude understates east-west separation by up to
+  # 7%. The feature branch stays Euclidean, because standardised covariate
+  # space has no geometry to respect.
+  gc_km <- .gc_km
+  knn_from <- function(M, geodesic = FALSE) {
+    D <- if (geodesic) gc_km(M) else as.matrix(stats::dist(M))
     diag(D) <- Inf
     out <- vector("list", n)
     for (i in seq_len(n)) {
@@ -158,10 +166,15 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL,
     }
     do.call(rbind, out)
   }
+  # Spatial edges carry distances in KILOMETRES; feature edges carry
+  # standardised-covariate distances. Mixing the two in `hybrid` mixes units,
+  # which the inverse-distance weight then compares -- recorded in `d_units`
+  # so a consumer can see it rather than infer it.
   e_raw <- switch(edges,
-    spatial = knn_from(coords),
+    spatial = knn_from(coords, geodesic = TRUE),
     feature = knn_from(feats_z),
-    hybrid  = unique(rbind(knn_from(coords), knn_from(feats_z))))
+    hybrid  = unique(rbind(knn_from(coords, geodesic = TRUE),
+                           knn_from(feats_z))))
 
   # SELF-LOOPS.  The aggregation is out_i = sum_j alpha_ij Wh_j over the
   # neighbours of i.  k-NN excludes i from its own neighbour list, so without
