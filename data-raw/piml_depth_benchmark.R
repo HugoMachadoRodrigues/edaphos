@@ -131,6 +131,12 @@ one_split <- function(tr, te, task) {
   data.frame(
     task       = task,
     profile_id = te$profile_id,
+    # The validity-domain stratifier, computed from the TRAINING horizons of
+    # THIS split. Computing it from the full profile -- as this script and the
+    # shipped bundle's `monotone_decreasing` column both did -- reads the
+    # held-out horizon to decide whether the profile belongs in the model's
+    # domain, which is a test-set leak in the stratification itself.
+    monotone   = all(diff(tr$soc_g_kg) <= 0),
     n_train    = nrow(tr),
     z_test     = zt,
     obs        = te$soc_g_kg,
@@ -162,8 +168,16 @@ rows_B <- do.call(rbind, lapply(seq_along(profs), function(k) {
 }))
 
 rows <- rbind(rows_A, rows_B)
-mono <- vapply(profs, function(s) all(diff(s$soc_g_kg) <= 0), logical(1))
-rows$monotone <- unname(mono[rows$profile_id])
+# `monotone` now comes from one_split(), per task, from training horizons only.
+# Keep the whole-profile version alongside it purely to quantify the leak.
+mono_full <- vapply(profs, function(s) all(diff(s$soc_g_kg) <= 0), logical(1))
+rows$monotone_full_profile <- unname(mono_full[rows$profile_id])
+.leak <- with(rows[rows$task == "extrapolation", ],
+              table(train_only = monotone, full_profile = monotone_full_profile))
+message("\nestratificador de dominio: treino-apenas vs perfil-completo (task B)")
+print(.leak)
+message(sprintf("  perfis que mudam de estrato ao remover o vazamento: %d",
+                sum(.leak) - sum(diag(.leak))))
 
 # --- pooled depth-as-covariate random forest, per task ---------------------
 # Fitted with the held-out horizons removed, so it never sees a test horizon.
@@ -246,7 +260,9 @@ res_B_mon <- report(rB[rB$monotone, ],
 saveRDS(list(rows = rows, interpolation = res_A, extrapolation = res_B,
              extrapolation_monotone = res_B_mon, methods = METHODS,
              n_profiles = length(profs),
-             n_monotone = sum(mono),
+             n_monotone = sum(rows$monotone[rows$task == "extrapolation"]),
+             n_monotone_full_profile = sum(mono_full),
+             domain_leak_table = .leak,
              source = "inst/extdata/piml_wosis_cerrado.rds",
              built_by = "data-raw/piml_depth_benchmark.R"),
         "inst/extdata/piml_depth_benchmark.rds")

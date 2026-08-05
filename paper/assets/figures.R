@@ -138,7 +138,7 @@ tb$label[is.na(tb$label)] <- tb$short[is.na(tb$label)]
 tb <- tb[order(tb$rmse_mean), ]
 tb$label <- factor(tb$label, levels = rev(tb$label))
 
-pa <- ggplot(tb, aes(x = rmse_mean, y = label, fill = r2_mean > 0)) +
+pa <- ggplot(tb, aes(x = rmse_mean, y = label, fill = nse_mean > 0)) +
   geom_col(width = 0.62) +
   geom_text(aes(label = sprintf("%.3f", rmse_mean)), hjust = -0.18, size = 2.9,
             colour = "grey25") +
@@ -146,18 +146,26 @@ pa <- ggplot(tb, aes(x = rmse_mean, y = label, fill = r2_mean > 0)) +
                     guide = "none") +
   scale_x_continuous(expand = expansion(mult = c(0, 0.13))) +
   labs(title = "A  Predictive accuracy", x = "RMSE, log1p(g/kg) (lower is better)",
-       y = NULL, subtitle = "red: explains less than the training-fold mean") +
+       y = NULL, subtitle = "red: explains less than the training-fold mean\n68 km buffered spatial folds") +
   theme_edaphos()
 
-pb <- ggplot(tb, aes(x = r2_mean, y = label, colour = r2_mean > 0)) +
+# Both nulls, because the choice of null moves the headline. The bar is the
+# ACHIEVABLE null (training-fold mean); the open point is the oracle null
+# (test-fold mean) that the conventional R-squared formula uses and that this
+# paper reported under the achievable one's name until it was corrected.
+pb <- ggplot(tb, aes(y = label)) +
   geom_vline(xintercept = 0, colour = "grey45", linetype = 2) +
-  geom_segment(aes(x = 0, xend = r2_mean, yend = label), linewidth = 1.1) +
-  geom_point(size = 3.1) +
+  geom_segment(aes(x = 0, xend = nse_mean, yend = label,
+                   colour = nse_mean > 0), linewidth = 1.1) +
+  geom_point(aes(x = nse_mean, colour = nse_mean > 0), size = 3.1) +
+  geom_point(aes(x = r2_mean), shape = 21, size = 2.6, stroke = 0.8,
+             fill = "white", colour = "grey35") +
   scale_colour_manual(values = c(`TRUE` = PAL[["good"]], `FALSE` = PAL[["bad"]]),
                       guide = "none") +
   labs(title = "B  Skill against the achievable null",
-       subtitle = "R-squared vs each fold's training mean",
-       x = "R-squared", y = NULL) +
+       subtitle = paste("filled: vs each fold's TRAINING mean, the null a map could use.",
+                        "\nopen: vs the test fold's own mean, an oracle -- the harder bar"),
+       x = "Skill", y = NULL) +
   theme_edaphos() + theme(axis.text.y = element_blank())
 
 # One colour per method, fixed by name so panels C and D agree with each other.

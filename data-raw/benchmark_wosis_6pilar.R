@@ -103,8 +103,18 @@ message(sprintf("  profile years: %g-%g (median %g, %d missing)",
 v280 <- tryCatch(readRDS(V280_PATH), error = function(e) NULL)
 if (is.null(v280))
   stop("v2.8.0 benchmark RDS missing; run data-raw/benchmark_wosis_p4_p5_p7.R first.")
-folds <- v280$folds
+# Reuse the IDENTICAL buffered split P4/P5/P7 were scored on. Three methods on
+# buffered folds and three on unbuffered would not be a matched benchmark.
+SF <- v280$spatial_folds
+if (is.null(SF)) {
+  stop("the P4/P5/P7 bundle predates buffered blocking; re-run ",
+       "data-raw/benchmark_wosis_p4_p5_p7.R before this script.", call. = FALSE)
+}
+folds <- SF$fold
 profiles$fold5 <- folds
+message(sprintf("  buffered folds: %.0f km, %d training rows discarded, ",
+                SF$buffer_km, sum(SF$n_buffered)),
+        sprintf("min train-test distance %.1f km", min(SF$min_dist_km)))
 
 # ---------------------------------------------------------------------------
 # 2. New method wrappers (P1, P6, P10) -- canonical exports from R/benchmark_wosis.R
@@ -127,8 +137,9 @@ post_bank_new <- list()
 
 for (fd in 1:5) {
   message(sprintf("  fold %d/5", fd))
-  train_ix <- which(profiles$fold5 != fd)
-  test_ix  <- which(profiles$fold5 == fd)
+  # SF$train already has the buffered rows removed; the complement would not.
+  train_ix <- SF$train[[fd]]
+  test_ix  <- SF$test[[fd]]
   train    <- profiles[train_ix, , drop = FALSE]
   test     <- profiles[test_ix,  , drop = FALSE]
   n_tr <- nrow(train); n_te <- nrow(test)
@@ -193,7 +204,7 @@ for (fd in 1:5) {
       return(data.frame(method = name, fold = fd, n_test = n_te,
                           n_train = n_tr, train_capped = FALSE,
                           n_ensemble = budget_of(name),
-                          rmse = NA, mae = NA, r2 = NA,
+                          rmse = NA, mae = NA, r2 = NA, nse = NA,
                           crps = NA, picp90 = NA, mpiw90 = NA,
                           elapsed_s = elapsed, stringsAsFactors = FALSE))
     }
@@ -210,10 +221,16 @@ for (fd in 1:5) {
     rmse_val   <- sqrt(mean((point_pred - truth)^2, na.rm = TRUE))
     # Unclamped on purpose -- see the note in benchmark_wosis_p4_p5_p7.R.
     r2_val     <- edaphos_r2(truth, point_pred)
+    # Skill against the ACHIEVABLE null: the mean of this fold's TRAINING
+    # rows. edaphos_r2() divides by the variance of the test values about
+    # THEIR OWN mean, which no deployed map knows -- a strictly harder bar,
+    # and the one the manuscript mislabelled as achievable.
+    nse_val    <- edaphos_nse(truth, point_pred,
+                              null_prediction = mean(train$soc, na.rm = TRUE))
     data.frame(method = name, fold = fd, n_test = n_te,
                  n_train = n_tr, train_capped = FALSE,
                  n_ensemble = budget_of(name),
-                 rmse = rmse_val, mae = mae_val, r2 = r2_val,
+                 rmse = rmse_val, mae = mae_val, r2 = r2_val, nse = nse_val,
                  crps = cal$crps, picp90 = picp90, mpiw90 = mpiw90,
                  elapsed_s = elapsed, stringsAsFactors = FALSE)
   }
@@ -263,6 +280,10 @@ agg <- cv_tbl_all |>
     rmse_mean   = mean(rmse,   na.rm = TRUE),
     rmse_sd     = stats::sd(rmse, na.rm = TRUE),
     r2_mean     = mean(r2,     na.rm = TRUE),
+    # skill against the achievable (training-fold mean) null; r2_mean
+    # above is against the oracle (test-fold mean) null
+    nse_mean    = mean(nse,    na.rm = TRUE),
+    nse_sd      = stats::sd(nse, na.rm = TRUE),
     picp90_mean = mean(picp90, na.rm = TRUE),
     mpiw90_mean = mean(mpiw90, na.rm = TRUE),
     crps_mean   = mean(crps,   na.rm = TRUE),

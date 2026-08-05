@@ -152,7 +152,17 @@ sp <- do.call(rbind, lapply(split(d, d$profile_id), function(s) {
     # A monotone non-increasing profile is the class the ODE can represent.
     # The rest -- illuvial bulges, buried A horizons, E-below-A -- are outside
     # its scope and must be reported, not silently fitted.
+    #
+    # This is a DESCRIPTOR of the whole profile. Do not use it to stratify a
+    # cross-validation that holds a horizon out: deciding whether a profile is
+    # in the model's domain by reading the horizon you are about to predict is
+    # a test-set leak. data-raw/piml_depth_benchmark.R computes its own
+    # stratifier from training horizons only, per split.
     monotone_decreasing = all(diff(s$soc_g_kg) <= 0),
+    # the same judgement made without the deepest horizon, which is what a
+    # leave-the-deepest-out split may legitimately use
+    monotone_without_deepest = nrow(s) > 2 &&
+      all(diff(s$soc_g_kg[-nrow(s)]) <= 0),
     has_bd = all(is.finite(s$bd_g_cm3)),
     stringsAsFactors = FALSE
   )

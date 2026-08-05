@@ -263,23 +263,43 @@ would be an oracle over the very rows being scored:
 
 | Method | RMSE | R² vs global mean | NSE vs training-fold mean | draws |
 |:---|---:|---:|---:|---:|
-| P1 OLS (DAG-selected covariates)  | 0.587 | +0.160 | **+0.196** | 300 |
-| P5 QRF                            | 0.594 | +0.139 | +0.175 | 99 |
-| P7 BHS                            | 0.601 | +0.119 | +0.157 | 200 |
-| P4 Foundation embeddings + QRF    | 0.615 | +0.077 | +0.116 | 99 |
-| P10 GAT (trained attention)       | 0.617 | +0.073 | +0.112 | **8** |
-| P6 Quantum KRR                    | 0.665 | −0.079 | −0.033 | 100 |
+| P1 OLS (DAG-selected covariates)  | 0.586 | +0.162 | **+0.204** | 300 |
+| P5 QRF                            | 0.596 | +0.134 | +0.177 | 99 |
+| P7 BHS                            | 0.608 | +0.098 | +0.143 | 200 |
+| P4 Foundation embeddings + QRF    | 0.621 | +0.060 | +0.107 | 99 |
+| P6 Quantum KRR                    | 0.663 | −0.073 | −0.019 | 100 |
+| P10 GAT (trained attention)       | 0.679 | −0.123 | −0.067 | **8** |
 
 RMSE is in `log1p(g/kg)` and is not comparable to a g/kg figure. The
 `draws` column is the ensemble each method actually got: they are not
-equal, and a ranking that ignores that is comparing budgets. P10 reaches
-+0.112 on **8** members against 99–300 for the others.
+equal, and a ranking that ignores that is comparing budgets.
+
+These folds carry a **68 km buffer**: training rows within that distance
+of any test row are discarded, which cost 88 of 3,077 rows and raised the
+realised minimum training-to-test distance from 12.3 km to 68.3 km.
+Blocking without a dead zone under-states generalisation error (Roberts
+et al. 2017), and 12.3 km sits well inside the 55–68 km range at which the
+fitted depth-function parameters are still correlated. Only one method
+moved appreciably: P10 GAT went from RMSE 0.617 to 0.679 and from +0.112
+to −0.067, dropping from fifth to last. A network whose representation is
+a graph over spatial neighbours is exactly the method that gains most
+from training points immediately across a block boundary.
 
 **The honest reading.** Ordinary least squares on a DAG-selected
 covariate subset is the strongest method here. None of the five more
 elaborate pillars beats it on this task, and the spread between the top
-four is small relative to the fold-to-fold variation. Only P6 falls below
-the achievable null, and only just.
+four is small relative to the fold-to-fold variation. Two methods fall
+below the achievable null — P6 and, once the fold buffer is in place,
+P10.
+
+Note which null. The third column is skill against the mean of each
+fold's **training** rows, the null a deployed map could use. The second
+is against the global mean, which is computed partly from the rows being
+scored. The conventional per-fold R-squared uses a third and stricter
+denominator still — the test fold's own mean — and by that measure three
+methods score negative. The manuscript reported that third figure under
+the first's name until `edaphos_nse()`, which requires the null as an
+argument, made the three impossible to conflate.
 
 **Two figures for P10, both correct.** The +0.112 above is a
 fixed-configuration comparison with every pillar at its defaults. Under

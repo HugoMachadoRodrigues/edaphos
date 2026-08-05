@@ -110,24 +110,79 @@ repository's own scripts, which then kept only the shallowest horizon of each.
   `v dC/dz = I(z) - kC` with root input `I(z) = I0 exp(-z/z_r)`: constant rate,
   depth-varying target. Closed form, analytic layer averages, every parameter
   positive with a literature prior. It fits the shipped pedon markedly better
-  (RMSE 0.44 vs 2.52), but across the 875 monotone profiles the two are
-  statistically indistinguishable once both are fitted with a correct
+  (RMSE 0.44 vs 2.52), but across the profiles in the model's domain the two
+  are statistically indistinguishable once both are fitted with a correct
   likelihood — see the likelihood section below, which cost this entry its
   original claim.
 - **A benchmark, reported whatever it says.** `data-raw/piml_depth_benchmark.R`
   runs two pre-declared tasks over all 1,105 profiles against six competitors,
   including an equal-area spline and a pooled depth-as-covariate random forest.
-  Over all profiles the mechanism buys nothing: RMSE 14.04 g/kg against 14.05
-  for copying the nearest measured horizon. Restricted to the 875 profiles
-  inside the model's declared domain, RMSE falls to 1.51 and the derived form
-  leads at 1.51. The equal-area spline does not extrapolate and abstains from
-  the second task, which is reported rather than papered over.
+  On mean absolute error the mechanism helps -- 1.82 g/kg for the ODE against
+  2.06 for copying the nearest measured horizon and 2.67 for the random forest,
+  winning the paired comparison against every baseline. On RMSE every method
+  lands near 14 g/kg, because ten profiles carry 99% of the squared error; the
+  gap between the two statistics is itself the finding. The equal-area spline
+  does not extrapolate and abstains from the second task, which is reported
+  rather than papered over. The restriction to the model's domain was
+  originally computed in a way that leaked the held-out horizon; see the
+  method-defects section below.
 - **The domain is now declared and enforced.** `lambda0 > 0` with a first-order
   relaxation makes the solution monotone, so an argillic bulge, an E horizon
-  under an A or a buried A cannot be represented. 20.8% of the shipped profiles
-  are not monotone. `piml_profile_fit()` records `in_scope`, `progress` (how
+  under an A or a buried A cannot be represented. 15.4% of the shipped profiles
+  are not monotone even in their training horizons, and those that break
+  monotonicity only at the horizon being predicted cannot be excluded in
+  advance at all. `piml_profile_fit()` records `in_scope`, `progress` (how
   far the deepest horizon travelled toward `y(Inf)`) and `surface_ratio` (`y0`
   reached 775 g/kg on one real profile), and `print()` says so.
+
+## Three method defects that invalidated published numbers
+
+A full verification sweep of the specialist panel's 266 findings -- deduplicated
+to 190 unique defects and each re-checked against the current tree -- surfaced
+three defects of method, not of implementation. Each one had produced a number
+that appears in the manuscript.
+
+**The benchmark's skill column was scored against an oracle.**
+`edaphos_r2(truth, pred)` divides by the variance of the test values about
+*their own* mean, which is computed from the very rows being scored. The
+manuscript's Table 4 described that column as "measured against each fold's
+training mean", and its introduction states in as many words that scoring
+against the mean of the rows being scored is an oracle rather than a baseline.
+The roxygen of `edaphos_r2()` carried the same warning. The benchmark called it
+anyway. New `edaphos_nse(observed, predicted, null_prediction)` takes the null
+as a **required** argument and errors without it. Against the achievable null
+two methods score below zero, not three.
+
+**Spatially blocked folds had no buffer.** The training set was the exact
+complement of the test block, with a measured minimum training-to-test distance
+of 12.3 km -- well inside the 55-68 km range at which the fitted depth-function
+parameters are still correlated. New `spatial_block_folds(coords, k,
+buffer_km, seed)` discards training rows within the buffer, reports how many,
+and returns the realised minimum distance. At 68 km it costs 88 of 3,077 rows.
+Only one method moved: P10 GAT went from RMSE 0.617 to 0.679 and from +0.112 to
+-0.067 skill, fifth place to last. A network built on a graph of spatial
+neighbours is exactly the method that gains from training points immediately
+across a block boundary, which is what the buffer exists to remove.
+
+**The depth benchmark's validity-domain stratifier read the held-out horizon.**
+It judged a profile monotone from its *complete* record, including the deepest
+horizon that the extrapolation task holds out -- so it excluded precisely the
+profiles whose held-out horizon jumps. Computed from training horizons only, as
+it must be, the subset grows from 875 to 935 profiles and the ODE's RMSE goes
+from 1.51 to 14.74. The manuscript's claim that declaring the validity domain
+moved the RMSE from 14.04 to 1.51 was an artefact of the leak; the largest jump
+in the held-out horizon is 17 g/kg among the profiles the leaking criterion
+admitted and 427 g/kg among those the honest one admits.
+
+What replaced it is a better result. Ten profiles out of 935 -- 1.1% -- carry
+99% of the squared error, and removing them takes the RMSE to 1.54. The median
+absolute error is 0.76 g/kg. The extreme case is a buried organic horizon,
+430 g/kg at 125 cm with 3.0 g/kg immediately above it, and nothing available at
+fit time predicts it: the correlation between the size of the jump and the
+number of training horizons, the prediction depth, or the model's own
+extrapolation diagnostic is below 0.03 in absolute value. A depth function
+fitted to the horizons above cannot know a buried horizon is coming, and no
+scope statement made from the same information can either.
 
 ## The likelihood was wrong for a soil concentration
 
@@ -150,10 +205,13 @@ nothing.
   down by `exp(sigma^2/2)`.
 - On the shipped pedon the Gaussian fit misses the deepest horizon by 90% of
   its value; the lognormal caps its worst relative residual at 23%.
-- On leave-the-deepest-horizon-out prediction across the 875 monotone WoSIS
-  profiles, the lognormal wins on 579 of them (paired Wilcoxon p = 1e-24) and
-  wins on RMSE too — 1.507 against 1.653 — even though RMSE is the criterion
-  the Gaussian optimises by construction.
+- On leave-the-deepest-horizon-out prediction across all 1,105 WoSIS profiles
+  the lognormal wins on 720 of them (paired Wilcoxon p = 2e-30), improving mean
+  absolute error from 2.20 to 2.00 g/kg, and wins on RMSE too — even though
+  RMSE is the criterion the Gaussian optimises by construction, because
+  over-weighting the topsoil is what makes a profile extrapolate its deepest
+  horizon badly. (These figures were first measured on a subset selected by the
+  leaking stratifier described below and have been remeasured without it.)
 - `predict()` draws observation noise from the family the model was fitted
   with. Adding Gaussian noise to a positive fit would reintroduce the defect
   the argument exists to remove.
@@ -161,8 +219,8 @@ nothing.
 **This changed a published conclusion.** Under the Gaussian, the derived
 advection-reaction model appeared to beat the attenuating-rate ODE decisively
 on held-out prediction (p = 2e-6). Fitting both with a correctly specified
-likelihood removes the difference: RMSE 1.483 against 1.507, winning on 454
-of 875 profiles against 421, p = 0.25. The Gaussian had been penalising the
+likelihood removes the difference: MAE 1.76 against 1.82 g/kg, winning on 486
+of 935 profiles against 449, p = 0.25. The Gaussian had been penalising the
 attenuating-rate form more, because over-weighting the topsoil hurts the model
 whose flexibility lies in the deep tail. The derived model is now recommended
 on the grounds that it can be derived, not on grounds of accuracy, where the

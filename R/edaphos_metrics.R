@@ -95,6 +95,8 @@ edaphos_mae <- function(observed, predicted) {
 #' # which is an oracle no deployed map has access to.
 #' train_mean <- 14.8
 #' 1 - sum((obs - pred)^2) / sum((obs - train_mean)^2)
+#' @seealso [edaphos_nse()], which takes the null as an argument so the
+#'   choice cannot be made silently.
 #' @export
 edaphos_r2 <- function(observed, predicted) {
   d <- .metrics_drop_na(observed, predicted)
@@ -103,6 +105,72 @@ edaphos_r2 <- function(observed, predicted) {
   ss_tot <- sum((d$obs - mean(d$obs))^2)
   if (ss_tot == 0) return(NA_real_)
   1 - ss_res / ss_tot
+}
+
+#' Skill against an explicit null predictor
+#'
+#' \eqn{\mathrm{NSE} = 1 - \frac{\sum (y - \hat y)^2}{\sum (y - y_0)^2}},
+#' where \eqn{y_0} is a null prediction the caller supplies. Zero means the
+#' model is exactly as good as the null; negative means worse.
+#'
+#' [edaphos_r2()] is the special case \eqn{y_0 = \bar y}, the mean of the
+#' observations being scored. On a held-out fold that is an **oracle**: no
+#' deployed map knows the mean of the cells it has not visited. Scoring against
+#' it is a harder and less meaningful bar than scoring against the mean of the
+#' training fold, which is the null a practitioner could actually deploy.
+#'
+#' The distinction is not academic. On this package's own six-method benchmark,
+#' three methods score below zero against the oracle null and only one scores
+#' below zero against the achievable one — and the manuscript reported the
+#' former under the latter's name until this function existed to keep them
+#' apart. `null_prediction` is mandatory here for exactly that reason.
+#'
+#' @param observed,predicted Numeric vectors of equal length.
+#' @param null_prediction The null predictor: either a single number (a
+#'   constant null, e.g. the training-fold mean) or a vector the same length as
+#'   `observed` (a varying null, e.g. a covariate-free baseline model).
+#' @return Numeric scalar, or `NA_real_` when the null has zero residual
+#'   variance and the ratio is undefined.
+#' @seealso [edaphos_r2()]
+#' @examples
+#' obs   <- c(12.1, 18.4,  9.7, 22.0, 15.3)
+#' pred  <- c(11.5, 19.2, 10.4, 20.8, 15.9)
+#'
+#' # The achievable null: the mean of the training fold, known before the
+#' # test rows are seen.
+#' edaphos_nse(obs, pred, null_prediction = 14.8)
+#'
+#' # The oracle null, which is what edaphos_r2() uses. It is the harder bar,
+#' # because the mean of the test set is the best constant predictor OF the
+#' # test set -- so a method can clear the achievable null and fail this one.
+#' edaphos_nse(obs, pred, null_prediction = mean(obs))
+#' edaphos_r2(obs, pred)
+#'
+#' # A method that beats the training mean but not the test mean: exactly the
+#' # case that gets mislabelled when the two are conflated.
+#' round(c(achievable = edaphos_nse(obs, pred, 14.8),
+#'         oracle     = edaphos_nse(obs, pred, mean(obs))), 3)
+#' @export
+edaphos_nse <- function(observed, predicted, null_prediction) {
+  if (missing(null_prediction)) {
+    stop("`null_prediction` is required. Passing mean(observed) makes this ",
+         "edaphos_r2(), which on a held-out fold is an oracle null; the ",
+         "achievable null is usually the training-fold mean.", call. = FALSE)
+  }
+  stopifnot(is.numeric(null_prediction))
+  if (length(null_prediction) == 1L) {
+    null_prediction <- rep(null_prediction, length(observed))
+  }
+  if (length(null_prediction) != length(observed)) {
+    stop("`null_prediction` must be length 1 or length(observed).",
+         call. = FALSE)
+  }
+  ok <- is.finite(observed) & is.finite(predicted) & is.finite(null_prediction)
+  if (sum(ok) <= 1L) return(NA_real_)
+  ss_res  <- sum((observed[ok] - predicted[ok])^2)
+  ss_null <- sum((observed[ok] - null_prediction[ok])^2)
+  if (ss_null == 0) return(NA_real_)
+  1 - ss_res / ss_null
 }
 
 #' Mean bias (observed minus predicted)

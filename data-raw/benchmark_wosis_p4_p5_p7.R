@@ -72,11 +72,20 @@ YEAR_SUMMARY <- list(
 # ─────────────────────────────────────────────────────────────────────────────
 # 2. 5-fold spatial CV (k-means cluster)
 # ─────────────────────────────────────────────────────────────────────────────
-message("=== [2/7] Building 5 spatial folds ===")
-set.seed(1L)
-folds <- stats::kmeans(profiles[, c("lon", "lat")],
-                         centers = 5L, nstart = 10L)$cluster
+message("=== [2/7] Building 5 buffered spatial folds ===")
+# BUFFERED blocking. The training set used to be the exact complement of the
+# test block, with no dead zone: the measured minimum training-to-test
+# great-circle distance was 12.3 km, well inside the 55-68 km range at which
+# the fitted depth-function parameters are still correlated
+# (data-raw/piml_parameter_variograms.R). Blocking without a buffer
+# under-states generalisation error (Roberts et al. 2017).
+SF <- spatial_block_folds(profiles[, c("lon", "lat")], k = 5L,
+                          buffer_km = 68, seed = 1L)
+folds <- SF$fold
 profiles$fold5 <- folds
+message(sprintf("  buffer %.0f km: %d training rows discarded, realised ",
+                SF$buffer_km, sum(SF$n_buffered)),
+        sprintf("min train-test distance %.1f km", min(SF$min_dist_km)))
 tab <- table(folds)
 message(sprintf("  fold sizes: %s",
                  paste(sprintf("%d=%d", as.integer(names(tab)),
@@ -214,8 +223,9 @@ posterior_bank <- list()
 
 for (fd in 1:5) {
   message(sprintf("  fold %d/5", fd))
-  train_ix <- which(profiles$fold5 != fd)
-  test_ix  <- which(profiles$fold5 == fd)
+  # SF$train already has the buffered rows removed; the complement would not.
+  train_ix <- SF$train[[fd]]
+  test_ix  <- SF$test[[fd]]
   train    <- profiles[train_ix, , drop = FALSE]
   test     <- profiles[test_ix,  , drop = FALSE]
   n_tr <- nrow(train); n_te <- nrow(test)
@@ -274,7 +284,7 @@ for (fd in 1:5) {
                           n_train = if (grepl("^P7", name)) p7_n_train else n_tr,
                           train_capped = grepl("^P7", name) && p7_n_train < n_tr,
                           n_ensemble = NA_integer_,
-                          rmse = NA, mae = NA, r2 = NA,
+                          rmse = NA, mae = NA, r2 = NA, nse = NA,
                           crps = NA, picp90 = NA, mpiw90 = NA,
                           elapsed_s = elapsed, stringsAsFactors = FALSE))
     }
@@ -292,6 +302,13 @@ for (fd in 1:5) {
     # predicting the mean, which is the informative result.  Clamping it at
     # zero used to report that as "explains none of the variance".
     r2_val     <- edaphos_r2(truth, point_pred)
+    # Skill against the ACHIEVABLE null -- the mean of this fold's training
+    # rows, which a deployed map knows. edaphos_r2() uses mean(truth), the
+    # test fold's own mean, which is an oracle and a strictly harder bar; the
+    # two were conflated and the manuscript reported the oracle result under
+    # the achievable one's name.
+    nse_val    <- edaphos_nse(truth, point_pred,
+                              null_prediction = mean(train$soc, na.rm = TRUE))
     data.frame(
       method    = name, fold = fd, n_test = n_te,
       # training rows this method actually saw -- P7 was capped through
@@ -304,7 +321,7 @@ for (fd in 1:5) {
       # P1/P6/P10 and NA for P4/P5/P7, and the budget disparity the disclosure
       # exists to expose stays invisible for half the rows.
       n_ensemble = if (!is.null(post$samples)) nrow(post$samples) else NA_integer_,
-      rmse      = rmse_val, mae = mae_val, r2 = r2_val,
+      rmse      = rmse_val, mae = mae_val, r2 = r2_val, nse = nse_val,
       crps      = cal$crps,
       picp90    = picp90,
       mpiw90    = mpiw90,
@@ -349,6 +366,10 @@ agg <- cv_tbl |>
     rmse_mean   = mean(rmse,   na.rm = TRUE),
     rmse_sd     = stats::sd(rmse, na.rm = TRUE),
     r2_mean     = mean(r2,     na.rm = TRUE),
+    # skill against the achievable (training-fold mean) null; r2_mean
+    # above is against the oracle (test-fold mean) null
+    nse_mean    = mean(nse,    na.rm = TRUE),
+    nse_sd      = stats::sd(nse, na.rm = TRUE),
     picp90_mean = mean(picp90, na.rm = TRUE),
     mpiw90_mean = mean(mpiw90, na.rm = TRUE),
     crps_mean   = mean(crps,   na.rm = TRUE),
@@ -370,6 +391,7 @@ R_out <- list(
   n_profiles     = nrow(profiles),
   cov_cols       = cov_cols,
   folds          = folds,
+  spatial_folds = SF,
   cv_fold_table  = cv_tbl,
   cv_aggregate   = agg,
   posterior_bank = posterior_bank

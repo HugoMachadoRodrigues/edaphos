@@ -33,3 +33,7 @@ edaphos_r2(obs, rep(30, length(obs)))
 train_mean <- 14.8
 1 - sum((obs - pred)^2) / sum((obs - train_mean)^2)
 }
+\seealso{
+\code{\link[=edaphos_nse]{edaphos_nse()}}, which takes the null as an argument so the
+choice cannot be made silently.
+}

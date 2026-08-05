@@ -349,3 +349,64 @@ test_that("a positive family cannot produce a negative predictive draw", {
   expect_true(all(stats::rgamma(2000, shape = 1 / 0.3^2,
                                 rate = 1 / (0.3^2 * small)) > 0))
 })
+
+test_that("edaphos_nse refuses to guess the null, and the two nulls differ", {
+  obs  <- c(12.1, 18.4, 9.7, 22.0, 15.3)
+  pred <- c(11.5, 19.2, 10.4, 20.8, 15.9)
+  # The whole point of the function: you cannot get the null by accident.
+  expect_error(edaphos_nse(obs, pred), "null_prediction")
+  # edaphos_r2 IS the oracle special case.
+  expect_equal(edaphos_nse(obs, pred, mean(obs)), edaphos_r2(obs, pred))
+  # And the oracle is the harder bar, because mean(obs) is by construction the
+  # best constant predictor of obs. Any other constant scores higher.
+  expect_gt(edaphos_nse(obs, pred, 14.8), edaphos_nse(obs, pred, mean(obs)))
+  # a vector null works too
+  expect_equal(edaphos_nse(obs, pred, rep(14.8, 5)),
+               edaphos_nse(obs, pred, 14.8))
+  expect_error(edaphos_nse(obs, pred, c(1, 2)), "length 1 or")
+})
+
+test_that("spatial_block_folds actually enforces its buffer", {
+  data(br_cerrado, envir = environment())
+  # br_cerrado is a 0.3-degree demonstration grid whose maximum separation is
+  # ~47 km, so the buffer has to be scaled to it. The package default of 68 km
+  # is set for the Cerrado-wide WoSIS extract, not for this grid.
+  xy <- br_cerrado[seq(1, nrow(br_cerrado), by = 25), c("x", "y")]
+  f0 <- spatial_block_folds(xy, k = 5, buffer_km = 0,  seed = 1)
+  f1 <- spatial_block_folds(xy, k = 5, buffer_km = 10, seed = 1)
+  expect_s3_class(f1, "edaphos_spatial_folds")
+  # The blocks themselves are identical; only the training sets differ.
+  expect_equal(f0$fold, f1$fold)
+  expect_equal(f0$test, f1$test)
+  # Unbuffered blocking leaves training rows arbitrarily close to test rows.
+  expect_lt(min(f0$min_dist_km), 10)
+  expect_equal(sum(f0$n_buffered), 0)
+  # Buffered blocking does not, and says what it cost.
+  expect_gte(min(f1$min_dist_km), 10)
+  expect_gt(sum(f1$n_buffered), 0)
+  expect_true(all(vapply(f1$train, length, 0L) <= vapply(f0$train, length, 0L)))
+  # Test rows are never in their own training set, buffered or not.
+  for (i in seq_len(5)) expect_length(intersect(f1$train[[i]], f1$test[[i]]), 0L)
+  # An impossible buffer is an error, not a silently empty fold.
+  expect_error(spatial_block_folds(xy, k = 5, buffer_km = 1e5, seed = 1),
+               "fewer than two training rows")
+})
+
+test_that("the depth benchmark's domain stratifier does not read the test horizon", {
+  f <- system.file("extdata", "piml_depth_benchmark.rds", package = "edaphos")
+  skip_if(f == "", "depth benchmark not installed")
+  B <- readRDS(f)
+  r <- B$rows[B$rows$task == "extrapolation", ]
+  expect_true(all(c("monotone", "monotone_full_profile") %in% names(r)))
+  # The leak-free criterion is judged on fewer horizons, so it can only be
+  # MORE permissive: every profile monotone over its whole record is monotone
+  # over the record minus its last horizon.
+  expect_gte(sum(r$monotone), sum(r$monotone_full_profile))
+  expect_equal(sum(r$monotone_full_profile & !r$monotone), 0L)
+  # And the difference is not empty -- if it were, there was nothing to fix.
+  expect_gt(sum(r$monotone & !r$monotone_full_profile), 0L)
+  # The leaking criterion admits only profiles whose held-out horizon behaves,
+  # which is what made it a leak.
+  jump <- abs(r$obs - r$copy_near)
+  expect_lt(max(jump[r$monotone_full_profile]), max(jump[r$monotone]))
+})
