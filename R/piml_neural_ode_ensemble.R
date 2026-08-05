@@ -162,8 +162,13 @@ print.edaphos_piml_neural_ode_ensemble <- function(x, ...) {
 #' @param seed Optional integer — RNG seed for the observation-noise
 #'   draw. Only consulted when `include_obs_noise = TRUE`.
 #' @param ... Unused.
-#' @return Either a numeric matrix (when `interval` is NULL) or a
-#'   data frame with columns `depth`, `mean`, `sd`, `lower`, `upper`.
+#' @return Either a numeric matrix (when `interval` is NULL) or a data frame
+#'   with columns `depth`, `mean`, `sd`, `lower`, `upper`, `lower_sim` and
+#'   `upper_sim`. `lower`/`upper` are pointwise -- each depth covered
+#'   separately -- while `lower_sim`/`upper_sim` cover the whole curve at
+#'   the same nominal level. Drawing the pointwise pair as a ribbon over a
+#'   profile and calling it the band for that profile overstates its
+#'   coverage; see [predict.edaphos_piml_bayes()].
 #' @export
 predict.edaphos_piml_neural_ode_ensemble <- function(object, newdepths,
                                                        interval = NULL,
@@ -190,7 +195,7 @@ predict.edaphos_piml_neural_ode_ensemble <- function(object, newdepths,
   stopifnot(is.numeric(interval), length(interval) == 1L,
             interval > 0, interval < 1)
   alpha <- (1 - interval) / 2
-  data.frame(
+  out <- data.frame(
     depth = newdepths,
     mean  = colMeans(pred),
     sd    = apply(pred, 2L, stats::sd),
@@ -198,4 +203,14 @@ predict.edaphos_piml_neural_ode_ensemble <- function(object, newdepths,
     upper = apply(pred, 2L, stats::quantile, probs = 1 - alpha),
     row.names = NULL, stringsAsFactors = FALSE
   )
+  # Same distinction as the Bayesian fitter: `lower`/`upper` cover each depth
+  # separately, `*_sim` covers the whole curve. Carried here too so a caller
+  # cannot get a pointwise ribbon from one predictor and a simultaneous one
+  # from the other without noticing. See .piml_supt_band() in piml_bayesian.R.
+  band <- .piml_supt_band(pred, interval)
+  out$lower_sim <- band$lower
+  out$upper_sim <- band$upper
+  attr(out, "supt_level") <- band$half_level
+  attr(out, "interval") <- interval
+  out
 }

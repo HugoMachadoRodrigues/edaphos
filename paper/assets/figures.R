@@ -264,7 +264,14 @@ ped <- CAP$piml_profile_obs
 fitb <- piml_profile_fit_bayesian(ped$depth_mid, ped$soc_g_kg, method = "laplace", seed = 7L)
 dz <- seq(0, max(ped$bottom) * 1.15, by = 2)   # past the deepest horizon
 pp <- predict(fitb, newdepths = dz, interval = 0.95)
-pdf_ <- data.frame(depth = dz, mean = pp$mean, lo = pp$lower, hi = pp$upper)
+# Two ribbons, because they mean different things. `lower`/`upper` cover each
+# depth SEPARATELY at 95%; drawn alone over this many depths they look like a
+# band for the profile and are not one. `lower_sim`/`upper_sim` are the sup-t
+# band, which covers the whole curve at 95%. The outer ribbon is the honest
+# one; the inner is kept so the difference is visible rather than asserted.
+pdf_ <- data.frame(depth = dz, mean = pp$mean, lo = pp$lower, hi = pp$upper,
+                   lo_s = pp$lower_sim, hi_s = pp$upper_sim)
+SUPT_LEVEL <- attr(pp, "supt_level")
 # Annotate with the POSTERIOR MEANS, which is what the drawn curve and Table 2
 # both report. Using the MAP here instead would put numbers on the figure that
 # disagree with the table beside it.
@@ -277,8 +284,10 @@ y_in <- .ps$mean[.ps$param == "y_inf"]
 # reaches. Extending to 400 cm makes the plateau visible.
 pprof <- ggplot() +
   geom_vline(xintercept = 0, colour = "grey80", linewidth = 0.35) +
+  geom_ribbon(data = pdf_, aes(y = -depth, xmin = lo_s, xmax = hi_s),
+              fill = PAL[["soc"]], alpha = 0.12) +
   geom_ribbon(data = pdf_, aes(y = -depth, xmin = lo, xmax = hi),
-              fill = PAL[["soc"]], alpha = 0.18) +
+              fill = PAL[["soc"]], alpha = 0.22) +
   geom_path(data = pdf_, aes(x = mean, y = -depth), colour = PAL[["soc"]], linewidth = 1) +
   geom_vline(xintercept = y_as, colour = PAL[["cool"]], linetype = 2, linewidth = 0.7) +
   geom_vline(xintercept = y_in, colour = PAL[["bad"]], linetype = 3, linewidth = 0.7) +
@@ -295,7 +304,7 @@ pprof <- ggplot() +
   labs(title = "A  The profile settles above zero, not on y-infinity",
        subtitle = expression(paste("d", italic(y), "/d", italic(z), " = -", lambda[0],
                                    " exp(-", mu, italic(z), ")(", italic(y), " - ",
-                                   italic(y)[infinity], "); ribbon is the 95% posterior")),
+                                   italic(y)[infinity], "); inner ribbon 95% pointwise, outer 95% simultaneous")),
        x = expression(paste("Organic carbon (g kg"^-1, ")")), y = "Depth (cm)") +
   theme_edaphos()
 

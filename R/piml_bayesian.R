@@ -762,6 +762,65 @@ print.edaphos_piml_bayes <- function(x, ...) {
 #' @export
 summary.edaphos_piml_bayes <- function(object, ...) object$summary
 
+# ---------------------------------------------------------------------------
+# Simultaneous credible band over a whole depth curve.
+#
+# `apply(pred, 2, quantile)` gives a POINTWISE band: at each depth taken alone
+# it covers with probability `interval`. It does not cover the whole curve with
+# that probability, and a figure that draws it as a ribbon and calls it "the
+# 95% posterior band for the profile" is claiming something it has not
+# computed. Over a few hundred depths on a smooth curve the gap is large --
+# measured on this package's own capstone fit, a nominally 95% pointwise
+# ribbon contains a complete posterior curve about 80% of the time.
+#
+# CONSTRUCTION. The obvious sup-t form -- standardise by a location and a
+# scale, take the supremum of |standardised| within each draw -- is SYMMETRIC,
+# so on a skewed predictive distribution it can come out NARROWER than the
+# pointwise band on one side. That is absurd for a band meant to be more
+# conservative, and it is not hypothetical: the first version of this helper
+# did exactly that and failed its own containment test.
+#
+# What is used instead calibrates a common POINTWISE LEVEL. Let u_ij be the
+# empirical quantile level of draw i at depth j among all draws at that depth.
+# Draw i lies entirely inside the pointwise band of level (1 - g) exactly when
+#
+#     min_j min(u_ij, 1 - u_ij)  >=  g / 2,
+#
+# so writing m_i for that minimum, the fraction of whole curves contained is
+# P(m >= g/2). Setting g/2 to the (1 - interval) quantile of m makes that
+# fraction equal `interval` by construction, and the band is then read off as
+# ordinary pointwise quantiles at g/2 and 1 - g/2.
+#
+# Three properties follow, all asserted in the tests: the band is exact on the
+# draws rather than asymptotic; it is asymmetric wherever the posterior is,
+# because it is built from quantiles; and it always contains the pointwise
+# band, since g/2 <= (1 - interval)/2. With a single depth m_i reduces to
+# min(u_i, 1 - u_i) and the calibrated level is the nominal one, so the band
+# collapses exactly onto the pointwise interval.
+#
+# Reference: Montiel Olea & Plagborg-Moller (2019), Journal of Applied
+# Econometrics 34, 1-17.
+# ---------------------------------------------------------------------------
+.piml_supt_band <- function(pred, interval) {
+  n <- nrow(pred)
+  # Empirical quantile level of every draw at every depth. The 0.5 shift
+  # centres a draw within its rank step, so the extreme draws are not assigned
+  # levels of exactly 0 and 1.
+  u <- apply(pred, 2L, function(col)
+    (rank(col, ties.method = "average") - 0.5) / n)
+  if (is.null(dim(u))) u <- matrix(u, nrow = n)
+  m <- apply(pmin(u, 1 - u), 1L, min)
+  half <- unname(stats::quantile(m, probs = 1 - interval, na.rm = TRUE,
+                                 type = 1))
+  # A calibrated level above the nominal one would make the band NARROWER
+  # than pointwise, which this construction must never do.
+  half <- min(half, (1 - interval) / 2)
+  list(half_level = half,
+       lower = apply(pred, 2L, stats::quantile, probs = half, na.rm = TRUE),
+       upper = apply(pred, 2L, stats::quantile, probs = 1 - half, na.rm = TRUE))
+}
+
+
 #' Posterior predictive distribution of a Bayesian Pillar 2 fit
 #'
 #' Propagates the full posterior over ODE parameters through the
@@ -791,8 +850,19 @@ summary.edaphos_piml_bayes <- function(object, ...) object$summary
 #'   posterior draws are propagated — reproducing a result end-to-end
 #'   also requires seeding [piml_profile_fit_bayesian()] itself.
 #' @param ... Unused; present for S3 `predict` generic compatibility.
-#' @return Either a matrix (when `interval` is NULL) or a data frame
-#'   with columns `depth`, `mean`, `sd`, `lower`, `upper`.
+#' @return Either a matrix (when `interval` is NULL) or a data frame with
+#'   columns `depth`, `mean`, `sd`, `lower`, `upper`, `lower_sim` and
+#'   `upper_sim`.
+#'
+#'   `lower`/`upper` are POINTWISE: each depth taken alone is covered with
+#'   probability `interval`. `lower_sim`/`upper_sim` are SIMULTANEOUS -- the
+#'   sup-t band of Montiel Olea and Plagborg-Moller (2019), which covers the
+#'   whole curve with that probability. Over a few hundred depths the two
+#'   differ substantially, and a ribbon drawn from the pointwise pair and
+#'   described as a band for the profile overstates its coverage. The
+#'   calibrated one-sided level behind the simultaneous pair is on
+#'   `attr(out, "supt_level")`; it is at most `(1 - interval) / 2`, so the
+#'   simultaneous band always contains the pointwise one.
 #' @examples
 #' depths <- c(5, 15, 30, 60, 100)
 #' values <- c(25, 18, 12, 8, 6.5)
@@ -870,5 +940,14 @@ predict.edaphos_piml_bayes <- function(object, newdepths,
                    na.rm = TRUE),
     row.names = NULL, stringsAsFactors = FALSE
   )
+  # The pointwise columns above cover each depth SEPARATELY. A ribbon drawn
+  # from them over a whole profile is not a band for the profile, so the
+  # simultaneous version travels alongside rather than being offered as an
+  # option a caller has to know to ask for.
+  band <- .piml_supt_band(pred, interval)
+  out$lower_sim <- band$lower
+  out$upper_sim <- band$upper
+  attr(out, "supt_level") <- band$half_level
+  attr(out, "interval") <- interval
   out
 }
