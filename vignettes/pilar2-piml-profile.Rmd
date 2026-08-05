@@ -41,8 +41,9 @@ extension closes the loop with Pillar 5.
 Let \(y(z)\) denote a soil property (e.g. clay fraction, SOC) at depth
 \(z\ge 0\). The one-dimensional kinetic model of translocation
 [@Jenny1941; @Minasny2016] assumes a depth-dependent relaxation
-towards a parent-material asymptote \(y_{\infty}\) with rate
-\(\lambda(z)\):
+towards an equilibrium coordinate \(y_{\infty}\) with rate
+\(\lambda(z)\) — a coordinate that, as Section 1 shows below, the
+solution does **not** reach:
 \[
 \frac{dy}{dz}\;=\;-\lambda(z)\,\bigl(y(z)-y_{\infty}\bigr),\qquad
 \lambda(z)=\lambda_{0}\,e^{-\mu z}.
@@ -118,39 +119,67 @@ head(sp4[, c("id", "name", "top", "bottom", "depth", "clay", "K")])
 unique(sp4$id)
 ```
 
-## 3. Mono-pedon fit: clay translocation in `napa`
+## 3. Mono-pedon fit: a real multi-horizon profile
 
-The `napa` pedon is a canonical argillic-horizon case: clay increases
-with depth through illuviation then converges to a plateau in the
-parent material. The ODE (1) captures that dynamics without prescribing
-the sign of \(y_{\infty}-y_{0}\).
+Earlier versions of this vignette fitted the `napa` pedon and called it
+"a canonical argillic-horizon case ... converging to a plateau in the
+parent material". It is neither. `napa` has **two** horizons, A (0-6 cm)
+and Bt (6-20 cm), with clay 15% and 17%: two points for a four-parameter
+model, no plateau to converge to, and no bulge. A monotone increase is
+not an argillic horizon — an argillic horizon is a clay *maximum* with
+depletion above and below it, and equation (1) is monotone by
+construction, so it cannot represent one at all (Section 4).
+
+We therefore fit a real multi-horizon profile from the WoSIS extract the
+package ships: 1,105 Cerrado profiles with four or more horizons, built
+by `data-raw/piml_wosis_multihorizon.R` from the cached ISRIC WFS layers.
+Horizon boundaries are known, so the model is matched to the layer
+average of each horizon rather than to a point at its mid-depth.
 
 ```{r single-fit}
-napa <- subset(sp4, id == "napa")
-napa[, c("name", "depth", "clay")]
-fit_napa <- piml_profile_fit(
-  depths = napa$depth,
-  values = napa$clay
+W <- readRDS(system.file("extdata", "piml_wosis_cerrado.rds",
+                         package = "edaphos"))
+# the deepest, most completely described profile inside the model's domain
+cand <- W$profiles[W$profiles$monotone_decreasing, ]
+cand <- cand[order(-cand$n_hor, -cand$z_max), ]
+pedon <- W$horizons[W$horizons$profile_id == cand$profile_id[1], ]
+pedon <- pedon[order(pedon$top), ]
+pedon[, c("top", "bottom", "soc_g_kg")]
+
+fit_pedon <- piml_profile_fit(
+  depths = pedon$depth_mid,
+  values = pedon$soc_g_kg,
+  top    = pedon$top,
+  bottom = pedon$bottom
 )
-fit_napa
+fit_pedon
 ```
 
+The printed object separates two things the package used to conflate:
+`y(Inf)`, the value the profile actually reaches, and `y_inf`, a
+coordinate of the differential equation that it does not. It also
+reports `kappa`, the fraction of the journey the profile completes.
+
 ```{r predict-grid}
-grid_z <- seq(0, max(napa$depth) + 10, by = 1)
-pred_napa <- data.frame(depth = grid_z,
-                         clay  = predict(fit_napa, grid_z))
+grid_z <- seq(0, max(pedon$bottom) * 1.1, by = 1)
+pred_pedon <- data.frame(depth = grid_z,
+                         soc   = predict(fit_pedon, grid_z))
 ```
 
 ```{r plot-single, eval=requireNamespace("ggplot2", quietly = TRUE)}
 library(ggplot2)
 ggplot() +
-  geom_line(data = pred_napa, aes(clay, depth),
+  geom_line(data = pred_pedon, aes(soc, depth),
             linewidth = 1, colour = "steelblue") +
-  geom_point(data = napa, aes(clay, depth),
+  geom_point(data = pedon, aes(soc_g_kg, depth_mid),
              size = 3, colour = "firebrick") +
+  geom_vline(xintercept = edaphos:::.piml_asymptote(fit_pedon$params),
+             linetype = 2, colour = "grey40") +
   scale_y_reverse() +
-  labs(x = "Clay (%)", y = "Depth (cm)",
-       title = "Napa — pedogenetic ODE vs. observed horizons") +
+  labs(x = expression(paste("Organic carbon (g kg"^-1, ")")),
+       y = "Depth (cm)",
+       title = "A real WoSIS profile and the fitted pedogenetic ODE",
+       subtitle = "dashed line: y(Inf), the value the solution actually reaches") +
   theme_minimal(base_size = 12)
 ```
 
@@ -245,29 +274,29 @@ the whole trajectory:
 
 ```{r neural-ode, eval=.torch_ok}
 nn_fit <- piml_neural_ode_fit(
-  depths  = napa$depth, values = napa$clay,
+  depths  = pedon$depth_mid, values = pedon$soc_g_kg,
   hidden  = c(16L, 16L), epochs = 500L,
   seed    = 1L, verbose = FALSE
 )
 nn_fit
 pred_nn <- data.frame(depth = grid_z,
-                       clay  = predict(nn_fit, grid_z))
+                      soc   = predict(nn_fit, grid_z))
 ```
 
 ```{r plot-neural, eval=.torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
 ggplot() +
-  geom_line(data = pred_napa, aes(clay, depth,
+  geom_line(data = pred_pedon, aes(soc, depth,
             colour = "Parametric ODE"), linewidth = 1) +
-  geom_line(data = pred_nn,   aes(clay, depth,
+  geom_line(data = pred_nn,   aes(soc, depth,
             colour = "Neural ODE"),     linewidth = 1) +
-  geom_point(data = napa, aes(clay, depth),
+  geom_point(data = pedon, aes(soc_g_kg, depth_mid),
              size = 3, colour = "firebrick") +
   scale_y_reverse() +
   scale_colour_manual(values = c("Parametric ODE" = "steelblue",
                                   "Neural ODE"    = "darkgreen")) +
-  labs(x = "Clay (%)", y = "Depth (cm)",
-       colour = NULL,
-       title = "Napa — parametric vs. Neural ODE") +
+  labs(x = expression(paste("Organic carbon (g kg"^-1, ")")),
+       y = "Depth (cm)", colour = NULL,
+       title = "Parametric vs. Neural ODE on the same real profile") +
   theme_minimal(base_size = 12)
 ```
 
@@ -276,12 +305,17 @@ ggplot() +
 Given a PIML fit (parametric or neural), the helper
 [`al_physics_gate_piml()`][al_physics_gate_piml] constructs a
 rejection function: candidates whose predicted target falls outside the
-envelope \([\min(y_{0},y_{\infty}),\,\max(y_{0},y_{\infty})]\) inflated
-by a `safety_factor` are eliminated from the greedy Active-Learning
-selection (see the Pillar 5 vignette).
+range the solution actually spans,
+\([\min(y_{0},y(\infty)),\,\max(y_{0},y(\infty))]\), inflated by a
+`safety_factor`, are eliminated from the greedy Active-Learning selection
+(see the Pillar 5 vignette). The envelope used to be built from
+\(y_{\infty}\), which is not a value any profile reaches and is often
+negative: on 300 real WoSIS pedons the gate then accepted an organic
+carbon of \(-5\) g/kg on 73 of them. It now floors at zero for a
+property the fit itself requires to be positive.
 
 ```{r gate, eval=.torch_ok}
-gate <- al_physics_gate_piml(fit_napa, safety_factor = 1.2)
+gate <- al_physics_gate_piml(fit_pedon, safety_factor = 1.2)
 cand_dummy <- data.frame(dummy = 1:4)
 gate(cand_dummy, predicted_mean = c(10, 25, 200, -5))
 ```

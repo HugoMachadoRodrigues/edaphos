@@ -254,7 +254,7 @@ message("Fig 3: pedogenetic ODE")
 CAP <- ex("capstone_campaign_results.rds")
 ped <- CAP$piml_profile_obs
 fitb <- piml_profile_fit_bayesian(ped$depth_mid, ped$soc_g_kg, method = "laplace", seed = 7L)
-dz <- seq(0, 400, by = 2)
+dz <- seq(0, max(ped$bottom) * 1.15, by = 2)   # past the deepest horizon
 pp <- predict(fitb, newdepths = dz, interval = 0.95)
 pdf_ <- data.frame(depth = dz, mean = pp$mean, lo = pp$lower, hi = pp$upper)
 # Annotate with the POSTERIOR MEANS, which is what the drawn curve and Table 2
@@ -274,15 +274,16 @@ pprof <- ggplot() +
   geom_path(data = pdf_, aes(x = mean, y = -depth), colour = PAL[["soc"]], linewidth = 1) +
   geom_vline(xintercept = y_as, colour = PAL[["cool"]], linetype = 2, linewidth = 0.7) +
   geom_vline(xintercept = y_in, colour = PAL[["bad"]], linetype = 3, linewidth = 0.7) +
-  annotate("text", x = y_as, y = -335, hjust = -0.06, size = 2.7,
+  annotate("text", x = y_as, y = -0.62 * max(ped$bottom), hjust = -0.06, size = 2.7,
            colour = PAL[["cool"]], fontface = "bold",
            label = sprintf("y(inf) = %.2f\nattained", y_as)) +
-  annotate("text", x = y_in, y = -140, hjust = -0.06, size = 2.7,
+  annotate("text", x = y_in, y = -0.26 * max(ped$bottom), hjust = -0.06, size = 2.7,
            colour = PAL[["bad"]], fontface = "bold",
            label = sprintf("y-inf = %.1f\nnever reached", y_in)) +
   geom_point(data = ped, aes(x = soc_g_kg, y = -depth_mid), colour = PAL[["accent"]],
              size = 2.6) +
-  scale_y_continuous(breaks = seq(0, -400, by = -100), labels = abs(seq(0, 400, by = 100))) +
+  scale_y_continuous(breaks = -pretty(c(0, max(ped$bottom)), 5),
+                     labels = pretty(c(0, max(ped$bottom)), 5)) +
   labs(title = "A  The profile settles above zero, not on y-infinity",
        subtitle = expression(paste("d", italic(y), "/d", italic(z), " = -", lambda[0],
                                    " exp(-", mu, italic(z), ")(", italic(y), " - ",
@@ -291,11 +292,14 @@ pprof <- ggplot() +
   theme_edaphos()
 
 ptab <- CAP$piml_params_table
-ptab <- ptab[ptab$param %in% c("lambda0", "mu", "y0", "kappa", "y_asym", "y_inf"), ]
+ptab <- ptab[ptab$param %in% c("lambda0", "mu", "y0", "kappa", "sigma",
+                               "y_asym", "y_inf"), ]
 .lab <- c(lambda0 = "lambda[0]", mu = "mu", y0 = "y[0]", kappa = "kappa",
+          sigma = "sigma~~(noise)",
           y_asym = "y(infinity)~~attained", y_inf = "y[infinity]~~coordinate")
 ptab$param <- factor(ptab$param,
-                     levels = c("lambda0", "mu", "kappa", "y0", "y_asym", "y_inf"))
+                     levels = c("lambda0", "mu", "kappa", "y0", "sigma",
+                                "y_asym", "y_inf"))
 ptab$lab <- factor(.lab[as.character(ptab$param)], levels = .lab)
 ptab$ident <- ifelse(ptab$param == "y_inf", "not identified", "identified")
 ppar <- ggplot(ptab, aes(y = 1, colour = ident)) +
@@ -309,8 +313,21 @@ ppar <- ggplot(ptab, aes(y = 1, colour = ident)) +
              labeller = label_parsed) +
   scale_colour_manual(values = c(identified = PAL[["cool"]],
                                  `not identified` = PAL[["bad"]]), name = NULL) +
-  labs(title = "B  What the seven horizons identify",
-       subtitle = "The attainable deep value is pinned above zero; y-infinity, the\ncoordinate, is 14.8x wider and lies entirely below it",
+  labs(title = sprintf("B  What the %d horizons identify", nrow(ped)),
+       # Computed, not asserted. An earlier version hard-coded a ratio and the
+       # claim "lies entirely below zero", both of which stopped being true
+       # when the pedon became a real profile.
+       subtitle = local({
+         w <- function(k) {
+           r <- CAP$piml_params_table[CAP$piml_params_table$param == k, ]
+           r$ci_hi - r$ci_lo
+         }
+         lo <- CAP$piml_params_table$ci_lo[CAP$piml_params_table$param == "y_inf"]
+         sprintf(paste0("The attainable deep value is pinned above zero; ",
+                        "y-infinity, the\ncoordinate, is %.1fx wider and ",
+                        "reaches %.1f g/kg -- impossible carbon"),
+                 w("y_inf") / w("y_asym"), lo)
+       }),
        x = "Posterior mean and 95% interval", y = NULL) +
   theme_edaphos() +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(),
