@@ -200,7 +200,7 @@ pd <- ggplot(tb, aes(x = elapsed_sum, y = label, fill = label)) +
   scale_x_continuous(trans = "log10", labels = label_number(accuracy = 1),
                      expand = expansion(mult = c(0, 0.30))) +
   labs(title = "D  Computational cost",
-       subtitle = "the least accurate method is also the most expensive",
+       subtitle = "the two methods that fall below the achievable null are the\ntwo most expensive; the most accurate costs 2.3 s",
        x = "Seconds (log scale)", y = NULL) +
   theme_edaphos()
 
