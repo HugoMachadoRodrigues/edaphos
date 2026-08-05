@@ -84,7 +84,7 @@ sp::proj4string(sp_df) <- sp::CRS("+proj=longlat +datum=WGS84")
 # of 561,270 -- a "no spatial structure" conclusion drawn from almost no data.
 # The cutoff is computed in km, and the pair count is checked below.
 .samp  <- as.matrix(FP[sample(nrow(FP), min(1200L, nrow(FP))), c("x", "y")])
-.dmax  <- max(sp::spDists(.samp, longlat = TRUE))
+.dmax  <- max(.gc_km(.samp))          # the package's one great-circle formula
 CUTOFF <- .dmax / 3; NLAGS <- 18
 message(sprintf("  max separation %.0f km -> cutoff %.0f km, %d lags",
                 .dmax, CUTOFF, NLAGS))

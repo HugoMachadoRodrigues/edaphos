@@ -282,7 +282,7 @@ these 1,095 profiles. (12.3 km is the corresponding figure for the denser
 3,077-profile causal extract, a different data set; earlier versions of
 this README quoted it here by mistake.) Blocking without a dead zone
 under-states generalisation error (Roberts et al. 2017), and 15.2 km sits
-well inside the 70 km range at which the one fitted depth-function
+well inside the 69 km range at which the one fitted depth-function
 parameter with an identified variogram is still correlated. (Earlier
 versions said "the 55–68 km range" from two identified parameters; those
 variograms were computed on Gaussian-likelihood fits. Under the lognormal

@@ -136,9 +136,12 @@ FP$sand  <- CAU$sand[nn]
 FP$trees <- CAU$trees[nn]
 FP$map   <- CAU$map[nn]
 FP$fines <- pmax(0, 100 - FP$sand)     # clay + silt, the Hassink fraction
+# .gc_km() is the package's single great-circle formula; using sp here
+# instead would reintroduce the two-implementations problem that helper
+# exists to remove.
 FP$nn_km <- vapply(seq_len(nrow(FP)), function(i)
-  sp::spDists(cbind(FP$x[i], FP$y[i]), cbind(CAU$lon[nn[i]], CAU$lat[nn[i]]),
-              longlat = TRUE)[1, 1], numeric(1))
+  .gc_km(cbind(FP$x[i], FP$y[i]),
+         cbind(CAU$lon[nn[i]], CAU$lat[nn[i]]))[1, 1], numeric(1))
 
 # Only trust a covariate match that is actually near the profile.
 FP$cov_ok <- FP$nn_km <= 5

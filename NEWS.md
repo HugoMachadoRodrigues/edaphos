@@ -187,7 +187,7 @@ complement of the test block, with a measured minimum training-to-test distance
 of 15.2 km on the 1,095 benchmark profiles -- well inside the range at which the
 fitted depth-function parameters are still correlated. (That range was given as
 55-68 km from two identified parameters; re-running the variograms under the
-lognormal likelihood leaves ONE identified parameter, at 70 km.) New
+lognormal likelihood leaves ONE identified parameter, at 69 km.) New
 `spatial_block_folds(coords, k, buffer_km, seed)` discards training rows within
 the buffer, reports how many, and returns both the realised minimum distance
 and the one the unbuffered split would have allowed. At 68 km it costs 88
