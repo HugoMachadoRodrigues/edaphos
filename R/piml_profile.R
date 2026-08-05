@@ -6,15 +6,38 @@
 #   lambda(z) = lambda0 * exp(-mu * z)        (2)
 #
 # where
-#   y_inf   = deep asymptote (parent-material value),
-#   lambda0 = decay rate at the surface (> 0),
-#   mu      = how quickly the decay rate decreases with depth (free),
+#   y_inf   = the equilibrium COORDINATE of the equation. It is NOT the deep
+#             asymptote and NOT a parent-material value: because lambda(z)
+#             decays, the profile traverses only 1 - exp(-kappa) of the
+#             y0 -> y_inf gap, kappa = lambda0/mu, and settles at
+#             y(Inf) = y_inf + (y0 - y_inf) exp(-kappa). See .piml_asymptote().
+#   lambda0 = decay rate at the surface (> 0; estimated on the log scale),
+#   mu      = how quickly that rate decays with depth (>= 0; estimated on the
+#             log scale. It was previously free-signed, and 55% of 207 real
+#             WoSIS profiles fitted mu < 0 -- a rate GROWING exponentially
+#             with depth),
 #   y0      = surface value, either estimated from data or fixed.
 #
-# This is the simplest ODE that (i) enforces a physical asymptote
-# (parent material), (ii) allows depth-varying dynamics (horizons react
-# differently), and (iii) admits closed-form behaviour consistent with
-# Jenny 1941 / Minasny & McBratney pedogenic dynamics when mu -> 0.
+# What this equation is, and is not
+# ---------------------------------
+# It is the Russell & Moore (1968) exponential depth function (reviewed in
+# Minasny et al. 2016) carrying a fourth shape parameter. It is NOT derived
+# from a soil-carbon balance: there is no conservation law, no source term,
+# and no process in soil physics from which a relaxation rate decaying
+# exponentially with depth follows. Being first order in y, it also cannot
+# represent the bioturbation-diffusion operator, and being monotone it cannot
+# represent an argillic bulge, an E horizon under an A, or a buried A.
+#
+# The derivable counterpart is in R/piml_mechanistic.R: the advection-reaction
+# limit v dC/dz = I(z) - kC puts the depth-dependence in the ASYMPTOTE (root
+# input) rather than in the rate, and every parameter of it is positive and
+# has a literature prior. Prefer it when the claim being made is mechanistic.
+#
+# Note on lineage: Jenny (1941) and Minasny & McBratney write kinetics in
+# TIME. Substituting depth for time is legitimate only in a Lagrangian frame
+# on a steadily aggrading or eroding profile -- that is, only through the
+# advection velocity v, with dt/dz = 1/v. This file's equation does not carry
+# v, so it should not be read as a pedogenic rate law in disguise.
 
 .piml_unpack <- function(theta, y_surface = NULL) {
   # Identified, positivity-constrained coordinates.
@@ -88,10 +111,11 @@
 #     y(Inf) = y_inf + (y0 - y_inf) e^{-kappa}.
 #
 # Reporting y_inf as "the deep asymptote" (as this package did) therefore
-# reports a coordinate the profile never reaches. On the bundled pedon the
-# difference is stark: y_inf = -2.86 g/kg, an impossible negative carbon, while
-# the true asymptote is +0.46 g/kg. For mu <= 0 the rate does not decay and the
-# solution does reach y_inf (or diverges), so the limit is y_inf itself.
+# reports a coordinate the profile never reaches. On the shipped pedon (WoSIS
+# 1115679, nine horizons to 550 cm) y_inf = 2.50 g/kg against an attained
+# 4.33; on the shallower profiles that dominate the archive the two routinely
+# differ in sign. For mu <= 0 the rate does not decay and the solution does
+# reach y_inf (or diverges), so the limit is y_inf itself.
 .piml_asymptote <- function(params) {
   if (!is.finite(params$mu) || params$mu <= 0) return(params$y_inf)
   kappa <- params$lambda0 / params$mu
@@ -132,9 +156,13 @@
 
 #' Forward-integrate a Physics-Informed depth profile
 #'
-#' Solves ODE (1)-(2) from z = 0 down to the requested `depths`, starting
-#' at `y(0) = params$y0`. Uses a fixed-step RK4 solver from the
-#' `deSolve` package.
+#' Evaluates the solution of ODE (1)-(2) at the requested `depths`, with
+#' `y(0) = params$y0`. The equation is separable and its solution is
+#' analytic, so this is a direct evaluation of the closed form rather than a
+#' numerical integration -- earlier versions called `deSolve::lsoda` on every
+#' prediction, which was slower and less accurate, and made the depth-averaged
+#' observation operator impractical. The closed form is held to the
+#' integrator's own answer in `tests/testthat/test-piml-closed-form.R`.
 #'
 #' @param params Named list with numeric elements `lambda0`, `mu`,
 #'   `y_inf`, `y0`.

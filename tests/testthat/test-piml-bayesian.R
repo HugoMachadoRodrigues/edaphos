@@ -86,11 +86,22 @@ test_that("MCMC sampler produces a chain with positive acceptance", {
   fit_mc <- piml_profile_fit_bayesian(.depths_fixture, .values_fixture,
                                         method = "mcmc",
                                         n_iter = 1500L, n_burn = 500L,
-                                        seed = 1L)
+                                        n_chains = 2L, seed = 1L)
   expect_identical(fit_mc$method, "mcmc")
-  expect_equal(nrow(fit_mc$draws), 1000L)  # 1500 - 500
+  # 2 chains x (1500 - 500) kept draws each
+  expect_equal(nrow(fit_mc$draws), 2000L)
   expect_gt(fit_mc$accept_rate, 0)
   expect_lt(fit_mc$accept_rate, 1)
+  # Convergence diagnostics must exist: a single chain reporting only an
+  # acceptance rate cannot be checked at all, which is what this used to do.
+  expect_false(is.null(fit_mc$diagnostics))
+  expect_true(all(c("rhat", "ess") %in% names(fit_mc$diagnostics)))
+  expect_true(all(c("rhat", "ess") %in% names(summary(fit_mc))))
+  expect_true(all(fit_mc$diagnostics$rhat >= 1 - 1e-8, na.rm = TRUE))
+  # and the Laplace path, which is not a sampler, must NOT pretend to have them
+  expect_null(piml_profile_fit_bayesian(.depths_fixture, .values_fixture,
+                                        method = "laplace",
+                                        seed = 1L)$diagnostics)
   # Posterior mean of lambda0 should be of the right order of
   # magnitude; guards against a disconnected-chain bug.
   expect_gt(fit_mc$summary$mean[fit_mc$summary$parameter == "lambda0"],

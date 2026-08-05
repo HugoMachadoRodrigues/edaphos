@@ -121,11 +121,18 @@ al_physics_gate_piml <- function(profile_fit, safety_factor = 1.2,
     y_end <- .piml_asymptote(profile_fit$params)
     lo <- min(profile_fit$params$y0, y_end)
     hi <- max(profile_fit$params$y0, y_end)
+    # piml_profile_fit() refuses a non-positive observation, so this branch is
+    # by construction a fit to a positive property and zero is a hard floor.
+    lower_default <- 0
   } else if (inherits(profile_fit, "edaphos_piml_neural_ode")) {
     ref_z <- c(0, profile_fit$depths, max(profile_fit$depths) * 2)
     ref_y <- piml_neural_ode_predict(profile_fit, ref_z)
     lo <- min(ref_y, na.rm = TRUE)
     hi <- max(ref_y, na.rm = TRUE)
+    # The Neural ODE has no positivity restriction and may legitimately be
+    # fitted to a signed property, so only floor at zero when the training
+    # values themselves were positive.
+    lower_default <- if (all(profile_fit$values > 0, na.rm = TRUE)) 0 else NULL
   } else {
     stop("`profile_fit` must be a edaphos_piml_profile or ",
          "edaphos_piml_neural_ode.", call. = FALSE)
@@ -135,6 +142,12 @@ al_physics_gate_piml <- function(profile_fit, safety_factor = 1.2,
   span   <- max(abs(hi - lo), 1e-9)
   lo_env <- lo - slack * span
   hi_env <- hi + slack * span
+  # The widening is what drives the floor negative, and it did so on 82% of a
+  # 300-pedon sample of the shipped WoSIS profiles -- the gate passed an SOC of
+  # -5 g/kg on 73 of them. Rebuilding the envelope from the attained value
+  # closed one route to a negative floor; `slack * span` is the other. Floor at
+  # zero unless the caller explicitly overrides.
+  if (is.null(lower)) lower <- lower_default
   if (!is.null(lower)) lo_env <- max(lo_env, lower)
   if (!is.null(upper)) hi_env <- min(hi_env, upper)
 

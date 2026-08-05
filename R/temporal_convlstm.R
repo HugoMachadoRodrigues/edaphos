@@ -297,6 +297,7 @@ temporal_convlstm_fit <- function(sequence, target,
                                   physics_k_in = 0.03,
                                   physics_k_out = 0.015,
                                   physics_driver_channel = 2L,
+                                  physics_scaling = NULL,
                                   seed = NULL, verbose = FALSE) {
   .temporal_require_torch()
   if (!is.null(seed)) torch::torch_manual_seed(seed)
@@ -329,7 +330,45 @@ temporal_convlstm_fit <- function(sequence, target,
     # Pre-extract the driver channel once (its values do not depend on
     # the model, so we can precompute the long-term mean).
     driver_full <- sequence[, , as.integer(physics_driver_channel), , ]
-    p_bar <- driver_full$mean()
+
+    # The mass balance is written in RAW units -- physics_k_in and
+    # physics_k_out are the g/kg-per-mm rates of temporal_synth_soc_cube().
+    # The network, however, sees a z-scored driver, whose mean is zero to
+    # machine precision. Dividing by that mean made the outflow term
+    # 1/(0 + 1e-6) = 1e6, so the "physics" residual arrived ~2.6e7 times
+    # heavier than the data-fit term and its sign flipped with the seed. It
+    # did not regularise the fit, it destroyed it: 30 epochs on the synthetic
+    # cube gave a fit loss of 0.085 at lambda = 0 against 1.007 at lambda = 1.
+    #
+    # Supply `physics_scaling` (the `scaling` list that
+    # temporal_cube_to_tensor() already returns) and the residual is formed in
+    # raw units, then mapped back to the standardised space the network
+    # predicts in. Without it the physics term is refused rather than silently
+    # evaluated on the wrong scale.
+    if (is.null(physics_scaling)) {
+      stop("physics_lambda > 0 requires `physics_scaling`: the `scaling` list ",
+           "returned by temporal_cube_to_tensor(). The mass-balance rates ",
+           "physics_k_in / physics_k_out are in raw units (g/kg per mm), but ",
+           "the driver channel the network sees is z-scored, so the residual ",
+           "cannot be formed without the constants that map between them.",
+           call. = FALSE)
+    }
+    need <- c("soc_mu", "soc_sd", "prec_mu", "prec_sd")
+    if (!all(need %in% names(physics_scaling))) {
+      stop("`physics_scaling` must contain ", paste(need, collapse = ", "),
+           ".", call. = FALSE)
+    }
+    .p_mu <- physics_scaling$prec_mu; .p_sd <- physics_scaling$prec_sd
+    .s_mu <- physics_scaling$soc_mu;  .s_sd <- physics_scaling$soc_sd
+    # Long-term mean of the driver in RAW units. For a z-scored channel this
+    # is prec_mu by construction, but compute it so a non-standardised or
+    # differently-scaled input still works.
+    p_bar <- driver_full$mean() * .p_sd + .p_mu
+    if (abs(as.numeric(p_bar$item())) < 1e-8) {
+      stop("the mean of the physics driver channel is zero in raw units, so ",
+           "the outflow term k_out * y * P / mean(P) is undefined. Check ",
+           "`physics_driver_channel` and `physics_scaling`.", call. = FALSE)
+    }
   }
 
   loss_history     <- numeric(epochs)
@@ -346,8 +385,14 @@ temporal_convlstm_fit <- function(sequence, target,
       yt1  <- pred[, 2L:T_,        , ]
       dpred <- yt1 - yt
       P_t   <- driver_full[, 1L:(T_ - 1L), , ]
-      expected <- physics_k_in * P_t -
-                  physics_k_out * yt * P_t / (p_bar + 1e-6)
+      # De-standardise, form the balance in raw units, then re-standardise.
+      # dpred is an INCREMENT, so it carries no mean offset: dividing by
+      # soc_sd is the whole of the inverse map.
+      P_raw <- P_t * .p_sd + .p_mu
+      y_raw <- yt  * .s_sd + .s_mu
+      expected_raw <- physics_k_in * P_raw -
+                      physics_k_out * y_raw * P_raw / p_bar
+      expected <- expected_raw / .s_sd
       loss_phys <- torch::nnf_mse_loss(dpred, expected)
       loss <- loss_fit + physics_lambda * loss_phys
       loss_phys_history[ep] <- as.numeric(loss_phys$item())

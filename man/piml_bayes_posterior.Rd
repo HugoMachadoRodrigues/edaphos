@@ -86,8 +86,9 @@ c(laplace = sum(gz >= post$quantiles$q05 & gz <= post$quantiles$q95),
   mcmc    = sum(gz >= pm$quantiles$q05 & gz <= pm$quantiles$q95))
 round(c(laplace = post$mean[10], mcmc = pm$mean[10], truth = gz[10]), 3)
 
-# Where the mis-centring comes from: 8 horizons identify the deep
-# asymptote y_inf only weakly, and the Gaussian approximation to that
+# Where the mis-centring comes from: 8 horizons identify the ODE
+# coordinate y_inf (which the profile never attains) only weakly, and
+# the Gaussian approximation to that
 # skewed marginal is pulled upwards (6.795 against the true 5.5),
 # which is exactly the depths at which the band misses.
 round(rbind(laplace = subset(summary(fit), parameter == "y_inf",

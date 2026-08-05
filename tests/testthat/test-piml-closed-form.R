@@ -195,3 +195,46 @@ test_that("the shipped pedon is a real WoSIS profile, not typed-in numbers", {
   expect_gt(max(p$bottom), 300)
   expect_gte(nrow(p), 7L)
 })
+
+test_that("the physics gate never certifies a negative concentration", {
+  # The envelope is widened by (safety_factor - 1) * span on each side, and
+  # that widening -- not the choice of endpoint -- is what drove the floor
+  # negative on 247 of 300 real WoSIS pedons, passing an SOC of -5 g/kg on 73
+  # of them. The parametric branch is by construction a fit to a positive
+  # property, so zero is a hard floor unless the caller overrides it.
+  f <- system.file("extdata", "piml_wosis_cerrado.rds", package = "edaphos")
+  skip_if(f == "", "WoSIS extract not installed")
+  D <- readRDS(f)
+  set.seed(3)
+  pids <- sample(unique(D$horizons$profile_id), 40)
+  for (pid in pids) {
+    h <- D$horizons[D$horizons$profile_id == pid, ]
+    fit <- tryCatch(piml_profile_fit(h$depth_mid, h$soc_g_kg,
+                                     top = h$top, bottom = h$bottom),
+                    error = function(e) NULL)
+    if (is.null(fit)) next
+    g <- al_physics_gate_piml(fit, safety_factor = 1.2)
+    expect_false(g(NULL, -1e-6))
+    expect_false(g(NULL, -5))
+  }
+  # `lower` clamps INWARDS only, by documented design: it can raise the floor
+  # but never widen the envelope downwards. So the zero floor cannot be undone
+  # by passing a negative `lower`, and a positive one still bites.
+  fit <- piml_profile_fit(c(5, 20, 50), c(25, 14, 7))
+  expect_false(al_physics_gate_piml(fit, 1.2, lower = -100)(NULL, -5))
+  expect_false(al_physics_gate_piml(fit, 1.2, lower = 10)(NULL, 5))
+  expect_true(al_physics_gate_piml(fit, 1.2, lower = 10)(NULL, 15))
+})
+
+test_that("piml_prior_literature is independent of the data it is used on", {
+  a <- piml_prior_literature()
+  b <- piml_prior_literature()
+  expect_identical(a, b)
+  # None of its fields may be a function of any response: constructing it
+  # takes no data at all.
+  expect_true(all(vapply(a, is.numeric, TRUE)))
+  expect_true(all(is.finite(unlist(a))))
+  # It has the same shape the sampler expects.
+  d <- edaphos:::.piml_bayes_default_prior(c(5, 20, 50), c(25, 14, 7), NULL)
+  expect_setequal(names(a), names(d))
+})

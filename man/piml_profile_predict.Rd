@@ -18,9 +18,13 @@ Numeric vector of predicted values, one per element of
 \code{depths}.
 }
 \description{
-Solves ODE (1)-(2) from z = 0 down to the requested \code{depths}, starting
-at \code{y(0) = params$y0}. Uses a fixed-step RK4 solver from the
-\code{deSolve} package.
+Evaluates the solution of ODE (1)-(2) at the requested \code{depths}, with
+\code{y(0) = params$y0}. The equation is separable and its solution is
+analytic, so this is a direct evaluation of the closed form rather than a
+numerical integration -- earlier versions called \code{deSolve::lsoda} on every
+prediction, which was slower and less accurate, and made the depth-averaged
+observation operator impractical. The closed form is held to the
+integrator's own answer in \code{tests/testthat/test-piml-closed-form.R}.
 }
 \examples{
 # A synthetic profile from the pedogenetic ODE itself, so the true

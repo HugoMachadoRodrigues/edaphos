@@ -16,6 +16,7 @@ temporal_convlstm_fit(
   physics_k_in = 0.03,
   physics_k_out = 0.015,
   physics_driver_channel = 2L,
+  physics_scaling = NULL,
   seed = NULL,
   verbose = FALSE
 )

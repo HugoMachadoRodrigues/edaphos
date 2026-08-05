@@ -121,8 +121,23 @@
   nll + nlp
 }
 
+# Default prior. THIS IS EMPIRICAL BAYES, NOT A PRIOR IN THE STRICT SENSE.
+#
+# Three of its hyperparameters are functions of the response being fitted:
+# log_y_asym_mean is the deepest observation, log_y0_mean is the shallowest,
+# and sigma_scale is sd(obs). The data therefore enter twice -- once through
+# the likelihood and once through the prior -- which narrows intervals and
+# makes the "prior sensitivity" of the fit partly a sensitivity to itself.
+#
+# It is kept as the default because with four to nine horizons a genuinely
+# flat prior lets the kappa ridge run away, and an empirical-Bayes centring
+# is more honest than a made-up "weakly informative" number that happens to
+# sit near the data anyway. But it is labelled for what it is, and
+# `piml_prior_literature()` gives a non-circular alternative built from
+# published values, so the circularity can be tested rather than assumed
+# harmless. Only log_mu_mean (sampling geometry, not outcome) and
+# log_kappa_mean (a modelling convention) are free of the response.
 .piml_bayes_default_prior <- function(depths, obs, y_surface) {
-  # Weakly informative, data-driven prior on the identified coordinates.
   o <- order(depths)
   zmax <- max(depths, na.rm = TRUE)
   y_deep <- max(obs[o[length(o)]], 1e-3)
@@ -144,6 +159,76 @@
     log_y0_sd        = 1,
     # scale of the half-t prior on the observation noise
     sigma_scale      = max(stats::sd(obs, na.rm = TRUE), 1e-3)
+  )
+}
+
+#' A literature prior for the pedogenetic ODE, independent of the data
+#'
+#' The default prior used by [piml_profile_fit_bayesian()] centres three of
+#' its hyperparameters on the response being fitted (the deepest observation,
+#' the shallowest observation, and `sd(obs)`). That is empirical Bayes: the
+#' data enter both the likelihood and the prior, intervals narrow, and a
+#' prior-sensitivity check against it is partly a check of the data against
+#' themselves.
+#'
+#' This constructor builds a prior from published values instead, so the two
+#' can be compared and the circularity measured rather than assumed harmless.
+#'
+#' @param y_asym_mean,y_asym_sd Prior mean and log-scale spread for the
+#'   attainable deep concentration, in the property's units. The default,
+#'   3 g/kg, is the order of magnitude of deep (>1 m) mineral-associated
+#'   organic carbon in deeply weathered tropical soils.
+#' @param y0_mean,y0_sd Prior mean and log-scale spread for the surface
+#'   concentration. The default, 25 g/kg, is a Cerrado topsoil value.
+#' @param z_scale Depth scale in cm over which the decay rate itself decays,
+#'   used to centre `mu`. The default, 35 cm, follows the Jackson et al.
+#'   (1996) tropical-savanna rooting parameter beta = 0.972 via
+#'   `z = -1/log(beta)`.
+#' @param kappa_mean Prior mean for the total relaxation `lambda0/mu`.
+#'   `kappa = 3` means the profile closes 95% of its gap.
+#' @param sigma_scale Scale of the half-t(3) prior on the observation noise,
+#'   in the property's units. The default, 2 g/kg, reflects laboratory plus
+#'   short-range spatial variability rather than the spread of this profile.
+#'
+#' @return A list in the form [piml_profile_fit_bayesian()] expects for its
+#'   `prior` argument.
+#'
+#' @references
+#' Jackson RB, Canadell J, Ehleringer JR, Mooney HA, Sala OE, Schulze ED
+#' (1996). A global analysis of root distributions for terrestrial biomes.
+#' *Oecologia* 108:389-411.
+#'
+#' @export
+#' @examples
+#' # Compare the empirical-Bayes default against a non-circular prior on the
+#' # pedon shipped with the package.
+#' B <- readRDS(system.file("extdata", "capstone_campaign_results.rds",
+#'                          package = "edaphos"))
+#' p <- B$piml_profile_obs
+#' a <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
+#'                                top = p$top, bottom = p$bottom, seed = 7L)
+#' b <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
+#'                                top = p$top, bottom = p$bottom,
+#'                                prior = piml_prior_literature(), seed = 7L)
+#' # If the two disagree, the default's data-dependence is doing real work.
+#' round(cbind(empirical_bayes = summary(a)$mean,
+#'             literature      = summary(b)$mean), 4)
+piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
+                                  y0_mean = 25, y0_sd = 0.8,
+                                  z_scale = 35, kappa_mean = 3,
+                                  sigma_scale = 2) {
+  stopifnot(y_asym_mean > 0, y0_mean > 0, z_scale > 0, kappa_mean > 0,
+            sigma_scale > 0)
+  list(
+    log_kappa_mean  = log(kappa_mean),
+    log_kappa_sd    = 1.5,
+    log_mu_mean     = log(1 / z_scale),
+    log_mu_sd       = 1.5,
+    log_y_asym_mean = log(y_asym_mean),
+    log_y_asym_sd   = y_asym_sd,
+    log_y0_mean     = log(y0_mean),
+    log_y0_sd       = y0_sd,
+    sigma_scale     = sigma_scale
   )
 }
 
@@ -252,6 +337,68 @@
   Sigma <- .piml_nearest_psd(Sigma)
   list(map = fit$par, sigma = sigma, cov = Sigma,
        neg_log_post = fit$value)
+}
+
+# --- convergence diagnostics -------------------------------------------
+
+# Split-Rhat and bulk effective sample size (Vehtari et al. 2021, Bayesian
+# Analysis 16:667-718), computed on the rank-normalised draws.
+#
+# The sampler used to run a single chain and report nothing but the acceptance
+# rate. On a posterior whose covariance needs eigenvalue flooring to be
+# positive-definite, an acceptance rate says nothing about whether the chain
+# explored the ridge -- and with one chain, R-hat cannot be computed even in
+# principle. `piml_profile_fit_bayesian(method = "mcmc")` now runs several
+# chains from dispersed starts and reports both.
+#
+# `chains` is a list of (n_draws x n_par) matrices.
+.piml_rhat_ess <- function(chains) {
+  M <- length(chains)
+  N <- nrow(chains[[1L]])
+  d <- ncol(chains[[1L]])
+  # Split each chain in half, so a single long chain that has not mixed
+  # within itself is still caught (Gelman et al. 2013, sec 11.4).
+  h <- floor(N / 2)
+  if (h < 2L) return(list(rhat = rep(NA_real_, d), ess = rep(NA_real_, d)))
+  split <- unlist(lapply(chains, function(cm)
+    list(cm[seq_len(h), , drop = FALSE],
+         cm[(N - h + 1L):N, , drop = FALSE])), recursive = FALSE)
+  m <- length(split)
+
+  out_rhat <- out_ess <- numeric(d)
+  for (j in seq_len(d)) {
+    X <- vapply(split, function(cm) cm[, j], numeric(h))   # h x m
+    # Rank-normalise: makes the diagnostic robust to heavy tails and to
+    # parameters with infinite variance, which the kappa ridge can produce.
+    r <- matrix(rank(as.numeric(X), ties.method = "average"), h, m)
+    z <- stats::qnorm((r - 3 / 8) / (h * m - 1 / 4 + 1 / 4))
+
+    cm_ <- colMeans(z)
+    B <- h * stats::var(cm_)
+    W <- mean(apply(z, 2L, stats::var))
+    if (!is.finite(W) || W <= 0) { out_rhat[j] <- NA_real_; out_ess[j] <- NA_real_; next }
+    var_hat <- ((h - 1) / h) * W + B / h
+    out_rhat[j] <- sqrt(var_hat / W)
+
+    # Bulk ESS from the autocorrelation of the rank-normalised draws,
+    # truncated by the Geyer initial-positive-sequence rule.
+    rho_sum <- 0
+    t <- 1L
+    tmax <- h - 2L
+    while (t < tmax) {
+      rho_t <- mean(vapply(seq_len(m), function(k) {
+        a <- stats::acf(z[, k], lag.max = t + 1L, plot = FALSE, demean = TRUE)$acf
+        if (length(a) < t + 2L) return(NA_real_)
+        a[t + 1L] + a[t + 2L]                    # pairs (rho_t + rho_{t+1})
+      }, numeric(1)), na.rm = TRUE)
+      if (!is.finite(rho_t) || rho_t <= 0) break
+      rho_sum <- rho_sum + rho_t
+      t <- t + 2L
+    }
+    tau <- 1 + 2 * rho_sum
+    out_ess[j] <- if (is.finite(tau) && tau > 0) (m * h) / tau else NA_real_
+  }
+  list(rhat = out_rhat, ess = pmin(out_ess, M * N))
 }
 
 # --- adaptive random-walk Metropolis -----------------------------------
@@ -367,7 +514,17 @@
 #' @param start Optional starting vector. Defaults to
 #'   [piml_profile_fit()]'s point-estimate theta for the MAP search.
 #' @param control `optim` control list for the MAP step.
-#' @param n_iter,n_burn,thin MCMC settings. Only consulted when
+#' @param n_chains Integer, number of MCMC chains started from dispersed
+#'   points around the Laplace mode. Four or more are needed for split-R-hat
+#'   to mean anything; with one chain there is no between-chain variance and
+#'   convergence cannot be assessed at all. Only consulted when
+#'   `method = "mcmc"`.
+#' @param n_iter,n_burn,thin MCMC settings. The defaults were 5000/2000,
+#'   which do NOT converge on this posterior: four chains on the shipped pedon
+#'   gave max split-R-hat 1.015 and min bulk ESS 361 at 6000 iterations,
+#'   against 1.004 and 1113 at 20000. A default that silently fails its own
+#'   diagnostic is a trap, so the default is now the converging one. Only
+#'   consulted when
 #'   `method = "mcmc"`.
 #' @param seed Optional integer seed. Consulted by *both* methods, not
 #'   only by MCMC: with `method = "laplace"` it seeds the 2000 Gaussian
@@ -431,8 +588,9 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
                                         prior   = NULL,
                                         start   = NULL,
                                         control = list(maxit = 2000),
-                                        n_iter  = 5000L,
-                                        n_burn  = 2000L,
+                                        n_iter  = 20000L,
+                                        n_burn  = 6000L,
+                                        n_chains = 4L,
                                         thin    = 1L,
                                         seed    = NULL,
                                         verbose = FALSE) {
@@ -463,25 +621,39 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
     draws <- sweep(Z %*% t(L), 2, lap$map, `+`)
     accept_rate <- NA_real_
     post_cov    <- lap$cov
+    diag_ <- NULL
   } else {
     nlp_closure <- function(th) {
       .piml_bayes_neg_log_post(th, depths = depths, obs = values,
                                  y_surface = y_surface, sigma = NULL,
                                  prior = prior, top = top, bottom = bottom)
     }
-    mc <- .piml_mcmc_adaptive_rwm(
-      neg_log_post_fn = nlp_closure,
-      start           = lap$map,
-      proposal_cov    = lap$cov,
-      n_iter          = as.integer(n_iter),
-      n_burn          = as.integer(n_burn),
-      thin            = as.integer(thin),
-      seed            = seed,
-      verbose         = verbose
-    )
-    draws      <- mc$draws
-    accept_rate <- mc$accept_rate
-    post_cov   <- stats::cov(draws)
+    # Several chains from dispersed starts. One chain cannot be checked for
+    # convergence: R-hat compares between-chain to within-chain variance, and
+    # with M = 1 there is no between-chain term. Starts are drawn from the
+    # Laplace approximation and inflated, so the chains genuinely begin apart.
+    n_chains <- max(1L, as.integer(n_chains))
+    L_start <- tryCatch(t(chol(lap$cov)),
+                        error = function(e) t(chol(.piml_nearest_psd(lap$cov))))
+    if (!is.null(seed)) set.seed(seed)
+    starts <- c(list(lap$map), lapply(seq_len(n_chains - 1L), function(k)
+      as.numeric(lap$map + 2 * L_start %*% stats::rnorm(length(lap$map)))))
+    chains <- lapply(seq_len(n_chains), function(k) {
+      .piml_mcmc_adaptive_rwm(
+        neg_log_post_fn = nlp_closure,
+        start           = starts[[k]],
+        proposal_cov    = lap$cov,
+        n_iter          = as.integer(n_iter),
+        n_burn          = as.integer(n_burn),
+        thin            = as.integer(thin),
+        seed            = if (is.null(seed)) NULL else as.integer(seed + k - 1L),
+        verbose         = verbose
+      )
+    })
+    draws       <- do.call(rbind, lapply(chains, `[[`, "draws"))
+    accept_rate <- mean(vapply(chains, `[[`, numeric(1), "accept_rate"))
+    post_cov    <- stats::cov(draws)
+    diag_ <- .piml_rhat_ess(lapply(chains, `[[`, "draws"))
   }
 
   # Natural-scale posterior summaries.
@@ -502,6 +674,17 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
     q97.5     = apply(nat, 2L, stats::quantile, probs = 0.975),
     row.names = NULL, stringsAsFactors = FALSE
   )
+  # Convergence diagnostics, on the SAMPLED coordinates. They are reported per
+  # sampled parameter (log kappa, log mu, log y_asym, log y0, log sigma) rather
+  # than per derived quantity, because that is where the chain actually moves;
+  # they are mapped onto the summary rows that each coordinate drives.
+  if (!is.null(diag_)) {
+    .map_row <- c(kappa = 1L, mu = 2L, y_asym = 3L, y0 = 4L, sigma = 5L,
+                  lambda0 = 1L, y_inf = 3L)
+    idx <- .map_row[summ$parameter]
+    summ$rhat <- ifelse(is.na(idx), NA_real_, diag_$rhat[idx])
+    summ$ess  <- ifelse(is.na(idx), NA_real_, diag_$ess[idx])
+  }
 
   structure(
     list(
@@ -514,6 +697,10 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
       draws       = draws,
       summary     = summ,
       accept_rate = accept_rate,
+      # NULL for the Laplace path, which is not a sampler and for which these
+      # diagnostics are undefined.
+      diagnostics = diag_,
+      n_chains    = if (is.null(diag_)) NA_integer_ else as.integer(n_chains),
       depths      = depths,
       values      = values,
       y_surface   = y_surface,
@@ -529,7 +716,22 @@ print.edaphos_piml_bayes <- function(x, ...) {
   cat(sprintf("  method     : %s\n", x$method))
   cat(sprintf("  n draws    : %d\n", nrow(x$draws)))
   if (!is.na(x$accept_rate)) {
-    cat(sprintf("  accept rate: %.2f\n", x$accept_rate))
+    cat(sprintf("  accept rate: %.2f   chains: %d\n",
+                x$accept_rate, x$n_chains))
+    if (!is.null(x$diagnostics)) {
+      # An acceptance rate says nothing about whether the chain crossed the
+      # ridge. Split-Rhat and bulk ESS do, and a fit that fails them should
+      # say so on its own face rather than in a vignette.
+      rh <- max(x$diagnostics$rhat, na.rm = TRUE)
+      es <- min(x$diagnostics$ess,  na.rm = TRUE)
+      cat(sprintf("  max split-Rhat: %.3f   min bulk ESS: %.0f%s\n", rh, es,
+                  if (rh > 1.01 || es < 400) "   <-- NOT CONVERGED" else ""))
+      if (rh > 1.01 || es < 400) {
+        cat("  Rhat > 1.01 or ESS < 400: the posterior summary below is not\n",
+            "  trustworthy. Increase n_iter, or use method = \"laplace\" and\n",
+            "  report it as an approximation.\n", sep = "")
+      }
+    }
   }
   cat(sprintf("  sigma (noise): %.4g\n", x$sigma))
   cat("  posterior summary (natural scale):\n")

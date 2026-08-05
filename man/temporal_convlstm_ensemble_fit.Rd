@@ -18,11 +18,12 @@ temporal_convlstm_ensemble_fit(
   physics_k_in = 0.03,
   physics_k_out = 0.015,
   physics_driver_channel = 2L,
+  physics_scaling = NULL,
   verbose = FALSE
 )
 }
 \arguments{
-\item{sequence, target, hidden_dims, kernel_size, return_sequence, epochs, lr, physics_lambda, physics_k_in, physics_k_out, physics_driver_channel, verbose}{Passed through unchanged to \code{\link[=temporal_convlstm_fit]{temporal_convlstm_fit()}}.}
+\item{sequence, target, hidden_dims, kernel_size, return_sequence, epochs, lr, physics_lambda, physics_scaling, physics_k_in, physics_k_out, physics_driver_channel, verbose}{Passed through unchanged to \code{\link[=temporal_convlstm_fit]{temporal_convlstm_fit()}}.}
 
 \item{K_ens}{Integer; number of ensemble members. Defaults to
 \code{10L}.}

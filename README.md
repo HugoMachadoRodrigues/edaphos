@@ -1068,7 +1068,9 @@ variable-importance metrics never deliver.
 
 ### Governing object
 
-Depth-dependent translocation toward a parent-material asymptote,
+Depth-dependent translocation toward an equilibrium coordinate $y_\infty$
+— which, because the rate decays with depth, is **not** the value the
+profile reaches (see the note below the equation),
 
 $$
 \frac{dy}{dz} \;=\; -\,\lambda_0\,e^{-\mu z}\,\bigl(y(z) - y_\infty\bigr)

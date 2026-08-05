@@ -115,6 +115,7 @@ test_that("physics_lambda activates mass-balance loss and records phys history",
     physics_lambda = 0.1,
     physics_k_in = 0.03, physics_k_out = 0.015,
     physics_driver_channel = 2L,
+    physics_scaling = td$scaling,
     seed = 1L, verbose = FALSE
   )
   expect_equal(fit$physics_lambda, 0.1)
@@ -123,6 +124,28 @@ test_that("physics_lambda activates mass-balance loss and records phys history",
   # Training must still reduce the fit component
   expect_lt(fit$loss_fit_history[length(fit$loss_fit_history)],
             fit$loss_fit_history[1])
+  # The physics residual must itself be MINIMISED, not merely recorded. It
+  # used to be formed by dividing by the mean of a z-scored channel -- zero to
+  # machine precision -- so the 1e-6 guard made it ~1e7 times heavier than the
+  # data term and training optimised noise.
+  expect_lt(fit$loss_phys_history[length(fit$loss_phys_history)],
+            fit$loss_phys_history[1])
+  # and it must be the same order of magnitude as the term it regularises
+  expect_lt(fit$loss_phys_history[1] / fit$loss_fit_history[1], 100)
+})
+
+test_that("the physics term is refused when its unit constants are missing", {
+  skip_if_no_torch()
+  cube <- temporal_synth_soc_cube(H = 6L, W = 6L, T_total = 6L, seed = 5L)
+  td   <- temporal_cube_to_tensor(cube)
+  # physics_k_in / physics_k_out are raw g/kg-per-mm rates while the driver
+  # the network sees is z-scored. Without `physics_scaling` the residual
+  # cannot be formed, and silently evaluating it on the wrong scale is what
+  # the previous version did.
+  expect_error(
+    temporal_convlstm_fit(td$sequence, td$target, return_sequence = TRUE,
+                          epochs = 2L, physics_lambda = 1, seed = 1L),
+    "physics_scaling")
 })
 
 test_that("physics_lambda = 0 leaves a legacy (fit-only) training run", {

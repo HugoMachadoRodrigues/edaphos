@@ -39,7 +39,7 @@
 #' natural forecast-ensemble input for [`temporal_kalman_update()`] or
 #' for [`as_edaphos_posterior()`].
 #'
-#' @param sequence,target,hidden_dims,kernel_size,return_sequence,epochs,lr,physics_lambda,physics_k_in,physics_k_out,physics_driver_channel,verbose
+#' @param sequence,target,hidden_dims,kernel_size,return_sequence,epochs,lr,physics_lambda,physics_scaling,physics_k_in,physics_k_out,physics_driver_channel,verbose
 #'   Passed through unchanged to [`temporal_convlstm_fit()`].
 #' @param K_ens Integer; number of ensemble members. Defaults to
 #'   `10L`.
@@ -125,6 +125,7 @@ temporal_convlstm_ensemble_fit <- function(sequence, target,
                                              physics_k_in = 0.03,
                                              physics_k_out = 0.015,
                                              physics_driver_channel = 2L,
+                                             physics_scaling = NULL,
                                              verbose = FALSE) {
   K_ens <- as.integer(K_ens)
   stopifnot(K_ens >= 2L)
@@ -140,6 +141,7 @@ temporal_convlstm_ensemble_fit <- function(sequence, target,
       physics_k_in = physics_k_in,
       physics_k_out = physics_k_out,
       physics_driver_channel = physics_driver_channel,
+      physics_scaling = physics_scaling,
       seed = seed_k, verbose = verbose
     )
   }

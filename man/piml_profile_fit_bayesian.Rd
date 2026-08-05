@@ -14,8 +14,9 @@ piml_profile_fit_bayesian(
   prior = NULL,
   start = NULL,
   control = list(maxit = 2000),
-  n_iter = 5000L,
-  n_burn = 2000L,
+  n_iter = 20000L,
+  n_burn = 6000L,
+  n_chains = 4L,
   thin = 1L,
   seed = NULL,
   verbose = FALSE
@@ -47,7 +48,18 @@ never attains, and the data do not identify it.}
 
 \item{control}{\code{optim} control list for the MAP step.}
 
-\item{n_iter, n_burn, thin}{MCMC settings. Only consulted when
+\item{n_iter, n_burn, thin}{MCMC settings. The defaults were 5000/2000,
+which do NOT converge on this posterior: four chains on the shipped pedon
+gave max split-R-hat 1.015 and min bulk ESS 361 at 6000 iterations,
+against 1.004 and 1113 at 20000. A default that silently fails its own
+diagnostic is a trap, so the default is now the converging one. Only
+consulted when
+\code{method = "mcmc"}.}
+
+\item{n_chains}{Integer, number of MCMC chains started from dispersed
+points around the Laplace mode. Four or more are needed for split-R-hat
+to mean anything; with one chain there is no between-chain variance and
+convergence cannot be assessed at all. Only consulted when
 \code{method = "mcmc"}.}
 
 \item{seed}{Optional integer seed. Consulted by \emph{both} methods, not
