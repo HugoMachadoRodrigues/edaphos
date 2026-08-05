@@ -268,22 +268,49 @@ would be an oracle over the very rows being scored:
 | P7 BHS                            | 0.608 | +0.098 | +0.143 | 200 |
 | P4 Foundation embeddings + QRF    | 0.621 | +0.060 | +0.107 | 99 |
 | P6 Quantum KRR                    | 0.663 | −0.073 | −0.019 | 100 |
-| P10 GAT (trained attention)       | 0.679 | −0.123 | −0.067 | **8** |
+| P10 GAT (trained attention)       | 0.672 | −0.101 | −0.046 | **8** |
 
 RMSE is in `log1p(g/kg)` and is not comparable to a g/kg figure. The
 `draws` column is the ensemble each method actually got: they are not
 equal, and a ranking that ignores that is comparing budgets.
 
 These folds carry a **68 km buffer**: training rows within that distance
-of any test row are discarded, which cost 88 of 3,077 rows and raised the
-realised minimum training-to-test distance from 12.3 km to 68.3 km.
-Blocking without a dead zone under-states generalisation error (Roberts
-et al. 2017), and 12.3 km sits well inside the 55–68 km range at which the
-fitted depth-function parameters are still correlated. Only one method
-moved appreciably: P10 GAT went from RMSE 0.617 to 0.679 and from +0.112
-to −0.067, dropping from fifth to last. A network whose representation is
-a graph over spatial neighbours is exactly the method that gains most
-from training points immediately across a block boundary.
+of any test row are discarded, which cost 88 training rows across the five
+folds — 2.0% of the fold-wise training rows, not of the 1,095 profiles — and raised the
+realised minimum training-to-test distance from 15.2 km to 68.5 km on
+these 1,095 profiles. (12.3 km is the corresponding figure for the denser
+3,077-profile causal extract, a different data set; earlier versions of
+this README quoted it here by mistake.) Blocking without a dead zone
+under-states generalisation error (Roberts et al. 2017), and 15.2 km sits
+well inside the 55–68 km range at which the fitted depth-function
+parameters are still correlated.
+
+**What the buffer is worth, measured rather than asserted.** Earlier
+versions of this README stated that P10 GAT "went from RMSE 0.617 to
+0.679 … dropping from fifth to last". That comparison was made by hand,
+was never scripted, and does not reproduce: it also predated the
+correction of the Pillar-10 graph from Euclidean degrees to great-circle
+kilometres, so it compared two different models. `data-raw/buffer_effect.R`
+now runs the same harness with the buffer switched off and writes
+`inst/extdata/buffer_effect.rds`. Fold-mean RMSE, five methods on
+identical test blocks:
+
+| Method | unbuffered | buffered | Δ | rank un. | rank buf. |
+|:---|---:|---:|---:|---:|---:|
+| P1 OLS (DAG-selected covariates) | 0.583 | 0.583 | +0.000 | 1 | 1 |
+| P5 QRF                           | 0.588 | 0.592 | +0.004 | 2 | 2 |
+| P7 BHS                           | 0.599 | 0.603 | +0.004 | 3 | 3 |
+| P6 Quantum KRR                   | 0.660 | 0.663 | +0.003 | 4 | 4 |
+| P10 GAT (trained attention)      | 0.672 | 0.680 | +0.007 | 5 | 5 |
+
+The buffer costs every method a little and the graph network the most,
+which is the direction the mechanism predicts — a network built on a
+spatial neighbour graph is what gains most from training points
+immediately across a block boundary. But the effect is an order of
+magnitude smaller than previously reported and **the ranking is
+identical either way**. The buffer stays because it is the right
+protocol, not because it changes the answer. (P4 is scored in a separate
+harness and is absent from this comparison rather than omitted quietly.)
 
 **The honest reading.** Ordinary least squares on a DAG-selected
 covariate subset is the strongest method here. None of the five more

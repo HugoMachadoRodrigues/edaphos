@@ -96,23 +96,67 @@ test_that("benchmark_fit_p6_quantum: calibrated SD strictly larger than raw", {
 # P10
 # ---------------------------------------------------------------------------
 
-test_that("benchmark_fit_p10_gat: calibrated SD strictly larger than raw", {
+test_that("benchmark_fit_p10_gat: calibration targets a total, and never narrows", {
+  # The contract changed when the residual scale stopped double-counting the
+  # ensemble. The interval is (member spread) + (injected noise), and the
+  # injected part is only what the spread does not already carry. So
+  # `calibrate = TRUE` widens toward an estimated TOTAL rather than widening
+  # unconditionally -- and on a fixture where the members already disagree by
+  # more than that total, the honest amount to inject is zero.
+  #
+  # This fixture is exactly that case: 30 training rows, three members, 20
+  # epochs. Measured here, the members disagree by SD 2.28 while the estimated
+  # total predictive SD is 1.06. Asserting that calibration widens it would be
+  # asserting that the interval should be inflated past what the data support.
   dat <- .mk_mini_wosis(n = 40L, seed = 4L)
   tr  <- dat[1:30, ]; te <- dat[31:40, ]
-  cal <- benchmark_fit_p10_gat(tr, te, .cov_cols,
-                                     k = 4L, hidden = 6L, n_heads = 1L,
-                                     n_layers = 1L, epochs = 20L,
-                                     lr = 0.05, n_ensemble = 3L,
-                                     seed = 4L, calibrate = TRUE)
-  raw <- benchmark_fit_p10_gat(tr, te, .cov_cols,
-                                     k = 4L, hidden = 6L, n_heads = 1L,
-                                     n_layers = 1L, epochs = 20L,
-                                     lr = 0.05, n_ensemble = 3L,
-                                     seed = 4L, calibrate = FALSE)
+  args <- list(tr, te, .cov_cols, k = 4L, hidden = 6L, n_heads = 1L,
+               n_layers = 1L, epochs = 20L, lr = 0.05, n_ensemble = 3L,
+               seed = 4L)
+  cal <- suppressWarnings(
+    do.call(benchmark_fit_p10_gat, c(args, calibrate = TRUE)))
+  raw <- do.call(benchmark_fit_p10_gat, c(args, calibrate = FALSE))
+
   sd_cal <- mean(apply(cal$samples, 2L, stats::sd))
   sd_raw <- mean(apply(raw$samples, 2L, stats::sd))
-  expect_gt(sd_cal, sd_raw)
+
+  # never NARROWER, whatever the regime
+  expect_gte(sd_cal, sd_raw * 0.999)
+  # a non-negative injection, and one that respects the variance budget
+  expect_gte(cal$metadata$sigma_resid, 0)
+  v_ens <- mean(apply(raw$samples, 2L, stats::var))
+  expect_equal(cal$metadata$sigma_resid,
+               sqrt(max(0, cal$metadata$sigma_total^2 - v_ens)),
+               tolerance = 1e-6)
+
+  # 30 rows cannot carry an inner blocked CV, and the fallback must SAY so
+  # rather than quietly reverting to training residuals
+  expect_match(cal$metadata$sigma_source, "training residuals")
+  expect_warning(
+    do.call(benchmark_fit_p10_gat, c(args, calibrate = TRUE)),
+    "inner blocked CV could not run")
+})
+
+test_that("benchmark_fit_p10_gat: the injection widens when the ensemble is narrow", {
+  # The complementary regime, so the widening path is covered too: more
+  # members and more epochs bring them into agreement, and the injected term
+  # then carries most of the interval.
+  skip_on_cran()
+  dat <- .mk_mini_wosis(n = 90L, seed = 7L)
+  tr  <- dat[1:70, ]; te <- dat[71:90, ]
+  args <- list(tr, te, .cov_cols, k = 5L, hidden = 8L, n_heads = 2L,
+               n_layers = 2L, epochs = 120L, lr = 0.03, n_ensemble = 6L,
+               seed = 7L)
+  cal <- suppressWarnings(
+    do.call(benchmark_fit_p10_gat, c(args, calibrate = TRUE)))
+  raw <- do.call(benchmark_fit_p10_gat, c(args, calibrate = FALSE))
+  v_ens <- mean(apply(raw$samples, 2L, stats::var))
+
+  skip_if(v_ens >= cal$metadata$sigma_total^2,
+          "members still disagree by more than the estimated total")
   expect_gt(cal$metadata$sigma_resid, 0)
+  expect_gt(mean(apply(cal$samples, 2L, stats::sd)),
+            mean(apply(raw$samples, 2L, stats::sd)))
 })
 
 # ---------------------------------------------------------------------------

@@ -64,7 +64,7 @@ test_that("predict.edaphos_piml_bayes gives a credible interval", {
   pp <- predict(fit, newdepths = c(10, 20, 40, 80),
                  interval = 0.95, seed = 1L)
   expect_s3_class(pp, "data.frame")
-  expect_setequal(names(pp), c("depth", "mean", "sd", "lower", "upper"))
+  expect_setequal(names(pp), c("depth", "mean", "sd", "lower", "upper", "lower_sim", "upper_sim"))
   expect_equal(nrow(pp), 4L)
   # Lower <= mean <= upper for every row.
   expect_true(all(pp$lower <= pp$mean))

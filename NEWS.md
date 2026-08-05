@@ -184,14 +184,23 @@ two methods score below zero, not three.
 
 **Spatially blocked folds had no buffer.** The training set was the exact
 complement of the test block, with a measured minimum training-to-test distance
-of 12.3 km -- well inside the 55-68 km range at which the fitted depth-function
-parameters are still correlated. New `spatial_block_folds(coords, k,
-buffer_km, seed)` discards training rows within the buffer, reports how many,
-and returns the realised minimum distance. At 68 km it costs 88 of 3,077 rows.
-Only one method moved: P10 GAT went from RMSE 0.617 to 0.679 and from +0.112 to
--0.067 skill, fifth place to last. A network built on a graph of spatial
-neighbours is exactly the method that gains from training points immediately
-across a block boundary, which is what the buffer exists to remove.
+of 15.2 km on the 1,095 benchmark profiles -- well inside the 55-68 km range at
+which the fitted depth-function parameters are still correlated. New
+`spatial_block_folds(coords, k, buffer_km, seed)` discards training rows within
+the buffer, reports how many, and returns both the realised minimum distance
+and the one the unbuffered split would have allowed. At 68 km it costs 88
+training rows across the five folds, 2.0% of the fold-wise training rows.
+
+CORRECTED IN A LATER RELEASE. This entry originally read "Only one method
+moved: P10 GAT went from RMSE 0.617 to 0.679 ... fifth place to last", and
+gave the distance as 12.3 km. Both were wrong. 12.3 km belongs to the denser
+3,077-profile causal extract, not to the benchmark. And the buffer comparison
+was made by hand, was never scripted, and does not reproduce -- it also
+predated the correction of the Pillar-10 graph to great-circle distance, so it
+compared two different models. `data-raw/buffer_effect.R` now measures it: the
+buffer costs every method between 0.000 and 0.007 RMSE, the graph network the
+most, and **the ranking is identical with and without it**. The buffer is kept
+because it is the right protocol, not because it changes the answer.
 
 **The depth benchmark's validity-domain stratifier read the held-out horizon.**
 It judged a profile monotone from its *complete* record, including the deepest

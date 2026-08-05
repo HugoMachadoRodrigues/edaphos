@@ -39,7 +39,7 @@ test_that("predict.edaphos_piml_neural_ode_ensemble returns draws + CI", {
 
   tidy <- predict(ens, newdepths = c(10, 40), interval = 0.9)
   expect_s3_class(tidy, "data.frame")
-  expect_setequal(names(tidy), c("depth", "mean", "sd", "lower", "upper"))
+  expect_setequal(names(tidy), c("depth", "mean", "sd", "lower", "upper", "lower_sim", "upper_sim"))
   expect_equal(nrow(tidy), 2L)
   expect_true(all(tidy$lower <= tidy$mean))
   expect_true(all(tidy$mean  <= tidy$upper))

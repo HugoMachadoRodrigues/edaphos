@@ -68,12 +68,12 @@ header-includes:
 
 | Method                    | RMSE  | R^2    |
 |:--------------------------|:-----:|:------:|
-| OLS (DAG covariates)      | 0.583 | 0.067  |
-| Random forest             | 0.589 | 0.051  |
-| Bayesian spatial          | 0.597 | 0.041  |
-| Foundation + forest       | 0.613 | -0.003 |
-| Graph attention           | 0.621 | -0.080 |
-| Quantum kernel            | 0.663 | -0.184 |
+| OLS (DAG covariates)      | 0.583 | 0.069  |
+| Random forest             | 0.592 | 0.044  |
+| Bayesian spatial          | 0.603 | 0.020  |
+| Foundation + forest       | 0.616 | -0.013 |
+| Quantum kernel            | 0.663 | -0.185 |
+| Graph attention           | 0.680 | -0.346 |
 
 \raggedright
 \vspace{1em}
