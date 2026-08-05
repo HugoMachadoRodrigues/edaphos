@@ -48,14 +48,19 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
   d$wc_landcover_trees <- d$trees; d$soilgrids_clay <- d$clay
   d$soilgrids_sand <- d$sand; d$soilgrids_bdod <- d$bdod
 
-  tst <- causal_dag_test(causal_cerrado_real_dag(), d,
-                         coords = c("lon", "lat"))
+  tst <- causal_dag_test(causal_cerrado_real_dag(), d)
   tst
 
-  # The graph fails, and it fails on both tests -- but the counts differ,
-  # which is why reporting only the pooled one would overstate the result.
-  c(pooled = tst$n_rejected, spatial = tst$n_rejected_spatial,
-    of = tst$n_tests)
+  # The spatial variant fits one thin-plate spline per variable, so it is
+  # seconds rather than milliseconds.
+  \donttest{
+  tsp <- causal_dag_test(causal_cerrado_real_dag(), d,
+                         coords = c("lon", "lat"))
+  # The graph fails on both tests -- but the counts differ, which is why
+  # reporting only the pooled one would overstate the result.
+  c(pooled = tsp$n_rejected, spatial = tsp$n_rejected_spatial,
+    of = tsp$n_tests)
+  }
 }
 }
 \references{

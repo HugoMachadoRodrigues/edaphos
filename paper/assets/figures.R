@@ -197,7 +197,7 @@ pd <- ggplot(tb, aes(x = elapsed_sum, y = label, fill = label)) +
   theme_edaphos()
 
 fig_bench <- (pa | pb) / (pc | pd) + plot_layout(heights = c(1, 1.15))
-save_fig(fig_bench, "Fig12", 9.2, 7.4)
+save_fig(fig_bench, "Fig13", 9.2, 7.4)
 
 # =============================================================================
 # Fig 3 — causal: forest plot + adjustment effect
@@ -245,7 +245,7 @@ pr <- ggplot(rv, aes(x = RV, y = lab, fill = RV)) +
   theme_edaphos()
 
 fig_causal <- pf / pr + plot_layout(heights = c(1.25, 1))
-save_fig(fig_causal, "Fig13", 7.6, 7.2)
+save_fig(fig_causal, "Fig14", 7.6, 7.2)
 
 # =============================================================================
 # Fig 3 — Pillar 2: the attained deep value vs the equation's coordinate
@@ -337,6 +337,72 @@ ppar <- ggplot(ptab, aes(y = 1, colour = ident)) +
 fig_ode <- pprof | ppar
 save_fig(fig_ode, "Fig3", 9.4, 5.2)
 
+# =============================================================================
+# Fig 4 — Pillar 2: is the fitted depth function mappable?
+# =============================================================================
+if (need("Fig4")) {
+message("Fig 4: parameter variograms")
+V  <- ex("piml_parameter_variograms.rds")
+tb <- V$table
+LAB <- c(log_y0 = "log~y[0]", log_y_asym = "log~y(infinity)",
+         log_kappa = "log~kappa", log_mu = "log~mu")
+
+emp <- do.call(rbind, lapply(names(V$raw), function(k) {
+  d <- V$raw[[k]]$vg
+  data.frame(par = k, dist = d$dist, gamma = d$gamma, np = d$np)
+}))
+emp$lab <- factor(LAB[emp$par], levels = LAB)
+
+# fitted exponential curves, but only where the fit is identified: a model
+# whose range sits outside the cutoff is drawn as a dashed extrapolation and
+# labelled as such, never as a measurement.
+curv <- do.call(rbind, lapply(names(V$raw), function(k) {
+  r <- V$raw[[k]]
+  if (is.null(r$model)) return(NULL)
+  nug <- r$nugget; psl <- r$psill; rng <- r$range
+  h <- seq(0, V$cutoff, length.out = 200)
+  data.frame(par = k, dist = h, gamma = nug + psl * (1 - exp(-h / rng)),
+             identified = isTRUE(r$range_in_window))
+}))
+curv$lab <- factor(LAB[curv$par], levels = LAB)
+
+ann <- do.call(rbind, lapply(seq_len(nrow(tb)), function(i) {
+  k <- names(V$raw)[i]
+  data.frame(par = k,
+             txt = if (is.finite(tb$nugget_ratio[i]))
+               sprintf("nugget/sill = %.2f\nrange = %.0f km",
+                       tb$nugget_ratio[i], tb$range_km[i])
+             else sprintf("range %.0f km is below the\n%.0f km nearest lag: not identified",
+                          tb$range_km[i], tb$first_lag_km[i]),
+             ok = is.finite(tb$nugget_ratio[i]))
+}))
+ann$lab <- factor(LAB[ann$par], levels = LAB)
+
+p4 <- ggplot(emp, aes(dist, gamma)) +
+  geom_line(data = curv, aes(dist, gamma, linetype = identified),
+            colour = PAL[["cool"]], linewidth = 0.9) +
+  geom_point(aes(size = np), colour = PAL[["soc"]], alpha = 0.85) +
+  geom_text(data = ann, aes(x = 0, y = Inf, label = txt, colour = ok),
+            hjust = -0.05, vjust = 1.4, size = 2.6, lineheight = 0.95,
+            inherit.aes = FALSE) +
+  facet_wrap(~lab, scales = "free_y", nrow = 2, labeller = label_parsed) +
+  scale_size_continuous(range = c(0.6, 2.6), name = "point pairs",
+                        labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
+  scale_linetype_manual(values = c(`TRUE` = 1, `FALSE` = 2), guide = "none") +
+  scale_colour_manual(values = c(`TRUE` = PAL[["good"]], `FALSE` = PAL[["bad"]]),
+                      guide = "none") +
+  labs(title = "The depth function varies faster than the survey can see",
+       subtitle = sprintf(paste("ODE parameters fitted at each of %s profiles, %s point pairs.",
+                                "Green: a sill is\nreached inside the observed separations. Red: the fitted range falls below the",
+                                "nearest\nlag the archive supports, so it is interpolated through empty space, not measured"),
+                          format(V$n_profiles, big.mark = ","),
+                          format(sum(V$raw[[1]]$vg$np), big.mark = ",")),
+       x = "Separation distance (km)", y = "Semivariance") +
+  theme_edaphos() + theme(legend.position = "top")
+
+save_fig(p4, "Fig4", 8.6, 6.2)
+}
+
 message("done -> ", OUT)
 
 # =============================================================================
@@ -423,7 +489,7 @@ p3c <- ggplot(enkf, aes(lon, lat, fill = z)) +
   theme(axis.text = element_blank(), panel.grid = element_blank())
 
 fig_temporal <- p3a / (p3b | p3c) + plot_layout(heights = c(1.15, 1))
-save_fig(fig_temporal, "Fig4", 9.4, 7.6)
+save_fig(fig_temporal, "Fig5", 9.4, 7.6)
 
 # =============================================================================
 # Fig 6 — Pillar 6: the simulated quantum kernel
@@ -472,12 +538,12 @@ p6b <- ggplot(ddl, aes(dist, k, colour = kind)) +
   theme_edaphos() + theme(legend.position = "top")
 
 fig_quantum <- p6a / p6b + plot_layout(heights = c(1, 0.95))
-save_fig(fig_quantum, "Fig7", 8.4, 7.2)
+save_fig(fig_quantum, "Fig8", 8.4, 7.2)
 
 # =============================================================================
 # Fig 7 — Pillar 9: diffusion, reference vs trained sampler
 # =============================================================================
-if (need("Fig10")) {
+if (need("Fig11")) {
 message("diffusion (fits two models)")
 g <- 45L
 ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
@@ -547,7 +613,7 @@ p9b <- ggplot(stats_df, aes(l1, sd, colour = set, fill = set)) +
   theme_edaphos() + theme(legend.position = "top")
 
 fig_diff <- p9a / p9b + plot_layout(heights = c(1, 1.05))
-save_fig(fig_diff, "Fig10", 8.6, 7.4)
+save_fig(fig_diff, "Fig11", 8.6, 7.4)
 }
 
 # =============================================================================
@@ -599,12 +665,12 @@ p10b <- ggplot(gstat, aes(v, fill = panel)) +
   theme_edaphos()
 
 fig_graph <- p10a / p10b + plot_layout(heights = c(1.5, 1))
-save_fig(fig_graph, "Fig11", 7.8, 8.0)
+save_fig(fig_graph, "Fig12", 7.8, 8.0)
 
 # =============================================================================
 # Pillar 5 — active learning: where to sample next
 # =============================================================================
-if (need("Fig6")) {
+if (need("Fig7")) {
 message("Pillar 5: active learning")
 COVS <- c("elev", "slope", "twi", "map_mm")
 set.seed(7)
@@ -666,13 +732,13 @@ p5c <- ggplot(cs, aes(x, y, colour = set, size = set, alpha = set)) +
   theme_edaphos() + theme(legend.position = "top")
 
 fig_al <- p5a / (p5b | p5c) + plot_layout(heights = c(1.25, 1))
-save_fig(fig_al, "Fig6", 9.0, 8.0)
+save_fig(fig_al, "Fig7", 9.0, 8.0)
 }
 
 # =============================================================================
 # Pillar 7 — Bayesian hierarchical spatial: kriged surface and its uncertainty
 # =============================================================================
-if (need("Fig8")) {
+if (need("Fig9")) {
 message("Pillar 7: Bayesian kriging")
 set.seed(3)
 bh_i  <- sample(nrow(br_cerrado), 150)
@@ -729,7 +795,7 @@ kC <- ggplot(data.frame(phi = phi_grid, frac = ll), aes(phi, frac)) +
   theme_edaphos()
 
 fig_bhs <- (kA | kB) / kC + plot_layout(heights = c(1.3, 1))
-save_fig(fig_bhs, "Fig8", 9.2, 7.2)
+save_fig(fig_bhs, "Fig9", 9.2, 7.2)
 }
 
 # =============================================================================
@@ -814,7 +880,7 @@ save_fig(fig_dag, "Fig2", 8.2, 8.2)
 # =============================================================================
 # Pillar 8 — neural operators over depth-function space
 # =============================================================================
-if (need("Fig9")) {
+if (need("Fig10")) {
 message("Pillar 8: neural operators")
 set.seed(5)
 n_site <- 140L
@@ -870,13 +936,13 @@ p8b <- ggplot(err, aes(z, rmse)) +
   theme_edaphos() + theme(legend.position = "top")
 
 fig_no <- p8a / p8b + plot_layout(heights = c(1.5, 1))
-save_fig(fig_no, "Fig9", 8.6, 7.6)
+save_fig(fig_no, "Fig10", 8.6, 7.6)
 }
 
 # =============================================================================
 # Pillar 4 — self-supervised foundation encoder
 # =============================================================================
-if (need("Fig5")) {
+if (need("Fig6")) {
 message("Pillar 4: foundation encoder (trains a small MoCo)")
 gg2 <- 45L
 uxx <- sort(unique(br_cerrado$x)); uyy <- sort(unique(br_cerrado$y))
@@ -926,5 +992,5 @@ p4b <- ggplot(pdf4, aes(PC1, PC2, colour = twi)) +
   theme_edaphos()
 
 fig_fnd <- p4a / p4b + plot_layout(heights = c(1, 1.2))
-save_fig(fig_fnd, "Fig5", 8.2, 7.0)
+save_fig(fig_fnd, "Fig6", 8.2, 7.0)
 }
