@@ -16,18 +16,19 @@ test_that("the shipped PIML parameter table names the model's actual parameters"
   tab <- readRDS(f)$piml_params_table
   expect_s3_class(tab, "data.frame")
   expect_setequal(tab$param,
-                  c("lambda0", "mu", "y_inf", "y0", "kappa", "y_asym"))
+                  c("lambda0", "mu", "y_inf", "y0", "kappa", "y_asym", "sigma"))
   # y_inf must not be advertised as the deep asymptote: the profile never
-  # reaches it. The attainable value is y_asym, and on this pedon the two
-  # differ in sign.
+  # reaches it.
   expect_false(grepl("asymptote", tab$meaning[tab$param == "y_inf"],
                      ignore.case = TRUE))
-  expect_lt(tab$mean[tab$param == "y_inf"], 0)
+  # The attainable value is identified and strictly positive...
   expect_gt(tab$mean[tab$param == "y_asym"], 0)
-  # and the attainable value must be identified: strictly positive interval.
   expect_gt(tab$ci_lo[tab$param == "y_asym"], 0)
+  # ...while y_inf is not: its interval reaches into impossible territory
+  # (a negative carbon concentration).
+  expect_lt(tab$ci_lo[tab$param == "y_inf"], 0)
   # the fabricated version named parameters the ODE does not have
-  expect_false(any(c("k1", "k2", "sigma") %in% tab$param))
+  expect_false(any(c("k1", "k2") %in% tab$param))
   expect_true(all(c("mean", "ci_lo", "ci_hi") %in% names(tab)))
 })
 
@@ -54,7 +55,11 @@ test_that("the table reproduces a live Laplace fit of the shipped pedon", {
   p <- B$piml_profile_obs
   skip_if(is.null(p), "pedon observations not in bundle")
 
+  # Horizon boundaries are part of the shipped pedon now that it is a real
+  # WoSIS profile, and the bundle was built with the layer operator; refitting
+  # without them would not reproduce it.
   fit <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
+                                   top = p$top, bottom = p$bottom,
                                    method = "laplace", seed = 7L)
   s <- summary(fit)
   tab <- B$piml_params_table[match(s$parameter, B$piml_params_table$param), ]

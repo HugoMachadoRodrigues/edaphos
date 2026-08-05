@@ -11,11 +11,18 @@ test_that("piml_profile_fit_bayesian(method='laplace') returns a posterior", {
   expect_identical(fit$method, "laplace")
   # 2000 draws sampled from N(MAP, Sigma).
   expect_equal(nrow(fit$draws), 2000L)
-  expect_equal(ncol(fit$draws), 4L)   # 4 estimated coordinates
-  # Posterior summary carries the four natural parameters plus the two
-  # identified coordinates the model is actually estimated in.
+  # 4 ODE coordinates + log sigma. sigma is a sampled parameter, not a value
+  # plugged in from the MAP residuals -- fixing it would understate every
+  # interval, because the uncertainty in the noise scale would never propagate.
+  expect_equal(ncol(fit$draws), 5L)
+  # Posterior summary carries the four natural parameters, the two identified
+  # coordinates the model is estimated in, and the noise scale.
   expect_setequal(fit$summary$parameter,
-                   c("lambda0", "mu", "y_inf", "y0", "kappa", "y_asym"))
+                   c("lambda0", "mu", "y_inf", "y0", "kappa", "y_asym", "sigma"))
+  # sigma has a posterior of its own, with strictly positive support.
+  sg <- fit$summary[fit$summary$parameter == "sigma", ]
+  expect_gt(sg$q2.5, 0)
+  expect_gt(sg$q97.5, sg$q2.5)
   # MAP lambda0 must be strictly positive (posterior lives on
   # log-lambda0 so this checks unpacking).
   expect_gt(fit$map$lambda0, 0)
@@ -100,7 +107,7 @@ test_that("print + summary methods dispatch on edaphos_piml_bayes", {
   expect_true(any(grepl("posterior summary", out)))
   s <- summary(fit)
   expect_s3_class(s, "data.frame")
-  expect_equal(nrow(s), 6L)
+  expect_equal(nrow(s), 7L)
 })
 
 test_that("include_obs_noise widens the predictive interval", {

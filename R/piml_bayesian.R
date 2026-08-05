@@ -64,9 +64,26 @@
 # deliberately: those are the coordinates the data identify. A prior on y_inf
 # is a prior on a value the profile never attains, and it leaks into the fit
 # through a ratio the likelihood barely constrains.
+#
+# sigma is the LAST element of theta, on the log scale, and is sampled like
+# any other parameter. It used to be estimated once from the MAP residuals and
+# then held fixed through the whole MCMC run -- empirical Bayes on 7 points
+# with 4 parameters, which guarantees intervals that are too narrow, because
+# the uncertainty in the noise scale never propagates. Its prior is the
+# standard weakly-informative half-Student-t(3, 0, s0) on sigma (Gelman 2006),
+# with s0 set from the spread of the observations, plus the log Jacobian.
 .piml_bayes_neg_log_post <- function(theta, depths, obs, y_surface,
-                                       sigma, prior, top = NULL,
+                                       sigma = NULL, prior, top = NULL,
                                        bottom = NULL) {
+  if (is.null(sigma)) {
+    np    <- length(theta) - 1L
+    sigma <- exp(theta[np + 1L])
+    theta <- theta[seq_len(np)]
+    sample_sigma <- TRUE
+  } else {
+    sample_sigma <- FALSE
+  }
+  if (!is.finite(sigma) || sigma <= 0) return(1e9)
   params <- .piml_unpack(theta, y_surface)
   pred   <- tryCatch(
     if (is.null(top) || is.null(bottom)) .piml_solution(depths, params)
@@ -95,6 +112,12 @@
     nlp <- nlp + 0.5 * ((theta[4L] - prior$log_y0_mean) /
                           prior$log_y0_sd)^2
   }
+  if (sample_sigma) {
+    # sigma ~ half-t(nu = 3, scale = s0); on log sigma add -log(sigma) for the
+    # change of variable.
+    s0 <- prior$sigma_scale
+    nlp <- nlp + 2 * log1p(sigma^2 / (3 * s0^2)) - log(sigma)
+  }
   nll + nlp
 }
 
@@ -118,7 +141,9 @@
     log_y_asym_mean  = log(y_deep),
     log_y_asym_sd    = 1,
     log_y0_mean      = log(y_top),
-    log_y0_sd        = 1
+    log_y0_sd        = 1,
+    # scale of the half-t prior on the observation noise
+    sigma_scale      = max(stats::sd(obs, na.rm = TRUE), 1e-3)
   )
 }
 
@@ -165,8 +190,9 @@
 .piml_laplace_fit <- function(depths, values, y_surface, prior,
                                 top = NULL, bottom = NULL,
                                 start, control) {
-  # MAP by optim on -log posterior.
-  fit <- stats::optim(
+  # Stage 1: locate the parameters at a provisional noise scale. This is only
+  # an initialisation -- sigma is a sampled parameter, not a plug-in.
+  fit0 <- stats::optim(
     par       = start,
     fn        = function(th, ...) .piml_bayes_neg_log_post(th, ...),
     depths    = depths,
@@ -174,30 +200,34 @@
     y_surface = y_surface,
     top       = top,
     bottom    = bottom,
-    sigma     = 1.0,            # provisional; updated below
+    sigma     = 1.0,
     prior     = prior,
     method    = "Nelder-Mead",
     control   = control
   )
-  # Empirical sigma from the MAP residuals, then refit with that sigma
-  # so the prior / likelihood balance uses the right noise scale.
-  params0 <- .piml_unpack(fit$par, y_surface)
+  params0 <- .piml_unpack(fit0$par, y_surface)
   pred0   <- if (is.null(top)) .piml_solution(depths, params0) else
     .piml_layer_mean(top, bottom, params0)
-  sigma   <- max(sqrt(mean((values - pred0)^2)), 1e-6)
+  sigma0  <- max(sqrt(mean((values - pred0)^2)), 1e-6)
+
+  # Stage 2: joint MAP over (parameters, log sigma). Passing sigma = NULL
+  # tells the log-posterior that the last coordinate IS log sigma.
+  start2 <- c(fit0$par, log_sigma = log(sigma0))
   fit <- stats::optim(
-    par       = fit$par,
+    par       = start2,
     fn        = function(th, ...) .piml_bayes_neg_log_post(th, ...),
     depths    = depths,
     obs       = values,
     y_surface = y_surface,
     top       = top,
     bottom    = bottom,
-    sigma     = sigma,
+    sigma     = NULL,
     prior     = prior,
     method    = "Nelder-Mead",
     control   = control
   )
+  np    <- length(fit$par) - 1L
+  sigma <- exp(fit$par[np + 1L])
   H <- .piml_numerical_hessian(
     fn        = .piml_bayes_neg_log_post,
     theta     = fit$par,
@@ -206,7 +236,7 @@
     y_surface = y_surface,
     top       = top,
     bottom    = bottom,
-    sigma     = sigma,
+    sigma     = NULL,
     prior     = prior
   )
   # SVD-based Moore-Penrose pseudo-inverse fallback — avoids a MASS
@@ -436,7 +466,7 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
   } else {
     nlp_closure <- function(th) {
       .piml_bayes_neg_log_post(th, depths = depths, obs = values,
-                                 y_surface = y_surface, sigma = lap$sigma,
+                                 y_surface = y_surface, sigma = NULL,
                                  prior = prior, top = top, bottom = bottom)
     }
     mc <- .piml_mcmc_adaptive_rwm(
@@ -455,10 +485,13 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
   }
 
   # Natural-scale posterior summaries.
+  # The last column of `draws` is log sigma, so strip it before unpacking the
+  # ODE parameters, and report sigma on its natural scale alongside them.
+  n_par <- ncol(draws) - 1L
   nat <- t(apply(draws, 1L, function(th) {
-    p <- .piml_unpack(th, y_surface)
+    p <- .piml_unpack(th[seq_len(n_par)], y_surface)
     c(lambda0 = p$lambda0, mu = p$mu, y_inf = p$y_inf, y0 = p$y0,
-      kappa = p$kappa, y_asym = .piml_asymptote(p))
+      kappa = p$kappa, y_asym = .piml_asymptote(p), sigma = exp(th[n_par + 1L]))
   }))
   summ <- data.frame(
     parameter = colnames(nat),
@@ -473,7 +506,8 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
   structure(
     list(
       method      = method,
-      map         = .piml_unpack(lap$map, y_surface),
+      map         = .piml_unpack(lap$map[seq_len(length(lap$map) - 1L)],
+                                 y_surface),
       theta_map   = lap$map,
       sigma       = lap$sigma,
       cov         = post_cov,
@@ -567,13 +601,17 @@ predict.edaphos_piml_bayes <- function(object, newdepths,
 
   pred <- matrix(NA_real_, nrow = n_draws, ncol = length(newdepths))
   for (m in seq_len(n_draws)) {
-    params <- .piml_unpack(object$draws[ix[m], ], object$y_surface)
+    th <- object$draws[ix[m], ]
+    params <- .piml_unpack(th[seq_len(length(th) - 1L)], object$y_surface)
     yhat <- tryCatch(piml_profile_predict(params, newdepths),
                       error = function(e) rep(NA_real_, length(newdepths)))
     pred[m, ] <- yhat
   }
   if (isTRUE(include_obs_noise)) {
-    pred <- pred + matrix(stats::rnorm(length(pred), sd = object$sigma),
+    # Per-draw noise scale: sigma is a sampled parameter, so its uncertainty
+    # belongs in the predictive interval rather than being fixed at one value.
+    sd_draw <- exp(object$draws[ix, ncol(object$draws)])
+    pred <- pred + matrix(stats::rnorm(length(pred), sd = rep(sd_draw, ncol(pred))),
                            nrow = nrow(pred), ncol = ncol(pred))
   }
 

@@ -157,6 +157,7 @@ test_that("the shipped pedon's attainable deep value is identified", {
   p <- readRDS(f)$piml_profile_obs
   skip_if(is.null(p), "pedon observations not in bundle")
   fit <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
+                                   top = p$top, bottom = p$bottom,
                                    method = "laplace", seed = 7L)
   s <- summary(fit)
   ya <- s[s$parameter == "y_asym", ]
@@ -164,8 +165,33 @@ test_that("the shipped pedon's attainable deep value is identified", {
   # The attainable value is bounded away from zero...
   expect_gt(ya$q2.5, 0)
   # ...while y_inf, the coordinate this package used to report as the answer,
-  # is not identified at all: its interval is more than four times wider and
-  # sits entirely in impossible territory.
+  # is not identified: its interval is several times wider and reaches into
+  # impossible territory (negative carbon).
   expect_gt((yi$q97.5 - yi$q2.5) / (ya$q97.5 - ya$q2.5), 4)
-  expect_lt(yi$q97.5, 0)
+  expect_lt(yi$q2.5, 0)
+})
+
+test_that("the shipped pedon is a real WoSIS profile, not typed-in numbers", {
+  f <- system.file("extdata", "capstone_campaign_results.rds",
+                   package = "edaphos")
+  skip_if(f == "", "capstone bundle not installed")
+  B <- readRDS(f)
+  p <- B$piml_profile_obs
+  skip_if(is.null(p), "pedon observations not in bundle")
+  # It carries horizon boundaries, which a typed-in mid-depth vector did not.
+  expect_true(all(c("top", "bottom", "depth_mid", "soc_g_kg") %in% names(p)))
+  expect_true(all(p$bottom > p$top))
+  # It is traceable to a profile in the shipped WoSIS extract.
+  w <- system.file("extdata", "piml_wosis_cerrado.rds", package = "edaphos")
+  skip_if(w == "", "WoSIS extract not installed")
+  W <- readRDS(w)
+  expect_true(!is.null(B$piml_profile_id))
+  expect_true(B$piml_profile_id %in% W$profiles$profile_id)
+  src <- W$horizons[W$horizons$profile_id == B$piml_profile_id, ]
+  src <- src[order(src$top), ]
+  expect_equal(p$soc_g_kg, src$soc_g_kg)
+  expect_equal(p$top, src$top)
+  # and it reaches well past the 100 cm of the pedon it replaced
+  expect_gt(max(p$bottom), 300)
+  expect_gte(nrow(p), 7L)
 })

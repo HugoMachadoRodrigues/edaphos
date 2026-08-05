@@ -189,6 +189,35 @@ piml_profile_predict <- function(params, depths) {
   min(max(travelled / gap, 0), 1)
 }
 
+# How far ABOVE the data the fitted surface value sits.
+#
+# The deep end is not the only place this model extrapolates. A steep drop
+# between a thick topsoil horizon and the next one forces a monotone
+# exponential to leave z = 0 from very high up: on a real WoSIS profile whose
+# 0-10 cm horizon averages 96 g/kg and whose 10-30 cm horizon averages 8, the
+# fit needs y0 = 775 g/kg -- more carbon than pure organic matter contains.
+# The fit is not wrong about the horizon averages; the point value at z = 0 is
+# simply not something the data determine. Report the ratio so the caller can
+# see it rather than reading y0 as "the surface concentration".
+.piml_surface_ratio <- function(params, values) {
+  m <- max(values, na.rm = TRUE)
+  if (!is.finite(m) || m <= 0 || !is.finite(params$y0)) return(NA_real_)
+  params$y0 / m
+}
+
+# Is the profile the shape this model can represent?
+#
+# lambda > 0 and a first-order relaxation make y(z) monotone, so an argillic
+# bulge, an E horizon under an A, a calcic accumulation or a buried A cannot be
+# represented -- the fit degenerates instead of failing. 20.8% of the >= 4
+# horizon WoSIS Cerrado profiles shipped with the package are not monotone.
+# The model's validity domain has to be stated, not assumed.
+.piml_is_monotone <- function(depths, values) {
+  o <- order(depths)
+  v <- values[o]
+  all(diff(v) <= 0) || all(diff(v) >= 0)
+}
+
 .piml_loss <- function(theta, depths, obs, y_surface = NULL,
                        lambda_reg = 1e-3, top = NULL, bottom = NULL,
                        center = NULL) {
@@ -382,7 +411,12 @@ piml_profile_fit <- function(depths, values, y_surface = NULL,
       # Fraction of the y0 -> y(Inf) journey the deepest horizon reached. Below
       # ~0.5 the deep value is an extrapolation the data do not support, and
       # print() says so rather than letting the number stand unqualified.
-      progress  = .piml_progress(params, depths)
+      progress  = .piml_progress(params, depths),
+      # y0 relative to the largest observation: the surface counterpart of the
+      # same problem.
+      surface_ratio = .piml_surface_ratio(params, values),
+      # Whether the data are the monotone shape this model can represent.
+      in_scope  = .piml_is_monotone(depths, values)
     ),
     class = "edaphos_piml_profile"
   )
@@ -412,6 +446,23 @@ print.edaphos_piml_profile <- function(x, ...) {
                        "is an extrapolation, not an\n        estimate. Do not ",
                        "read it as a parent-material value.\n"),
                 max(x$depths), 100 * pg))
+  }
+  sr <- x$surface_ratio %||% .piml_surface_ratio(x$params, x$values)
+  if (is.finite(sr) && sr > 2) {
+    cat(sprintf(paste0("  NOTE: y0 is %.1fx the largest observation. A monotone ",
+                       "exponential can only\n        match a steep near-surface ",
+                       "drop by leaving z = 0 from far above the\n        data; ",
+                       "y0 here is an extrapolation, not a measured surface ",
+                       "value.\n"), sr))
+  }
+  sc <- x$in_scope %||% .piml_is_monotone(x$depths, x$values)
+  if (isFALSE(sc)) {
+    cat(paste0("  NOTE: the observations are not monotone in depth, and this ",
+               "model is monotone\n        by construction (first-order ",
+               "relaxation, lambda > 0). It cannot represent\n        an ",
+               "argillic bulge, an E horizon under an A, or a buried A. The fit ",
+               "is a\n        least-squares compromise, not a description of ",
+               "the profile.\n"))
   }
   invisible(x)
 }

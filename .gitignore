@@ -68,3 +68,10 @@ figure/
 # R CMD check build directory
 *.Rcheck/
 .positai
+
+# pkgdown build output
+docs/
+# PLOS's own formatting guidelines: third-party PDFs, not ours to redistribute
+manuscript/
+# release bundle build artefact
+tools/pretrain/zenodo-upload.zip

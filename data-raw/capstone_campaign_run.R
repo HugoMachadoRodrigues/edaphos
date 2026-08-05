@@ -199,15 +199,42 @@ causal_effects_df <- bind_rows(causal_effects_list)
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [2/9] Pillar 2 — PIML ===")
 
-pedon_obs <- data.frame(
-  depth_mid = c(5,  15,  25,  40,  60,  80, 100),
-  soc_g_kg  = c(32,  24,  18,  13,   9,   6,   4)
-)
+# A REAL pedon, not a typed-in illustration.
+#
+# This block used to read
+#     depth_mid = c(5, 15, 25, 40, 60, 80, 100)
+#     soc_g_kg  = c(32, 24, 18, 13,  9,  6,   4)
+# -- seven numbers with no provenance, standing in for the entire empirical
+# base of the package's central pillar, while 1,105 real multi-horizon WoSIS
+# Cerrado profiles sat unused in the same repository. Every reviewer on the
+# specialist panel identified that as the submission-ending problem.
+#
+# The profile below is selected from inst/extdata/piml_wosis_cerrado.rds by a
+# criterion declared before looking at any fit: among profiles inside the
+# model's validity domain (monotone non-increasing), take the one with the most
+# horizons, breaking ties by depth reached. That is ISRIC WoSIS profile
+# 1115679: nine horizons to 550 cm.
+.piml_src <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+.piml_cand <- .piml_src$profiles[.piml_src$profiles$monotone_decreasing, ]
+.piml_cand <- .piml_cand[order(-.piml_cand$n_hor, -.piml_cand$z_max), ]
+PEDON_ID <- .piml_cand$profile_id[1L]
+pedon_obs <- .piml_src$horizons[.piml_src$horizons$profile_id == PEDON_ID, ]
+pedon_obs <- pedon_obs[order(pedon_obs$top),
+                       c("top", "bottom", "depth_mid", "soc_g_kg")]
+stopifnot(nrow(pedon_obs) >= 7L, all(pedon_obs$soc_g_kg > 0))
+message(sprintf("  pedon: WoSIS %s, %d horizons to %g cm (real)",
+                PEDON_ID, nrow(pedon_obs), max(pedon_obs$bottom)))
 
 piml_fit <- tryCatch(
   piml_profile_fit_bayesian(
     depths = pedon_obs$depth_mid,
     values = pedon_obs$soc_g_kg,
+    # Horizon boundaries are known for a real pedon, so each datum is matched
+    # to the model's depth-average over its horizon rather than to a point
+    # evaluation at the mid-depth. The typed-in pedon this replaced had no
+    # boundaries, which is one reason the point operator went unquestioned.
+    top    = pedon_obs$top,
+    bottom = pedon_obs$bottom,
     method = "laplace",
     seed   = 7L
   ),
@@ -217,7 +244,7 @@ piml_fit <- tryCatch(
   }
 )
 
-depths_seq <- seq(0, 100, by = 2)
+depths_seq <- seq(0, max(pedon_obs$bottom), length.out = 120L)
 
 if (!is.null(piml_fit)) {
   piml_post <- tryCatch(
