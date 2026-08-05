@@ -37,6 +37,12 @@ distance of any test row.
 data(br_cerrado)
 xy <- br_cerrado[seq(1, nrow(br_cerrado), by = 20), c("x", "y")]
 
+# Scale the buffer to the data. `br_cerrado` is a 0.3-degree demonstration
+# grid whose widest separation is about 47 km, so the 68 km default -- set
+# for the Cerrado-wide WoSIS extract -- would empty a fold, and the function
+# says so rather than returning one silently.
+try(spatial_block_folds(xy, k = 5, buffer_km = 68, seed = 1))
+
 # Without a buffer, the nearest training neighbour of a test row can be
 # arbitrarily close to it.
 f0 <- spatial_block_folds(xy, k = 5, buffer_km = 0, seed = 1)
@@ -44,7 +50,7 @@ round(min(f0$min_dist_km), 2)
 
 # With one, no training row is closer than the buffer, and the cost in
 # discarded training data is reported rather than hidden.
-f1 <- spatial_block_folds(xy, k = 5, buffer_km = 68, seed = 1)
+f1 <- spatial_block_folds(xy, k = 5, buffer_km = 10, seed = 1)
 round(min(f1$min_dist_km), 2)
 f1$n_buffered
 f1

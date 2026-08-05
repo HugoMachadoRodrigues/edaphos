@@ -8,12 +8,14 @@
 # spatially autocorrelated at that separation, the "held-out" test row is
 # partly memorised rather than predicted.
 #
-# It is not a hypothetical here. Measured on this package's own folds, the
-# minimum training-to-test great-circle distance is 15.2 km, and the shortest
-# identified variogram range among the fitted depth-function parameters is
-# 55 km (data-raw/piml_parameter_variograms.R). The nearest training neighbour
-# is therefore well inside the range at which the field is correlated, so the
-# unbuffered estimate of predictive skill is optimistic by an unknown amount.
+# It is not a hypothetical here. Measured on the 3,077 profile coordinates this
+# package benchmarks on, the minimum training-to-test great-circle distance was
+# 12.3 km, while the shortest identified variogram range among the fitted
+# depth-function parameters is 55 km (data-raw/piml_parameter_variograms.R).
+# The nearest training neighbour is therefore well inside the range at which
+# the field is correlated, so the unbuffered estimate of predictive skill is
+# optimistic by an unknown amount. At a 68 km buffer the exclusion costs 88 of
+# those 3,077 rows and lifts the realised minimum to 68.3 km.
 #
 # Roberts et al. (2017, Ecography 40:913-929) is the standard reference for
 # why blocking without a buffer under-states generalisation error.
@@ -57,6 +59,12 @@
 #' data(br_cerrado)
 #' xy <- br_cerrado[seq(1, nrow(br_cerrado), by = 20), c("x", "y")]
 #'
+#' # Scale the buffer to the data. `br_cerrado` is a 0.3-degree demonstration
+#' # grid whose widest separation is about 47 km, so the 68 km default -- set
+#' # for the Cerrado-wide WoSIS extract -- would empty a fold, and the function
+#' # says so rather than returning one silently.
+#' try(spatial_block_folds(xy, k = 5, buffer_km = 68, seed = 1))
+#'
 #' # Without a buffer, the nearest training neighbour of a test row can be
 #' # arbitrarily close to it.
 #' f0 <- spatial_block_folds(xy, k = 5, buffer_km = 0, seed = 1)
@@ -64,7 +72,7 @@
 #'
 #' # With one, no training row is closer than the buffer, and the cost in
 #' # discarded training data is reported rather than hidden.
-#' f1 <- spatial_block_folds(xy, k = 5, buffer_km = 68, seed = 1)
+#' f1 <- spatial_block_folds(xy, k = 5, buffer_km = 10, seed = 1)
 #' round(min(f1$min_dist_km), 2)
 #' f1$n_buffered
 #' f1
