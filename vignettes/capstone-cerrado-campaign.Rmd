@@ -428,8 +428,12 @@ predito.
 prof_obs  <- R$piml_profile_obs
 prof_post <- R$piml_profile_posterior  # edaphos_posterior
 
-depths_seq <- seq(0, 100, by = 2)
+# The depth grid comes from the bundle, not from an assumption about it: the
+# pedon is now a real WoSIS profile reaching 550 cm, and a hard-coded
+# seq(0, 100, by = 2) silently mismatched the posterior's 120 columns.
+depths_seq <- R$piml_profile_depths
 draws_mat  <- prof_post$samples  # (n_draws, n_depths)
+stopifnot(length(depths_seq) == ncol(draws_mat))
 
 q05 <- apply(draws_mat, 2, quantile, 0.05)
 q25 <- apply(draws_mat, 2, quantile, 0.25)
@@ -462,8 +466,8 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
       "  y(inf) = ", signif(R$piml_params$y_asym, 3)
     )
   ) +
-  scale_y_continuous(breaks = seq(0, -100, by = -20),
-                     labels = abs(seq(0, 100, by = 20)))
+  scale_y_continuous(breaks = -pretty(c(0, max(depths_seq)), 5),
+                     labels = pretty(c(0, max(depths_seq)), 5))
 ```
 
 ## Parâmetros pedogenéticos aprendidos

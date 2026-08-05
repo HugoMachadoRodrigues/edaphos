@@ -50,10 +50,33 @@ in where the depth-dependence sits: \code{\link[=piml_profile_fit]{piml_profile_
 \emph{rate} with depth, which no process produces and which pushes its
 equilibrium coordinate outside the admissible range; this model attenuates
 the \emph{target}, following root input, and every parameter is positive with a
-literature prior. Expect it to fit slightly \emph{worse} — that is the point. The
-attenuating-rate model's better fit is bought with a physically impossible
-parameter.
+literature prior.
+
+It also fits better, which was not the expected outcome. On the nine-horizon
+WoSIS profile shipped with the package it reaches an RMSE of 0.415 g/kg
+against 1.342 for the attenuating-rate form, and on leave-the-deepest-out
+prediction across the 875 monotone profiles in
+\code{inst/extdata/piml_wosis_cerrado.rds} it leads at 1.511 against 1.653,
+winning on 467 of them (paired Wilcoxon p = 2e-6). On a single hand-typed
+seven-point profile the ordering was the other way round.
 }
+\section{What this model does not identify}{
+
+\code{lambda} is the ratio \eqn{k/v} of the decomposition rate constant to the
+advection velocity, and \code{B} is the ratio \eqn{I_0/k} of the surface root
+input to the same rate constant. A depth profile alone cannot separate
+them: doubling both \eqn{k} and \eqn{v} leaves every prediction unchanged.
+The fitted numbers are therefore \emph{ratios with soil-physical meaning}, not
+decomposition rates, and reporting \code{lambda} as a turnover rate would be
+wrong. Separating \eqn{k} from \eqn{v} needs an independent constraint —
+radiocarbon ages, a chronosequence, or a measured erosion or deposition
+rate — none of which is in this package.
+
+The same applies to the neglected bioturbation term: setting \eqn{D = 0} is
+an assumption about the depth range, valid below the mixed surface layer,
+and it is not testable from a single profile.
+}
+
 \examples{
 # A real WoSIS Cerrado profile shipped with the package.
 D <- readRDS(system.file("extdata", "piml_wosis_cerrado.rds",

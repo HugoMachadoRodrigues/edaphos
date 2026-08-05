@@ -214,6 +214,19 @@ temporal_convlstm_cell <- function(input_dim, hidden_dim, kernel_size = 3L) {
 #'   a pure temporal smoothness penalty.
 #' @param physics_driver_channel Integer, index (1-based) of the input
 #'   channel that carries the driver \eqn{P_t} (e.g. precipitation).
+#' @param physics_scaling The `scaling` list returned by
+#'   [temporal_cube_to_tensor()] (`soc_mu`, `soc_sd`, `prec_mu`, `prec_sd`).
+#'   **Required whenever `physics_lambda > 0`.** `physics_k_in` and
+#'   `physics_k_out` are rates in the property's raw units, but the driver
+#'   channel the network sees is standardised, whose mean is zero to machine
+#'   precision — so the outflow term \eqn{k_{out} y P / \bar P} cannot be
+#'   formed without the constants that map between the two scales. An earlier
+#'   version guarded the division with `1e-6` instead, which turned the physics
+#'   residual into a 1e6 amplification of numerical noise: it arrived 2.6e7
+#'   times heavier than the data-fit term, its sign flipped with the seed, and
+#'   it made the fit 12 times worse rather than regularising it. Supplying the
+#'   scaling is now mandatory rather than optional, because there is no correct
+#'   way to proceed without it.
 #' @param seed Optional integer for reproducibility.
 #' @param verbose Logical; print loss every 10 epochs.
 #'
@@ -263,30 +276,48 @@ temporal_convlstm_cell <- function(input_dim, hidden_dim, kernel_size = 3L) {
 #'   #    lambda phys_loss
 #'   #        10         0
 #'
-#'   # Trap 2: when it IS active, the mass-balance term divides by the
-#'   # mean of the driver channel -- and temporal_cube_to_tensor() hands
-#'   # over a z-scored driver whose mean is zero to machine precision.
-#'   # The 1e-6 guard turns that into a division by 1e-6.
-#'   print(mean(tt$sequence[1, , 2, , ]))            # 1.225871e-16
+#'   # Trap 2: the mass balance is written in RAW units -- physics_k_in
+#'   # and physics_k_out are the g/kg-per-mm rates of the generator --
+#'   # but temporal_cube_to_tensor() hands over a z-scored driver whose
+#'   # mean is zero to machine precision, so the outflow term
+#'   # k_out * y * P / mean(P) cannot be formed on that scale.
+#'   print(mean(as.numeric(tt$sequence[1, , 2, , ])))   # ~1.2e-16
+#'
+#'   # Supplying the scaling constants is therefore mandatory, not
+#'   # optional. Without them the fit refuses rather than guessing.
+#'   print(class(try(
+#'     temporal_convlstm_fit(tt$sequence, tt$target, return_sequence = TRUE,
+#'                           epochs = 2L, physics_lambda = 1, seed = 1L),
+#'     silent = TRUE)))                                 # "try-error"
 #'
 #'   on <- temporal_convlstm_fit(tt$sequence, tt$target, hidden_dims = 4L,
-#'                               return_sequence = TRUE, epochs = 5L,
-#'                               lr = 0.05, seed = 1L, physics_lambda = 1)
-#'   print(signif(c(fit  = on$loss_fit_history[1],
-#'                  phys = on$loss_phys_history[1],
+#'                               return_sequence = TRUE, epochs = 30L,
+#'                               lr = 0.05, seed = 1L, physics_lambda = 1,
+#'                               physics_scaling = tt$scaling)
+#'   print(signif(c(fit   = on$loss_fit_history[1],
+#'                  phys  = on$loss_phys_history[1],
 #'                  ratio = on$loss_phys_history[1] /
 #'                          on$loss_fit_history[1]), 3))
-#'   #      fit     phys    ratio
-#'   # 1.07e+00 2.76e+07 2.58e+07
 #'
-#'   # So the "prior" arrives ~2.6e7 times heavier than the fit term it
-#'   # is meant to regularise, and training optimises the regulariser.
-#'   # physics_k_in / physics_k_out default to 0.03 / 0.015, which are
-#'   # the RAW g/kg-per-mm rates of temporal_synth_soc_cube(), not the
-#'   # rates of the standardised problem the loss actually sees. Use
-#'   # physics_lambda > 0 only with a strictly positive driver channel
-#'   # whose mean is far from zero, and rescale both coefficients to
-#'   # match those units.
+#'   # The physics term is now the same order of magnitude as the term it
+#'   # regularises, and it is itself minimised over training rather than
+#'   # merely recorded.
+#'   print(signif(c(phys_first = on$loss_phys_history[1],
+#'                  phys_last  = on$loss_phys_history[30]), 3))
+#'
+#'   # What it costs the data fit is now a normal regulariser trade-off,
+#'   # small and of either sign depending on the cube: on this one it
+#'   # costs about 8%, on the seed-1 cube it gains about 15%.
+#'   off2 <- temporal_convlstm_fit(tt$sequence, tt$target, hidden_dims = 4L,
+#'                                 return_sequence = TRUE, epochs = 30L,
+#'                                 lr = 0.05, seed = 1L, physics_lambda = 0)
+#'   print(signif(c(no_physics = off2$loss_fit_history[30],
+#'                  with_physics = on$loss_fit_history[30]), 4))
+#'   # For scale: an earlier version guarded the zero-mean division with
+#'   # 1e-6, which amplified the residual ~1e6-fold. It arrived 2.6e7
+#'   # times heavier than the data term and made the fit 12 times WORSE,
+#'   # so training optimised the guard rather than the soil. That is why
+#'   # the scaling constants are now required rather than optional.
 #' }
 #' @export
 temporal_convlstm_fit <- function(sequence, target,

@@ -8,9 +8,11 @@
 # is not derived from anything. There is no process in soil physics that yields
 # a relaxation rate decaying exponentially with depth; the equation is the
 # Russell & Moore (1968) exponential depth function (reviewed in Minasny et al.
-# 2016) with a fourth shape parameter attached, and its extra flexibility is
-# bought by letting y_inf leave the physically admissible range. A reviewer who
-# knows the depth-function literature recognises it on sight.
+# 2016) with a fourth shape parameter attached. A reviewer who knows the
+# depth-function literature recognises it on sight.
+#
+# On real multi-horizon profiles the derived model below is also the more
+# accurate of the two, so the choice does not cost anything.
 #
 # There IS a derivable equation for soil organic carbon with depth. Take the
 # standard steady-state advection-reaction-diffusion balance (Elzein &
@@ -127,9 +129,15 @@
 #' *rate* with depth, which no process produces and which pushes its
 #' equilibrium coordinate outside the admissible range; this model attenuates
 #' the *target*, following root input, and every parameter is positive with a
-#' literature prior. Expect it to fit slightly *worse* — that is the point. The
-#' attenuating-rate model's better fit is bought with a physically impossible
-#' parameter.
+#' literature prior.
+#'
+#' It also fits better, which was not the expected outcome. On the nine-horizon
+#' WoSIS profile shipped with the package it reaches an RMSE of 0.415 g/kg
+#' against 1.342 for the attenuating-rate form, and on leave-the-deepest-out
+#' prediction across the 875 monotone profiles in
+#' `inst/extdata/piml_wosis_cerrado.rds` it leads at 1.511 against 1.653,
+#' winning on 467 of them (paired Wilcoxon p = 2e-6). On a single hand-typed
+#' seven-point profile the ordering was the other way round.
 #'
 #' @param depths Numeric vector of horizon mid-depths (cm).
 #' @param values Numeric vector of concentrations, same length, strictly
@@ -156,6 +164,21 @@
 #'
 #' Braakhekke MC, Beer C, Hoosbeek MR, et al. (2011). SOMPROF: a vertically
 #' explicit soil organic matter model. *Ecological Modelling* 222:1712–1730.
+#'
+#' @section What this model does not identify:
+#' `lambda` is the ratio \eqn{k/v} of the decomposition rate constant to the
+#' advection velocity, and `B` is the ratio \eqn{I_0/k} of the surface root
+#' input to the same rate constant. A depth profile alone cannot separate
+#' them: doubling both \eqn{k} and \eqn{v} leaves every prediction unchanged.
+#' The fitted numbers are therefore *ratios with soil-physical meaning*, not
+#' decomposition rates, and reporting `lambda` as a turnover rate would be
+#' wrong. Separating \eqn{k} from \eqn{v} needs an independent constraint —
+#' radiocarbon ages, a chronosequence, or a measured erosion or deposition
+#' rate — none of which is in this package.
+#'
+#' The same applies to the neglected bioturbation term: setting \eqn{D = 0} is
+#' an assumption about the depth range, valid below the mixed surface layer,
+#' and it is not testable from a single profile.
 #'
 #' @seealso [piml_profile_fit()] for the attenuating-rate form, and
 #'   `vignette("pilar2-piml-profile")` for the comparison.

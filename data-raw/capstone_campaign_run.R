@@ -805,6 +805,11 @@ R_out <- list(
 
   # P2
   piml_profile_obs       = pedon_obs,
+  # The depth grid the posterior was evaluated on. It used to be implicit --
+  # consumers hard-coded seq(0, 100, by = 2) -- which broke silently the moment
+  # the pedon reached deeper than 100 cm.
+  piml_profile_depths    = depths_seq,
+  piml_profile_id        = PEDON_ID,
   piml_profile_posterior = piml_post,
   piml_params            = piml_params,
   piml_params_table      = piml_params_table,
