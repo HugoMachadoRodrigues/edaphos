@@ -4,7 +4,7 @@
 \alias{piml_hierarchical_predict}
 \title{Predict depth profiles for new locations from covariates}
 \usage{
-piml_hierarchical_predict(object, new_covariates, newdepths)
+piml_hierarchical_predict(object, new_covariates, newdepths, clamp = TRUE)
 }
 \arguments{
 \item{object}{A \code{edaphos_piml_hierarchical}.}
@@ -13,6 +13,14 @@ piml_hierarchical_predict(object, new_covariates, newdepths)
 used at training time (one row per location).}
 
 \item{newdepths}{Numeric vector of depths.}
+
+\item{clamp}{Logical, default \code{TRUE}. When the training response was
+strictly positive and the model returns negative predictions, clamp them
+to zero and warn. The model has \strong{no structural positivity} -- the state
+is integrated by RK4 over an unconstrained network -- so a negative
+prediction means the fit has gone wrong, and the clamp is a guard against
+publishing impossible numbers rather than a repair. \code{FALSE} returns them
+unmodified, still with a warning.}
 }
 \value{
 Numeric matrix, one row per location in \code{new_covariates}, one

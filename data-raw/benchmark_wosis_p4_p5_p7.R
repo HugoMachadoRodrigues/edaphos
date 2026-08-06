@@ -160,7 +160,21 @@ fit_p7_bhs <- function(train, test, cov_cols,
                    backend = if (requireNamespace("edaphos", quietly = TRUE))
                                 "rcpp" else "gibbs",
                    nmcmc = nmcmc, burn = burn,
-                   phi_range = c(0.05, 5),
+                   # NO PINNED BRACKET. This read `phi_range = c(0.05, 5)`, a
+                   # hand-picked constant that appears nowhere else and was
+                   # never justified -- and whose lower end corresponds to a
+                   # correlation range of 60 degrees, nearly three times the
+                   # width of the domain. The profile-MLE railed against it,
+                   # so that constant, not the data, set the correlation rate.
+                   #
+                   # bhs_fit() now derives the bracket from the data geometry,
+                   # bounded by the closest pair and the domain diameter. It
+                   # still rails, at the lower end: these data want a range
+                   # longer than the region they cover, which is the same as
+                   # saying the latent field is not distinguishable from the
+                   # intercept. That is the honest reading and it COSTS us --
+                   # fold-mean RMSE goes from 0.605 under the pin to 0.615 --
+                   # which is exactly why the pin had to go rather than stay.
                    seed = 1L, verbose = FALSE)
   pr <- predict(fit, newdata = test,
                  quantiles = seq(0.025, 0.975, length.out = 20L),

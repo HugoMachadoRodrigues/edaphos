@@ -59,6 +59,26 @@ new location} given its covariates — no horizon measurement required.
 Pair with \code{\link[=al_physics_gate_piml_hierarchical]{al_physics_gate_piml_hierarchical()}} to use that per-location
 envelope as a rejection filter inside the Active Learning loop.
 }
+\section{What the \code{piml_} prefix does and does not mean here}{
+
+Despite the prefix, this function shares the family name with
+\code{\link[=piml_profile_fit]{piml_profile_fit()}} and not its physics. There, the depth function IS the
+closed-form solution of a stated equation and the four fitted numbers are
+that equation's symbols. Here, \eqn{f_\theta} is an unconstrained
+multi-layer perceptron taking \eqn{(z, y, \mathbf{x})} as input channels;
+the covariates do not enter as \eqn{\lambda_0(\mathbf{x})},
+\eqn{\mu(\mathbf{x})}, \eqn{y_\infty(\mathbf{x})}, and no conservation law
+or monotonicity constrains the result.
+
+Two consequences follow and neither is hypothetical. The state can cross
+zero, so a strictly positive property can be predicted negative — see the
+\code{clamp} argument of \code{\link[=piml_hierarchical_predict]{piml_hierarchical_predict()}}. And the fitted
+parameters are not interpretable as rates or asymptotes, so none of the
+identifiability results reported for \code{\link[=piml_profile_fit_bayesian]{piml_profile_fit_bayesian()}} carry
+over. Treat this as a flexible depth-profile regressor conditioned on
+covariates, which is what it is.
+}
+
 \examples{
 # torch is a Suggests dependency AND the lantern binaries are a
 # separate download, so both halves of the guard are needed.
