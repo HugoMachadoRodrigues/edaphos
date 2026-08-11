@@ -476,15 +476,27 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
 ## Parâmetros pedogenéticos aprendidos
 
 ```{r piml-params-table}
+# Colunas seleccionadas por NOME, não por posição: a tabela ganhou as
+# colunas de diagnóstico `rhat` e `ess` quando o caminho reportado passou a
+# MCMC, e um `col.names` de comprimento fixo quebrou silenciosamente a
+# vinheta até o build a apanhar.
+.pt <- R$piml_params_table
+.cols <- c("param", "meaning", "mean", "sd", "ci_lo", "ci_hi", "rhat", "ess")
+.cols <- .cols[.cols %in% names(.pt)]
+.lab <- c(param = "Parâmetro", meaning = "Significado físico",
+          mean = "Média posterior", sd = "DP posterior",
+          ci_lo = "IC 2,5%", ci_hi = "IC 97,5%",
+          rhat = "R-chapéu", ess = "TAE")
 knitr::kable(
-  R$piml_params_table,
+  .pt[, .cols, drop = FALSE],
   digits  = 4,
-  col.names = c("Parâmetro", "Significado físico", "Média posterior",
-                "DP posterior", "IC 2,5%", "IC 97,5%"),
+  col.names = unname(.lab[.cols]),
   caption = paste0(
     "Parâmetros da ODE pedogenética dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf), ",
     "estimados por MCMC de quatro cadeias sobre os horizontes do pedon. Os ",
-    "intervalos são quantis reais da posterior. y_inf NÃO é a assíntota: como ",
+    "intervalos são quantis reais da posterior; R-chapéu e o tamanho amostral ",
+    "efectivo (TAE) são os diagnósticos de convergência do próprio ajuste. ",
+    "y_inf NÃO é a assíntota: como ",
     "a taxa decai com a profundidade, o perfil percorre apenas 1-exp(-kappa) ",
     "do intervalo y0 -> y_inf e estaciona em y_asym. y_inf é negativo e ",
     "não identificado, enquanto y_asym, o valor ",

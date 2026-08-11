@@ -180,12 +180,30 @@ for (ex in exposures_list) {
   samps <- as.numeric(post$samples)
   ci    <- quantile(samps, c(0.025, 0.975))
 
+  # The robustness value belongs with the estimate, not beside it. The
+  # capstone vignette's table asked for an `RV` column and described the
+  # Cinelli-Hazlett quantity in its caption, and this data frame never
+  # carried one -- so the vignette failed to build, which is how the gap was
+  # found. Computing it here keeps the vignette and the manuscript reporting
+  # the same sensitivity analysis rather than two different ones.
+  #
+  # `se` comes from the block-bootstrap posterior and `df` from the adjusted
+  # regression, so the t-statistic below is the one the adjustment actually
+  # supports.
+  .se <- stats::sd(samps)
+  .df <- max(nrow(wosis_profiles) - length(adj) - 2L, 1L)
+  .sens <- tryCatch(
+    causal_sensitivity_summary(effect = mean(samps), se = .se, df = .df),
+    error = function(e) list(rv = NA_real_, rv_alpha = NA_real_))
+
   causal_effects_list[[col]] <- data.frame(
     exposure   = label,
     outcome    = "COS (g/kg)",
     estimate   = mean(samps),
     ci_lo      = as.numeric(ci[1]),
     ci_hi      = as.numeric(ci[2]),
+    RV         = .sens$rv,
+    RV_alpha   = .sens$rv_alpha,
     adjustment = paste(adj, collapse = ", "),
     stringsAsFactors = FALSE
   )
