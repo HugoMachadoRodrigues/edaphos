@@ -367,13 +367,55 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
   # Split each chain in half, so a single long chain that has not mixed
   # within itself is still caught (Gelman et al. 2013, sec 11.4).
   h <- floor(N / 2)
-  if (h < 2L) return(list(rhat = rep(NA_real_, d), ess = rep(NA_real_, d)))
+
+  # HOW FAILURE IS ENCODED, and why it is not NA.
+  #
+  # NA is the statistically honest report for a diagnostic that could not be
+  # computed (Vehtari et al. 2021 give R-hat as undefined for a constant
+  # chain). It is also unsafe, because NA does not survive R's reductions in
+  # the direction a diagnostic needs: `max(all_NA, na.rm = TRUE)` is -Inf and
+  # `min(all_NA, na.rm = TRUE)` is +Inf -- the identity elements of max and min
+  # over the empty set -- and both sit on the PASSING side of a one-sided
+  # threshold. A chain that never moved was therefore certified as converged,
+  # by every consumer in this package at once, including its own tests.
+  #
+  # So the numeric slots carry a failure-SAFE encoding, rhat = Inf and
+  # ess = 0, chosen so that every existing reduction fails on a degenerate
+  # chain even where nobody remembered to fix the call site; and `status`
+  # carries the honest report for anything that wants to print it.
+  fail <- function(msg) list(rhat = rep(Inf, d), ess = rep(0, d),
+                             status = rep(msg, d))
+  if (h < 2L) return(fail("undefined: fewer than 4 kept draws per chain"))
+
   split <- unlist(lapply(chains, function(cm)
     list(cm[seq_len(h), , drop = FALSE],
          cm[(N - h + 1L):N, , drop = FALSE])), recursive = FALSE)
   m <- length(split)
 
+  # Cap the autocorrelation search. The Geyer rule walks until the sum of a
+  # consecutive pair of autocorrelations turns negative, which for a chain
+  # that has not mixed never happens -- it walked to h - 2 = 6998 on a real
+  # profile. Combined with recomputing acf() inside the loop at a growing
+  # lag.max, that made the DIAGNOSTIC cost 197 s of a 202 s fit: quadratic in
+  # exactly the quantity that signals failure, so the fits that most needed
+  # reporting were the ones that timed out before they could report.
+  #
+  # acf() is now computed once per split at a bounded lag, and reaching the
+  # bound is itself recorded: it means the chain is still correlated at lag
+  # `lag_cap`, so the ESS that comes out is an upper bound, not an estimate.
+  #
+  # THE BOUND IS CHOSEN SO IT DOES NOT CHANGE THE ANSWER. Truncating the
+  # Geyer sum early understates tau and therefore OVERSTATES the ESS. Swept on
+  # a deliberately hard case (AR(1) with phi = 0.995 over 14,000 draws, where
+  # the uncapped walk runs to 6,998): a cap of 256 inflates the minimum ESS by
+  # 24% and 512 by 1.1%, while 1024, 2048, 4096 and no cap at all return
+  # 169.7 to one decimal. 2048 is used, which reproduces the uncapped result
+  # with headroom and costs 0.27 s against 0.53 s uncapped -- the 197 s came
+  # from recomputing acf() inside the loop, not from the lag depth.
+  lag_cap <- min(h - 2L, 2048L)
+
   out_rhat <- out_ess <- numeric(d)
+  status <- rep("ok", d)
   for (j in seq_len(d)) {
     X <- vapply(split, function(cm) cm[, j], numeric(h))   # h x m
     # Rank-normalise: makes the diagnostic robust to heavy tails and to
@@ -384,29 +426,146 @@ piml_prior_literature <- function(y_asym_mean = 3, y_asym_sd = 1.2,
     cm_ <- colMeans(z)
     B <- h * stats::var(cm_)
     W <- mean(apply(z, 2L, stats::var))
-    if (!is.finite(W) || W <= 0) { out_rhat[j] <- NA_real_; out_ess[j] <- NA_real_; next }
+    if (!is.finite(W) || W <= 0) {
+      # W == 0 means every split of every chain is constant on this
+      # coordinate: the sampler never moved. The formula below would give
+      # sqrt(var_hat / 0) = +Inf, never a small number, so Inf is also the
+      # limit of the statistic and not merely a sentinel.
+      out_rhat[j] <- Inf
+      out_ess[j]  <- 0
+      status[j]   <- if (is.finite(B) && B > 0)
+        "degenerate: zero within-chain variance, chains frozen at different points"
+      else "degenerate: every draw identical"
+      next
+    }
     var_hat <- ((h - 1) / h) * W + B / h
     out_rhat[j] <- sqrt(var_hat / W)
+    if (!is.finite(out_rhat[j])) {
+      out_rhat[j] <- Inf
+      status[j]   <- "degenerate: non-finite split-R-hat"
+    }
 
     # Bulk ESS from the autocorrelation of the rank-normalised draws,
     # truncated by the Geyer initial-positive-sequence rule.
+    A <- vapply(seq_len(m), function(k)
+      as.numeric(stats::acf(z[, k], lag.max = lag_cap, plot = FALSE,
+                            demean = TRUE)$acf),
+      numeric(lag_cap + 1L))                      # (lag_cap + 1) x m, lags 0..
     rho_sum <- 0
     t <- 1L
-    tmax <- h - 2L
-    while (t < tmax) {
-      rho_t <- mean(vapply(seq_len(m), function(k) {
-        a <- stats::acf(z[, k], lag.max = t + 1L, plot = FALSE, demean = TRUE)$acf
-        if (length(a) < t + 2L) return(NA_real_)
-        a[t + 1L] + a[t + 2L]                    # pairs (rho_t + rho_{t+1})
-      }, numeric(1)), na.rm = TRUE)
-      if (!is.finite(rho_t) || rho_t <= 0) break
+    hit_cap <- TRUE
+    while (t + 1L <= lag_cap) {
+      rho_t <- mean(A[t + 1L, ] + A[t + 2L, ], na.rm = TRUE)
+      if (!is.finite(rho_t) || rho_t <= 0) { hit_cap <- FALSE; break }
       rho_sum <- rho_sum + rho_t
       t <- t + 2L
     }
     tau <- 1 + 2 * rho_sum
-    out_ess[j] <- if (is.finite(tau) && tau > 0) (m * h) / tau else NA_real_
+    if (is.finite(tau) && tau > 0) {
+      out_ess[j] <- (m * h) / tau
+      if (hit_cap && status[j] == "ok")
+        status[j] <- sprintf(
+          "still autocorrelated at lag %d; ESS is an upper bound", lag_cap)
+    } else {
+      out_ess[j] <- 0
+      status[j]  <- "degenerate: non-finite autocorrelation time"
+    }
   }
-  list(rhat = out_rhat, ess = pmin(out_ess, M * N))
+  list(rhat = out_rhat, ess = pmin(out_ess, M * N), status = status)
+}
+
+#' Did this MCMC fit converge?
+#'
+#' The single verdict function for [piml_profile_fit_bayesian()]. Every call
+#' site asks this rather than re-deriving the threshold rule -- which is how
+#' the same inverted comparison came to sit in five places at once.
+#'
+#' @section Why the comparison was inverted:
+#' Split-\eqn{\hat{R}} is undefined for a chain that never moved (Vehtari et
+#' al. 2021), and `.piml_rhat_ess()` correctly returned `NA` for it. But `NA`
+#' does not survive R's reductions in the direction a diagnostic needs:
+#' `max(x, na.rm = TRUE)` over an all-`NA` vector empties the argument set and
+#' returns \eqn{-\infty}, the identity element of the maximum over an empty
+#' set; `min` likewise returns \eqn{+\infty}. Both sit on the PASSING side of
+#' a one-sided threshold, so a chain with an acceptance rate of 0.00 was
+#' certified as converged. On a 60-profile sample of the shipped WoSIS extract,
+#' a quarter of every positive verdict was of that kind.
+#'
+#' The diagnostics now encode an uncomputable statistic as
+#' \eqn{\hat{R} = \infty} and ESS \eqn{= 0}, so every reduction fails on it,
+#' and this function reads them without `na.rm`.
+#'
+#' @param fit An `edaphos_piml_bayes` object.
+#' @param rhat_max Numeric; the split-\eqn{\hat{R}} ceiling. Default 1.01.
+#' @param ess_min Numeric; the bulk-ESS floor. Default 400.
+#' @param accept_min Numeric; an acceptance rate below this is reported in its
+#'   own right, because a frozen chain is easier to recognise from its
+#'   acceptance rate than from a diagnostic. Default 0.005.
+#'
+#' @return A list with `ok` (logical, or `NA` when the object carries no MCMC
+#'   diagnostics), `reasons` (character; empty when `ok`) and `caveats`
+#'   (character; conditions that qualify the result without disqualifying it,
+#'   such as an effective sample size that is an upper bound).
+#'
+#' @references
+#' Vehtari A, Gelman A, Simpson D, Carpenter B, Bürkner P-C (2021).
+#' Rank-normalization, folding, and localization: an improved \eqn{\hat{R}}
+#' for assessing convergence of MCMC. *Bayesian Analysis* 16:667-718.
+#'
+#' @seealso [piml_profile_fit_bayesian()]
+#' @export
+#' @examples
+#' # A frozen chain: R-hat is undefined, and the verdict says so rather than
+#' # letting an empty-set reduction turn it into a pass.
+#' frozen <- lapply(1:4, function(k) matrix(rep(k, 400), 200, 2))
+#' dg <- edaphos:::.piml_rhat_ess(frozen)
+#' dg$rhat          # Inf, not NA
+#' max(dg$rhat, na.rm = TRUE) > 1.01   # TRUE -- this used to be FALSE
+piml_bayes_converged <- function(fit, rhat_max = 1.01, ess_min = 400,
+                                 accept_min = 0.005) {
+  reasons <- character(0)
+  dg <- fit$diagnostics
+  if (is.null(dg) || !length(dg$rhat)) {
+    return(list(ok = NA, reasons = "no MCMC diagnostics on this object"))
+  }
+  rh <- dg$rhat; es <- dg$ess
+  # NO na.rm anywhere below. An NA means the diagnostic could not be computed,
+  # which is a failure, not a value to skip past.
+  if (anyNA(rh) || anyNA(es))
+    reasons <- c(reasons, "diagnostic returned NA for at least one parameter")
+  n_bad <- sum(!is.finite(rh) & !is.na(rh))
+  if (n_bad > 0L)
+    reasons <- c(reasons, sprintf(
+      "split-R-hat undefined for %d of %d parameters", n_bad, length(rh)))
+  fin <- rh[is.finite(rh)]
+  if (length(fin) && max(fin) > rhat_max)
+    reasons <- c(reasons, sprintf("max split-R-hat %.3f > %.2f",
+                                  max(fin), rhat_max))
+  fes <- es[!is.na(es)]
+  if (length(fes) && min(fes) < ess_min)
+    reasons <- c(reasons, sprintf("min bulk ESS %.0f < %.0f",
+                                  min(fes), ess_min))
+  # A chain that never moved is the case the R-hat encoding above exists to
+  # catch, but the acceptance rate says it more directly and in units a user
+  # recognises, so it is reported in its own right.
+  ar <- fit$accept_rate
+  if (!is.null(ar) && is.finite(mean(ar)) && mean(ar) < accept_min)
+    reasons <- c(reasons, sprintf("acceptance rate %.4f: the chain barely moved",
+                                  mean(ar)))
+  # Statuses split into two kinds, and conflating them was a mistake worth
+  # naming: "degenerate: ..." disqualifies the fit, while "still
+  # autocorrelated at lag N" is a CAVEAT -- the ESS is an upper bound, which
+  # matters for interpretation but does not make the chain unusable. Treating
+  # every non-"ok" status as failure made two perfectly serviceable
+  # prior-sensitivity arms abort.
+  st <- dg$status
+  caveats <- character(0)
+  if (!is.null(st)) {
+    bad <- unique(st[grepl("^degenerate|^undefined", st)])
+    if (length(bad)) reasons <- c(reasons, bad)
+    caveats <- unique(st[st != "ok" & !grepl("^degenerate|^undefined", st)])
+  }
+  list(ok = length(reasons) == 0L, reasons = reasons, caveats = caveats)
 }
 
 # --- adaptive random-walk Metropolis -----------------------------------
@@ -705,7 +864,7 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
     summ$ess  <- ifelse(is.na(idx), NA_real_, diag_$ess[idx])
   }
 
-  structure(
+  out <- structure(
     list(
       method      = method,
       map         = .piml_unpack(lap$map[seq_len(length(lap$map) - 1L)],
@@ -721,6 +880,12 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
       # diagnostics are undefined.
       diagnostics = diag_,
       n_chains    = if (is.null(diag_)) NA_integer_ else as.integer(n_chains),
+      # The verdict is computed once, here, and attached -- so a consumer that
+      # wants to know whether to trust this object reads a field instead of
+      # re-deriving a threshold rule. Five call sites re-derived it and all
+      # five had the same inverted comparison.
+      converged   = NA,
+      conv_reasons = character(0),
       depths      = depths,
       values      = values,
       y_surface   = y_surface,
@@ -728,6 +893,15 @@ piml_profile_fit_bayesian <- function(depths, values, y_surface = NULL,
     ),
     class = "edaphos_piml_bayes"
   )
+  # Computed once, on the finished object, and attached. Consumers read
+  # `converged` rather than re-deriving a threshold rule -- which is how the
+  # same inverted comparison came to sit in five places at once.
+  if (!is.null(out$diagnostics)) {
+    v <- piml_bayes_converged(out)
+    out$converged    <- v$ok
+    out$conv_reasons <- v$reasons
+  }
+  out
 }
 
 #' @export
@@ -742,15 +916,24 @@ print.edaphos_piml_bayes <- function(x, ...) {
       # An acceptance rate says nothing about whether the chain crossed the
       # ridge. Split-Rhat and bulk ESS do, and a fit that fails them should
       # say so on its own face rather than in a vignette.
-      rh <- max(x$diagnostics$rhat, na.rm = TRUE)
-      es <- min(x$diagnostics$ess,  na.rm = TRUE)
-      cat(sprintf("  max split-Rhat: %.3f   min bulk ESS: %.0f%s\n", rh, es,
-                  if (rh > 1.01 || es < 400) "   <-- NOT CONVERGED" else ""))
-      if (rh > 1.01 || es < 400) {
-        cat("  Rhat > 1.01 or ESS < 400: the posterior summary below is not\n",
-            "  trustworthy. Increase n_iter, or use method = \"laplace\" and\n",
-            "  report it as an approximation.\n", sep = "")
+      # NO na.rm: on an all-NA vector it empties the argument set, and R
+      # returns -Inf for max and +Inf for min -- both of which pass the test
+      # below. That is how a chain with acceptance rate 0.00 printed clean.
+      rh <- max(x$diagnostics$rhat)
+      es <- min(x$diagnostics$ess)
+      verdict <- piml_bayes_converged(x)
+      cat(sprintf("  max split-Rhat: %s   min bulk ESS: %s%s\n",
+                  if (is.finite(rh)) sprintf("%.3f", rh) else "undefined",
+                  if (is.finite(es)) sprintf("%.0f", es) else "undefined",
+                  if (isTRUE(verdict$ok)) "" else "   <-- NOT CONVERGED"))
+      if (!isTRUE(verdict$ok)) {
+        cat("  the posterior summary below is not trustworthy:\n")
+        for (r in verdict$reasons) cat("    - ", r, "\n", sep = "")
+        cat("  Increase n_iter, or use method = \"laplace\" and report it as\n",
+            "  an approximation.\n", sep = "")
       }
+      if (length(verdict$caveats))
+        for (r in verdict$caveats) cat("  note: ", r, "\n", sep = "")
     }
   }
   cat(sprintf("  sigma (noise): %.4g\n", x$sigma))

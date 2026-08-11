@@ -15,7 +15,7 @@ bhs_fit(
   prior_var_beta = 1000,
   prior_ig_a = 2,
   prior_ig_b = 1,
-  phi_range = c(0.01, 10),
+  phi_range = NULL,
   seed = NULL,
   verbose = FALSE
 )
@@ -44,15 +44,24 @@ when available).}
 \item{prior_ig_a, prior_ig_b}{Shape and scale of the inverse-Gamma
 priors on \code{sigma^2} and \code{tau^2}.}
 
-\item{phi_range}{Numeric length-2; bracket for the profile-MLE of
-the GP rate parameter \code{phi}.  Default \code{c(0.01, 10)}.  Note that
-\code{phi} is a \strong{rate}, entering the correlation as
-\eqn{\rho(d) = \exp(-\phi d)}, so its units are 1/distance and the
-usable bracket depends on whether \code{coords} are in degrees, metres
-or kilometres.  If the profile-MLE lands on an endpoint,
-\code{bhs_fit()} warns: the bracket rather than the data is then
-determining the correlation rate, and the spatial variance
-fraction can be off by an order of magnitude.}
+\item{phi_range}{Numeric length-2; bracket for the profile-MLE of the GP
+rate parameter \code{phi}.  Default \code{NULL}, meaning \strong{derive it from the data}
+as \code{c(3 / max(dist), 3 / min(dist))}.  \code{phi} is a \strong{rate}, entering the
+correlation as \eqn{\rho(d) = \exp(-\phi d)}, so its units are 1/distance
+and a fixed constant cannot suit both a 750 m grid and a 2,000 km biome --
+which is why the previous default of \code{c(0.01, 10)} decided the answer on
+both.
+
+The derived endpoints are the two places where \code{phi} stops being
+identifiable: at the upper end the practical range \code{3 / phi} is shorter
+than the closest pair of observations, so the correlation has decayed to
+nothing between any two of them and the field is a nugget; at the lower
+end the range exceeds the domain, so the field is constant across it and
+confounded with the intercept.  Landing on an endpoint is then a
+statement about the data rather than about the bracket, and \code{bhs_fit()}
+warns and records it in \code{phi_railed} / \code{phi_rail_edge}.  Supply a bracket
+explicitly to override; \code{phi_range_source} on the returned object records
+which happened.}
 
 \item{seed}{Optional RNG seed.}
 
@@ -90,36 +99,39 @@ blk <- br_cerrado[br_cerrado$x \%in\% ux[10:22] &
 names(blk)[names(blk) == "x"] <- "lon"
 names(blk)[names(blk) == "y"] <- "lat"
 
-# phi is a RATE: it enters the correlation as exp(-phi * d), so 1 / phi
-# is a correlation range in the units of `coords` -- degrees here.  All
-# three of these fits warn that the profile-MLE pinned to the top of the
-# bracket, and widening does not help: the likelihood keeps improving as
-# the range shrinks, so whatever you cap phi at is what you get back.
-fit_narrow <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L)
-fit_wide   <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
-                      phi_range = c(0.1, 2000))
-fit_huge   <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
-                      phi_range = c(0.1, 1e5))
-fit_wide
+# phi is a RATE: it enters the correlation as exp(-phi * d), so 3 / phi is
+# a practical correlation range in the units of `coords` -- degrees here.
+#
+# The likelihood on this block keeps improving as the range shrinks, so
+# whatever you cap phi at is what you get back. That is why a CONSTANT
+# bracket cannot be a sensible default: it decides the answer. The default
+# is now derived from the data, and its upper end is the closest pair of
+# observations -- the point past which the correlation has decayed to
+# nothing between any two of them, so there is nothing left to estimate.
+fit_auto  <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L)
+fit_wide  <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
+                     phi_range = c(0.1, 2000))
+fit_huge  <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
+                     phi_range = c(0.1, 1e5))
+fit_auto
 
-# That is not a cosmetic complaint.  The spatial share of the residual
-# variance, sigma^2 / (sigma^2 + tau^2), is 0.025 under the default
-# bracket and 0.886 under the wider one -- the same data, the same
-# formula, opposite conclusions about whether a latent field exists.
-# Widening 50x again moves phi to 1e5 and leaves the share at 0.886:
-# past the point where the correlation matrix is the identity there is
-# nothing left for phi to change.
-# `$spatial` carries the share so no consumer has to recompute it, and
-# `$phi_railed` says whether the bracket or the data produced phi.
-round(c(phi_narrow = fit_narrow$phi_hat, phi_wide = fit_wide$phi_hat,
+# That is not a cosmetic complaint.  Under the two hand-picked brackets the
+# spatial share of the residual variance, sigma^2 / (sigma^2 + tau^2),
+# comes out around 0.89 -- the same data and formula reporting a strong
+# latent field, on a correlation range far shorter than the grid spacing.
+# The derived bracket stops at the spacing and the share falls to about
+# 0.04, which is the honest reading: this block is nearly all nugget.
+round(c(phi_auto = fit_auto$phi_hat, phi_wide = fit_wide$phi_hat,
         phi_huge = fit_huge$phi_hat,
-        share_narrow = fit_narrow$spatial$spatial_share,
+        share_auto = fit_auto$spatial$spatial_share,
         share_wide = fit_wide$spatial$spatial_share,
         share_huge = fit_huge$spatial$spatial_share), 4)
 
-# And the share is only worth reading when the correlation survives to the
-# closest pair of observations. Here it does not, in any of the three:
-vapply(list(fit_narrow, fit_wide, fit_huge),
+# All three still rail, and that is now informative rather than arbitrary:
+# `$phi_range_source` says whether the bracket was derived or supplied, and
+# `$range_below_spacing` says whether the fitted range survived to the
+# closest pair. Only the hand-picked ones fail that test.
+vapply(list(fit_auto, fit_wide, fit_huge),
        function(f) f$spatial$range_below_spacing, logical(1))
 
 # The tie-breaker is not the likelihood, it is the geometry.  At

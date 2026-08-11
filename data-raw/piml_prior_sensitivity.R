@@ -63,14 +63,29 @@ names(fits) <- names(ARMS)
 
 conv <- do.call(rbind, lapply(names(fits), function(nm) {
   s <- fits[[nm]]$summary
-  data.frame(arm = nm, max_rhat = max(s$rhat, na.rm = TRUE),
-             min_ess = min(s$ess, na.rm = TRUE), stringsAsFactors = FALSE)
+  # NO na.rm: on an all-NA vector it returns -Inf / +Inf, which pass both
+  # thresholds below. The diagnostics now encode failure as Inf / 0, so this
+  # reduction fails safely -- but the na.rm has to go regardless, because it
+  # would also silently drop a single degenerate coordinate.
+  v <- piml_bayes_converged(fits[[nm]])
+  data.frame(arm = nm, max_rhat = max(s$rhat), min_ess = min(s$ess),
+             accept = mean(fits[[nm]]$accept_rate),
+             converged = isTRUE(v$ok),
+             reasons = paste(v$reasons, collapse = "; "),
+             caveats = paste(v$caveats, collapse = "; "),
+             stringsAsFactors = FALSE)
 }))
 message("\nconvergence:")
 print(conv, row.names = FALSE, digits = 4)
-if (any(conv$max_rhat > 1.01) || any(conv$min_ess < 400))
-  warning("at least one arm did not converge; the comparison below is not ",
-          "trustworthy until it does", call. = FALSE)
+# STOP, not warn. A warning in a batch script scrolls past, and this bundle
+# feeds a published table. The earlier version of this check was also blind to
+# a chain that never moved: it read max(rhat, na.rm = TRUE), which on all-NA
+# diagnostics is -Inf, and -Inf > 1.01 is FALSE.
+if (!all(conv$converged))
+  stop("at least one arm did not converge, so the comparison is meaningless:\n  ",
+       paste(sprintf("%s: %s", conv$arm[!conv$converged],
+                     conv$reasons[!conv$converged]), collapse = "\n  "),
+       call. = FALSE)
 
 # --- the table --------------------------------------------------------------
 params <- fits[[1]]$summary$parameter

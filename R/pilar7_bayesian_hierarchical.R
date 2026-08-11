@@ -258,12 +258,25 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
   y <- stats::model.response(mf)
   X <- stats::model.matrix(formula, mf)
   S <- as.matrix(coord_df)
+  n  <- length(y); p <- ncol(X)
+  # The data checks come FIRST. Deriving the bracket before them meant that on
+  # a degenerate input -- too few rows, or coincident coordinates, where
+  # max(dist) == min(dist) -- the bracket came out empty and its stopifnot
+  # fired instead of the specific error the caller needed to see.
+  if (n < p + 5L) stop("Too few complete rows for BHS.", call. = FALSE)
   phi_range_source <- if (is.null(phi_range)) "derived from the data" else "supplied"
   if (is.null(phi_range)) phi_range <- .phi_range_from_data(S)
-  stopifnot(is.numeric(phi_range), length(phi_range) == 2L,
-            phi_range[1L] > 0, phi_range[2L] > phi_range[1L])
-  n  <- length(y); p <- ncol(X)
-  if (n < p + 5L) stop("Too few complete rows for BHS.", call. = FALSE)
+  if (!is.numeric(phi_range) || length(phi_range) != 2L ||
+      !all(is.finite(phi_range)) || phi_range[1L] <= 0 ||
+      phi_range[2L] <= phi_range[1L])
+    stop("`phi_range` must be two increasing positive numbers. ",
+         if (identical(phi_range_source, "derived from the data"))
+           paste0("The bracket derived from the coordinates was degenerate, ",
+                  "which happens when every pair of sites is the same ",
+                  "distance apart (or there is only one distinct pair): ",
+                  "there is then no range of correlation scales for the data ",
+                  "to distinguish. Supply `phi_range` explicitly to override.")
+         else "", call. = FALSE)
 
   # Reject a rank-deficient design before the sampler starts.
   #
@@ -370,13 +383,32 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
     if (abs(phi_hat - phi_range[1L]) < tol) "lower" else "upper"
   if (phi_railed) {
     edge <- phi_rail_edge
+    # What railing MEANS depends on where the bracket came from. Against a
+    # supplied bracket it is an artefact and widening is the fix. Against the
+    # derived one the endpoints are the limits of identifiability, so widening
+    # is meaningless -- past the closest pair there is nothing left to
+    # estimate, and past the domain diameter the field is a constant.
+    advice <- if (identical(phi_range_source, "supplied")) {
+      "Widen phi_range and refit; the spatial variance fraction is not trustworthy until phi is interior."
+    } else if (identical(edge, "upper")) {
+      paste("The bracket is derived from the data, and its upper end is the",
+            "closest pair of sites: a practical range shorter than that has",
+            "decayed to nothing between any two observations, so this survey",
+            "cannot distinguish the field from a nugget. Widening the bracket",
+            "would not help; a denser survey would.")
+    } else {
+      paste("The bracket is derived from the data, and its lower end is the",
+            "domain diameter: a range longer than that is constant across the",
+            "study area and confounded with the intercept. Widening the",
+            "bracket would not help; the spatial term is not separately",
+            "identified on this extent.")
+    }
     warning(sprintf(paste(
       "bhs_fit(): the profile-MLE of phi (%.4g) is at the %s end of",
-      "phi_range = c(%.4g, %.4g), so the bracket -- not the data --",
-      "is setting the correlation rate. Widen phi_range and refit;",
-      "the spatial variance fraction is not trustworthy until phi is",
-      "interior. phi is a rate (1/distance) in the units of `coords`."),
-      phi_hat, edge, phi_range[1L], phi_range[2L]), call. = FALSE)
+      "phi_range = c(%.4g, %.4g), %s. %s",
+      "phi is a rate (1/distance) in the units of `coords`."),
+      phi_hat, edge, phi_range[1L], phi_range[2L], phi_range_source, advice),
+      call. = FALSE)
   }
   if (verbose) message(sprintf("[bhs_fit] profile-MLE phi = %.4f", phi_hat))
 

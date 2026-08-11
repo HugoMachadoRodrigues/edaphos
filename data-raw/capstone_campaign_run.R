@@ -323,6 +323,14 @@ if (!is.null(piml_summary)) {
     kappa   = "Total relaxation lambda0/mu; fraction of gap closed = 1-exp(-kappa)",
     y_asym  = "Attainable deep soil organic carbon, y(Inf) (g/kg)"
   )
+  # A non-converged Pillar-2 fit must not reach the bundle that builds Table 2.
+  # The only gate here used to be is.null(piml_fit).
+  .v <- piml_bayes_converged(piml_fit)
+  if (identical(piml_fit$method, "mcmc") && !isTRUE(.v$ok))
+    stop("Pillar 2: MCMC did not converge (",
+         paste(.v$reasons, collapse = "; "),
+         "); refusing to ship the bundle.", call. = FALSE)
+
   piml_params_table <- data.frame(
     param   = piml_summary$parameter,
     meaning = unname(.piml_meaning[piml_summary$parameter]),
@@ -330,8 +338,11 @@ if (!is.null(piml_summary)) {
     sd      = piml_summary$sd,
     ci_lo   = piml_summary$q2.5,
     ci_hi   = piml_summary$q97.5,
-    rhat    = piml_summary$rhat %||% NA_real_,
-    ess     = piml_summary$ess  %||% NA_real_,
+    # Inf / 0, not NA: NA is what a downstream max(..., na.rm = TRUE) turns
+    # into -Inf, i.e. into a pass. This branch fires if the fit ever regresses
+    # to the Laplace path, whose summary carries no diagnostics at all.
+    rhat    = piml_summary$rhat %||% Inf,
+    ess     = piml_summary$ess  %||% 0,
     stringsAsFactors = FALSE
   )
 
@@ -880,6 +891,8 @@ R_out <- list(
   piml_profile_posterior = piml_post,
   piml_params            = piml_params,
   piml_params_table      = piml_params_table,
+  piml_converged         = if (is.null(piml_fit)) NA else piml_fit$converged,
+  piml_accept_rate       = if (is.null(piml_fit)) NA_real_ else mean(piml_fit$accept_rate),
   piml_laplace_vs_mcmc   = piml_laplace_vs_mcmc,
   piml_kappa_tail        = piml_kappa_tail,
   piml_method            = "mcmc",

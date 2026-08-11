@@ -88,8 +88,15 @@ test_that("the reported path is MCMC and carries its convergence diagnostics", {
   # 1.8. A regression to it would be silent without this.
   expect_equal(B$piml_method, "mcmc")
   expect_true(all(c("rhat", "ess") %in% names(B$piml_params_table)))
-  expect_lt(max(B$piml_params_table$rhat, na.rm = TRUE), 1.01)
-  expect_gt(min(B$piml_params_table$ess, na.rm = TRUE), 400)
+  # NO na.rm. I wrote these two lines with it, and on an all-NA column
+  # max(..., na.rm = TRUE) is -Inf and min(..., na.rm = TRUE) is +Inf, so both
+  # assertions passed vacuously on exactly the table they exist to police.
+  expect_false(anyNA(B$piml_params_table$rhat))
+  expect_false(anyNA(B$piml_params_table$ess))
+  expect_true(all(is.finite(B$piml_params_table$rhat)))
+  expect_lt(max(B$piml_params_table$rhat), 1.01)
+  expect_gt(min(B$piml_params_table$ess), 400)
+  expect_true(isTRUE(B$piml_converged))
 
   # and the comparison the manuscript reports has to be in the bundle,
   # because a claim that an approximation is too confident needs its evidence
