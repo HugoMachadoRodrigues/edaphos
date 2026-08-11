@@ -11,8 +11,9 @@ active learning; (6) quantum ML — a ZZFeatureMap state-vector simulator and
 quantum kernel ridge regression; (7) Bayesian hierarchical spatial models
 (Gibbs / RcppArmadillo); (8) neural operators (DeepONet, Fourier Neural
 Operator); (9) diffusion models (DDPM) for soil-map patches; and (10) graph
-attention networks. A unified `edaphos_posterior` class lets every method be
-scored with the same calibration diagnostics. The deep-learning pillars default
+attention networks. A unified `edaphos_posterior` class lets seven of the
+ten pillars be scored with the same calibration diagnostics; Pillars 8, 9 and
+10 have no coercion method and are absent from that comparison. The deep-learning pillars default
 to `backend = "auto"` — the trained torch model when a working libtorch is
 present, otherwise a pure-R reference path.
 
