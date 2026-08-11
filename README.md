@@ -8,8 +8,8 @@
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
 [![Version](https://img.shields.io/badge/version-0.9.0--dev-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases)
 [![Pillars](https://img.shields.io/badge/pillars-10%2F10%20shipped-success)](#the-ten-pillars-at-a-glance)
-[![Vignettes](https://img.shields.io/badge/vignettes-18-9cf)](#vignettes)
-[![Tests](https://img.shields.io/badge/tests-1578%20pass-brightgreen)](#testing-and-continuous-integration)
+[![Vignettes](https://img.shields.io/badge/vignettes-19-9cf)](#vignettes)
+[![Tests](https://img.shields.io/badge/tests-578%20blocks-brightgreen)](#testing-and-continuous-integration)
 [![Codecov](https://codecov.io/gh/HugoMachadoRodrigues/edaphos/branch/main/graph/badge.svg)](https://app.codecov.io/gh/HugoMachadoRodrigues/edaphos)
 
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0002--8070--8126-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-8070-8126)
@@ -391,7 +391,7 @@ R CMD check and a dedicated test suite:
 **Tooling now in place**: `src/` compiled Rcpp, `LinkingTo: Rcpp`,
 `Dockerfile`, `_pkgdown.yml`, `cran-comments.md`,
 `inst/rosc/submission.md`, `NEWS.md` back to v0.1.0, 75+ unit tests
-across 43 test files.
+across 87 test files.
 
 ## 🆕 v2.1.0 — Frente D polish + two new cross-pillar bridges
 
@@ -988,8 +988,8 @@ iv_fit
 #>   map -> soc  (estimator: 2SLS, n = 3020)
 #>   instruments : PC_1, PC_2, PC_3, PC_4, PC_5
 #>   effect      : 0.0039  (OLS 0.0063; backdoor OLS 0.0075)
-#>   stage-1 F   : 1955   (instruments very relevant)
-#>   Sargan J    : p = 3.4e-13   (over-identification rejected)
+#>   stage-1 F   : 4630   (instruments very relevant)
+#>   Sargan J    : p = 2.0e-17   (over-identification rejected)
 ```
 
 **Synthetic DGP validation (known truth β = 1.5):**
@@ -2085,7 +2085,7 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `cerrado_gold_standard_v1.jsonl`              | ~16 KB  | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)             | `llm-kg-benchmark`                |
 | `cerrado_gold_standard_v1_draft.jsonl`        | ~20 KB  | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)           | `llm-annotation-workflow`         |
 | `causal_iv_cerrado.rds`                       |  ~12 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`                |
-| `causal_iv_cerrado_real.rds`                  |   ~1 KB | Real-encoder IV benchmark (v1.9.1): 1 081 embeddings + Sargan passes         | `pilar1-pilar4-iv` §7             |
+| `causal_iv_cerrado_real.rds`                  |   ~1 KB | Real-encoder IV benchmark: 1 081 embeddings; Sargan PARTIAL (see below)         | `pilar1-pilar4-iv` §7             |
 | `causal_sensitivity_cerrado.rds`              | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2)                             | `pilar1-pilar4-iv` §8             |
 | `quantum_foundation_cerrado.rds`              |   ~1 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)     | `pilar4-pilar6-quantum`           |
 | `llm_benchmark_results.rds`                   | ~10 KB  | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
@@ -2115,7 +2115,7 @@ browseVignettes("edaphos")
 | 🏆 `capstone-cerrado-campaign`    | **v1.7.0 capstone**: the six pillars of that release, integrated in a Cerrado sampling-campaign decision. |
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
 | 🛠️ `llm-annotation-workflow`      | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
-| 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`) where Sargan passes; v1.9.2 adds Cinelli-Hazlett sensitivity analysis. |
+| 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`); the Sargan test passes for one exposure of three and is reported as partial; v1.9.2 adds Cinelli-Hazlett sensitivity analysis. |
 | 🌀 `pilar4-pilar6-quantum`        | **v2.0.0**: quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
@@ -2127,9 +2127,9 @@ bibliography (`vignettes/references.bib`).
 
 ## Testing and continuous integration
 
-- **1 578 passing expectations** across 505 `test_that` blocks in 74 test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1. One expectation is skipped here, because its optional dependency is absent; every skip is an explicit `skip_if_not_installed()` gate.
+- **578 `test_that` blocks** across 87 test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1. One expectation is skipped here, because its optional dependency is absent; every skip is an explicit `skip_if_not_installed()` gate.
 - **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`, `reticulate`, `terra`, `igraph`.
-- **`R CMD check --as-cran`:** `2 NOTEs` at commit `a549528`. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in [`cran-comments.md`](cran-comments.md); the log itself is committed at [`tools/status/check.log`](tools/status/check.log).
+- **`R CMD check --as-cran`:** the committed log at [`tools/status/check.log`](tools/status/check.log) ends `Status: 3 NOTEs`; a plain `R CMD check` with all vignettes rebuilt currently reports `Status: OK`. Regenerate both with `tools/status/` before quoting a number here. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in [`cran-comments.md`](cran-comments.md); the log itself is committed at [`tools/status/check.log`](tools/status/check.log).
 - **CI:** GitHub Actions matrix on `macos-latest / R release`, `windows-latest / R release`, `ubuntu-latest / R devel`, `ubuntu-latest / R release`, `ubuntu-latest / R oldrel-1`, `ubuntu-latest / R release`. Note that `TORCH_INSTALL: 0` is set, so libtorch is never installed on any leg and the torch-gated tests do not execute in CI.
 - These figures are generated by `tools/status/patch-readme-metrics.R`
   from a real test run and a real check log. Do not edit them by hand.
@@ -2151,7 +2151,7 @@ bibliography (`vignettes/references.bib`).
 | v1.8.1  | Annotation tool: pre-annotation + Shiny review UI      |   ✅    |
 | v1.8.2  | DAG preview + dark mode + OpenAlex fetcher + Zenodo export |  ✅  |
 | v1.9.0  | Foundation embeddings as causal IVs (2SLS + Sargan)    |   ✅    |
-| v1.9.1  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`)  — Sargan passes empirically | ✅ |
+| v1.9.1  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`) — Sargan PARTIAL: 0.250 / 0.042 / 0.003 | ✅ |
 | v1.9.2  | Cinelli & Hazlett sensitivity analysis (`causal_sensitivity_*`) | ✅   |
 | v2.0.0  | **Quantum kernel over foundation embeddings** (Pilar 4 × Pilar 6) | ✅ |
 | v2.1.0  | Frente D polish: pkgdown + Docker + test suite + Zenodo release + 2 bridges  | ✅ |

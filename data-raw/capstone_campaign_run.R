@@ -87,21 +87,60 @@ n_nodes    <- length(node_list)
 n_edges    <- nrow(edge_table)
 
 # ── LLM claims (cached; run offline with Ollama + gemma4) ────────────────────
-llm_claims <- data.frame(
-  cause      = c("wc_bio_12", "wc_bio_01", "wc_landcover_trees",
-                  "soilgrids_clay", "slope"),
-  effect     = c("soc_topsoil_gkg", "soc_topsoil_gkg", "soc_topsoil_gkg",
-                  "soc_topsoil_gkg", "soilgrids_bdod"),
-  confidence = c(0.92, 0.85, 0.78, 0.71, 0.63),
-  evidence   = c(
-    "Higher MAP drives litter inputs and microbial activity, increasing SOC.",
-    "Higher MAT accelerates decomposition, reducing SOC accumulation.",
-    "Tree cover mediates litter quality and quantity, increasing SOC.",
-    "Clay stabilises SOC via organo-mineral associations.",
-    "Steeper slopes increase erosion, reducing bulk density and SOC."
-  ),
-  stringsAsFactors = FALSE
-)
+# A REAL extraction over the ten Cerrado abstracts, not five typed rows.
+#
+# This block used to hard-code five (cause, effect, confidence) triples with
+# literals descending 0.92 -> 0.63, and the capstone vignette captioned them as
+# "as arestas causais que o Gemma 4 extraiu dos 10 abstracts reais" and drew a
+# conclusion about how the model assigns confidence. None of that came from a
+# model.
+#
+# It now calls causal_llm_extract() against a local Ollama. If no Ollama is
+# reachable, or the model is absent, the slot is set to NULL and
+# `llm_provenance$ok` records why -- it does NOT fall back to typed rows,
+# because a fabricated table that looks like an extraction is what this is
+# fixing. Consumers must handle a NULL and say so.
+.llm_model <- Sys.getenv("EDAPHOS_LLM_MODEL", "llama3.1:8b")
+.ab <- tryCatch(
+  jsonlite::stream_in(file(system.file("extdata", "cerrado_abstracts.jsonl",
+                                       package = "edaphos")), verbose = FALSE),
+  error = function(e) NULL)
+
+llm_claims <- NULL
+llm_provenance <- list(ok = FALSE, model = .llm_model, backend = "ollama",
+                       n_abstracts = 0L, reason = "not attempted")
+if (is.null(.ab)) {
+  llm_provenance$reason <- "cerrado_abstracts.jsonl not found"
+} else {
+  message(sprintf("  extracting causal claims with %s over %d abstracts ...",
+                  .llm_model, nrow(.ab)))
+  .rows <- list()
+  .fail <- 0L
+  for (.i in seq_len(nrow(.ab))) {
+    .r <- tryCatch(causal_llm_extract(.ab$abstract[.i], backend = "ollama",
+                                      model = .llm_model, timeout_sec = 240),
+                   error = function(e) NULL)
+    if (is.null(.r) || !nrow(.r)) { .fail <- .fail + 1L; next }
+    .r$abstract_id <- .i
+    .rows[[length(.rows) + 1L]] <- .r
+  }
+  if (length(.rows)) {
+    llm_claims <- do.call(rbind, .rows)
+    llm_provenance <- list(ok = TRUE, model = .llm_model, backend = "ollama",
+                           n_abstracts = nrow(.ab),
+                           n_abstracts_ok = nrow(.ab) - .fail,
+                           n_claims = nrow(llm_claims),
+                           extracted_at = format(Sys.time()),
+                           reason = "")
+    message(sprintf("  %d claims from %d of %d abstracts",
+                    nrow(llm_claims), nrow(.ab) - .fail, nrow(.ab)))
+  } else {
+    llm_provenance$reason <-
+      sprintf("no Ollama backend reachable, or model '%s' absent", .llm_model)
+    message("  [warn] ", llm_provenance$reason,
+            "; llm_claims left NULL rather than fabricated")
+  }
+}
 
 # Label edges as base vs LLM-added
 base_edges <- paste(edge_table$v, "->", edge_table$w)
@@ -908,6 +947,7 @@ R_out <- list(
   piml_profile_id        = PEDON_ID,
   piml_profile_posterior = piml_post,
   piml_params            = piml_params,
+  llm_provenance         = llm_provenance,
   piml_params_table      = piml_params_table,
   piml_converged         = if (is.null(piml_fit)) NA else piml_fit$converged,
   piml_accept_rate       = if (is.null(piml_fit)) NA_real_ else mean(piml_fit$accept_rate),

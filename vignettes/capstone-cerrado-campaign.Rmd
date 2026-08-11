@@ -280,17 +280,29 @@ claims <- causal_llm_extract(
 
 ```{r llm-claims-table}
 claims <- R$llm_claims
-knitr::kable(
-  utils::head(claims[, c("cause", "effect", "confidence")], 12),
-  digits  = 2,
-  caption = paste0(
-    "Amostra das ", nrow(claims), " arestas causais que o Gemma 4 extraiu dos ",
-    "10 abstracts reais do Cerrado embarcados em `cerrado_abstracts.jsonl`, ",
-    "via `causal_llm_extract(backend = \"ollama\", model = \"gemma4\")`. O ",
-    "modelo atribui confiança ~0,9 de forma quase uniforme, então a ",
-    "confiança não discrimina arestas aqui."
+prov   <- R$llm_provenance
+if (is.null(claims)) {
+  cat("A extração não foi executada nesta compilação: ",
+      prov$reason, ". A tabela é omitida em vez de substituída por linhas ",
+      "digitadas à mão — uma tabela fabricada com aparência de extração é ",
+      "exatamente o defeito que esta seção corrige.\n", sep = "")
+} else {
+  .cf <- sort(unique(claims$confidence))
+  knitr::kable(
+    utils::head(claims[, c("cause", "effect", "confidence")], 12),
+    digits  = 2,
+    caption = paste0(
+      "Amostra das ", nrow(claims), " arestas causais extraídas dos ",
+      prov$n_abstracts, " abstracts reais do Cerrado embarcados em ",
+      "`cerrado_abstracts.jsonl`, via `causal_llm_extract(backend = \"ollama\", ",
+      "model = \"", prov$model, "\")`. O modelo usa apenas ",
+      length(.cf), " valores distintos de confiança (",
+      paste(format(.cf, digits = 2), collapse = ", "), ") nas ",
+      nrow(claims), " arestas, portanto a confiança ordena grosseiramente e ",
+      "não discrimina arestas individuais."
+    )
   )
-)
+}
 ```
 
 De todas as `r nrow(claims)` arestas extraídas, apenas
