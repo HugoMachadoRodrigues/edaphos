@@ -265,7 +265,7 @@ would be an oracle over the very rows being scored:
 |:---|---:|---:|---:|---:|
 | P1 OLS (DAG-selected covariates)  | 0.586 | +0.162 | **+0.204** | 300 |
 | P5 QRF                            | 0.596 | +0.134 | +0.177 | 99 |
-| P7 BHS                            | 0.608 | +0.098 | +0.143 | 200 |
+| P7 BHS                            | 0.613 | +0.085 | +0.131 | 200 |
 | P4 Foundation embeddings + QRF    | 0.621 | +0.060 | +0.107 | 99 |
 | P6 Quantum KRR                    | 0.663 | −0.073 | −0.019 | 100 |
 | P10 GAT (trained attention)       | 0.672 | −0.101 | −0.046 | **8** |
@@ -303,7 +303,7 @@ identical test blocks:
 |:---|---:|---:|---:|---:|---:|
 | P1 OLS (DAG-selected covariates) | 0.583 | 0.583 | +0.000 | 1 | 1 |
 | P5 QRF                           | 0.588 | 0.592 | +0.004 | 2 | 2 |
-| P7 BHS                           | 0.599 | 0.603 | +0.004 | 3 | 3 |
+| P7 BHS                           | 0.605 | 0.608 | +0.003 | 3 | 3 |
 | P6 Quantum KRR                   | 0.660 | 0.663 | +0.003 | 4 | 4 |
 | P10 GAT (trained attention)      | 0.672 | 0.680 | +0.007 | 5 | 5 |
 
@@ -1549,6 +1549,16 @@ regression problem as the **overlap of parametrised quantum states**
 [Schuld and Killoran 2019][schuld2019]], living in a Hilbert space of
 dimension $2^n$ in the number of qubits yet classically simulable in
 pure R for $n \le 8$.
+
+> **What it does on this repository's own benchmark.** Fifth of six methods,
+> RMSE 0.663 against 0.586 for ordinary least squares on DAG-selected
+> covariates, and an NSE of −0.019 — that is, marginally *worse* than
+> predicting the training-fold mean everywhere. The construction below is
+> sound and the implementation is verified against a reference, but on this
+> data set the quantum kernel does not buy accuracy, and the pillar is
+> presented as a method that is available rather than one that is
+> recommended. The four-way head-to-head later in this section reaches the
+> same conclusion from a different angle.
 
 ### Governing object
 

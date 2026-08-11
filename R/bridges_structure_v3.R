@@ -203,17 +203,23 @@ gnn_causal_discovery <- function(gnn_fit, feature_frame,
 #'   signature compatibility and ignored, as is the ODE's
 #'   depth-modulation parameter `mu`.  It returns `weight` times the
 #'   mean squared deviation of the predicted per-step change from
-#'   `-lambda0 * (y - y_inf)`: a length-1 numeric for a
-#'   `(time, row, col)` R array, a scalar `torch_tensor` for a
-#'   `torch_tensor`.
+#'   `-lambda0 * (y - y(Inf))`, where `y(Inf)` is the value the profile
+#'   ATTAINS -- not the ODE coordinate `y_inf`, which is negative on 55% of
+#'   real fits and would make the penalty pull predictions towards
+#'   impossible carbon.  A length-1 numeric for a `(time, row, col)` R
+#'   array, a scalar `torch_tensor` for a `torch_tensor`.
 #' @examples
 #' # Pillar 2 first: fit the pedogenetic ODE to one Cerrado pedon.
 #' depths <- c(5, 15, 30, 60, 100)             # horizon mid-depths, cm
 #' soc_z  <- c(27.6, 21.2, 15.4, 10.1, 7.8)    # SOC, g/kg
 #' ode <- piml_profile_fit(depths, soc_z)
+#' # y_inf is the equation's coordinate; y(Inf) is what the profile reaches.
+#' # The penalty targets the second, because the first is negative on most
+#' # real fits and no soil decays towards negative carbon.
 #' round(c(lambda0 = unname(ode$params$lambda0),
 #'         y_inf   = unname(ode$params$y_inf),
-#'         rmse    = ode$rmse), 4)      # 0.0374 /cm, 6.3567 g/kg, 0.029
+#'         y_attained = unname(edaphos:::.piml_asymptote(ode$params)),
+#'         rmse    = ode$rmse), 4)
 #'
 #' pl <- temporal_piml_loss(ode, weight = 0.1)
 #'
@@ -226,7 +232,8 @@ gnn_causal_discovery <- function(gnn_fit, feature_frame,
 #' obey[1L, , ] <- walk[1L, , ] <- y0
 #' for (t in 2:6) {
 #'   obey[t, , ] <- obey[t - 1L, , ] -
-#'     ode$params$lambda0 * (obey[t - 1L, , ] - ode$params$y_inf)
+#'     ode$params$lambda0 *
+#'       (obey[t - 1L, , ] - edaphos:::.piml_asymptote(ode$params))
 #'   walk[t, , ] <- walk[t - 1L, , ] + rnorm(16)
 #' }
 #' c(kinetic = pl(obey, obey, NULL), random_walk = pl(walk, walk, NULL))
@@ -245,7 +252,8 @@ gnn_causal_discovery <- function(gnn_fit, feature_frame,
 #' # per CENTIMETRE down a profile and is applied here to a per-TIME-
 #' # STEP difference, so the change the penalty calls "expected" at a
 #' # 25 g/kg pixel is
-#' round(-ode$params$lambda0 * (25 - ode$params$y_inf) * c(1, 12), 3)
+#' round(-ode$params$lambda0 *
+#'         (25 - edaphos:::.piml_asymptote(ode$params)) * c(1, 12), 3)
 #' # -0.698 per step and -8.37 over twelve of them: on monthly frames
 #' # that asserts the topsoil loses a third of its carbon every year.
 #' # Rescale lambda0 to the cube's time step before the term is
@@ -268,7 +276,24 @@ temporal_piml_loss <- function(ode_fit, weight = 0.1) {
   pars <- .piml_extract_params(ode_fit)
   lambda0 <- pars$lambda0
   mu      <- pars$mu
-  yi      <- pars$y_inf
+  # THE TARGET IS THE ATTAINED VALUE, NOT THE ODE COORDINATE.
+  #
+  # This used to read `pars$y_inf`, and y_inf is the equilibrium coordinate of
+  # the differential equation -- a value the profile only approaches by a
+  # fraction 1 - e^{-kappa} and, on real fits, routinely never reaches. Over
+  # 200 monotone WoSIS profiles its median is -0.37 g/kg, 55% are negative and
+  # the minimum is -1956 g/kg. Using it as the target of a temporal penalty
+  # tells the network that a pixel should decay towards negative carbon.
+  #
+  # The attained value y(Inf) = y_inf + (y0 - y_inf) e^{-kappa} is what the
+  # solution actually settles on: over the same 200 profiles its median is
+  # 1.5 g/kg and it is never negative. The difference is not cosmetic -- at a
+  # 25 g/kg pixel the rate the penalty calls "expected" is 1.10x too large at
+  # the median, 10.0x at the 90th percentile and 68.9x at the 99th.
+  #
+  # This is the same correction al_physics_gate_piml() already carries, and
+  # for the same reason; it was never propagated here.
+  yi      <- .piml_asymptote(pars)
   force(lambda0); force(mu); force(yi); force(weight)
 
   # Returns a function compatible with either R-matrix or torch-

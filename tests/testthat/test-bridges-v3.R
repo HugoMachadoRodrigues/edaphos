@@ -321,7 +321,15 @@ test_that("temporal_piml_loss: reads bayes-fit params from $map", {
   ), class = "edaphos_piml_bayes")
   loss <- temporal_piml_loss(ode, weight = 0.1)
   expect_equal(environment(loss)$lambda0, 0.05)
-  expect_equal(environment(loss)$yi,       1)
+
+  # The target is the ATTAINED value y(Inf), not the ODE coordinate y_inf.
+  # This assertion used to read `expect_equal(environment(loss)$yi, 1)`, i.e.
+  # y_inf, and it passed while the penalty pulled predictions towards a value
+  # that is negative on 55% of real fits (median -0.37 g/kg, minimum -1956).
+  kappa  <- 0.05 / 0.01
+  attained <- 1 + (30 - 1) * exp(-kappa)
+  expect_equal(environment(loss)$yi, attained)
+  expect_false(isTRUE(all.equal(environment(loss)$yi, 1)))
 })
 
 # ---------------------------------------------------------------------------
