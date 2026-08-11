@@ -30,6 +30,7 @@ lc <- CAP$piml_laplace_vs_mcmc
 PS <- ex("piml_prior_sensitivity.rds")
 SV <- ex("piml_stock_validation.rds")
 CVG <- ex("piml_coverage.rds")
+SC <- ex("piml_stock_at_scale.rds")
 AL <- ex("al_policy_benchmark.rds")
 sw <- PS$budget_sweep
 pt <- PS$table
@@ -357,7 +358,43 @@ knitr::kable(stab[order(as.numeric(stab$MAE)), ], align = "lrrr", row.names = FA
 
 The equation wins, and by more than it does on concentration: mean absolute error `r fmt(mean(abs(sv$stock_ode - sv$stock_obs)),1)` Mg/ha against `r fmt(mean(abs(sv$stock_last - sv$stock_obs)),1)` for copying the nearest measured horizon, `r sum(abs(sv$stock_ode - sv$stock_obs) < abs(sv$stock_last - sv$stock_obs))` wins of `r nrow(sv)` and a paired Wilcoxon *p* of `r fmt(suppressWarnings(stats::wilcox.test(abs(sv$stock_ode - sv$stock_obs), abs(sv$stock_last - sv$stock_obs), paired = TRUE))$p.value, 4)`. The ranking is the same one the concentration scoring gives on these same profiles, which is the part worth stating: the conclusion survives the change of units.
 
-With `r nrow(sv)` profiles this is an indication and not a validation, and we report it as one. What it replaces is a declared impossibility, which was the weaker position.
+With `r nrow(sv)` profiles this is an indication and not a validation, and we report it as one.
+
+**Building the pedotransfer function, and what it turned out to cost.** The paragraph above used to end by saying a stock comparison at scale would need a pedotransfer function we had not built. It exists now, and reporting it changes the conclusion less than building it suggested it would.
+
+The obstacle was never the method but the calibration data: WoSIS carries a measured density for 3.9% of these horizons. The `febr` package's static snapshot does not help — its copy of dataset ctb0017 has no density column at all — but the live SoilData repository's copy of the *same* dataset carries `r SC$ptf$n_cal %||% 166` horizons over `r SC$ptf$n_prof %||% 83` profiles in the Rio Uberaba basin, Minas Gerais, every one with measured bulk density, carbon and particle size, and `r SC$ptf$n_latossolo %||% 144` of them Latossolos — the order the Cerrado is mostly made of.
+
+Calibrated there and validated on spatially blocked folds, the function is barely worth having:
+
+```{r ptf-table}
+pa <- ex("piml_ptf_bulk_density.rds")$aggregate
+knitr::kable(data.frame(
+  Model = pa$model, RMSE = fmt(pa$RMSE, 4), MAE = fmt(pa$MAE, 4),
+  `Relative RMSE` = paste0(fmt(100 * pa$rel_RMSE, 1), "%"),
+  `Skill vs constant` = fmt(pa$skill_vs_constant, 3),
+  check.names = FALSE), align = "lrrrr")
+```
+
+**Table 9. A bulk-density pedotransfer function, on spatially blocked folds.** Calibrated on the Rio Uberaba horizons. "Skill" is the proportional reduction in squared error against a single mean density — the achievable null, not the test-fold mean.
+
+A log-linear function of carbon is the best of the four and improves on a constant density by `r fmt(100*ex("piml_ptf_bulk_density.rds")$aggregate$skill_vs_constant[1],1)`% of squared error. A random forest with texture and depth does no better. On this basin, in other words, one number is very nearly as good as any function we could fit.
+
+**And it is worse than that where it is used.** The blocked estimate is what the function achieves inside its own basin. Applied to the WoSIS profiles that carry a measured density, it is not a `r fmt(100*SC$ptf$blocked_rel_rmse,1)`% error but a `r fmt(100*sqrt(mean((SC$price$bd_ptf - SC$price$bd)^2))/mean(SC$price$bd),1)`% one, and most of that is bias: the measured densities run from `r fmt(min(SC$price$bd),2)` to `r fmt(max(SC$price$bd),2)` g/cm³ while the function never predicts below `r fmt(min(SC$price$bd_ptf),2)`. Substituting it for the measured density raises the stock error on those profiles from `r fmt(mean(abs(SC$price$stock_ode - SC$price$stock_obs)),2)` to `r fmt(mean(abs(SC$price$stock_ode_ptf - SC$price$stock_obs_ptf)),2)` Mg/ha. A cross-validated error estimated inside one basin understates the error in application by more than a factor of two, which is worth stating plainly because it is the ordinary fate of a pedotransfer function moved off its calibration set.
+
+**What it does buy.** Because the density model is common to every method, its error largely cancels in a paired comparison, so it extends the *ranking* — not the absolute stock — from `r nrow(sv)` profiles to `r SC$n_profiles`:
+
+```{r stock-scale}
+st2 <- SC$table
+knitr::kable(data.frame(
+  Method = st2$method, RMSE = fmt(st2$RMSE, 1), MAE = fmt(st2$MAE, 2),
+  `Mean error` = fmt(st2$ME, 2), check.names = FALSE), align = "lrrr")
+```
+
+**Table 10. The depth models scored in Mg/ha over `r SC$n_profiles` profiles.** Density is *modelled* on both sides, so these are not validated stocks; what the table tests is whether the ranking survives the change of units at scale. Held-out deepest horizon, declared domain.
+
+It survives. The equation leads on mean absolute error and wins `r SC$paired$ode_wins[1]` of `r SC$n_profiles` paired comparisons against copying the nearest measured horizon (*p* = `r format(SC$paired$p[1], digits = 2)`), the same direction the concentration scoring gives. The gap between RMSE and MAE is the same heavy tail Table 6 reports, and for the same ten profiles.
+
+So the promise is discharged, and the answer it returns is a limit rather than a result: a stock comparison at Cerrado scale is possible, its ranking is trustworthy, and its absolute values are not — because the density that would make them absolute is, on this evidence, barely predictable from what the archive records.
 
 **What declaring the validity domain does, and does not, buy.** $\lambda_0 > 0$ with a first-order relaxation makes $y(z)$ monotone by construction, so an argillic bulge, an E horizon beneath an A, or a buried A cannot be represented at all; 15.4% of these profiles are not monotone even in their training horizons. It is tempting to read that as a scope statement that rescues the model, and an earlier version of this analysis did exactly that, reporting that restricting to the monotone profiles moved the RMSE from 14.04 to 1.51.
 
@@ -403,7 +440,7 @@ The second anchor fails, and how it fails is the more useful result. Jobbágy an
 
 What it does track is us. Sixty-three percent of the variance in the implied $\beta$ is explained by the fitted surface concentration alone. That is mechanically unsurprising once stated — within this model family the cumulative curve is pinned by the contrast between the surface and the deep value, which is what the parameterisation encodes — but it is decisive for the anchor's purpose. A statistic that is two-thirds determined by a parameter of the model it is meant to validate is not external evidence, and we withdraw it as such. It remains a useful check that the fitted profiles are not absurd; it is not a check that they are right.
 
-**What we do not claim.** Six limits belong with this pillar. The model is monotone and cannot represent horizon differentiation; the 15.4% of profiles whose training horizons already violate monotonicity are not a rounding error but the pedologically most interesting ones, and the profiles that violate it only in the horizon being predicted cannot be excluded in advance at all. Carbon *stock* is scored above on `r nrow(SV$stock)` profiles, which is every one in the declared domain carrying a measured density on an interior horizon. On the harder extrapolation task the archive supports no stock test at all — two profiles have a measured density on their deepest horizon — so the pillar's headline comparison remains a concentration result, and a stock validation at scale would need a pedotransfer function we have not built. Depth is not time — Jenny's kinetics are written in $t$, and substituting $z$ for $t$ is legitimate only through the advection velocity $v$, which appears in the derived form above and nowhere in the original equation. The interpretation of the parameters rests, on the evidence above, on one weak directional association and one anchor that turned out to be internal. The predictive interval covers about half the time against a nominal 90%, so the pillar's *uncertainty* should not be used as a decision input until the model error it omits is represented; and only `r fmt(100*mean(CVG$coverage$converged),0)`% of these fits converge at the package's default budget, with the failures concentrated in the three-to-four-horizon profiles that make up most of the archive, so the Bayesian path is not currently usable at archive scale. And the acquisition machinery this pillar feeds is lateral only: it chooses *where* to sample, never *how deep*, so the decision a depth model is best placed to inform — whether to auger further at a site already visited — cannot currently be expressed in it.
+**What we do not claim.** Six limits belong with this pillar. The model is monotone and cannot represent horizon differentiation; the 15.4% of profiles whose training horizons already violate monotonicity are not a rounding error but the pedologically most interesting ones, and the profiles that violate it only in the horizon being predicted cannot be excluded in advance at all. Carbon *stock* is scored above on `r nrow(SV$stock)` profiles, which is every one in the declared domain carrying a measured density on an interior horizon. On the harder extrapolation task the archive supports no stock test at all — two profiles have a measured density on their deepest horizon — so the pillar's headline comparison remains a concentration result. The pedotransfer function that would lift that restriction now exists and is reported above; what it shows is that bulk density is barely predictable from what this archive records, and that its error in application is more than twice its cross-validated error, so it extends the ranking to Cerrado scale but not the absolute stock. Depth is not time — Jenny's kinetics are written in $t$, and substituting $z$ for $t$ is legitimate only through the advection velocity $v$, which appears in the derived form above and nowhere in the original equation. The interpretation of the parameters rests, on the evidence above, on one weak directional association and one anchor that turned out to be internal. The predictive interval covers about half the time against a nominal 90%, so the pillar's *uncertainty* should not be used as a decision input until the model error it omits is represented; and only `r fmt(100*mean(CVG$coverage$converged),0)`% of these fits converge at the package's default budget, with the failures concentrated in the three-to-four-horizon profiles that make up most of the archive, so the Bayesian path is not currently usable at archive scale. And the acquisition machinery this pillar feeds is lateral only: it chooses *where* to sample, never *how deep*, so the decision a depth model is best placed to inform — whether to auger further at a site already visited — cannot currently be expressed in it.
 
 
 ### Four-dimensional pedometry: machinery without a soil test case
@@ -503,7 +540,7 @@ apol <- do.call(rbind, lapply(AL$arms, function(a) {
 knitr::kable(apol[order(apol$`Final RMSE`), ], align = "lrrrr", row.names = FALSE)
 ```
 
-**Table 9. Acquisition policies against a random draw.** Root-mean-square error on the held-out set after `r AL$rounds` rounds (`r max(AL$aggregate$n_labelled)` labelled profiles), averaged over `r AL$n_rep` repeats. "Wins" counts repeats in which the policy beat random.
+**Table 11. Acquisition policies against a random draw.** Root-mean-square error on the held-out set after `r AL$rounds` rounds (`r max(AL$aggregate$n_labelled)` labelled profiles), averaged over `r AL$n_rep` repeats. "Wins" counts repeats in which the policy beat random.
 
 None of them does. The three policies that edge ahead do so by between 0.0002 and 0.0021 in RMSE, with paired *p* values of 0.81 and above and wins in two or three repeats out of five — which is a tie described at length. BatchBALD, the most elaborate of the five, is the only arm that finishes *behind* the random draw. `r if (AL$n_fallback == 0) "No acquisition fell back to random selection, so these are the policies' own choices." else paste0(AL$n_fallback, " acquisitions fell back to random selection and are marked in the bundle.")`
 
@@ -641,11 +678,11 @@ The article, the package and its data form one artefact. The manuscript is compi
 
 ## A directed-acyclic-graph-informed linear model is the strongest method
 
-Table 10 reports the matched benchmark. Read across the row rather than down the first column: accuracy (root-mean-square error, lower is better), skill against each of two nulls, calibration (coverage near the nominal 0.90 and interval width), the proper score, and wall-clock cost.
+Table 12 reports the matched benchmark. Read across the row rather than down the first column: accuracy (root-mean-square error, lower is better), skill against each of two nulls, calibration (coverage near the nominal 0.90 and interval width), the proper score, and wall-clock cost.
 
 Two columns report skill because the choice of null decides the headline, and the two are easy to conflate. **NSE** is measured against the mean of each fold's *training* rows — a null a deployed map could actually use. **R-squared** is measured against the mean of the *test* rows, which is what the conventional formula does and which no map has access to; it is the harder bar, because the test mean is by construction the best constant predictor of the test set. An earlier version of this paper reported the second under the first's name, and the difference is not cosmetic: three methods fall below the oracle null and two below the achievable one.
 
-**Table 10. Matched cross-pillar benchmark on real Cerrado profiles.** Six methods on the same spatially blocked folds and the same target transform. Folds carry a 68 km buffer: training rows within that distance of any test row are discarded, which cost 88 training rows across the five folds (2.0% of the fold-wise training rows) and raised the realised minimum training-to-test distance from 15.2 to 68.5 km. Those distances are for the 1,095 benchmark profiles; the denser 3,077-profile causal extract, which is a different data set, would give 12.3 km unbuffered. RMSE and CRPS: lower is better. NSE is skill against the training-fold mean, R-squared against the test-fold mean; PICP should approach 0.90. Rows are ordered by RMSE.
+**Table 12. Matched cross-pillar benchmark on real Cerrado profiles.** Six methods on the same spatially blocked folds and the same target transform. Folds carry a 68 km buffer: training rows within that distance of any test row are discarded, which cost 88 training rows across the five folds (2.0% of the fold-wise training rows) and raised the realised minimum training-to-test distance from 15.2 to 68.5 km. Those distances are for the 1,095 benchmark profiles; the denser 3,077-profile causal extract, which is a different data set, would give 12.3 km unbuffered. RMSE and CRPS: lower is better. NSE is skill against the training-fold mean, R-squared against the test-fold mean; PICP should approach 0.90. Rows are ordered by RMSE.
 
 ```{r bench-table}
 tb <- B6$cv_aggregate[order(B6$cv_aggregate$rmse_mean), ]
@@ -680,7 +717,7 @@ knitr::kable(data.frame(
   check.names = FALSE), align = "lrrrrr")
 ```
 
-**Table 11. What the 68 km buffer costs each method.** RMSE on the log1p scale, five methods on identical test blocks; the only difference is which training rows are discarded. Pillar 4 is scored in a separate harness and is not re-run here, so it is absent rather than omitted silently.
+**Table 13. What the 68 km buffer costs each method.** RMSE on the log1p scale, five methods on identical test blocks; the only difference is which training rows are discarded. Pillar 4 is scored in a separate harness and is not re-run here, so it is absent rather than omitted silently.
 
 The buffer costs every method a little and the graph attention network the most (`r fmt(max(bc$d_rmse),3)` against at most `r fmt(sort(bc$d_rmse, decreasing = TRUE)[2],3)` for any other), which is the direction the mechanism predicts: a network whose representation is a graph over spatial neighbours is the method that gains most from training points immediately across a block boundary. But the effect is an order of magnitude smaller than we previously reported, and **the ranking is identical with and without it**. The buffer is the right protocol on principle — a model must not be scored on rows it could interpolate from near-duplicates — and we keep it for that reason, not because it rescues a conclusion. On these data it does not change one.
 
@@ -711,7 +748,7 @@ knitr::kable(data.frame(
   align = "lrrrr")
 ```
 
-**Table 12. Does interval width track extrapolation distance?** Spearman correlations over `r nrow(EXTRA$per_profile)` held-out profiles across the `r EXTRA$n_folds` buffered folds. "partial" removes covariate-space distance, so what remains is geographic.
+**Table 14. Does interval width track extrapolation distance?** Spearman correlations over `r nrow(EXTRA$per_profile)` held-out profiles across the `r EXTRA$n_folds` buffered folds. "partial" removes covariate-space distance, so what remains is geographic.
 
 The three methods answer differently, and the difference is not subtle. The Bayesian hierarchical model's width tracks distance strongly ($\rho = `r fmt(et$width_rho[et$method=='P7'],3)`$), and it survives the covariate control almost intact ($`r fmt(et$width_rho_pc[et$method=='P7'],3)`$) — the widening is geographic, which is what a kriging variance is built to do. The quantile forest widens weakly and mostly for covariate reasons. The graph attention network does not widen at all: its correlation is `r fmt(et$width_rho[et$method=='P10'],3)` raw and `r fmt(et$width_rho_pc[et$method=='P10'],3)` partial — if anything slightly *narrower* further from the data.
 
@@ -725,13 +762,13 @@ Two consequences follow for practice. First, a coverage rate should be read alon
 
 The comparison above runs every method at fixed defaults, which could disadvantage a method whose performance depends on tuning. We therefore compared the graph attention network and the quantile random forest under nested cross-validation on `r GAT$n_profiles` profiles, tuning both inside each training partition and evaluating on outer folds never seen by the tuner. In the stored result of that experiment the graph network reached a pooled Nash–Sutcliffe efficiency of `r fmt(GAT$pooled$nse_vs_training_fold_mean[1],3)` against the forest's `r fmt(GAT$pooled$nse_vs_training_fold_mean[2],3)`; the difference of `r fmt(diff(rev(GAT$pooled$nse_vs_training_fold_mean)),3)` carried a 95% block-bootstrap interval of [`r fmt(GAT$boot_diff_ci[1],3)`, `r fmt(GAT$boot_diff_ci[2],3)`], spanning zero.
 
-That stored result, however, predates subsequent changes to the graph backend, and we report a reproduction failure rather than the stored number alone: re-running the same protocol with the bundle's own per-fold hyperparameters and seeds on the current code returns a pooled efficiency near 0.10 rather than 0.18. We flag this openly because it is the kind of drift between a shipped result and the code that produced it that this framework is explicitly designed to prevent, and in this instance the safeguard was added after the bundle was created. The scientific conclusion is unaffected in direction, and if anything strengthened: under both the stored and the re-run figures the graph attention network does not beat a tuned random forest on this task. We treat the tuned comparison as indicative only, and rest the paper's ranking on the matched benchmark of Table 10, whose bundle is bound to the current code by the test suite.
+That stored result, however, predates subsequent changes to the graph backend, and we report a reproduction failure rather than the stored number alone: re-running the same protocol with the bundle's own per-fold hyperparameters and seeds on the current code returns a pooled efficiency near 0.10 rather than 0.18. We flag this openly because it is the kind of drift between a shipped result and the code that produced it that this framework is explicitly designed to prevent, and in this instance the safeguard was added after the bundle was created. The scientific conclusion is unaffected in direction, and if anything strengthened: under both the stored and the re-run figures the graph attention network does not beat a tuned random forest on this task. We treat the tuned comparison as indicative only, and rest the paper's ranking on the matched benchmark of Table 12, whose bundle is bound to the current code by the test suite.
 
 ## Backdoor adjustment yields robust associations, and exposes confounding
 
-Table 13 reports the causal analysis on `r CAU$n_profiles` profiles. For each exposure it gives the unadjusted association, the association after backdoor adjustment, the block-bootstrap interval, and the robustness value.
+Table 15 reports the causal analysis on `r CAU$n_profiles` profiles. For each exposure it gives the unadjusted association, the association after backdoor adjustment, the block-bootstrap interval, and the robustness value.
 
-**Table 13. Backdoor-adjusted associations with sensitivity bounds.** Units are grams of topsoil organic carbon per kilogram of soil, per unit of the exposure. The robustness value (RV) is the proportion of residual variance an unobserved confounder would need to explain in both exposure and outcome to reduce the estimate to zero.
+**Table 15. Backdoor-adjusted associations with sensitivity bounds.** Units are grams of topsoil organic carbon per kilogram of soil, per unit of the exposure. The robustness value (RV) is the proportion of residual variance an unobserved confounder would need to explain in both exposure and outcome to reduce the estimate to zero.
 
 ```{r causal-table}
 e <- CAU$effects
@@ -768,7 +805,7 @@ knitr::include_graphics("figures/Fig14.png")
 
 ## The graph itself is testable, and it fails its own test
 
-Every estimate in Table 13 is conditional on the directed acyclic graph being a correct description of the system. That premise is not merely an assumption to be declared: a graph implies a specific set of conditional independencies among the observed variables, and those implications can be tested against the data. Zhang and Wadoux [@Zhang2026causal] list this compatibility — faithfulness — as the third of their three conditions for causal inference, alongside an explicit model and causal sufficiency. We are not aware of a digital soil mapping study that reports the test.
+Every estimate in Table 15 is conditional on the directed acyclic graph being a correct description of the system. That premise is not merely an assumption to be declared: a graph implies a specific set of conditional independencies among the observed variables, and those implications can be tested against the data. Zhang and Wadoux [@Zhang2026causal] list this compatibility — faithfulness — as the third of their three conditions for causal inference, alongside an explicit model and causal sufficiency. We are not aware of a digital soil mapping study that reports the test.
 
 ```{r dag-tests, include = FALSE}
 have <- c("soc_topsoil_gkg","wc_bio_01","wc_bio_12","wc_landcover_trees",
@@ -797,7 +834,7 @@ We applied the implied-independence test to the shipped pedogenetic graph, restr
 
 That pooled test has an obvious objection, and it is worth answering rather than leaving open. Soil profiles are spatially autocorrelated, so treating `r format(DT$n, big.mark = ",")` of them as independent observations overstates the effective sample size and will reject independencies a spatially aware test would not. Residualising every variable on a thin-plate spline of position before testing — and charging the smoother its degrees of freedom — reduces the count to **`r n_rej_sp` of `r n_tests`**. Nine individual independencies change verdict in one direction or the other. The conclusion is unchanged in kind: the graph, as drawn from published pedogenetic knowledge, is not compatible with the covariance structure of the data it is applied to, on either test. But the *count* moves with the treatment of spatial structure, and we report both rather than the more striking one. `causal_dag_test()` runs both on any graph and data frame.
 
-This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 13, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
+This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 15, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
 
 We report this rather than quietly adopting a graph that passes. The constructive reading is that the test is cheap, diagnostic and almost never performed: it localises exactly which pedological assumptions the data contradict — here, principally the assumed conditional independence of texture fractions and of texture from terrain — and so tells a soil scientist where the causal model needs work. A framework that makes backdoor adjustment easy should make this test equally easy, and reporting it should become routine.
 
