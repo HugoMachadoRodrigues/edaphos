@@ -15,9 +15,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r figure-size-setup, include=FALSE}
+# See the note in the other vignettes: the built vignettes dominate the
+# package tarball and are almost entirely base64 PNG payload.
+knitr::opts_chunk$set(fig.retina = 1, dpi = 60)
+```
+
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
-                      fig.width = 6.5, fig.height = 4.2, dpi = 100)
+                      fig.width = 6.5, fig.height = 4.2, dpi        = 60)
 library(edaphos)
 ex   <- function(f) readRDS(system.file("extdata", f, package = "edaphos"))
 fmt  <- function(x, d = 3) formatC(x, format = "f", digits = d)

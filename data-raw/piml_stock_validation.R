@@ -171,7 +171,10 @@ if (is.null(ST) || nrow(ST) < 5L) {
   cat("it is reported as one. What it replaces is a declared impossibility.\n")
 }
 
-saveRDS(list(stock = ST,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             stock = ST,
              n_eligible = sum(have), n_usable = length(ST_IN),
              task = "hold out an interior horizon carrying a measured density",
              n_horizons_total = nrow(H),

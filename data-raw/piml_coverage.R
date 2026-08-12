@@ -149,7 +149,10 @@ byn <- do.call(rbind, lapply(unique(CV$nband), function(b) {
 cat("\nby training-set size:\n")
 print(byn[order(byn$horizons), ], row.names = FALSE, digits = 3)
 
-saveRDS(list(coverage = CV, by_depth = strat, by_horizons = byn,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             coverage = CV, by_depth = strat, by_horizons = byn,
              nominal = NOMINAL, n_domain = length(dom),
              built_by = "data-raw/piml_coverage.R"),
         "inst/extdata/piml_coverage.rds")

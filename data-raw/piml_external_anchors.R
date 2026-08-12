@@ -190,7 +190,20 @@ if (!is.null(bd_cmp)) {
               stats::median(bd_cmp$beta_mass - bd_cmp$beta_conc)))
 }
 
-saveRDS(list(profiles = FP, hassink = list(model = m1, model_yasym = m1b,
+# SIZE. A fitted lm carries its whole model frame, and these hold 812 rows
+# that are already in `profiles` -- 269 KB of a 167 KB file, before
+# compression. summary() needs the QR decomposition and the residuals, not the
+# frame, so dropping $model and $effects preserves every coefficient, p-value
+# and R-squared the paper and the tests read, verified by all.equal on both.
+.slim_lm <- function(m) { m$model <- NULL; m$effects <- NULL; m }
+m1  <- .slim_lm(m1)
+m1b <- .slim_lm(m1b)
+m2  <- .slim_lm(m2)
+
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             profiles = FP, hassink = list(model = m1, model_yasym = m1b,
                                            spearman = sp1, n = nrow(A1)),
              beta = list(quantiles = qb, model_trees = m2, n = nrow(A2)),
              bd_check = bd_cmp,

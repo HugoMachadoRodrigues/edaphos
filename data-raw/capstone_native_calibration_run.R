@@ -583,6 +583,23 @@ R_out <- list(
   p6 = list(post = p6_post, truth = p6_truth)
 )
 
+# SIZE. Same argument as the capstone builder: these slots hold 500-draw
+# posteriors at double precision, and laboratory carbon is reported to
+# 0.1 g/kg. Rounding the draws to four decimals costs 5e-05 g/kg -- five
+# orders of magnitude below the measurement -- and is where the room to clear
+# CRAN's 5 MB comes from. Named slots only; a recursive walk over this bundle
+# overflows the C stack on its fitted objects.
+.round_post <- function(x) {
+  if (!inherits(x, "edaphos_posterior")) return(x)
+  for (f in c("samples", "mean", "sd", "epistemic_sd", "aleatoric_sd", "quantiles"))
+    if (!is.null(x[[f]]) && is.numeric(x[[f]])) x[[f]] <- round(x[[f]], 4L)
+  x
+}
+for (.p in c("p1", "p2", "p3", "p4", "p5", "p6")) {
+  if (!is.null(R_out[[.p]]) && is.list(R_out[[.p]]) && !is.null(R_out[[.p]]$post))
+    R_out[[.p]]$post <- .round_post(R_out[[.p]]$post)
+}
+
 saveRDS(R_out, OUT_PATH, compress = "xz")
 sz_kb <- file.size(OUT_PATH) / 1024
 message(sprintf("=== DONE | %s | %.1f KB ===", OUT_PATH, sz_kb))

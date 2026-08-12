@@ -130,7 +130,10 @@ cat(sprintf("clay %.0f-%.0f%% | fine earth on %d of %d horizons\n",
 cat("\nsoil classes (first word):\n")
 print(sort(table(sub(" .*", "", H$soil_class)), decreasing = TRUE)[1:6])
 
-saveRDS(list(horizons = H,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             horizons = H,
              doi = DOI, source = "SoilData (Dataverse)",
              dataset = "ctb0017 - Solos da Bacia Hidrografica do Rio Uberaba",
              fetched_at = format(Sys.Date()),

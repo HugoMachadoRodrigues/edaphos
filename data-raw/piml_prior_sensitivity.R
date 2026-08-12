@@ -161,7 +161,10 @@ cat(sprintf("y(Inf) moves %.1f%% and sigma %.1f%% over the same sweep.\n",
             100 * abs(sweep$y_asym_mean[3] / sweep$y_asym_mean[1] - 1),
             100 * abs(sweep$sigma_mean[3] / sweep$sigma_mean[1] - 1)))
 
-saveRDS(list(table = tab, convergence = conv, budget_sweep = sweep,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             table = tab, convergence = conv, budget_sweep = sweep,
              profile_id = PID,
              n_horizons = nrow(ped), z_max = max(ped$bottom),
              arms = names(ARMS),

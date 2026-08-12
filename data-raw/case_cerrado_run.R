@@ -302,13 +302,34 @@ print(results, row.names = FALSE, digits = 4L)
 
 # ---- persist ---------------------------------------------------------------
 
+# SIZE. The package tarball must clear CRAN's 5 MB, and this bundle was its
+# single heaviest file at 1.40 MB. Two things carried that weight and neither
+# is read by anything:
+#
+#   profiles_e -- `profiles` plus 64 embedding columns, 1.2 MB. Nothing in R/,
+#     tests/, vignettes/ or paper/ reads it; the E arm's RESULTS are in
+#     `results`, and a re-run regenerates the embeddings from the input bundle.
+#
+#   aoi -- the Cerrado boundary at 51,173 vertices, 806 KB, drawn twice in a
+#     vignette as a grey background polygon. Simplified to a 2 km tolerance it
+#     is 115 KB with the area preserved to four decimal places; 2 km on a
+#     19-degree map is well under one pixel.
+#
+# Both are recorded here rather than stripped from the .rds afterwards, so the
+# shipped artefact is what this script produces.
+aoi_slim <- tryCatch(
+  suppressWarnings(sf::st_simplify(b$aoi, dTolerance = 2000, preserveTopology = TRUE)),
+  error = function(e) b$aoi)
+message(sprintf("[run] aoi simplified: %.0f KB -> %.0f KB",
+                as.numeric(object.size(b$aoi)) / 1024,
+                as.numeric(object.size(aoi_slim)) / 1024))
+
 saveRDS(
   list(
     profiles         = profiles,
-    profiles_e       = profiles_e,
     covariate_cols   = covariate_cols,
     emb_cols         = emb_cols,
-    aoi              = b$aoi,
+    aoi              = aoi_slim,
     sources          = b$sources,
     encoder_tag      = moco_tag,
     K_FOLDS          = K_FOLDS,

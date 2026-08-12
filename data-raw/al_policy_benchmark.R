@@ -173,7 +173,10 @@ if (FELL_BACK$n > 0L) {
   cat("\nNo acquisition fell back to random selection.\n")
 }
 
-saveRDS(list(runs = R, aggregate = agg, arms = ARMS, n_rep = N_REP,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             runs = R, aggregate = agg, arms = ARMS, n_rep = N_REP,
              n_fallback = FELL_BACK$n, fallback_reasons = unique(FELL_BACK$why),
              seed_n = SEED_N, batch = BATCH, rounds = ROUNDS,
              n_test = N_TEST, covariates = COVS,

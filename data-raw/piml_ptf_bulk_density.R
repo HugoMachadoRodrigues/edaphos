@@ -169,7 +169,10 @@ out_d <- mean(W$depth_mid > max(H$depth_mid), na.rm = TRUE)
 cat(sprintf("WoSIS horizons outside the calibrated carbon range: %.1f%%\n", 100 * out_c))
 cat(sprintf("WoSIS horizons deeper than any calibration horizon: %.1f%%\n", 100 * out_d))
 
-saveRDS(list(cv = R, aggregate = agg, best = best,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             cv = R, aggregate = agg, best = best,
              blocked_rmse = agg$RMSE[1], blocked_rel_rmse = agg$rel_RMSE[1],
              fit = fit_full, predict = ptf_predict, predictors = PRED,
              calibration = list(n = nrow(H), n_profiles = length(unique(H$profile_id)),

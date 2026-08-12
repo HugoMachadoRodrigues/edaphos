@@ -15,6 +15,14 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  # dpi = 60, down from the 96 these vignettes used. The built vignettes are
+  # 4.4 MB of the package tarball and 83-92% of each is a base64 PNG, so
+  # this is where the room to approach CRAN's 5 MB comes from. Measured on
+  # a 3,000-point scatter at 7.5 x 4.8 in: 270 KB at 96 dpi, 184 KB at 72, 139 KB at 60.
+  # (fig.retina was checked first and is NOT the cause -- html_vignette
+  # does not apply the 2x doubling, so the figures were already at 1x.)
+  fig.retina = 1,
+  dpi        = 60,
   collapse = TRUE, comment = "#>",
   fig.width = 6.5, fig.height = 4.0
 )

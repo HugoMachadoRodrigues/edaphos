@@ -153,7 +153,10 @@ cat(sprintf("ranking agrees across units: %s\n",
             (ode_c < near_c) == (tab$MAE[tab$method == "edaphos ODE"] <
                                  tab$MAE[tab$method == "copy nearest training horizon"])))
 
-saveRDS(list(price = S, at_scale = A, table = tab, paired = paired,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             price = S, at_scale = A, table = tab, paired = paired,
              n_profiles = nrow(A),
              ptf = list(best = P$best, blocked_rmse = P$blocked_rmse,
                         blocked_rel_rmse = P$blocked_rel_rmse,

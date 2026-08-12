@@ -137,7 +137,10 @@ by_node <- do.call(rbind, lapply(sort(unique(R$node)), function(z) {
 }))
 cat("\nby depth node:\n"); print(by_node, row.names = FALSE, digits = 3)
 
-saveRDS(list(cv = R, table = tab, by_node = by_node, nodes = NODES,
+saveRDS(list(
+             # Binds this bundle to the script that made it: see R/provenance.R.
+             provenance = edaphos_provenance(),
+             cv = R, table = tab, by_node = by_node, nodes = NODES,
              n_profiles = nrow(TG), n_cells = nrow(R),
              frac_observed = mean(is.finite(TG)),
              covariates = COVS, buffer_km = 20,

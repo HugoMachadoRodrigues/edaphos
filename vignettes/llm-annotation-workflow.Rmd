@@ -12,6 +12,13 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r figure-size-setup, include=FALSE}
+# See the note in the other vignettes: the built vignettes dominate the
+# package tarball and are almost entirely base64 PNG payload.
+knitr::opts_chunk$set(fig.retina = 1, dpi = 60)
+```
+
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
 ```
