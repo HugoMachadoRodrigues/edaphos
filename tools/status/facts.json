@@ -1,7 +1,7 @@
 {
   "schema": "edaphos-status-facts/1",
   "environment": {
-    "measured_at_utc": "2026-08-12T14:54:12Z",
+    "measured_at_utc": "2026-08-12T22:54:41Z",
     "r_version": "4.6.1",
     "r_nickname": "Happy Hop",
     "platform": "aarch64-apple-darwin23",
@@ -9,16 +9,16 @@
     "os_release": "25.6.0"
   },
   "git": {
-    "head_sha": "35f385f0e4d82e1dd2ab33d1422ccab19496787f",
-    "head_sha_short": "35f385f",
+    "head_sha": "bc59af88fa54030011d9b3807f3c57bb3ea5e233",
+    "head_sha_short": "bc59af8",
     "branch": "main",
     "remote_url": "https://github.com/HugoMachadoRodrigues/edaphos.git",
-    "commit_count": 165,
+    "commit_count": 168,
     "first_commit": "2026-04-20T23:44:43-04:00",
     "first_subject": "Initial release of edaphos 0.1.0",
-    "last_commit": "2026-08-12T08:29:45-04:00",
-    "last_subject": "fix: a published conclusion that its own defect produced, and four false claims",
-    "span_days": 113.364606481481,
+    "last_commit": "2026-08-12T18:03:34-04:00",
+    "last_subject": "feat: bind bundles to the scripts that produce them, and shrink the tarball",
+    "span_days": 113.763090277778,
     "active_days": 19,
     "commits_per_day": {
       "2026-04-20": 1,
@@ -39,15 +39,15 @@
       "2026-08-05": 25,
       "2026-08-10": 2,
       "2026-08-11": 6,
-      "2026-08-12": 1
+      "2026-08-12": 4
     },
-    "days_since_last": 0.100321247442453,
+    "days_since_last": 0.035503463494005,
     "tags": ["v0.1.0", "v0.2.0", "v0.3.0", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0", "v0.8.0", "v0.9.0", "v1.0.0", "v1.1.0", "v1.2.0", "v1.3.0", "v1.3.1", "v1.4.0", "v1.5.0", "v1.6.0", "v3.10.0", "v4.0.0"],
     "tag_count": 19,
     "worktree_clean": false,
     "ahead_behind_origin_main": "0\t0",
     "remote_tag_count": 19,
-    "commits_since_last_tag": 76,
+    "commits_since_last_tag": 79,
     "last_tag": "v4.0.0"
   },
   "description": {
@@ -73,6 +73,8 @@
   "versioning": {
     "news_versions_without_tag": [],
     "n_news_without_tag": 0,
+    "news_versions_stale_tag": "0.9.0",
+    "n_news_stale_tag": 1,
     "tags_without_news": ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0", "1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.3.1", "1.4.0", "1.5.0", "1.6.0", "3.10.0", "4.0.0"],
     "description_version": "0.9.0",
     "newest_news_version": "0.9.0",
@@ -88,8 +90,8 @@
     "readme_install_refs": []
   },
   "code": {
-    "r_file_count": 73,
-    "r_loc": 30514,
+    "r_file_count": 74,
+    "r_loc": 30738,
     "src_file_count": 3,
     "src_loc": 407,
     "largest_r_files": [
@@ -110,12 +112,12 @@
         "lines": 943
       },
       {
-        "file": "pilar7_bayesian_hierarchical.R",
-        "lines": 840
+        "file": "pilar8_neural_operators.R",
+        "lines": 860
       },
       {
-        "file": "pilar8_neural_operators.R",
-        "lines": 826
+        "file": "pilar7_bayesian_hierarchical.R",
+        "lines": 840
       },
       {
         "file": "causal_ontology.R",
@@ -134,23 +136,23 @@
         "lines": 717
       }
     ],
-    "n_exports": 176,
-    "exports": ["active_learning_posterior", "al_fit", "al_history", "al_initial_design", "al_loop", "al_physics_gate_piml", "al_physics_gate_piml_hierarchical", "al_query", "al_query_batchbald", "al_query_bhs", "al_query_causal", "al_query_diffusion", "al_query_neural_operator", "al_query_temporal", "al_update", "as_edaphos_posterior", "benchmark_fit_p10_gat", "benchmark_fit_p1_causal", "benchmark_fit_p6_quantum", "bhs_fit", "causal_4d_plot", "causal_adjustment_set", "causal_augment_dag", "causal_augment_diff", "causal_cerrado_dag", "causal_cerrado_real_dag", "causal_clorpt_dag", "causal_corpus_deduplicate", "causal_corpus_openalex", "causal_corpus_scielo", "causal_dag_test", "causal_effect_bootstrap", "causal_effect_posterior", "causal_effect_time_varying", "causal_effect_trend_test", "causal_estimate_effect", "causal_iv_first_stage", "causal_iv_fit_2sls", "causal_iv_from_embeddings", "causal_iv_posterior", "causal_iv_sargan_test", "causal_kg_add_edge", "causal_kg_alignment", "causal_kg_edges", "causal_kg_load", "causal_kg_new", "causal_kg_rank_edges", "causal_kg_rename", "causal_kg_save", "causal_kg_to_dagitty", "causal_kg_to_turtle", "causal_llm_extract", "causal_llm_ingest_abstract", "causal_llm_ingest_abstract_voted", "causal_llm_ingest_corpus", "causal_llm_vote", "causal_ontology_agrovoc", "causal_ontology_agrovoc_align", "causal_ontology_agrovoc_align_batch", "causal_ontology_cerrado", "causal_ontology_envo", "causal_sensitivity_from_iv", "causal_sensitivity_from_lm", "causal_sensitivity_grid", "causal_sensitivity_summary", "causal_structure_learn", "dm_cosine_schedule", "dm_fit", "dm_sample", "edaphos_bias", "edaphos_ece", "edaphos_interval_score", "edaphos_mae", "edaphos_metrics_summary", "edaphos_nse", "edaphos_picp", "edaphos_posterior", "edaphos_r2", "edaphos_rmse", "edaphos_zenodo_release", "foundation_build_cerrado_stack", "foundation_embed_at_coords", "foundation_finetune_ensemble", "foundation_fit_classifier", "foundation_fit_regressor", "foundation_mcdropout_predict", "foundation_moco_embed", "foundation_moco_embed_raster", "foundation_moco_pretrain", "foundation_moco_pretrain_tiles", "foundation_simclr_embed", "foundation_simclr_pretrain", "foundation_tile_align", "foundation_tile_dataset", "foundation_tile_source_era5", "foundation_tile_source_modis", "foundation_tile_source_soilgrids", "foundation_tile_source_srtm", "foundation_tile_source_worldclim", "foundation_weights_download", "foundation_weights_list", "foundation_weights_load", "gnn_build_graph", "gnn_causal_discovery", "gnn_embed", "gnn_fit", "gnn_fit_ensemble", "llm_annotation_export", "llm_annotation_launch", "llm_annotation_to_zenodo", "llm_annotation_validate", "llm_annotation_vocabulary", "llm_benchmark_cost", "llm_benchmark_kappa", "llm_benchmark_match", "llm_benchmark_metrics", "llm_benchmark_simulate", "llm_kg_ollama_check", "llm_kg_pipeline_run", "llm_preannotate", "no_deeponet_fit", "no_fno_fit", "piml_bayes_converged", "piml_bayes_posterior", "piml_hierarchical_fit", "piml_hierarchical_predict", "piml_neural_ode_fit", "piml_neural_ode_fit_ensemble", "piml_neural_ode_posterior", "piml_neural_ode_predict", "piml_prior_literature", "piml_profile_fit", "piml_profile_fit_bayesian", "piml_profile_fit_group", "piml_profile_fit_mechanistic", "piml_profile_predict", "piml_qkrr_fit", "piml_quantum_kernel", "qf_embed_reduce", "qf_kernel_compare", "qf_krr_benchmark", "qf_krr_fit", "qf_krr_on_gat_embeddings", "quantum_feature_map", "quantum_hamiltonian", "quantum_hamiltonian_from_pyscf", "quantum_hamiltonian_h2", "quantum_hamiltonian_ising_1d", "quantum_hamiltonian_organo_mineral", "quantum_hamiltonian_organo_mineral_nature", "quantum_ibmq_available", "quantum_ibmq_backends", "quantum_ibmq_least_busy", "quantum_ibmq_submit", "quantum_kernel", "quantum_krr_fit", "quantum_krr_posterior", "quantum_nature_available", "quantum_nature_total_energy", "quantum_scale", "quantum_vqe_exact", "quantum_vqe_fit", "spatial_block_folds", "temporal_convlstm_cell", "temporal_convlstm_ensemble_fit", "temporal_convlstm_ensemble_rollout", "temporal_convlstm_fit", "temporal_convlstm_mcdropout_predict", "temporal_convlstm_predict", "temporal_convlstm_rollout", "temporal_cube_to_tensor", "temporal_kalman_update", "temporal_piml_loss", "temporal_synth_soc_cube", "uncertainty_calibrate", "uncertainty_plot_reliability"],
+    "n_exports": 178,
+    "exports": ["active_learning_posterior", "al_fit", "al_history", "al_initial_design", "al_loop", "al_physics_gate_piml", "al_physics_gate_piml_hierarchical", "al_query", "al_query_batchbald", "al_query_bhs", "al_query_causal", "al_query_diffusion", "al_query_neural_operator", "al_query_temporal", "al_update", "as_edaphos_posterior", "benchmark_fit_p10_gat", "benchmark_fit_p1_causal", "benchmark_fit_p6_quantum", "bhs_fit", "causal_4d_plot", "causal_adjustment_set", "causal_augment_dag", "causal_augment_diff", "causal_cerrado_dag", "causal_cerrado_real_dag", "causal_clorpt_dag", "causal_corpus_deduplicate", "causal_corpus_openalex", "causal_corpus_scielo", "causal_dag_test", "causal_effect_bootstrap", "causal_effect_posterior", "causal_effect_time_varying", "causal_effect_trend_test", "causal_estimate_effect", "causal_iv_first_stage", "causal_iv_fit_2sls", "causal_iv_from_embeddings", "causal_iv_posterior", "causal_iv_sargan_test", "causal_kg_add_edge", "causal_kg_alignment", "causal_kg_edges", "causal_kg_load", "causal_kg_new", "causal_kg_rank_edges", "causal_kg_rename", "causal_kg_save", "causal_kg_to_dagitty", "causal_kg_to_turtle", "causal_llm_extract", "causal_llm_ingest_abstract", "causal_llm_ingest_abstract_voted", "causal_llm_ingest_corpus", "causal_llm_vote", "causal_ontology_agrovoc", "causal_ontology_agrovoc_align", "causal_ontology_agrovoc_align_batch", "causal_ontology_cerrado", "causal_ontology_envo", "causal_sensitivity_from_iv", "causal_sensitivity_from_lm", "causal_sensitivity_grid", "causal_sensitivity_summary", "causal_structure_learn", "dm_cosine_schedule", "dm_fit", "dm_sample", "edaphos_bias", "edaphos_ece", "edaphos_interval_score", "edaphos_mae", "edaphos_metrics_summary", "edaphos_nse", "edaphos_picp", "edaphos_posterior", "edaphos_provenance", "edaphos_provenance_check", "edaphos_r2", "edaphos_rmse", "edaphos_zenodo_release", "foundation_build_cerrado_stack", "foundation_embed_at_coords", "foundation_finetune_ensemble", "foundation_fit_classifier", "foundation_fit_regressor", "foundation_mcdropout_predict", "foundation_moco_embed", "foundation_moco_embed_raster", "foundation_moco_pretrain", "foundation_moco_pretrain_tiles", "foundation_simclr_embed", "foundation_simclr_pretrain", "foundation_tile_align", "foundation_tile_dataset", "foundation_tile_source_era5", "foundation_tile_source_modis", "foundation_tile_source_soilgrids", "foundation_tile_source_srtm", "foundation_tile_source_worldclim", "foundation_weights_download", "foundation_weights_list", "foundation_weights_load", "gnn_build_graph", "gnn_causal_discovery", "gnn_embed", "gnn_fit", "gnn_fit_ensemble", "llm_annotation_export", "llm_annotation_launch", "llm_annotation_to_zenodo", "llm_annotation_validate", "llm_annotation_vocabulary", "llm_benchmark_cost", "llm_benchmark_kappa", "llm_benchmark_match", "llm_benchmark_metrics", "llm_benchmark_simulate", "llm_kg_ollama_check", "llm_kg_pipeline_run", "llm_preannotate", "no_deeponet_fit", "no_fno_fit", "piml_bayes_converged", "piml_bayes_posterior", "piml_hierarchical_fit", "piml_hierarchical_predict", "piml_neural_ode_fit", "piml_neural_ode_fit_ensemble", "piml_neural_ode_posterior", "piml_neural_ode_predict", "piml_prior_literature", "piml_profile_fit", "piml_profile_fit_bayesian", "piml_profile_fit_group", "piml_profile_fit_mechanistic", "piml_profile_predict", "piml_qkrr_fit", "piml_quantum_kernel", "qf_embed_reduce", "qf_kernel_compare", "qf_krr_benchmark", "qf_krr_fit", "qf_krr_on_gat_embeddings", "quantum_feature_map", "quantum_hamiltonian", "quantum_hamiltonian_from_pyscf", "quantum_hamiltonian_h2", "quantum_hamiltonian_ising_1d", "quantum_hamiltonian_organo_mineral", "quantum_hamiltonian_organo_mineral_nature", "quantum_ibmq_available", "quantum_ibmq_backends", "quantum_ibmq_least_busy", "quantum_ibmq_submit", "quantum_kernel", "quantum_krr_fit", "quantum_krr_posterior", "quantum_nature_available", "quantum_nature_total_energy", "quantum_scale", "quantum_vqe_exact", "quantum_vqe_fit", "spatial_block_folds", "temporal_convlstm_cell", "temporal_convlstm_ensemble_fit", "temporal_convlstm_ensemble_rollout", "temporal_convlstm_fit", "temporal_convlstm_mcdropout_predict", "temporal_convlstm_predict", "temporal_convlstm_rollout", "temporal_cube_to_tensor", "temporal_kalman_update", "temporal_piml_loss", "temporal_synth_soc_cube", "uncertainty_calibrate", "uncertainty_plot_reliability"],
     "n_s3_methods": 79,
     "ordinal_named_r_files": ["pilar10_graph_nn_torch.R", "pilar10_graph_nn.R", "pilar7_bayesian_hierarchical.R", "pilar8_neural_operators_torch.R", "pilar8_neural_operators.R", "pilar9_diffusion_models.R", "pilar9_diffusion_torch.R"],
     "files_saying_pillar": ["benchmark_wosis.R", "causal_posterior.R", "core_utils.R", "data.R", "edaphos_zenodo_release.R", "edaphos-package.R", "pilar10_graph_nn.R", "pilar8_neural_operators.R", "pilar9_diffusion_models.R", "pillars_roadmap.R", "uncertainty.R"],
     "raw_stop_calls": 157,
     "raw_warning_calls": 17,
-    "stopf_calls": 16,
+    "stopf_calls": 19,
     "not_implemented": ["R/pilar7_bayesian_hierarchical.R:44", "R/pilar7_bayesian_hierarchical.R:667"],
     "undeclared_base_namespaces": []
   },
   "docs": {
-    "rd_count": 189,
-    "rd_with_examples": 178,
+    "rd_count": 191,
+    "rd_with_examples": 180,
     "rd_examples_dontrun": 43,
     "rd_examples_donttest": 12,
-    "rd_examples_runnable": 123,
+    "rd_examples_runnable": 125,
     "exports_without_examples": [],
     "n_exports_without_examples": 0,
     "exports_without_rd": [],
@@ -203,17 +205,17 @@
         "says_ten": 1
       }
     ],
-    "readme_bytes": 111448,
+    "readme_bytes": 111250,
     "readme_mentions_getting_started": 0
   },
   "rd_portability": {
-    "rd_files_with_non_latin1": ["man/al_initial_design.Rd", "man/al_loop.Rd", "man/al_physics_gate_piml_hierarchical.Rd", "man/al_physics_gate_piml.Rd", "man/al_query_batchbald.Rd", "man/al_query.Rd", "man/causal_adjustment_set.Rd", "man/causal_augment_dag.Rd", "man/causal_augment_diff.Rd", "man/causal_corpus_deduplicate.Rd", "man/causal_dag_test.Rd", "man/causal_estimate_effect.Rd", "man/causal_kg_add_edge.Rd", "man/causal_kg_alignment.Rd", "man/causal_kg_new.Rd", "man/causal_kg_rank_edges.Rd", "man/causal_kg_save.Rd", "man/causal_kg_to_turtle.Rd", "man/causal_llm_extract.Rd", "man/causal_llm_ingest_corpus.Rd", "man/causal_llm_vote.Rd", "man/causal_ontology_agrovoc_align_batch.Rd", "man/causal_ontology_agrovoc_align.Rd", "man/causal_ontology_cerrado.Rd", "man/causal_structure_learn.Rd", "man/edaphos_nse.Rd", "man/edaphos-package.Rd", "man/edaphos-roadmap.Rd", "man/foundation_fit_classifier.Rd", "man/foundation_fit_regressor.Rd", "man/foundation_simclr_embed.Rd", "man/foundation_weights_download.Rd", "man/foundation_weights_list.Rd", "man/foundation_weights_load.Rd", "man/gnn_fit.Rd", "man/no_deeponet_fit.Rd", "man/piml_hierarchical_fit.Rd", "man/piml_neural_ode_fit_ensemble.Rd", "man/piml_neural_ode_fit.Rd", "man/piml_profile_fit_bayesian.Rd", "man/piml_profile_fit_mechanistic.Rd", "man/piml_profile_fit.Rd", "man/predict.edaphos_foundation_classifier.Rd", "man/predict.edaphos_foundation_regressor.Rd", "man/predict.edaphos_piml_bayes.Rd", "man/predict.edaphos_piml_neural_ode_ensemble.Rd", "man/quantum_feature_map.Rd", "man/quantum_hamiltonian_from_pyscf.Rd", "man/quantum_hamiltonian_h2.Rd", "man/quantum_hamiltonian_organo_mineral_nature.Rd", "man/quantum_hamiltonian.Rd", "man/quantum_ibmq_backends.Rd", "man/quantum_ibmq_least_busy.Rd", "man/quantum_ibmq_submit.Rd", "man/quantum_kernel.Rd", "man/quantum_krr_fit.Rd", "man/quantum_nature_available.Rd", "man/quantum_nature_total_energy.Rd", "man/quantum_scale.Rd", "man/quantum_vqe_exact.Rd", "man/quantum_vqe_fit.Rd", "man/temporal_convlstm_fit.Rd", "man/temporal_convlstm_rollout.Rd", "man/temporal_cube_to_tensor.Rd", "man/temporal_kalman_update.Rd", "man/temporal_synth_soc_cube.Rd"],
-    "n_rd_files_with_non_latin1": 66,
+    "rd_files_with_non_latin1": ["man/al_initial_design.Rd", "man/al_loop.Rd", "man/al_physics_gate_piml_hierarchical.Rd", "man/al_physics_gate_piml.Rd", "man/al_query_batchbald.Rd", "man/al_query.Rd", "man/causal_adjustment_set.Rd", "man/causal_augment_dag.Rd", "man/causal_augment_diff.Rd", "man/causal_corpus_deduplicate.Rd", "man/causal_dag_test.Rd", "man/causal_estimate_effect.Rd", "man/causal_kg_add_edge.Rd", "man/causal_kg_alignment.Rd", "man/causal_kg_new.Rd", "man/causal_kg_rank_edges.Rd", "man/causal_kg_save.Rd", "man/causal_kg_to_turtle.Rd", "man/causal_llm_extract.Rd", "man/causal_llm_ingest_corpus.Rd", "man/causal_llm_vote.Rd", "man/causal_ontology_agrovoc_align_batch.Rd", "man/causal_ontology_agrovoc_align.Rd", "man/causal_ontology_cerrado.Rd", "man/causal_structure_learn.Rd", "man/edaphos_nse.Rd", "man/edaphos_provenance.Rd", "man/edaphos-package.Rd", "man/edaphos-roadmap.Rd", "man/foundation_fit_classifier.Rd", "man/foundation_fit_regressor.Rd", "man/foundation_simclr_embed.Rd", "man/foundation_weights_download.Rd", "man/foundation_weights_list.Rd", "man/foundation_weights_load.Rd", "man/gnn_fit.Rd", "man/no_deeponet_fit.Rd", "man/piml_hierarchical_fit.Rd", "man/piml_neural_ode_fit_ensemble.Rd", "man/piml_neural_ode_fit.Rd", "man/piml_profile_fit_bayesian.Rd", "man/piml_profile_fit_mechanistic.Rd", "man/piml_profile_fit.Rd", "man/predict.edaphos_foundation_classifier.Rd", "man/predict.edaphos_foundation_regressor.Rd", "man/predict.edaphos_piml_bayes.Rd", "man/predict.edaphos_piml_neural_ode_ensemble.Rd", "man/quantum_feature_map.Rd", "man/quantum_hamiltonian_from_pyscf.Rd", "man/quantum_hamiltonian_h2.Rd", "man/quantum_hamiltonian_organo_mineral_nature.Rd", "man/quantum_hamiltonian.Rd", "man/quantum_ibmq_backends.Rd", "man/quantum_ibmq_least_busy.Rd", "man/quantum_ibmq_submit.Rd", "man/quantum_kernel.Rd", "man/quantum_krr_fit.Rd", "man/quantum_nature_available.Rd", "man/quantum_nature_total_energy.Rd", "man/quantum_scale.Rd", "man/quantum_vqe_exact.Rd", "man/quantum_vqe_fit.Rd", "man/temporal_convlstm_fit.Rd", "man/temporal_convlstm_rollout.Rd", "man/temporal_cube_to_tensor.Rd", "man/temporal_kalman_update.Rd", "man/temporal_synth_soc_cube.Rd"],
+    "n_rd_files_with_non_latin1": 67,
     "non_latin1_chars": [
       {
         "char": "<U+2014>",
         "codepoint": "U+2014",
-        "occurrences": 197
+        "occurrences": 199
       },
       {
         "char": "<U+2013>",
@@ -1155,12 +1157,12 @@
     "n_phantom": 9
   },
   "tests_static": {
-    "test_file_count": 88,
-    "test_that_blocks": 583,
-    "expect_calls": 1622,
+    "test_file_count": 90,
+    "test_that_blocks": 591,
+    "expect_calls": 1649,
     "skip_if_not_installed": 81,
-    "skip_on_cran": 12,
-    "set_seed_calls": 143,
+    "skip_on_cran": 13,
+    "set_seed_calls": 144,
     "gate_counts": [
       {
         "dependency": "torch",
@@ -1207,19 +1209,19 @@
         "gate_sites": 11
       }
     ],
-    "tests_reading_extdata": ["test-al-policy-claims.R", "test-causal-real-bundle.R", "test-extrapolation-claims.R", "test-headline-claims.R", "test-llm-annotation.R", "test-piml-closed-form.R", "test-piml-convergence-verdict.R", "test-piml-coverage-claims.R", "test-piml-params-table-real.R", "test-ptf-stock-claims.R", "test-readme-numbers.R", "test-stock-validation.R"],
-    "result_bundles": ["al_policy_benchmark.rds", "benchmark_wosis_6pilar.rds", "benchmark_wosis_p4_p5_p7.rds", "buffer_effect.rds", "capstone_campaign_results.rds", "capstone_native_calibration.rds", "case_cerrado_results.rds", "causal_cerrado_real_v2.rds", "causal_cerrado_real.rds", "causal_discovery_results.rds", "causal_iv_cerrado_real.rds", "causal_iv_cerrado.rds", "causal_sensitivity_cerrado.rds", "interval_width_vs_extrapolation.rds", "llm_benchmark_results.rds", "pilar10_gat_tuning.rds", "piml_coverage.rds", "piml_depth_benchmark.rds", "piml_external_anchors.rds", "piml_parameter_variograms.rds", "piml_prior_sensitivity.rds", "piml_ptf_bulk_density.rds", "piml_stock_at_scale.rds", "piml_stock_validation.rds", "piml_wosis_cerrado.rds", "quantum_foundation_cerrado.rds", "soildata_uberaba_bd.rds", "temporal_cerrado_results.rds"],
+    "tests_reading_extdata": ["test-al-policy-claims.R", "test-bundle-provenance.R", "test-causal-real-bundle.R", "test-extrapolation-claims.R", "test-headline-claims.R", "test-llm-annotation.R", "test-no-masked-loss.R", "test-piml-closed-form.R", "test-piml-convergence-verdict.R", "test-piml-coverage-claims.R", "test-piml-params-table-real.R", "test-ptf-stock-claims.R", "test-readme-numbers.R", "test-stock-validation.R"],
+    "result_bundles": ["al_policy_benchmark.rds", "benchmark_wosis_6pilar.rds", "benchmark_wosis_p4_p5_p7.rds", "buffer_effect.rds", "capstone_campaign_results.rds", "capstone_native_calibration.rds", "case_cerrado_results.rds", "causal_cerrado_real_v2.rds", "causal_cerrado_real.rds", "causal_discovery_results.rds", "causal_iv_cerrado_real.rds", "causal_iv_cerrado.rds", "causal_sensitivity_cerrado.rds", "interval_width_vs_extrapolation.rds", "llm_benchmark_results.rds", "pilar10_gat_tuning.rds", "pilar8_real_pedons.rds", "piml_coverage.rds", "piml_depth_benchmark.rds", "piml_external_anchors.rds", "piml_parameter_variograms.rds", "piml_prior_sensitivity.rds", "piml_ptf_bulk_density.rds", "piml_stock_at_scale.rds", "piml_stock_validation.rds", "piml_wosis_cerrado.rds", "quantum_foundation_cerrado.rds", "soildata_uberaba_bd.rds", "temporal_cerrado_results.rds"],
     "exports_never_in_tests": ["causal_ontology_agrovoc", "causal_ontology_envo", "edaphos_zenodo_release", "foundation_build_cerrado_stack", "foundation_tile_source_era5", "foundation_tile_source_modis", "foundation_tile_source_soilgrids", "foundation_tile_source_srtm", "foundation_tile_source_worldclim", "gnn_fit_ensemble", "llm_annotation_launch", "piml_neural_ode_predict", "piml_profile_fit_mechanistic", "temporal_convlstm_predict"]
   },
   "tests_run": {
-    "passed": 2051,
+    "passed": 2123,
     "failed": 0,
     "errored": 0,
     "skipped": 1,
     "warnings": 4,
-    "files": 88,
-    "results": 583,
-    "real_seconds": 524.6,
+    "files": 90,
+    "results": 591,
+    "real_seconds": 528,
     "failing_files": []
   },
   "dependencies": {
@@ -1228,7 +1230,7 @@
     "n_missing": 5
   },
   "check": {
-    "log_path": "tools/status/check.log",
+    "log_path": "/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/tools/status/check.log",
     "log_lines": 98,
     "log_sha256": "3751a630093423ce1e594f1daccd88f0a16512dbebbe0d47bcd68c41621129ef",
     "status_line": "Status: 2 NOTEs",
@@ -1579,51 +1581,51 @@
   },
   "size": {
     "measured_over": "git-tracked files only (build artefacts excluded)",
-    "tracked_file_count": 571,
+    "tracked_file_count": 580,
     "by_dir": [
       {
         "dir": "paper",
-        "bytes": 19976372,
+        "bytes": 20166456,
         "ships_in_tarball": false
       },
       {
         "dir": "inst",
-        "bytes": 4378784,
+        "bytes": 2307614,
         "ships_in_tarball": true
       },
       {
         "dir": "man",
-        "bytes": 1434571,
+        "bytes": 1425088,
         "ships_in_tarball": true
       },
       {
         "dir": "R",
-        "bytes": 1360076,
+        "bytes": 1371646,
         "ships_in_tarball": true
       },
       {
         "dir": "tools",
-        "bytes": 678245,
+        "bytes": 641813,
         "ships_in_tarball": false
       },
       {
         "dir": "data-raw",
-        "bytes": 482302,
+        "bytes": 494385,
         "ships_in_tarball": false
       },
       {
         "dir": "tests",
-        "bytes": 446705,
+        "bytes": 455353,
         "ships_in_tarball": true
       },
       {
         "dir": "<root>",
-        "bytes": 436419,
+        "bytes": 383477,
         "ships_in_tarball": true
       },
       {
         "dir": "vignettes",
-        "bytes": 352588,
+        "bytes": 361480,
         "ships_in_tarball": true
       },
       {
@@ -1652,33 +1654,33 @@
         "ships_in_tarball": false
       }
     ],
-    "shipped_bytes": 8200954,
-    "shipped_file_count": 429,
+    "shipped_bytes": 6149303,
+    "shipped_file_count": 435,
     "tarball_bytes": null,
     "tarball_file": null,
     "tarball_composition": null,
     "excluded_by_rbuildignore": 16,
-    "repo_bytes": 29698154,
+    "repo_bytes": 27759404,
     "cran_soft_cap_bytes": 5242880,
     "largest_shipped_files": [
       {
         "file": "inst/extdata/case_cerrado_results.rds",
-        "bytes": 1469022,
+        "bytes": 359165,
         "ships": true
       },
       {
         "file": "inst/extdata/capstone_native_calibration.rds",
-        "bytes": 796820,
+        "bytes": 300616,
         "ships": true
       },
       {
         "file": "inst/extdata/capstone_campaign_results.rds",
-        "bytes": 770924,
+        "bytes": 293872,
         "ships": true
       },
       {
         "file": "man/figures/logo.png",
-        "bytes": 305670,
+        "bytes": 293436,
         "ships": true
       },
       {
@@ -1687,13 +1689,13 @@
         "ships": true
       },
       {
-        "file": "inst/extdata/piml_external_anchors.rds",
-        "bytes": 171105,
+        "file": "inst/extdata/causal_sensitivity_cerrado.rds",
+        "bytes": 145528,
         "ships": true
       },
       {
-        "file": "inst/extdata/causal_sensitivity_cerrado.rds",
-        "bytes": 145528,
+        "file": "inst/extdata/piml_external_anchors.rds",
+        "bytes": 127398,
         "ships": true
       },
       {
@@ -1708,7 +1710,7 @@
       },
       {
         "file": "README.md",
-        "bytes": 111448,
+        "bytes": 111250,
         "ships": true
       },
       {
@@ -1722,13 +1724,14 @@
         "ships": true
       }
     ],
-    "untracked_files": []
+    "untracked_files": ["tools/status/apply-findings.R", "tools/status/verdicts-2026-08-12.json"]
   },
   "ci": {
     "workflows": ["pkgdown.yaml", "R-CMD-check.yaml", "test-coverage.yaml"],
     "workflow_count": 3,
     "torch_install_setting": "TORCH_INSTALL: ${{ matrix.config.torch && '1' || '0' }}",
     "matrix_legs": ["- {os: macos-latest,   r: 'release'}", "- {os: windows-latest, r: 'release'}", "- {os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release'}", "- {os: ubuntu-latest,  r: 'release'}", "- {os: ubuntu-latest,  r: 'oldrel-1'}", "- {os: ubuntu-latest,  r: 'release', torch: true}"],
+    "n_torch_legs": 1,
     "continue_on_error": [],
     "missing_workflows": ["lint", "spelling", "urlcheck", "release", "revdep", "dependabot"],
     "dependabot": false,
@@ -1848,7 +1851,7 @@
     },
     "r2_clamp_sites": [],
     "synthetic_covariate_sites": ["data-raw/causal_iv_benchmark_real.R:138", "data-raw/quantum_foundation_benchmark.R:53"],
-    "bundles_read_by_tests": ["test-al-policy-claims.R", "test-causal-real-bundle.R", "test-extrapolation-claims.R", "test-headline-claims.R", "test-llm-annotation.R", "test-piml-closed-form.R", "test-piml-convergence-verdict.R", "test-piml-coverage-claims.R", "test-piml-params-table-real.R", "test-ptf-stock-claims.R", "test-readme-numbers.R", "test-stock-validation.R"],
-    "n_result_bundles": 28
+    "bundles_read_by_tests": ["test-al-policy-claims.R", "test-bundle-provenance.R", "test-causal-real-bundle.R", "test-extrapolation-claims.R", "test-headline-claims.R", "test-llm-annotation.R", "test-no-masked-loss.R", "test-piml-closed-form.R", "test-piml-convergence-verdict.R", "test-piml-coverage-claims.R", "test-piml-params-table-real.R", "test-ptf-stock-claims.R", "test-readme-numbers.R", "test-stock-validation.R"],
+    "n_result_bundles": 29
   }
 }

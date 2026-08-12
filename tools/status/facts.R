@@ -143,12 +143,46 @@ news_facts <- safe({
 })
 
 # Which NEWS versions have no git tag?
+#
+# MATCHING BY NAME IS NOT ENOUGH, and this metric read a false green for
+# months because of it. This package's version was inflated to 4.1.0 and then
+# RESET to 0.9.0, so version strings are reused: the tag `v0.9.0` exists, but
+# it points at a394911 (2026-04-22), 154 commits behind the commit that wrote
+# the current 0.9.0 NEWS section. "NEWS versions with no tag: 0" therefore
+# reported a consistent release ledger when what it had found was a string
+# collision with an unrelated April commit.
+#
+# A tag marks the commit a version was released at, so it cannot PRECEDE the
+# NEWS section it supposedly released. Any tag that is a strict ancestor of
+# the commit which last touched NEWS.md is reported as stale rather than
+# counted as a match.
+.tag_is_stale <- function(v) {
+  tag <- paste0("v", v)
+  news_commit <- suppressWarnings(system2(
+    "git", c("log", "-1", "--format=%H", "--", "NEWS.md"),
+    stdout = TRUE, stderr = FALSE))
+  if (!length(news_commit) || !nzchar(news_commit[1])) return(NA)
+  st <- suppressWarnings(system2(
+    "git", c("merge-base", "--is-ancestor", tag, news_commit[1]),
+    stdout = FALSE, stderr = FALSE))
+  same <- suppressWarnings(system2("git", c("rev-parse", paste0(tag, "^{commit}")),
+                                   stdout = TRUE, stderr = FALSE))
+  if (!identical(as.integer(st), 0L)) return(FALSE)
+  !identical(same[1], news_commit[1])   # ancestor AND not the same commit
+}
+
 version_facts <- safe({
   tags <- sub("^v", "", git_facts$tags)
   vs   <- news_facts$versions
+  matched <- intersect(vs, tags)
+  stale   <- matched[vapply(matched, function(v) isTRUE(.tag_is_stale(v)), TRUE)]
   list(
     news_versions_without_tag = setdiff(vs, tags),
     n_news_without_tag        = length(setdiff(vs, tags)),
+    # A named tag that predates the NEWS section it is matched to. Counted
+    # separately so a reset version number cannot buy a green.
+    news_versions_stale_tag   = stale,
+    n_news_stale_tag          = length(stale),
     tags_without_news         = setdiff(tags, vs),
     description_version       = desc_facts$version,
     newest_news_version       = news_facts$newest_version,
@@ -752,6 +786,15 @@ ci_facts <- safe({
     matrix_legs = if (file.exists(".github/workflows/R-CMD-check.yaml"))
       trimws(grep("^\\s*- \\{os:", rd(".github/workflows/R-CMD-check.yaml"),
                   value = TRUE)) else character(),
+    # HOW MANY LEGS ACTUALLY INSTALL LIBTORCH. Both README and STATUS used to
+    # state, as a constant, that libtorch is never installed on any leg. That
+    # became false when d51b0d6 added a leg carrying `torch: true`, and a
+    # sentence asserted rather than measured cannot notice. Counted from the
+    # matrix itself so the claim tracks the workflow.
+    n_torch_legs = if (file.exists(".github/workflows/R-CMD-check.yaml"))
+      sum(grepl("torch:\\s*true",
+                grep("^\\s*- \\{os:", rd(".github/workflows/R-CMD-check.yaml"),
+                     value = TRUE))) else 0L,
     continue_on_error = unlist(lapply(wf, function(f)
       sprintf("%s: %s", basename(f),
               trimws(grep("continue-on-error", rd(f), value = TRUE))))),

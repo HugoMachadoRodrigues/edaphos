@@ -287,10 +287,22 @@ add("## 4. Version coherence", "",
                paste(tick(isTRUE(g$commits_since_last_tag == 0L)),
                      sprintf("(%s commits past `%s`)",
                              num(g$commits_since_last_tag), g$last_tag %||% "?")),
-               paste(tick(isTRUE(vf$n_news_without_tag == 0L)),
-                     sprintf("(%s of %s untagged)",
-                             num(vf$n_news_without_tag),
-                             num(facts$news$section_count)))),
+               # A stale tag fails this check as surely as a missing one:
+               # `v0.9.0` exists but points 154 commits behind the NEWS
+               # section it is matched to, so counting it as a tagged release
+               # printed a green for a string collision. See facts.R.
+               paste(tick(isTRUE(vf$n_news_without_tag == 0L) &&
+                          isTRUE((vf$n_news_stale_tag %||% 0L) == 0L)),
+                     if (isTRUE((vf$n_news_stale_tag %||% 0L) > 0L))
+                       sprintf("(%s of %s untagged; %s tagged at a commit that predates the entry: %s)",
+                               num(vf$n_news_without_tag),
+                               num(facts$news$section_count),
+                               num(vf$n_news_stale_tag),
+                               inline(vf$news_versions_stale_tag, 6))
+                     else
+                       sprintf("(%s of %s untagged)",
+                               num(vf$n_news_without_tag),
+                               num(facts$news$section_count)))),
     stringsAsFactors = FALSE)), "")
 
 cl <- vf$claims
@@ -610,8 +622,16 @@ add("## 9. CI and infrastructure", "",
 if (length(nz(ci$matrix_legs)))
   add("`R-CMD-check` matrix legs:", "", paste0("- ", code(nz(ci$matrix_legs))), "")
 if (length(nz(ci$torch_install_setting)))
-  add(sprintf("`TORCH_INSTALL` setting found in the workflows: %s — with `0`, libtorch is never installed, so every torch-gated test skips on every leg.",
-              inline(ci$torch_install_setting, 6)), "")
+  add(sprintf("`TORCH_INSTALL` setting found in the workflows: %s — %s",
+              inline(ci$torch_install_setting, 6),
+              if ((ci$n_torch_legs %||% 0L) > 0L)
+                sprintf(paste("%d of %d matrix legs carry `torch: true` and",
+                              "install libtorch, so the torch-gated tests run",
+                              "on those legs."),
+                        ci$n_torch_legs, length(nz(ci$matrix_legs)))
+              else
+                "no leg installs libtorch, so every torch-gated test skips on every leg."),
+      "")
 add(mdtable(data.frame(
       Check = c("Dependabot config", "`inst/WORDLIST` has a consumer",
                 "Absent workflows a project at this stage wants"),
