@@ -185,6 +185,17 @@
                                 device = dev)
   z_t <- torch::torch_tensor(depth_std$X, dtype = torch::torch_float(),
                                 device = dev)
+  # The mask travels with the targets. Multiplying a NaN residual by a zero
+  # mask does NOT clear it -- IEEE says NaN * 0 = NaN -- so the unobserved
+  # cells are replaced by a finite placeholder BEFORE the tensor is built and
+  # the mask then removes their contribution. Getting this order wrong poisons
+  # every gradient in the network with a single missing horizon.
+  mask_r  <- is.finite(targets)
+  n_eff_t <- torch::torch_tensor(max(sum(mask_r), 1), device = dev)
+  mask_t  <- torch::torch_tensor(matrix(as.numeric(mask_r), nrow(targets)),
+                                 dtype = torch::torch_float(), device = dev)
+  tgt_z[!mask_r] <- 0
+
   y_t <- torch::torch_tensor(tgt_z, dtype = torch::torch_float(),
                                 device = dev)
 
@@ -196,7 +207,12 @@
   for (ep in seq_len(epochs)) {
     opt$zero_grad()
     pred <- mod(u_t, z_t)
-    loss <- torch::nnf_mse_loss(pred, y_t)
+    # Masked MSE, DeepONet only. NA in `targets` marks a depth node this
+    # observation does not constrain. A NaN residual multiplied by a zero mask
+    # is still NaN, so the targets were zeroed at those cells above and the
+    # mask removes their contribution here.
+    resid <- (pred - y_t) * mask_t
+    loss  <- resid$pow(2)$sum() / n_eff_t
     loss$backward()
     opt$step()
     history[ep] <- as.numeric(loss$detach()$to(device = "cpu"))

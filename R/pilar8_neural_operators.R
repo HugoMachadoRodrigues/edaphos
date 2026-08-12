@@ -241,6 +241,18 @@ no_fno_fit <- function(depths, targets, covariates,
              is.matrix(targets),
              ncol(targets) == length(depths),
              length(depths) >= 4L)
+
+  # The Fourier operator CANNOT take a mask, and refusing is the honest
+  # response. Its spectral layer takes an FFT along the depth axis, which
+  # requires a complete, regularly spaced grid; a hole is not a value the
+  # transform can skip. The DeepONet, whose trunk queries depths one at a
+  # time, accepts NA as a mask -- use it for ragged pedons.
+  if (any(!is.finite(targets)))
+    .stopf("`targets` has %d missing values, and no_fno_fit() cannot mask them.",
+           sum(!is.finite(targets)),
+           hint = paste("The FFT along the depth axis needs a complete regular",
+                        "grid. Use no_deeponet_fit(), which treats NA as a",
+                        "mask, or fill the grid before calling this."))
   backend <- .resolve_backend(
     backend, fn = "no_fno_fit",
     r_note = paste0("backend = 'r' is a frozen-spectral random-feature ",
@@ -637,6 +649,22 @@ no_deeponet_fit <- function(depths, targets, covariates,
             ncol(targets), length(depths),
             hint = "Each column of `targets` must correspond to one depth.")
   }
+  # NA IS THE MASK. Real pedons are not measured on a shared grid: they carry
+  # four to thirty-one horizons at irregular boundaries, so a rectangular
+  # target matrix over common depth nodes necessarily has holes. An NA marks
+  # a node this observation does not constrain, and the loss and every
+  # gradient below skip it. Previously an NA silently produced a NaN loss and
+  # the fit ran on regardless.
+  n_missing <- sum(!is.finite(targets))
+  if (n_missing > 0L) {
+    obs_row <- rowSums(is.finite(targets)); obs_col <- colSums(is.finite(targets))
+    if (any(obs_row == 0L))
+      .stopf("%d observations have no measured depth at all.", sum(obs_row == 0L),
+             hint = "Drop them before fitting; the branch cannot be trained on them.")
+    if (any(obs_col == 0L))
+      .stopf("%d depth nodes are unmeasured in every observation.", sum(obs_col == 0L),
+             hint = "Drop those columns of `targets` and their entries in `depths`.")
+  }
   .assert_type(is.matrix(covariates), "covariates", "a matrix",
                   class(covariates)[1L],
                   hint = "Use `as.matrix(your_dataframe)` to coerce.")
@@ -656,6 +684,8 @@ no_deeponet_fit <- function(depths, targets, covariates,
                                    branch_hidden, trunk_hidden,
                                    output_dim, epochs, lr, seed, device))
   if (!is.null(seed)) set.seed(seed)
+  obs_mask <- is.finite(targets)
+  n_eff    <- sum(obs_mask)
   n_obs    <- nrow(targets)
   n_depths <- length(depths)
   p_in     <- ncol(covariates)
@@ -710,7 +740,11 @@ no_deeponet_fit <- function(depths, targets, covariates,
   for (ep in seq_len(epochs)) {
     y_hat <- forward(cov_std$X, z_mat)
     err   <- y_hat - tgt_z
-    history[ep] <- mean(err^2)
+    # Zeroing the residual at unobserved nodes is exactly a masked loss: every
+    # gradient below is linear in `err`, so a zero contributes nothing, and the
+    # denominators count observed cells rather than the full rectangle.
+    err[!obs_mask] <- 0
+    history[ep] <- sum(err^2) / n_eff
 
     # Manual gradients for the last-layer weights (fast) + FD for
     # the trunk.  Branch hidden is trained by FD on the outer loop.
@@ -718,7 +752,7 @@ no_deeponet_fit <- function(depths, targets, covariates,
     # bias and FD on the hidden layers.
     # Compute analytic grads on W_b2, W_t2, bias.
     # dL/d(bias)
-    grad_bias <- mean(err) * 2
+    grad_bias <- sum(err) / n_eff * 2
     # dL/dW_b2: (1 / (n_obs * n_depths)) * 2 * err gives dL/d b_out[i, k]
     # then dL/dW_b2 = t(h_b) %*% (err %*% t_out) / (n * nd)
     h_b <- tanh(cov_std$X %*% W_b1 +
@@ -727,13 +761,13 @@ no_deeponet_fit <- function(depths, targets, covariates,
                   matrix(b_t1, n_depths, trunk_hidden, byrow = TRUE))
     t_out <- h_t %*% W_t2 +
               matrix(b_t2, n_depths, output_dim, byrow = TRUE)
-    d_bout <- (err %*% t_out) * 2 / (n_obs * n_depths)
+    d_bout <- (err %*% t_out) * 2 / n_eff
     grad_W_b2 <- t(h_b) %*% d_bout
     grad_b_b2 <- colSums(d_bout)
     # dL/d t_out: (err' %*% b_out) -- dL/d t_out[z, k]
     b_out_mat <- h_b %*% W_b2 +
                   matrix(b_b2, n_obs, output_dim, byrow = TRUE)
-    d_tout <- (t(err) %*% b_out_mat) * 2 / (n_obs * n_depths)
+    d_tout <- (t(err) %*% b_out_mat) * 2 / n_eff
     grad_W_t2 <- t(h_t) %*% d_tout
     grad_b_t2 <- colSums(d_tout)
 
