@@ -50,7 +50,10 @@ replace_one("(?<=badge/tests-)[0-9]+(?=%20pass)",
 # that the LINK must stay on /releases rather than /releases/tag/vX: the
 # DESCRIPTION version is routinely ahead of any tag (last tag here is
 # git$last_tag), so a per-tag link is a 404 waiting to happen.
-replace_one("(?<=badge/version-)[0-9]+[.][0-9]+[.][0-9]+(?=-informational)",
+# The badge may carry a status suffix -- "0.9.0--dev" -- which says more than
+# the bare version and should not be erased to satisfy a regex. Match the
+# numeric part wherever it sits and leave any suffix alone.
+replace_one("(?<=badge/version-)[0-9]+[.][0-9]+[.][0-9]+(?=(--[a-z]+)?-informational)",
             facts$description$version, "version badge")
 replace_one("(?<=badge/vignettes-)[0-9]+(?=-)",
             format(facts$docs$vignette_count, scientific = FALSE),
