@@ -147,12 +147,11 @@ flowchart TB
     style DEC fill:#D6EAF8,stroke:#154360
 ```
 
-Dashed edges mark **inter-pillar bridges**: Pillar 1's DAG constrains
-Pillar 2's ODE parameter space; Pillar 2's physics gate filters Pillar
+Dashed edges mark **inter-pillar bridges**: Pillar 2's physics gate filters Pillar
 5's candidates; Pillar 3's Kalman gain and Pillar 4's embeddings feed
-Pillar 5's acquisition score. All six converge to the same
+Pillar 5's acquisition score. Seven of the ten converge to the same
 `edaphos_posterior` class, which `uncertainty_calibrate()` scores with
-identical diagnostics.
+identical diagnostics; Pillars 8, 9 and 10 have no coercion method.
 
 ---
 
@@ -2027,18 +2026,26 @@ ESA WorldCover 2020.
 
 | Method | n | RMSE (g/kg) | MAE (g/kg) | R² | PICP @ 95 | Interval score |
 |:---|---:|---:|---:|---:|---:|---:|
-| **B1** `ranger` QRF — 56 covariates          | 1095 | 13.51 | 7.72  | 0.219 | **0.944** | **65.81** |
-| **B2** `ranger` + `gstat` residual kriging   |  910\* | **13.86** | 7.86 | **0.233** | 0.817 | 99.5 |
-| **E**  `ranger` + MoCo v1 embedding          |  923\* | 14.07 | 7.95  | 0.157 | 0.940 | 71.7 |
+| **B1** `ranger` QRF — 56 covariates          | 1095 | **13.51** | 7.72 | **0.219** | 0.944 | **65.8** |
+| **B2** `ranger` + `gstat` residual kriging   | 893\* | 14.01 | 7.93 | 0.205 | **0.945** | 79.9 |
+| **E**  `ranger` + MoCo v1 embedding          | 923\* | 14.07 | 7.95 | 0.157 | 0.940 | 71.7 |
 
 \* Kriging drops test points whose variogram-range disk misses the
 training cloud; the foundation stack drops points within 16 pixels of
 the Cerrado raster edge.
 
-**Honest reading.** R² ≈ 0.22–0.23 is in line with published
-regional Brazilian / Cerrado SOC DSM. Residual kriging gains +0.01 R²
-over B1 at the cost of much worse PICP (0.82 vs 0.94). The **plain QRF
-is the calibration champion**. The MoCo v1 embedding does not yet beat
+**Honest reading.** R² ≈ 0.22 is in line with published regional
+Brazilian / Cerrado SOC DSM. Residual kriging neither gains accuracy nor
+costs calibration: it *loses* 0.014 R² against B1 (0.205 vs 0.219) and its PICP is
+indistinguishable (0.945 vs 0.944). An earlier version of this table reported
+the opposite on both counts — a +0.01 R² gain bought with a PICP of 0.82 —
+and that was an artefact: B2's training residuals were formed from IN-SAMPLE
+forest predictions, which are too small by about 4x, so the kriged
+correction and its variance were both understated and B2's intervals came
+out too narrow. With out-of-bag predictions the intervals are right, the
+PICP recovers, and the apparent accuracy gain disappears with it. The
+**plain QRF is still the calibration champion**, now on a wider margin in
+interval score rather than in PICP. The MoCo v1 embedding does not yet beat
 B1 on this dataset — v1 was trained for only 20 k InfoNCE steps (10%
 of the canonical MoCo v2 budget); v2 is in training, v1.3.2 will
 re-benchmark.
@@ -2093,7 +2100,7 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
 | `cerrado_claims_real_corpus.jsonl`            | ~400 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
 
-All real-data bundles are tracked in Zenodo for permanent DOI citation.
+The tagged release is archived on Zenodo with a DOI; the real-data bundles ship inside it, in `inst/extdata/`, rather than carrying DOIs of their own.
 
 ---
 
