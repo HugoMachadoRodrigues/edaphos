@@ -2059,7 +2059,7 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 <tbody>
 <tr>
 <td align="left">
-<strong>B1</strong> <code>ranger</code> QRF — 56 covariates</td>
+<strong>B1</strong> <code>ranger</code> QRF — 59 features</td>
 <td align="right">1095</td>
 <td align="right"><strong>13.51</strong></td>
 <td align="right">7.72</td>
@@ -2090,6 +2090,7 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 </tbody>
 </table>
 <p>* Kriging drops test points whose variogram-range disk misses the training cloud; the foundation stack drops points within 16 pixels of the Cerrado raster edge.</p>
+<p>The <strong>59 features</strong> are the 56 raster covariates plus <code>lon</code>, <code>lat</code> and <code>year</code>. The coordinates are deliberate — a classical Hengl-style DSM stack carries them as large-scale trend features — but they are worth naming rather than folding into a “56 covariates” label, because a forest given coordinates can partition on location, and spatial blocking exists to make exactly that kind of memorisation cost something. <code>year</code> is there because SOC measured in 1982 is not SOC measured in 2020 at the same site.</p>
 <p><strong>Honest reading.</strong> R² ≈ 0.22 is in line with published regional Brazilian / Cerrado SOC DSM. Residual kriging neither gains accuracy nor costs calibration: it <em>loses</em> 0.014 R² against B1 (0.205 vs 0.219) and its PICP is indistinguishable (0.945 vs 0.944). An earlier version of this table reported the opposite on both counts — a +0.01 R² gain bought with a PICP of 0.82 — and that was an artefact: B2’s training residuals were formed from IN-SAMPLE forest predictions, which are too small by about 4x, so the kriged correction and its variance were both understated and B2’s intervals came out too narrow. With out-of-bag predictions the intervals are right, the PICP recovers, and the apparent accuracy gain disappears with it. The <strong>plain QRF is still the calibration champion</strong>, now on a wider margin in interval score rather than in PICP. The MoCo v1 embedding does not yet beat B1 on this dataset — v1 was trained for only 20 k InfoNCE steps (10% of the canonical MoCo v2 budget); v2 is in training, v1.3.2 will re-benchmark.</p>
 <p>Reproduce with</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/case_cerrado_prepare.R   <span class="co"># ~60 min, downloads ~2 GB</span></span>
@@ -2163,56 +2164,56 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 <tbody>
 <tr>
 <td align="left"><code>case_cerrado_results.rds</code></td>
-<td align="right">~1 MB</td>
+<td align="right">~351 KB</td>
 <td align="left">QRF/kriging/MoCo benchmark (§Benchmarks)</td>
 <td align="left"><code>case-cerrado-end-to-end</code></td>
 </tr>
 <tr>
 <td align="left"><code>causal_cerrado_real.rds</code></td>
-<td align="right">~2 MB</td>
+<td align="right">~62 KB</td>
 <td align="left">1 095 WoSIS profiles + DAG + identified effects</td>
 <td align="left"><code>pilar1-causal-real</code></td>
 </tr>
 <tr>
 <td align="left"><code>temporal_cerrado_results.rds</code></td>
-<td align="right">~195 KB</td>
+<td align="right">~194 KB</td>
 <td align="left">2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis</td>
 <td align="left"><code>pilar3-4d-real</code></td>
 </tr>
 <tr>
 <td align="left"><code>capstone_campaign_results.rds</code></td>
-<td align="right">~543 KB</td>
+<td align="right">~287 KB</td>
 <td align="left">6-pillar integrated bundle for the v1.7.0 capstone</td>
 <td align="left"><code>capstone-cerrado-campaign</code></td>
 </tr>
 <tr>
 <td align="left"><code>capstone_native_calibration.rds</code></td>
-<td align="right">~741 KB</td>
+<td align="right">~294 KB</td>
 <td align="left">Native-query calibration per pillar (v1.7.1 hotfix)</td>
 <td align="left">
 <code>capstone-cerrado-campaign</code> §10</td>
 </tr>
 <tr>
 <td align="left"><code>causal_discovery_results.rds</code></td>
-<td align="right">~2 KB</td>
+<td align="right">~1 KB</td>
 <td align="left">Expert × LLM × data-driven DAG benchmark (v1.7.2)</td>
 <td align="left"><code>causal-discovery-trio</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_gold_standard_v1.jsonl</code></td>
-<td align="right">~16 KB</td>
+<td align="right">~18 KB</td>
 <td align="left">30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)</td>
 <td align="left"><code>llm-kg-benchmark</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_gold_standard_v1_draft.jsonl</code></td>
-<td align="right">~20 KB</td>
+<td align="right">~22 KB</td>
 <td align="left">Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)</td>
 <td align="left"><code>llm-annotation-workflow</code></td>
 </tr>
 <tr>
 <td align="left"><code>causal_iv_cerrado.rds</code></td>
-<td align="right">~12 KB</td>
+<td align="right">~4 KB</td>
 <td align="left">2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado</td>
 <td align="left"><code>pilar1-pilar4-iv</code></td>
 </tr>
@@ -2232,7 +2233,7 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 </tr>
 <tr>
 <td align="left"><code>quantum_foundation_cerrado.rds</code></td>
-<td align="right">~1 KB</td>
+<td align="right">~2 KB</td>
 <td align="left">Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)</td>
 <td align="left"><code>pilar4-pilar6-quantum</code></td>
 </tr>
@@ -2244,25 +2245,26 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 </tr>
 <tr>
 <td align="left"><code>cerrado_abstracts.jsonl</code></td>
-<td align="right">~40 KB</td>
+<td align="right">~5 KB</td>
 <td align="left">10 curated Cerrado-pedology abstracts</td>
 <td align="left"><code>pilar1-causal</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_claims.jsonl</code></td>
-<td align="right">~25 KB</td>
+<td align="right">~8 KB</td>
 <td align="left">Gemma-4-extracted causal claims from the 10 abstracts</td>
 <td align="left"><code>pilar1-causal</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_claims_real_corpus.jsonl</code></td>
-<td align="right">~400 KB</td>
+<td align="right">~94 KB</td>
 <td align="left">
 <strong>100-abstract production corpus</strong> (OpenAlex + SciELO)</td>
 <td align="left"><code>data-raw/run_large_corpus.R</code></td>
 </tr>
 </tbody>
 </table>
+<p>This table is a selection, not an inventory: <code>inst/extdata/</code> holds more bundles than are listed here — the benchmark and PIML result files are covered in their own sections. The <strong>Size</strong> column is generated by <code>tools/status/patch-readme-metrics.R</code> from the files themselves; ten of the sixteen rows were once wrong by more than a third, two of them by figures that had never been measured at all.</p>
 <p>The tagged release is archived on Zenodo with a DOI; the real-data bundles ship inside it, in <code>inst/extdata/</code>, rather than carrying DOIs of their own.</p>
 <hr>
 </div>

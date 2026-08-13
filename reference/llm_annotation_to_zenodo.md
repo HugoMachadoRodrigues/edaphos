@@ -109,8 +109,8 @@ bundle <- file.path(tempdir(), "cerrado_kg_deposit")
 llm_annotation_to_zenodo(gs, bundle,
                          title = "Cerrado gold-standard KG (v1)",
                          version = "1.0.0", zip = FALSE)
-#> === Exported gold standard: /tmp/Rtmph4Y1fI/cerrado_kg_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===
-#> === Zenodo bundle ready: /tmp/Rtmph4Y1fI/cerrado_kg_deposit ===
+#> === Exported gold standard: /tmp/RtmpPkPdUt/cerrado_kg_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===
+#> === Zenodo bundle ready: /tmp/RtmpPkPdUt/cerrado_kg_deposit ===
 sort(list.files(bundle))
 #> [1] "README.md"           "gold_standard.jsonl" "kg.ttl"             
 #> [4] "metadata.json"      
@@ -139,8 +139,8 @@ draft <- system.file("extdata", "cerrado_gold_standard_v1_draft.jsonl",
                      package = "edaphos")
 hollow <- file.path(tempdir(), "hollow_deposit")
 llm_annotation_to_zenodo(draft, hollow, version = "1.0.0", zip = FALSE)
-#> === Exported gold standard: /tmp/Rtmph4Y1fI/hollow_deposit/gold_standard.jsonl (30 abstracts, 0 claims) ===
-#> === Zenodo bundle ready: /tmp/Rtmph4Y1fI/hollow_deposit ===
+#> === Exported gold standard: /tmp/RtmpPkPdUt/hollow_deposit/gold_standard.jsonl (30 abstracts, 0 claims) ===
+#> === Zenodo bundle ready: /tmp/RtmpPkPdUt/hollow_deposit ===
 sum(grepl("a rdf:Statement",
           readLines(file.path(hollow, "kg.ttl"), warn = FALSE), fixed = TRUE))
 #> [1] 0
@@ -156,8 +156,8 @@ who <- data.frame(family_name = c("Silva", "Costa"),
 authored <- file.path(tempdir(), "authored_deposit")
 llm_annotation_to_zenodo(gs, authored, authors = who,
                          version = "1.0.0", zip = FALSE)
-#> === Exported gold standard: /tmp/Rtmph4Y1fI/authored_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===
-#> === Zenodo bundle ready: /tmp/Rtmph4Y1fI/authored_deposit ===
+#> === Exported gold standard: /tmp/RtmpPkPdUt/authored_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===
+#> === Zenodo bundle ready: /tmp/RtmpPkPdUt/authored_deposit ===
 jsonlite::fromJSON(file.path(authored, "metadata.json"),
                    simplifyVector = FALSE)$metadata$creators
 #> [[1]]

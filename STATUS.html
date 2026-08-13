@@ -128,9 +128,9 @@
 </tr><tr><td>Source tarball (CRAN cap 5 MB)</td>
 <td>5.32 MB</td>
 </tr><tr><td>Findings open (blocker/high)</td>
-<td>5</td>
+<td>4</td>
 </tr><tr><td>Findings closed since the audit</td>
-<td>55</td>
+<td>58</td>
 </tr></tbody></table><div class="section level3">
 <h3 id="stage-assessment">Stage assessment<a class="anchor" aria-label="anchor" href="#stage-assessment"></a></h3>
 <p>From the audit’s completeness critic (editorial, not measured). It describes the tree at <code>272b378</code>, not at <code>8e725b9</code>: several of the specifics it cites have since been closed — see “Closed since the audit” in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.</p>
@@ -1108,7 +1108,7 @@ for details.</code></pre>
 </ul></div>
 <div class="section level3">
 <h3 id="closed-since-the-audit-measured-not-asserted">Closed since the audit (measured, not asserted)<a class="anchor" aria-label="anchor" href="#closed-since-the-audit-measured-not-asserted"></a></h3>
-<p>55 findings were true at <code>272b378</code> and cannot be reproduced at <code>8e725b9</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
+<p>58 findings were true at <code>272b378</code> and cannot be reproduced at <code>8e725b9</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
 <table style="width:100%;" class="table"><colgroup><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"></colgroup><thead><tr><th>ID</th>
 <th>Sev</th>
 <th>Area</th>
@@ -1236,6 +1236,12 @@ for details.</code></pre>
 <td><code>c009c3d</code></td>
 <td>Four examples pick their backend from the machine, so their printed output contradicts their own commentary</td>
 <td>backend = “r” is pinned in all four examples (dm_fit, dm_sample x2, al_query_diffusion), with the reason recorded inline: these examples are about the reference backend’s limitations and it is what CRAN runs, having no libtorch. The prose and the printed output now agree on every machine. Two further defects in dm_fit’s example were fixed in the same pass: a second 400-epoch fit that was pure waste (verified that a long trace contains the short one as its prefix, so one fit suffices) and a claim that ‘2.7 times the epochs buys 0.05’ when the two epochs compared differ by -0.015 – the later one worse – because single-epoch comparison measures noise here, the epoch-to-epoch spread (sd 0.034) being the size of the entire remaining improvement. Measured effect on R CMD check: –run-donttest fell from 716s to 107s of CPU and the regular examples step from 102s to 84s. tests/testthat/test-example-backend-pinned.R fails if a call goes unpinned again, and a companion test asserts the backends genuinely disagree so the pin cannot become cosmetic unnoticed.</td>
+</tr><tr><td>F873468</td>
+<td>high</td>
+<td>Incomplete implementations</td>
+<td><code>0741f8b</code></td>
+<td>foundation_build_cerrado_stack() silently writes a truncated stack to the cache when any geodata fetch fails, then reuses it forever</td>
+<td>The cache-hit path in foundation_build_cerrado_stack() now validates the cached raster against the schema before returning it, checking layer NAMES as well as count – a count-only check passes a stack with the right number of wrong layers. An entry that fails falls through to a rebuild rather than raising, because a corrupt cache entry should be replaced, and if the sources are still unreachable the existing build guard names the missing layers. The decision lives in .cached_stack_ok() so it can be tested without the network: rejecting a cache entry falls through to a rebuild, and a rebuild needs every remote source, which is not a thing a unit test should require to prove a two-layer file is not a thirty-one-layer stack.</td>
 </tr><tr><td>F9E2C74</td>
 <td>high</td>
 <td>Incomplete implementations</td>
@@ -1265,6 +1271,7 @@ for details.</code></pre>
 | F1E1D2B | medium | Roadmap promises | `a549528` | Archival metadata (.zenodo.json, CITATION.cff) still describes a six-pillar package that stops at v1.8.0 | Both archival metadata files were rewritten for the ten-pillar package and then reset to the honest development version, so neither still describes a six-pillar package stopping at v1.8.0. |
 | F2F16E8 | medium | Scientific reproducibility | `3f2d005` | cran-comments.md misstates both the check status and the extdata sizes it uses to justify the install-size NOTE | cran-comments.md is now generated from a real R CMD check log instead of hand-written, so the check status and the extdata sizes it quotes come from the log rather than memory. |
 | F3467DC | medium | Scientific reproducibility | `0cb0b0a` | Four mutually incompatible definitions of the headline benchmark's target variable across README, vignette and runner | The shipped artefact settles the contradiction: B1's 95% interval bounds are exactly 0.8 and 194.0, the exact min and max of soc_topsoil_gkg on the raw scale, so the target is untransformed g/kg with no log1p, over a surface-anchored slice of variable thickness (upper_depth == 0, lower_depth in 5-30 cm, median 15) rather than any fixed window. data-raw/case_cerrado_run.R's header claimed 'Target: log1p(SOC, g/kg). Point estimate = back-transformed MEDIAN' and defined a .back_transform that was never called; header, the kriging-scale sentence and the vignette's target line are corrected to the measured definition, and the dead function is gone. |
+| F366B1F | medium | Scientific reproducibility | `0741f8b` | README's headline benchmark tables are two to four release cycles stale, and the current 6-method result exists only in NEWS.md | The inst/extdata inventory table's Size column is generated by tools/status/patch-readme-metrics.R from the files themselves, and tests/testthat/test-readme-numbers.R fails when it goes stale. Ten of sixteen rows were wrong by more than a third in two distinguishable ways: some stale (causal_cerrado_real.rds listed at ~2 MB, actual 62 KB, regenerated without the row following) and some never true (cerrado_abstracts.jsonl listed at ~40 KB, actual 5 KB, byte-identical since the single commit that added it -- that figure was invented, not outdated). Descriptions stay hand-written because what a bundle is for cannot be derived. The generator reports the 18 bundles the table omits and the README now says it is a selection. Separately, the B1 row's '56 covariates' is corrected to 59 features, naming the lon/lat/year trend features rather than folding them into the raster count. |
 | F54856E | medium | Scientific reproducibility | `2fd03a5` | The "LLM-augmented (Gemma 4)" DAG in the causal-discovery trio is six hand-typed edges, not an LLM output | The hard-coded six-edge data frame with confidences 0.90/0.82/0.78/0.75/0.72/0.71 was deleted; the script now reads the shipped claims file and maps each claim through the extractor, so the LLM-augmented DAG is produced rather than typed. |
 | F884A23 | medium | Scientific reproducibility | `0cb0b0a` | The flagship case-study benchmark cannot be re-run by anyone: its input is .gitignore'd and its output path is not the shipped artefact | data-raw/case_cerrado_run.R now writes inst/extdata/case_cerrado_results.rds directly, adopting the convention of the other 46 data-raw scripts, and carries an edaphos_provenance() block; the artefact was re-run and reproduced identical numbers, so the shipped file is now demonstrably the committed script's output rather than a hand copy from a gitignored path. tests/testthat/test-bundle-provenance.R -- which named this exact file as the defect it existed for and then skipped it -- now fails on any bundle without provenance outside an explicit legacy list that can only shrink. The header states plainly what a fresh clone needs: the two-script chain is public and reproducible but costs ~1 h and ~2 GB, and the 674 MB raster cannot be committed. Carrying the embeddings to remove that dependency was considered and rejected in writing: it would buy reproducibility of the output at the cost of making the E arm unfalsifiable. |
 | FDA80DD | medium | Scientific reproducibility | `d51b0d6` | Residual kriging (B2) is fit to in-bag rather than OOB forest residuals, manufacturing the README's PICP conclusion | The kriging fit was moved onto out-of-bag residuals in code, and the published conclusion that the in-bag fit had manufactured was withdrawn in the artefact and the prose. |
@@ -1274,6 +1281,7 @@ for details.</code></pre>
 | F21DBBA | medium | Test coverage | `3f2d005` | test-foundation-weights.R:29-36 asserts an error message that is unreachable without torch (live ERROR 2) -- green on CI, red on CRAN | The unreachable expectation was fixed at the source the finding preferred: foundation_weights_load() now runs its argument validation before the torch gate, so the n_channels error is raised with or without torch. |
 | F2C0D91 | medium | Test coverage | `3f2d005` | al_fit is ~14.5%-flaky by construction: test-active-quantum-posterior.R:30-35 has no set.seed and passes num.trees=50 for OOB quantile regression (live ERROR 1) | Fixed at both levels the finding asked for: the test was seeded and given a valid tree count, and the underlying floor was derived in the package rather than hard-coded in the test. |
 | FB609A4 | medium | Test coverage | `ac7b9c2` | NEWS.md v3.10.0 test and check claims are not reproducible in any environment the project automates | NEWS.md was reset to a single honest development entry that explicitly retracts the unreproducible test and check claims instead of restating them. |
+| F0CBFC4 | low | CI &amp; infra | `0741f8b` | test-coverage has no threshold gate, no codecov.yml, and diverges from R-CMD-check on TORCH_INSTALL; reported coverage has an invisible ~75% ceiling | codecov.yml adds a project gate (target: auto against the parent commit, 1% threshold) and a 70% patch rule, so a regression fails the check instead of silently moving a badge; a fixed project target is either aspirational, and gets ignored, or set at today's number, which is an unchosen ratchet. .github/workflows/test-coverage.yaml now sets TORCH_INSTALL and installs libtorch, sharing R-CMD-check.yaml's cache key so the ~2 GB download is paid once per run rather than twice. Measured while fixing: 5 files under R/ are torch-only (1,679 lines, 5%), not the ~4,500 this finding recorded, but 26 of 74 files mention torch and carry 39% of R/'s lines, and those lines were entering the badge as untested because the job could not run the tests that exercise them. The .covrignore alternative was rejected in writing: it makes the badge silent about two fifths of the package while still printing one number. |
 | FA36407 | low | Code quality | `` | The v3.8.0 friendly-error system covers ~5% of failure sites and exactly the 6 files that got a test; 136 raw stop() and 13 divergent torch gates bypass it | withdrawn: Closed as not a defect, per the register's own PARTIALLY_TRUE correction and the audit of this batch. The finding describes style and consistency debt in error-message plumbing and names no failure mode; the .stopf/.assert_* helpers produce nicer messages where adopted and plain messages elsewhere, which is a matter of taste rather than a defect. Adoption has also grown rather than stalled since the finding was written. |
 | F363935 | low | CRAN readiness | `` | pkgdown reference index selects on `has_concept("pilar1")` but no Rd file has a `\concept{}` tag | withdrawn: Closed as not a defect, confirming the register's REFUTED verdict by re-derivation rather than inheritance. The premise is true - _pkgdown.yml:125 is still - has_concept(pilar1) and no man/*.Rd carries a matching \concept{} tag - but the consequence is false: in pkgdown 2.2.0, section_topics() calls select_topics() without check = TRUE, so the zero-match abort branch is unreachable and the selector is silently ignored. The pkgdown build does fail at HEAD, for two unrelated reasons tracked under FE42047. |
 | F4516A9 | low | CRAN readiness | `632e47f` | Maintainer-only files install into the user's library; CITATION metadata is stale and there is no inst/CITATION | A .Rinstignore now excludes inst/rosc and inst/WORDLIST from the installed package, verified by installing to a temporary library and listing it -- the first pattern written, ^rosc$</span>, matched nothing, because .Rinstignore matches paths relative to the source root rather than to inst/. inst/rosc/submission.md’s quantitative self-report is generated from tools/status/facts.json by tools/status/render-submission-qa.R, including the version, which had declared 3.10.0 while the block below it conceded 0.9.0.</td>
@@ -1332,13 +1340,6 @@ for details.</code></pre>
 <td>incomplete-implementation</td>
 <td>minutes</td>
 <td>edaphos-cerrado-moco-v2 ships as an all-NA placeholder row in the exported public registry, keyed to a nonexistent package version 3.11.0</td>
-</tr><tr><td>F873468</td>
-<td>high</td>
-<td>confirmed</td>
-<td>Incomplete implementations</td>
-<td>bug</td>
-<td>hours</td>
-<td>foundation_build_cerrado_stack() silently writes a truncated stack to the cache when any geodata fetch fails, then reuses it forever</td>
 </tr><tr><td>F8EC452</td>
 <td>high</td>
 <td>partial</td>
@@ -1495,13 +1496,6 @@ for details.</code></pre>
 <td>inconsistency</td>
 <td>hours</td>
 <td>Pretrained-weight DOI is real but the v2 registry row is all-NA while claiming a nonexistent version; CITATION.cff and .zenodo.json are many releases stale and assign one DOI to ten releases</td>
-</tr><tr><td>F366B1F</td>
-<td>medium</td>
-<td>confirmed</td>
-<td>Scientific reproducibility</td>
-<td>doc-gap</td>
-<td>hours</td>
-<td>README’s headline benchmark tables are two to four release cycles stale, and the current 6-method result exists only in NEWS.md</td>
 </tr><tr><td>F5672C5</td>
 <td>medium</td>
 <td>confirmed</td>
@@ -1565,13 +1559,6 @@ for details.</code></pre>
 <td>process-gap</td>
 <td>minutes</td>
 <td>Three of four wall-clock assertions run on CRAN: only 1 skip_on_cran() exists in the whole 460-block suite</td>
-</tr><tr><td>F0CBFC4</td>
-<td>low</td>
-<td>confirmed</td>
-<td>CI &amp; infra</td>
-<td>process-gap</td>
-<td>hours</td>
-<td>test-coverage has no threshold gate, no codecov.yml, and diverges from R-CMD-check on TORCH_INSTALL; reported coverage has an invisible ~75% ceiling</td>
 </tr><tr><td>F6330AE</td>
 <td>low</td>
 <td>partial</td>
@@ -1851,22 +1838,6 @@ for details.</code></pre>
 </blockquote>
 </div>
 <div class="section level4">
-<h4 id="f873468--foundation_build_cerrado_stack-silently-writes-a-truncated-stack-to-the-cache-when-any-geodata-fetch-fails-then-reuses-it-forever">F873468 — foundation_build_cerrado_stack() silently writes a truncated stack to the cache when any geodata fetch fails, then reuses it forever<a class="anchor" aria-label="anchor" href="#f873468--foundation_build_cerrado_stack-silently-writes-a-truncated-stack-to-the-cache-when-any-geodata-fetch-fails-then-reuses-it-forever"></a></h4>
-<p><code>Incomplete implementations</code> · bug · high · effort: hours · verdict: <strong>CONFIRMED</strong></p>
-<p><strong>Evidence</strong></p>
-<blockquote>
-<p>Half fixed. The build path now asserts the channel count: .stack_expected_layers() at R/foundation_embed_coords.R:309 and the guard at :625-633 stop before writing when the fetched layer count does not match the schema. The cache-hit path is untouched and it is the half the title names: :495-498 still does if (!force &amp;&amp; file.exists(stack_path)) { message(Using cached stack); return(terra::rast(stack_path)) } with no terra::nlyr() check, so any short stack already written under a schema-keyed filename is still returned forever with only an informational message.</p>
-</blockquote>
-<p><strong>Impact</strong></p>
-<blockquote>
-<p>A transient WorldClim outage during the first call yields a 7-layer stack (5 SoilGrids + 2 SRTM) cached under the filename <code>cerrado_stack_v1_encoder_&lt;hash&gt;.tif</code>, which claims to be the v1_encoder schema. Every subsequent call returns that poisoned cache with only an informational “Using cached stack” message – <code>force = TRUE</code> is the only escape and the user has no signal they need it. Feeding it to the 31-channel v1 encoder produces a torch conv2d channel-mismatch error far from the cause; feeding it to any user code that indexes layers positionally silently reads the wrong covariate. The docstring at :202-204 says this rewrite exists specifically to stop the IV benchmark falling back to a synthetic stack, so a silently-truncated real stack is the exact failure mode it was built to prevent.</p>
-</blockquote>
-<p><strong>Action</strong></p>
-<blockquote>
-<p>After line 361 in R/foundation_embed_coords.R, assert the schema’s channel count before writing: <code>expected &lt;- if (schema == "v1_encoder") 31L else 10L; if (terra::nlyr(stk) != expected) stop(sprintf("schema '%s' expects %d layers but only %d could be fetched (%s). Re-run when the sources are reachable.", schema, expected, terra::nlyr(stk), paste(names(layers), collapse=", ")))</code>. Also convert the five <code>message("      [warn] ", ...)</code> calls to <code>warning(...)</code> so partial failures are visible to <code>withCallingHandlers</code> and to test suites, and validate <code><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">terra::nlyr()</a></code> on the cache-hit path at line 245 before returning.</p>
-</blockquote>
-</div>
-<div class="section level4">
 <h4 id="f8ec452--no-ci-leg-has-ever-executed-the-torch-code-paths-74-test-blocks--223-expectations--3140-loc-unexercised">F8EC452 — No CI leg has ever executed the torch code paths: 74 test blocks / 223 expectations / ~3,140 LOC unexercised<a class="anchor" aria-label="anchor" href="#f8ec452--no-ci-leg-has-ever-executed-the-torch-code-paths-74-test-blocks--223-expectations--3140-loc-unexercised"></a></h4>
 <p><code>Test coverage</code> · process-gap · high · effort: hours · verdict: <strong>PARTIALLY_TRUE</strong></p>
 <p><strong>Evidence</strong></p>
@@ -1975,10 +1946,6 @@ for details.</code></pre>
 </ol></li>
 </ul></li>
 <li>
-<strong>F366B1F</strong> (Scientific reproducibility, hours) — README’s headline benchmark tables are two to four release cycles stale, and the current 6-method result exists only in NEWS.md
-<ul><li>Promote the v3.4.0 six-method table from <code>NEWS.md:421-428</code> into <code>README.md</code>, replacing or clearly superseding <code>README.md:243-255</code>, and stamp each README table with the artefact and version it came from (e.g. “computed at v3.4.0 from <code>inst/extdata/benchmark_wosis_6pilar.rds</code>”). Correct “56 covariates” → 59 and disclose <code>lon</code>/<code>lat</code>/<code>year</code>. Correct the quantum caption to state the 250-row per-fold training cap and n = 1081. Regenerate the <code>inst/extdata</code> size table with <code><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.size()</a></code> and add the two benchmark bundles. Fix <code>README.md:841</code>.</li>
-</ul></li>
-<li>
 <strong>F5672C5</strong> (Scientific reproducibility, hours) — DESCRIPTION’s “every vignette runs offline” is false: four advertised vignettes are not vignettes, and the Pilar 4 × Pilar 6 vignette evaluates nothing
 <ul><li>Decide per document: move the four <code>articles/*.Rmd</code> into <code>vignettes/</code> (they read only <code>inst/extdata</code>, so they should build offline), or remove them from the <code>README.md:1644-1662</code> table and from the “Used by” column at <code>:1615-1632</code>, replacing <code>vignette("llm-kg-benchmark")</code> at <code>:702</code> with a pkgdown URL. Enable the two chunks in <code>vignettes/pilar4-pilar6-quantum.Rmd</code> — the <code>benchmark-table</code> chunk only needs <code>readRDS(system.file(...))</code> and should evaluate offline. Add <code>getting-started</code> to the vignette table. Add a CI check that every <code>vignette("...")</code> string in <code>README.md</code> resolves in the built package.</li>
 </ul></li>
@@ -2021,11 +1988,7 @@ for details.</code></pre>
 <th>Area</th>
 <th>Effort</th>
 <th>Finding</th>
-</tr></thead><tbody><tr><td>F0CBFC4</td>
-<td>CI &amp; infra</td>
-<td>hours</td>
-<td>test-coverage has no threshold gate, no codecov.yml, and diverges from R-CMD-check on TORCH_INSTALL; reported coverage has an invisible ~75% ceiling</td>
-</tr><tr><td>F6330AE</td>
+</tr></thead><tbody><tr><td>F6330AE</td>
 <td>CI &amp; infra</td>
 <td>minutes</td>
 <td>pkgdown site loads mermaid from a third-party CDN with no integrity attribute, on a surface SECURITY.md declares in scope</td>
@@ -2387,11 +2350,6 @@ for details.</code></pre>
 <td>hours</td>
 <td>Pretrained-weight DOI is real but the v2 registry row is all-NA while claiming a nonexistent version; CITATION.cff and .zenodo.json are many releases stale and assign one DOI to ten releases</td>
 </tr><tr><td>[ ]</td>
-<td>F366B1F</td>
-<td>medium</td>
-<td>hours</td>
-<td>README’s headline benchmark tables are two to four release cycles stale, and the current 6-method result exists only in NEWS.md</td>
-</tr><tr><td>[ ]</td>
 <td>F5672C5</td>
 <td>medium</td>
 <td>hours</td>
@@ -2440,11 +2398,6 @@ for details.</code></pre>
 <th>Effort</th>
 <th>Item</th>
 </tr></thead><tbody><tr><td>[ ]</td>
-<td>F873468</td>
-<td>high</td>
-<td>hours</td>
-<td>foundation_build_cerrado_stack() silently writes a truncated stack to the cache when any geodata fetch fails, then reuses it forever</td>
-</tr><tr><td>[ ]</td>
 <td>F10D9DC</td>
 <td>high</td>
 <td>minutes</td>
@@ -2608,11 +2561,6 @@ for details.</code></pre>
 <th>Area</th>
 <th>Item</th>
 </tr></thead><tbody><tr><td>[ ]</td>
-<td>F0CBFC4</td>
-<td>low</td>
-<td>CI &amp; infra</td>
-<td>test-coverage has no threshold gate, no codecov.yml, and diverges from R-CMD-check on TORCH_INSTALL; reported coverage has an invisible ~75% ceiling</td>
-</tr><tr><td>[ ]</td>
 <td>F6330AE</td>
 <td>low</td>
 <td>CI &amp; infra</td>
