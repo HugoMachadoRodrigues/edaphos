@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `23dc4d3` (`main`) — **DESCRIPTION version** `0.9.0` — **measured** 2026-08-13T01:06:00Z
+**Commit** `8e725b9` (`main`) — **DESCRIPTION version** `0.9.0` — **measured** 2026-08-13T04:00:09Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,26 +18,26 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 170 |
-| First → last commit | 2026-04-20 → 2026-08-12 (113.9 calendar days, 19 with commits) |
+| Commits | 173 |
+| First → last commit | 2026-04-20 → 2026-08-12 (114.0 calendar days, 19 with commits) |
 | Days since last commit | 0 |
 | NEWS release sections | 1 |
 | Git tags | 19 |
 | NEWS versions with no tag | 0 |
-| R/ source lines | 30 738 |
+| R/ source lines | 30 768 |
 | Exported functions | 178 |
-| Test blocks | 596 |
-| Tests passing | 2 151 |
+| Test blocks | 601 |
+| Tests passing | 2 192 |
 | Tests skipped | 1 |
 | Test failures + errors | 0 |
 | R CMD check status | Status: 2 NOTEs |
-| Source tarball (CRAN cap 5 MB) | 5.31 MB |
-| Findings open (blocker/high) | 10 |
-| Findings closed since the audit | 44 |
+| Source tarball (CRAN cap 5 MB) | 5.32 MB |
+| Findings open (blocker/high) | 9 |
+| Findings closed since the audit | 47 |
 
 ### Stage assessment
 
-From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `23dc4d3`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
+From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `8e725b9`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
 
 > Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and
 > nowhere near release-candidate. The eight audits read the artefact as a mature project that had
@@ -82,7 +82,7 @@ From the audit's completeness critic (editorial, not measured). It describes the
 | Platform | aarch64-apple-darwin23 |
 | OS | Darwin 25.6.0 |
 | Worktree clean | no |
-| Local vs origin/main | `1 / 0` (ahead / behind) |
+| Local vs origin/main | `2 / 0` (ahead / behind) |
 | Optional deps missing | 5 |
 
 Suggests **not installed** in the measuring environment: `DiagrammeR`, `ecmwfr`, `fmsb`, `ontologyIndex`, `spBayes`.
@@ -91,7 +91,7 @@ are a floor, not a total.
 
 ## 3. The git clock
 
-`23dc4d3` — 170 commits across 19 active days.
+`8e725b9` — 173 commits across 19 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -113,11 +113,11 @@ are a floor, not a total.
 | 2026-08-05 | 25 |
 | 2026-08-10 | 2 |
 | 2026-08-11 | 6 |
-| 2026-08-12 | 6 |
+| 2026-08-12 | 9 |
 
 Releases declared in `NEWS.md`: **1**. Git tags: **19**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`, `v4.0.0`.
-Commits since the newest tag (`v4.0.0`): **81**.
+Commits since the newest tag (`v4.0.0`): **84**.
 
 ## 4. Version coherence
 
@@ -125,7 +125,7 @@ Commits since the newest tag (`v4.0.0`): **81**.
 | --- | --- |
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `0.9.0`, NEWS `0.9.0`) |
 | DESCRIPTION version has a git tag | ✅ (`v0.9.0`) |
-| HEAD is the tagged release commit | ❌ (81 commits past `v4.0.0`) |
+| HEAD is the tagged release commit | ❌ (84 commits past `v4.0.0`) |
 | Every NEWS release is tagged | ❌ (0 of 1 untagged; 1 tagged at a commit that predates the entry: `0.9.0`) |
 
 Version strings each artefact claims for the package:
@@ -226,7 +226,7 @@ Counts are taken from R's own `Status:` line; an independent walk of the log agr
 | --- | --- |
 | Maintainer | `Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>` |
 | CRAN status | **New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN |
-| Tarball size | 5.31 MB measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
+| Tarball size | 5.32 MB measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
 | URLs flagged as invalid | 0 |
 
 Suggests unavailable to the check (so their tests and vignette chunks were skipped): 'DiagrammeR', 'ecmwfr', 'fmsb', 'ontologyIndex', 'spBayes'.
@@ -234,29 +234,29 @@ Suggests unavailable to the check (so their tests and vignette chunks were skipp
 Installed size, verbatim from the log:
 
 ```
-  installed size is 11.7Mb
+  installed size is  8.4Mb
   sub-directories of 1Mb or more:
-    doc       4.5Mb
-    extdata   4.2Mb
+    doc       3.2Mb
+    extdata   2.2Mb
     help      1.5Mb
 ```
 
-Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/tools/status/check.log` (98 lines, sha256 `3751a630093423ce`). Verbatim tail:
+Log: `tools/status/check.log` (98 lines, sha256 `40a6ffca0e46c061`). Verbatim tail:
 
 ```
-* checking examples ... [84s/82s] OK
-* checking examples with --run-donttest ... [584s/434s] OK
+* checking examples ... [102s/100s] OK
+* checking examples with --run-donttest ... [716s/542s] OK
 * checking for unstated dependencies in tests ... OK
 * checking tests ...
-  Running testthat.R [462s/441s]
- [462s/442s] OK
+  Running testthat.R [546s/531s]
+ [546s/531s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [260s/248s] OK
+* checking re-building of vignette outputs ... [284s/274s] OK
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  tmpk1dufcfn
+  tmp_5fp7pqq
 * DONE
 Status: 2 NOTEs
 See
@@ -331,10 +331,10 @@ Fixes, per item:
 
 | Measure | Value |
 | --- | --- |
-| Test files | 91 |
-| `test_that` blocks | 596 |
-| `expect_*` calls | 1 668 |
-| `skip_if_not_installed` gates | 84 |
+| Test files | 92 |
+| `test_that` blocks | 601 |
+| `expect_*` calls | 1 685 |
+| `skip_if_not_installed` gates | 85 |
 | `skip_on_cran` gates | 13 |
 | `set.seed` calls | 144 |
 
@@ -342,12 +342,12 @@ Live run in this environment:
 
 | Outcome | Count |
 | --- | --- |
-| Passed | 2 151 |
+| Passed | 2 192 |
 | Skipped | 1 |
 | Failed | 0 |
 | Errored | 0 |
 | Warnings | 4 |
-| Wall clock (s) | 1 727.0 |
+| Wall clock (s) | 495.4 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -408,18 +408,18 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 | `inst` | 2.20 MB | ✅ |
 | `man` | 1.36 MB | ✅ |
 | `R` | 1.31 MB | ✅ |
-| `tools` | 696 KB | ❌ |
-| `data-raw` | 487 KB | ❌ |
-| `tests` | 452 KB | ✅ |
-| `<root>` | 378 KB | ✅ |
-| `vignettes` | 355 KB | ✅ |
+| `tools` | 707 KB | ❌ |
+| `data-raw` | 497 KB | ❌ |
+| `tests` | 460 KB | ✅ |
+| `<root>` | 377 KB | ✅ |
+| `vignettes` | 356 KB | ✅ |
 | `data` | 64 KB | ✅ |
 | `articles` | 43 KB | ❌ |
 | `src` | 16 KB | ✅ |
 | `cheatsheets` | 16 KB | ❌ |
 | `.github` | 10 KB | ❌ |
 
-Git-tracked bytes that ship: **5.88 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
+Git-tracked bytes that ship: **5.89 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
 
 Largest tracked files that ship:
 
@@ -440,18 +440,18 @@ Largest tracked files that ship:
 
 ### Where the tarball's bytes are
 
-`edaphos_0.9.0.tar.gz` is **5.31 MB** compressed, against the CRAN 5 MB guidance (5.00 MB) — **over by 318 KB**. The shares below are of its 8.97 MB uncompressed contents (493 files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.
+`edaphos_0.9.0.tar.gz` is **5.32 MB** compressed, against the CRAN 5 MB guidance (5.00 MB) — **over by 326 KB**. The shares below are of its 8.99 MB uncompressed contents (495 files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.
 
 | Directory | Size | Share | In the repo |
 | --- | --: | --: | :-: |
-| `inst/doc` | 3.09 MB | 34% | ❌ |
+| `inst/doc` | 3.10 MB | 34% | ❌ |
 | `inst/extdata` | 2.15 MB | 24% | ✅ |
 | `R` | 1.31 MB | 15% | ✅ |
 | `man/figures` | 705 KB | 8% | ✅ |
 | `man` | 687 KB | 7% | ✅ |
-| `tests/testthat` | 451 KB | 5% | ✅ |
-| `vignettes` | 355 KB | 4% | ✅ |
-| `<root>` | 145 KB | 2% | ✅ |
+| `tests/testthat` | 460 KB | 5% | ✅ |
+| `vignettes` | 356 KB | 4% | ✅ |
+| `<root>` | 146 KB | 2% | ✅ |
 | `data` | 64 KB | 1% | ✅ |
 | `inst/shiny-apps` | 28 KB | 0% | ✅ |
 | `inst` | 17 KB | 0% | ✅ |
@@ -466,7 +466,7 @@ Largest tracked files that ship:
 | --- | --: | --: |
 | `capstone-cerrado-campaign.html` | 769 KB | 587 KB |
 | `case-cerrado-end-to-end.html` | 251 KB | 216 KB |
-| `pilar6-quantum.html` | 195 KB | 125 KB |
+| `pilar6-quantum.html` | 192 KB | 122 KB |
 | `pilar1-pilar4-iv.html` | 189 KB | 113 KB |
 | `edaphos-paper.html` | 134 KB | 100 KB |
 | `pilar4-simclr-embeddings.html` | 166 KB | 90 KB |
@@ -586,7 +586,7 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-44 findings were true at `272b378` and cannot be reproduced at `23dc4d3`. Each line states the measurement that closed it, not a claim that it was addressed.
+47 findings were true at `272b378` and cannot be reproduced at `8e725b9`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |
@@ -604,6 +604,7 @@ original auditor reported.
 | F30D53B | high | Scientific reproducibility | `2fd03a5` | The v1.8.0 multi-backend LLM benchmark is entirely simulated and its headline F1/latency values are hard-coded function arguments | The claim was withdrawn rather than faked, which is the correct half of the finding's own recommended action: the bundle still records mode = simulated and the README now says so in the heading and the body. |
 | F485937 | high | Scientific reproducibility | `2fd03a5` | No test validates any headline number or any of the twelve committed result bundles | A claim-binding test layer was added across the campaign, so headline numbers and shipped bundles are now asserted against each other rather than published unchecked. |
 | F623876 | high | Scientific reproducibility | `ec04bee` | `.bench_inject_aleatoric()` manufactures the published PICP with author-chosen noise and silently degrades the published RMSE | Both defects fixed: the author-chosen aleatoric noise injection is gone and the RMSE degradation it caused was corrected, with the response scale made honest in the same pass. |
+| FF375C1 | high | Scientific reproducibility | `0cb0b0a` | The P4 "Foundation" row of the headline "first honest cross-pillar comparison" is computed on a pure Gaussian-noise raster | predict.edaphos_bhs() now returns the sampler's own predictive draws under draws = TRUE (as an attribute, so no existing caller changes), and data-raw/benchmark_wosis_p4_p5_p7.R uses them instead of rebuilding rnorm(200, mean, sd) from the summary. The cost of the substitution is measured rather than asserted: a paired diagnostic scores both distributions over the same predictions, fold and held-out truth, with the Gaussian drawn on a private RNG stream. On this archive it was CRPS 0.3405 vs 0.3420 and PICP90 0.9224 vs 0.9283 against a nominal 0.90; the per-fold table ships in the bundle as p7_gaussian_gap. The correction was propagated through benchmark_wosis_6pilar.rds, the README pooled table and the rendered manuscript. |
 | F9E2C74 | high | Incomplete implementations | `2fd03a5` | qf_krr_benchmark() clamps R-squared at zero, contradicting the package's own edaphos_r2() and hiding worse-than-mean quantum models | The R-squared clamp was removed and the function now delegates to the package's own metrics, so worse-than-mean quantum models are reported as negative rather than censored to zero. |
 | F60AE85 | high | Test coverage | `3bd1938` | bhs_fit has no rank check on the model matrix: a constant covariate yields NA rgamma rates (the 2 live WARNINGs) then a cryptic Cholesky death | R/pilar7_bayesian_hierarchical.R now computes qr(X)$rank and names the aliased columns; the rank-deficient fit raises one informative error and zero warnings, against the 2 warnings the audit measured. |
 | F64B0F0 | high | Test coverage | `3f2d005` | R/foundation_finetune.R:41 makes the whole Pillar-4 fine-tuning API require `reticulate`, which it never uses | The spurious reticulate clause was deleted from the Pillar 4 fine-tuning gate, so the API no longer requires a package it never uses. |
@@ -620,7 +621,9 @@ original auditor reported.
 | F545DD7 | medium | Release consistency | `a549528` | The "ten pillars" identity exists only in the unreleased HEAD; every other metadata artefact still says six | CITATION.cff, .zenodo.json and _pkgdown.yml now say ten research pillars and enumerate all ten; DESCRIPTION, README.md, R/pillars_roadmap.R and R/edaphos-package.R already did. The only surviving "six pillars" strings are historical and correct -- the v1.7.0 capstone integrated the six pillars that existed then. Measured by grepping for the phrase and excluding occurrences qualified by that/then/of-v1.x. |
 | F1E1D2B | medium | Roadmap promises | `a549528` | Archival metadata (.zenodo.json, CITATION.cff) still describes a six-pillar package that stops at v1.8.0 | Both archival metadata files were rewritten for the ten-pillar package and then reset to the honest development version, so neither still describes a six-pillar package stopping at v1.8.0. |
 | F2F16E8 | medium | Scientific reproducibility | `3f2d005` | cran-comments.md misstates both the check status and the extdata sizes it uses to justify the install-size NOTE | cran-comments.md is now generated from a real R CMD check log instead of hand-written, so the check status and the extdata sizes it quotes come from the log rather than memory. |
+| F3467DC | medium | Scientific reproducibility | `0cb0b0a` | Four mutually incompatible definitions of the headline benchmark's target variable across README, vignette and runner | The shipped artefact settles the contradiction: B1's 95% interval bounds are exactly 0.8 and 194.0, the exact min and max of soc_topsoil_gkg on the raw scale, so the target is untransformed g/kg with no log1p, over a surface-anchored slice of variable thickness (upper_depth == 0, lower_depth in 5-30 cm, median 15) rather than any fixed window. data-raw/case_cerrado_run.R's header claimed 'Target: log1p(SOC, g/kg). Point estimate = back-transformed MEDIAN' and defined a .back_transform that was never called; header, the kriging-scale sentence and the vignette's target line are corrected to the measured definition, and the dead function is gone. |
 | F54856E | medium | Scientific reproducibility | `2fd03a5` | The "LLM-augmented (Gemma 4)" DAG in the causal-discovery trio is six hand-typed edges, not an LLM output | The hard-coded six-edge data frame with confidences 0.90/0.82/0.78/0.75/0.72/0.71 was deleted; the script now reads the shipped claims file and maps each claim through the extractor, so the LLM-augmented DAG is produced rather than typed. |
+| F884A23 | medium | Scientific reproducibility | `0cb0b0a` | The flagship case-study benchmark cannot be re-run by anyone: its input is .gitignore'd and its output path is not the shipped artefact | data-raw/case_cerrado_run.R now writes inst/extdata/case_cerrado_results.rds directly, adopting the convention of the other 46 data-raw scripts, and carries an edaphos_provenance() block; the artefact was re-run and reproduced identical numbers, so the shipped file is now demonstrably the committed script's output rather than a hand copy from a gitignored path. tests/testthat/test-bundle-provenance.R -- which named this exact file as the defect it existed for and then skipped it -- now fails on any bundle without provenance outside an explicit legacy list that can only shrink. The header states plainly what a fresh clone needs: the two-script chain is public and reproducible but costs ~1 h and ~2 GB, and the 674 MB raster cannot be committed. Carrying the embeddings to remove that dependency was considered and rejected in writing: it would buy reproducibility of the output at the cost of making the E arm unfalsifiable. |
 | FDA80DD | medium | Scientific reproducibility | `d51b0d6` | Residual kriging (B2) is fit to in-bag rather than OOB forest residuals, manufacturing the README's PICP conclusion | The kriging fit was moved onto out-of-bag residuals in code, and the published conclusion that the in-bag fit had manufactured was withdrawn in the artefact and the prose. |
 | FAEC54C | medium | Incomplete implementations | `3f2d005` | al_fit() performs no validation of num.trees against nrow(labeled), producing an opaque ranger error; the guarding test is unseeded and fails ~12% of runs | al_fit(<20 rows>, num.trees = 3) now stops with "[al_fit] num.trees = 3 is too small for out-of-bag quantile regression on 20 labeled rows" instead of the opaque ranger error. |
 | FC68E1D | medium | Incomplete implementations | `a809ec9` | foundation_weights_load() requires torch BEFORE resolving the registry, so the placeholder v2 entry reports the wrong reason for failing | Same measurement as FAC0043. |
@@ -645,7 +648,6 @@ original auditor reported.
 | FDE7C43 | high | partial | CRAN readiness | tech-debt | hours | Installed size will NOTE: inst/extdata 9.98 MB + man/figures 2.3 MB, of which a 1.9 MB PNG logo |
 | F36D2FE | high | partial | Release consistency | process-gap | hours | The "v3.11.0" work is committed and self-referenced in shipped code, but no version exists: no DESCRIPTION bump, no NEWS section, no tag |
 | F5F7D9A | high | confirmed | Release consistency | doc-gap | hours | The "1 345 tests" figure is unreproducible, mis-attributed, and the NEWS test-count chain contains two arithmetic breaks |
-| FF375C1 | high | confirmed | Scientific reproducibility | bug | days | The P4 "Foundation" row of the headline "first honest cross-pillar comparison" is computed on a pure Gaussian-noise raster |
 | F10D9DC | high | confirmed | Incomplete implementations | incomplete-implementation | minutes | edaphos-cerrado-moco-v2 ships as an all-NA placeholder row in the exported public registry, keyed to a nonexistent package version 3.11.0 |
 | F873468 | high | confirmed | Incomplete implementations | bug | hours | foundation_build_cerrado_stack() silently writes a truncated stack to the cache when any geodata fetch fails, then reuses it forever |
 | F8EC452 | high | partial | Test coverage | process-gap | hours | No CI leg has ever executed the torch code paths: 74 test blocks / 223 expectations / ~3,140 LOC unexercised |
@@ -672,10 +674,8 @@ original auditor reported.
 | FD528FC | medium | confirmed | Roadmap promises | incomplete-implementation | days | Three exported functions with .Rd pages and pkgdown entries are permanent stop() stubs |
 | FF7221D | medium | partial | Roadmap promises | missing-work | hours | v1.3.2 (MoCo v2 200k-step encoder) is 43 % short of target and the checkpoint exists nowhere in the repository |
 | F0F5D47 | medium | confirmed | Scientific reproducibility | inconsistency | hours | Pretrained-weight DOI is real but the v2 registry row is all-NA while claiming a nonexistent version; CITATION.cff and .zenodo.json are many releases stale and assign one DOI to ten releases |
-| F3467DC | medium | partial | Scientific reproducibility | inconsistency | hours | Four mutually incompatible definitions of the headline benchmark's target variable across README, vignette and runner |
 | F366B1F | medium | confirmed | Scientific reproducibility | doc-gap | hours | README's headline benchmark tables are two to four release cycles stale, and the current 6-method result exists only in NEWS.md |
 | F5672C5 | medium | confirmed | Scientific reproducibility | doc-gap | hours | DESCRIPTION's "every vignette runs offline" is false: four advertised vignettes are not vignettes, and the Pilar 4 × Pilar 6 vignette evaluates nothing |
-| F884A23 | medium | confirmed | Scientific reproducibility | process-gap | days | The flagship case-study benchmark cannot be re-run by anyone: its input is .gitignore'd and its output path is not the shipped artefact |
 | F71D795 | medium | confirmed | Incomplete implementations | incomplete-implementation | hours | The spBayes backend is advertised as an equal peer in README/NEWS/man but predict(), as_edaphos_posterior() and al_query_bhs() all fail on it |
 | F9046AE | medium | confirmed | Incomplete implementations | doc-gap | minutes | bhs_fit()'s rcpp backend is absent from its own @param documentation, and al_query_bhs() rejects it despite the fit being complete |
 | FFFC52E | medium | confirmed | Incomplete implementations | bug | minutes | causal_iv bootstrap silently discards failed 2SLS replicates and rewrites B to the survivor count |
@@ -829,26 +829,6 @@ original auditor reported.
 
 > Pick one measured quantity and state the environment with it, e.g. "460 test_that blocks / 1089 expectations; 1022 pass + 109 skipped without torch/dagitty/bnlearn/dbarts (R 4.6.1 aarch64-darwin)". Regenerate the README.md:12 badge from that number, delete or correct the contradictory README.md:1672 "109+", fix the +7/+20 arithmetic at NEWS.md:242 and NEWS.md:195, and rewrite cran-comments.md:30-35 to report the true skip count and the true warning source (test-pilar7-bhs-edge.R:61, not Pilar 8 sweep).
 
-#### FF375C1 — The P4 "Foundation" row of the headline "first honest cross-pillar comparison" is computed on a pure Gaussian-noise raster
-
-`Scientific reproducibility` · bug · high · effort: days · verdict: **CONFIRMED**
-
-**Evidence**
-
-> The headline defect is fixed - data-raw/benchmark_wosis_p4_p5_p7.R:193-230 now builds the real 31-channel stack via foundation_build_cerrado_stack(bbox, target_res = 0.01, schema = v1_encoder), with :200-205 recording that through v3.10.0 this benchmark ran the encoder over pure rnorm noise - and the 300-row P7 cap is now an opt-in env var (P7_TRAIN_CAP at :270-272, unset by default). One cited sub-defect survives verbatim and undisclosed: :183-186 still discards the Gibbs posterior and rebuilds it as samps[, j] <- stats::rnorm(200L, pr$mean[j], pr$sd[j]), so P7's CRPS and PICP still measure a Gaussian approximation of a summary. README.md:359 discloses the old noise raster but nothing discloses this reconstruction.
-
-**Impact**
-
-> The result advertised as the package's "first honest cross-pillar comparison" attributes a calibration win to a foundation model that was fed noise, and awards R²/MPIW honours to a method trained on 34% of the data whose posterior was replaced by a Gaussian. Because `data-raw/benchmark_wosis_6pilar.R:59-62,179,210` reuses this bundle wholesale for the P4/P5/P7 rows, the defect propagates into the 6-pillar table in `NEWS.md:601-608` and `NEWS.md:421-428` and into `inst/extdata/benchmark_wosis_6pilar.rds`.
-
-**Verification correction**
-
-> none — every cited line verified in data-raw/benchmark_wosis_p4_p5_p7.R: the template raster is filled with `stats::rnorm(terra::ncell(tpl))` and every one of the 31 encoder channels is overwritten with `stats::rnorm` in the following loop (the script's own message even prints "synthetic stack"); `dataset_meta` normalisation is `means = rep(0, ...), sds = rep(1, ...)`; `train_bhs <- if (n_tr > 300L) train[sample(n_tr, 300L), ] else train` caps P7 at 300 rows while P4/P5 get the full training fold; and the P7 "posterior" is rebuilt as `stats::rnorm(200L, pr$mean[j], pr$sd[j])`. README.md:243-255 carries no caveat, in direct contrast to README.md:1404/:1413 which does label the quantum table "(synthetic-stack mode)" / "random Gaussian rasters". The propagation into the 6-pillar table is consistent with the shipped benchmark_wosis_6pilar.rds reusing the same P4/P5/P7 rows.
-
-**Action**
-
-> Either supply the real 31-channel Cerrado stack (the same one `data-raw/causal_iv_benchmark_real.R` builds via `foundation_build_cerrado_stack()`) with correct per-channel normalisation, or drop the P4 row and state that Pillar 4 is not benchmarkable without the raster download. Equalise P7's training set with P4/P5 or disclose the 300-row cap in every table caption. Replace the `rnorm(200, mean, sd)` reconstruction at `:139-144` with the actual Gibbs draws from `bhs_fit`. Add a "synthetic-stack mode" caveat to `README.md:243-255` matching the one already at `README.md:1404`.
-
 #### F10D9DC — edaphos-cerrado-moco-v2 ships as an all-NA placeholder row in the exported public registry, keyed to a nonexistent package version 3.11.0
 
 `Incomplete implementations` · incomplete-implementation · high · effort: minutes · verdict: **CONFIRMED**
@@ -972,17 +952,11 @@ original auditor reported.
 - **F0F5D47** (Scientific reproducibility, hours) — Pretrained-weight DOI is real but the v2 registry row is all-NA while claiming a nonexistent version; CITATION.cff and .zenodo.json are many releases stale and assign one DOI to ten releases
   - 1. Bump `CITATION.cff:109` and `:184` to 3.10.0 with the correct `date-released`, and either supply the real per-release Zenodo version DOIs or delete the `identifiers:` block rather than repeating one DOI ten times. 2. Add `"version": "3.10.0"` to `.zenodo.json` and rewrite its `description` for ten pillars, or generate it from DESCRIPTION at release time. 3. Change `R/foundation_weights.R:82` from `"3.11.0"` to the version that will actually ship the v2 row, and have `foundation_weights_list()` omit or clearly flag rows with `is.na(doi)` so users are not offered an undownloadable encoder. 4. Add a release-checklist step in `RELEASE-CHECKLIST-v3.10.0.md` asserting DESCRIPTION, NEWS.md, CITATION.cff and .zenodo.json agree on the version.
 
-- **F3467DC** (Scientific reproducibility, hours) — Four mutually incompatible definitions of the headline benchmark's target variable across README, vignette and runner
-  - Read the actual filter out of `data-raw/case_cerrado_prepare.R:220-240`, write it down once in a single authoritative place, and make `README.md:1611`, `vignettes/case-cerrado-end-to-end.Rmd:43-46`, its §3 prose, and the `data-raw/case_cerrado_run.R:8-32` header all point at it. Delete the dead `.back_transform` at `:75` and the stale log1p claims at `:22,:30-32` and `vignettes/case-cerrado-end-to-end.Rmd:71`. Remove the duplicated near-identical filter blocks at `case_cerrado_prepare.R:220-225` / `:235-240` so there is one code path.
-
 - **F366B1F** (Scientific reproducibility, hours) — README's headline benchmark tables are two to four release cycles stale, and the current 6-method result exists only in NEWS.md
   - Promote the v3.4.0 six-method table from `NEWS.md:421-428` into `README.md`, replacing or clearly superseding `README.md:243-255`, and stamp each README table with the artefact and version it came from (e.g. "computed at v3.4.0 from `inst/extdata/benchmark_wosis_6pilar.rds`"). Correct "56 covariates" → 59 and disclose `lon`/`lat`/`year`. Correct the quantum caption to state the 250-row per-fold training cap and n = 1081. Regenerate the `inst/extdata` size table with `file.size()` and add the two benchmark bundles. Fix `README.md:841`.
 
 - **F5672C5** (Scientific reproducibility, hours) — DESCRIPTION's "every vignette runs offline" is false: four advertised vignettes are not vignettes, and the Pilar 4 × Pilar 6 vignette evaluates nothing
   - Decide per document: move the four `articles/*.Rmd` into `vignettes/` (they read only `inst/extdata`, so they should build offline), or remove them from the `README.md:1644-1662` table and from the "Used by" column at `:1615-1632`, replacing `vignette("llm-kg-benchmark")` at `:702` with a pkgdown URL. Enable the two chunks in `vignettes/pilar4-pilar6-quantum.Rmd` — the `benchmark-table` chunk only needs `readRDS(system.file(...))` and should evaluate offline. Add `getting-started` to the vignette table. Add a CI check that every `vignette("...")` string in `README.md` resolves in the built package.
-
-- **F884A23** (Scientific reproducibility, days) — The flagship case-study benchmark cannot be re-run by anyone: its input is .gitignore'd and its output path is not the shipped artefact
-  - 1. Change `out_path` at `data-raw/case_cerrado_run.R:44` to `inst/extdata/case_cerrado_results.rds` so the committed artefact has a scripted origin. 2. Either commit `case_cerrado_bundle.rds` (the extracted 1095×59 profile frame is small — `causal_cerrado_real.rds` is only 62 KB for a comparable table) or publish it under the existing Zenodo deposit and have the runner fetch + SHA-256 verify it, matching the pattern already implemented in `R/foundation_weights.R:214-221`. 3. Re-run against v3.10.0 and refresh the stamp, or add a dated "computed at v1.3.1" banner to `README.md:1554-1582`.
 
 - **F71D795** (Incomplete implementations, hours) — The spBayes backend is advertised as an equal peer in README/NEWS/man but predict(), as_edaphos_posterior() and al_query_bhs() all fail on it
   - Minimum: add a `backend` guard to `as_edaphos_posterior.edaphos_bhs` at R/pilar7_bayesian_hierarchical.R:412 mirroring the one at :355 so it fails with a readable message; fix the stale "for v2.3.0" text in the :356 message to name the current version; and add an explicit `\note{}` to man/bhs_fit.Rd, man/predict.edaphos_bhs.Rd and README.md:272 stating that only `gibbs`/`rcpp` support prediction, posterior extraction and active-learning queries. Better: have the spBayes branch populate `w_post_mean` from `fit_sp$p.w.recover.samples` and `phi_hat` from `median(theta_draws[,"phi"])`, which would make all three methods work.
@@ -1252,10 +1226,7 @@ _In a research package the empirical claims are the product._
 
 | Done | ID | Sev | Effort | Item |
 | --- | --- | --- | --- | --- |
-| [ ] | FF375C1 | high | days | The P4 "Foundation" row of the headline "first honest cross-pillar comparison" is computed on a pure Gaussian-noise raster |
-| [ ] | F884A23 | medium | days | The flagship case-study benchmark cannot be re-run by anyone: its input is .gitignore'd and its output path is not the shipped artefact |
 | [ ] | F0F5D47 | medium | hours | Pretrained-weight DOI is real but the v2 registry row is all-NA while claiming a nonexistent version; CITATION.cff and .zenodo.json are many releases stale and assign one DOI to ten releases |
-| [ ] | F3467DC | medium | hours | Four mutually incompatible definitions of the headline benchmark's target variable across README, vignette and runner |
 | [ ] | F366B1F | medium | hours | README's headline benchmark tables are two to four release cycles stale, and the current 6-method result exists only in NEWS.md |
 | [ ] | F5672C5 | medium | hours | DESCRIPTION's "every vignette runs offline" is false: four advertised vignettes are not vignettes, and the Pilar 4 × Pilar 6 vignette evaluates nothing |
 

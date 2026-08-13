@@ -1,152 +1,152 @@
 {
-  "schema": "edaphos-status-check-classification/1",
-  "provenance": {
-    "purpose": "Living registry, keyed by check name, classifying each item a real `R CMD check --as-cran` run reports as a package DEFECT or an artefact of the MEASURING ENVIRONMENT. Item names, levels and verbatim text are read from the check log by tools/status/facts.R; only the classification, the source attribution and the resolved_in field are editorial. Renderers join this file against the CURRENT log, so entries for resolved items simply stop appearing.",
-    "check_command": "R CMD build . && _R_CHECK_FORCE_SUGGESTS_=false R CMD check --as-cran --no-manual edaphos_4.1.0.tar.gz",
-    "environment_note": "_R_CHECK_FORCE_SUGGESTS_=false was required because 8 Suggests are not installable in this environment. qpdf is absent; HTML Tidy is older than R expects. The log is from a run with nothing else on the machine: an earlier run of the same tarball, made while a separate R session was measuring the tree, reported an extra NOTE -- 'Examples with CPU (user + system) or elapsed time > 5s', listing 11 examples. All 11 were under 5s of CPU and over 5s of wall clock, i.e. the NOTE measured the contention, not the examples: on the idle re-run the same step is 'checking examples ... [93s/100s] OK'. Timing NOTEs are only meaningful from an unloaded machine.",
-    "baseline_commit": "272b378a188a3cb85a02c075b64d58cd42439267",
-    "baseline_status": "2 ERRORs, 1 WARNING, 6 NOTEs",
-    "latest_status": "2 NOTEs (New submission; temp-dir detritus)"
+ "schema": "edaphos-status-check-classification/1",
+ "provenance": {
+  "purpose": "Living registry, keyed by check name, classifying each item a real `R CMD check --as-cran` run reports as a package DEFECT or an artefact of the MEASURING ENVIRONMENT. Item names, levels and verbatim text are read from the check log by tools/status/facts.R; only the classification, the source attribution and the resolved_in field are editorial. Renderers join this file against the CURRENT log, so entries for resolved items simply stop appearing.",
+  "check_command": "R CMD build . && _R_CHECK_FORCE_SUGGESTS_=false R CMD check --as-cran --no-manual edaphos_0.9.0.tar.gz",
+  "environment_note": "_R_CHECK_FORCE_SUGGESTS_=false was required because 5 Suggests are not installable in this environment: DiagrammeR, ecmwfr, fmsb, ontologyIndex, spBayes. (This said 8, and named a tarball at version 4.1.0, for as long as the package has been at 0.9.0 -- the file that classifies the check was itself stale about the check.) qpdf is absent; HTML Tidy is older than R expects. The log is from a run with nothing else on the machine: an earlier run of the same tarball, made while a separate R session was measuring the tree, reported an extra NOTE -- 'Examples with CPU (user + system) or elapsed time > 5s', listing 11 examples. All 11 were under 5s of CPU and over 5s of wall clock, i.e. the NOTE measured the contention, not the examples: on the idle re-run the same step is 'checking examples ... [93s/100s] OK'. Timing NOTEs are only meaningful from an unloaded machine.",
+  "baseline_commit": "272b378a188a3cb85a02c075b64d58cd42439267",
+  "baseline_status": "2 ERRORs, 1 WARNING, 6 NOTEs",
+  "latest_status": "2 NOTEs (New submission; temp-dir detritus)"
+ },
+ "items": [
+  {
+   "check": "checking CRAN incoming feasibility",
+   "level": "NOTE",
+   "class": "informational",
+   "summary": "CRAN reports this as a New submission. The two redirecting URLs it flagged at baseline have been fixed.",
+   "source": "README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr); both fixed. Tarball was 15734027 bytes at the baseline commit and is 6740328 bytes now.",
+   "fix": "Nothing to fix: 'New submission' is accurate. Recorded because it is R's own confirmation that nothing named edaphos exists on CRAN, which contradicts every artefact implying the package is released.",
+   "blocks_cran": false,
+   "note": "'New submission' is R's own confirmation that nothing named edaphos exists on CRAN, at version 3.10.0 with 43 NEWS releases behind it.",
+   "urls_resolved": true
   },
-  "items": [
-    {
-      "check": "checking CRAN incoming feasibility",
-      "level": "NOTE",
-      "class": "informational",
-      "summary": "CRAN reports this as a New submission. The two redirecting URLs it flagged at baseline have been fixed.",
-      "source": "README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr); both fixed. Tarball was 15734027 bytes at the baseline commit and is 6740328 bytes now.",
-      "fix": "Nothing to fix: 'New submission' is accurate. Recorded because it is R's own confirmation that nothing named edaphos exists on CRAN, which contradicts every artefact implying the package is released.",
-      "blocks_cran": false,
-      "note": "'New submission' is R's own confirmation that nothing named edaphos exists on CRAN, at version 3.10.0 with 43 NEWS releases behind it.",
-      "urls_resolved": true
-    },
-    {
-      "check": "checking tests",
-      "level": "ERROR",
-      "class": "defect",
-      "summary": "The test suite fails: 2 errors.",
-      "source": "tests/testthat/test-foundation-weights.R:33 and tests/testthat/test-active-quantum-posterior.R:34",
-      "fix": "See findings FC68E1D (move .moco_require_torch below the argument validation in R/foundation_weights.R) and FAEC54C (validate num.trees in R/active_fit.R, seed the test).",
-      "blocks_cran": true,
-      "resolved": true,
-      "resolution": "Both errors fixed: the torch gate moved below argument validation in R/foundation_weights.R, and al_fit() now validates num.trees with a computed floor."
-    },
-    {
-      "check": "checking PDF version of manual",
-      "level": "WARNING",
-      "class": "defect",
-      "summary": "pdflatex cannot typeset two raw Unicode characters used in Rd text.",
-      "source": "R/foundation_finetune.R:165 (U+2265 GREATER-THAN OR EQUAL) and R/foundation_finetune.R:436 (U+2208 ELEMENT OF); man/*.Rd is roxygen-generated so the fix must land in R/ and be re-documented.",
-      "fix": "Replace with \\eqn{\\ge} / \\eqn{\\in} or ASCII, then roxygen2::roxygenise(). The 165 em-dashes and 18 en-dashes in Rd are safe -- R's Rd-to-LaTeX pass maps them.",
-      "blocks_cran": true,
-      "resolved": true,
-      "resolution": "U+2265 and U+2208 replaced in R/foundation_finetune.R; re-documented."
-    },
-    {
-      "check": "checking PDF version of manual without index",
-      "level": "ERROR",
-      "class": "defect",
-      "summary": "Same root cause as the PDF-manual WARNING.",
-      "source": "R/foundation_finetune.R:165,436",
-      "fix": "Resolved by the same change.",
-      "blocks_cran": true,
-      "resolved": true,
-      "resolution": "Same fix."
-    },
-    {
-      "check": "checking Rd files",
-      "level": "NOTE",
-      "class": "defect",
-      "summary": "Escaped LaTeX special \\~ in Rd text.",
-      "source": "R/foundation_embed_coords.R:207",
-      "fix": "Use \\eqn{\\sim} or the word 'about'.",
-      "blocks_cran": false,
-      "resolved": true,
-      "resolution": "\\~ replaced with the word 'about' in R/foundation_embed_coords.R."
-    },
-    {
-      "check": "checking installed package size",
-      "level": "INFO",
-      "class": "defect",
-      "summary": "Installed size far above the CRAN 5 MB guidance; becomes a NOTE on CRAN's incoming checks.",
-      "source": "inst/doc (vignette HTML rendered at build time), inst/extdata (result bundles), man/figures",
-      "fix": "See finding FDE7C43, but note its arithmetic is stale: the 1.9 MB logo it names is now 299 KB. The largest contributor is no longer committed payload at all -- inst/doc is 38% of the tarball and 72% of that is base64 figure data inlined by rmarkdown::html_vignette, so lowering vignette figure sizes reduces the tarball without moving a single tracked file.",
-      "blocks_cran": false,
-      "cran_note": "The installed size is dominated by inst/doc, the vignette HTML that R CMD build renders from vignettes/, followed by inst/extdata, which holds committed result bundles the vignettes and README read instead of recomputing. Both are measured in STATUS.md section 8 from the tarball itself; reducing them is tracked there as finding FDE7C43."
-    },
-    {
-      "check": "checking for hidden files and directories",
-      "level": "NOTE",
-      "class": "defect",
-      "summary": ".git was included in the tarball because .Rbuildignore has no ^\\.git$ entry.",
-      "source": ".Rbuildignore",
-      "fix": "Add ^\\.git$. Note this surfaces here because the build ran from a git worktree, where .git is a plain file rather than a directory; adding the pattern makes the build correct from either layout.",
-      "blocks_cran": false,
-      "resolved": true,
-      "resolution": "^\\.git$ added to .Rbuildignore."
-    },
-    {
-      "check": "checking top-level files",
-      "level": "NOTE",
-      "class": "defect",
-      "summary": "Recurred at v4.1.0 with a different cause: a top-level `figure/` directory, left by knitting a vignette from the package root while writing the Pilar 7-10 vignettes. The original cause (GATEOUT.rds, audit tooling) had been removed before the clean baseline.",
-      "source": "v4.1.0: figure/ (knitr fig.path default when a vignette is knitted outside vignettes/). Baseline: GATEOUT.rds.",
-      "fix": "Removed the directory and added a permanent guard -- `^figure$` in .Rbuildignore and `figure/` in .gitignore -- so a stray knit cannot reach the tarball again.",
-      "blocks_cran": false,
-      "resolved": true,
-      "resolution": "v4.1.0: directory deleted and guarded in .Rbuildignore/.gitignore. Verified by the check run recorded in tools/status/check.log.",
-      "correction_note": "Was classified `environment` on the strength of the single GATEOUT.rds occurrence. That was too narrow: the check item fires for any non-standard top-level entry, and the v4.1.0 recurrence was a genuine packaging defect. Reclassified."
-    },
-    {
-      "check": "checking HTML version of manual",
-      "level": "NOTE",
-      "class": "environment",
-      "summary": "The local HTML Tidy is older than R requires, so HTML validation was skipped.",
-      "source": "measuring machine",
-      "fix": "None needed in the package.",
-      "blocks_cran": false
-    },
-    {
-      "check": "checking for non-standard things in the check directory",
-      "level": "NOTE",
-      "class": "environment",
-      "summary": "edaphos-manual.tex left behind by the failed LaTeX run.",
-      "source": "consequence of the PDF-manual failure above",
-      "fix": "Disappears once the Unicode fix lands.",
-      "blocks_cran": false,
-      "resolved": true,
-      "resolution": "Confirmed to have been the LaTeX consequence: it reports OK once the PDF manual builds."
-    },
-    {
-      "check": "checking for detritus in the temp directory",
-      "level": "NOTE",
-      "class": "defect",
-      "summary": "A temporary directory is left behind in the R session temp dir on every run.",
-      "source": "Not the LaTeX run, as first assumed: the NOTE persists after the PDF manual builds cleanly. The directory is named tmp<8 chars> and differs on every run (tmph7u64pdz, tmpl_pg5ehe, tmpspsyky6e), which is Python's tempfile.mkdtemp() pattern, not R's file<hex>. It comes from the optional qiskit / PySCF bridge reached through reticulate in R/quantum_vqe.R, R/quantum_nature.R and R/quantum_ibmq.R.",
-      "fix": "Have the Python bridge clean up the directories it creates (or create them under tempdir() and remove them on.exit). Only appears on machines where the optional Python stack is installed, so it would not fire on CRAN, where reticulate-gated tests skip.",
-      "blocks_cran": false,
-      "correction_note": "This entry originally attributed the NOTE to the failed LaTeX run. That was wrong and is recorded here rather than silently edited."
-    },
-    {
-      "check": "R CMD build (vignettes)",
-      "level": "ERROR",
-      "class": "defect",
-      "summary": "The tarball cannot be built at all when the Suggests package dagitty is absent: the vignette's setup chunk calls causal_cerrado_dag() with no availability guard, so build aborts. DESCRIPTION claims 'A synthesised Cerrado dataset is bundled so every vignette runs offline'.",
-      "source": "vignettes/pilar1-causal.Rmd:58-65",
-      "fix": "Guard the chunk with requireNamespace('dagitty') (the pattern the R/ code already uses via .causal_require_dagitty), or set eval=FALSE with a precomputed result, as the other heavy vignettes do.",
-      "blocks_cran": false,
-      "note": "CRAN installs Suggests, so this would not block CRAN itself -- but it does block every contributor and any reproduction attempt on a lean machine, and it falsifies the offline claim.",
-      "resolved": true,
-      "resolution": "knit_exit() guards moved into their own chunks in vignettes/pilar1-causal.Rmd. NOTE: the same misuse remains in 6 other vignettes and is tracked separately."
-    },
-    {
-      "check": "checking package dependencies",
-      "level": "INFO",
-      "class": "environment",
-      "summary": "Some Suggests are not installable on the checking machine, so the check reports them as unavailable. The count and the names are read from the log, not stated here -- an earlier hand-written 'Ten' outlived the 8 the log actually names.",
-      "source": "measuring machine; see the Test environments section",
-      "fix": "None needed in the package. CRAN installs Suggests, so this INFO does not appear there.",
-      "blocks_cran": false
-    }
-  ]
+  {
+   "check": "checking tests",
+   "level": "ERROR",
+   "class": "defect",
+   "summary": "The test suite fails: 2 errors.",
+   "source": "tests/testthat/test-foundation-weights.R:33 and tests/testthat/test-active-quantum-posterior.R:34",
+   "fix": "See findings FC68E1D (move .moco_require_torch below the argument validation in R/foundation_weights.R) and FAEC54C (validate num.trees in R/active_fit.R, seed the test).",
+   "blocks_cran": true,
+   "resolved": true,
+   "resolution": "Both errors fixed: the torch gate moved below argument validation in R/foundation_weights.R, and al_fit() now validates num.trees with a computed floor."
+  },
+  {
+   "check": "checking PDF version of manual",
+   "level": "WARNING",
+   "class": "defect",
+   "summary": "pdflatex cannot typeset two raw Unicode characters used in Rd text.",
+   "source": "R/foundation_finetune.R:165 (U+2265 GREATER-THAN OR EQUAL) and R/foundation_finetune.R:436 (U+2208 ELEMENT OF); man/*.Rd is roxygen-generated so the fix must land in R/ and be re-documented.",
+   "fix": "Replace with \\eqn{\\ge} / \\eqn{\\in} or ASCII, then roxygen2::roxygenise(). The 165 em-dashes and 18 en-dashes in Rd are safe -- R's Rd-to-LaTeX pass maps them.",
+   "blocks_cran": true,
+   "resolved": true,
+   "resolution": "U+2265 and U+2208 replaced in R/foundation_finetune.R; re-documented."
+  },
+  {
+   "check": "checking PDF version of manual without index",
+   "level": "ERROR",
+   "class": "defect",
+   "summary": "Same root cause as the PDF-manual WARNING.",
+   "source": "R/foundation_finetune.R:165,436",
+   "fix": "Resolved by the same change.",
+   "blocks_cran": true,
+   "resolved": true,
+   "resolution": "Same fix."
+  },
+  {
+   "check": "checking Rd files",
+   "level": "NOTE",
+   "class": "defect",
+   "summary": "Escaped LaTeX special \\~ in Rd text.",
+   "source": "R/foundation_embed_coords.R:207",
+   "fix": "Use \\eqn{\\sim} or the word 'about'.",
+   "blocks_cran": false,
+   "resolved": true,
+   "resolution": "\\~ replaced with the word 'about' in R/foundation_embed_coords.R."
+  },
+  {
+   "check": "checking installed package size",
+   "level": "INFO",
+   "class": "defect",
+   "summary": "Installed size far above the CRAN 5 MB guidance; becomes a NOTE on CRAN's incoming checks.",
+   "source": "inst/doc (vignette HTML rendered at build time), inst/extdata (result bundles), man/figures",
+   "fix": "See finding FDE7C43, but note its arithmetic is stale: the 1.9 MB logo it names is now 299 KB. The largest contributor is no longer committed payload at all -- inst/doc is 38% of the tarball and 72% of that is base64 figure data inlined by rmarkdown::html_vignette, so lowering vignette figure sizes reduces the tarball without moving a single tracked file.",
+   "blocks_cran": false,
+   "cran_note": "The installed size is dominated by inst/doc, the vignette HTML that R CMD build renders from vignettes/, followed by inst/extdata, which holds committed result bundles the vignettes and README read instead of recomputing. Both are measured in STATUS.md section 8 from the tarball itself; reducing them is tracked there as finding FDE7C43."
+  },
+  {
+   "check": "checking for hidden files and directories",
+   "level": "NOTE",
+   "class": "defect",
+   "summary": ".git was included in the tarball because .Rbuildignore has no ^\\.git$ entry.",
+   "source": ".Rbuildignore",
+   "fix": "Add ^\\.git$. Note this surfaces here because the build ran from a git worktree, where .git is a plain file rather than a directory; adding the pattern makes the build correct from either layout.",
+   "blocks_cran": false,
+   "resolved": true,
+   "resolution": "^\\.git$ added to .Rbuildignore."
+  },
+  {
+   "check": "checking top-level files",
+   "level": "NOTE",
+   "class": "defect",
+   "summary": "Recurred at v4.1.0 with a different cause: a top-level `figure/` directory, left by knitting a vignette from the package root while writing the Pilar 7-10 vignettes. The original cause (GATEOUT.rds, audit tooling) had been removed before the clean baseline.",
+   "source": "v4.1.0: figure/ (knitr fig.path default when a vignette is knitted outside vignettes/). Baseline: GATEOUT.rds.",
+   "fix": "Removed the directory and added a permanent guard -- `^figure$` in .Rbuildignore and `figure/` in .gitignore -- so a stray knit cannot reach the tarball again.",
+   "blocks_cran": false,
+   "resolved": true,
+   "resolution": "v4.1.0: directory deleted and guarded in .Rbuildignore/.gitignore. Verified by the check run recorded in tools/status/check.log.",
+   "correction_note": "Was classified `environment` on the strength of the single GATEOUT.rds occurrence. That was too narrow: the check item fires for any non-standard top-level entry, and the v4.1.0 recurrence was a genuine packaging defect. Reclassified."
+  },
+  {
+   "check": "checking HTML version of manual",
+   "level": "NOTE",
+   "class": "environment",
+   "summary": "The local HTML Tidy is older than R requires, so HTML validation was skipped.",
+   "source": "measuring machine",
+   "fix": "None needed in the package.",
+   "blocks_cran": false
+  },
+  {
+   "check": "checking for non-standard things in the check directory",
+   "level": "NOTE",
+   "class": "environment",
+   "summary": "edaphos-manual.tex left behind by the failed LaTeX run.",
+   "source": "consequence of the PDF-manual failure above",
+   "fix": "Disappears once the Unicode fix lands.",
+   "blocks_cran": false,
+   "resolved": true,
+   "resolution": "Confirmed to have been the LaTeX consequence: it reports OK once the PDF manual builds."
+  },
+  {
+   "check": "checking for detritus in the temp directory",
+   "level": "NOTE",
+   "class": "defect",
+   "summary": "A temporary directory is left behind in the R session temp dir on every run.",
+   "source": "Not the LaTeX run, as first assumed: the NOTE persists after the PDF manual builds cleanly. The directory is named tmp<8 chars> and differs on every run (tmph7u64pdz, tmpl_pg5ehe, tmpspsyky6e), which is Python's tempfile.mkdtemp() pattern, not R's file<hex>. It comes from the optional qiskit / PySCF bridge reached through reticulate in R/quantum_vqe.R, R/quantum_nature.R and R/quantum_ibmq.R.",
+   "fix": "Have the Python bridge clean up the directories it creates (or create them under tempdir() and remove them on.exit). Only appears on machines where the optional Python stack is installed, so it would not fire on CRAN, where reticulate-gated tests skip.",
+   "blocks_cran": false,
+   "correction_note": "This entry originally attributed the NOTE to the failed LaTeX run. That was wrong and is recorded here rather than silently edited."
+  },
+  {
+   "check": "R CMD build (vignettes)",
+   "level": "ERROR",
+   "class": "defect",
+   "summary": "The tarball cannot be built at all when the Suggests package dagitty is absent: the vignette's setup chunk calls causal_cerrado_dag() with no availability guard, so build aborts. DESCRIPTION claims 'A synthesised Cerrado dataset is bundled so every vignette runs offline'.",
+   "source": "vignettes/pilar1-causal.Rmd:58-65",
+   "fix": "Guard the chunk with requireNamespace('dagitty') (the pattern the R/ code already uses via .causal_require_dagitty), or set eval=FALSE with a precomputed result, as the other heavy vignettes do.",
+   "blocks_cran": false,
+   "note": "CRAN installs Suggests, so this would not block CRAN itself -- but it does block every contributor and any reproduction attempt on a lean machine, and it falsifies the offline claim.",
+   "resolved": true,
+   "resolution": "knit_exit() guards moved into their own chunks in vignettes/pilar1-causal.Rmd. NOTE: the same misuse remains in 6 other vignettes and is tracked separately."
+  },
+  {
+   "check": "checking package dependencies",
+   "level": "INFO",
+   "class": "environment",
+   "summary": "Some Suggests are not installable on the checking machine, so the check reports them as unavailable. The count and the names are read from the log, not stated here -- a hand-written 'Ten' once outlived the number the log actually named, and the sentence that said so then named a number of its own, which went stale in turn. No count appears here.",
+   "source": "measuring machine; see the Test environments section",
+   "fix": "None needed in the package. CRAN installs Suggests, so this INFO does not appear there.",
+   "blocks_cran": false
+  }
+ ]
 }

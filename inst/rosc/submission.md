@@ -72,7 +72,7 @@ emerging methodology lines.
 
 <!-- BEGIN GENERATED QA -- edit tools/status/render-submission-qa.R, not this -->
 
-- **Unit tests**: 2 151 passing expectations across 596 `test_that` blocks in 91 test files, from a real run. Coverage spans every pillar's edge cases (NA inputs, degenerate matrices, reproducibility, device dispatch).
+- **Unit tests**: 2 192 passing expectations across 601 `test_that` blocks in 92 test files, from a real run. Coverage spans every pillar's edge cases (NA inputs, degenerate matrices, reproducibility, device dispatch).
 - **Examples**: every exported function has at least one `@examples`
   block (some are `\dontrun{}` because they need the torch runtime,
   network access, or a live Ollama instance).

@@ -6,12 +6,12 @@
     GNU Fortran (GCC) 14.2.0
 * running under: macOS Tahoe 26.6.1
 * using session charset: UTF-8
-* current time: 2026-08-12 14:30:22 UTC
+* current time: 2026-08-13 03:33:53 UTC
 * using options ‘--no-manual --as-cran’
 * checking for file ‘edaphos/DESCRIPTION’ ... OK
 * this is package ‘edaphos’ version ‘0.9.0’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [4s/38s] NOTE
+* checking CRAN incoming feasibility ... [5s/32s] NOTE
 Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
 
 New submission
@@ -25,14 +25,14 @@ Packages suggested but not available for checking:
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
-* checking whether package ‘edaphos’ can be installed ... [12s/13s] OK
+* checking whether package ‘edaphos’ can be installed ... [16s/17s] OK
 * used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.1.1.101)’
 * used SDK: ‘MacOSX26.5.sdk’
 * checking installed package size ... INFO
-  installed size is 11.7Mb
+  installed size is  8.4Mb
   sub-directories of 1Mb or more:
-    doc       4.5Mb
-    extdata   4.2Mb
+    doc       3.2Mb
+    extdata   2.2Mb
     help      1.5Mb
 * checking package directory ... OK
 * checking for future file timestamps ... OK
@@ -54,7 +54,7 @@ Packages suggested but not available for checking:
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
-* checking R code for possible problems ... [10s/11s] OK
+* checking R code for possible problems ... [13s/13s] OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
 * checking Rd line widths ... OK
@@ -76,19 +76,19 @@ Packages suggested but not available for checking:
 * checking compiled code ... OK
 * checking installed files from ‘inst/doc’ ... OK
 * checking files in ‘vignettes’ ... OK
-* checking examples ... [84s/82s] OK
-* checking examples with --run-donttest ... [584s/434s] OK
+* checking examples ... [102s/100s] OK
+* checking examples with --run-donttest ... [716s/542s] OK
 * checking for unstated dependencies in ‘tests’ ... OK
 * checking tests ...
-  Running ‘testthat.R’ [462s/441s]
- [462s/442s] OK
+  Running ‘testthat.R’ [546s/531s]
+ [546s/531s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [260s/248s] OK
+* checking re-building of vignette outputs ... [284s/274s] OK
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  ‘tmpk1dufcfn’
+  ‘tmp_5fp7pqq’
 * DONE
 
 Status: 2 NOTEs
