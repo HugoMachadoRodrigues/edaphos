@@ -191,3 +191,62 @@ test_that("the weights registry records whether normalisation stats exist", {
   pub <- reg[reg$norm_stats_status == "published", ]
   if (nrow(pub)) expect_true(all(!is.na(pub$norm_stats_url)))
 })
+
+# ---------------------------------------------------------------------------
+# A cached stack that violates its own schema key must not be returned.
+#
+# The cache filename encodes (schema, bbox, resolution). The BUILD path
+# refuses to write a stack whose layer count disagrees with the schema -- but
+# that guard arrived after a partial network failure had already written short
+# stacks, and the cache-HIT path never checked. Any such file was returned
+# forever, to every caller asking for the schema it fails to satisfy, under a
+# message reading "Using cached stack".
+#
+# The decision is tested through .cached_stack_ok() rather than through
+# foundation_build_cerrado_stack(), because rejecting a cache entry falls
+# through to a rebuild and a rebuild needs every remote source. Proving that a
+# two-layer file is not a thirty-one-layer stack should not require the
+# network.
+# ---------------------------------------------------------------------------
+
+test_that("a truncated or mislabelled cache entry is rejected", {
+  skip_if_not_installed("terra")
+
+  dir <- withr::local_tempdir()
+  mk <- function(nm, file) {
+    r <- terra::rast(xmin = -50, xmax = -49, ymin = -20, ymax = -19,
+                     crs = "EPSG:4326", resolution = 0.5,
+                     nlyrs = length(nm))
+    terra::values(r) <- stats::runif(terra::ncell(r) * length(nm))
+    names(r) <- nm
+    p <- file.path(dir, file)
+    terra::writeRaster(r, p, overwrite = TRUE)
+    p
+  }
+  want <- edaphos:::.stack_layer_names("v1_encoder")
+  expect_gt(length(want), 2L)
+
+  # The defect: a short stack at a path a 31-layer schema will consult.
+  short <- mk(want[1:2], "short.tif")
+  v <- edaphos:::.cached_stack_ok(short, "v1_encoder")
+  expect_false(isTRUE(v))
+  expect_match(v, "2 layers, expected")
+
+  # Right count, wrong identities -- equally unusable, and a count-only
+  # check would pass it.
+  wrong <- mk(c(want[-length(want)], "not_a_layer"), "wrong.tif")
+  expect_false(isTRUE(edaphos:::.cached_stack_ok(wrong, "v1_encoder")))
+
+  # A file that is not a raster at all.
+  bad <- file.path(dir, "junk.tif")
+  writeLines("not a raster", bad)
+  expect_identical(edaphos:::.cached_stack_ok(bad, "v1_encoder"), "unreadable")
+
+  # And the honest positive: a stack that does satisfy the schema.
+  good <- mk(want, "good.tif")
+  expect_true(isTRUE(edaphos:::.cached_stack_ok(good, "v1_encoder")))
+
+  # The minimal schema is a different contract, and the 31-layer stack
+  # must not satisfy it either.
+  expect_false(isTRUE(edaphos:::.cached_stack_ok(good, "minimal")))
+})

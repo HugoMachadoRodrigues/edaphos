@@ -1,5 +1,19 @@
 # Compute test coverage with `covr` and upload to Codecov.
 # Triggers on push to main + on every PR.
+#
+# WHY libtorch IS INSTALLED HERE. This job used to set no TORCH_INSTALL at
+# all, while R-CMD-check.yaml has a leg that does. The two workflows therefore
+# measured different packages: 26 of 74 files under R/ mention torch and carry
+# 39% of its lines, and with libtorch absent every torch-gated test skips, so
+# those lines entered the badge as untested. The number was not low because
+# the code is untested -- it is tested, on the +torch check leg -- but because
+# the job measuring it could not run the tests.
+#
+# The cost is a ~2 GB download, cached on DESCRIPTION's hash so it is paid
+# once rather than per run. The alternative considered and rejected was a
+# .covrignore hiding the torch files: that makes the badge silent about two
+# fifths of the package while still printing a single number, which is a worse
+# kind of wrong than a slow job.
 
 on:
   push:
@@ -17,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      TORCH_INSTALL: '1'
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +46,25 @@ jobs:
             any::xml2
             local::.
           needs: coverage
+
+      # Same cache key as R-CMD-check.yaml's +torch leg, so the two jobs
+      # share one download.
+      - name: Cache libtorch
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/torch
+          key: libtorch-${{ runner.os }}-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: libtorch-${{ runner.os }}-
+
+      - name: Install libtorch runtime
+        run: |
+          torch::install_torch()
+          cat("torch_is_installed:", torch::torch_is_installed(), "\n")
+          if (!torch::torch_is_installed())
+            stop("libtorch did not install; without it this job measures ",
+                 "coverage of a package the tests cannot fully exercise, ",
+                 "and reports the shortfall as untested code")
+        shell: Rscript {0}
 
       - name: Test coverage
         run: |

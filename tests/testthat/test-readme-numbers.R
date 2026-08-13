@@ -167,3 +167,41 @@ test_that("the quantum bundle carries no censored R-squared", {
   # Every pooled R-squared is negative: the finding the README states.
   expect_true(all(as.data.frame(B$cv_summary)$r2_pooled < 0))
 })
+
+test_that("the extdata inventory table's sizes match the files", {
+  # Ten of sixteen rows were wrong by more than a third, in two distinct
+  # ways. Some were stale: causal_cerrado_real.rds was listed at ~2 MB and is
+  # 62 KB, because the bundle was regenerated and the row was not. Others were
+  # never true: cerrado_abstracts.jsonl has been byte-identical since the one
+  # commit that added it and has never been the ~40 KB claimed, so that figure
+  # was invented rather than outdated. The column is generated now; this
+  # checks the generator ran.
+  rp <- readme_path(); skip_if(is.na(rp), "README.md not found")
+  root <- dirname(rp)
+  ed <- file.path(root, "inst", "extdata")
+  skip_if_not(dir.exists(ed), "inst/extdata not present")
+
+  md <- readLines(rp, warn = FALSE, encoding = "UTF-8")
+  hdr <- grep("^\\| File\\s+\\| Size\\s+\\|", md)
+  skip_if(length(hdr) != 1L, "inventory table not found")
+
+  i <- hdr + 2L
+  checked <- 0L
+  while (i <= length(md) && grepl("^\\| `", md[i])) {
+    cells <- strsplit(md[i], "\\|", perl = TRUE)[[1]]
+    nm <- gsub("`| ", "", cells[2])
+    p  <- file.path(ed, nm)
+    expect_true(file.exists(p), info = paste("table lists a missing file:", nm))
+    if (file.exists(p)) {
+      b  <- file.size(p)
+      want <- if (b >= 1048576) sprintf("~%.1f MB", b / 1048576) else
+              sprintf("~%.0f KB", b / 1024)
+      expect_identical(trimws(cells[3]), want,
+                       info = paste(nm, "size cell is stale; re-run",
+                                    "tools/status/patch-readme-metrics.R"))
+      checked <- checked + 1L
+    }
+    i <- i + 1L
+  }
+  expect_gt(checked, 10L)
+})

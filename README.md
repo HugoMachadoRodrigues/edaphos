@@ -2066,13 +2066,22 @@ ESA WorldCover 2020.
 
 | Method | n | RMSE (g/kg) | MAE (g/kg) | R² | PICP @ 95 | Interval score |
 |:---|---:|---:|---:|---:|---:|---:|
-| **B1** `ranger` QRF — 56 covariates          | 1095 | **13.51** | 7.72 | **0.219** | 0.944 | **65.8** |
+| **B1** `ranger` QRF — 59 features            | 1095 | **13.51** | 7.72 | **0.219** | 0.944 | **65.8** |
 | **B2** `ranger` + `gstat` residual kriging   | 893\* | 14.01 | 7.93 | 0.205 | **0.945** | 79.9 |
 | **E**  `ranger` + MoCo v1 embedding          | 923\* | 14.07 | 7.95 | 0.157 | 0.940 | 71.7 |
 
 \* Kriging drops test points whose variogram-range disk misses the
 training cloud; the foundation stack drops points within 16 pixels of
 the Cerrado raster edge.
+
+The **59 features** are the 56 raster covariates plus `lon`, `lat` and
+`year`. The coordinates are deliberate — a classical Hengl-style DSM
+stack carries them as large-scale trend features — but they are worth
+naming rather than folding into a "56 covariates" label, because a
+forest given coordinates can partition on location, and spatial
+blocking exists to make exactly that kind of memorisation cost
+something. `year` is there because SOC measured in 1982 is not SOC
+measured in 2020 at the same site.
 
 **Honest reading.** R² ≈ 0.22 is in line with published regional
 Brazilian / Cerrado SOC DSM. Residual kriging neither gains accuracy nor
@@ -2123,22 +2132,29 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 
 | File                                          | Size  | What it holds                                                               | Used by                           |
 |:----------------------------------------------|------:|:----------------------------------------------------------------------------|:----------------------------------|
-| `case_cerrado_results.rds`                    |  ~1 MB | QRF/kriging/MoCo benchmark (§Benchmarks)                                    | `case-cerrado-end-to-end`         |
-| `causal_cerrado_real.rds`                     |  ~2 MB | 1 095 WoSIS profiles + DAG + identified effects                             | `pilar1-causal-real`              |
-| `temporal_cerrado_results.rds`                | ~195 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis                | `pilar3-4d-real`                  |
-| `capstone_campaign_results.rds`               | ~543 KB | 6-pillar integrated bundle for the v1.7.0 capstone                          | `capstone-cerrado-campaign`       |
-| `capstone_native_calibration.rds`             | ~741 KB | Native-query calibration per pillar (v1.7.1 hotfix)                         | `capstone-cerrado-campaign` §10   |
-| `causal_discovery_results.rds`                |  ~2 KB  | Expert × LLM × data-driven DAG benchmark (v1.7.2)                           | `causal-discovery-trio`           |
-| `cerrado_gold_standard_v1.jsonl`              | ~16 KB  | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)             | `llm-kg-benchmark`                |
-| `cerrado_gold_standard_v1_draft.jsonl`        | ~20 KB  | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)           | `llm-annotation-workflow`         |
-| `causal_iv_cerrado.rds`                       |  ~12 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`                |
+| `case_cerrado_results.rds`                    |~351 KB | QRF/kriging/MoCo benchmark (§Benchmarks)                                    | `case-cerrado-end-to-end`         |
+| `causal_cerrado_real.rds`                     | ~62 KB | 1 095 WoSIS profiles + DAG + identified effects                             | `pilar1-causal-real`              |
+| `temporal_cerrado_results.rds`                | ~194 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis                | `pilar3-4d-real`                  |
+| `capstone_campaign_results.rds`               | ~287 KB | 6-pillar integrated bundle for the v1.7.0 capstone                          | `capstone-cerrado-campaign`       |
+| `capstone_native_calibration.rds`             | ~294 KB | Native-query calibration per pillar (v1.7.1 hotfix)                         | `capstone-cerrado-campaign` §10   |
+| `causal_discovery_results.rds`                |   ~1 KB | Expert × LLM × data-driven DAG benchmark (v1.7.2)                           | `causal-discovery-trio`           |
+| `cerrado_gold_standard_v1.jsonl`              |  ~18 KB | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)             | `llm-kg-benchmark`                |
+| `cerrado_gold_standard_v1_draft.jsonl`        |  ~22 KB | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)           | `llm-annotation-workflow`         |
+| `causal_iv_cerrado.rds`                       |   ~4 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`                |
 | `causal_iv_cerrado_real.rds`                  |   ~1 KB | Real-encoder IV benchmark: 1 081 embeddings; Sargan PARTIAL (see below)         | `pilar1-pilar4-iv` §7             |
 | `causal_sensitivity_cerrado.rds`              | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2)                             | `pilar1-pilar4-iv` §8             |
-| `quantum_foundation_cerrado.rds`              |   ~1 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)     | `pilar4-pilar6-quantum`           |
-| `llm_benchmark_results.rds`                   | ~10 KB  | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
-| `cerrado_abstracts.jsonl`                     |  ~40 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
-| `cerrado_claims.jsonl`                        |  ~25 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
-| `cerrado_claims_real_corpus.jsonl`            | ~400 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
+| `quantum_foundation_cerrado.rds`              |   ~2 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)     | `pilar4-pilar6-quantum`           |
+| `llm_benchmark_results.rds`                   |  ~10 KB | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
+| `cerrado_abstracts.jsonl`                     |   ~5 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
+| `cerrado_claims.jsonl`                        |   ~8 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
+| `cerrado_claims_real_corpus.jsonl`            |  ~94 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
+
+This table is a selection, not an inventory: `inst/extdata/` holds more
+bundles than are listed here — the benchmark and PIML result files are
+covered in their own sections. The **Size** column is generated by
+`tools/status/patch-readme-metrics.R` from the files themselves; ten of
+the sixteen rows were once wrong by more than a third, two of them by
+figures that had never been measured at all.
 
 The tagged release is archived on Zenodo with a DOI; the real-data bundles ship inside it, in `inst/extdata/`, rather than carrying DOIs of their own.
 

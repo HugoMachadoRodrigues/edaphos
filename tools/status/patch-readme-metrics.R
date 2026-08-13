@@ -139,3 +139,57 @@ close(con)
 
 cat("patched README.md:\n")
 cat(paste0("  ", changed, collapse = "\n"), "\n")
+
+# ---------------------------------------------------------------------------
+# The `inst/extdata` inventory table's Size column.
+#
+# WHY IT IS PATCHED RATHER THAN LEFT ALONE. Ten of its sixteen rows were wrong
+# by more than a third, and in two distinct ways. Some were STALE -- 
+# causal_cerrado_real.rds is listed at ~2 MB and is 62 KB, because the bundle
+# was regenerated and the row was not. Others were NEVER TRUE:
+# cerrado_abstracts.jsonl has been byte-identical since the single commit that
+# added it and has never been the ~40 KB claimed, so that figure was not
+# measured and then outdated -- it was invented.
+#
+# Only the Size column is generated. The description and the "Used by" column
+# are editorial judgements and stay hand-written; a file's size is a
+# measurement and has no business being typed.
+#
+# Files present in inst/extdata but absent from the table are reported, not
+# added: what a bundle is FOR cannot be derived, and a row with an empty
+# description would be worse than an honest omission.
+# ---------------------------------------------------------------------------
+
+inv_hdr <- grep("^\\| File\\s+\\| Size\\s+\\|", readme)
+if (length(inv_hdr) == 1L) {
+  i <- inv_hdr + 2L                       # skip the |:---| rule
+  listed <- character(0)
+  n_fix <- 0L
+  while (i <= length(readme) && grepl("^\\| `", readme[i])) {
+    cells <- strsplit(readme[i], "\\|", perl = TRUE)[[1]]
+    nm <- gsub("`| ", "", cells[2])
+    listed <- c(listed, nm)
+    p <- file.path("inst", "extdata", nm)
+    if (file.exists(p)) {
+      b <- file.size(p)
+      sz <- if (b >= 1048576) sprintf("~%.1f MB", b / 1048576) else
+            sprintf("~%.0f KB", b / 1024)
+      # Keep the column's right-alignment width so the table stays readable
+      # in raw markdown.
+      w <- nchar(cells[3])
+      if (trimws(cells[3]) != sz) n_fix <- n_fix + 1L
+      cells[3] <- formatC(paste0(sz, " "), width = w, flag = " ")
+      # strsplit() drops the trailing empty field, so the row's closing "|"
+      # has to be put back or every patched row loses its last cell border.
+      readme[i] <- paste0(paste(cells, collapse = "|"), "|")
+    }
+    i <- i + 1L
+  }
+  missing_rows <- setdiff(list.files("inst/extdata"), listed)
+  cat(sprintf("  README.md:%d  extdata inventory (%d of %d sizes corrected)\n",
+              inv_hdr, n_fix, length(listed)))
+  if (length(missing_rows))
+    cat(sprintf("  NOTE: %d bundles in inst/extdata are not in the table: %s\n",
+                length(missing_rows), paste(missing_rows, collapse = ", ")))
+  writeLines(readme, "README.md")
+}

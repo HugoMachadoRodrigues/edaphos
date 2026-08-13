@@ -1,0 +1,60 @@
+# Codecov configuration for edaphos.
+#
+# WHY THIS FILE EXISTS. The badge was uploaded with no configuration at all,
+# so nothing enforced anything: coverage could fall to zero and the workflow
+# would still be green. A badge with no gate behind it reports a number and
+# guarantees nothing.
+#
+# ON THE THRESHOLD. `target: auto` measures against the parent commit rather
+# than a fixed percentage. That is deliberate. A fixed target has to be either
+# aspirational -- in which case every PR fails it and everyone learns to
+# ignore the check -- or set at today's number, in which case it is a
+# ratchet that nobody chose. Comparing against the parent asks the only
+# question a reviewer can act on: did THIS change make things worse?
+#
+# `threshold: 1%` allows for the ordinary noise of a run where an optional
+# dependency is momentarily unavailable. It does not allow a real regression:
+# deleting a tested file moves the number by far more.
+#
+# ON `patch`. New code is held to a stricter rule than the package as a whole,
+# because "the average is fine" is how untested code accumulates.
+
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  precision: 1
+  round: down
+  range: "50...90"
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+        if_ci_failed: error
+    patch:
+      default:
+        # Lines added or changed by a pull request.
+        target: 70%
+        threshold: 5%
+        if_ci_failed: error
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: true
+
+# NO SOURCE UNDER R/ IS IGNORED. An earlier proposal was a .covrignore for the
+# torch-only files so they would stop dragging the number down; that would have
+# made the badge silent about roughly two fifths of R/ while still printing one
+# number, which is a worse kind of wrong. The coverage job installs libtorch
+# instead, so those lines are measured rather than hidden.
+#
+# The three entries below are not package sources. All three are already in
+# .Rbuildignore, so covr never sees them; they are listed so that removing one
+# from .Rbuildignore cannot quietly enrol it in the coverage number.
+ignore:
+  - "data-raw/**"
+  - "tools/**"
+  - "inst/shiny-apps/**"

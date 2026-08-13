@@ -310,6 +310,29 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
   length(.stack_layer_names(match.arg(schema)))
 }
 
+# Is a file sitting at a schema-keyed cache path actually a stack for that
+# schema? Split out of the cache-hit branch so it can be tested without the
+# network: the branch itself falls through to a rebuild, and a rebuild needs
+# every remote source, which is not a thing a unit test should require to
+# prove that a two-layer file is not a thirty-one-layer stack.
+#
+# Returns TRUE, or a character string saying what is wrong -- a shape that
+# lets the caller put the reason in its message rather than inventing one.
+.cached_stack_ok <- function(path, schema) {
+  want <- .stack_layer_names(schema)
+  # Warnings suppressed as well as errors: terra grumbles on a file that is
+  # not a raster, and that grumble is this function's input, not its output.
+  r <- suppressWarnings(tryCatch(terra::rast(path), error = function(e) NULL))
+  if (is.null(r)) return("unreadable")
+  n <- terra::nlyr(r)
+  if (n != length(want))
+    return(sprintf("%d layers, expected %d", n, length(want)))
+  if (!identical(names(r), want))
+    return(sprintf("layer names differ (first mismatch: %s)",
+                   utils::head(setdiff(want, names(r)), 1L)))
+  TRUE
+}
+
 
 #' Build the Cerrado raster stack for IV / quantum-foundation benchmarks
 #'
@@ -493,8 +516,31 @@ foundation_build_cerrado_stack <- function(
                   digest::digest(c(bbox, target_res), algo = "md5"))
   stack_path <- file.path(cache_dir, tag)
   if (!force && file.exists(stack_path)) {
-    message(sprintf("  Using cached stack: %s", stack_path))
-    return(terra::rast(stack_path))
+    # A CACHE ENTRY THAT VIOLATES ITS OWN KEY IS NOT A HIT.
+    #
+    # The build path below refuses to write a stack whose layer count does
+    # not match the schema -- that guard was added after a partial network
+    # failure produced a short stack. It does nothing for the stacks written
+    # BEFORE it existed: the filename is keyed on (schema, bbox, resolution),
+    # so a truncated file sitting at that path is returned for good, under an
+    # informational message, to every caller that asks for the schema it
+    # fails to satisfy.
+    #
+    # Reading the header is cheap -- terra::rast() on a path is lazy, so this
+    # costs a header read, not a raster read -- and a mismatch falls through
+    # to a rebuild rather than erroring, because a corrupt cache entry should
+    # be replaced, not turned into a wall. If the sources are still
+    # unreachable the build guard below reports exactly which layers are
+    # missing, which is a better error than anything that could be raised
+    # here.
+    verdict <- .cached_stack_ok(stack_path, schema)
+    if (isTRUE(verdict)) {
+      message(sprintf("  Using cached stack: %s", stack_path))
+      return(terra::rast(stack_path))
+    }
+    message(sprintf(paste("  Cached stack at %s does not satisfy schema '%s'",
+                          "(%s); rebuilding."),
+                    stack_path, schema, verdict))
   }
 
   message(sprintf("  Building Cerrado stack (schema = %s) ...", schema))
