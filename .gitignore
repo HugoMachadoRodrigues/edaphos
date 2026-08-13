@@ -75,3 +75,8 @@ docs/
 manuscript/
 # release bundle build artefact
 tools/pretrain/zenodo-upload.zip
+
+# gcov coverage data, produced by covr / R CMD check with instrumentation.
+# Three of these were committed by accident; they are build output, not source.
+src/*.gcda
+src/*.gcno
