@@ -136,7 +136,7 @@ patches respectively; they have their own task-appropriate benchmarks in
 ``` bibtex
 @misc{rodrigues2026edaphos,
   author       = {Rodrigues, Hugo},
-  title        = {{edaphos}: Disruptive Algorithms for Digital Soil Mapping},
+  title        = {{edaphos}: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods},
   year         = {2026},
   howpublished = {GitHub + Zenodo},
   doi          = {10.5281/zenodo.19683708}

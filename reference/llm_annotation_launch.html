@@ -7,7 +7,7 @@ they left off."><meta property="og:description" content="Opens a Shiny applicati
 JSONL and lets the annotator accept / edit / reject each LLM-drafted
 claim, plus add any claim the LLM missed.  Writes to output_path
 after every abstract, so interrupted sessions resume exactly where
-they left off."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+they left off."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ they left off."><meta property="og:image" content="https://hugomachadorodrigues.
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ they left off."><meta property="og:image" content="https://hugomachadorodrigues.
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ they left off."><meta property="og:image" content="https://hugomachadorodrigues.
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -157,6 +153,44 @@ returns the path of the reviewed JSONL.</p>
 accept on claim <em>n</em>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Phase 2.  This blocks until the browser tab is closed, so it only</span></span></span>
+<span class="r-in"><span><span class="co"># makes sense from an interactive session, and it needs shiny, DT,</span></span></span>
+<span class="r-in"><span><span class="co"># bslib and shinyjs installed.</span></span></span>
+<span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>abstract_id   <span class="op">=</span> <span class="st">"CER_A"</span>,</span></span>
+<span class="r-in"><span>       abstract_text <span class="op">=</span> <span class="st">"Rainfall raised topsoil SOC on 520 Oxisols."</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">draft</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"cerrado_draft.jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="llm_preannotate.html">llm_preannotate</a></span><span class="op">(</span><span class="va">corpus</span>, backend <span class="op">=</span> <span class="st">"simulator"</span>, output_path <span class="op">=</span> <span class="va">draft</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># In-place review: `output_path` defaults to `draft_path`, and the</span></span></span>
+<span class="r-in"><span><span class="co"># app rewrites the file after every abstract, so an interrupted</span></span></span>
+<span class="r-in"><span><span class="co"># session loses at most the abstract you were on.</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_launch</span><span class="op">(</span><span class="va">draft</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Better for anything you will publish: keep the machine draft</span></span></span>
+<span class="r-in"><span><span class="co"># pristine and write the human verdicts elsewhere.  In-place review</span></span></span>
+<span class="r-in"><span><span class="co"># destroys the LLM-vs-human comparison you need to report the</span></span></span>
+<span class="r-in"><span><span class="co"># extractor's precision and recall.</span></span></span>
+<span class="r-in"><span><span class="va">reviewed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"cerrado_reviewed.jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_launch</span><span class="op">(</span><span class="va">draft</span>, output_path <span class="op">=</span> <span class="va">reviewed</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `port` only matters when the app must be reachable from outside</span></span></span>
+<span class="r-in"><span><span class="co"># the R process (container, remote annotator); leave it NULL and</span></span></span>
+<span class="r-in"><span><span class="co"># shiny picks a free port.</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_launch</span><span class="op">(</span><span class="va">draft</span>, output_path <span class="op">=</span> <span class="va">reviewed</span>, port <span class="op">=</span> <span class="fl">8080</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Claims the reviewer never touched are still status = "draft" and</span></span></span>
+<span class="r-in"><span><span class="co"># are discarded here -- check the claim count in the message before</span></span></span>
+<span class="r-in"><span><span class="co"># treating the result as a finished gold standard.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="llm_annotation_export.html">llm_annotation_export</a></span><span class="op">(</span><span class="va">reviewed</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"cerrado_gold.jsonl"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="llm_annotation_validate.html">llm_annotation_validate</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"cerrado_gold.jsonl"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

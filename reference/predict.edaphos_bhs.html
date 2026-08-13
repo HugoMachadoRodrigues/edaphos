@@ -3,7 +3,7 @@
 the observed latent field, then add iid noise.  Returns posterior
 mean and quantiles at each newdata row."><meta property="og:description" content="Bayesian kriging: for each posterior draw of (beta, sigma^2, tau^2) we sample the latent GP at new locations conditional on
 the observed latent field, then add iid noise.  Returns posterior
-mean and quantiles at each newdata row."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+mean and quantiles at each newdata row."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ mean and quantiles at each newdata row."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ mean and quantiles at each newdata row."><meta property="og:image" content="http
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ mean and quantiles at each newdata row."><meta property="og:image" content="http
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -109,7 +105,14 @@ mean and quantiles at each <code>newdata</code> row.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'edaphos_bhs'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">newdata</span>, quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span>, n_draws <span class="op">=</span> <span class="fl">500L</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">newdata</span>,</span>
+<span>  quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
+<span>  n_draws <span class="op">=</span> <span class="fl">500L</span>,</span>
+<span>  draws <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -135,6 +138,19 @@ the training schema.</p></dd>
 by the actual number available in the fit).  Default <code>500L</code>.</p></dd>
 
 
+<dt id="arg-draws">draws<a class="anchor" aria-label="anchor" href="#arg-draws"></a></dt>
+<dd><p>Logical; when <code>TRUE</code>, attach the predictive draws themselves
+as <code>attr(result, "draws")</code>, an <code>n_draws x nrow(newdata)</code> matrix. The
+summaries are a lossy view of them: the predictive is a scale mixture of
+normals, one component per posterior draw of \((\beta, \sigma^2,
+\tau^2)\), and a caller that rebuilds <code>rnorm(n, mean, sd)</code> from the
+summary is scoring a Gaussian rather than this model. The package's own
+cross-pillar benchmark did exactly that until the draws were exposed
+here; on the WoSIS Cerrado archive the substitution moved PICP90 by
+0.6 percentage points. Default <code>FALSE</code>, so no existing caller sees a
+different object.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Unused.</p></dd>
 
@@ -142,9 +158,113 @@ by the actual number available in the fit).  Default <code>500L</code>.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame with <code>newdata</code> rows plus columns <code>mean</code>,
-<code>sd</code>, and one column per quantile.</p>
+<code>sd</code>, and one column per quantile; with <code>draws = TRUE</code>, additionally
+carrying the draws matrix in the <code>"draws"</code> attribute.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A contiguous 13 x 13 block of the Cerrado grid, 40 cells held out.</span></span></span>
+<span class="r-in"><span><span class="va">ux</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>; <span class="va">uy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">blk</span> <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">x</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">ux</span><span class="op">[</span><span class="fl">10</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span> <span class="op">&amp;</span></span></span>
+<span class="r-in"><span>                  <span class="va">br_cerrado</span><span class="op">$</span><span class="va">y</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">uy</span><span class="op">[</span><span class="fl">10</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">blk</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">blk</span><span class="op">)</span> <span class="op">==</span> <span class="st">"x"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"lon"</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">blk</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">blk</span><span class="op">)</span> <span class="op">==</span> <span class="st">"y"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"lat"</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ho</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">blk</span><span class="op">)</span>, <span class="fl">40L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">train</span> <span class="op">&lt;-</span> <span class="va">blk</span><span class="op">[</span><span class="op">-</span><span class="va">ho</span>, <span class="op">]</span>; <span class="va">test</span> <span class="op">&lt;-</span> <span class="va">blk</span><span class="op">[</span><span class="va">ho</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="bhs_fit.html">bhs_fit</a></span><span class="op">(</span><span class="va">train</span>, <span class="va">soc</span> <span class="op">~</span> <span class="va">elev</span> <span class="op">+</span> <span class="va">slope</span> <span class="op">+</span> <span class="va">twi</span> <span class="op">+</span> <span class="va">map_mm</span> <span class="op">+</span> <span class="va">ndvi</span>,</span></span>
+<span class="r-in"><span>               nmcmc <span class="op">=</span> <span class="fl">800L</span>, phi_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2000</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Every posterior draw is used twice -- once for x0'beta, once for the</span></span></span>
+<span class="r-in"><span><span class="co"># kriging correction -- and observation noise is added on top, so</span></span></span>
+<span class="r-in"><span><span class="co"># predict() is random.  Seed it, or the number you quote moves.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">test</span>, n_draws <span class="op">=</span> <span class="fl">300L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       mean       sd      q025     q500     q975</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 18.31077 4.248321  9.740263 18.33473 26.75854</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 22.90039 4.195185 14.829055 22.72259 31.10368</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 19.50207 3.836376 12.281883 19.70297 27.04538</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Quantile columns are named from the requested probabilities scaled by</span></span></span>
+<span class="r-in"><span><span class="co"># 1000: 0.025 -&gt; q025, 0.5 -&gt; q500, 0.95 -&gt; q950.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span>, quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.5</span>, <span class="fl">0.95</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              n_draws <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mean" "sd"   "q050" "q500" "q950"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Held-out accuracy against the training mean and against OLS on the</span></span></span>
+<span class="r-in"><span><span class="co"># same covariates, with the coverage of the nominal 95% band.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bhs  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pred</span><span class="op">$</span><span class="va">mean</span> <span class="op">-</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">train</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span> <span class="op">-</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        ols  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">soc</span> <span class="op">~</span> <span class="va">elev</span> <span class="op">+</span> <span class="va">slope</span> <span class="op">+</span> <span class="va">twi</span> <span class="op">+</span> <span class="va">map_mm</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>                                     <span class="va">ndvi</span>, data <span class="op">=</span> <span class="va">train</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                  <span class="va">test</span><span class="op">)</span> <span class="op">-</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        picp95 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">test</span><span class="op">$</span><span class="va">soc</span> <span class="op">&gt;=</span> <span class="va">pred</span><span class="op">$</span><span class="va">q025</span> <span class="op">&amp;</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span> <span class="op">&lt;=</span> <span class="va">pred</span><span class="op">$</span><span class="va">q975</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    bhs   null    ols picp95 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4.408  5.548  4.340  0.925 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The kriging correction is the only reason to prefer this over lm(), so</span></span></span>
+<span class="r-in"><span><span class="co"># check it is doing something.  phi came back interior to its bracket</span></span></span>
+<span class="r-in"><span><span class="co"># here -- 804, no warning -- and that is necessary, not sufficient: the</span></span></span>
+<span class="r-in"><span><span class="co"># implied correlation range is 0.0012 degrees, a fifth of the distance</span></span></span>
+<span class="r-in"><span><span class="co"># to the nearest other profile, so the "spatial" field handed 94% of the</span></span></span>
+<span class="r-in"><span><span class="co"># residual variance correlates 0.004 with the closest site.</span></span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">dist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">train</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lon"</span>, <span class="st">"lat"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">sigma2_draws</span><span class="op">)</span>; <span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">tau2_draws</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>phi <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">phi_hat</span>, range_deg <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">fit</span><span class="op">$</span><span class="va">phi_hat</span>,</span></span>
+<span class="r-in"><span>        min_spacing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">d</span><span class="op">[</span><span class="va">d</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        corr_at_min_spacing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">fit</span><span class="op">$</span><span class="va">phi_hat</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">d</span><span class="op">[</span><span class="va">d</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        spatial_share <span class="op">=</span> <span class="va">s2</span> <span class="op">/</span> <span class="op">(</span><span class="va">s2</span> <span class="op">+</span> <span class="va">t2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 phi           range_deg         min_spacing corr_at_min_spacing </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            804.1425              0.0012              0.0068              0.0042 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       spatial_share </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              0.9382 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># What that costs shows up in the predictive sd.  Ask for a prediction</span></span></span>
+<span class="r-in"><span><span class="co"># AT five training coordinates and it is 1.33, because r0 = 1 there and</span></span></span>
+<span class="r-in"><span><span class="co"># the model is recalling those profiles' own measurements.  Move half a</span></span></span>
+<span class="r-in"><span><span class="co"># grid cell -- 0.004 deg, about 440 m -- and it is 4.02, the same as</span></span></span>
+<span class="r-in"><span><span class="co"># three degrees outside the block and the same as the marginal</span></span></span>
+<span class="r-in"><span><span class="co"># sqrt(sigma^2 + tau^2).</span></span></span>
+<span class="r-in"><span><span class="va">half</span> <span class="op">&lt;-</span> <span class="va">train</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>; <span class="va">half</span><span class="op">$</span><span class="va">lon</span> <span class="op">&lt;-</span> <span class="va">half</span><span class="op">$</span><span class="va">lon</span> <span class="op">+</span> <span class="fl">0.004</span></span></span>
+<span class="r-in"><span><span class="va">far</span>  <span class="op">&lt;-</span> <span class="va">train</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>; <span class="va">far</span><span class="op">$</span><span class="va">lon</span>  <span class="op">&lt;-</span> <span class="va">far</span><span class="op">$</span><span class="va">lon</span>  <span class="op">+</span> <span class="fl">3</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>; <span class="va">p_at</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">train</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, n_draws <span class="op">=</span> <span class="fl">300L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>; <span class="va">p_half</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">half</span>, n_draws <span class="op">=</span> <span class="fl">300L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>; <span class="va">p_far</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">far</span>,  n_draws <span class="op">=</span> <span class="fl">300L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>sd_at_site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">p_at</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span>, sd_half_cell <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">p_half</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        sd_3deg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">p_far</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span>, marginal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">s2</span> <span class="op">+</span> <span class="va">t2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sd_at_site sd_half_cell      sd_3deg     marginal </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       1.3294       4.0171       4.0345       3.9860 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The narrow band at a training site is recall, not skill, and a map is</span></span></span>
+<span class="r-in"><span><span class="co"># made between the nodes.  Quote the second number, and read it next to</span></span></span>
+<span class="r-in"><span><span class="co"># the held-out picp95 above.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `n_draws` is capped at the draws the fit kept, and it buys precision</span></span></span>
+<span class="r-in"><span><span class="co"># in the summaries rather than width: at 300 draws a site's posterior</span></span></span>
+<span class="r-in"><span><span class="co"># mean moves by up to 0.66 g/kg between two calls, at 50 draws by 1.69.</span></span></span>
+<span class="r-in"><span><span class="va">mc_gap</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">nd</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>; <span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, n_draws <span class="op">=</span> <span class="va">nd</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>; <span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, n_draws <span class="op">=</span> <span class="va">nd</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">mean</span> <span class="op">-</span> <span class="va">b</span><span class="op">$</span><span class="va">mean</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>kept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">beta_draws</span><span class="op">)</span>, gap_300 <span class="op">=</span> <span class="fu">mc_gap</span><span class="op">(</span><span class="fl">300L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        gap_50 <span class="op">=</span> <span class="fu">mc_gap</span><span class="op">(</span><span class="fl">50L</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    kept gap_300  gap_50 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 400.000   0.663   1.689 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `newdata` must carry the coordinate columns under their training</span></span></span>
+<span class="r-in"><span><span class="co"># names as well as every covariate; neither omission gets a friendly</span></span></span>
+<span class="r-in"><span><span class="co"># message.</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">test</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error in `[.data.frame`(newdata, , coord_cols, drop = FALSE) : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   undefined columns selected</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

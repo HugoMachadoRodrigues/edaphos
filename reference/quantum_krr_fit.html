@@ -7,7 +7,7 @@ y \in \{-1, +1\} and threshold the prediction at zero)."><meta property="og:desc
 $$\boldsymbol{\alpha} = (K + \lambda I)^{-1}\mathbf{y}$$
 using the quantum Gram matrix from quantum_kernel(). Works both
 for regression (y numeric) and binary classification (encode
-y \in \{-1, +1\} and threshold the prediction at zero)."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+y \in \{-1, +1\} and threshold the prediction at zero)."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ y \in \{-1, +1\} and threshold the prediction at zero)."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ y \in \{-1, +1\} and threshold the prediction at zero)."><meta property="og:imag
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ y \in \{-1, +1\} and threshold the prediction at zero)."><meta property="og:imag
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -146,12 +142,43 @@ for regression (<code>y</code> numeric) and binary classification (encode
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span>  <span class="co">## The target is the sign of an interaction between two covariates -- a</span></span></span>
+<span class="r-in"><span>  <span class="co">## checkerboard. In the population neither a linear rule nor a threshold</span></span></span>
+<span class="r-in"><span>  <span class="co">## on a single column beats chance on it, so a score here reflects the</span></span></span>
+<span class="r-in"><span>  <span class="co">## kernel and not the task. (A target such as y = sign(x1 - mean(x1))</span></span></span>
+<span class="r-in"><span>  <span class="co">## is instead solved exactly by the one-line rule that defines it, and a</span></span></span>
+<span class="r-in"><span>  <span class="co">## perfect score on it would say nothing about any estimator.)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_scale.html">quantum_scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">60</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1L</span><span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1L</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">quantum_krr_fit</span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, reps <span class="op">=</span> <span class="fl">2L</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">X</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span> <span class="op">==</span> <span class="va">y</span><span class="op">)</span>  <span class="co"># training accuracy</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span>  <span class="va">u</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fl">400L</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="op">(</span><span class="va">u</span><span class="op">[</span>, <span class="fl">1L</span><span class="op">]</span> <span class="op">-</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">u</span><span class="op">[</span>, <span class="fl">2L</span><span class="op">]</span> <span class="op">-</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_scale.html">quantum_scale</a></span><span class="op">(</span><span class="va">u</span><span class="op">)</span>          <span class="co"># ZZFeatureMap needs features in [0, pi]</span></span></span>
+<span class="r-in"><span>  <span class="va">tr</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">200</span>; <span class="va">te</span> <span class="op">&lt;-</span> <span class="fl">201</span><span class="op">:</span><span class="fl">400</span>     <span class="co"># fit on 200 points, score on 200 unseen</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">quantum_krr_fit</span><span class="op">(</span><span class="va">X</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span>, <span class="va">y</span><span class="op">[</span><span class="va">tr</span><span class="op">]</span>, reps <span class="op">=</span> <span class="fl">2L</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">X</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span> <span class="op">==</span> <span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span><span class="op">)</span>   <span class="co"># 0.75, held out</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.75</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## The two numbers 0.75 has to beat before it means anything:</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">te</span><span class="op">)</span>                         <span class="co"># 0.53, majority class</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.53</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## A fitted linear rule has no signal to latch onto here, so its held-out</span></span></span>
+<span class="r-in"><span>  <span class="co">## accuracy is chance in expectation and swings widely from split to</span></span></span>
+<span class="r-in"><span>  <span class="co">## split; on this split it happens to land above the majority class.</span></span></span>
+<span class="r-in"><span>  <span class="va">lin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">tr</span><span class="op">]</span> <span class="op">~</span> <span class="va">X</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">X</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">lin</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span><span class="op">)</span>   <span class="co"># 0.6</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## The same fit scored in sample instead -- optimistic, which is why the</span></span></span>
+<span class="r-in"><span>  <span class="co">## held-out number above is the one to read:</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">X</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span> <span class="op">==</span> <span class="va">y</span><span class="op">[</span><span class="va">tr</span><span class="op">]</span><span class="op">)</span>   <span class="co"># 0.78, in sample</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.78</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co">## This is a demonstration on two simulated covariates, not a benchmark:</span></span></span>
+<span class="r-in"><span>  <span class="co">## it shows the quantum kernel picks up an interaction a linear model</span></span></span>
+<span class="r-in"><span>  <span class="co">## cannot, on data with no noise in the labels. Claiming it beats a</span></span></span>
+<span class="r-in"><span>  <span class="co">## classical kernel would need the same held-out protocol run against,</span></span></span>
+<span class="r-in"><span>  <span class="co">## say, an RBF-kernel ridge fit, repeated over splits, on real data.</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

@@ -5,18 +5,23 @@ articles:
   capstone-cerrado-campaign: capstone-cerrado-campaign.html
   case-cerrado-end-to-end: case-cerrado-end-to-end.html
   causal-discovery-trio: causal-discovery-trio.html
+  edaphos-paper: edaphos-paper.html
   getting-started: getting-started.html
   llm-annotation-workflow: llm-annotation-workflow.html
   pilar1-causal: pilar1-causal.html
   pilar1-pilar4-iv: pilar1-pilar4-iv.html
+  pilar10-graph-attention: pilar10-graph-attention.html
   pilar2-piml-profile: pilar2-piml-profile.html
   pilar3-4d-soc: pilar3-4d-soc.html
   pilar4-pilar6-quantum: pilar4-pilar6-quantum.html
   pilar4-simclr-embeddings: pilar4-simclr-embeddings.html
   pilar5-active-learning: pilar5-active-learning.html
   pilar6-quantum: pilar6-quantum.html
+  pilar7-bayesian-hierarchical: pilar7-bayesian-hierarchical.html
+  pilar8-neural-operators: pilar8-neural-operators.html
+  pilar9-diffusion-models: pilar9-diffusion-models.html
   uncertainty-unified: uncertainty-unified.html
-last_built: 2026-07-27T16:44Z
+last_built: 2026-08-13T04:12Z
 urls:
   reference: https://hugomachadorodrigues.github.io/edaphos/reference
   article: https://hugomachadorodrigues.github.io/edaphos/articles

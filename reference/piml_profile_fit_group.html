@@ -5,7 +5,7 @@ id. This is the baseline against which a future pooled
 (covariate-conditioned) PIML model will be compared."><meta property="og:description" content="Convenience wrapper that calls piml_profile_fit() separately on each
 pedon in a long-format data frame, returning a list of fits keyed by
 id. This is the baseline against which a future pooled
-(covariate-conditioned) PIML model will be compared."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+(covariate-conditioned) PIML model will be compared."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ id. This is the baseline against which a future pooled
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ id. This is the baseline against which a future pooled
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ id. This is the baseline against which a future pooled
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -143,6 +139,97 @@ pedon in a long-format data frame, returning a list of fits keyed by
     <p>A named list of <code>edaphos_piml_profile</code> fits.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Five pedons generated FROM the model, so the parameters the fit</span></span></span>
+<span class="r-in"><span><span class="co"># has to recover are known.  The closed form of</span></span></span>
+<span class="r-in"><span><span class="co"># dy/dz = -lambda0 exp(-mu z) (y - y_inf) is</span></span></span>
+<span class="r-in"><span><span class="co">#   y(z) = y_inf + (y0 - y_inf) exp(-(lambda0/mu)(1 - exp(-mu z)))</span></span></span>
+<span class="r-in"><span><span class="co"># and here surface SOC and the decay rate come from each Cerrado</span></span></span>
+<span class="r-in"><span><span class="co"># site's own soc and twi.</span></span></span>
+<span class="r-in"><span><span class="va">sites</span>  <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">400</span>, <span class="fl">900</span>, <span class="fl">1400</span>, <span class="fl">1900</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">depths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pedons</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">y0</span>    <span class="op">&lt;-</span> <span class="va">sites</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>                 <span class="co"># topsoil SOC, g/kg</span></span></span>
+<span class="r-in"><span>  <span class="va">y_inf</span> <span class="op">&lt;-</span> <span class="fl">0.30</span> <span class="op">*</span> <span class="va">y0</span>                    <span class="co"># parent material</span></span></span>
+<span class="r-in"><span>  <span class="va">lam0</span>  <span class="op">&lt;-</span> <span class="fl">0.02</span> <span class="op">+</span> <span class="fl">0.004</span> <span class="op">*</span> <span class="va">sites</span><span class="op">$</span><span class="va">twi</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    pedon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"P1"</span>, <span class="st">"P2"</span>, <span class="st">"P3"</span>, <span class="st">"P4"</span>, <span class="st">"P10"</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    depth <span class="op">=</span> <span class="va">depths</span>,</span></span>
+<span class="r-in"><span>    soc   <span class="op">=</span> <span class="va">y_inf</span> <span class="op">+</span> <span class="op">(</span><span class="va">y0</span> <span class="op">-</span> <span class="va">y_inf</span><span class="op">)</span> <span class="op">*</span></span></span>
+<span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="va">lam0</span> <span class="op">/</span> <span class="fl">0.02</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.02</span> <span class="op">*</span> <span class="va">depths</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">0</span>, <span class="fl">0.3</span><span class="op">)</span>,           <span class="co"># 0.3 g/kg of lab noise</span></span></span>
+<span class="r-in"><span>    yinf_true <span class="op">=</span> <span class="va">y_inf</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu">piml_profile_fit_group</span><span class="op">(</span><span class="va">pedons</span>, <span class="st">"pedon"</span>, <span class="st">"depth"</span>, <span class="st">"soc"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The list is keyed by split(), which orders the ids as CHARACTERS.</span></span></span>
+<span class="r-in"><span><span class="co"># fits[[2]] is pedon "P10", not the second pedon of the data frame.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "P1"  "P10" "P2"  "P3"  "P4" </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pedons</span><span class="op">$</span><span class="va">pedon</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "P1"  "P2"  "P3"  "P4"  "P10"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Every pedon is fitted on its own, four parameters to five points,</span></span></span>
+<span class="r-in"><span><span class="co"># so a good rmse is cheap.  Read it next to the recovered asymptote:</span></span></span>
+<span class="r-in"><span><span class="co"># each profile is reproduced down to the 0.3 g/kg noise floor and</span></span></span>
+<span class="r-in"><span><span class="co"># `converged` is TRUE everywhere, while y_inf -- which describes the</span></span></span>
+<span class="r-in"><span><span class="co"># profile BELOW the deepest horizon and is constrained by no</span></span></span>
+<span class="r-in"><span><span class="co"># observation -- comes back between 0.35 and 1.27 times the truth.</span></span></span>
+<span class="r-in"><span><span class="va">truth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pedons</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pedon"</span>, <span class="st">"yinf_true"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  rmse      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  converged <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">converged</span>, <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  yinf_hat  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">y_inf</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  yinf_true <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">truth</span><span class="op">$</span><span class="va">yinf_true</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span>, <span class="va">truth</span><span class="op">$</span><span class="va">pedon</span><span class="op">)</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tab</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      rmse converged yinf_hat yinf_true</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> P1  0.119      TRUE     8.06      8.30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> P10 0.034      TRUE     5.72      5.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> P2  0.257      TRUE     6.10      6.68</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> P3  0.274      TRUE     5.27      4.43</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> P4  0.305      TRUE     6.40      5.24</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">tab</span><span class="op">$</span><span class="va">yinf_hat</span> <span class="op">/</span> <span class="va">tab</span><span class="op">$</span><span class="va">yinf_true</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.91 1.22</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A pedon with a single horizon cannot be fitted (four parameters,</span></span></span>
+<span class="r-in"><span><span class="co"># one observation).  The wrapper warns and keeps a NULL in that</span></span></span>
+<span class="r-in"><span><span class="co"># slot rather than dropping it, so downstream code has to test.</span></span></span>
+<span class="r-in"><span><span class="va">two</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">pedons</span><span class="op">[</span><span class="va">pedons</span><span class="op">$</span><span class="va">pedon</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"P1"</span>, <span class="st">"P2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pedon"</span>, <span class="st">"depth"</span>, <span class="st">"soc"</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>             <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>pedon <span class="op">=</span> <span class="st">"P99"</span>, depth <span class="op">=</span> <span class="fl">5</span>, soc <span class="op">=</span> <span class="fl">21</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">f2</span> <span class="op">&lt;-</span> <span class="fu">piml_profile_fit_group</span><span class="op">(</span><span class="va">two</span>, <span class="st">"pedon"</span>, <span class="st">"depth"</span>, <span class="st">"soc"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Pedon 'P99' failed: length(depths) &gt;= 2L is not TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">f2</span>, <span class="va">is.null</span>, <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    P1    P2   P99 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> FALSE FALSE  TRUE </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `...` reaches piml_profile_fit(), but there is one `...` for the</span></span></span>
+<span class="r-in"><span><span class="co"># whole group: y_surface = 30 pins EVERY surface at 30 g/kg, above</span></span></span>
+<span class="r-in"><span><span class="co"># the true surface of all five pedons, and the misfit grows by up</span></span></span>
+<span class="r-in"><span><span class="co"># to nineteenfold.  Per-pedon surface values need a loop over</span></span></span>
+<span class="r-in"><span><span class="co"># piml_profile_fit(), not this wrapper.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">sites</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 14.8 27.6</span>
+<span class="r-in"><span><span class="va">fixed</span> <span class="op">&lt;-</span> <span class="fu">piml_profile_fit_group</span><span class="op">(</span><span class="va">pedons</span>, <span class="st">"pedon"</span>, <span class="st">"depth"</span>, <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                                y_surface <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fixed</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">y0</span>, <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  P1 P10  P2  P3  P4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  30  30  30  30  30 </span>
+<span class="r-in"><span><span class="va">r_free</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fits</span>,  <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">r_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fixed</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>free <span class="op">=</span> <span class="va">r_free</span>, fixed <span class="op">=</span> <span class="va">r_fixed</span>,</span></span>
+<span class="r-in"><span>            ratio <span class="op">=</span> <span class="va">r_fixed</span> <span class="op">/</span> <span class="va">r_free</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         P1   P10   P2   P3   P4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> free  0.12  0.03 0.26 0.27 0.31</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> fixed 0.26  0.64 1.25 1.54 1.24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ratio 2.21 19.12 4.88 5.63 4.05</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -7,7 +7,7 @@ ERA5 – that do not fit in RAM as a single (N, C, H, W) array."><meta property=
 reads patches on the fly from an edaphos_tile_dataset
 (see foundation_tile_dataset()). The point is to train on real
 multi-source raster mosaics – SoilGrids, WorldClim, SRTM, MODIS,
-ERA5 – that do not fit in RAM as a single (N, C, H, W) array."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+ERA5 – that do not fit in RAM as a single (N, C, H, W) array."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ ERA5 – that do not fit in RAM as a single (N, C, H, W) array."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ ERA5 – that do not fit in RAM as a single (N, C, H, W) array."><meta property=
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ ERA5 – that do not fit in RAM as a single (N, C, H, W) array."><meta property=
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -188,6 +184,108 @@ queue, the loss history and the configuration are written to
 checkpoint.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># torch_is_installed() is the half of the guard that matters on a</span></span></span>
+<span class="r-in"><span><span class="co"># fresh machine: the R package installs in seconds, the libtorch /</span></span></span>
+<span class="r-in"><span><span class="co"># lantern binaries behind it are a separate download.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_is_installed.html" class="external-link">torch_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"terra"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A tile dataset streams patches out of a raster instead of holding</span></span></span>
+<span class="r-in"><span><span class="co"># an (N, C, H, W) array in RAM. The mosaic here is small enough to</span></span></span>
+<span class="r-in"><span><span class="co"># build in memory from `br_cerrado`, but the call sequence is the</span></span></span>
+<span class="r-in"><span><span class="co"># one you use for a SoilGrids + WorldClim + SRTM stack that is not.</span></span></span>
+<span class="r-in"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>,</span></span>
+<span class="r-in"><span>                                   <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"xyz"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_dataset.html">foundation_tile_dataset</a></span><span class="op">(</span><span class="va">covs</span>, patch_size <span class="op">=</span> <span class="fl">8L</span>, n_patches <span class="op">=</span> <span class="fl">64L</span>,</span></span>
+<span class="r-in"><span>                              seed <span class="op">=</span> <span class="fl">7L</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mt</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain_tiles</span><span class="op">(</span><span class="va">ds</span>, feature_dim <span class="op">=</span> <span class="fl">16L</span>,</span></span>
+<span class="r-in"><span>                                     proj_dim <span class="op">=</span> <span class="fl">8L</span>, queue_size <span class="op">=</span> <span class="fl">32L</span>,</span></span>
+<span class="r-in"><span>                                     batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">6L</span>,</span></span>
+<span class="r-in"><span>                                     seed <span class="op">=</span> <span class="fl">11L</span>, device <span class="op">=</span> <span class="st">"cpu"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mt</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Unlike foundation_moco_pretrain(), `queue_size` is honoured here</span></span></span>
+<span class="r-in"><span><span class="co"># rather than clamped to the corpus size. The FIFO still only</span></span></span>
+<span class="r-in"><span><span class="co"># retains queue_size - batch_size old keys per step, so this is the</span></span></span>
+<span class="r-in"><span><span class="co"># knob that decides how much of a dictionary you actually have.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>queue <span class="op">=</span> <span class="va">mt</span><span class="op">$</span><span class="va">queue_size</span>, batch <span class="op">=</span> <span class="va">mt</span><span class="op">$</span><span class="va">batch_size</span>,</span></span>
+<span class="r-in"><span>        retained <span class="op">=</span> <span class="va">mt</span><span class="op">$</span><span class="va">queue_size</span> <span class="op">-</span> <span class="va">mt</span><span class="op">$</span><span class="va">batch_size</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The queue is warmed by drawing min(queue_size, 4 * batch_size)</span></span></span>
+<span class="r-in"><span><span class="co"># patches in a single call, and foundation_tile_dataset() refuses a</span></span></span>
+<span class="r-in"><span><span class="co"># draw larger than `n_patches`. So the dataset must satisfy</span></span></span>
+<span class="r-in"><span><span class="co"># n_patches &gt;= min(queue_size, 4 * batch_size); below, min(256, 32)</span></span></span>
+<span class="r-in"><span><span class="co"># is 32 and the dataset only holds 20.</span></span></span>
+<span class="r-in"><span><span class="va">small</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_dataset.html">foundation_tile_dataset</a></span><span class="op">(</span><span class="va">covs</span>, patch_size <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                 n_patches <span class="op">=</span> <span class="fl">20L</span>, seed <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">foundation_moco_pretrain_tiles</span><span class="op">(</span><span class="va">small</span>, feature_dim <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                   proj_dim <span class="op">=</span> <span class="fl">4L</span>, queue_size <span class="op">=</span> <span class="fl">256L</span>,</span></span>
+<span class="r-in"><span>                                   batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">2L</span>,</span></span>
+<span class="r-in"><span>                                   seed <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `device` is resolved, not obeyed: an unavailable backend prints a</span></span></span>
+<span class="r-in"><span><span class="co"># note and the run silently continues on CPU. Read the resolved</span></span></span>
+<span class="r-in"><span><span class="co"># value back rather than trusting the argument you passed -- a</span></span></span>
+<span class="r-in"><span><span class="co"># "GPU run" that took CPU wall-clock is usually this.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gpu</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain_tiles</span><span class="op">(</span><span class="va">ds</span>, feature_dim <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                      proj_dim <span class="op">=</span> <span class="fl">4L</span>, queue_size <span class="op">=</span> <span class="fl">32L</span>,</span></span>
+<span class="r-in"><span>                                      batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">2L</span>,</span></span>
+<span class="r-in"><span>                                      seed <span class="op">=</span> <span class="fl">11L</span>, device <span class="op">=</span> <span class="st">"cuda"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">gpu</span><span class="op">$</span><span class="va">device</span>,</span></span>
+<span class="r-in"><span>                <span class="kw">if</span> <span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/cuda_is_available.html" class="external-link">cuda_is_available</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="st">"cuda"</span> <span class="kw">else</span> <span class="st">"cpu"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Checkpointing is what makes a multi-day run restartable. Four</span></span></span>
+<span class="r-in"><span><span class="co"># epochs at checkpoint_every = 2 leave both encoders, the dictionary</span></span></span>
+<span class="r-in"><span><span class="co"># queue and the loss history on disk; `resume=` restores them and</span></span></span>
+<span class="r-in"><span><span class="co"># carries on at the stored next_epoch, so run2 holds run1's four</span></span></span>
+<span class="r-in"><span><span class="co"># losses verbatim plus the two new ones.</span></span></span>
+<span class="r-in"><span><span class="va">ck</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"moco_ck"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">run1</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain_tiles</span><span class="op">(</span><span class="va">ds</span>, feature_dim <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                       proj_dim <span class="op">=</span> <span class="fl">4L</span>, queue_size <span class="op">=</span> <span class="fl">32L</span>,</span></span>
+<span class="r-in"><span>                                       batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                                       seed <span class="op">=</span> <span class="fl">21L</span>, checkpoint_dir <span class="op">=</span> <span class="va">ck</span>,</span></span>
+<span class="r-in"><span>                                       checkpoint_every <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">ck</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">22</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">run2</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain_tiles</span><span class="op">(</span><span class="va">ds</span>, feature_dim <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                       proj_dim <span class="op">=</span> <span class="fl">4L</span>, queue_size <span class="op">=</span> <span class="fl">32L</span>,</span></span>
+<span class="r-in"><span>                                       batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">6L</span>,</span></span>
+<span class="r-in"><span>                                       seed <span class="op">=</span> <span class="fl">22L</span>, resume <span class="op">=</span> <span class="va">ck</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">run2</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">run2</span><span class="op">$</span><span class="va">loss_history</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, <span class="va">run1</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">ck</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># The real target: a multi-source mosaic that does not fit in RAM.</span></span></span>
+<span class="r-in"><span><span class="co"># Every source below downloads, so this block is never run by</span></span></span>
+<span class="r-in"><span><span class="co"># examples -- but it is the working pipeline.</span></span></span>
+<span class="r-in"><span><span class="va">aoi</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">48.5</span>, <span class="op">-</span><span class="fl">47.0</span>, <span class="op">-</span><span class="fl">16.5</span>, <span class="op">-</span><span class="fl">15.0</span><span class="op">)</span>   <span class="co"># xmin, xmax, ymin, ymax</span></span></span>
+<span class="r-in"><span><span class="va">srtm</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_source_srtm.html">foundation_tile_source_srtm</a></span><span class="op">(</span><span class="va">aoi</span>, derive <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"slope"</span>, <span class="st">"TPI"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                    country <span class="op">=</span> <span class="st">"BRA"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">clim</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_source_worldclim.html">foundation_tile_source_worldclim</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"prec"</span>, <span class="st">"tavg"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                         country <span class="op">=</span> <span class="st">"BRA"</span>, aoi <span class="op">=</span> <span class="va">aoi</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">soil</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_source_soilgrids.html">foundation_tile_source_soilgrids</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"soc"</span>, <span class="st">"clay"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                         depth <span class="op">=</span> <span class="st">"0-5cm"</span>, aoi <span class="op">=</span> <span class="va">aoi</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mosaic</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_align.html">foundation_tile_align</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>srtm <span class="op">=</span> <span class="va">srtm</span>, clim <span class="op">=</span> <span class="va">clim</span>, soil <span class="op">=</span> <span class="va">soil</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  target_res <span class="op">=</span> <span class="fl">0.005</span>, aoi <span class="op">=</span> <span class="va">aoi</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ds_big</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_dataset.html">foundation_tile_dataset</a></span><span class="op">(</span><span class="va">mosaic</span>, patch_size <span class="op">=</span> <span class="fl">32L</span>,</span></span>
+<span class="r-in"><span>                                  n_patches <span class="op">=</span> <span class="fl">20000L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">moco</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain_tiles</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">ds_big</span>, queue_size <span class="op">=</span> <span class="fl">4096L</span>, batch_size <span class="op">=</span> <span class="fl">64L</span>, epochs <span class="op">=</span> <span class="fl">20000L</span>,</span></span>
+<span class="r-in"><span>  device <span class="op">=</span> <span class="st">"mps"</span>, checkpoint_dir <span class="op">=</span> <span class="st">"moco_ck"</span>, checkpoint_every <span class="op">=</span> <span class="fl">500L</span>,</span></span>
+<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

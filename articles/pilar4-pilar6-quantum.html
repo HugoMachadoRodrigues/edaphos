@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,14 +52,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+<li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -67,14 +65,12 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -204,46 +200,82 @@ exclusivamente pelo quantum.</p>
 <div class="section level2">
 <h2 id="fold-spatial-cv-o-benchmark-head-to-head">5-fold spatial CV: o benchmark head-to-head<a class="anchor" aria-label="anchor" href="#fold-spatial-cv-o-benchmark-head-to-head"></a>
 </h2>
-<p>Rodando <code>data-raw/quantum_foundation_benchmark.R</code>:</p>
+<p>Produzido por
+<code>data-raw/quantum_foundation_benchmark.R</code>.</p>
+<p>O bloco abaixo <strong>lê o artefacto publicado</strong> em vez de
+reproduzir uma saída digitada à mão. Esta secção mostrava, até esta
+versão, um bloco <code>#&gt;</code> escrito manualmente dentro de um
+chunk <code>eval = FALSE</code>: era indistinguível de saída real do
+knitr para quem lê, e continuou a publicar números censurados durante
+meses depois de o código que os produziu ter sido corrigido. Um chunk
+que não corre não pode desactualizar-se com aviso — só em silêncio.</p>
+<p>O <code>eval = TRUE</code> abaixo é deliberado e é a única excepção
+nesta vinheta, cujo chunk de setup desliga a avaliação globalmente: ler
+o <code>.rds</code> publicado não custa nada e não precisa de torch nem
+de rede, ao contrário do resto do documento.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bundle</span><span class="op">$</span><span class="va">cv_summary</span></span>
-<span><span class="co">#&gt;  method                          rmse_mean  rmse_sd  mae_mean  r2_mean  n_folds</span></span>
-<span><span class="co">#&gt;  Quantum KRR on foundation PCs   14.3        5.9      8.7      0.00     5</span></span>
-<span><span class="co">#&gt;  Quantum KRR on raw covariates   14.2        5.9      8.4      0.00     5</span></span>
-<span><span class="co">#&gt;  RBF-KRR on foundation PCs       14.8        4.6      9.8      0.00     5</span></span>
-<span><span class="co">#&gt;  ranger (raw covariates)         14.3        4.0      9.0      0.08     5</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"quantum_foundation_cerrado.rds"</span>,</span>
+<span>                 package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">$</span><span class="va">cv_summary</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">s</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">s</span><span class="op">$</span><span class="va">r2_pooled</span><span class="op">)</span>,</span>
+<span>          <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"method"</span>, <span class="st">"rmse_pooled"</span>, <span class="st">"mae_mean"</span>, <span class="st">"r2_pooled"</span>, <span class="st">"r2_mean"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>        row.names <span class="op">=</span> <span class="cn">FALSE</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;                         method rmse_pooled mae_mean r2_pooled r2_mean</span></span>
+<span><span class="co">#&gt;  Quantum KRR on raw covariates        15.5     9.21   -0.0748  -0.350</span></span>
+<span><span class="co">#&gt;        ranger (raw covariates)        15.5     8.97   -0.0753  -0.795</span></span>
+<span><span class="co">#&gt;  Quantum KRR on foundation PCs        15.6     9.33   -0.0887  -0.295</span></span>
+<span><span class="co">#&gt;      RBF-KRR on foundation PCs        16.1     9.77   -0.1591  -0.449</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="leitura-honesta">Leitura honesta<a class="anchor" aria-label="anchor" href="#leitura-honesta"></a>
 </h3>
-<p><strong>Os quatro métodos empatam em RMSE (~14 g/kg)</strong>. Apenas
-o <code>ranger</code> atinge
+<p><strong>Este benchmark é um controlo negativo.</strong> O stack que o
+encoder vê é ruído branco — <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">stats::rnorm()</a></code> em cada célula
+de cada canal — portanto os “embeddings de fundação” descrevem uma
+paisagem sem sinal, por construção. Três dos quatro métodos prevêem a
+partir de variáveis que <em>não podem</em> conter informação sobre o
+COS.</p>
+<p><strong>Os quatro métodos são piores do que prever a média.</strong>
+Todos os
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
+agrupados são negativos, incluindo o do <code>ranger</code> sobre
+covariáveis reais. Os quatro ficam próximos uns dos outros e a diferença
+entre eles não merece leitura.</p>
+<p><strong>O que esta secção dizia antes, e porquê.</strong> Dizia que
+apenas o <code>ranger</code> atingia
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>R</mi><mn>2</mn></msup><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R^2 &gt; 0</annotation></semantics></math>
-(consistente com o estudo <code>case-cerrado-end-to-end</code> v1.3.1
-onde o QRF lidera com RMSE
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>13</mn><mo>,</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">\approx 13{,}5</annotation></semantics></math>
-g/kg sobre 1095 perfis reais). As três regressões por kernel degeneram
-para R² = 0 — o mínimo aplicável — sinalizando que <strong>elas prevêem
-essencialmente a média</strong> sobre a partição espacial de teste.</p>
-<p><strong>Por que isso?</strong> Três hipóteses alternativas, cada uma
-falseável:</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>O stack sintético não carrega estrutura espacial
-real</strong> — o encoder vê ruído gaussiano, produz embeddings sem
-sinal. Quando rodamos com <code>EDAPHOS_IV_REAL_STACK=1</code> (v1.9.3),
-isto se resolve.</li>
-<li>
-<strong>O encoder v1 foi sub-treinado</strong> (20 k InfoNCE steps,
-~10% do orçamento MoCo v2 canônico). O v2 (200 k steps, em treinamento)
-deve produzir representações mais ricas — teste decisivo para o Pilar 4
-× Pilar 6.</li>
-<li>
-<strong>6 qubits são pouco para capturar a não-linearidade do
-problema</strong>. Aumentar para 8-10 qubits (ainda classicamente
-simulável) + mais <code>reps</code> na camada de entangling do
-ZZFeatureMap é uma direção natural — mas o custo computacional sobe como
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo>⋅</mo><msup><mn>4</mn><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N^2 \cdot 4^n)</annotation></semantics></math>.</li>
-</ol>
+e que as três regressões por kernel “degeneram para R² = 0 — o mínimo
+aplicável”, prevendo “essencialmente a média”. Nada disso era medido. O
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
+não tem mínimo aplicável: é a eficiência de Nash–Sutcliffe e vai a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>∞</mi></mrow><annotation encoding="application/x-tex">-\infty</annotation></semantics></math>.
+A função calculava <code>max(0, 1 - SS_res/SS_tot)</code>, de modo que
+todo o valor negativo — 17 dos 20 pares método×fold — era achatado para
+exactamente zero. Isso converte <em>“pior do que a média”</em> em
+<em>“não explica variância nenhuma”</em>, que são coisas diferentes, e a
+versão lisonjeira foi a publicada.</p>
+<p><strong>Duas colunas de
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>,
+porque uma delas é instável.</strong> <code><a href="../reference/edaphos_r2.html">edaphos_r2()</a></code> é
+Nash–Sutcliffe contra a média do <em>próprio</em> fold de teste; um fold
+cujos perfis calham homogéneos tem denominador pequeno e
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
+volátil. O fold 2 desta partição tem sd(COS) = 5,9 g/kg contra 11–21 nos
+outros quatro, e o <code>ranger</code> marca −4,28 lá — sozinho, esse
+fold arrasta a média dele para −0,80 e fá-lo parecer o pior dos quatro.
+Agrupado sobre os folds, o <code>ranger</code> é −0,075, no meio do
+lote. A coluna agrupada é a que se lê.</p>
+<p><strong>Por que o resultado é este?</strong> A explicação está no
+desenho, não numa hipótese por testar: o stack é ruído. Versões
+anteriores desta secção listavam três “hipóteses falseáveis” — stack
+sintético, encoder sub-treinado, poucos qubits — como se fossem razões
+para esperar outra resposta mais tarde. Não são: cada uma é razão para a
+corrida ser <em>não informativa</em>, e nenhuma é indício de que uma
+corrida corrigida favoreceria o kernel quântico. Duas foram entretanto
+corridas e ambas responderam contra ele; ver a tabela de seis métodos em
+<code>inst/extdata/benchmark_wosis_6pilar.rds</code>, sobre covariáveis
+SoilGrids / WorldClim / SRTM medidas.</p>
 </div>
 <div class="section level3">
 <h3 id="o-que-isso-significa-como-contribuição-científica">O que isso significa como contribuição científica<a class="anchor" aria-label="anchor" href="#o-que-isso-significa-como-contribui%C3%A7%C3%A3o-cient%C3%ADfica"></a>
@@ -284,10 +316,11 @@ steps, em treinamento). Se Quantum-over-foundation superar
 <em>todos</em> os baselines, a hipótese do <span class="citation">Havlíček et al. (<a href="#ref-Havlicek2019">2019</a>)</span> é confirmada no domínio de
 MDS.</li>
 <li>
-<strong>v2.0.2</strong>: re-rodar com raster stack real
-(<code>EDAPHOS_IV_REAL_STACK=1</code>). Se o ganho aparece aqui mas não
-com o stack sintético, isso responde se a limitação está no encoder ou
-no stack.</li>
+<strong>v2.0.2</strong>: re-rodar com raster stack real. Se o ganho
+aparece aqui mas não com o stack sintético, isso responde se a limitação
+está no encoder ou no stack. O caminho de stack real está por
+implementar: o <code>EDAPHOS_IV_REAL_STACK=1</code> que esta lista
+anunciava não é lido em lado nenhum do pacote.</li>
 <li>
 <strong>v2.0.3</strong>: submissão ao CRAN + paper “Quantum kernels
 over foundation-model embeddings for Digital Soil Mapping” (se

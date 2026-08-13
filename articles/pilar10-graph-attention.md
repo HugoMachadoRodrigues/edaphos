@@ -1,0 +1,274 @@
+# Pilar 10 — Graph Attention Networks on Co-location Graphs
+
+## Abstract
+
+Kriging assumes you know the covariance function. A random forest
+assumes profiles are independent rows. Neither is right: soil profiles
+influence each other’s interpretation, but through a relation that is
+*learned*, not declared.
+
+Pillar 10 builds a graph over profiles and learns, per pair of
+neighbours, how much one should inform the other. That is the Graph
+Attention Network of Veličković et al. ([Veličković et al.
+2018](#ref-Velickovic2018gat)), and this vignette derives its attention
+mechanism, fits it to the bundled Cerrado grid, and then does the part
+that is usually skipped: benchmarks it against a strong classical
+baseline under a protocol that does not quietly favour the new method.
+
+## 1. From covariance to attention
+
+Classical geostatistics fixes the weight between two sites by a
+parametric function of the distance between them — you choose
+exponential or Matérn, fit a range, and every pair at the same distance
+gets the same weight, everywhere on the map.
+
+A GAT replaces that with a learned, *asymmetric, feature-dependent*
+weight. For node $`i`$ with neighbours $`\mathcal{N}(i)`$, with $`h_i`$
+the node’s feature vector and $`W`$ a learned projection:
+
+``` math
+e_{ij} = \mathrm{LeakyReLU}\!\left(\mathbf{a}^\top\big[W h_i \,\Vert\, W h_j\big]\right),
+\qquad
+\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}(i)} \exp(e_{ik})} ,
+```
+
+and the node updates to
+$`h_i' = \sigma\!\big(\sum_{j} \alpha_{ij} W h_j\big)`$.
+
+Two properties are worth pausing on. The softmax is **grouped** — it
+normalises over each node’s own neighbourhood, not globally — so
+$`\alpha`$ is a proper set of mixing weights per node. And $`e_{ij}`$
+depends on the *features* of both endpoints, so two pairs at identical
+separation can receive very different weights if their terrain differs.
+That is the thing a fixed covariance function cannot express.
+
+Multiple attention heads are averaged, which stabilises training the
+same way an ensemble does.
+
+## 2. Building the graph
+
+``` r
+
+data(br_cerrado)
+
+set.seed(2024)
+sub <- br_cerrado[sample(nrow(br_cerrado), 600L), ]
+
+# gnn_build_graph() looks for coordinates under `lon` / `lat`.
+names(sub)[names(sub) == "x"] <- "lon"
+names(sub)[names(sub) == "y"] <- "lat"
+
+feat <- c("elev", "slope", "twi", "map_mm")
+
+g <- gnn_build_graph(
+  sub,
+  k            = 8L,
+  feature_cols = feat,
+  edges        = "spatial",
+  self_loops   = TRUE
+)
+
+str(g[c("features", "edge_index")], max.level = 1)
+#> List of 2
+#>  $ features  : num [1:600, 1:4] 0.68 -0.131 -0.221 0.928 -0.357 ...
+#>   ..- attr(*, "dimnames")=List of 2
+#>  $ edge_index: int [1:5400, 1:2] 1 1 1 1 1 1 1 1 1 2 ...
+#>   ..- attr(*, "dimnames")=List of 2
+```
+
+`edges = "spatial"` connects each profile to its `k` nearest neighbours
+in geographic space. Two alternatives ship: `"feature"` (nearest in
+covariate space, so pedologically similar profiles are linked however
+far apart they lie) and `"hybrid"`. The default is `"spatial"` because
+that is what nested cross-validation selected on this data — not because
+it is obviously right, and `"feature"` is worth trying on any dataset
+with strong non-stationarity.
+
+`self_loops = TRUE` lets a node keep some of its own signal; without it
+a node’s representation is built purely from its neighbours, which
+throws away the most relevant observation it has.
+
+## 3. Training, with a mask that actually masks
+
+The subtle failure mode in transductive graph learning is leakage. All
+600 nodes participate in message passing — that is the point of a graph
+— but the *loss* must be computed only on training nodes. Otherwise a
+test label reaches the optimiser through its own supervision, and the
+reported score is fiction.
+
+[`gnn_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit.md)
+takes an explicit `train_mask` for exactly this reason:
+
+``` r
+
+n     <- nrow(sub)
+idx   <- sample(n)
+tr_id <- idx[1:400]
+te_id <- idx[401:n]
+
+train_mask <- rep(FALSE, n)
+train_mask[tr_id] <- TRUE
+
+c(n_nodes = n, n_train = sum(train_mask), n_test = sum(!train_mask))
+#> n_nodes n_train  n_test 
+#>     600     400     200
+```
+
+``` r
+
+fit <- gnn_fit(
+  graph      = g,
+  targets    = sub$soc,
+  train_mask = train_mask,
+  hidden     = 16L,
+  n_heads    = 4L,
+  n_layers   = 2L,
+  epochs     = 200L,
+  lr         = 0.01,
+  seed       = 1L
+)
+
+fit
+#> <edaphos_gnn_gat>  (Pilar 10 -- Graph Attention Network)
+#>   n_nodes  : 600   k-NN  : 8
+#>   layers   : 2   heads : 4   hidden/head : 16
+#>   emb_dim  : 20
+#>   initial MSE = 0.5689   final MSE = 4.305   (epochs = 41)
+```
+
+The attention parameters are trained by analytic reverse-mode gradients
+through the grouped softmax — hand-derived, not autodiff. That is a
+claim that can be wrong silently, so the package checks it against
+central finite differences across several architecture configurations;
+see `test-pilar10-gat-grad.R`.
+
+## 4. A comparison that does not cheat
+
+The obvious baseline is a quantile regression forest on the same
+covariates ([Meinshausen 2006](#ref-Meinshausen2006qrf); [Wright and
+Ziegler 2017](#ref-Wright2017ranger)). Making that comparison fair takes
+two deliberate choices.
+
+**First: ensemble versus ensemble.** A QRF is 500 trees; a single GAT is
+one model with one random initialisation. Comparing them directly
+charges the GAT for variance the forest has already averaged away.
+[`gnn_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit_ensemble.md)
+averages independent seeds so both sides are ensembles.
+
+**Second: the same information.** The forest gets the same four
+covariates and the same training rows. It does *not* get the graph —
+that is the treatment under test.
+
+``` r
+
+ens <- gnn_fit_ensemble(
+  graph      = g,
+  targets    = sub$soc,
+  train_mask = train_mask,
+  n_ensemble = 5L,
+  hidden     = 16L, n_heads = 4L, n_layers = 2L,
+  epochs     = 200L, lr = 0.01, seed = 1L
+)
+
+pred_gat <- predict(ens)[te_id]
+
+qrf <- ranger::ranger(
+  stats::as.formula(paste("soc ~", paste(feat, collapse = " + "))),
+  data = sub[tr_id, ], num.trees = 500L, quantreg = TRUE, seed = 1L
+)
+pred_qrf <- predict(qrf, sub[te_id, ])$predictions
+
+truth <- sub$soc[te_id]
+null_mean <- mean(sub$soc[tr_id])          # achievable, not an oracle
+
+score <- function(p, lbl) data.frame(
+  model = lbl,
+  rmse  = sprintf("%.3f", sqrt(mean((p - truth)^2))),
+  r2    = sprintf("%+.4f", 1 - sum((p - truth)^2) /
+                               sum((truth - null_mean)^2))
+)
+
+rbind(score(pred_gat, "GAT ensemble (5 seeds)"),
+      score(pred_qrf, "QRF (500 trees)"))
+#>                    model  rmse      r2
+#> 1 GAT ensemble (5 seeds) 4.579 +0.5702
+#> 2        QRF (500 trees) 4.953 +0.4970
+```
+
+Note the $`R^2`$ denominator: the mean of the **training** response.
+Using the test-set mean would score both models against a quantity no
+deployed map has access to, and inflates $`R^2`$ for free.
+
+This is a single random split on synthesised data, so read it as a
+worked example of the protocol, not as evidence about GATs in general.
+The package’s own tuning study — nested cross-validation with spatially
+blocked folds, which is what a real comparison requires — lives in
+`data-raw/pilar10_gat_tuning.R`, and its result is what set the
+`edges = "spatial"` default in §2.
+
+## 5. Embeddings are the reusable output
+
+The predictions are not the only product. Each node ends training with a
+learned representation that encodes both its own covariates and its
+neighbourhood context:
+
+``` r
+
+emb <- gnn_embed(fit)      # one GAT; gnn_embed() works on a single fit
+dim(emb)
+#> [1] 600  16
+```
+
+One row per node — every profile in the graph gets a representation, not
+just the training ones, because message passing ran over all of them.
+The column count is `hidden`, not `hidden * n_heads`, because
+[`gnn_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit.md)
+averages the attention heads by default; set `average_heads = FALSE` to
+concatenate them instead.
+
+These feed two things. They can be handed to Pillar 1’s structure
+learner to search for causal relations in a representation the raw
+covariates do not expose:
+
+``` r
+
+disc <- gnn_causal_discovery(
+  fit, feature_frame = sub[, feat],
+  method = "hc", n_emb_cols = 4L, bootstrap = TRUE, R_boot = 50L
+)
+```
+
+And they are the bridge to Pillar 6: a quantum kernel over learned
+embeddings rather than raw covariates. See
+[`vignette("pilar4-pilar6-quantum")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-pilar6-quantum.md)
+for the analogous construction.
+
+## 6. Limitations
+
+- $`k`$ is a hyperparameter, and the graph is built once and frozen. A
+  wrong $`k`$ cannot be recovered from during training.
+- Transductive: adding a new profile means rebuilding the graph and
+  refitting. There is no inductive path for streaming new sites.
+- Attention is computed on the graph as given. If `edges = "spatial"`
+  connects two profiles across a geological boundary, the model can
+  down-weight that edge but cannot delete it.
+- The readout is a closed-form ridge on the learned embeddings, not a
+  jointly trained deep head — a deliberate trade for determinism and
+  speed.
+- `br_cerrado` is synthesised. For the real-data comparison on WoSIS
+  profiles see
+  [`vignette("case-cerrado-end-to-end")`](https://hugomachadorodrigues.github.io/edaphos/articles/case-cerrado-end-to-end.md).
+
+## References
+
+Meinshausen, N. 2006. “Quantile Regression Forests.” *Journal of Machine
+Learning Research* 7: 983–99.
+
+Veličković, Petar, Guillem Cucurull, Arantxa Casanova, Adriana Romero,
+Pietro Liò, and Yoshua Bengio. 2018. “Graph Attention Networks.”
+*International Conference on Learning Representations*.
+
+Wright, M. N., and A. Ziegler. 2017. “Ranger: A Fast Implementation of
+Random Forests for High Dimensional Data in C++ and R.” *Journal of
+Statistical Software* 77 (1): 1–17.
+<https://doi.org/10.18637/jss.v077.i01>.

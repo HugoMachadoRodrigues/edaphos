@@ -13,7 +13,7 @@ OLS estimate.  This is a conservative sensitivity check: the
 IV effect is bias-adjusted against a hypothetical remaining
 confounder U that affects BOTH the exposure and the outcome
 after the instruments have been projected out.  It is the
-right envelope to report alongside the Sargan test."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+right envelope to report alongside the Sargan test."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -39,7 +39,7 @@ right envelope to report alongside the Sargan test."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,14 +50,12 @@ right envelope to report alongside the Sargan test."><meta property="og:image" c
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -65,14 +63,12 @@ right envelope to report alongside the Sargan test."><meta property="og:image" c
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -144,6 +140,47 @@ right envelope to report alongside the Sargan test.</p>
 an extra <code>fit_estimator</code> field.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A liming trial where the ASSIGNED rate was randomised but the</span></span></span>
+<span class="r-in"><span><span class="co"># APPLIED rate was not: growers on clay-rich plots limed more, and</span></span></span>
+<span class="r-in"><span><span class="co"># clay content raises SOC on its own.  Clay is never measured; the</span></span></span>
+<span class="r-in"><span><span class="co"># assigned rate is the instrument.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n</span>        <span class="op">&lt;-</span> <span class="fl">400</span></span></span>
+<span class="r-in"><span><span class="va">clay</span>     <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">assigned</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">applied</span>  <span class="op">&lt;-</span> <span class="fl">0.8</span> <span class="op">*</span> <span class="va">assigned</span> <span class="op">+</span> <span class="fl">0.9</span> <span class="op">*</span> <span class="va">clay</span> <span class="op">+</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">soc</span>      <span class="op">&lt;-</span> <span class="fl">1.5</span> <span class="op">*</span> <span class="va">applied</span> <span class="op">+</span> <span class="fl">1.2</span> <span class="op">*</span> <span class="va">clay</span> <span class="op">+</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">trial</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">assigned</span>, <span class="va">applied</span>, <span class="va">soc</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">ols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">soc</span> <span class="op">~</span> <span class="va">applied</span>, data <span class="op">=</span> <span class="va">trial</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">iv</span>  <span class="op">&lt;-</span> <span class="fu"><a href="causal_iv_fit_2sls.html">causal_iv_fit_2sls</a></span><span class="op">(</span><span class="va">trial</span>, exposure <span class="op">=</span> <span class="st">"applied"</span>,</span></span>
+<span class="r-in"><span>                          outcome <span class="op">=</span> <span class="st">"soc"</span>, instruments <span class="op">=</span> <span class="st">"assigned"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># OLS is biased upwards (1.922 against a true effect of 1.5) and</span></span></span>
+<span class="r-in"><span><span class="co"># 2SLS recovers 1.533.  Now compare the two robustness values.</span></span></span>
+<span class="r-in"><span><span class="va">pick</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"effect"</span>, <span class="st">"se"</span>, <span class="st">"rv"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  ols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="causal_sensitivity_from_lm.html">causal_sensitivity_from_lm</a></span><span class="op">(</span><span class="va">ols</span>, <span class="st">"applied"</span><span class="op">)</span><span class="op">[</span><span class="va">pick</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  iv  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">causal_sensitivity_from_iv</span><span class="op">(</span><span class="va">iv</span><span class="op">)</span><span class="op">[</span><span class="va">pick</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     effect    se    rv</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ols  1.922 0.043 0.855</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iv   1.533 0.098 0.535</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap: the RV rewards precision, not correctness.  The confounded</span></span></span>
+<span class="r-in"><span><span class="co"># OLS estimate scores 0.855 and the consistent 2SLS estimate only</span></span></span>
+<span class="r-in"><span><span class="co"># 0.535, purely because instrumenting more than doubled the standard</span></span></span>
+<span class="r-in"><span><span class="co"># error.  Read this wrapper's RV as "how much confounding survives</span></span></span>
+<span class="r-in"><span><span class="co"># the instruments", never as a ranking of the two estimators.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The one structural difference from the `lm` wrapper is the</span></span></span>
+<span class="r-in"><span><span class="co"># recorded estimator label.</span></span></span>
+<span class="r-in"><span><span class="fu">causal_sensitivity_from_iv</span><span class="op">(</span><span class="va">iv</span><span class="op">)</span><span class="op">$</span><span class="va">fit_estimator</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2SLS"</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

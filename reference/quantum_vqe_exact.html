@@ -5,7 +5,7 @@ eigenvalue. Works for any Hamiltonian up to ~12 qubits before
 memory becomes the limit."><meta property="og:description" content="Runs Qiskit's NumPyMinimumEigensolver (dense diagonalisation of
 the Hamiltonian matrix) and returns the exact ground-state
 eigenvalue. Works for any Hamiltonian up to ~12 qubits before
-memory becomes the limit."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+memory becomes the limit."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ memory becomes the limit."><meta property="og:image" content="https://hugomachad
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ memory becomes the limit."><meta property="og:image" content="https://hugomachad
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ memory becomes the limit."><meta property="og:image" content="https://hugomachad
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -127,6 +123,85 @@ memory becomes the limit.</p>
     <p>A numeric scalar — the ground-state energy.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">h2</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_hamiltonian_h2.html">quantum_hamiltonian_h2</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># This is the yardstick.  `$exact` inside an edaphos_quantum_vqe</span></span></span>
+<span class="r-in"><span><span class="co"># object is literally this call and `$gap` is |energy - exact|; a</span></span></span>
+<span class="r-in"><span><span class="co"># VQE energy means nothing except read next to it.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">quantum_vqe_exact</span><span class="op">(</span><span class="va">h2</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span>                      <span class="co"># -1.857275</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Dense diagonalisation, so cost is 2^n.  n = 14 (a 16384-square</span></span></span>
+<span class="r-in"><span><span class="co"># operator) still returns in about 0.2 s; memory, not time, is</span></span></span>
+<span class="r-in"><span><span class="co"># the wall shortly above that.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="fu">quantum_vqe_exact</span><span class="op">(</span><span class="fu"><a href="quantum_hamiltonian_ising_1d.html">quantum_hamiltonian_ising_1d</a></span><span class="op">(</span><span class="fl">14</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># "Exact" is not bit-reproducible: repeated calls scatter by a</span></span></span>
+<span class="r-in"><span><span class="co"># few times 1e-15 (H2) up to 6e-14 (a 10-qubit chain).  That is</span></span></span>
+<span class="r-in"><span><span class="co"># six orders below the best VQE gap below, so it never matters</span></span></span>
+<span class="r-in"><span><span class="co"># numerically -- but do not reach for identical() on it.</span></span></span>
+<span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fu">quantum_vqe_exact</span><span class="op">(</span><span class="va">h2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span><span class="op">)</span>                       <span class="co"># order 1e-15, not 0</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">v</span> <span class="op">==</span> <span class="va">v</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>               <span class="co"># FALSE</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 1) Exact statevector back end.  No sampling noise whatever, so</span></span></span>
+<span class="r-in"><span><span class="co">#    the gap is pure optimiser error -- and wildly variable across</span></span></span>
+<span class="r-in"><span><span class="co">#    restarts: 1e-9 to 1.5e-3 in one sweep of eight, median 3e-8,</span></span></span>
+<span class="r-in"><span><span class="co">#    because the ansatz start point is random (see the caveat at</span></span></span>
+<span class="r-in"><span><span class="co">#    the end).  Quote the median of restarts, not one run.</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">h2</span>, backend <span class="op">=</span> <span class="st">"aer_statevector"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>energy <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">energy</span>, exact <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">exact</span>, gap <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">gap</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 2) Shot-based Aer with SPSA -- the honest simulation.  4096</span></span></span>
+<span class="r-in"><span><span class="co">#    shots put a 1/sqrt(4096) = 0.0156 Ha standard error on every</span></span></span>
+<span class="r-in"><span><span class="co">#    energy the optimiser sees, and the gap then runs 0.002-0.034</span></span></span>
+<span class="r-in"><span><span class="co">#    Ha: about five orders worse than the median of (1), none of</span></span></span>
+<span class="r-in"><span><span class="co">#    it physics.  SPSA, not COBYLA, because the cost function is</span></span></span>
+<span class="r-in"><span><span class="co">#    now stochastic.</span></span></span>
+<span class="r-in"><span><span class="va">fs</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">h2</span>, backend <span class="op">=</span> <span class="st">"aer_shots"</span>, shots <span class="op">=</span> <span class="fl">4096L</span>,</span></span>
+<span class="r-in"><span>                      optimizer <span class="op">=</span> <span class="st">"SPSA"</span>, max_iter <span class="op">=</span> <span class="fl">60L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>gap <span class="op">=</span> <span class="va">fs</span><span class="op">$</span><span class="va">gap</span>, shot_se <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">4096</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The trap: min(fs$history) is the luckiest of ~171 noisy draws,</span></span></span>
+<span class="r-in"><span><span class="co"># not a variational bound.  It came out BELOW the exact energy in</span></span></span>
+<span class="r-in"><span><span class="co"># 3 of 6 runs, which is physically impossible and diagnoses noise</span></span></span>
+<span class="r-in"><span><span class="co"># rather than success; even fs$energy did so twice in eleven.</span></span></span>
+<span class="r-in"><span><span class="co"># Report `energy`, judge it by `gap`, and treat any gap smaller</span></span></span>
+<span class="r-in"><span><span class="co"># than shot_se as luck rather than convergence.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>min_history <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">fs</span><span class="op">$</span><span class="va">history</span><span class="op">)</span>, exact <span class="op">=</span> <span class="va">fs</span><span class="op">$</span><span class="va">exact</span>,</span></span>
+<span class="r-in"><span>  n_evals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fs</span><span class="op">$</span><span class="va">history</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 3) Real hardware.  quantum_ibmq_available() is an offline probe</span></span></span>
+<span class="r-in"><span><span class="co">#    (reticulate + qiskit_ibm_runtime + IBMQ_TOKEN) that touches</span></span></span>
+<span class="r-in"><span><span class="co">#    no network.  `mitigation` is live only here: "m3" maps to IBM</span></span></span>
+<span class="r-in"><span><span class="co">#    resilience_level 1, "zne" to 2; both Aer back ends ignore it</span></span></span>
+<span class="r-in"><span><span class="co">#    and "aer_shots" says so out loud.  `ibmq_backend = NULL`</span></span></span>
+<span class="r-in"><span><span class="co">#    picks the least-busy operational device.  Run (1) first and</span></span></span>
+<span class="r-in"><span><span class="co">#    treat its gap as the floor device error sits on top of.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="quantum_ibmq_available.html">quantum_ibmq_available</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">fq</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">h2</span>, backend <span class="op">=</span> <span class="st">"ibmq"</span>,</span></span>
+<span class="r-in"><span>                        ibmq_backend <span class="op">=</span> <span class="st">"ibm_brisbane"</span>,</span></span>
+<span class="r-in"><span>                        shots <span class="op">=</span> <span class="fl">4096L</span>, mitigation <span class="op">=</span> <span class="st">"m3"</span>,</span></span>
+<span class="r-in"><span>                        optimizer <span class="op">=</span> <span class="st">"SPSA"</span>, max_iter <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>hardware <span class="op">=</span> <span class="va">fq</span><span class="op">$</span><span class="va">gap</span>, exact_sim <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">gap</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Caveat for all three: `seed` does NOT make quantum_vqe_fit()</span></span></span>
+<span class="r-in"><span><span class="co"># reproducible -- it seeds numpy's legacy global RNG, not the</span></span></span>
+<span class="r-in"><span><span class="co"># generator qiskit-algorithms draws the initial point from, so</span></span></span>
+<span class="r-in"><span><span class="co"># five runs at seed = 1L gave gaps from 5e-10 to 1e-4.  Pass an</span></span></span>
+<span class="r-in"><span><span class="co"># explicit `initial_point` (12 angles for 2 qubits at reps = 2)</span></span></span>
+<span class="r-in"><span><span class="co"># and `$energy` repeats to the last bit across sessions; `$gap`</span></span></span>
+<span class="r-in"><span><span class="co"># still wobbles at 1e-15 because `exact` does.</span></span></span>
+<span class="r-in"><span><span class="va">p0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">12</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">h2</span>, initial_point <span class="op">=</span> <span class="va">p0</span><span class="op">)</span><span class="op">$</span><span class="va">energy</span></span></span>
+<span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">h2</span>, initial_point <span class="op">=</span> <span class="va">p0</span><span class="op">)</span><span class="op">$</span><span class="va">energy</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span>             <span class="co"># TRUE, both -1.857131658135603</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

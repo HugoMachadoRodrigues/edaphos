@@ -37,6 +37,9 @@ effect posteriors.
 - [`causal_corpus_scielo()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_corpus_scielo.md)
   : Query the SciELO literature corpus
 
+- [`causal_dag_test()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_dag_test.md)
+  : Test a DAG against the conditional independencies it implies
+
 - [`causal_effect_bootstrap()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_effect_bootstrap.md)
   : Block-bootstrap the backdoor-adjusted direct effect
 
@@ -188,6 +191,8 @@ effect posteriors.
 
 Pedogenetic ODE, Bayesian posterior, Neural ODE + ensemble.
 
+- [`piml_bayes_converged()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_bayes_converged.md)
+  : Did this MCMC fit converge?
 - [`piml_bayes_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_bayes_posterior.md)
   : Posterior predictive distribution from a Bayesian Pillar 2 fit
 - [`piml_hierarchical_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_hierarchical_fit.md)
@@ -202,12 +207,17 @@ Pedogenetic ODE, Bayesian posterior, Neural ODE + ensemble.
   : Posterior predictive distribution from a Pillar 2 deep ensemble
 - [`piml_neural_ode_predict()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_neural_ode_predict.md)
   : Predict a depth profile from a fitted Neural ODE
+- [`piml_prior_literature()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_prior_literature.md)
+  : A literature prior for the pedogenetic ODE, independent of the data
 - [`piml_profile_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit.md)
   : Fit a Physics-Informed depth-profile model (Pillar 2)
 - [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md)
   : Bayesian posterior for the Pillar 2 pedogenetic ODE
 - [`piml_profile_fit_group()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_group.md)
   : Fit the Pillar 2 profile model to a group of pedons independently
+- [`piml_profile_fit_mechanistic()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_mechanistic.md)
+  : Fit the depth profile derived from a steady-state carbon balance
+  (Pillar 2b)
 - [`piml_profile_predict()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_predict.md)
   : Forward-integrate a Physics-Informed depth profile
 - [`piml_qkrr_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_qkrr_fit.md)
@@ -304,7 +314,7 @@ SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction.
   : MODIS source stub (needs NASA EarthData credentials)
 
 - [`foundation_tile_source_soilgrids()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_tile_source_soilgrids.md)
-  : Fetch a SoilGrids 250 m stack over an AoI
+  : Fetch a SoilGrids soil-property stack over an AoI
 
 - [`foundation_tile_source_srtm()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_tile_source_srtm.md)
   : Fetch an SRTM elevation raster over an AoI
@@ -556,8 +566,17 @@ Common edaphos_posterior class + single calibration diagnostic.
 - [`edaphos_metrics_summary()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_metrics_summary.md)
   : Summarise a pointwise + interval prediction against observations
 
+- [`edaphos_nse()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_nse.md)
+  : Skill against an explicit null predictor
+
 - [`edaphos_picp()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_picp.md)
   : Prediction-interval coverage probability (PICP)
+
+- [`edaphos_provenance()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_provenance.md)
+  : Provenance for a generated data bundle
+
+- [`edaphos_provenance_check()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_provenance_check.md)
+  : Check a bundle against the script that produced it
 
 - [`edaphos_r2()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_r2.md)
   : Coefficient of determination (Nash-Sutcliffe efficiency)
@@ -578,6 +597,8 @@ Plug-and-play wrappers for the 6-pilar WoSIS Cerrado benchmark.
   : Benchmark wrapper: Pilar 1 – DAG-adjusted OLS + parametric bootstrap
 - [`benchmark_fit_p6_quantum()`](https://hugomachadorodrigues.github.io/edaphos/reference/benchmark_fit_p6_quantum.md)
   : Benchmark wrapper: Pilar 6 – bootstrap-ensembled quantum KRR
+- [`spatial_block_folds()`](https://hugomachadorodrigues.github.io/edaphos/reference/spatial_block_folds.md)
+  : Spatially blocked cross-validation folds with a buffer
 
 ## LLM-KG production pipeline (v3.10.0)
 
@@ -600,4 +621,4 @@ Resumable 10k+ abstract orchestrator + Ollama pre-flight.
 ## Package roadmap
 
 - [`edaphos-roadmap`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos-roadmap.md)
-  : Roadmap and status of the six pillars of edaphos
+  : Roadmap and status of the ten pillars of edaphos

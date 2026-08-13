@@ -7,7 +7,7 @@ prompt."><meta property="og:description" content="Uses published list prices as 
 GPT-4o-mini input $0.15 / 1M tokens + output $0.60 / 1M tokens,
 Claude Sonnet-4.5 input $3 / 1M + output $15 / 1M.  Assumes mean
 abstract is 220 tokens in + 110 tokens out + 480 tokens of system
-prompt."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+prompt."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ prompt."><meta property="og:image" content="https://hugomachadorodrigues.github.
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ prompt."><meta property="og:image" content="https://hugomachadorodrigues.github.
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ prompt."><meta property="og:image" content="https://hugomachadorodrigues.github.
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -158,6 +154,73 @@ per-1k-claim normalisation).</p></dd>
     <p>Named list with cost per 1 000 claims in USD.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># List prices, not invoices: published per-token rates times assumed</span></span></span>
+<span class="r-in"><span><span class="co"># token counts (700 in / 110 out).  Nothing is measured.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">llm_benchmark_cost</span><span class="op">(</span><span class="st">"anthropic"</span>, model <span class="op">=</span> <span class="st">"claude-sonnet-4-5"</span>,</span></span>
+<span class="r-in"><span>                       n_abstracts <span class="op">=</span> <span class="fl">30L</span>, claims_per_abstract <span class="op">=</span> <span class="fl">2.4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> List of 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ backend               : chr "anthropic"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ model                 : chr "claude-sonnet-4-5"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ n_abstracts           : int 30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ n_claims              : num 72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cost_total_usd        : num 0.113</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cost_per_1k_claims_usd: num 1.56</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Scaling a Cerrado systematic review to 10 000 abstracts.  The</span></span></span>
+<span class="r-in"><span><span class="co"># local model reads $0 because list price is all this function</span></span></span>
+<span class="r-in"><span><span class="co"># knows -- it is blind to the GPU, and to the 15.9 s/abstract that</span></span></span>
+<span class="r-in"><span><span class="co"># the shipped latency summary records for Gemma 4 against 3.0 s for</span></span></span>
+<span class="r-in"><span><span class="co"># GPT-4o-mini.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  ollama    <span class="op">=</span> <span class="fu">llm_benchmark_cost</span><span class="op">(</span><span class="st">"ollama"</span>,</span></span>
+<span class="r-in"><span>                                 n_abstracts <span class="op">=</span> <span class="fl">10000L</span><span class="op">)</span><span class="op">$</span><span class="va">cost_total_usd</span>,</span></span>
+<span class="r-in"><span>  openai    <span class="op">=</span> <span class="fu">llm_benchmark_cost</span><span class="op">(</span><span class="st">"openai"</span>,</span></span>
+<span class="r-in"><span>                                 n_abstracts <span class="op">=</span> <span class="fl">10000L</span><span class="op">)</span><span class="op">$</span><span class="va">cost_total_usd</span>,</span></span>
+<span class="r-in"><span>  anthropic <span class="op">=</span> <span class="fu">llm_benchmark_cost</span><span class="op">(</span><span class="st">"anthropic"</span>,</span></span>
+<span class="r-in"><span>                                 n_abstracts <span class="op">=</span> <span class="fl">10000L</span><span class="op">)</span><span class="op">$</span><span class="va">cost_total_usd</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    ollama    openai anthropic </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00      1.71     37.50 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap 1: `n_abstracts` cancels out of `cost_per_1k_claims_usd`.</span></span></span>
+<span class="r-in"><span><span class="co"># That headline is a function of the token assumptions and</span></span></span>
+<span class="r-in"><span><span class="co"># `claims_per_abstract` alone and says nothing about your corpus.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>n30 <span class="op">=</span> <span class="fu">llm_benchmark_cost</span><span class="op">(</span><span class="st">"openai"</span>, n_abstracts <span class="op">=</span> <span class="fl">30L</span>,</span></span>
+<span class="r-in"><span>         claims_per_abstract <span class="op">=</span> <span class="fl">2.4</span><span class="op">)</span><span class="op">$</span><span class="va">cost_per_1k_claims_usd</span>,</span></span>
+<span class="r-in"><span>  n10k <span class="op">=</span> <span class="fu">llm_benchmark_cost</span><span class="op">(</span><span class="st">"openai"</span>, n_abstracts <span class="op">=</span> <span class="fl">10000L</span>,</span></span>
+<span class="r-in"><span>          claims_per_abstract <span class="op">=</span> <span class="fl">2.4</span><span class="op">)</span><span class="op">$</span><span class="va">cost_per_1k_claims_usd</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     n30    n10k </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.07125 0.07125 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap 2: an unrecognised backend returns NA prices rather than</span></span></span>
+<span class="r-in"><span><span class="co"># erroring, so a typo quietly turns a paid model into a free one.</span></span></span>
+<span class="r-in"><span><span class="fu">llm_benchmark_cost</span><span class="op">(</span><span class="st">"gemini"</span>, n_abstracts <span class="op">=</span> <span class="fl">30L</span><span class="op">)</span><span class="op">$</span><span class="va">cost_total_usd</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap 3: the denominator is claims EXTRACTED, not claims CORRECT,</span></span></span>
+<span class="r-in"><span><span class="co"># so over-extraction buys a cheaper headline.  Re-normalise on the</span></span></span>
+<span class="r-in"><span><span class="co"># true positives from the shipped benchmark and both backends get</span></span></span>
+<span class="r-in"><span><span class="co"># dearer -- GPT by 1.43x, Claude by 1.22x -- and the advertised 22x</span></span></span>
+<span class="r-in"><span><span class="co"># price gap between them narrows to 19x.</span></span></span>
+<span class="r-in"><span><span class="va">res_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"llm_benchmark_results.rds"</span>,</span></span>
+<span class="r-in"><span>                        package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">mt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span><span class="op">$</span><span class="va">metrics_table</span>   <span class="co"># rows: Gemma, GPT, Claude</span></span></span>
+<span class="r-in"><span>  <span class="va">per1k</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">bk</span>, <span class="va">claims</span><span class="op">)</span> <span class="fu">llm_benchmark_cost</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">bk</span>, n_abstracts <span class="op">=</span> <span class="fl">30L</span>,</span></span>
+<span class="r-in"><span>    claims_per_abstract <span class="op">=</span> <span class="va">claims</span> <span class="op">/</span> <span class="fl">30</span><span class="op">)</span><span class="op">$</span><span class="va">cost_per_1k_claims_usd</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    openai    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>all <span class="op">=</span> <span class="fu">per1k</span><span class="op">(</span><span class="st">"openai"</span>,    <span class="va">mt</span><span class="op">$</span><span class="va">n_claims</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  tp  <span class="op">=</span> <span class="fu">per1k</span><span class="op">(</span><span class="st">"openai"</span>,    <span class="va">mt</span><span class="op">$</span><span class="va">tp</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    anthropic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>all <span class="op">=</span> <span class="fu">per1k</span><span class="op">(</span><span class="st">"anthropic"</span>, <span class="va">mt</span><span class="op">$</span><span class="va">n_claims</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  tp  <span class="op">=</span> <span class="fu">per1k</span><span class="op">(</span><span class="st">"anthropic"</span>, <span class="va">mt</span><span class="op">$</span><span class="va">tp</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              all     tp</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> openai    0.0703 0.1006</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> anthropic 1.5625 1.9068</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -5,7 +5,7 @@ null hypothesis that all instruments are valid (i.e., the
 exclusion restriction holds).  The statistic is"><meta property="og:description" content="When the model is over-identified (more instruments than
 endogenous exposures), the Sargan (1958) J-statistic tests the
 null hypothesis that all instruments are valid (i.e., the
-exclusion restriction holds).  The statistic is"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+exclusion restriction holds).  The statistic is"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ exclusion restriction holds).  The statistic is"><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ exclusion restriction holds).  The statistic is"><meta property="og:image" conte
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ exclusion restriction holds).  The statistic is"><meta property="og:image" conte
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -155,6 +151,85 @@ endogenous regressors.  Rejection (p &lt; 0.05) is evidence that at
 least one instrument is invalid.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># `carb_direct` and `quarry_direct` let an instrument reach yield</span></span></span>
+<span class="r-in"><span><span class="co"># WITHOUT going through pH, i.e. break the exclusion restriction.</span></span></span>
+<span class="r-in"><span><span class="va">sim_liming</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">seed</span> <span class="op">=</span> <span class="fl">42</span>, <span class="va">carb_direct</span> <span class="op">=</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>                       <span class="va">quarry_direct</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span></span>
+<span class="r-in"><span>  <span class="va">mgmt</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">carbonate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">12</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">quarry_km</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">60</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">ph</span>    <span class="op">&lt;-</span> <span class="fl">4.6</span> <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> <span class="va">carbonate</span> <span class="op">-</span> <span class="fl">0.010</span> <span class="op">*</span> <span class="va">quarry_km</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>           <span class="fl">0.45</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">yield</span> <span class="op">&lt;-</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> <span class="va">ph</span> <span class="op">+</span> <span class="fl">1.3</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>           <span class="va">carb_direct</span> <span class="op">*</span> <span class="va">carbonate</span> <span class="op">+</span> <span class="va">quarry_direct</span> <span class="op">*</span> <span class="va">quarry_km</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">ph</span>, <span class="va">yield</span>, <span class="va">carbonate</span>, <span class="va">quarry_km</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">soil</span> <span class="op">&lt;-</span> <span class="fu">sim_liming</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The test needs MORE instruments than endogenous exposures. One</span></span></span>
+<span class="r-in"><span><span class="co"># instrument for one exposure is exactly identified: there is</span></span></span>
+<span class="r-in"><span><span class="co"># nothing to over-identify, and you get NA rather than a</span></span></span>
+<span class="r-in"><span><span class="co"># reassuring p-value.</span></span></span>
+<span class="r-in"><span><span class="fu">causal_iv_sargan_test</span><span class="op">(</span><span class="va">soil</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>, instruments <span class="op">=</span> <span class="st">"carbonate"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $stat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $df</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $p</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Two instruments, both valid by construction: J = 0.27 on 1 df,</span></span></span>
+<span class="r-in"><span><span class="co"># p = 0.60, no evidence against the exclusion restriction.</span></span></span>
+<span class="r-in"><span><span class="fu">causal_iv_sargan_test</span><span class="op">(</span><span class="va">soil</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                      instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $stat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2685378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $df</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $p</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6043143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Let carbonate fertilise the crop directly, breaking exclusion for</span></span></span>
+<span class="r-in"><span><span class="co"># that instrument only. The two instruments now disagree about the</span></span></span>
+<span class="r-in"><span><span class="co"># effect and the test fires: J = 19.6, p = 9.4e-06.</span></span></span>
+<span class="r-in"><span><span class="fu">causal_iv_sargan_test</span><span class="op">(</span><span class="fu">sim_liming</span><span class="op">(</span>carb_direct <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                      instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $stat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 19.63545</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $df</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $p</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9.371428e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># What a non-rejection does NOT prove. Break BOTH instruments in</span></span></span>
+<span class="r-in"><span><span class="co"># proportion to their first-stage strength and they agree on the</span></span></span>
+<span class="r-in"><span><span class="co"># same wrong answer, so Sargan sees no conflict (p = 0.92) while</span></span></span>
+<span class="r-in"><span><span class="co"># 2SLS returns 2.93 against a truth of 1.5. The J-statistic</span></span></span>
+<span class="r-in"><span><span class="co"># compares instruments with each other; a bias they share is</span></span></span>
+<span class="r-in"><span><span class="co"># invisible to it, and no over-identification test can license the</span></span></span>
+<span class="r-in"><span><span class="co"># exclusion restriction on its own.</span></span></span>
+<span class="r-in"><span><span class="va">soil_worse</span> <span class="op">&lt;-</span> <span class="fu">sim_liming</span><span class="op">(</span>carb_direct <span class="op">=</span> <span class="fl">0.15</span>, quarry_direct <span class="op">=</span> <span class="op">-</span><span class="fl">0.015</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">causal_iv_sargan_test</span><span class="op">(</span><span class="va">soil_worse</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                      instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">p</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9240283</span>
+<span class="r-in"><span><span class="fu"><a href="causal_iv_fit_2sls.html">causal_iv_fit_2sls</a></span><span class="op">(</span><span class="va">soil_worse</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                   instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">effect</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.934698</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

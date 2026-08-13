@@ -80,3 +80,59 @@ base R's `txtProgressBar` unless a custom `progress` callback is passed.
 At 10 000+ abstracts the cache is what makes the workflow operationally
 possible: re-running the function after any crash picks up where the
 cache left off, and warm re-runs are near- instantaneous.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+  corpus <- data.frame(
+    source = c("Jenny 1941", "Minasny et al. 2017", "Poggio 2021"),
+    abstract = c(
+      "Climate governs the accumulation of soil organic matter.",
+      "Wetter sites accumulate more carbon at equal parent material.",
+      "A purely descriptive survey of Cerrado profile morphology."
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  # `cache_dir` is what makes a 10 000-abstract run survivable, so it
+  # must OUTLIVE the R session. file.path(tempdir(), "cache") looks
+  # right and is useless here: it is wiped on exit, and the next run
+  # silently re-spends the whole corpus.
+  cache <- "cerrado_llm_cache"
+  kg <- causal_llm_ingest_corpus(
+    causal_kg_new(), corpus,
+    cache_dir = cache,
+    backend   = "ollama",   # "openai" / "anthropic" read their key
+    host      = "http://localhost:11434"   # from the environment
+  )
+
+  # Each row is keyed by md5("source|abstract"). Re-running after a
+  # crash replays the stored claims rather than calling the LLM, so
+  # cached rows cost nothing and an interrupted run is resumable;
+  # editing one abstract re-queries that row alone.
+  kg <- causal_llm_ingest_corpus(causal_kg_new(), corpus,
+                                 cache_dir = cache)
+
+  # Claims are cached UNFILTERED, so `min_confidence` is applied when
+  # they are replayed. Re-thresholding a finished corpus therefore
+  # costs nothing; only edges change, never the cache.
+  kg_loose <- causal_llm_ingest_corpus(causal_kg_new(), corpus,
+                                       cache_dir = cache,
+                                       min_confidence = 0.3)
+
+  # Read "failed" carefully. A row is listed there when it yielded NO
+  # claims after `max_retries`, so a descriptive abstract that
+  # correctly produces nothing is reported exactly like a row whose
+  # LLM call kept erroring. It is not a list of network failures.
+  attr(kg, "failed")
+
+  # Supplying `progress` replaces the default txtProgressBar, which
+  # is only shown for corpora of five rows or more.
+  kg <- causal_llm_ingest_corpus(
+    causal_kg_new(), corpus, cache_dir = cache,
+    progress = function(i, n, source)
+      message(sprintf("[%d/%d] %s", i, n, source))
+  )
+} # }
+```

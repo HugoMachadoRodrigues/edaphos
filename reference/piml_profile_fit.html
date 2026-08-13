@@ -11,7 +11,7 @@ to one soil pedon by minimising the sum of squared errors between the
 ODE-predicted and the observed values, with an L2 regulariser on the
 (re-parametrised) parameters. Physics is encoded in the forward
 model itself — the fit can never produce a profile that violates the
-prescribed exponential-asymptote dynamics."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+prescribed exponential-asymptote dynamics."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -37,7 +37,7 @@ prescribed exponential-asymptote dynamics."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,14 +48,12 @@ prescribed exponential-asymptote dynamics."><meta property="og:image" content="h
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -63,14 +61,12 @@ prescribed exponential-asymptote dynamics."><meta property="og:image" content="h
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -124,6 +120,9 @@ prescribed exponential-asymptote dynamics.</p>
 <span>  <span class="va">depths</span>,</span>
 <span>  <span class="va">values</span>,</span>
 <span>  y_surface <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  top <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bottom <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lognormal"</span>, <span class="st">"gaussian"</span>, <span class="st">"gamma"</span><span class="op">)</span>,</span>
 <span>  start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  reg <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span>
@@ -150,10 +149,35 @@ as <code>depths</code>.</p></dd>
 have a reliable 0 cm observation (or a laboratory A-horizon value).</p></dd>
 
 
+<dt id="arg-top-bottom">top, bottom<a class="anchor" aria-label="anchor" href="#arg-top-bottom"></a></dt>
+<dd><p>Optional numeric vectors giving the upper and lower
+boundary of each horizon, same length as <code>values</code>. When supplied, each
+observation is compared to the model's <strong>depth-average over its horizon</strong>
+rather than to a point evaluation at the mid-depth, which is what a
+laboratory value actually measures. Recommended whenever the boundaries
+are known: the point-at-midpoint shortcut predicts too low on a convex
+profile, by the mid-point rule error. The correction is concentrated in
+the thick, strongly curved surface horizons — across 207 WoSIS pedons it
+moves the fitted <code>y0</code> by a median 0.28 g/kg and the asymptote by 0.03.</p></dd>
+
+
+<dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
+<dd><p>Observation family. <code>"gaussian"</code> (default, for backward
+compatibility) assumes additive error of constant absolute size;
+<code>"lognormal"</code> and <code>"gamma"</code> assume multiplicative error of constant
+<em>relative</em> size, which is what laboratory error on a concentration looks
+like, and both keep the prediction as the mean of the observation. The
+choice is not cosmetic: with a constant absolute error, a profile running
+from 30 g/kg at the surface to 2 g/kg at 5 m is fitted almost entirely by
+its topsoil, and the deep horizons that carry the asymptote contribute
+almost nothing.</p></dd>
+
+
 <dt id="arg-start">start<a class="anchor" aria-label="anchor" href="#arg-start"></a></dt>
-<dd><p>Optional named numeric vector of starting parameters
-(<code>log_lambda0</code>, <code>mu</code>, <code>y_inf</code>, and optionally <code>y0</code>). If <code>NULL</code>, a
-data-driven guess is built from the observed range and depths.</p></dd>
+<dd><p>Optional named numeric vector of starting parameters on the
+internal log scale (<code>log_kappa</code>, <code>log_mu</code>, <code>log_y_asym</code>, and optionally
+<code>log_y0</code>). If <code>NULL</code>, several data-driven starts are tried and the best
+is kept.</p></dd>
 
 
 <dt id="arg-reg">reg<a class="anchor" aria-label="anchor" href="#arg-reg"></a></dt>
@@ -169,7 +193,8 @@ vector.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>edaphos_piml_profile</code> object with components:</p><dl><dt>params</dt>
-<dd><p>Named list with the fitted <code>lambda0</code>, <code>mu</code>, <code>y_inf</code>, <code>y0</code>.</p></dd>
+<dd><p>Named list with the fitted <code>lambda0</code>, <code>mu</code>, <code>y_inf</code>, <code>y0</code>,
+plus the identified coordinates <code>kappa</code> and <code>y_asym</code>.</p></dd>
 
 <dt>theta</dt>
 <dd><p>The unconstrained parameter vector the optimiser found.</p></dd>
@@ -180,7 +205,7 @@ vector.</p></dd>
 <dt>converged</dt>
 <dd><p>Logical, whether <code>optim</code> reported convergence.</p></dd>
 
-<dt>depths, values, y_surface</dt>
+<dt>depths, values, y_surface, top, bottom</dt>
 <dd><p>Inputs echoed back.</p></dd>
 
 <dt>rmse</dt>
@@ -188,6 +213,23 @@ vector.</p></dd>
 
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="parameterisation">Parameterisation<a class="anchor" aria-label="anchor" href="#parameterisation"></a></h2>
+
+
+<p>The model is estimated in the identified, positive coordinates
+\((y_0, A, \kappa, \mu)\), where \(A = y(\infty)\) is the <strong>attainable
+deep value</strong> and \(\kappa = \lambda_0/\mu\) is the total relaxation. The
+familiar <code>lambda0</code> and <code>y_inf</code> are recovered for reporting. This matters
+because \(y_\infty\) is <em>not</em> the asymptote of the solution: since the rate
+decays with depth, the profile only traverses a fraction \(1 - e^{-\kappa}\)
+of the \(y_0 \to y_\infty\) gap. Estimating \(A\) directly also removes
+the near-collinearity of \(\lambda_0\) and \(\mu\) (the data constrain
+their ratio far better than either alone) and, because all four coordinates
+are exponentiated, it rules out the physically impossible fits the old
+free-sign parameterisation returned on real data: negative surface carbon and
+rates that <em>grow</em> exponentially with depth.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -197,12 +239,25 @@ vector.</p></dd>
 <span class="r-in"><span><span class="va">fit</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_piml_profile&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   lambda0 = 0.04846   mu = 0.003277</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   y_inf   = 6.162     y0 = 30.08   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   n obs   = 5         rmse = 0.09798</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   lambda0 = 0.05004   mu = 0.006045</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   y0      = 30.36     y(Inf) = 5.962      (kappa = 8.28)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   y_inf   = 5.956     (ODE coordinate, not the attained value)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n obs   = 5 (point)        rmse = 0.09523</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged = TRUE </span>
 <span class="r-in"><span><span class="fu"><a href="piml_profile_predict.html">piml_profile_predict</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">params</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 21.009577  8.720935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 20.975101  8.772824</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># With horizon boundaries, each value is matched to the layer average:</span></span></span>
+<span class="r-in"><span><span class="fu">piml_profile_fit</span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span>,</span></span>
+<span class="r-in"><span>                 top    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 bottom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span>, <span class="fl">120</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_piml_profile&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   lambda0 = 0.05112   mu = 0.005584</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   y0      = 30.33     y(Inf) = 5.987      (kappa = 9.16)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   y_inf   = 5.984     (ODE coordinate, not the attained value)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n obs   = 5 (layer)         rmse = 0.1297</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged = TRUE </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

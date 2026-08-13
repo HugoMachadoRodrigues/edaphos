@@ -5,7 +5,7 @@ contour() / ggplot2::geom_contour().  The grid is dense enough
 (51 x 51 by default) to render smooth contours."><meta property="og:description" content="Builds a 2-D grid over (R^2 of U with X | Z, R^2 of U with Y | X,
 Z) and returns the bias-adjusted estimate at each cell, ready for
 contour() / ggplot2::geom_contour().  The grid is dense enough
-(51 x 51 by default) to render smooth contours."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+(51 x 51 by default) to render smooth contours."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ contour() / ggplot2::geom_contour().  The grid is dense enough
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ contour() / ggplot2::geom_contour().  The grid is dense enough
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ contour() / ggplot2::geom_contour().  The grid is dense enough
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -139,6 +135,48 @@ real covariates).</p></dd>
 <code>r2_yu_xz</code>, <code>adjusted_estimate</code>, <code>bias</code>, <code>bias_factor</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A backdoor fit of `soc` on mean annual rainfall in `br_cerrado`</span></span></span>
+<span class="r-in"><span><span class="co"># gives beta = 0.008583 g/kg per mm, SE = 0.000529, df = 2020.</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_sensitivity_summary.html">causal_sensitivity_summary</a></span><span class="op">(</span><span class="fl">0.008583</span>, <span class="fl">0.000529</span>, <span class="fl">2020</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The grid is the contour map that the robustness value summarises.</span></span></span>
+<span class="r-in"><span><span class="co"># Evaluate it out to r2_max = RV and the far corner of the</span></span></span>
+<span class="r-in"><span><span class="co"># equal-confounding diagonal lands exactly on zero.</span></span></span>
+<span class="r-in"><span><span class="va">corner</span> <span class="op">&lt;-</span> <span class="fu">causal_sensitivity_grid</span><span class="op">(</span><span class="fl">0.008583</span>, <span class="fl">0.000529</span>, <span class="fl">2020</span>,</span></span>
+<span class="r-in"><span>                                  grid_size <span class="op">=</span> <span class="fl">2L</span>, r2_max <span class="op">=</span> <span class="va">s</span><span class="op">$</span><span class="va">rv</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">corner</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r2_xu_z"</span>, <span class="st">"r2_yu_xz"</span>, <span class="st">"adjusted_estimate"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     r2_xu_z  r2_yu_xz adjusted_estimate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.0000000 0.0000000          0.008583</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.3016734 0.0000000          0.008583</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.0000000 0.3016734          0.008583</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.3016734 0.3016734          0.000000</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The two axes are not interchangeable.  `r2_xu_z` enters the bias</span></span></span>
+<span class="r-in"><span><span class="co"># factor as r2 / (1 - r2), so confounding of the EXPOSURE bites</span></span></span>
+<span class="r-in"><span><span class="co"># harder: the (0.5, 0.2) cell has already flipped the sign of the</span></span></span>
+<span class="r-in"><span><span class="co"># estimate while (0.2, 0.5) is still positive.</span></span></span>
+<span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">causal_sensitivity_grid</span><span class="op">(</span><span class="fl">0.008583</span>, <span class="fl">0.000529</span>, <span class="fl">2020</span>,</span></span>
+<span class="r-in"><span>                             grid_size <span class="op">=</span> <span class="fl">6L</span>, r2_max <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">g</span><span class="op">[</span><span class="op">(</span><span class="va">g</span><span class="op">$</span><span class="va">r2_xu_z</span> <span class="op">==</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">g</span><span class="op">$</span><span class="va">r2_yu_xz</span> <span class="op">==</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">|</span></span></span>
+<span class="r-in"><span>  <span class="op">(</span><span class="va">g</span><span class="op">$</span><span class="va">r2_xu_z</span> <span class="op">==</span> <span class="fl">0.2</span> <span class="op">&amp;</span> <span class="va">g</span><span class="op">$</span><span class="va">r2_yu_xz</span> <span class="op">==</span> <span class="fl">0.5</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    r2_xu_z r2_yu_xz adjusted_estimate        bias bias_factor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18     0.5      0.2     -0.0020497684 0.010632768   0.4472136</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33     0.2      0.5      0.0001770585 0.008405941   0.3535534</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Sign reversal is not an error: `adjusted_estimate` is the estimate</span></span></span>
+<span class="r-in"><span><span class="co"># pushed towards zero by `bias`, and beyond the RV it overshoots.</span></span></span>
+<span class="r-in"><span><span class="co"># Ten of these 36 cells come back negative.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">g</span><span class="op">$</span><span class="va">adjusted_estimate</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The default is 51 x 51 = 2601 rows, which is the long-format frame</span></span></span>
+<span class="r-in"><span><span class="co"># you hand to contour() or ggplot2::geom_contour().</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">causal_sensitivity_grid</span><span class="op">(</span><span class="fl">0.008583</span>, <span class="fl">0.000529</span>, <span class="fl">2020</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2601</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

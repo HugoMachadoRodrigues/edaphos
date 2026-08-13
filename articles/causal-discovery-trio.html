@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,14 +52,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+<li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -67,14 +65,12 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -823,7 +819,7 @@ magnitude</strong> em como o efeito é estimado.
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Instale `DiagrammeR` para visualizar o diagrama.\n"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:96%;height:720px;"></div>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:96%;height:288px;"></div>
 <script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"diagram":"\n  digraph trio {\n    graph [rankdir=LR, fontname=\"Helvetica\", bgcolor=\"#FAFAFA\"]\n    node  [shape=box, style=\"rounded,filled\", fontname=\"Helvetica\",\n           fontsize=11]\n\n    A [label=\"A) Expert DAG\\nPedológico teórico\",\n       fillcolor=\"#D5E8D4\", color=\"#27AE60\"]\n    B [label=\"B) LLM-augmented\\nLiteratura via Gemma 4\",\n       fillcolor=\"#FFF3CD\", color=\"#E67E22\"]\n    C [label=\"C) Data-driven\\nbnlearn hc / tabu / pc-stable\",\n       fillcolor=\"#FCE4D6\", color=\"#C0392B\"]\n    SYN [label=\"DAG causal final\\n(+ sensibilidade)\", shape=diamond,\n         fillcolor=\"#D6EAF8\", color=\"#154360\"]\n\n    A -> SYN [label=\"teoria\"]\n    B -> SYN [label=\"evidência\\nde literatura\"]\n    C -> SYN [label=\"evidência\\nestatística\"]\n    A -> B   [style=dashed, label=\"base do LLM\"]\n    C -> A   [style=dashed, label=\"questiona arestas\\nsem suporte\"]\n    B -> A   [style=dashed, label=\"sugere arestas\\nnovas\"]\n  }\n  ","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p class="caption">
 A arquitetura tripla do Pilar 1. Cada fonte codifica uma heurística
 diferente — conhecimento teórico (expert), conhecimento da literatura

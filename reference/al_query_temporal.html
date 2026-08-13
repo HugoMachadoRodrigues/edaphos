@@ -9,7 +9,7 @@ assimilation) and Pillar 5 (autonomous active learning).  The
 Kalman-gain norm is a forward-looking estimate of how much the
 posterior ensemble would shrink if a new observation were placed
 at each spatial cell; candidates with high gain are the natural
-next sampling locations."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+next sampling locations."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ next sampling locations."><meta property="og:image" content="https://hugomachado
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ next sampling locations."><meta property="og:image" content="https://hugomachado
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ next sampling locations."><meta property="og:image" content="https://hugomachado
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -130,27 +126,34 @@ next sampling locations.</p>
 
 
 <dl><dt id="arg-kalman-update">kalman_update<a class="anchor" aria-label="anchor" href="#arg-kalman-update"></a></dt>
-<dd><p>A <code>edaphos_temporal_kalman</code> object returned
-by <code><a href="temporal_kalman_update.html">temporal_kalman_update()</a></code>.  Must carry the <code>gain_row_norm</code>
-and <code>analysis_sd</code> fields (they are produced by default).</p></dd>
+<dd><p>A <code>edaphos_temporal_kalman</code> object whose
+<code>gain_row_norm</code> and <code>analysis_sd</code> slots are both <code>H x W</code> matrices
+of per-cell values.  <code>analysis_sd</code> already is one, but note that
+<code><a href="temporal_kalman_update.html">temporal_kalman_update()</a></code> fills <code>gain_row_norm</code> with one number
+per <em>observation</em> (the column norms of the Kalman gain), so a
+result taken straight from it is rejected: write a per-cell
+informativeness map into that slot first.  See the examples.</p></dd>
 
 
 <dt id="arg-candidate-coords">candidate_coords<a class="anchor" aria-label="anchor" href="#arg-candidate-coords"></a></dt>
-<dd><p>Optional data frame with <code>lon</code>, <code>lat</code>
-columns that restrict scoring to a finite set of physically
-accessible cells.  When <code>NULL</code>, every cell of the analysis grid
-is a candidate.</p></dd>
+<dd><p>Optional data frame with integer <code>row</code> and
+<code>col</code> grid indices (not lon / lat) that restrict scoring to a
+finite set of physically accessible cells.  When <code>NULL</code>, every
+cell of the analysis grid is a candidate.</p></dd>
 
 
 <dt id="arg-n-select">n_select<a class="anchor" aria-label="anchor" href="#arg-n-select"></a></dt>
-<dd><p>Integer; how many candidates to return.</p></dd>
+<dd><p>Integer; how many candidates to return.  More than
+the number of candidates simply returns them all.</p></dd>
 
 
 <dt id="arg-combine">combine<a class="anchor" aria-label="anchor" href="#arg-combine"></a></dt>
 <dd><p>One of <code>"gain"</code> (rank by pure gain norm, the v1.5.0
 default), <code>"gain_sd"</code> (weighted product of gain and remaining
 analysis SD), or <code>"gain_sd_normalised"</code> (same but each term is
-percentile-normalised first).</p></dd>
+min-max rescaled first – over the <em>candidate</em> set, so restricting
+<code>candidate_coords</code> reorders this ranking instead of only
+filtering it).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -159,6 +162,133 @@ percentile-normalised first).</p></dd>
 <code>row</code>, <code>col</code>, <code>gain</code>, <code>analysis_sd</code>, <code>priority</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Pillar 3 -&gt; Pillar 5. A 30-member forecast of month-12 SOC over a</span></span></span>
+<span class="r-in"><span><span class="co"># 12 x 12 Cerrado grid, biased 2 g/kg low, plus an EnKF assimilation</span></span></span>
+<span class="r-in"><span><span class="co"># of three fresh profiles. No torch needed for any of this.</span></span></span>
+<span class="r-in"><span><span class="va">cube</span>  <span class="op">&lt;-</span> <span class="fu"><a href="temporal_synth_soc_cube.html">temporal_synth_soc_cube</a></span><span class="op">(</span>H <span class="op">=</span> <span class="fl">12L</span>, W <span class="op">=</span> <span class="fl">12L</span>, T_total <span class="op">=</span> <span class="fl">12L</span>,</span></span>
+<span class="r-in"><span>                                 seed <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">soc12</span> <span class="op">&lt;-</span> <span class="va">cube</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="fl">12L</span>, , <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2024L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">soc12</span><span class="op">)</span> <span class="op">-</span> <span class="fl">2</span>, each <span class="op">=</span> <span class="fl">30L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30L</span>, <span class="fl">12L</span>, <span class="fl">12L</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">30L</span> <span class="op">*</span> <span class="fl">144L</span>, <span class="fl">0</span>, <span class="fl">1.5</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30L</span>, <span class="fl">12L</span>, <span class="fl">12L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">obs_row</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3L</span>, <span class="fl">9L</span>, <span class="fl">6L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">obs_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3L</span>, <span class="fl">9L</span>, <span class="fl">11L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ku</span> <span class="op">&lt;-</span> <span class="fu"><a href="temporal_kalman_update.html">temporal_kalman_update</a></span><span class="op">(</span><span class="va">fc</span>,</span></span>
+<span class="r-in"><span>                             obs_value <span class="op">=</span> <span class="va">soc12</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">obs_row</span>, <span class="va">obs_col</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                             obs_row <span class="op">=</span> <span class="va">obs_row</span>, obs_col <span class="op">=</span> <span class="va">obs_col</span>,</span></span>
+<span class="r-in"><span>                             obs_sd <span class="op">=</span> <span class="fl">0.5</span>, localization_radius <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>                             seed <span class="op">=</span> <span class="fl">9L</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap first: ku$gain_row_norm holds one number per OBSERVATION, not</span></span></span>
+<span class="r-in"><span><span class="co"># the H x W per-cell map this function ranks, so the raw EnKF result</span></span></span>
+<span class="r-in"><span><span class="co"># is refused.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>is_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">is.matrix</a></span><span class="op">(</span><span class="va">ku</span><span class="op">$</span><span class="va">gain_row_norm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  length    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ku</span><span class="op">$</span><span class="va">gain_row_norm</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> is_matrix    length </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         0         3 </span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu">al_query_temporal</span><span class="op">(</span><span class="va">ku</span><span class="op">)</span>, error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">conditionMessage</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "`gain_row_norm` and `analysis_sd` must both be H x W matrices of per-cell values. temporal_kalman_update() returns `gain_row_norm` as one value per observation (the column norms of the Kalman gain), so write a per-cell informativeness map into that slot before calling."</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Supply a per-cell informativeness map instead. The realised spread</span></span></span>
+<span class="r-in"><span><span class="co"># shrinkage (forecast sd - analysis sd) is the one you can build</span></span></span>
+<span class="r-in"><span><span class="co"># from what the EnKF actually returns; with localization_radius = 3</span></span></span>
+<span class="r-in"><span><span class="co"># it is 1.099 at the sampled cells and ~0 (median 0.002) elsewhere.</span></span></span>
+<span class="r-in"><span><span class="va">ku</span><span class="op">$</span><span class="va">gain_row_norm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">)</span> <span class="op">-</span> <span class="va">ku</span><span class="op">$</span><span class="va">analysis_sd</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>at_observed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">ku</span><span class="op">$</span><span class="va">gain_row_norm</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">obs_row</span>, <span class="va">obs_col</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        grid_median <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">ku</span><span class="op">$</span><span class="va">gain_row_norm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        far_corner  <span class="op">=</span> <span class="va">ku</span><span class="op">$</span><span class="va">gain_row_norm</span><span class="op">[</span><span class="fl">1L</span>, <span class="fl">1L</span><span class="op">]</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> at_observed grid_median  far_corner </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1.0993      0.0019     -0.0032 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># combine = "gain" then hands back the three cells you have ALREADY</span></span></span>
+<span class="r-in"><span><span class="co"># sampled as the top three. Gain is highest where an observation</span></span></span>
+<span class="r-in"><span><span class="co"># sits, so ranking on it alone re-visits your own boreholes.</span></span></span>
+<span class="r-in"><span><span class="fu">al_query_temporal</span><span class="op">(</span><span class="va">ku</span>, n_select <span class="op">=</span> <span class="fl">5L</span>, combine <span class="op">=</span> <span class="st">"gain"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_temporal_al_query&gt;  (Pilar 3 x Pilar 5 bridge)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   grid dims : 12 x 12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   combine   : gain</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_select  : 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   top-5 cells (sorted by priority):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     row col      gain analysis_sd  priority</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27    3   3 1.1077663   0.4628177 1.1077663</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 126   6  11 1.1006539   0.4096461 1.1006539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 105   9   9 1.0893340   0.4550861 1.0893340</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 127   7  11 0.1069342   1.5825599 0.1069342</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3   1 0.1066447   1.4231513 0.1066447</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Multiplying by the remaining analysis SD is what stops that: those</span></span></span>
+<span class="r-in"><span><span class="co"># cells are now the best-constrained on the grid (sd 0.443 against a</span></span></span>
+<span class="r-in"><span><span class="co"># grid median of 1.440), so the product demotes all three out of the</span></span></span>
+<span class="r-in"><span><span class="co"># top 5. Read the two columns together, never `gain` alone.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>sd_at_observed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">ku</span><span class="op">$</span><span class="va">analysis_sd</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">obs_row</span>, <span class="va">obs_col</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        sd_grid_median <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">ku</span><span class="op">$</span><span class="va">analysis_sd</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sd_at_observed sd_grid_median </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          0.443          1.440 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">al_query_temporal</span><span class="op">(</span><span class="va">ku</span>, n_select <span class="op">=</span> <span class="fl">5L</span>,</span></span>
+<span class="r-in"><span>                                combine <span class="op">=</span> <span class="st">"gain_sd_normalised"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     row col       gain analysis_sd   priority</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 103   7   9 0.08334152    1.964040 0.08917262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 127   7  11 0.10693424    1.582560 0.08311628</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3   1 0.10664468    1.423151 0.07165223</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 115   7  10 0.06311852    1.774312 0.06250246</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 80    8   7 0.06554957    1.579451 0.05520442</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># candidate_coords takes row / col grid indices -- not lon / lat --</span></span></span>
+<span class="r-in"><span><span class="co"># and is where already-sampled cells get dropped. Even then pure</span></span></span>
+<span class="r-in"><span><span class="co"># gain picks (7, 11), one cell away from the (6, 11) profile:</span></span></span>
+<span class="r-in"><span><span class="co"># spatial redundancy is the SD factor's other job.</span></span></span>
+<span class="r-in"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>row <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">12</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cand</span> <span class="op">&lt;-</span> <span class="va">grid</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">grid</span><span class="op">$</span><span class="va">row</span>, <span class="va">grid</span><span class="op">$</span><span class="va">col</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span></span></span>
+<span class="r-in"><span>               <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">obs_row</span>, <span class="va">obs_col</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">al_query_temporal</span><span class="op">(</span><span class="va">ku</span>, <span class="va">cand</span>, n_select <span class="op">=</span> <span class="fl">3L</span>,</span></span>
+<span class="r-in"><span>                                combine <span class="op">=</span> <span class="st">"gain"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     row col       gain analysis_sd   priority</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 127   7  11 0.10693424    1.582560 0.10693424</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3   1 0.10664468    1.423151 0.10664468</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 103   7   9 0.08334152    1.964040 0.08334152</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># "gain_sd_normalised" rescales within the candidate set, so these</span></span></span>
+<span class="r-in"><span><span class="co"># two rankings over the identical 141 cells disagree on the order.</span></span></span>
+<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu">al_query_temporal</span><span class="op">(</span><span class="va">ku</span>, <span class="va">cand</span>, n_select <span class="op">=</span> <span class="fl">141L</span>,</span></span>
+<span class="r-in"><span>                       combine <span class="op">=</span> <span class="st">"gain_sd_normalised"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu">al_query_temporal</span><span class="op">(</span><span class="va">ku</span>, <span class="va">cand</span>, n_select <span class="op">=</span> <span class="fl">141L</span>, combine <span class="op">=</span> <span class="st">"gain_sd"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>normalised  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">row</span>, <span class="va">a</span><span class="op">$</span><span class="va">col</span><span class="op">)</span>, <span class="fl">4L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      raw_product <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">row</span>, <span class="va">b</span><span class="op">$</span><span class="va">col</span><span class="op">)</span>, <span class="fl">4L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]   [,2]   [,3]   [,4]  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> normalised  "7 9"  "7 11" "7 10" "3 1" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> raw_product "7 11" "7 9"  "3 1"  "7 10"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Finally, what the assimilation this ranks was worth. Three</span></span></span>
+<span class="r-in"><span><span class="co"># profiles on 144 cells sharpen the analysis only where they sit:</span></span></span>
+<span class="r-in"><span><span class="co"># RMSE improves by 0.02 g/kg while 90% coverage (0.694 -&gt; 0.667) and</span></span></span>
+<span class="r-in"><span><span class="co"># the interval score (6.24 -&gt; 6.36) both get slightly worse, because</span></span></span>
+<span class="r-in"><span><span class="co"># the 2 g/kg prior bias survives wherever the taper is zero. That is</span></span></span>
+<span class="r-in"><span><span class="co"># the argument for spending the next sample well.</span></span></span>
+<span class="r-in"><span><span class="va">truth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">soc12</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pk</span>    <span class="op">&lt;-</span> <span class="fu"><a href="as_edaphos_posterior.html">as_edaphos_posterior</a></span><span class="op">(</span><span class="va">ku</span>, units <span class="op">=</span> <span class="st">"g/kg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">plo</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span>, <span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">phi</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    rmse   <span class="op">=</span> <span class="fu"><a href="edaphos_rmse.html">edaphos_rmse</a></span><span class="op">(</span><span class="va">truth</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, <span class="va">mean</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    picp90 <span class="op">=</span> <span class="fu"><a href="edaphos_picp.html">edaphos_picp</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">plo</span>, <span class="va">phi</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    IS     <span class="op">=</span> <span class="fu"><a href="edaphos_interval_score.html">edaphos_interval_score</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">plo</span>, <span class="va">phi</span>, alpha <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  analysis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    rmse   <span class="op">=</span> <span class="fu"><a href="edaphos_rmse.html">edaphos_rmse</a></span><span class="op">(</span><span class="va">truth</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">ku</span><span class="op">$</span><span class="va">analysis_mean</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    picp90 <span class="op">=</span> <span class="fu"><a href="edaphos_picp.html">edaphos_picp</a></span><span class="op">(</span><span class="va">truth</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">pk</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                 <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">pk</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    IS     <span class="op">=</span> <span class="fu"><a href="edaphos_interval_score.html">edaphos_interval_score</a></span><span class="op">(</span><span class="va">truth</span>,</span></span>
+<span class="r-in"><span>                                    <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">pk</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                    <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">pk</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                    alpha <span class="op">=</span> <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           rmse picp90    IS</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> prior    2.011  0.694 6.238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> analysis 1.990  0.667 6.364</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

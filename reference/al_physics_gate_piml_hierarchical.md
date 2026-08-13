@@ -25,9 +25,13 @@ al_physics_gate_piml_hierarchical(
 
 - candidate_covariate_cols:
 
-  Character vector with the column names in the candidate table that
-  correspond to the training covariates (must be the same set, can have
-  different order — the function reorders them).
+  Character vector naming the columns of the candidate table that
+  correspond to the training covariates, **in the same order as**
+  `hier_fit$covariate_cols`. The mapping is positional — the i-th name
+  given here is renamed to the i-th training covariate — so this
+  argument exists to translate different column *names*, not a different
+  order. A permuted order silently feeds each covariate to the wrong
+  input.
 
 - safety_factor:
 
@@ -42,3 +46,89 @@ al_physics_gate_piml_hierarchical(
 ## Value
 
 A function suitable for `al_query(..., physics_gate = <this>)`.
+
+## Examples
+
+``` r
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  data(br_cerrado)
+  # The five noise-free ODE pedons of ?piml_hierarchical_fit.
+  sites <- br_cerrado[c(1, 400, 900, 1400, 1900), ]
+  hz <- c(5, 15, 30, 60)
+  pedons <- do.call(rbind, lapply(1:5, function(i) {
+    y0   <- sites$soc[i]
+    lam0 <- 0.02 + 0.004 * sites$twi[i]
+    data.frame(pedon = paste0("P", i), depth = hz,
+               soc = 0.30 * y0 + 0.70 * y0 *
+                     exp(-(lam0 / 0.02) * (1 - exp(-0.02 * hz))),
+               twi = sites$twi[i], ndvi = sites$ndvi[i],
+               map_mm = sites$map_mm[i])
+  }))
+  fit <- piml_hierarchical_fit(
+    pedons, "pedon", "depth", "soc",
+    covariate_cols = c("twi", "ndvi", "map_mm"),
+    epochs = 20L, lr = 0.05, n_steps = 2L, seed = 1L)
+
+  gate <- al_physics_gate_piml_hierarchical(
+    fit, safety_factor = 1.2, envelope_depths = c(0, 30, 60))
+
+  # The predicted means the gate judges come from the QRF, exactly
+  # as al_query() computes them internally.
+  set.seed(11)
+  labeled <- br_cerrado[sample(nrow(br_cerrado), 120), ]
+  m <- al_fit(labeled, target = "soc",
+              covariates = c("twi", "ndvi", "map_mm", "elev"),
+              num.trees = 100L)
+  cand <- br_cerrado[seq(2, 2025, length.out = 8), ]
+  pm <- predict(m$model, data = cand[, m$covariates])$predictions
+
+  # Each candidate is judged against ITS OWN predicted profile:
+  # [min, max] over `envelope_depths`, widened by
+  # (safety_factor - 1) * (max - min) on each side.
+  env <- piml_hierarchical_predict(fit, cand, c(0, 30, 60))
+  print(data.frame(pred = round(pm, 2),
+                   lo   = round(apply(env, 1L, min), 2),
+                   hi   = round(apply(env, 1L, max), 2),
+                   keep = gate(cand, pm)))
+
+  # Six of the eight are rejected even though every predicted value
+  # lies inside the SOC actually measured in br_cerrado.  The
+  # envelope inherits everything wrong with a five-pedon fit, so
+  # read the rejection rate -- and sweep safety_factor -- before
+  # wiring a gate into al_loop().
+  print(round(range(pm), 1))
+  print(round(range(br_cerrado$soc), 1))
+  print(vapply(c(1, 1.2, 2, 5), function(s)
+    sum(al_physics_gate_piml_hierarchical(
+          fit, safety_factor = s,
+          envelope_depths = c(0, 30, 60))(cand, pm)), 0))
+
+  # A gate can also shrink the batch: al_query() clamps `n` to the
+  # number of survivors, so n = 3 returns 2 rows here -- and none
+  # of the three ungated picks is among them.
+  print(al_query(m, cand, n = 3L, physics_gate = gate))
+  print(al_query(m, cand, n = 3L))
+
+  # `candidate_covariate_cols` is a positional rename, not a lookup.
+  # Given in training order it reproduces the gate above; permuted,
+  # it feeds rainfall into the twi input and silently flips two of
+  # the eight decisions -- no error, no warning.
+  cand2 <- cand
+  names(cand2)[match(c("twi", "ndvi", "map_mm"), names(cand2))] <-
+    c("wetness", "greenness", "rain")
+  ok  <- al_physics_gate_piml_hierarchical(
+    fit, c("wetness", "greenness", "rain"),
+    envelope_depths = c(0, 30, 60))
+  bad <- al_physics_gate_piml_hierarchical(
+    fit, c("rain", "greenness", "wetness"),
+    envelope_depths = c(0, 30, 60))
+  print(identical(ok(cand2, pm), gate(cand, pm)))
+  print(sum(ok(cand2, pm) != bad(cand2, pm)))
+
+  # Cost: one ODE integration per candidate per call, times
+  # length(envelope_depths).  Eight rows are instant, 400 rows with
+  # the default five depths take a few seconds -- gate a subset,
+  # not a whole raster.
+}
+```

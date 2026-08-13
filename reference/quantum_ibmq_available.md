@@ -15,3 +15,34 @@ quantum_ibmq_available()
 ## Value
 
 Logical scalar.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+  # The gate that every other IBMQ entry point consults first.
+  quantum_ibmq_available()
+
+  # It is a three-part check and the third part is only
+  # nzchar(Sys.getenv("IBMQ_TOKEN")). Any non-empty string passes,
+  # so TRUE means "a token is present", never "the token
+  # authenticates": junk credentials return TRUE here and then
+  # fail at the first network call in quantum_ibmq_backends().
+  old <- Sys.getenv("IBMQ_TOKEN", "")
+  Sys.setenv(IBMQ_TOKEN = "not-a-real-token")
+  quantum_ibmq_available()                       # TRUE
+  if (nzchar(old)) Sys.setenv(IBMQ_TOKEN = old) else
+    Sys.unsetenv("IBMQ_TOKEN")
+
+  # When it is FALSE, decompose it. The three preconditions fail
+  # for unrelated reasons and only the third is fixed by editing
+  # ~/.Renviron.
+  c(reticulate = requireNamespace("reticulate", quietly = TRUE),
+    runtime    = reticulate::py_module_available("qiskit_ibm_runtime"),
+    token      = nzchar(Sys.getenv("IBMQ_TOKEN", "")))
+
+  # The token is read from the environment and nowhere else, so
+  # keep it out of scripts: put IBMQ_TOKEN=<key from
+  # https://quantum.ibm.com/account> in ~/.Renviron and restart R.
+} # }
+```

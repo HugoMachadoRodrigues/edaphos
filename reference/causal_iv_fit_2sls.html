@@ -9,7 +9,7 @@ an outcome outcome using one or more instruments, optionally
 conditional on exogenous controls.  Implements the classical 2SLS
 estimator with the Wooldridge (2010) asymptotic variance – the
 naive lm() SE of the second stage is biased because it treats
-the generated regressor as observed, a common mistake."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+the generated regressor as observed, a common mistake."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ the generated regressor as observed, a common mistake."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ the generated regressor as observed, a common mistake."><meta property="og:image
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ the generated regressor as observed, a common mistake."><meta property="og:image
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -179,6 +175,59 @@ unobserved confounder.</p></li>
 
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A liming study confounded by management: unobserved agronomic</span></span></span>
+<span class="r-in"><span><span class="co"># intensity raises both soil pH and yield, so no regression of</span></span></span>
+<span class="r-in"><span><span class="co"># yield on pH can identify the causal effect.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span></span>
+<span class="r-in"><span><span class="va">mgmt</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>          <span class="co"># unobserved agronomic intensity</span></span></span>
+<span class="r-in"><span><span class="va">carbonate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">12</span><span class="op">)</span>   <span class="co"># parent-rock CaCO3, per cent</span></span></span>
+<span class="r-in"><span><span class="va">quarry_km</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">60</span><span class="op">)</span>   <span class="co"># distance to the nearest lime quarry</span></span></span>
+<span class="r-in"><span><span class="va">ph</span>    <span class="op">&lt;-</span> <span class="fl">4.6</span> <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> <span class="va">carbonate</span> <span class="op">-</span> <span class="fl">0.010</span> <span class="op">*</span> <span class="va">quarry_km</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>         <span class="fl">0.45</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">yield</span> <span class="op">&lt;-</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> <span class="va">ph</span> <span class="op">+</span> <span class="fl">1.3</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">soil</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">ph</span>, <span class="va">yield</span>, <span class="va">carbonate</span>, <span class="va">quarry_km</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The true effect is 1.5 t/ha per pH unit. OLS returns 2.85 --</span></span></span>
+<span class="r-in"><span><span class="co"># nearly double -- because it credits pH with the yield that</span></span></span>
+<span class="r-in"><span><span class="co"># management delivered.</span></span></span>
+<span class="r-in"><span><span class="va">ols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">yield</span> <span class="op">~</span> <span class="va">ph</span>, data <span class="op">=</span> <span class="va">soil</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">ols</span><span class="op">)</span><span class="op">[[</span><span class="st">"ph"</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.852879</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 2SLS uses only the pH variation forced by geology, which</span></span></span>
+<span class="r-in"><span><span class="co"># management cannot touch: 1.62, with a 95 per cent interval that</span></span></span>
+<span class="r-in"><span><span class="co"># covers 1.5.</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">causal_iv_fit_2sls</span><span class="op">(</span><span class="va">soil</span>, exposure <span class="op">=</span> <span class="st">"ph"</span>, outcome <span class="op">=</span> <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                          instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_causal_iv&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ph -&gt; yield  (estimator: 2SLS, n = 300)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   instruments : carbonate, quarry_km</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   effect      : 1.6161  (se = 0.1758, 95% CI [1.2715, 1.9606])</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stage-1 F   : 116.23 (p = 5.18e-38)  partial R^2 = 0.439</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sargan J    : chi2(1) = 0.27, p = 0.604</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Consistency is bought with variance: the IV standard error here</span></span></span>
+<span class="r-in"><span><span class="co"># is about twice the OLS one. Quoting the narrow OLS interval</span></span></span>
+<span class="r-in"><span><span class="co"># around the wrong number is what this estimator exists to avoid.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ols</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="st">"ph"</span>, <span class="st">"Std. Error"</span><span class="op">]</span>, iv <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">se</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ols         iv </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.09183934 0.17579015 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `effect` is the exposure coefficient alone; `coefs` carries the</span></span></span>
+<span class="r-in"><span><span class="co"># whole second-stage vector and `vcov` its 2SLS covariance -- not</span></span></span>
+<span class="r-in"><span><span class="co"># the naive lm() covariance of a regression on fitted values.</span></span></span>
+<span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">coefs</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> intercept        ph </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.4044785 1.6160522 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">vcov</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> intercept        ph </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8615058 0.1757901 </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

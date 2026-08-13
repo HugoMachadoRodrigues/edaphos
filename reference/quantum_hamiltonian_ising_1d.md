@@ -26,3 +26,43 @@ quantum_hamiltonian_ising_1d(n_qubits, J = 1, h = 1)
 ## Value
 
 An `edaphos_quantum_hamiltonian`.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# The chain is OPEN: n - 1 couplings plus n field terms = 2n - 1.
+h <- quantum_hamiltonian_ising_1d(4)
+h$pauli_terms     # IIZZ IZZI ZZII IIIX IIXI IXII XIII
+length(h$pauli_terms)                                     # 7
+
+# Two limits have closed forms and make good unit checks.  With
+# h = 0 the chain is classical, E0 = -J (n - 1) = -3; with J = 0
+# the spins are free, E0 = -h n = -4.
+quantum_vqe_exact(quantum_hamiltonian_ising_1d(4, J = 1, h = 0))  # -3
+quantum_vqe_exact(quantum_hamiltonian_ising_1d(4, J = 0, h = 1))  # -4
+
+# At the critical point J = h = 1 neither limit applies.
+round(quantum_vqe_exact(quantum_hamiltonian_ising_1d(4)), 6)
+
+# Finite size, not the solver, is what limits this benchmark.
+# Energy per site creeps towards the known infinite-chain value
+# -4/pi = -1.273240 but is still 0.035091 Ha per site above it at
+# n = 10, because both end spins of an open chain are missing a
+# neighbour.  Do not compare a 4-qubit run to a textbook number.
+eps <- vapply(c(2, 4, 6, 8, 10), function(n)
+  quantum_vqe_exact(quantum_hamiltonian_ising_1d(n)) / n, numeric(1))
+round(eps, 6)     # -1.118034 -1.189693 -1.216038 -1.229744 -1.238149
+round(eps[5] - (-4 / pi), 6)                          # 0.035091
+
+# The sign of J is invisible in the spectrum of an open chain --
+# flipping every second spin gauges it away -- so the "antiferro-
+# magnetic" chain returns the identical ground-state energy.
+round(quantum_vqe_exact(quantum_hamiltonian_ising_1d(4, J = -1)), 6)
+
+# `n_qubits` is truncated, not validated: 3.7 silently builds a
+# 3-site chain (5 terms).  Only n < 2 is rejected.
+length(quantum_hamiltonian_ising_1d(3.7)$pauli_terms)     # 5
+try(quantum_hamiltonian_ising_1d(1))
+} # }
+```

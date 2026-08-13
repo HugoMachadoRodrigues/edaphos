@@ -3,7 +3,7 @@
 data frame of gold-standard claims, and returns a per-claim match
 table with TP / FP / FN labels."><meta property="og:description" content="Takes a data frame of extracted claims (from any backend) and a
 data frame of gold-standard claims, and returns a per-claim match
-table with TP / FP / FN labels."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+table with TP / FP / FN labels."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ table with TP / FP / FN labels."><meta property="og:image" content="https://hugo
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ table with TP / FP / FN labels."><meta property="og:image" content="https://hugo
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ table with TP / FP / FN labels."><meta property="og:image" content="https://hugo
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -128,14 +124,16 @@ backend for a given abstract.</p></dd>
 
 <dt id="arg-fuzzy">fuzzy<a class="anchor" aria-label="anchor" href="#arg-fuzzy"></a></dt>
 <dd><p>Logical; if <code>TRUE</code> (default), also count a predicted
-edge as TP when one of its endpoints matches by Levenshtein
-distance within <code>fuzzy_threshold</code>. If <code>FALSE</code>, require exact
-match on canonicalised labels.</p></dd>
+edge as TP when the Levenshtein distances of its two endpoints
+<em>sum</em> to no more than <code>fuzzy_threshold</code>. If <code>FALSE</code>, require
+exact match on canonicalised labels. Fuzzy matching needs the
+suggested package <span class="pkg">stringdist</span>; without it <code>fuzzy = TRUE</code>
+silently degrades to exact matching.</p></dd>
 
 
 <dt id="arg-fuzzy-threshold">fuzzy_threshold<a class="anchor" aria-label="anchor" href="#arg-fuzzy-threshold"></a></dt>
-<dd><p>Integer; maximum edit distance for a fuzzy
-endpoint match. Default <code>2</code>.</p></dd>
+<dd><p>Integer; maximum Levenshtein distance
+summed over the cause and the effect. Default <code>2</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -153,6 +151,79 @@ canonicalised pair appears in the gold set for the same abstract; a
 predictions are <strong>false negatives</strong>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The package ships a 30-abstract Cerrado gold standard.  Flatten</span></span></span>
+<span class="r-in"><span><span class="co"># its nested `claims` arrays into the one-row-per-edge frame the</span></span></span>
+<span class="r-in"><span><span class="co"># matcher expects.</span></span></span>
+<span class="r-in"><span><span class="va">gold_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_gold_standard_v1.jsonl"</span>,</span></span>
+<span class="r-in"><span>                         package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">gold_path</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">gold_path</span><span class="op">)</span>, <span class="fu">jsonlite</span><span class="fu">::</span><span class="va"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">gold</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">recs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    abstract_id <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">abstract_id</span>, cause <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">claims</span><span class="op">$</span><span class="va">cause</span>,</span></span>
+<span class="r-in"><span>    effect      <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">claims</span><span class="op">$</span><span class="va">effect</span>, stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>abstracts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span>, claims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">gold</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># CER_01 is a rainfall / temperature / SOC abstract with five gold</span></span></span>
+<span class="r-in"><span>  <span class="co"># claims.  Below is an extraction a pedologist would call four out</span></span></span>
+<span class="r-in"><span>  <span class="co"># of four correct -- only the surface strings differ from the</span></span></span>
+<span class="r-in"><span>  <span class="co"># annotator's.  Three score TP, one scores FP.</span></span></span>
+<span class="r-in"><span>  <span class="va">cer1</span> <span class="op">&lt;-</span> <span class="va">gold</span><span class="op">[</span><span class="va">gold</span><span class="op">$</span><span class="va">abstract_id</span> <span class="op">==</span> <span class="st">"CER_01"</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    abstract_id <span class="op">=</span> <span class="st">"CER_01"</span>,</span></span>
+<span class="r-in"><span>    cause  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Rainfall"</span>, <span class="st">"MAP"</span>,        <span class="st">"mean annual temperature"</span>,</span></span>
+<span class="r-in"><span>               <span class="st">"tree cover"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    effect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TOC"</span>,      <span class="st">"tree cover"</span>, <span class="st">"Corg"</span>, <span class="st">"organic carbon"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">llm_benchmark_match</span><span class="op">(</span><span class="va">pred</span>, <span class="va">cer1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># P = 0.75, R = 0.60, and BOTH losses are the matching rule rather</span></span></span>
+<span class="r-in"><span>  <span class="co"># than the model:</span></span></span>
+<span class="r-in"><span>  <span class="co">#  * "Rainfall" canonicalises to `precipitation`, the annotator</span></span></span>
+<span class="r-in"><span>  <span class="co">#    wrote `mean_annual_precipitation`, and the normaliser keeps</span></span></span>
+<span class="r-in"><span>  <span class="co">#    those deliberately apart -- so the same claim is scored as a</span></span></span>
+<span class="r-in"><span>  <span class="co">#    false positive AND leaves the gold edge as a false negative.</span></span></span>
+<span class="r-in"><span>  <span class="co">#  * gold lists `mean_annual_temperature -&gt; soc` TWICE for CER_01,</span></span></span>
+<span class="r-in"><span>  <span class="co">#    and matching is one-to-one, so one predicted edge clears only</span></span></span>
+<span class="r-in"><span>  <span class="co">#    one of the pair.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="llm_benchmark_metrics.html">llm_benchmark_metrics</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">llm_benchmark_match</span><span class="op">(</span><span class="va">pred</span>, <span class="va">cer1</span><span class="op">)</span><span class="op">)</span><span class="op">[</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tp"</span>, <span class="st">"fp"</span>, <span class="st">"fn"</span>, <span class="st">"precision"</span>, <span class="st">"recall"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># That duplicate caps the whole benchmark.  Feed gold back as its</span></span></span>
+<span class="r-in"><span>  <span class="co"># own prediction, deduplicated the way any extractor would emit it,</span></span></span>
+<span class="r-in"><span>  <span class="co"># and recall stops at 71/72 -- no model can score 1.</span></span></span>
+<span class="r-in"><span>  <span class="va">ded</span> <span class="op">&lt;-</span> <span class="va">gold</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">gold</span><span class="op">$</span><span class="va">abstract_id</span>, <span class="va">gold</span><span class="op">$</span><span class="va">cause</span>,</span></span>
+<span class="r-in"><span>                                <span class="va">gold</span><span class="op">$</span><span class="va">effect</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="llm_benchmark_metrics.html">llm_benchmark_metrics</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">llm_benchmark_match</span><span class="op">(</span><span class="va">ded</span>, <span class="va">gold</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tp"</span>, <span class="st">"fn"</span>, <span class="st">"recall"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Trap: `fuzzy = TRUE` is the default, but it changes nothing here.</span></span></span>
+<span class="r-in"><span>  <span class="co"># The threshold is the SUM over both endpoints, and no</span></span></span>
+<span class="r-in"><span>  <span class="co"># predicted/gold pair in this vocabulary sits within 2 edits</span></span></span>
+<span class="r-in"><span>  <span class="co"># without already matching exactly.  Report the threshold you used</span></span></span>
+<span class="r-in"><span>  <span class="co"># next to F1 -- see llm_benchmark_simulate() for what raising it</span></span></span>
+<span class="r-in"><span>  <span class="co"># does.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu">llm_benchmark_match</span><span class="op">(</span><span class="va">ded</span>, <span class="va">gold</span>, fuzzy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  <span class="fu">llm_benchmark_match</span><span class="op">(</span><span class="va">ded</span>, <span class="va">gold</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> abstracts    claims </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        30        72 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            abstract_id                     cause     effect status    source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CER_01_p.1      CER_01             precipitation        soc     fp predicted</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CER_01_p.2      CER_01 mean_annual_precipitation vegetation     tp predicted</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CER_01_p.3      CER_01   mean_annual_temperature        soc     tp predicted</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CER_01_p.4      CER_01                vegetation        soc     tp predicted</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CER_01_g.1      CER_01 mean_annual_precipitation        soc     fn      gold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CER_01_g.2      CER_01   mean_annual_temperature        soc     fn      gold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        tp        fp        fn precision    recall </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      3.00      1.00      2.00      0.75      0.60 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      tp      fn  recall </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 71.0000  1.0000  0.9861 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -43,3 +43,26 @@ edaphos_metrics_summary(
 ## Value
 
 A one-row data frame.
+
+## Examples
+
+``` r
+set.seed(1)
+obs  <- stats::rnorm(100, 20, 3)
+pred <- obs + stats::rnorm(100, 0, 1)
+
+# Point metrics only.
+edaphos_metrics_summary(obs, pred, method = "qrf")
+#>   method   n      rmse       mae        r2       bias picp interval_score
+#> 1    qrf 100 0.9538273 0.7611936 0.8734342 0.03780808   NA             NA
+
+# Adding intervals turns on the calibration columns, so a single
+# row carries accuracy, sharpness and coverage together.
+edaphos_metrics_summary(obs, pred,
+                        lower = pred - 1.96, upper = pred + 1.96,
+                        method = "qrf + intervals")
+#>            method   n      rmse       mae        r2       bias picp
+#> 1 qrf + intervals 100 0.9538273 0.7611936 0.8734342 0.03780808 0.96
+#>   interval_score
+#> 1       4.254597
+```

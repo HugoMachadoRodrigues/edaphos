@@ -9,7 +9,7 @@ on the requested depths and returns the result as an
 edaphos_posterior() with query_type = "sample" (one scalar
 prediction per query depth) or "feature" (when the caller
 passes a single depth and wants the posterior over that single
-scalar).'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+scalar).'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ scalar).'><meta property="og:image" content="https://hugomachadorodrigues.github
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ scalar).'><meta property="og:image" content="https://hugomachadorodrigues.github
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ scalar).'><meta property="og:image" content="https://hugomachadorodrigues.github
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -160,6 +156,65 @@ function. Default <code>FALSE</code>.</p></dd>
     <p>An <code>edaphos_posterior</code> with <code>method = "ensemble"</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># torch is a Suggests dependency AND its libtorch binaries are a</span></span></span>
+<span class="r-in"><span><span class="co"># separate download, so both halves of the guard are needed.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_is_installed.html" class="external-link">torch_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">depths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">soc</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">24</span>, <span class="fl">15</span>, <span class="fl">9.5</span>, <span class="fl">7</span><span class="op">)</span>      <span class="co"># g/kg, a decaying Latossolo</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># 30 epochs over 4 horizons is a runtime stub, not a trained model.</span></span></span>
+<span class="r-in"><span>  <span class="co"># Say so with numbers before reading anything into the spread: the</span></span></span>
+<span class="r-in"><span>  <span class="co"># ensemble clears the mean-only baseline but is two orders of</span></span></span>
+<span class="r-in"><span>  <span class="co"># magnitude worse than the 4-parameter ODE on the same points.</span></span></span>
+<span class="r-in"><span>  <span class="va">ens</span> <span class="op">&lt;-</span> <span class="fu"><a href="piml_neural_ode_fit_ensemble.html">piml_neural_ode_fit_ensemble</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">soc</span>, K <span class="op">=</span> <span class="fl">3L</span>,</span></span>
+<span class="r-in"><span>                                      hidden <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8L</span>, <span class="fl">8L</span><span class="op">)</span>, n_steps <span class="op">=</span> <span class="fl">2L</span>,</span></span>
+<span class="r-in"><span>                                      epochs <span class="op">=</span> <span class="fl">30L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ensemble   <span class="op">=</span> <span class="va">ens</span><span class="op">$</span><span class="va">rmse</span>,</span></span>
+<span class="r-in"><span>                parametric <span class="op">=</span> <span class="fu"><a href="piml_profile_fit.html">piml_profile_fit</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">soc</span><span class="op">)</span><span class="op">$</span><span class="va">rmse</span>,</span></span>
+<span class="r-in"><span>                mean_only  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">soc</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co">#   ensemble 2.1506   parametric 0.0209   mean_only 6.5228</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">post</span> <span class="op">&lt;-</span> <span class="fu">piml_neural_ode_posterior</span><span class="op">(</span><span class="va">ens</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">70</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                    units <span class="op">=</span> <span class="st">"g/kg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The sample axis IS the ensemble members, so n_samples = K = 3.</span></span></span>
+<span class="r-in"><span>  <span class="co"># The stored q05 / q95 are therefore interpolations between the</span></span></span>
+<span class="r-in"><span>  <span class="co"># smallest and the largest of three numbers, not tail quantiles.</span></span></span>
+<span class="r-in"><span>  <span class="co"># K = 5 (the default) does not fix that, it makes them a 5-number</span></span></span>
+<span class="r-in"><span>  <span class="co"># range.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">post</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>q05 <span class="op">=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span>,</span></span>
+<span class="r-in"><span>                    min <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">post</span><span class="op">$</span><span class="va">samples</span>, <span class="fl">2L</span>, <span class="va">min</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    q95 <span class="op">=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span>,</span></span>
+<span class="r-in"><span>                    max <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">post</span><span class="op">$</span><span class="va">samples</span>, <span class="fl">2L</span>, <span class="va">max</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># include_obs_noise adds N(0, sigma^2) to each of those K draws,</span></span></span>
+<span class="r-in"><span>  <span class="co"># sigma being the pooled member training RMSE:</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">ens</span><span class="op">$</span><span class="va">members</span>,</span></span>
+<span class="r-in"><span>                               <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="va">rmse</span><span class="op">^</span><span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 2.5407</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># With K = 3 the resulting sd is itself computed from 3 numbers, so</span></span></span>
+<span class="r-in"><span>  <span class="co"># it need not even increase: at 40 and 70 cm it FALLS, because the</span></span></span>
+<span class="r-in"><span>  <span class="co"># three noise draws happened to push the members together. An</span></span></span>
+<span class="r-in"><span>  <span class="co"># aleatoric term that shrinks the reported sd is the diagnostic</span></span></span>
+<span class="r-in"><span>  <span class="co"># that K is far too small, not a property of the soil.</span></span></span>
+<span class="r-in"><span>  <span class="va">pn</span> <span class="op">&lt;-</span> <span class="fu">piml_neural_ode_posterior</span><span class="op">(</span><span class="va">ens</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">70</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                  include_obs_noise <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>mean_fn <span class="op">=</span> <span class="va">post</span><span class="op">$</span><span class="va">sd</span>, plus_noise <span class="op">=</span> <span class="va">pn</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># A single depth is tagged "feature", several are "sample" --- the</span></span></span>
+<span class="r-in"><span>  <span class="co"># downstream calibration helpers branch on that. as_edaphos_posterior()</span></span></span>
+<span class="r-in"><span>  <span class="co"># routes here but refuses to guess the depths.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">piml_neural_ode_posterior</span><span class="op">(</span><span class="va">ens</span>, newdepths <span class="op">=</span> <span class="fl">40</span><span class="op">)</span><span class="op">$</span><span class="va">query_type</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu"><a href="as_edaphos_posterior.html">as_edaphos_posterior</a></span><span class="op">(</span><span class="va">ens</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">conditionMessage</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

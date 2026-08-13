@@ -15,7 +15,7 @@ backend before submission (preset pass manager, level 1). The
 function blocks until the job finishes or timeout_sec elapses,
 whichever comes first, and returns an edaphos_quantum_ibmq_job
 object wrapping the expectation value, standard error, metadata
-and the opaque IBM Quantum job id.'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+and the opaque IBM Quantum job id.'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -41,7 +41,7 @@ and the opaque IBM Quantum job id.'><meta property="og:image" content="https://h
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,14 +52,12 @@ and the opaque IBM Quantum job id.'><meta property="og:image" content="https://h
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -67,14 +65,12 @@ and the opaque IBM Quantum job id.'><meta property="og:image" content="https://h
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -215,6 +211,62 @@ in particular, it is the primitive consumed by a future
 kernel matrix elements.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span>  <span class="va">ham</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_hamiltonian_h2.html">quantum_hamiltonian_h2</a></span><span class="op">(</span><span class="op">)</span>          <span class="co"># 2 qubits, 5 Pauli terms</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `parameters` must match the ansatz length exactly: there is no</span></span></span>
+<span class="r-in"><span>  <span class="co"># recycling, and nothing on the R side checks it. EfficientSU2</span></span></span>
+<span class="r-in"><span>  <span class="co"># carries n_qubits * 2 * (reps + 1) angles, so 2 * 2 * 3 = 12 at</span></span></span>
+<span class="r-in"><span>  <span class="co"># the default `ansatz_reps = 2`. Compute it, do not guess it.</span></span></span>
+<span class="r-in"><span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">12</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">job</span> <span class="op">&lt;-</span> <span class="fu">quantum_ibmq_submit</span><span class="op">(</span><span class="va">ham</span>, parameters <span class="op">=</span> <span class="va">theta</span>,</span></span>
+<span class="r-in"><span>                              shots <span class="op">=</span> <span class="fl">4096L</span>, mitigation <span class="op">=</span> <span class="st">"m3"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">job</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># One PUB is ONE expectation value at ONE parameter point -- this</span></span></span>
+<span class="r-in"><span>  <span class="co"># is not an optimisation. The noiseless value at this theta is</span></span></span>
+<span class="r-in"><span>  <span class="co"># -1.029329 while the ground state is -1.857275, so theta = 0.1</span></span></span>
+<span class="r-in"><span>  <span class="co"># sits 0.83 Hartree above the minimum. A hardware number near</span></span></span>
+<span class="r-in"><span>  <span class="co"># -1.03 therefore means the device worked, NOT that the chemistry</span></span></span>
+<span class="r-in"><span>  <span class="co"># converged; quantum_vqe_fit(backend = "ibmq") does the latter.</span></span></span>
+<span class="r-in"><span>  <span class="va">ref</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">ham</span>, backend <span class="op">=</span> <span class="st">"aer_statevector"</span>,</span></span>
+<span class="r-in"><span>                          initial_point <span class="op">=</span> <span class="va">theta</span><span class="op">)</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fl">1L</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>hardware <span class="op">=</span> <span class="va">job</span><span class="op">$</span><span class="va">expectation</span>, noiseless <span class="op">=</span> <span class="va">ref</span>,</span></span>
+<span class="r-in"><span>    ground_state <span class="op">=</span> <span class="fu"><a href="quantum_vqe_exact.html">quantum_vqe_exact</a></span><span class="op">(</span><span class="va">ham</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `std_error` is shot noise ONLY -- the EstimatorV2 standard</span></span></span>
+<span class="r-in"><span>  <span class="co"># error, of order 1/sqrt(shots) (0.0156 at 4096 shots).</span></span></span>
+<span class="r-in"><span>  <span class="co"># Quadrupling `shots` halves it and does nothing whatsoever to</span></span></span>
+<span class="r-in"><span>  <span class="co"># the coherent gate error, which is the bias `mitigation`</span></span></span>
+<span class="r-in"><span>  <span class="co"># attacks. A tight std_error next to an untreated bias is the</span></span></span>
+<span class="r-in"><span>  <span class="co"># classic way to over-trust a hardware run.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>std_error <span class="op">=</span> <span class="va">job</span><span class="op">$</span><span class="va">std_error</span>, shot_floor <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">job</span><span class="op">$</span><span class="va">shots</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># So compare mitigation levels rather than trusting one run, and</span></span></span>
+<span class="r-in"><span>  <span class="co"># pin `backend_name` while doing it: the default picks the</span></span></span>
+<span class="r-in"><span>  <span class="co"># least-busy device afresh each call, which would confound the</span></span></span>
+<span class="r-in"><span>  <span class="co"># comparison with a change of processor. Two queue slots.</span></span></span>
+<span class="r-in"><span>  <span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu">quantum_ibmq_submit</span><span class="op">(</span><span class="va">ham</span>, parameters <span class="op">=</span> <span class="va">theta</span>, shots <span class="op">=</span> <span class="fl">4096L</span>,</span></span>
+<span class="r-in"><span>                              backend_name <span class="op">=</span> <span class="va">job</span><span class="op">$</span><span class="va">backend</span>,</span></span>
+<span class="r-in"><span>                              mitigation <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>none <span class="op">=</span> <span class="va">raw</span><span class="op">$</span><span class="va">expectation</span>, m3 <span class="op">=</span> <span class="va">job</span><span class="op">$</span><span class="va">expectation</span>, noiseless <span class="op">=</span> <span class="va">ref</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `mitigation` is match.arg()'d here, so it is case sensitive</span></span></span>
+<span class="r-in"><span>  <span class="co"># even though the internal level map is not: "zne" works, "ZNE"</span></span></span>
+<span class="r-in"><span>  <span class="co"># errors.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Supplying your own circuit ignores `ansatz_reps` and is</span></span></span>
+<span class="r-in"><span>  <span class="co"># unchecked: a handle whose width differs from ham$n_qubits gets</span></span></span>
+<span class="r-in"><span>  <span class="co"># past the transpiler and dies later inside apply_layout() with</span></span></span>
+<span class="r-in"><span>  <span class="co"># "Number of qargs does not match (3 != 2)". Match the width to</span></span></span>
+<span class="r-in"><span>  <span class="co"># hamiltonian$n_qubits yourself.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">job</span><span class="op">$</span><span class="va">metadata</span><span class="op">)</span>                      <span class="co"># primitive's own report</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -9,7 +9,7 @@ a scalar-output head (linear or MLP) on top of a self-supervised
 encoder and trains it against a numeric target y. Supports the
 same two regimes — linear probing with a frozen backbone or full
 fine-tuning with a two-group learning rate — and the same
-device dispatch over "cpu", "mps" and "cuda".'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+device dispatch over "cpu", "mps" and "cuda".'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ device dispatch over "cpu", "mps" and "cuda".'><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ device dispatch over "cpu", "mps" and "cuda".'><meta property="og:image" content
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ device dispatch over "cpu", "mps" and "cuda".'><meta property="og:image" content
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -184,16 +180,52 @@ user never has to think about the numerical range of the head.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span>  <span class="va">moco</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_weights_load.html">foundation_weights_load</a></span><span class="op">(</span><span class="st">"edaphos-cerrado-moco-v1"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">ds</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"tools/pretrain/cerrado_dataset.rds"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span> <span class="op">*</span> <span class="va">ds</span><span class="op">$</span><span class="va">n_channels</span> <span class="op">*</span> <span class="fl">16</span> <span class="op">*</span> <span class="fl">16</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                   dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>, <span class="va">ds</span><span class="op">$</span><span class="va">n_channels</span>, <span class="fl">16</span>, <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">soc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span>, mean <span class="op">=</span> <span class="fl">15</span>, sd <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">n_ch</span> <span class="op">&lt;-</span> <span class="va">moco</span><span class="op">$</span><span class="va">n_channels</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># SYNTHETIC PATCHES, NOT A SOIL SURVEY -- as in</span></span></span>
+<span class="r-in"><span>  <span class="co"># foundation_fit_classifier(), the signal is planted by hand.</span></span></span>
+<span class="r-in"><span>  <span class="co"># Each patch gets its own offset in channel 1 and `soc` is a</span></span></span>
+<span class="r-in"><span>  <span class="co"># linear function of that offset plus noise, so the target really</span></span></span>
+<span class="r-in"><span>  <span class="co"># does depend on the patch it is paired with.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">level</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span> <span class="op">*</span> <span class="va">n_ch</span> <span class="op">*</span> <span class="fl">16</span> <span class="op">*</span> <span class="fl">16</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>, <span class="va">n_ch</span>, <span class="fl">16</span>, <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">patches</span><span class="op">[</span>, <span class="fl">1</span>, , <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">patches</span><span class="op">[</span>, <span class="fl">1</span>, , <span class="op">]</span> <span class="op">+</span> <span class="va">level</span></span></span>
+<span class="r-in"><span>  <span class="va">soc</span> <span class="op">&lt;-</span> <span class="fl">15</span> <span class="op">+</span> <span class="fl">6</span> <span class="op">*</span> <span class="va">level</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>   <span class="co"># stands in for g/kg</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">foundation_fit_regressor</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">moco</span>, <span class="va">patches</span>, <span class="va">soc</span>,</span></span>
 <span class="r-in"><span>    freeze_backbone <span class="op">=</span> <span class="cn">TRUE</span>, head <span class="op">=</span> <span class="st">"linear"</span>,</span></span>
 <span class="r-in"><span>    epochs <span class="op">=</span> <span class="fl">40L</span>, device <span class="op">=</span> <span class="st">"mps"</span>, seed <span class="op">=</span> <span class="fl">1L</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">patches</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># An RMSE means nothing on its own: compare it with the RMSE of</span></span></span>
+<span class="r-in"><span>  <span class="co"># predicting mean(soc) for every patch, which is sd(soc). A local</span></span></span>
+<span class="r-in"><span>  <span class="co"># encoder of the same architecture cuts it to about two fifths of</span></span></span>
+<span class="r-in"><span>  <span class="co"># that -- and that ratio is a property of the planted signal, not</span></span></span>
+<span class="r-in"><span>  <span class="co"># evidence that the encoder knows anything about carbon.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>best_val_rmse       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">val_rmse_history</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>          intercept_only_rmse <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">patches</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor_pred_soc <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">pred</span>, <span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred</span>, <span class="fl">10</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Delete the line that adds `level` into `patches` -- i.e. make</span></span></span>
+<span class="r-in"><span>  <span class="co"># `soc` independent of the input, as an earlier version of this</span></span></span>
+<span class="r-in"><span>  <span class="co"># example did -- and the only attainable model is the intercept:</span></span></span>
+<span class="r-in"><span>  <span class="co"># `cor_pred_soc` goes to ~0, the ten printed predictions bunch up</span></span></span>
+<span class="r-in"><span>  <span class="co"># near mean(soc) instead of tracking it, and the held-out RMSE</span></span></span>
+<span class="r-in"><span>  <span class="co"># stops beating sd(soc) (it lands slightly worse, since the head</span></span></span>
+<span class="r-in"><span>  <span class="co"># still fits the training noise). Printing predictions from that</span></span></span>
+<span class="r-in"><span>  <span class="co"># fit, as the earlier example did, shows an intercept dressed up</span></span></span>
+<span class="r-in"><span>  <span class="co"># as a soil map.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Nothing here maps SOC. That needs patches cut from real</span></span></span>
+<span class="r-in"><span>  <span class="co"># covariate rasters (foundation_tile_align() -&gt;</span></span></span>
+<span class="r-in"><span>  <span class="co"># foundation_tile_dataset()), standardised over your own area of</span></span></span>
+<span class="r-in"><span>  <span class="co"># interest, and measured SOC at those same locations.</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

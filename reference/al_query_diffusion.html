@@ -5,7 +5,7 @@ labelling there delivers the largest reduction in model entropy
 per sample."><meta property="og:description" content="Ranks candidate cells by the standard deviation of DDPM posterior
 samples.  High-SD cells are the most uncertain map locations;
 labelling there delivers the largest reduction in model entropy
-per sample."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+per sample."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ per sample."><meta property="og:image" content="https://hugomachadorodrigues.git
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ per sample."><meta property="og:image" content="https://hugomachadorodrigues.git
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ per sample."><meta property="og:image" content="https://hugomachadorodrigues.git
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -166,6 +162,96 @@ thinks the SOC is BOTH high and uncertain).</p></dd>
 sorted by descending score.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># Pillar 9 wants a bank of patches: cut the 45 x 45 Cerrado SOC</span></span></span>
+<span class="r-in"><span><span class="co"># grid into 25 non-overlapping 9 x 9 tiles.</span></span></span>
+<span class="r-in"><span><span class="va">soc_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">soc</span>, <span class="fl">45L</span>, <span class="fl">45L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stack</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25L</span>, <span class="fl">9L</span>, <span class="fl">9L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">0L</span></span></span>
+<span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">0</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">0</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">k</span> <span class="op">&lt;-</span> <span class="va">k</span> <span class="op">+</span> <span class="fl">1L</span></span></span>
+<span class="r-in"><span>  <span class="va">stack</span><span class="op">[</span><span class="va">k</span>, , <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">soc_grid</span><span class="op">[</span><span class="op">(</span><span class="va">i</span> <span class="op">*</span> <span class="fl">9L</span> <span class="op">+</span> <span class="fl">1L</span><span class="op">)</span><span class="op">:</span><span class="op">(</span><span class="va">i</span> <span class="op">*</span> <span class="fl">9L</span> <span class="op">+</span> <span class="fl">9L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                           <span class="op">(</span><span class="va">j</span> <span class="op">*</span> <span class="fl">9L</span> <span class="op">+</span> <span class="fl">1L</span><span class="op">)</span><span class="op">:</span><span class="op">(</span><span class="va">j</span> <span class="op">*</span> <span class="fl">9L</span> <span class="op">+</span> <span class="fl">9L</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">dm</span> <span class="op">&lt;-</span> <span class="fu"><a href="dm_fit.html">dm_fit</a></span><span class="op">(</span><span class="va">stack</span>, T <span class="op">=</span> <span class="fl">40L</span>, epochs <span class="op">=</span> <span class="fl">200L</span>, hidden <span class="op">=</span> <span class="fl">24L</span>,</span></span>
+<span class="r-in"><span>             lr <span class="op">=</span> <span class="fl">0.01</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [dm_fit] backend = 'r' is a reference sampler whose draws are over-dispersed and spatially incoherent (not calibrated to the field's spatial statistics); use backend = 'torch' (the default when libtorch is present) for coherent samples.</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>first_epoch <span class="op">=</span> <span class="va">dm</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fl">1L</span><span class="op">]</span>, last_epoch <span class="op">=</span> <span class="va">dm</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fl">200L</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> first_epoch  last_epoch </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3.635594    1.019313 </span>
+<span class="r-in"><span><span class="co"># 3.64 -&gt; 1.02 on the score-matching loss</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu">al_query_diffusion</span><span class="op">(</span><span class="va">dm</span>, n_samples <span class="op">=</span> <span class="fl">16L</span>, n_select <span class="op">=</span> <span class="fl">8L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">q</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_al_diffusion_query&gt;  (Pilar 9 x Pilar 5)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pool size : 81</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   combine   : sd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   top-8 cells:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    row col posterior_mean posterior_sd    score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29   2   4       18.84420     24.48650 24.48650</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 69   6   8       24.79846     23.33976 23.33976</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33   6   4       12.79572     22.92125 22.92125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24   6   3       20.74453     22.60002 22.60002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31   4   4       16.93331     22.14337 22.14337</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49   4   6       13.54385     21.96488 21.96488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14   5   2       21.88096     21.65317 21.65317</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 63   9   7       22.24724     21.60520 21.60520</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The number that decides whether this ranking means anything is</span></span></span>
+<span class="r-in"><span><span class="co"># not in the frame: the width of the posterior draws against the</span></span></span>
+<span class="r-in"><span><span class="co"># variability of the maps they are meant to model.</span></span></span>
+<span class="r-in"><span><span class="va">emp_sd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">stack</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2L</span>, <span class="fl">3L</span><span class="op">)</span>, <span class="va">sd</span><span class="op">)</span>      <span class="co"># per-cell sd over 25 tiles</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ddpm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">posterior_sd</span><span class="op">)</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">emp_sd</span><span class="op">)</span><span class="op">)</span>     <span class="co"># 19.3 vs 6.5</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      ddpm      data </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19.312258  6.478365 </span>
+<span class="r-in"><span><span class="co"># The pure-R denoiser trains a readout over frozen random features,</span></span></span>
+<span class="r-in"><span><span class="co"># so its ancestral samples are three times wider than the map they</span></span></span>
+<span class="r-in"><span><span class="co"># came from.  Most of "posterior SD" here is sampler noise.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Which the ranking shows directly.  Redraw with another seed: the</span></span></span>
+<span class="r-in"><span><span class="co"># SD map hardly correlates with itself and one of the eight chosen</span></span></span>
+<span class="r-in"><span><span class="co"># cells survives.</span></span></span>
+<span class="r-in"><span><span class="va">q2</span> <span class="op">&lt;-</span> <span class="fu">al_query_diffusion</span><span class="op">(</span><span class="va">dm</span>, n_samples <span class="op">=</span> <span class="fl">16L</span>, n_select <span class="op">=</span> <span class="fl">8L</span>, seed <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="va">q</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">row</span>, <span class="va">q</span><span class="op">$</span><span class="va">col</span><span class="op">)</span>, <span class="op">]</span>; <span class="va">b</span> <span class="op">&lt;-</span> <span class="va">q2</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">q2</span><span class="op">$</span><span class="va">row</span>, <span class="va">q2</span><span class="op">$</span><span class="va">col</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">posterior_sd</span>, <span class="va">b</span><span class="op">$</span><span class="va">posterior_sd</span><span class="op">)</span>                          <span class="co"># 0.070</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.06958497</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">row</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>,  <span class="va">q</span><span class="op">$</span><span class="va">col</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">q2</span><span class="op">$</span><span class="va">row</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, <span class="va">q2</span><span class="op">$</span><span class="va">col</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>           <span class="co"># 1 of 8</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Four times the default draws lifts the seed-to-seed correlation</span></span></span>
+<span class="r-in"><span><span class="co"># to 0.30 and still does not settle which cells to visit.</span></span></span>
+<span class="r-in"><span><span class="va">c1</span> <span class="op">&lt;-</span> <span class="fu">al_query_diffusion</span><span class="op">(</span><span class="va">dm</span>, n_samples <span class="op">=</span> <span class="fl">64L</span>, n_select <span class="op">=</span> <span class="fl">8L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">c2</span> <span class="op">&lt;-</span> <span class="fu">al_query_diffusion</span><span class="op">(</span><span class="va">dm</span>, n_samples <span class="op">=</span> <span class="fl">64L</span>, n_select <span class="op">=</span> <span class="fl">8L</span>, seed <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">c1</span><span class="op">$</span><span class="va">posterior_sd</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">c1</span><span class="op">$</span><span class="va">row</span>, <span class="va">c1</span><span class="op">$</span><span class="va">col</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    <span class="va">c2</span><span class="op">$</span><span class="va">posterior_sd</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">c2</span><span class="op">$</span><span class="va">row</span>, <span class="va">c2</span><span class="op">$</span><span class="va">col</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>                  <span class="co"># 0.299</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2993141</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># And the structure it does have is not the map's: the DDPM SD</span></span></span>
+<span class="r-in"><span><span class="co"># field is uncorrelated with where the real tiles actually differ.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">posterior_sd</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">emp_sd</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">row</span>, <span class="va">a</span><span class="op">$</span><span class="va">col</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>  <span class="co"># -0.043</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.04293965</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `combine` is not a tweak either -- weighting by the expected</span></span></span>
+<span class="r-in"><span><span class="co"># value keeps one of the same eight cells.</span></span></span>
+<span class="r-in"><span><span class="va">q3</span> <span class="op">&lt;-</span> <span class="fu">al_query_diffusion</span><span class="op">(</span><span class="va">dm</span>, n_samples <span class="op">=</span> <span class="fl">16L</span>, n_select <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                         combine <span class="op">=</span> <span class="st">"sd_x_mean_abs"</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">row</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>,  <span class="va">q</span><span class="op">$</span><span class="va">col</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">q3</span><span class="op">$</span><span class="va">row</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>, <span class="va">q3</span><span class="op">$</span><span class="va">col</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>           <span class="co"># 1 of 8</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `candidate_cells` restricts the pool to the sites a field team</span></span></span>
+<span class="r-in"><span><span class="co"># can actually reach; `n_select`, as in the other AL bridges, is</span></span></span>
+<span class="r-in"><span><span class="co"># only an attribute and never subsets the frame.</span></span></span>
+<span class="r-in"><span><span class="va">reach</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>row <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">al_query_diffusion</span><span class="op">(</span><span class="va">dm</span>, candidate_cells <span class="op">=</span> <span class="va">reach</span>,</span></span>
+<span class="r-in"><span>                        n_samples <span class="op">=</span> <span class="fl">8L</span>, n_select <span class="op">=</span> <span class="fl">3L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 9</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

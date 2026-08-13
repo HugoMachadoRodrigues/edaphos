@@ -57,3 +57,93 @@ foundation_simclr_pretrain(
 ## Value
 
 A `edaphos_foundation_simclr` object (S3).
+
+## Examples
+
+``` r
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  data(br_cerrado)
+
+  # `noise_sd` is additive in the units of `patches`, so standardise
+  # every channel first. The default noise is a fixed 0.1 while the
+  # raw covariates are on wildly different scales; take the ratio of
+  # the two and the augmentation turns out to be about a thousandth
+  # of elevation's spread, yet 1.19 times the whole spread of NDVI.
+  chan <- c("elev", "twi", "ndvi")
+  nsd  <- formals(foundation_simclr_pretrain)$noise_sd
+  sds  <- sapply(br_cerrado[chan], sd)
+  print(round(c(noise_sd = nsd, sds), 3))
+  # noise_sd     elev      twi     ndvi
+  #    0.100  109.380    2.862    0.084
+  print(round(nsd / sds, 4))
+  #   elev    twi   ndvi
+  # 0.0009 0.0349 1.1871
+
+  # br_cerrado is a complete 45 x 45 grid with x cycling fastest, so
+  # each covariate reshapes straight into an image.
+  grids <- lapply(chan, function(v) {
+    m <- matrix(br_cerrado[[v]], nrow = 45, ncol = 45)
+    (m - mean(m)) / sd(m)
+  })
+
+  # `patches` must be 4-D, (N, C, H, W): twelve 8 x 8 tiles here. A
+  # 3-D (N, H, W) array is rejected even for a single covariate --
+  # the channel axis is never inferred for you.
+  patches <- array(0, dim = c(12L, 3L, 8L, 8L))
+  k <- 0L
+  for (r0 in c(0L, 8L, 16L)) for (c0 in c(0L, 8L, 16L, 24L)) {
+    k <- k + 1L
+    for (j in seq_along(grids)) {
+      patches[k, j, , ] <- grids[[j]][r0 + 1:8, c0 + 1:8]
+    }
+  }
+  print(dim(patches))
+
+  # The first torch call of a session is what loads the libtorch
+  # backend, and a `seed` handed to that same call does not stick.
+  # Touch torch once before you rely on `seed`.
+  invisible(torch::torch_manual_seed(11L))
+
+  set.seed(1)
+  fit <- foundation_simclr_pretrain(patches, epochs = 40L,
+                                    batch_size = 6L, seed = 11L)
+  print(fit)
+
+  # One mini-batch per epoch, so `loss_history` is a noisy trace and
+  # `final_loss` is its last draw rather than its best. Read both
+  # against the NT-Xent chance level log(2 * batch_size - 1) -- the
+  # loss of an encoder that cannot pick the matching view at all.
+  print(round(c(first  = fit$loss_history[1],
+                min    = min(fit$loss_history),
+                final  = fit$final_loss,
+                chance = log(2 * fit$batch_size - 1)), 3))
+
+  # `batch_size` is silently clamped to the number of patches, and
+  # the chance level moves with it: losses obtained under different
+  # batch sizes are not comparable numbers.
+  set.seed(2)
+  wide <- foundation_simclr_pretrain(patches, epochs = 10L,
+                                     batch_size = 64L, seed = 11L)
+  print(c(requested = 64, used = wide$batch_size,
+          chance = round(log(2 * wide$batch_size - 1), 3)))
+
+  # Reproducibility needs BOTH seeds: `seed` reaches only torch
+  # (weight init, Gaussian noise), while the mini-batch draw, the
+  # flips and the channel dropout come from R's own RNG.
+  set.seed(1)
+  a <- foundation_simclr_pretrain(patches, epochs = 3L,
+                                  batch_size = 6L, seed = 11L)
+  set.seed(1)
+  b <- foundation_simclr_pretrain(patches, epochs = 3L,
+                                  batch_size = 6L, seed = 11L)
+  print(identical(a$loss_history, b$loss_history))
+
+  # Drop the set.seed() and the run drifts, `seed` notwithstanding.
+  c1 <- foundation_simclr_pretrain(patches, epochs = 3L,
+                                   batch_size = 6L, seed = 11L)
+  c2 <- foundation_simclr_pretrain(patches, epochs = 3L,
+                                   batch_size = 6L, seed = 11L)
+  print(identical(c1$loss_history, c2$loss_history))
+}
+```

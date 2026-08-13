@@ -3,7 +3,7 @@
 edaphos-cerrado-moco-v1 encoder was pretrained on.  As of v4.0.0
 the stack matches the v1 encoder's 31-channel input schema:"><meta property="og:description" content="Downloads / assembles the covariate raster stack that the
 edaphos-cerrado-moco-v1 encoder was pretrained on.  As of v4.0.0
-the stack matches the v1 encoder's 31-channel input schema:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+the stack matches the v1 encoder's 31-channel input schema:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ the stack matches the v1 encoder's 31-channel input schema:"><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ the stack matches the v1 encoder's 31-channel input schema:"><meta property="og:
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ the stack matches the v1 encoder's 31-channel input schema:"><meta property="og:
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -134,8 +130,9 @@ Defaults to the user R cache under <code>tools::R_user_dir("edaphos")</code>.</p
 
 <dt id="arg-target-res">target_res<a class="anchor" aria-label="anchor" href="#arg-target-res"></a></dt>
 <dd><p>Numeric; target resolution in degrees.  Defaults
-to <code>0.01</code> (~ 1 km at the equator, matching the encoder training
-resolution).</p></dd>
+to <code>0.01</code> (about 1.1 km at the equator), the grid the v1 encoder
+was trained on and close to the 30 arc-second (0.00833 deg) grid
+every source arrives on.</p></dd>
 
 
 <dt id="arg-force">force<a class="anchor" aria-label="anchor" href="#arg-force"></a></dt>
@@ -156,23 +153,146 @@ layers.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
-<ul><li><p>5 SoilGrids 250 m layers
+<ul><li><p>5 SoilGrids layers for the 0-5 cm interval
 (<code>soc</code>, <code>clay</code>, <code>sand</code>, <code>phh2o</code>, <code>bdod</code>)</p></li>
 <li><p>12 monthly WorldClim 2.1 precipitation layers
 (<code>wc_prec_01</code> ... <code>wc_prec_12</code>)</p></li>
 <li><p>12 monthly WorldClim 2.1 mean-temperature layers
 (<code>wc_tavg_01</code> ... <code>wc_tavg_12</code>)</p></li>
-<li><p>2 SRTM 30-arc-second topography layers
-(<code>elev</code>, <code>slope</code>)</p></li>
-</ul><p>All 31 layers are resampled to a common <code>target_res</code>-degree grid
-and clipped to <code>bbox</code>.  Earlier versions assembled only a 10-channel
-subset, which forced the IV benchmark
-(<code>data-raw/causal_iv_benchmark_real.R</code>) to fall back to a synthetic
-31-channel stack – the v4.0.0 rewrite closes that gap.</p>
-<p><strong>Heavy download.</strong>  A 2-deg x 2-deg Cerrado AoI lands in about
-80-110 MB after alignment (cache_dir hit on subsequent calls).</p>
+<li><p><code>elev</code>, the 30-arc-second SRTM aggregation, plus <code>slope</code>
+derived from it locally with <code><a href="https://rspatial.github.io/terra/reference/terrain.html" class="external-link">terra::terrain()</a></code> – <code>slope</code>
+is computed, not downloaded</p></li>
+</ul><p>Every source arrives at 30 arc-seconds (roughly 1 km), so this is a
+~1 km stack throughout.  <code><a href="https://rspatial.github.io/geodata/reference/soil_grids.html" class="external-link">geodata::soil_world()</a></code> serves the 30
+arc-second aggregation of SoilGrids – it rewrites its own URL to
+<code>soc_0-5cm_mean_30s.tif</code> and friends – not SoilGrids' native 250 m;
+WorldClim 2.1 country tiles are 30 arc-second; and
+<code><a href="https://rspatial.github.io/geodata/reference/elevation.html" class="external-link">geodata::elevation_30s()</a></code> is the 30 arc-second aggregation of the
+90 m CGIAR-SRTM.  All 31 layers are resampled to a common
+<code>target_res</code>-degree grid and clipped to <code>bbox</code>.  That grid is finer
+than the data it carries: resampling onto it does not restore
+detail the sources never had.</p>
+<p>Earlier versions assembled only a 10-channel subset, which forced
+the IV benchmark (<code>data-raw/causal_iv_benchmark_real.R</code>) to fall
+back to a synthetic 31-channel stack – the v4.0.0 rewrite closes
+that gap.</p>
+<p><strong>Heavy download.</strong>  Not because of the file it writes: the default
+2-deg x 2-deg AoI at 0.01 deg is 200 x 200 cells x 31 <code>FLT4S</code>
+layers, single-digit megabytes on disk.  The cost is what <code>geodata</code>
+fetches in order to build it and leaves behind in <code>cache_dir</code> –
+five global SoilGrids rasters and the whole-Brazil WorldClim <code>prec</code>
+and <code>tavg</code> tiles, all cropped only after they land.  Shrinking
+<code>bbox</code> does not shrink the download.  The example measures both.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Needs `terra`, `geodata` and `digest` installed, and a network.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The default call assembles the 31-layer "v1_encoder" stack over a</span></span></span>
+<span class="r-in"><span><span class="co"># 2 deg x 2 deg quadrant around Brasilia at 0.01 deg.  What actually</span></span></span>
+<span class="r-in"><span><span class="co"># crosses the wire: five GLOBAL SoilGrids rasters for the 0-5 cm</span></span></span>
+<span class="r-in"><span><span class="co"># interval, the whole Brazil WorldClim 2.1 country tiles for `prec`</span></span></span>
+<span class="r-in"><span><span class="co"># and `tavg` (12 monthly layers each, cropped only after download --</span></span></span>
+<span class="r-in"><span><span class="co"># this is the dominant cost), and the Brazil SRTM elevation tile.</span></span></span>
+<span class="r-in"><span><span class="co"># `slope` is not downloaded: it is derived locally from `elev` with</span></span></span>
+<span class="r-in"><span><span class="co"># terra::terrain().</span></span></span>
+<span class="r-in"><span><span class="va">stk</span> <span class="op">&lt;-</span> <span class="fu">foundation_build_cerrado_stack</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nlyr</a></span><span class="op">(</span><span class="va">stk</span><span class="op">)</span>             <span class="co"># 31</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">stk</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">30</span><span class="op">:</span><span class="fl">31</span><span class="op">)</span><span class="op">]</span>    <span class="co"># soc clay sand phh2o bdod elev slope</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Every one of those sources is a 30 arc-second (roughly 1 km)</span></span></span>
+<span class="r-in"><span><span class="co"># product -- geodata rewrites the SoilGrids URL to end in</span></span></span>
+<span class="r-in"><span><span class="co"># "_30s.tif", so the native 250 m SoilGrids never enters this</span></span></span>
+<span class="r-in"><span><span class="co"># package.  The 0.01 deg output grid is finer than the data on it;</span></span></span>
+<span class="r-in"><span><span class="co"># the resample that put it there is interpolation, not detail.</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">res</a></span><span class="op">(</span><span class="va">stk</span><span class="op">)</span>              <span class="co"># 0.01 0.01</span></span></span>
+<span class="r-in"><span><span class="va">sg</span> <span class="op">&lt;-</span> <span class="fu">geodata</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/geodata/reference/soil_grids.html" class="external-link">soil_world</a></span><span class="op">(</span>var <span class="op">=</span> <span class="st">"soc"</span>, depth <span class="op">=</span> <span class="fl">5</span>, vsi <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/sources.html" class="external-link">sources</a></span><span class="op">(</span><span class="va">sg</span><span class="op">)</span>           <span class="co"># .../soc_0-5cm_mean_30s.tif</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">res</a></span><span class="op">(</span><span class="va">sg</span><span class="op">)</span>               <span class="co"># 0.008333333 = 1/120 deg = 30 arc-sec</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The written file is small; the download is not, and both live in</span></span></span>
+<span class="r-in"><span><span class="co"># cache_dir.  Measure them instead of trusting either intuition.</span></span></span>
+<span class="r-in"><span><span class="va">cache_dir</span> <span class="op">&lt;-</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"edaphos"</span>, which <span class="op">=</span> <span class="st">"cache"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">assembled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">cache_dir</span>, pattern <span class="op">=</span> <span class="st">"cerrado_stack_"</span>,</span></span>
+<span class="r-in"><span>                        full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.size</a></span><span class="op">(</span><span class="va">assembled</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1024</span><span class="op">^</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>   <span class="co"># 200 x 200 x 31 FLT4S: a few MB</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.size</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">cache_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                               full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>          na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1024</span><span class="op">^</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>      <span class="co"># the raw sources: far larger</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The cache key is (schema, bbox, target_res): `schema` goes into</span></span></span>
+<span class="r-in"><span><span class="co"># the file name verbatim and the other two are md5-hashed after it,</span></span></span>
+<span class="r-in"><span><span class="co"># giving cerrado_stack_&lt;schema&gt;_&lt;md5&gt;.tif.  A repeat of the same</span></span></span>
+<span class="r-in"><span><span class="co"># call touches no network at all and reports "Using cached stack:".</span></span></span>
+<span class="r-in"><span><span class="va">stk_again</span> <span class="op">&lt;-</span> <span class="fu">foundation_build_cerrado_stack</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/sources.html" class="external-link">sources</a></span><span class="op">(</span><span class="va">stk_again</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A different AoI or resolution is a different key, hence a fresh</span></span></span>
+<span class="r-in"><span><span class="co"># download that lands beside the first one rather than replacing it.</span></span></span>
+<span class="r-in"><span><span class="co"># `force = TRUE` is the only way to re-fetch and overwrite the file</span></span></span>
+<span class="r-in"><span><span class="co"># for a key you have already built; it leaves the other keys alone.</span></span></span>
+<span class="r-in"><span><span class="va">stk_small</span> <span class="op">&lt;-</span> <span class="fu">foundation_build_cerrado_stack</span><span class="op">(</span>bbox <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">49</span>, <span class="op">-</span><span class="fl">15</span>, <span class="op">-</span><span class="fl">48</span>, <span class="op">-</span><span class="fl">14</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stk_fresh</span> <span class="op">&lt;-</span> <span class="fu">foundation_build_cerrado_stack</span><span class="op">(</span>force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `cache_dir` is handed to geodata as its own download `path`, so</span></span></span>
+<span class="r-in"><span><span class="co"># the directory ends up holding the raw SoilGrids / WorldClim / SRTM</span></span></span>
+<span class="r-in"><span><span class="co"># rasters as well as the assembled .tif.  Point it at a disk with</span></span></span>
+<span class="r-in"><span><span class="co"># room, and reuse the same one across sessions.</span></span></span>
+<span class="r-in"><span><span class="va">stk_tmp</span> <span class="op">&lt;-</span> <span class="fu">foundation_build_cerrado_stack</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  cache_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"edaphos-stacks"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># "minimal" is not a smaller stack, it is a different one: 10 layers</span></span></span>
+<span class="r-in"><span><span class="co"># (soc, clay, sand, phh2o, bdod, bio1, bio12, elev, slope, ndvi) and</span></span></span>
+<span class="r-in"><span><span class="co"># no monthly climate at all.  The published v1 encoder's input layer</span></span></span>
+<span class="r-in"><span><span class="co"># is fixed at 31 channels -- `foundation_weights_list()` reports</span></span></span>
+<span class="r-in"><span><span class="co"># `n_channels` -- so a minimal stack cannot feed it.  It exists to</span></span></span>
+<span class="r-in"><span><span class="co"># reproduce the pre-v4.0.0 bundles.</span></span></span>
+<span class="r-in"><span><span class="va">legacy</span> <span class="op">&lt;-</span> <span class="fu">foundation_build_cerrado_stack</span><span class="op">(</span>schema <span class="op">=</span> <span class="st">"minimal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nlyr</a></span><span class="op">(</span><span class="va">legacy</span><span class="op">)</span>          <span class="co"># 10</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># If any single source is unreachable, that layer is skipped with a</span></span></span>
+<span class="r-in"><span><span class="co"># warning and the function then stops with the list of missing</span></span></span>
+<span class="r-in"><span><span class="co"># names, having written nothing: a partially downloaded stack never</span></span></span>
+<span class="r-in"><span><span class="co"># reaches the cache, so a failed run cannot be silently inherited by</span></span></span>
+<span class="r-in"><span><span class="co"># the next one.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># One exception to that loudness. `elev` is fetched with</span></span></span>
+<span class="r-in"><span><span class="co"># geodata::elevation_30s(country = "BRA"), which masks to the</span></span></span>
+<span class="r-in"><span><span class="co"># Brazilian border, so an AoI crossing into a neighbour comes back</span></span></span>
+<span class="r-in"><span><span class="co"># NA on the far side -- and `slope`, derived from it, with it.  If</span></span></span>
+<span class="r-in"><span><span class="co"># that call errors the code falls back to</span></span></span>
+<span class="r-in"><span><span class="co"># geodata::elevation_global(res = 0.5): the same 30 arc-seconds, but</span></span></span>
+<span class="r-in"><span><span class="co"># WorldClim's elevation product rather than SRTM, and unmasked.  No</span></span></span>
+<span class="r-in"><span><span class="co"># warning marks the substitution, and the layer is called `elev`</span></span></span>
+<span class="r-in"><span><span class="co"># either way.</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/global.html" class="external-link">global</a></span><span class="op">(</span><span class="va">stk</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span>, <span class="st">"isNA"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Downstream: the stack feeds a tile dataset, and the dataset plus a</span></span></span>
+<span class="r-in"><span><span class="co"># pretrained encoder give one instrument row per soil profile.  Note</span></span></span>
+<span class="r-in"><span><span class="co"># that foundation_tile_dataset() derives the normalisation</span></span></span>
+<span class="r-in"><span><span class="co"># statistics from the stack you just built, not from the encoder's</span></span></span>
+<span class="r-in"><span><span class="co"># training run -- v1's training means / sds were never persisted</span></span></span>
+<span class="r-in"><span><span class="co"># (`foundation_weights_list()` reports `norm_stats_status` as</span></span></span>
+<span class="r-in"><span><span class="co"># "unrecoverable"), so this is the documented substitute, not a</span></span></span>
+<span class="r-in"><span><span class="co"># match.</span></span></span>
+<span class="r-in"><span><span class="va">tiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_tile_dataset.html">foundation_tile_dataset</a></span><span class="op">(</span><span class="va">stk</span>, patch_size <span class="op">=</span> <span class="fl">16L</span>,</span></span>
+<span class="r-in"><span>                                 n_patches <span class="op">=</span> <span class="fl">2000L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">moco</span>  <span class="op">&lt;-</span> <span class="fu"><a href="foundation_weights_load.html">foundation_weights_load</a></span><span class="op">(</span><span class="st">"edaphos-cerrado-moco-v1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">profiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>lon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">49.5</span>, <span class="op">-</span><span class="fl">48.7</span><span class="op">)</span>, lat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">15.4</span>, <span class="op">-</span><span class="fl">14.6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_embed_at_coords.html">foundation_embed_at_coords</a></span><span class="op">(</span><span class="va">moco</span>, <span class="va">profiles</span>, <span class="va">stk</span>, <span class="va">tiles</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span>                     <span class="co"># 2 x 64 = registry feature_dim for v1</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Unlike foundation_moco_pretrain(), foundation_weights_load() calls</span></span></span>
+<span class="r-in"><span><span class="co"># $eval() before handing the encoder over, so the BatchNorm /</span></span></span>
+<span class="r-in"><span><span class="co"># batch_size interaction documented in the</span></span></span>
+<span class="r-in"><span><span class="co"># foundation_embed_at_coords() example does not apply here.  Check</span></span></span>
+<span class="r-in"><span><span class="co"># rather than assume if you built the encoder some other way.</span></span></span>
+<span class="r-in"><span><span class="va">moco</span><span class="op">$</span><span class="va">encoder_q</span><span class="op">$</span><span class="va">training</span>      <span class="co"># FALSE</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

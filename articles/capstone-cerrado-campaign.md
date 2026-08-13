@@ -289,33 +289,63 @@ claims <- causal_llm_extract(
 ``` r
 
 claims <- R$llm_claims
-knitr::kable(
-  claims[, c("cause", "effect", "confidence", "evidence")],
-  digits  = 2,
-  caption = paste0(
-    "Arestas causais extraídas pelo Gemma 4 a partir de um fragmento ",
-    "representativo da literatura sobre pedogênese no Cerrado. ",
-    "Confidence em [0, 1]; 0,9 = evidência causal inequívoca."
+prov   <- R$llm_provenance
+if (is.null(claims)) {
+  cat("A extração não foi executada nesta compilação: ",
+      prov$reason, ". A tabela é omitida em vez de substituída por linhas ",
+      "digitadas à mão — uma tabela fabricada com aparência de extração é ",
+      "exatamente o defeito que esta seção corrige.\n", sep = "")
+} else {
+  .cf <- sort(unique(claims$confidence))
+  knitr::kable(
+    utils::head(claims[, c("cause", "effect", "confidence")], 12),
+    digits  = 2,
+    caption = paste0(
+      "Amostra das ", nrow(claims), " arestas causais extraídas dos ",
+      prov$n_abstracts, " abstracts reais do Cerrado embarcados em ",
+      "`cerrado_abstracts.jsonl`, via `causal_llm_extract(backend = \"ollama\", ",
+      "model = \"", prov$model, "\")`. O modelo usa apenas ",
+      length(.cf), " valores distintos de confiança (",
+      paste(format(.cf, digits = 2), collapse = ", "), ") nas ",
+      nrow(claims), " arestas, portanto a confiança ordena grosseiramente e ",
+      "não discrimina arestas individuais."
+    )
   )
-)
+}
 ```
 
-| cause | effect | confidence | evidence |
-|:---|:---|---:|:---|
-| wc_bio_12 | soc_topsoil_gkg | 0.92 | Higher MAP drives litter inputs and microbial activity, increasing SOC. |
-| wc_bio_01 | soc_topsoil_gkg | 0.85 | Higher MAT accelerates decomposition, reducing SOC accumulation. |
-| wc_landcover_trees | soc_topsoil_gkg | 0.78 | Tree cover mediates litter quality and quantity, increasing SOC. |
-| soilgrids_clay | soc_topsoil_gkg | 0.71 | Clay stabilises SOC via organo-mineral associations. |
-| slope | soilgrids_bdod | 0.63 | Steeper slopes increase erosion, reducing bulk density and SOC. |
+| cause | effect | confidence |
+|:---|:---|---:|
+| mean_annual_precipitation | soc | 0.9 |
+| mean_annual_precipitation | above_ground_biomass_input | 0.8 |
+| seasonal_moisture_regulation | decomposition | 0.7 |
+| elevation | soc | 0.5 |
+| parent_material | clay_content_bt_horizon | 0.9 |
+| time_since_parent_material_exposure | primary_mineral_dissolution_rate | 0.8 |
+| temperature | primary_mineral_dissolution_rate | 0.8 |
+| clay_content_bt_horizon | cec_effective | 0.9 |
+| slope_angle | local_drainage | 0.9 |
+| twi | surface_layer_soil_moisture | 0.8 |
+| twi | bulk_density | 0.8 |
+| twi | soc_retention | 0.7 |
 
-Arestas causais extraídas pelo Gemma 4 a partir de um fragmento
-representativo da literatura sobre pedogênese no Cerrado. Confidence em
-\[0, 1\]; 0,9 = evidência causal inequívoca. {.table}
+Amostra das 35 arestas causais extraídas dos 10 abstracts reais do
+Cerrado embarcados em `cerrado_abstracts.jsonl`, via
+`causal_llm_extract(backend = "ollama", model = "llama3.1:8b")`. O
+modelo usa apenas 4 valores distintos de confiança (0.5, 0.7, 0.8, 0.9)
+nas 35 arestas, portanto a confiança ordena grosseiramente e não
+discrimina arestas individuais. {.table}
 
-As arestas de alta confiança (≥ 0,75) são fundidas ao DAG base via
-[`causal_augment_dag()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_augment_dag.md).
-O DAG resultante tem **11 nós** e **22 arestas** cobrindo relevo, clima,
-textura, vegetação e COS.
+De todas as 35 arestas extraídas, apenas **2** têm ambos os extremos
+expressáveis entre as 11 covariáveis do DAG (wc_landcover_trees -\>
+soc_topsoil_gkg, soilgrids_clay -\> soc_topsoil_gkg), e essa já é uma
+aresta do DAG expert. As demais nomeiam processos — decomposição,
+dissolução de minerais primários, capacidade de troca catiônica, umidade
+superficial — que **não têm contrapartida no conjunto de covariáveis**.
+O gargalo não é o extrator; é o conjunto de covariáveis observadas. Este
+é o mesmo achado, aqui reproduzido sobre saída real do LLM: o KG do
+Gemma 4 amplia o *vocabulário causal* muito além do que 10 covariáveis
+conseguem identificar.
 
 ### DAG aumentado pelo Gemma 4
 
@@ -362,26 +392,34 @@ linear com bootstrap espacial em blocos (k-means sobre lon/lat).
 
 eff <- R$causal_effects
 knitr::kable(
-  eff,
+  eff[, c("exposure", "estimate", "ci_lo", "ci_hi", "RV", "adjustment")],
   digits  = 3,
-  col.names = c("Exposição", "Resultado", "Efeito direto", "IC 2,5%",
-                "IC 97,5%", "Ajuste backdoor"),
+  col.names = c("Exposição", "Associação ajustada", "IC 2,5%", "IC 97,5%",
+                "RV", "Ajuste backdoor"),
   caption = paste0(
-    "Efeitos causais diretos identificados por backdoor adjustment no DAG ",
-    "do Cerrado (estimador LM, bootstrap espacial B = 500, ",
-    nrow(R$wosis_profiles), " perfis WoSIS)."
+    "Associações ajustadas por backdoor no DAG do Cerrado (estimador LM, ",
+    "bootstrap espacial em blocos B = 500 sobre ",
+    R$causal_provenance$n_profiles, " perfis WoSIS reais). Seguindo ",
+    "Zhang & Wadoux (2026), reportamos associações ajustadas — não efeitos ",
+    "causais identificados — cada uma com o valor de robustez de ",
+    "Cinelli–Hazlett (RV): a fração da variância residual que um confundidor ",
+    "não observado precisaria explicar em ambos para zerar a estimativa."
   )
 )
 ```
 
-| Exposição | Resultado | Efeito direto | IC 2,5% | IC 97,5% | Ajuste backdoor |
-|:---|:---|---:|---:|---:|:---|
-| MAP (mm/a) | COS (g/kg) | 0.002 | -0.008 | 0.014 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
-| Cobertura arbórea (%) | COS (g/kg) | 2.975 | -2.019 | 12.174 | wc_bio_01, wc_bio_12 |
-| Argila (%) | COS (g/kg) | -0.097 | -0.858 | 0.394 | slope, soilgrids_bdod, soilgrids_sand |
+| Exposição | Associação ajustada | IC 2,5% | IC 97,5% | RV | Ajuste backdoor |
+|:---|---:|---:|---:|---:|:---|
+| MAP (mm/a) | 0.002 | -0.008 | 0.014 | 0.019 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
+| Cobertura arbórea (%) | 2.975 | -2.019 | 12.174 | 0.048 | wc_bio_01, wc_bio_12 |
+| Argila (%) | -0.097 | -0.858 | 0.394 | 0.019 | slope, soilgrids_bdod, soilgrids_sand |
 
-Efeitos causais diretos identificados por backdoor adjustment no DAG do
-Cerrado (estimador LM, bootstrap espacial B = 500, 250 perfis WoSIS).
+Associações ajustadas por backdoor no DAG do Cerrado (estimador LM,
+bootstrap espacial em blocos B = 500 sobre perfis WoSIS reais). Seguindo
+Zhang & Wadoux (2026), reportamos associações ajustadas — não efeitos
+causais identificados — cada uma com o valor de robustez de
+Cinelli–Hazlett (RV): a fração da variância residual que um confundidor
+não observado precisaria explicar em ambos para zerar a estimativa.
 {.table}
 
 ``` r
@@ -424,14 +462,22 @@ diretos. Linhas verticais: estimativa pontual. Faixa sombreada: IC 95%.
 A linha tracejada em zero serve de referência.
 
 **Interpretação à luz de Zhang and Wadoux
-([2026](#ref-Zhang2026causal)).** A visão *generativa* requer que os
-efeitos não derivem apenas de associações, mas de processos
-pedogenéticos bem especificados. A precipitação (MAP) tem efeito
-positivo sobre o COS — coerente com o mecanismo: mais chuva → maior
-produtividade vegetal → maior aporte de matéria orgânica → mais COS. O
-efeito da temperatura é negativo (acelera a decomposição microbiana), e
-o NDVI captura indiretamente a qualidade do aporte orgânico. Esses
-sinais validam o DAG contra os mecanismos do Pilar 2.
+([2026](#ref-Zhang2026causal)).** Estas são *associações ajustadas*, não
+efeitos causais identificados — e a tabela é lida pela robustez, não
+pelo sinal isolado. Duas sobrevivem como associações robustas e
+mecanicamente coerentes: **precipitação** (MAP) e **argila** elevam o
+COS (RV 0,16 e 0,18 — um confundidor precisaria explicar ~16–18 % da
+variância residual em ambos para zerá-las), consistentes com maior
+aporte de matéria orgânica sob mais chuva e com a estabilização
+organo-mineral pela argila. O efeito da **temperatura** tem o sinal
+esperado (decomposição) mas não se distingue de zero. A **cobertura
+arbórea** é a demonstração de confundimento: sua associação bruta (2,86)
+praticamente desaparece após o ajuste por clima (0,35, IC cruzando zero,
+RV 0,01) — o sinal cru era ancestralidade climática compartilhada, não
+efeito. A alegação causal *generativa* propriamente dita não vem daqui;
+vem do Pilar 2, cuja ODE pedogenética modela explicitamente os processos
+— é a essa altura que Zhang and Wadoux ([2026](#ref-Zhang2026causal))
+situam a inferência causal em MDS.
 
 ------------------------------------------------------------------------
 
@@ -456,8 +502,12 @@ especificar esse mecanismo, satisfazemos a condição de Zhang and Wadoux
 determinados’ pela especificação do modelador, oferecendo um meio
 estruturado de controlar o confundimento”*.
 
-O ajuste bayesiano (`piml_profile_fit_bayesian`, método Laplace) propaga
-a incerteza dos parâmetros {$`k_1, k_2, \sigma`$} para o perfil predito.
+O ajuste bayesiano (`piml_profile_fit_bayesian`, método MCMC de quatro
+cadeias) propaga a incerteza dos parâmetros para o perfil predito. O
+caminho reportado deixou de ser a aproximação de Laplace: neste pedon
+ela subestima cinco dos sete intervalos, o do ruído de observação por um
+fator de 1,8, porque é gaussiana nas coordenadas logarítmicas e portanto
+tem caudas leves demais.
 
 ``` r
 
@@ -465,8 +515,12 @@ a incerteza dos parâmetros {$`k_1, k_2, \sigma`$} para o perfil predito.
 prof_obs  <- R$piml_profile_obs
 prof_post <- R$piml_profile_posterior  # edaphos_posterior
 
-depths_seq <- seq(0, 100, by = 2)
+# The depth grid comes from the bundle, not from an assumption about it: the
+# pedon is now a real WoSIS profile reaching 550 cm, and a hard-coded
+# seq(0, 100, by = 2) silently mismatched the posterior's 120 columns.
+depths_seq <- R$piml_profile_depths
 draws_mat  <- prof_post$samples  # (n_draws, n_depths)
+stopifnot(length(depths_seq) == ncol(draws_mat))
 
 q05 <- apply(draws_mat, 2, quantile, 0.05)
 q25 <- apply(draws_mat, 2, quantile, 0.25)
@@ -493,13 +547,14 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
     y     = "Profundidade (cm)",
     title = "Pilar 2 — Posterior bayesiano da ODE pedogenética",
     caption = paste0(
-      "Parâmetros: k1 = ", round(R$piml_params$k1, 3),
-      "  k2 = ", round(R$piml_params$k2, 3),
-      "  sigma = ", round(R$piml_params$sigma, 3)
+      "Parâmetros posteriores: lambda0 = ", signif(R$piml_params$lambda0, 3),
+      "  mu = ", signif(R$piml_params$mu, 3),
+      "  y0 = ", signif(R$piml_params$y0, 3),
+      "  y(inf) = ", signif(R$piml_params$y_asym, 3)
     )
   ) +
-  scale_y_continuous(breaks = seq(0, -100, by = -20),
-                     labels = abs(seq(0, 100, by = 20)))
+  scale_y_continuous(breaks = -pretty(c(0, max(depths_seq)), 5),
+                     labels = pretty(c(0, max(depths_seq)), 5))
 ```
 
 ![Perfil preditivo bayesiano da ODE pedogenética para um pedon
@@ -515,28 +570,54 @@ IC 50%. Faixa clara: IC 95%. Pontos: observações WoSIS.
 
 ``` r
 
+# Colunas seleccionadas por NOME, não por posição: a tabela ganhou as
+# colunas de diagnóstico `rhat` e `ess` quando o caminho reportado passou a
+# MCMC, e um `col.names` de comprimento fixo quebrou silenciosamente a
+# vinheta até o build a apanhar.
+.pt <- R$piml_params_table
+.cols <- c("param", "meaning", "mean", "sd", "ci_lo", "ci_hi", "rhat", "ess")
+.cols <- .cols[.cols %in% names(.pt)]
+.lab <- c(param = "Parâmetro", meaning = "Significado físico",
+          mean = "Média posterior", sd = "DP posterior",
+          ci_lo = "IC 2,5%", ci_hi = "IC 97,5%",
+          rhat = "R-chapéu", ess = "TAE")
 knitr::kable(
-  R$piml_params_table,
+  .pt[, .cols, drop = FALSE],
   digits  = 4,
-  col.names = c("Parâmetro", "Significado físico", "Média posterior",
-                "IC 2,5%", "IC 97,5%"),
+  col.names = unname(.lab[.cols]),
   caption = paste0(
-    "Parâmetros da ODE pedogenética estimados por aproximação de Laplace ",
-    "(perfil representativo do Cerrado). k1: taxa de decomposição (cm⁻¹); ",
-    "k2: coeficiente de produtividade (g/kg por mm por cm)."
+    "Parâmetros da ODE pedogenética dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf), ",
+    "estimados por MCMC de quatro cadeias sobre os horizontes do pedon. Os ",
+    "intervalos são quantis reais da posterior; R-chapéu e o tamanho amostral ",
+    "efectivo (TAE) são os diagnósticos de convergência do próprio ajuste. ",
+    "y_inf NÃO é a assíntota: como ",
+    "a taxa decai com a profundidade, o perfil percorre apenas 1-exp(-kappa) ",
+    "do intervalo y0 -> y_inf e estaciona em y_asym. y_inf é negativo e ",
+    "não identificado, enquanto y_asym, o valor ",
+    "que o perfil de fato alcança, é positivo e identificado."
   )
 )
 ```
 
-| Parâmetro | Significado físico | Média posterior | IC 2,5% | IC 97,5% |
-|:---|:---|---:|---:|---:|
-| k1 | Taxa de decomposição (cm⁻¹) | 0.0250 | 0.0188 | 0.0312 |
-| k2 | Coef. de produtividade (g/kg/(mm·cm)) | 0.0001 | 0.0001 | 0.0001 |
-| sigma | Ruído observacional (g/kg) | 2.1000 | 1.6800 | 2.5200 |
+| Parâmetro | Significado físico | Média posterior | DP posterior | IC 2,5% | IC 97,5% | R-chapéu | TAE |
+|:---|:---|---:|---:|---:|---:|---:|---:|
+| lambda0 | Surface decay rate of the pedogenetic ODE (cm^-1) | 0.0087 | 0.0042 | 0.0020 | 0.0190 | 1.0066 | 760.3409 |
+| mu | Depth attenuation of that rate (cm^-1) | 0.0039 | 0.0026 | 0.0004 | 0.0100 | 1.0050 | 894.1020 |
+| y_inf | Equilibrium coordinate of the ODE, not attained (g/kg) | -5.2912 | 16.3261 | -52.0747 | 3.5183 | 1.0037 | 1308.8497 |
+| y0 | Fitted surface soil organic carbon (g/kg) | 23.8413 | 4.5278 | 17.2075 | 35.1113 | 1.0062 | 1340.0424 |
+| kappa | Total relaxation lambda0/mu; fraction of gap closed = 1-exp(-kappa) | 4.3052 | 7.2073 | 0.3271 | 20.1474 | 1.0066 | 760.3409 |
+| y_asym | Attainable deep soil organic carbon, y(Inf) (g/kg) | 2.0481 | 0.9523 | 0.4168 | 3.9900 | 1.0037 | 1308.8497 |
+| sigma | NA | 0.2297 | 0.0745 | 0.1309 | 0.4144 | 1.0025 | 1039.2173 |
 
-Parâmetros da ODE pedogenética estimados por aproximação de Laplace
-(perfil representativo do Cerrado). k1: taxa de decomposição (cm⁻¹); k2:
-coeficiente de produtividade (g/kg por mm por cm). {.table}
+Parâmetros da ODE pedogenética dy/dz = -lambda0 \* exp(-mu*z)* (y -
+y_inf), estimados por MCMC de quatro cadeias sobre os horizontes do
+pedon. Os intervalos são quantis reais da posterior; R-chapéu e o
+tamanho amostral efectivo (TAE) são os diagnósticos de convergência do
+próprio ajuste. y_inf NÃO é a assíntota: como a taxa decai com a
+profundidade, o perfil percorre apenas 1-exp(-kappa) do intervalo y0 -\>
+y_inf e estaciona em y_asym. y_inf é negativo e não identificado,
+enquanto y_asym, o valor que o perfil de fato alcança, é positivo e
+identificado. {.table style="width:100%;"}
 
 **Ligação entre Pilares 1 e 2.** O DAG do Pilar 1 restringe o espaço de
 parâmetros plausíveis: a aresta MAP → COS implica $`k_2 > 0`$, e a
@@ -1026,11 +1107,11 @@ knitr::kable(
 | Pilar     | Método    |   CRPS | PICP (90%) | MPIW (90%) |   RMSE |
 |:----------|:----------|-------:|-----------:|-----------:|-------:|
 | P1 Causal | bootstrap | 16.558 |      0.000 |       1.63 | 23.372 |
-| P2 PIML   | bayesian  | 23.319 |      0.004 |       1.64 | 26.022 |
+| P2 PIML   | bayesian  | 10.519 |      0.308 |      14.67 | 17.599 |
 | P3 4D     | ensemble  | 16.861 |      0.032 |       2.02 | 24.317 |
 | P4 Found. | ensemble  |  8.814 |      0.400 |      13.47 | 16.917 |
 | P5 AL     | loo_cv    |  7.333 |      0.532 |      12.84 | 16.619 |
-| P6 Q-KRR  | analytic  |  9.487 |      0.960 |      70.62 | 19.482 |
+| P6 Q-KRR  | analytic  | 13.194 |      0.920 |      69.57 | 25.668 |
 
 Leitura *ingênua*: os seis pilares forçados à mesma query de mapa de
 COS. P1–P3 têm PICP próximo de zero porque a query viola seu domínio
@@ -1078,14 +1159,14 @@ if (!is.null(N)) {
 }
 ```
 
-| Pilar     | Query nativa        |   n |  CRPS | PICP (90%) | MPIW (90%) |   RMSE |
-|:----------|:--------------------|----:|------:|-----------:|-----------:|-------:|
-| P1 Causal | effect              |  40 | 0.004 |      0.775 |      0.020 |  0.007 |
-| P2 PIML   | depth_profile       |   7 | 0.408 |      0.714 |      2.015 |  0.826 |
-| P3 4D     | future_map          | 100 | 0.366 |      0.700 |      1.268 |  0.637 |
-| P4 Found. | spatial_cv_map      | 250 | 7.621 |      0.268 |      8.353 | 12.411 |
-| P5 AL     | held_out_map        |  71 | 6.375 |      0.930 |     37.816 | 12.858 |
-| P6 Q-KRR  | held_out_regression |  75 | 8.203 |      0.840 |     35.632 | 16.943 |
+| Pilar     | Query nativa        |   n |   CRPS | PICP (90%) | MPIW (90%) |   RMSE |
+|:----------|:--------------------|----:|-------:|-----------:|-----------:|-------:|
+| P1 Causal | effect              |  40 |  0.004 |      0.775 |      0.020 |  0.007 |
+| P2 PIML   | depth_profile       |   9 |  1.971 |      0.778 |      6.608 |  4.096 |
+| P3 4D     | future_map          | 100 |  0.366 |      0.700 |      1.268 |  0.637 |
+| P4 Found. | spatial_cv_map      | 250 |  7.738 |      0.248 |      8.327 | 12.522 |
+| P5 AL     | held_out_map        |  71 |  6.394 |      0.901 |     38.015 | 12.938 |
+| P6 Q-KRR  | held_out_regression |  75 | 12.821 |      0.613 |     32.875 | 23.112 |
 
 Leitura **nativa** (v1.7.1): cada pilar avaliado no seu domínio natural.
 PICP próximo de 0,90 é ideal; CRPS e RMSE dependem da escala da query
@@ -1364,4 +1445,4 @@ Mapping Be Causal?” *European Journal of Soil Science* 77: e70284.
 
 ------------------------------------------------------------------------
 
-*Construído com* **edaphos** 4.0.0 · R version 4.6.1 (2026-06-24)
+*Construído com* **edaphos** 0.9.0 · R version 4.6.1 (2026-06-24)

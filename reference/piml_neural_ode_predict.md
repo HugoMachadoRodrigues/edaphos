@@ -25,3 +25,56 @@ piml_neural_ode_predict(object, newdepths, ...)
 ## Value
 
 Numeric vector, one value per element of `newdepths`.
+
+## Examples
+
+``` r
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  depths <- c(5, 15, 30, 50, 80)
+  soc    <- c(22, 9, 16, 14, 11)
+  fit <- piml_neural_ode_fit(depths, soc, hidden = c(8L, 8L),
+                             epochs = 60L, n_steps = 2L, seed = 1L)
+
+  # On the training depths this reproduces $fitted to the last bit:
+  # same RK4 grid, same answer.
+  print(max(abs(piml_neural_ode_predict(fit, depths) - fit$fitted)))
+
+  # TRAP. `n_steps` RK4 steps are taken between CONSECUTIVE requested
+  # depths, so the integration grid --- and therefore the answer ---
+  # depends on which OTHER depths you asked for. Same fit, same 200
+  # cm: 2 steps when asked alone, 40 when asked on a 10 cm grid.
+  print(round(c(
+    alone  = piml_neural_ode_predict(fit, 200),
+    grid10 = tail(piml_neural_ode_predict(fit, seq(0, 200, by = 10)), 1),
+    grid2  = tail(piml_neural_ode_predict(fit, seq(0, 200, by = 2)), 1)),
+    4))
+  # 14.0248 / 13.5046 / 13.5046 --- 0.52 g/kg of pure discretisation,
+  # and the 10 cm grid has already converged.
+
+  # The gap shrinks inside the sampled range: 0.07 g/kg at 80 cm.
+  # When you need one deep value, refine the request rather than the
+  # model --- `n_steps` is frozen inside the fit and predict() has no
+  # argument to raise it.
+  print(round(c(
+    alone  = piml_neural_ode_predict(fit, 80),
+    grid10 = tail(piml_neural_ode_predict(fit, seq(0, 80, by = 10)), 1)),
+    4))
+  print(fit$n_steps)
+
+  # The ORDER of `newdepths` is irrelevant --- the internal sort is
+  # undone --- so only the set you request matters.
+  print(round(c(asc  = piml_neural_ode_predict(fit, c(5, 80)),
+                desc = rev(piml_neural_ode_predict(fit, c(80, 5)))), 4))
+
+  # z = 0 returns the learned surface value: with y_surface = NULL,
+  # y0 is a free parameter and lands 1.7 g/kg below the shallowest
+  # observation. Pass y_surface to pin it to a measured 0 cm value.
+  print(round(c(z0 = piml_neural_ode_predict(fit, 0),
+                shallowest_obs = soc[1]), 4))
+
+  # Depths are distances below the surface; negatives are rejected.
+  print(tryCatch(piml_neural_ode_predict(fit, c(0, -5)),
+                 error = function(e) conditionMessage(e)))
+}
+```

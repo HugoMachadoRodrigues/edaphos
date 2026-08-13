@@ -109,3 +109,64 @@ A `edaphos_causal_effect` object with:
 Chipman, H. A., George, E. I., & McCulloch, R. E. (2010). BART: Bayesian
 Additive Regression Trees. *Annals of Applied Statistics* **4**,
 266-298.
+
+## Examples
+
+``` r
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- causal_cerrado_dag()
+
+  # Greenness looks like an enormous SOC driver until the DAG is
+  # honoured: twi, slope and map_mm cause both ndvi and soc, so the
+  # raw slope (about 49) is inflated. Adjusting cuts it to about 18.
+  print(causal_estimate_effect(br_cerrado, dag, "ndvi", "soc"))
+
+  # Elevation is the instructive case: the adjusted effect comes out
+  # positive, the unadjusted one negative -- a sign flip.
+  print(causal_estimate_effect(br_cerrado, dag, "elev", "soc"))
+
+  # Read that flip carefully. elev has no parents in this DAG, so
+  # the unadjusted slope is not confounded at all, despite the
+  # wording the print method uses: it is the *total* effect, and
+  # asking for it reproduces the naive number exactly. The gap
+  # between the two is mediation through slope, twi and map_mm.
+  print(dagitty::parents(dag, "elev"))
+  print(causal_estimate_effect(br_cerrado, dag, "elev", "soc",
+                               effect = "total"))
+
+  # Same adjustment set, non-linear estimator. BART also puts the
+  # direct elevation effect above zero, and lands below the OLS
+  # slope. Note what it reports: an average finite difference over a
+  # step of delta = IQR/2 (76.4 m of elevation here), not a local
+  # derivative, so it equals the OLS coefficient only if the
+  # response really is linear over that span.
+  if (requireNamespace("dbarts", quietly = TRUE)) {
+    set.seed(1)
+    print(causal_estimate_effect(
+      br_cerrado, dag, "elev", "soc", estimator = "bart",
+      bart_kwargs = list(ntree = 50L, ndpost = 200L, nskip = 100L)))
+  }
+}
+#> <edaphos_causal_effect>
+#>   ndvi -> soc   (estimator: lm)
+#>   adjustment set : {map_mm, slope, twi}
+#>   direct effect  : 18.43   (95% CI: 14.61, 22.25)
+#>   naive effect   : 49.36   (un-adjusted, likely confounded)
+#> <edaphos_causal_effect>
+#>   elev -> soc   (estimator: lm)
+#>   adjustment set : {map_mm, slope, twi}
+#>   direct effect  : 0.01482   (95% CI: 0.01048, 0.01916)
+#>   naive effect   : -0.02389   (un-adjusted, likely confounded)
+#> character(0)
+#> <edaphos_causal_effect>
+#>   elev -> soc   (estimator: lm)
+#>   adjustment set : {(empty)}
+#>   total effect   : -0.02389   (95% CI: -0.02627, -0.02152)
+#>   naive effect   : -0.02389   (un-adjusted, likely confounded)
+#> <edaphos_causal_effect>
+#>   elev -> soc   (estimator: bart)
+#>   adjustment set : {map_mm, slope, twi}
+#>   direct effect  : 0.01007   (95% credible: 0.004576, 0.01475)
+#>   naive effect   : -0.02389   (un-adjusted, likely confounded)
+#>   delta (finite diff) : 76.4
+```

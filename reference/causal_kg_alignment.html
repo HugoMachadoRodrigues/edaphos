@@ -9,7 +9,7 @@ edaphos_causal_kg onto their canonical counterparts in a target
 vocabulary (causal_ontology_cerrado() by default). Three matchers
 are tried in order — exact, substring, fuzzy — and the first hit
 wins. The mapping is returned as a tidy data frame; apply it with
-causal_kg_rename()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+causal_kg_rename()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ causal_kg_rename()."><meta property="og:image" content="https://hugomachadorodri
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ causal_kg_rename()."><meta property="og:image" content="https://hugomachadorodri
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ causal_kg_rename()."><meta property="og:image" content="https://hugomachadorodri
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -180,6 +176,69 @@ variant. Only consulted when <code>agrovoc_batch = TRUE</code>.</p></dd>
 <code>uri</code> column is attached.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Node labels the way an LLM extractor really emits them: typos,</span></span></span>
+<span class="r-in"><span>  <span class="co"># plurals, US spellings, over-specific compounds.</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"precipitaton"</span>, <span class="st">"soc"</span>, source <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"aluminum"</span>, <span class="st">"root_biomass"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"B"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"steeper_slopes"</span>, <span class="st">"erosion"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"microbial_biomass"</span>, <span class="st">"decomposition"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">causal_kg_alignment</span><span class="op">(</span><span class="va">kg</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Two things to read off that table.</span></span></span>
+<span class="r-in"><span>  <span class="co">#</span></span></span>
+<span class="r-in"><span>  <span class="co"># `steeper_slopes` stays unmatched. The substring tier only matches</span></span></span>
+<span class="r-in"><span>  <span class="co"># whole underscore-separated tokens, so the plural "slopes" misses</span></span></span>
+<span class="r-in"><span>  <span class="co"># "slope", and the nearest vocabulary term is 8 edits away, past</span></span></span>
+<span class="r-in"><span>  <span class="co"># the default max_distance = 4.</span></span></span>
+<span class="r-in"><span>  <span class="co">#</span></span></span>
+<span class="r-in"><span>  <span class="co"># `microbial_biomass` is folded into `biomass` by the substring</span></span></span>
+<span class="r-in"><span>  <span class="co"># tier, silently merging two different carbon pools. Substring</span></span></span>
+<span class="r-in"><span>  <span class="co"># matching is lossy; drop the tier when you would rather see a</span></span></span>
+<span class="r-in"><span>  <span class="co"># node come back unmatched than wrongly matched.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">causal_kg_alignment</span><span class="op">(</span><span class="va">kg</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exact"</span>, <span class="st">"fuzzy"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Do not repair the misses by loosening the fuzzy cap. At</span></span></span>
+<span class="r-in"><span>  <span class="co"># max_distance = 8 the fuzzy tier maps `steeper_slopes` onto</span></span></span>
+<span class="r-in"><span>  <span class="co"># `temperature`, which is worse than no match at all.</span></span></span>
+<span class="r-in"><span>  <span class="fu">causal_kg_alignment</span><span class="op">(</span><span class="va">kg</span>, max_distance <span class="op">=</span> <span class="fl">8L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            original     canonical    method distance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      precipitaton precipitation     fuzzy        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               soc           soc     exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          aluminum     aluminium     fuzzy        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      root_biomass  root_biomass     exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    steeper_slopes          &lt;NA&gt;      none       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6           erosion       erosion     exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 microbial_biomass       biomass substring       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     decomposition decomposition     exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            original     canonical method distance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      precipitaton precipitation  fuzzy        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               soc           soc  exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          aluminum     aluminium  fuzzy        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      root_biomass  root_biomass  exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    steeper_slopes          &lt;NA&gt;   none       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6           erosion       erosion  exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 microbial_biomass          &lt;NA&gt;   none       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     decomposition decomposition  exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            original     canonical    method distance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      precipitaton precipitation     fuzzy        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               soc           soc     exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          aluminum     aluminium     fuzzy        1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      root_biomass  root_biomass     exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    steeper_slopes   temperature     fuzzy        8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6           erosion       erosion     exact        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 microbial_biomass       biomass substring       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     decomposition decomposition     exact        0</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

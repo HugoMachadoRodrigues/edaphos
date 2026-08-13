@@ -24,3 +24,56 @@ llm_benchmark_kappa(claims_by_backend, gold = NULL)
 ## Value
 
 Numeric matrix of kappa values (symmetric, diagonal = 1).
+
+## Examples
+
+``` r
+res_path <- system.file("extdata", "llm_benchmark_results.rds",
+                        package = "edaphos")
+if (nzchar(res_path)) {
+  B <- readRDS(res_path)
+  print(round(llm_benchmark_kappa(B$backend_claims, gold = B$gold_df), 3))
+
+  # Read the `gold` column first: 0.342 / 0.256 / 0.567 against the
+  # pedologist -- "fair" to "moderate", nowhere near the 0.80 you
+  # would demand of a second human coder before trusting a KG.
+  #
+  # Then read the off-diagonals: two backends that each agree with
+  # gold can still land at -0.081 with EACH OTHER.  Agreement with a
+  # reference does not transfer between raters, because they miss
+  # and invent different edges.
+
+  # Trap: the rating universe is the union of edges over whatever
+  # raters you hand in, so kappa is a property of the CALL, not of
+  # the pair.  Adding one sloppy fourth rater contributes 169 new
+  # edges that Gemma and GPT both (correctly) decline, and their
+  # kappa jumps from -0.081 to 0.385 without either changing a
+  # single extraction.
+  set.seed(1)
+  junk <- data.frame(
+    abstract_id = sample(unique(B$gold_df$abstract_id), 200,
+                         replace = TRUE),
+    cause  = sample(c("clay", "sand", "silt", "ph", "cec"), 200,
+                    replace = TRUE),
+    effect = sample(c("erosion", "ndvi", "slope", "land_use"), 200,
+                    replace = TRUE), stringsAsFactors = FALSE)
+  print(round(llm_benchmark_kappa(c(B$backend_claims, list(junk = junk)),
+                                  gold = B$gold_df)[1:2, 1:2], 3))
+
+  # Honest caveat on the first matrix: these three "backends" were
+  # drawn from the gold set by llm_benchmark_simulate() with an
+  # independent keep-mask per backend, so near-zero pairwise kappa is
+  # arithmetic from the generator, not evidence about Gemma, GPT or
+  # Claude.
+  print(B$mode)
+}
+#>                   Gemma 4 GPT-4o-mini Claude Sonnet-4.5  gold
+#> Gemma 4             1.000      -0.081             0.122 0.342
+#> GPT-4o-mini        -0.081       1.000            -0.076 0.256
+#> Claude Sonnet-4.5   0.122      -0.076             1.000 0.567
+#> gold                0.342       0.256             0.567 1.000
+#>             Gemma 4 GPT-4o-mini
+#> Gemma 4       1.000       0.385
+#> GPT-4o-mini   0.385       1.000
+#> [1] "simulated"
+```

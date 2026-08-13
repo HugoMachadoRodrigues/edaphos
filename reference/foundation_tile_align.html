@@ -9,7 +9,7 @@ CRS, common resolution, common extent), stacks them channel-wise,
 and returns the unified mosaic. Designed to be robust to mixed
 resolutions (SoilGrids at 250 m, WorldClim at 30 arc-sec, SRTM at
 30 arc-sec, MODIS at 250 m, ERA5 at 0.1 degree) so MoCo v2
-pretraining can consume a single multi-channel tensor."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+pretraining can consume a single multi-channel tensor."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ pretraining can consume a single multi-channel tensor."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ pretraining can consume a single multi-channel tensor."><meta property="og:image
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ pretraining can consume a single multi-channel tensor."><meta property="og:image
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -160,6 +156,99 @@ to <code>"bilinear"</code> (good for continuous covariates).</p></dd>
 layer, aligned.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"terra"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Two Cerrado covariates on deliberately mismatched grids: soil at</span></span></span>
+<span class="r-in"><span>  <span class="co"># 0.05 degrees, terrain at 0.10, on extents that only partly</span></span></span>
+<span class="r-in"><span>  <span class="co"># overlap.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">soc</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span>nrows <span class="op">=</span> <span class="fl">40</span>, ncols <span class="op">=</span> <span class="fl">40</span>,</span></span>
+<span class="r-in"><span>                     xmin <span class="op">=</span> <span class="op">-</span><span class="fl">50</span>, xmax <span class="op">=</span> <span class="op">-</span><span class="fl">48</span>, ymin <span class="op">=</span> <span class="op">-</span><span class="fl">16</span>, ymax <span class="op">=</span> <span class="op">-</span><span class="fl">14</span>,</span></span>
+<span class="r-in"><span>                     crs <span class="op">=</span> <span class="st">"EPSG:4326"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">soc</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">ncell</a></span><span class="op">(</span><span class="va">soc</span><span class="op">)</span>, <span class="fl">22</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">soc</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"soc"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">elev</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span>nrows <span class="op">=</span> <span class="fl">20</span>, ncols <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>                      xmin <span class="op">=</span> <span class="op">-</span><span class="fl">49.5</span>, xmax <span class="op">=</span> <span class="op">-</span><span class="fl">47.5</span>,</span></span>
+<span class="r-in"><span>                      ymin <span class="op">=</span> <span class="op">-</span><span class="fl">15.5</span>, ymax <span class="op">=</span> <span class="op">-</span><span class="fl">13.5</span>, crs <span class="op">=</span> <span class="st">"EPSG:4326"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">elev</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">ncell</a></span><span class="op">(</span><span class="va">elev</span><span class="op">)</span>, <span class="fl">900</span>, <span class="fl">80</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">elev</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"elev"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">fused</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_align</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>soil <span class="op">=</span> <span class="va">soc</span>, topo <span class="op">=</span> <span class="va">elev</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                   target_res <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">res</a></span><span class="op">(</span><span class="va">fused</span><span class="op">)</span><span class="op">)</span>    <span class="co"># both sources now on the 0.05 grid</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fused</span><span class="op">)</span><span class="op">)</span>         <span class="co"># names come from the rasters, not from</span></span></span>
+<span class="r-in"><span>                              <span class="co"># the names of `sources`</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The template is the UNION of the source extents, not their</span></span></span>
+<span class="r-in"><span>  <span class="co"># intersection, so each layer is NA wherever its own source did not</span></span></span>
+<span class="r-in"><span>  <span class="co"># reach -- 36 percent of the grid here, for both layers.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/global.html" class="external-link">global</a></span><span class="op">(</span><span class="va">fused</span>, <span class="st">"isNA"</span><span class="op">)</span> <span class="op">/</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">ncell</a></span><span class="op">(</span><span class="va">fused</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `aoi` cuts the template back to ground both sources cover, and</span></span></span>
+<span class="r-in"><span>  <span class="co"># that is what removes the NA frame.</span></span></span>
+<span class="r-in"><span>  <span class="va">inner</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_align</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>soil <span class="op">=</span> <span class="va">soc</span>, topo <span class="op">=</span> <span class="va">elev</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                   target_res <span class="op">=</span> <span class="fl">0.05</span>,</span></span>
+<span class="r-in"><span>                                   aoi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">49.5</span>, <span class="op">-</span><span class="fl">48</span>, <span class="op">-</span><span class="fl">15.5</span>, <span class="op">-</span><span class="fl">14</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/global.html" class="external-link">global</a></span><span class="op">(</span><span class="va">inner</span>, <span class="st">"isNA"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Mixed CRS is handled, but the union is taken AFTER reprojection.</span></span></span>
+<span class="r-in"><span>  <span class="co"># A UTM 23S tile several degrees east of the soil tile produces a</span></span></span>
+<span class="r-in"><span>  <span class="co"># mosaic that is 73 and 98 percent NA -- and a contrastive encoder</span></span></span>
+<span class="r-in"><span>  <span class="co"># will train on it perfectly happily.</span></span></span>
+<span class="r-in"><span>  <span class="va">utm</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span>nrows <span class="op">=</span> <span class="fl">30</span>, ncols <span class="op">=</span> <span class="fl">30</span>,</span></span>
+<span class="r-in"><span>                     xmin <span class="op">=</span> <span class="fl">700000</span>, xmax <span class="op">=</span> <span class="fl">760000</span>,</span></span>
+<span class="r-in"><span>                     ymin <span class="op">=</span> <span class="fl">8250000</span>, ymax <span class="op">=</span> <span class="fl">8310000</span>,</span></span>
+<span class="r-in"><span>                     crs <span class="op">=</span> <span class="st">"EPSG:31983"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">utm</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">ncell</a></span><span class="op">(</span><span class="va">utm</span><span class="op">)</span>, <span class="fl">14</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">utm</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"clay"</span></span></span>
+<span class="r-in"><span>  <span class="va">far</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_align</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>soil <span class="op">=</span> <span class="va">soc</span>, clay <span class="op">=</span> <span class="va">utm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                 target_res <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">far</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/global.html" class="external-link">global</a></span><span class="op">(</span><span class="va">far</span>, <span class="st">"isNA"</span><span class="op">)</span> <span class="op">/</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">ncell</a></span><span class="op">(</span><span class="va">far</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `target_res` is in the units of `target_crs`. The 0.005 default is</span></span></span>
+<span class="r-in"><span>  <span class="co"># degrees; carrying it over to a metre-based CRS asks for 5 mm</span></span></span>
+<span class="r-in"><span>  <span class="co"># cells. Give metres -- and read the realised resolution off the</span></span></span>
+<span class="r-in"><span>  <span class="co"># result, because terra fits a whole number of cells into the</span></span></span>
+<span class="r-in"><span>  <span class="co"># extent instead of honouring `target_res` exactly.</span></span></span>
+<span class="r-in"><span>  <span class="va">polyconic</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_align</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>soil <span class="op">=</span> <span class="va">soc</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                       target_res <span class="op">=</span> <span class="fl">5000</span>,</span></span>
+<span class="r-in"><span>                                       target_crs <span class="op">=</span> <span class="st">"EPSG:5880"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">res</a></span><span class="op">(</span><span class="va">polyconic</span><span class="op">)</span><span class="op">)</span>   <span class="co"># near 5000 m, not exactly 5000</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Two sources that each carry a layer called "soc" give a stack with</span></span></span>
+<span class="r-in"><span>  <span class="co"># two layers called "soc", and [["soc"]] then returns both of them</span></span></span>
+<span class="r-in"><span>  <span class="co"># with only a warning. Rename before aligning, not after.</span></span></span>
+<span class="r-in"><span>  <span class="va">dup</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_align</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="va">soc</span>, b <span class="op">=</span> <span class="va">soc</span><span class="op">)</span>, target_res <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dup</span><span class="op">)</span><span class="op">)</span>                  <span class="co"># "soc" "soc"</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nlyr</a></span><span class="op">(</span><span class="va">dup</span><span class="op">[[</span><span class="st">"soc"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 2, after a warning that reads</span></span></span>
+<span class="r-in"><span>                                     <span class="co"># "[subset] using a name that is</span></span></span>
+<span class="r-in"><span>                                     <span class="co"># not unique"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># method = "bilinear" is for continuous covariates. Use "near" for</span></span></span>
+<span class="r-in"><span>  <span class="co"># anything categorical -- interpolating soil-class codes invents</span></span></span>
+<span class="r-in"><span>  <span class="co"># classes that do not exist.</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.05 0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "soc"  "elev"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      isNA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> soc  0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> elev 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      isNA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> soc     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> elev    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  40 149   2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      isNA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> soc  0.73</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> clay 0.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4968.697 4990.300</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "soc" "soc"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>[subset] using a name that is not unique</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

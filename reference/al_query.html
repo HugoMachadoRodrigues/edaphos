@@ -7,7 +7,7 @@ batch remains internally diverse."><meta property="og:description" content="Give
 sample according to a trade-off strategy. All strategies use a greedy
 batch-mode selection: the second and later picks within the same call
 see the previously picked points as if they were already labeled, so the
-batch remains internally diverse."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+batch remains internally diverse."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ batch remains internally diverse."><meta property="og:image" content="https://hu
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ batch remains internally diverse."><meta property="og:image" content="https://hu
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ batch remains internally diverse."><meta property="og:image" content="https://hu
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -201,6 +197,95 @@ this to steer an autonomous sampler (drone, rover) towards points it
 can physically reach with limited energy.</p></li>
 </ul></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 30 labeled profiles; every 5th remaining grid cell (399 of them) is</span></span></span>
+<span class="r-in"><span><span class="co"># an unlabeled candidate a field crew could still be sent to.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">i_lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lab</span>   <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="va">i_lab</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">pool</span>  <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="op">-</span><span class="va">i_lab</span>, <span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1995</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `seed` fixes the forest, set.seed() fixes ranger's quantile</span></span></span>
+<span class="r-in"><span><span class="co"># machinery. Both are needed -- see the reproducibility block below.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_fit.html">al_fit</a></span><span class="op">(</span><span class="va">lab</span>, target <span class="op">=</span> <span class="st">"soc"</span>, covariates <span class="op">=</span> <span class="va">covs</span>,</span></span>
+<span class="r-in"><span>            coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Three strategies plus a random baseline, 8 sites each.</span></span></span>
+<span class="r-in"><span><span class="va">b_hyb</span> <span class="op">&lt;-</span> <span class="fu">al_query</span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"hybrid"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">b_unc</span> <span class="op">&lt;-</span> <span class="fu">al_query</span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"uncertainty"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">b_div</span> <span class="op">&lt;-</span> <span class="fu">al_query</span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"diverse"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">b_rnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pool</span><span class="op">)</span>, <span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Axis 1 -- how uncertain is the batch? (QRF 80 % interval width.)</span></span></span>
+<span class="r-in"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">pool</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"quantiles"</span>,</span></span>
+<span class="r-in"><span>                    quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span></span>
+<span class="r-in"><span><span class="va">w</span> <span class="op">&lt;-</span> <span class="va">q</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">q</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>hybrid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">w</span><span class="op">[</span><span class="va">b_hyb</span><span class="op">]</span><span class="op">)</span>, uncertainty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">w</span><span class="op">[</span><span class="va">b_unc</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        diverse <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">w</span><span class="op">[</span><span class="va">b_div</span><span class="op">]</span><span class="op">)</span>, random <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">w</span><span class="op">[</span><span class="va">b_rnd</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        whole_pool <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      hybrid uncertainty     diverse      random  whole_pool </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       19.06       19.54       14.03       14.22       13.23 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Axis 2 -- how spread out is it? Distance from each member to its</span></span></span>
+<span class="r-in"><span><span class="co"># nearest batch-mate, in standardised covariate units.</span></span></span>
+<span class="r-in"><span><span class="va">Z</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">pool</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ix</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">dist</a></span><span class="op">(</span><span class="va">Z</span><span class="op">[</span><span class="va">ix</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">D</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">Inf</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">D</span>, <span class="fl">1</span>, <span class="va">min</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>hybrid <span class="op">=</span> <span class="fu">nn</span><span class="op">(</span><span class="va">b_hyb</span><span class="op">)</span>, uncertainty <span class="op">=</span> <span class="fu">nn</span><span class="op">(</span><span class="va">b_unc</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        diverse <span class="op">=</span> <span class="fu">nn</span><span class="op">(</span><span class="va">b_div</span><span class="op">)</span>, random <span class="op">=</span> <span class="fu">nn</span><span class="op">(</span><span class="va">b_rnd</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      hybrid uncertainty     diverse      random </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        1.16        0.63        2.06        1.69 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Read the two together, never one alone. "uncertainty" wins axis 1</span></span></span>
+<span class="r-in"><span><span class="co"># (18.75 g/kg) and loses axis 2 to coin-flipping (0.94 vs 1.69): its</span></span></span>
+<span class="r-in"><span><span class="co"># greedy top-8 are eight near-copies of one confusing hillslope, so</span></span></span>
+<span class="r-in"><span><span class="co"># seven of the eight lab analyses buy almost nothing. "diverse"</span></span></span>
+<span class="r-in"><span><span class="co"># inverts that -- widest spacing, but a mean width of 13.96, below</span></span></span>
+<span class="r-in"><span><span class="co"># the random batch's 14.47. "hybrid" pays about 1 % of the width for</span></span></span>
+<span class="r-in"><span><span class="co"># half again as much spacing, which is why it is the default.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># "cost" bends the batch towards a base camp at the SW corner. A</span></span></span>
+<span class="r-in"><span><span class="co"># third axis, not a free lunch: the mean trip shortens from 0.283 to</span></span></span>
+<span class="r-in"><span><span class="co"># 0.078 degrees and the mean width falls to 17.47.</span></span></span>
+<span class="r-in"><span><span class="va">b_cost</span> <span class="op">&lt;-</span> <span class="fu">al_query</span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"cost"</span>,</span></span>
+<span class="r-in"><span>                   base <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">47.95</span>, <span class="op">-</span><span class="fl">16.0</span><span class="op">)</span>, cost_weight <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">trip</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ix</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="va">pool</span><span class="op">$</span><span class="va">x</span><span class="op">[</span><span class="va">ix</span><span class="op">]</span> <span class="op">+</span> <span class="fl">47.95</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>                               <span class="op">(</span><span class="va">pool</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="va">ix</span><span class="op">]</span> <span class="op">+</span> <span class="fl">16</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>hybrid_trip <span class="op">=</span> <span class="fu">trip</span><span class="op">(</span><span class="va">b_hyb</span><span class="op">)</span>, cost_trip <span class="op">=</span> <span class="fu">trip</span><span class="op">(</span><span class="va">b_cost</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        cost_width  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">w</span><span class="op">[</span><span class="va">b_cost</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> hybrid_trip   cost_trip  cost_width </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.231       0.074      17.887 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Reproducibility trap. `ranger` seeds the forest from `seed`, but</span></span></span>
+<span class="r-in"><span><span class="co"># builds its quantile lookup with R's own RNG at fit time. So the</span></span></span>
+<span class="r-in"><span><span class="co"># same `seed` under a different R seed reproduces the OOB RMSE and</span></span></span>
+<span class="r-in"><span><span class="co"># returns a DIFFERENT uncertainty batch -- while "diverse", which</span></span></span>
+<span class="r-in"><span><span class="co"># never reads a quantile, is untouched.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_fit.html">al_fit</a></span><span class="op">(</span><span class="va">lab</span>, target <span class="op">=</span> <span class="st">"soc"</span>, covariates <span class="op">=</span> <span class="va">covs</span>,</span></span>
+<span class="r-in"><span>             coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span>, <span class="va">m2</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span><span class="op">)</span>   <span class="co"># TRUE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="va">b_hyb</span>,</span></span>
+<span class="r-in"><span>                 <span class="fu">al_query</span><span class="op">(</span><span class="va">m2</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"hybrid"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">b_div</span>, <span class="fu">al_query</span><span class="op">(</span><span class="va">m2</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"diverse"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The return value indexes `candidates` by POSITION, not by row name.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">pool</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="va">b_hyb</span><span class="op">]</span>, <span class="va">br_cerrado</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="va">b_hyb</span><span class="op">]</span><span class="op">)</span>              <span class="co"># FALSE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">pool</span><span class="op">)</span><span class="op">[</span><span class="va">b_hyb</span><span class="op">]</span>        <span class="co"># the br_cerrado rows actually selected</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1339" "174"  "412"  "143"  "1204" "309"  "158"  "1852"</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

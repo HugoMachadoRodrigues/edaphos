@@ -1,10 +1,10 @@
-# edaphos: Disruptive Algorithms for Digital Soil Mapping
+# edaphos: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods
 
 `edaphos` is a research-oriented R package that implements frontier
 algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
 state of the art (McBratney, Mendonça Santos and Minasny, 2003; Wadoux,
 Minasny and McBratney, 2020). Its contributions are organised across
-**six research pillars**, each confronting a specific methodological gap
+**ten research pillars**, each confronting a specific methodological gap
 of the contemporary literature and equipped with a vignette that derives
 the governing object from first principles.
 
@@ -12,7 +12,7 @@ the governing object from first principles.
 
 From Greek \\\epsilon\delta\alpha\phi o\varsigma\\ — "soil, ground."
 
-## Six research pillars
+## Ten research pillars
 
 - **1. Causal AI.**:
 
@@ -74,8 +74,9 @@ From Greek \\\epsilon\delta\alpha\phi o\varsigma\\ — "soil, ground."
 
 - **2. Physics-Informed ML.**:
 
-  Parametric pedogenetic Ordinary Differential Equation integrated by
-  `deSolve` —
+  Parametric pedogenetic Ordinary Differential Equation, solved in
+  closed form and fitted through a horizon-average observation operator
+  —
   [`piml_profile_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit.md);
   Neural ODE with differentiable Runge-Kutta integrator on `torch` —
   [`piml_neural_ode_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_neural_ode_fit.md);
@@ -192,6 +193,77 @@ From Greek \\\epsilon\delta\alpha\phi o\varsigma\\ — "soil, ground."
   (`"methanediol"`), and a monodentate Fe(III)– carboxylate coordination
   complex (`"ferric_formate"`).
 
+- **7. Bayesian Hierarchical Spatial.**:
+
+  Hierarchical spatial linear model \\y = X\beta + w + \varepsilon\\
+  with a Gaussian-process random effect \\w \sim GP(0, \sigma^2
+  \rho(\cdot; \phi))\\ —
+  [`bhs_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/bhs_fit.md).
+  The \\\beta\\ and variance updates are conjugate and therefore
+  closed-form; the range \\\phi\\ is profiled over a user-supplied grid
+  by maximum likelihood, which keeps the whole sampler free of
+  Metropolis steps. The Cholesky-heavy inner loop runs through an
+  RcppArmadillo backend.
+  [`predict()`](https://rdrr.io/r/stats/predict.html) performs Bayesian
+  kriging at unobserved sites, propagating every posterior draw into the
+  predictive distribution rather than plugging in a point estimate.
+
+- **8. Neural Operators.**:
+
+  Learns the solution operator \\\mathcal{G}: u(z) \mapsto y(z)\\
+  between depth-function spaces instead of a pointwise regression. A 1-D
+  **Fourier Neural Operator**
+  ([`no_fno_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/no_fno_fit.md))
+  applies \\(\mathcal{K}v)(z) = \mathcal{F}^{-1}(R\_\theta \cdot
+  \mathcal{F}v)(z)\\ with the spectrum truncated to `n_modes` (Li et
+  al., 2021); a **DeepONet**
+  ([`no_deeponet_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/no_deeponet_fit.md))
+  factorises \\\mathcal{G}(u)(z) \approx \sum_k b_k(u) t_k(z)\\ into
+  branch and trunk networks (Lu et al., 2021), the constructive form of
+  the Chen and Chen (1995) universal operator approximation theorem.
+  Both expose a pure-R backend and a `torch` backend with full autograd
+  and `"cpu"` / `"mps"` / `"cuda"` dispatch.
+
+- **9. Diffusion Models.**:
+
+  Denoising Diffusion Probabilistic Model (Ho, Jain and Abbeel, 2020)
+  over soil-map patches.
+  [`dm_cosine_schedule()`](https://hugomachadorodrigues.github.io/edaphos/reference/dm_cosine_schedule.md)
+  builds the forward process \\q(x_t \mid x_0) = N(\sqrt{\bar\alpha_t}
+  x_0, (1 - \bar\alpha_t) I)\\ on the cosine schedule of Nichol and
+  Dhariwal (2021);
+  [`dm_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/dm_fit.md)
+  trains a denoiser \\\epsilon\_\theta(x_t, t)\\ by score matching;
+  [`dm_sample()`](https://hugomachadorodrigues.github.io/edaphos/reference/dm_sample.md)
+  runs ancestral sampling from \\t = T\\ down to 0, optionally
+  conditioned on covariates. The `backend = "r"` trainer updates the
+  readout layer only over randomly initialised hidden features — an
+  Extreme-Learning-Machine regime (Huang, Zhu and Siew, 2006) — whereas
+  `backend = "torch"` trains the full network.
+
+- **10. Graph Neural Networks.**:
+
+  Graph Attention Network (Veličković et al., 2018) over a k-NN
+  co-location graph of profiles —
+  [`gnn_build_graph()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_build_graph.md),
+  with `edges = "spatial"`, `"feature"` or `"hybrid"` and optional
+  self-loops.
+  [`gnn_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit.md)
+  trains multi-head attention \\\alpha\_{ij} =
+  \mathrm{softmax}\_j(\mathrm{LeakyReLU}( a^\top \[W h_i \Vert W
+  h_j\]))\\ by analytic reverse-mode gradients through the grouped
+  softmax — checked against central finite differences in the test suite
+  — with residual connections, head averaging, a transductive
+  `train_mask` so no test label leaks into training, and a closed-form
+  ridge readout.
+  [`gnn_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit_ensemble.md)
+  averages independent seeds so that the published comparison against a
+  quantile regression forest is ensemble-versus-ensemble.
+  [`gnn_embed()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_embed.md)
+  returns the learned node embeddings and
+  [`gnn_causal_discovery()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_causal_discovery.md)
+  hands them to Pillar 1's structure learner.
+
 ## Vignettes
 
 Each pillar ships a mathematically-derived vignette with examples on
@@ -201,11 +273,24 @@ real or reproducible synthetic data. Entry points:
 [`vignette("pilar3-4d-soc", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-soc.md),
 [`vignette("pilar4-simclr-embeddings", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-simclr-embeddings.md),
 [`vignette("pilar5-active-learning", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-active-learning.md),
-`vignette("pilar5-soilgrids-br", package = "edaphos")`,
-[`vignette("pilar6-quantum", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar6-quantum.md).
+[`vignette("pilar6-quantum", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar6-quantum.md),
+[`vignette("pilar7-bayesian-hierarchical", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar7-bayesian-hierarchical.md),
+[`vignette("pilar8-neural-operators", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar8-neural-operators.md),
+[`vignette("pilar9-diffusion-models", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar9-diffusion-models.md),
+[`vignette("pilar10-graph-attention", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar10-graph-attention.md).
+Cross-pillar bridges have their own:
+[`vignette("pilar1-pilar4-iv", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-pilar4-iv.md),
+[`vignette("pilar4-pilar6-quantum", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-pilar6-quantum.md),
+[`vignette("uncertainty-unified", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/uncertainty-unified.md),
+[`vignette("causal-discovery-trio", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/causal-discovery-trio.md),
+[`vignette("llm-annotation-workflow", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/llm-annotation-workflow.md).
 The end-to-end honest benchmark on 1212 real Brazilian WoSIS Cerrado
 profiles lives in
-[`vignette("case-cerrado-end-to-end", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/case-cerrado-end-to-end.md).
+[`vignette("case-cerrado-end-to-end", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/case-cerrado-end-to-end.md),
+and
+[`vignette("capstone-cerrado-campaign", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/capstone-cerrado-campaign.md)
+puts the pillars together on a sampling-campaign decision. Start at
+[`vignette("getting-started", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/getting-started.md).
 
 ## References
 
@@ -228,9 +313,9 @@ Useful links:
 ## Author
 
 **Maintainer**: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>
-([ORCID](https://orcid.org/0000-0002-8070-8126))
+([ORCID](https://orcid.org/0000-0002-8070-8126)) \[copyright holder\]
 
 Authors:
 
 - Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>
-  ([ORCID](https://orcid.org/0000-0002-8070-8126))
+  ([ORCID](https://orcid.org/0000-0002-8070-8126)) \[copyright holder\]

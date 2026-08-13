@@ -3,7 +3,7 @@
 that can be uploaded to Zenodo to mint a permanent DOI for the
 gold-standard.  Bundle contents:"><meta property="og:description" content="Generates a self-contained directory (and optionally a zip archive)
 that can be uploaded to Zenodo to mint a permanent DOI for the
-gold-standard.  Bundle contents:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+gold-standard.  Bundle contents:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ gold-standard.  Bundle contents:"><meta property="og:image" content="https://hug
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ gold-standard.  Bundle contents:"><meta property="og:image" content="https://hug
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ gold-standard.  Bundle contents:"><meta property="og:image" content="https://hug
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -140,9 +136,12 @@ exist.  Existing contents are overwritten.</p></dd>
 
 
 <dt id="arg-authors">authors<a class="anchor" aria-label="anchor" href="#arg-authors"></a></dt>
-<dd><p>Data frame with <code>family_name</code>, <code>given_name</code>,
-optional <code>orcid</code>, optional <code>affiliation</code> per row.  Defaults to a
-single-author entry using <code><a href="https://rdrr.io/r/utils/maintainer.html" class="external-link">utils::maintainer()</a></code> on the package.</p></dd>
+<dd><p>Data frame with one row per creator and all four of
+<code>family_name</code>, <code>given_name</code>, <code>orcid</code>, <code>affiliation</code> as columns.
+The <code>orcid</code> and <code>affiliation</code> <em>values</em> may be <code>NA</code> (the field is
+then omitted from that creator) but the <em>columns</em> must be
+present, or creator assembly fails.  Defaults to a single
+hard-coded entry for the package maintainer.</p></dd>
 
 
 <dt id="arg-description">description<a class="anchor" aria-label="anchor" href="#arg-description"></a></dt>
@@ -194,6 +193,89 @@ bundle is built the user uploads the zip / files manually at
 into the package's CITATION.cff / .zenodo.json.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_gold_standard_v1.jsonl"</span>,</span></span>
+<span class="r-in"><span>                  package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"cerrado_kg_deposit"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `zip = FALSE` because utils::zip() shells out to an external</span></span></span>
+<span class="r-in"><span><span class="co"># `zip` executable that is not present everywhere.  Pass `version`</span></span></span>
+<span class="r-in"><span><span class="co"># explicitly too: it defaults to Sys.Date(), so metadata.json and</span></span></span>
+<span class="r-in"><span><span class="co"># README.md otherwise differ on every run and the bundle is not</span></span></span>
+<span class="r-in"><span><span class="co"># reproducible.</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_to_zenodo</span><span class="op">(</span><span class="va">gs</span>, <span class="va">bundle</span>,</span></span>
+<span class="r-in"><span>                         title <span class="op">=</span> <span class="st">"Cerrado gold-standard KG (v1)"</span>,</span></span>
+<span class="r-in"><span>                         version <span class="op">=</span> <span class="st">"1.0.0"</span>, zip <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpNvtEGq/cerrado_kg_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpNvtEGq/cerrado_kg_deposit ===</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "README.md"           "gold_standard.jsonl" "kg.ttl"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "metadata.json"      </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The 72 accepted claims become 72 reified rdf:Statement blocks,</span></span></span>
+<span class="r-in"><span><span class="co"># plus 30 eda:Abstract provenance nodes carrying title and year.</span></span></span>
+<span class="r-in"><span><span class="va">ttl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">bundle</span>, <span class="st">"kg.ttl"</span><span class="op">)</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>statements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"a rdf:Statement"</span>, <span class="va">ttl</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  abstracts  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"a eda:Abstract"</span>, <span class="va">ttl</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> statements  abstracts </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         72         30 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The licence is lower-cased into metadata.json on purpose: that is</span></span></span>
+<span class="r-in"><span><span class="co"># the identifier the Zenodo REST API expects, not the SPDX spelling</span></span></span>
+<span class="r-in"><span><span class="co"># you passed in.</span></span></span>
+<span class="r-in"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">bundle</span>, <span class="st">"metadata.json"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>license <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">license</span>, version <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">version</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     license     version </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> "cc-by-4.0"     "1.0.0" </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap: this runs llm_annotation_export() internally, so a reviewed</span></span></span>
+<span class="r-in"><span><span class="co"># file whose claims are all still "draft" produces a bundle that</span></span></span>
+<span class="r-in"><span><span class="co"># SUCCEEDS, prints its usual banner, and contains zero statements.</span></span></span>
+<span class="r-in"><span><span class="co"># Check the count before you mint a DOI, not the exit status.</span></span></span>
+<span class="r-in"><span><span class="va">draft</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_gold_standard_v1_draft.jsonl"</span>,</span></span>
+<span class="r-in"><span>                     package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">hollow</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"hollow_deposit"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_to_zenodo</span><span class="op">(</span><span class="va">draft</span>, <span class="va">hollow</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span>, zip <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpNvtEGq/hollow_deposit/gold_standard.jsonl (30 abstracts, 0 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpNvtEGq/hollow_deposit ===</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"a rdf:Statement"</span>,</span></span>
+<span class="r-in"><span>          <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">hollow</span>, <span class="st">"kg.ttl"</span><span class="op">)</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `authors` must carry all four columns.  NA values are fine and</span></span></span>
+<span class="r-in"><span><span class="co"># omit that field from the creator, but a missing COLUMN aborts</span></span></span>
+<span class="r-in"><span><span class="co"># part-way through, leaving a half-written directory behind.</span></span></span>
+<span class="r-in"><span><span class="va">who</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>family_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Silva"</span>, <span class="st">"Costa"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  given_name  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ana"</span>, <span class="st">"Bruno"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  orcid       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0000-0001-2345-6789"</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  affiliation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Embrapa Cerrados"</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">authored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"authored_deposit"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_to_zenodo</span><span class="op">(</span><span class="va">gs</span>, <span class="va">authored</span>, authors <span class="op">=</span> <span class="va">who</span>,</span></span>
+<span class="r-in"><span>                         version <span class="op">=</span> <span class="st">"1.0.0"</span>, zip <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpNvtEGq/authored_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpNvtEGq/authored_deposit ===</span>
+<span class="r-in"><span><span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">authored</span>, <span class="st">"metadata.json"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   simplifyVector <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">creators</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Silva, Ana"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$orcid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "0000-0001-2345-6789"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]$affiliation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Embrapa Cerrados"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]$name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Costa, Bruno"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

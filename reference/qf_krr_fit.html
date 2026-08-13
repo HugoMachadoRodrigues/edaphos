@@ -5,7 +5,7 @@ wraps both the PCA reduction and the quantum KRR fit so predict()
 handles the full forward pipeline."><meta property="og:description" content="Fits quantum_krr_fit() on the top-n PCs of foundation-model
 embeddings (rescaled to [-pi, pi]).  Returns an object that
 wraps both the PCA reduction and the quantum KRR fit so predict()
-handles the full forward pipeline."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+handles the full forward pipeline."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ handles the full forward pipeline."><meta property="og:image" content="https://h
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ handles the full forward pipeline."><meta property="og:image" content="https://h
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ handles the full forward pipeline."><meta property="og:image" content="https://h
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -136,6 +132,76 @@ handles the full forward pipeline.</p>
     <p>An <code>edaphos_qf_krr</code> object.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Stand-in MoCo encoder output over 200 Cerrado pixels; the</span></span></span>
+<span class="r-in"><span><span class="co"># target is the bundled SOC column (g/kg, 0-5 cm).</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sub</span>  <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">200L</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">Z</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">sub</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">W</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5L</span> <span class="op">*</span> <span class="fl">64L</span><span class="op">)</span>, <span class="fl">5L</span>, <span class="fl">64L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">emb</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html" class="external-link">tanh</a></span><span class="op">(</span><span class="va">Z</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">W</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200L</span> <span class="op">*</span> <span class="fl">64L</span>, <span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span>, <span class="fl">200L</span>, <span class="fl">64L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span>    <span class="op">&lt;-</span> <span class="va">sub</span><span class="op">$</span><span class="va">soc</span></span></span>
+<span class="r-in"><span><span class="va">tr</span>   <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">140</span>; <span class="va">te</span> <span class="op">&lt;-</span> <span class="fl">141</span><span class="op">:</span><span class="fl">200</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">qf_krr_fit</span><span class="op">(</span><span class="va">emb</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span>, <span class="va">y</span><span class="op">[</span><span class="va">tr</span><span class="op">]</span>, n_pcs <span class="op">=</span> <span class="fl">6L</span>, reps <span class="op">=</span> <span class="fl">2L</span>,</span></span>
+<span class="r-in"><span>                  lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_qf_krr&gt;  (Pillar 4 x Pillar 6 bridge)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_pcs  = 6  (qubits = 6)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   reps   = 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   lambda = 0.100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_train = 140</span>
+<span class="r-in"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">emb</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The only number that matters is next to the achievable null --</span></span></span>
+<span class="r-in"><span><span class="co"># predicting the training mean at every unseen pixel.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>qf_krr <span class="op">=</span> <span class="fu"><a href="edaphos_rmse.html">edaphos_rmse</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span>, <span class="va">pred</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  train_mean <span class="op">=</span> <span class="fu"><a href="edaphos_rmse.html">edaphos_rmse</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">tr</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">te</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     qf_krr train_mean </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   7.449385   7.208675 </span>
+<span class="r-in"><span><span class="co"># 7.45 vs 7.21 g/kg: the fit is WORSE than the mean, and</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="edaphos_r2.html">edaphos_r2</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span>, <span class="va">pred</span><span class="op">)</span>                       <span class="co"># -0.074, i.e. &lt; 0</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.07443565</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Two diagnostics that have to be read side by side to see why.</span></span></span>
+<span class="r-in"><span><span class="co"># In sample the fit is near-perfect; out of sample its predictions</span></span></span>
+<span class="r-in"><span><span class="co"># barely move off the training mean.  With a 6-qubit Gram matrix</span></span></span>
+<span class="r-in"><span><span class="co"># this close to the identity (see qf_kernel_compare()), KRR can</span></span></span>
+<span class="r-in"><span><span class="co"># only memorise: every test pixel is near-orthogonal to every</span></span></span>
+<span class="r-in"><span><span class="co"># training pixel, so the kernel expansion contributes ~ nothing</span></span></span>
+<span class="r-in"><span><span class="co"># and prediction falls back on the intercept.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rmse_in_sample <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">fit</span><span class="op">$</span><span class="va">rmse</span>,              <span class="co"># 0.63</span></span></span>
+<span class="r-in"><span>  rmse_held_out  <span class="op">=</span> <span class="fu"><a href="edaphos_rmse.html">edaphos_rmse</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span>, <span class="va">pred</span><span class="op">)</span><span class="op">)</span> <span class="co"># 7.45</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rmse_in_sample  rmse_held_out </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.6322467      7.4493853 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>sd_pred <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">pred</span><span class="op">)</span>, sd_truth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 1.11 vs 7.25</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  sd_pred sd_truth </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.113525 7.247360 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fewer qubits concentrate less, but do not rescue it: over</span></span></span>
+<span class="r-in"><span><span class="co"># n_pcs 3-6, reps 1-2 and lambda 1e-3..1 the best held-out R2</span></span></span>
+<span class="r-in"><span><span class="co"># this fixture produced was 0.012 -- the training mean, again.</span></span></span>
+<span class="r-in"><span><span class="va">fit4</span> <span class="op">&lt;-</span> <span class="fu">qf_krr_fit</span><span class="op">(</span><span class="va">emb</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span>, <span class="va">y</span><span class="op">[</span><span class="va">tr</span><span class="op">]</span>, n_pcs <span class="op">=</span> <span class="fl">4L</span>, reps <span class="op">=</span> <span class="fl">2L</span>,</span></span>
+<span class="r-in"><span>                   lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="edaphos_r2.html">edaphos_r2</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit4</span>, <span class="va">emb</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 0.012</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01240346</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap in predict(): the PCA centre, rotation and pi-rescale all</span></span></span>
+<span class="r-in"><span><span class="co"># come from the TRAINING rows, so a held-out pixel can encode</span></span></span>
+<span class="r-in"><span><span class="co"># outside the [-pi, pi] the feature map was scaled for.  Nothing</span></span></span>
+<span class="r-in"><span><span class="co"># errors and nothing warns -- the encoding just extrapolates, and</span></span></span>
+<span class="r-in"><span><span class="co"># the stored bounds are the only way to notice:</span></span></span>
+<span class="r-in"><span><span class="va">rng</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">reduction</span><span class="op">$</span><span class="va">range_min</span>, <span class="va">fit</span><span class="op">$</span><span class="va">reduction</span><span class="op">$</span><span class="va">range_max</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rng</span>                              <span class="co"># training PC span, pre-rescale</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -8.441388  8.382292</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Keep column names on newdata as well: an unnamed matrix against</span></span></span>
+<span class="r-in"><span><span class="co"># a named training embedding falls back to positional alignment</span></span></span>
+<span class="r-in"><span><span class="co"># and warns "NAs introduced by coercion".</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

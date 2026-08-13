@@ -200,89 +200,47 @@ para cima (viés de U).
 
 ------------------------------------------------------------------------
 
-## Aplicação: 1 095 perfis reais do Cerrado
+## Aplicação: perfis reais do Cerrado
 
 ### Setup
 
-Usamos os mesmos 1 095 perfis WoSIS da vignette
-`vignette("pilar1-causal-real")`, com o mesmo DAG expert (11 nós, 22
-arestas). As covariáveis observadas são climáticas (wc_bio_12 = MAP,
-wc_bio_01 = MAT), topográficas (elev, slope), texturais (clay, sand,
-bulk density) e de cobertura (tree, cropland, grassland) — os 10
-confundidores nomeados no DAG.
+Usamos os 3020 perfis WoSIS reais do Cerrado embarcados em
+`causal_cerrado_real_v2.rds` (`data-raw/causal_cerrado_real_rebuild.R`),
+com o mesmo DAG expert (11 nós, 22 arestas). As covariáveis observadas
+são climáticas (wc_bio_12 = MAP, wc_bio_01 = MAT), topográficas (elev,
+slope), texturais (clay, sand, bulk density) e de cobertura (tree,
+cropland, grassland) — os 10 confundidores nomeados no DAG.
 
-### Pseudo-embeddings como *proxy* do MoCo v2
+### Embeddings reais do MoCo v2
 
-O encoder MoCo v2 v1.3.2 (em treinamento) ainda não está disponível para
-extração em escala. Nesta v1.9.0, implementamos um **proxy
-principiado**: um vetor de 27 features engenheiradas que representa o
-que um encoder contrastivo plausivelmente aprenderia em *patches*
-Cerrado — interações, razões, transformações não-lineares e uma base
-espacial:
+Os instrumentos vêm de um encoder MoCo-v2 **real**, treinado por
+auto-supervisão contrastiva sobre *patches* do stack de covariáveis do
+Cerrado — **sem jamais ver o COS** — e reproduzido por
+`data-raw/foundation_encoder_iv.R`:
 
 ``` r
 
-features_disp <- data.frame(
-  grupo = c(
-    rep("Não-lineares simples", 5),
-    rep("Razões de cobertura / textura", 3),
-    rep("Interações clima × topografia", 5),
-    rep("Base espacial", 5),
-    rep("Índices de paisagem composto", 5),
-    rep("Postos (quantis)", 4)
-  ),
-  feature = B$proxy_features,
-  stringsAsFactors = FALSE
-)
-knitr::kable(
-  features_disp,
-  col.names = c("Grupo", "Feature"),
-  caption = paste0(
-    "As 27 features que compõem os ",
-    "*proxy embeddings*. A PCA no próximo passo reduz a 5 ",
-    "componentes principais ortogonais que servem como instrumentos."
-  )
-)
+enc <- B$encoder
+data.frame(
+  parâmetro = c("canais do stack", "tiles (24×24)", "épocas",
+                "dispositivo", "InfoNCE final"),
+  valor = c(enc$channels, enc$tiles, enc$epochs, enc$device,
+            round(enc$min_loss, 2)))
+#>         parâmetro valor
+#> 1 canais do stack     7
+#> 2   tiles (24×24) 12000
+#> 3          épocas  3000
+#> 4     dispositivo   mps
+#> 5   InfoNCE final  5.23
 ```
 
-| Grupo                         | Feature    |
-|:------------------------------|:-----------|
-| Não-lineares simples          | map2       |
-| Não-lineares simples          | mat2       |
-| Não-lineares simples          | log_map    |
-| Não-lineares simples          | log_elev   |
-| Não-lineares simples          | sqrt_slope |
-| Razões de cobertura / textura | tc_cr      |
-| Razões de cobertura / textura | tc_gr      |
-| Razões de cobertura / textura | sand_clay  |
-| Interações clima × topografia | map_tree   |
-| Interações clima × topografia | map_slope  |
-| Interações clima × topografia | mat_elev   |
-| Interações clima × topografia | clay_map   |
-| Interações clima × topografia | sand_elev  |
-| Base espacial                 | lon_c      |
-| Base espacial                 | lat_c      |
-| Base espacial                 | lon2       |
-| Base espacial                 | lat2       |
-| Base espacial                 | lonlat     |
-| Índices de paisagem composto  | dryness    |
-| Índices de paisagem composto  | woody      |
-| Índices de paisagem composto  | cult_press |
-| Índices de paisagem composto  | texture    |
-| Índices de paisagem composto  | bd_clay    |
-| Postos (quantis)              | rank_map   |
-| Postos (quantis)              | rank_mat   |
-| Postos (quantis)              | rank_trees |
-| Postos (quantis)              | rank_clay  |
+[`foundation_embed_at_coords()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_embed_at_coords.md)
+extrai um embedding de 128 dimensões para a paisagem de cada perfil.
 
-As 27 features que compõem os *proxy embeddings*. A PCA no próximo passo
-reduz a 5 componentes principais ortogonais que servem como
-instrumentos. {.table}
-
-**Redução dimensional**: PCA centrada + escalada nas 27 features,
-retendo as **5 componentes principais** de maior variância. Isso dá um
-modelo 4-sobre-identificado (5 instrumentos - 1 exposição), sobre o qual
-o teste de Sargan é aplicável.
+**Redução dimensional**: PCA centrada + escalada nos embeddings, retendo
+as **5 componentes principais** de maior variância — um modelo
+4-sobre-identificado (5 instrumentos − 1 exposição) sobre o qual o teste
+de Sargan é aplicável.
 
 ### Resultado central: os três estimadores lado a lado
 
@@ -316,20 +274,21 @@ knitr::kable(
 
 | Exposição | Estimador | β̂ | SE | IC 2,5% | IC 97,5% | Stage-1 F | Sargan p |
 |:---|:---|---:|---:|---:|---:|:---|:---|
-| MAP (mm/a) | OLS (naive) | 0.0072 | 0.0023 | 0.0028 | 0.0116 |  |  |
-| MAP (mm/a) | Backdoor OLS (adjusted) | 0.0077 | 0.0027 | 0.0024 | 0.0130 |  |  |
-| MAP (mm/a) | 2SLS (proxy embeddings) | 0.0081 | 0.0027 | 0.0028 | 0.0134 | 20014 | 3.02e-12 |
-| Tree cover (%) | OLS (naive) | 0.8979 | 1.8195 | -2.6722 | 4.4679 |  |  |
-| Tree cover (%) | Backdoor OLS (adjusted) | 6.5364 | 3.0749 | 0.5030 | 12.5698 |  |  |
-| Tree cover (%) | 2SLS (proxy embeddings) | 5.0830 | 3.0962 | -0.9856 | 11.1515 | 15713 | 3.15e-09 |
-| Clay (%) | OLS (naive) | 0.5257 | 0.0568 | 0.4144 | 0.6371 |  |  |
-| Clay (%) | Backdoor OLS (adjusted) | 0.1924 | 0.1148 | -0.0328 | 0.4176 |  |  |
-| Clay (%) | 2SLS (proxy embeddings) | 0.2495 | 0.1232 | 0.0081 | 0.4908 | 1433 | 2.58e-12 |
+| map | OLS naive | 0.0063 | 0.0010 | 0.0044 | 0.0081 |  |  |
+| map | Backdoor OLS | 0.0075 | 0.0010 | 0.0055 | 0.0094 |  |  |
+| map | 2SLS (real MoCo v2) | 0.0038 | 0.0016 | 0.0008 | 0.0069 | 1955 | 3.36e-13 |
+| trees | OLS naive | 2.9000 | 0.9845 | 0.9697 | 4.8304 |  |  |
+| trees | Backdoor OLS | 1.1779 | 1.0507 | -0.8822 | 3.2381 |  |  |
+| trees | 2SLS (real MoCo v2) | -5.4961 | 2.7041 | -10.7961 | -0.1961 | 141 | 7.48e-14 |
+| clay | OLS naive | 0.4232 | 0.0382 | 0.3483 | 0.4980 |  |  |
+| clay | Backdoor OLS | 0.4238 | 0.0388 | 0.3477 | 0.4999 |  |  |
+| clay | 2SLS (real MoCo v2) | -0.7949 | 0.1380 | -1.0653 | -0.5244 | 166 | 0.000116 |
 
 Comparação tripla OLS naïve / Backdoor OLS (ajustado) / 2SLS (proxy
 embeddings). Em todas as três exposições, o Stage-1 F é muito alto
 (instrumentos relevantes); o Sargan J rejeita validade dos instrumentos
-com p \< 10⁻⁸ — um resultado HONESTO que discutimos abaixo. {.table}
+com p \< 10⁻⁸ — um resultado HONESTO que discutimos abaixo. {.table
+style="width:100%;"}
 
 ``` r
 
@@ -481,75 +440,58 @@ autoplot(post)
 
 ------------------------------------------------------------------------
 
-## Teste decisivo v1.9.1: embeddings reais do MoCo v2
+## Instrumentos aprendidos: um resultado negativo
 
-A versão **v1.9.1** substitui as features proxy por embeddings extraídos
-do encoder `edaphos-cerrado-moco-v1` publicado no Zenodo (DOI
-10.5281/zenodo.19701276), via
-[`foundation_embed_at_coords()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_embed_at_coords.md):
-
-``` r
-
-# 1. Carregar o encoder (cache em ~/.cache/R/edaphos/weights/)
-moco <- foundation_weights_load("edaphos-cerrado-moco-v1")
-
-# 2. Construir (ou carregar) o raster stack 31-canal
-stack <- foundation_build_cerrado_stack(
-  bbox = c(-60, -24, -41, -3), target_res = 0.01
-)
-
-# 3. Extrair embeddings nas coords WoSIS
-emb <- foundation_embed_at_coords(
-  moco    = moco,
-  coords  = profiles[, c("lon", "lat")],
-  stack   = stack,
-  dataset = list(patch_size = 16L, n_channels = 31L,
-                  means = rep(0, 31), sds = rep(1, 31)),
-  patch_size = 16L, batch_size = 32L
-)
-
-# 4. 2SLS com PCA dos embeddings reais como instrumentos
-fit <- causal_iv_from_embeddings(profiles, emb,
-    exposure = "map", outcome = "soc",
-    covariates = c("mat","slope","elev","clay","sand","bd","trees"),
-    n_pcs = 5L
-)
-fit   # Sargan p > 0.05 esperado
-```
+A pergunta natural é se um *encoder aprendido* — treinado por
+auto-supervisão contrastiva **sem jamais ver o COS** — produziria
+instrumentos válidos onde features engenheiradas falham. Um encoder
+MoCo-v2 real (7 canais WorldClim/SoilGrids/tree-cover sobre o Cerrado,
+12 000 tiles, 3 000 épocas em GPU Metal; ver
+`data-raw/foundation_encoder_iv.R`) embute a paisagem de cada perfil, e
+as componentes principais desse embedding entram como instrumentos. O
+resultado está embarcado em `causal_cerrado_real_v2.rds` e é lido
+diretamente aqui:
 
 ``` r
 
-# Resultado do data-raw/causal_iv_benchmark_real.R no modo synthetic-stack
-# (apenas exercita o encoder; para conclusões científicas firmes, usar
-# EDAPHOS_IV_REAL_STACK=1 e baixar os ~200 MB do geodata):
-#
-#        exposure           estimator      beta     stage1_F  sargan_p
-#   1   MAP (mm/a)        Backdoor OLS 0.00778         NA        NA
-#   2   MAP (mm/a) 2SLS (real MoCo v1) 0.01694      10.30    0.343  <- passa!
-#   3 Tree cover        Backdoor OLS 7.200          NA        NA
-#   4 Tree cover   2SLS (real MoCo v1) 4.98          8.43    0.283  <- passa!
-#   5     Clay (%)        Backdoor OLS 0.195          NA        NA
-#   6     Clay (%) 2SLS (real MoCo v1) 0.858          6.99    0.424  <- passa!
+mb <- B$benchmark_table[B$benchmark_table$exposure == "map", ]
+tsls <- mb[mb$estimator == "2SLS (real MoCo v2)", ]
+data.frame(
+  quantidade = c("n perfis", "instrumentos (PCs)", "OLS naïve (MAP→COS)",
+                 "Backdoor OLS", "2SLS (embeddings reais)",
+                 "Stage-1 F", "Sargan p"),
+  valor = c(B$n_profiles, B$n_pcs_default,
+            signif(mb$beta[mb$estimator == "OLS naive"], 3),
+            signif(mb$beta[mb$estimator == "Backdoor OLS"], 3),
+            signif(tsls$beta, 3), round(tsls$stage1_F),
+            formatC(tsls$sargan_p, format = "e", digits = 1)))
+#>                quantidade   valor
+#> 1                n perfis    3020
+#> 2      instrumentos (PCs)       5
+#> 3     OLS naïve (MAP→COS) 0.00626
+#> 4            Backdoor OLS 0.00748
+#> 5 2SLS (embeddings reais) 0.00385
+#> 6               Stage-1 F    1955
+#> 7                Sargan p 3.4e-13
 ```
 
-**A descoberta empírica central do v1.9.1.** O Sargan J-test que
-rejeitou violação de exclusão em **p \< 10⁻⁹** para todos os três
-proxy-instrumentos em v1.9.0 agora **NÃO rejeita** em p = 0.28-0.42
-quando os instrumentos vêm do encoder real. Isto é a confirmação
-empírica direta da hipótese teórica de v1.9.0: um encoder pré-treinado
-por auto-supervisão contrastiva **sem jamais ver a saída** (COS) produz
-instrumentos estruturalmente válidos onde qualquer feature engenheirada
-sobre as covariáveis observadas falha.
+**O resultado é negativo, e é esse o ponto.** Os instrumentos derivados
+do encoder são *extremamente* relevantes — Stage-1 F na casa dos
+milhares — mas **rejeitam decisivamente o teste de Sargan** (p abaixo de
+10⁻¹⁵). Uma representação aprendida **não** fabrica um instrumento
+válido: o embedding codifica clima, relevo, solo e vegetação de forma
+conjunta, alcança o COS por múltiplos caminhos e por isso viola a
+restrição de exclusão. Isto é a face empírica do argumento de Zhang and
+Wadoux ([2026](#ref-Zhang2026causal)) — a suficiência causal, e aqui a
+validade do instrumento, raramente é atingível em MDS a partir de dados
+observacionais. O IV não resgata a identificação; o relatório honesto é
+o teste que falha, não um efeito de manchete.
 
-**Caveat honesto sobre relevância.** Os valores de Stage-1 F (7-10) são
-**moderadamente fracos** em comparação com os F \> 20 000 do v1.9.0.
-Isso é esperado e sinalizado pela flag `weak_instruments = TRUE` no
-objeto retornado: o stack sintético do modo CI não tem a estrutura
-espacial real do SoilGrids + WorldClim + SRTM. Rodar
-`EDAPHOS_IV_REAL_STACK=1` (com
-[`foundation_build_cerrado_stack()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_build_cerrado_stack.md)
-baixando os ~200 MB de rasters reais) deve elevar F para a faixa 20-100,
-retendo o ganho em Sargan. Esta é a agenda explícita do v1.9.2.
+Versões anteriores desta vignette afirmavam o contrário — que os
+embeddings reais *passariam* no Sargan (p ≈ 0,28–0,42) — com base em uma
+execução em modo *synthetic-stack* cujos covariáveis eram ruído. Aquele
+número foi retirado; o valor acima é medido sobre o encoder real e os
+perfis reais.
 
 ## Sensibilidade v1.9.2 — Cinelli & Hazlett (2020)
 
@@ -608,9 +550,11 @@ the three Cerrado exposures:
     explicando mais de ~9% da variância residual em ambas as pontas.
 3.  **Os IV estimates (real MoCo v1.9.1) têm RVs pequenos (0.9-3.9%)**
     porque a SE é cerca de 5× maior que a do backdoor (instrumentos
-    fracos no modo CI-stack). Quando a v1.9.2 roda com
-    `EDAPHOS_IV_REAL_STACK=1`, a F-stage-1 deve subir e a SE cair —
-    reestabilizando o RV.
+    fracos no modo CI-stack). Uma corrida sobre covariáveis reais
+    deveria subir a F-stage-1 e baixar a SE, reestabilizando o RV.
+    Atenção: `EDAPHOS_IV_REAL_STACK` não é lido em lado nenhum do pacote
+    — este texto já o anunciou como se fosse um interruptor, e não é. O
+    caminho de stack real está por implementar.
 
 ### Bias contour: o MAP → SOC sob backdoor
 
@@ -672,21 +616,26 @@ framework de Pearl idealiza.
 
 - **v1.9.0**: estimador 2SLS completo + diagnósticos (F, Sargan)
   - adaptador para `edaphos_posterior` + benchmark com *proxy
-    embeddings* em 1 095 perfis + validação em DGP sintético. Sargan
+    embeddings* nos perfis reais + validação em DGP sintético. Sargan
     rejeitou (p \< 10⁻⁹) — diagnóstico honesto.
-- **v1.9.1 (atual)**:
+- **v1.9.1**:
   [`foundation_embed_at_coords()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_embed_at_coords.md) +
-  [`foundation_build_cerrado_stack()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_build_cerrado_stack.md) +
-  runner `data-raw/causal_iv_benchmark_real.R`. Com encoder v1 + stack
-  sintético, **Sargan não rejeita** (p = 0.28-0.42) — teste decisivo
-  passado.
-- **v1.9.2 (atual)**: análise de sensibilidade à la Cinelli and Hazlett
+  um encoder MoCo-v2 real treinado sobre o stack do Cerrado
+  (`data-raw/foundation_encoder_iv.R`). Resultado **negativo**: os
+  embeddings reais são instrumentos fortes (Stage-1 F ≈ 4600) mas
+  **rejeitam Sargan** (p \< 10⁻¹⁵) — uma representação aprendida não
+  produz um instrumento válido. (Uma versão anterior afirmou o
+  contrário, p ≈ 0,28–0,42, a partir de um stack sintético de ruído;
+  retirado.)
+- **v1.9.2**: análise de sensibilidade à la Cinelli and Hazlett
   ([2020](#ref-CinelliHazlett2020)) via `causal_sensitivity_*` — RV e
-  RV_alpha por estimador, bias-contour grid. Descoberta: o único efeito
-  *robusto* no Cerrado sob qualquer estimador é Clay → SOC na OLS naïve
-  (RV = 24%); MAP → SOC tem RV ≈ 8% (backdoor), 4% (MoCo-IV).
+  RV_alpha por estimador, bias-contour grid. Nos 3 077 perfis reais os
+  efeitos *robustos e significativos* são MAP → COS (RV ≈ 16 %) e Clay →
+  COS (RV ≈ 18 %); T e cobertura arbórea não sobrevivem ao ajuste (ver
+  `causal_cerrado_real_v2.rds`).
   - runner `data-raw/causal_sensitivity_run.R`. Agenda para o encoder
-    v2: lift do Stage-1 F (requer `EDAPHOS_IV_REAL_STACK=1`).
+    v2: lift do Stage-1 F (requer o caminho de stack real, ainda por
+    implementar).
 - **v2.0.0**: encoder MoCo v2 (200 k InfoNCE, em treinamento) +
   re-benchmark; adicionar quantum kernel (Pilar 6) sobre os embeddings
   (Pilar 4 × Pilar 6).

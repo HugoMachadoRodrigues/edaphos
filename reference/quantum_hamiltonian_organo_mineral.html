@@ -11,7 +11,7 @@ laptop and for a meaningful walk-through of
 quantum_vqe_fit() in the Pillar 6 vignette. Four qubits are
 partitioned as two metal-centre states (left pair) and two
 ligand states (right pair), with on-site, same-sector exchange
-and cross-sector hopping / tunnelling terms:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+and cross-sector hopping / tunnelling terms:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -37,7 +37,7 @@ and cross-sector hopping / tunnelling terms:"><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,14 +48,12 @@ and cross-sector hopping / tunnelling terms:"><meta property="og:image" content=
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -63,14 +61,12 @@ and cross-sector hopping / tunnelling terms:"><meta property="og:image" content=
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -165,6 +161,53 @@ $$</p>
 state.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">om</span> <span class="op">&lt;-</span> <span class="fu">quantum_hamiltonian_organo_mineral</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">om</span>                                  <span class="co"># 4 qubits, 8 Pauli terms</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Switch the hopping off and the Hamiltonian is diagonal, i.e. a</span></span></span>
+<span class="r-in"><span><span class="co"># classical Ising energy over z in {-1, +1}^4 that you can</span></span></span>
+<span class="r-in"><span><span class="co"># minimise by hand.  Both routes give -1, all four spins up.</span></span></span>
+<span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>z3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, z2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, z0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="va">g</span><span class="op">$</span><span class="va">z3</span> <span class="op">+</span> <span class="va">g</span><span class="op">$</span><span class="va">z2</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="op">(</span><span class="va">g</span><span class="op">$</span><span class="va">z1</span> <span class="op">+</span> <span class="va">g</span><span class="op">$</span><span class="va">z0</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>     <span class="fl">0.4</span> <span class="op">*</span> <span class="va">g</span><span class="op">$</span><span class="va">z3</span> <span class="op">*</span> <span class="va">g</span><span class="op">$</span><span class="va">z2</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">g</span><span class="op">$</span><span class="va">z1</span> <span class="op">*</span> <span class="va">g</span><span class="op">$</span><span class="va">z0</span><span class="op">)</span>                  <span class="co"># -1</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="quantum_vqe_exact.html">quantum_vqe_exact</a></span><span class="op">(</span><span class="fu">quantum_hamiltonian_organo_mineral</span><span class="op">(</span>t <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>  <span class="co"># -1</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `t` is what makes the cluster quantum: Fe-ligand tunnelling</span></span></span>
+<span class="r-in"><span><span class="co"># buys 0.215809 Ha of extra binding at the default t = 0.25 and</span></span></span>
+<span class="r-in"><span><span class="co"># the ground state stops being a product state.  With t = 0 there</span></span></span>
+<span class="r-in"><span><span class="co"># is nothing here a VQE could tell you that expand.grid() cannot.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="quantum_vqe_exact.html">quantum_vqe_exact</a></span><span class="op">(</span><span class="va">om</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span>                     <span class="co"># -1.215809</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="quantum_vqe_exact.html">quantum_vqe_exact</a></span><span class="op">(</span><span class="va">om</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span>              <span class="co"># -0.215809</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Why this is a harder target than quantum_hamiltonian_h2(): the</span></span></span>
+<span class="r-in"><span><span class="co"># first excited state sits only 0.125771 Ha above the ground</span></span></span>
+<span class="r-in"><span><span class="co"># state and is doubly degenerate, so a fit must beat that before</span></span></span>
+<span class="r-in"><span><span class="co"># "ground state" means anything.  H2's gap is 0.6127.</span></span></span>
+<span class="r-in"><span><span class="va">lv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Re</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/eigen.html" class="external-link">eigen</a></span><span class="op">(</span><span class="va">om</span><span class="op">$</span><span class="va">op</span><span class="op">$</span><span class="fu">to_matrix</span><span class="op">(</span><span class="op">)</span>, only.values <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">values</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">lv</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, <span class="fl">6</span><span class="op">)</span>   <span class="co"># -1.215809 -1.090038 -1.090038 -0.795228</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">lv</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">lv</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">6</span><span class="op">)</span>                             <span class="co"># 0.125771</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Judged that way the default fit fails.  Twenty COBYLA restarts</span></span></span>
+<span class="r-in"><span><span class="co"># of the EXACT statevector VQE -- no shot noise at all, about 1 s</span></span></span>
+<span class="r-in"><span><span class="co"># a run -- spanned 0.031 to 0.123 Ha off: a quarter to nearly all</span></span></span>
+<span class="r-in"><span><span class="co"># of the spectral gap, with not one run converging.  Read `gap`</span></span></span>
+<span class="r-in"><span><span class="co"># against `lv[2] - lv[1]`, never against the energy, and never</span></span></span>
+<span class="r-in"><span><span class="co"># report a single run.</span></span></span>
+<span class="r-in"><span><span class="va">gaps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">om</span>, max_iter <span class="op">=</span> <span class="fl">400L</span><span class="op">)</span><span class="op">$</span><span class="va">gap</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">gaps</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">gaps</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">lv</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">lv</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Reaching the ground state takes a deeper ansatz and far more</span></span></span>
+<span class="r-in"><span><span class="co"># iterations: reps = 3 with max_iter = 2000 (about 6 s a run)</span></span></span>
+<span class="r-in"><span><span class="co"># brought five restarts down to a 0.0000-0.0450 Ha spread.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="quantum_vqe_fit.html">quantum_vqe_fit</a></span><span class="op">(</span><span class="va">om</span>, ansatz_reps <span class="op">=</span> <span class="fl">3L</span>, max_iter <span class="op">=</span> <span class="fl">2000L</span><span class="op">)</span><span class="op">$</span><span class="va">gap</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

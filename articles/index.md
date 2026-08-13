@@ -38,7 +38,21 @@
 - [Quantum kernel over foundation-model
   embeddings](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-pilar6-quantum.md):
 
+### Pilares 7-10
+
+- [Pilar 7 — Bayesian Hierarchical Spatial
+  Models](https://hugomachadorodrigues.github.io/edaphos/articles/pilar7-bayesian-hierarchical.md):
+- [Pilar 8 — Neural Operators over Depth-Function
+  Space](https://hugomachadorodrigues.github.io/edaphos/articles/pilar8-neural-operators.md):
+- [Pilar 9 — Diffusion Models for Soil-Map
+  Patches](https://hugomachadorodrigues.github.io/edaphos/articles/pilar9-diffusion-models.md):
+- [Pilar 10 — Graph Attention Networks on Co-location
+  Graphs](https://hugomachadorodrigues.github.io/edaphos/articles/pilar10-graph-attention.md):
+
 ### End-to-end
 
 - [Case study — Cerrado SOC end-to-end: does edaphos beat the classical
   stack?](https://hugomachadorodrigues.github.io/edaphos/articles/case-cerrado-end-to-end.md):
+- [Frontier methods for digital soil mapping, evaluated honestly: a
+  reproducible benchmark on real WoSIS Cerrado
+  profiles](https://hugomachadorodrigues.github.io/edaphos/articles/edaphos-paper.md):

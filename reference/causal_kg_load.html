@@ -7,7 +7,7 @@ rules stay consistent with a freshly-built graph."><meta property="og:descriptio
 reconstructs the edaphos_causal_kg. The reconstruction is
 careful: it re-calls causal_kg_add_edge() for every saved edge
 so that the duplicate-edge merge + cycle check + normalisation
-rules stay consistent with a freshly-built graph."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+rules stay consistent with a freshly-built graph."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ rules stay consistent with a freshly-built graph."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ rules stay consistent with a freshly-built graph."><meta property="og:image" con
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ rules stay consistent with a freshly-built graph."><meta property="og:image" con
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -130,6 +126,50 @@ rules stay consistent with a freshly-built graph.</p>
     <p>An <code>edaphos_causal_kg</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"mean annual precipitation"</span>, <span class="st">"ndvi"</span>,</span></span>
+<span class="r-in"><span>                           source     <span class="op">=</span> <span class="st">"Jenny 1941"</span>,</span></span>
+<span class="r-in"><span>                           evidence   <span class="op">=</span> <span class="st">"Water limits primary production."</span>,</span></span>
+<span class="r-in"><span>                           confidence <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"ndvi"</span>, <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                           source     <span class="op">=</span> <span class="st">"Minasny et al. 2017"</span>,</span></span>
+<span class="r-in"><span>                           evidence   <span class="op">=</span> <span class="st">"Litter inputs scale with NPP."</span>,</span></span>
+<span class="r-in"><span>                           confidence <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="causal_kg_save.html">causal_kg_save</a></span><span class="op">(</span><span class="va">kg</span>, <span class="va">f</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The round trip is exact down to the per-edge timestamps, so a</span></span></span>
+<span class="r-in"><span>  <span class="co"># reloaded KG is the same audit trail, not an approximation.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  <span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="fu">causal_kg_load</span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Loading REPLAYS causal_kg_add_edge() for every saved edge, and</span></span></span>
+<span class="r-in"><span>  <span class="co"># the replay is wrapped in suppressWarnings(). A KG that warned</span></span></span>
+<span class="r-in"><span>  <span class="co"># about a cycle while you built it therefore reloads in silence:</span></span></span>
+<span class="r-in"><span>  <span class="co"># re-check is_dag() after loading rather than waiting to be told.</span></span></span>
+<span class="r-in"><span>  <span class="va">cyclic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"soc"</span>, <span class="st">"mean annual precipitation"</span>,</span></span>
+<span class="r-in"><span>                       confidence <span class="op">=</span> <span class="fl">0.40</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="causal_kg_save.html">causal_kg_save</a></span><span class="op">(</span><span class="va">cyclic</span>, <span class="va">g</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/is_dag.html" class="external-link">is_dag</a></span><span class="op">(</span><span class="fu">causal_kg_load</span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">$</span><span class="va">graph</span><span class="op">)</span><span class="op">)</span>  <span class="co"># FALSE, silently</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The reader is guarded by format_version, so aiming it at some</span></span></span>
+<span class="r-in"><span>  <span class="co"># other .rds fails loudly instead of half-building a graph.</span></span></span>
+<span class="r-in"><span>  <span class="va">other</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cause <span class="op">=</span> <span class="st">"clay"</span>, effect <span class="op">=</span> <span class="st">"soc"</span><span class="op">)</span>, <span class="va">other</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">causal_kg_load</span><span class="op">(</span><span class="va">other</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : File '/tmp/RtmpNvtEGq/file1f0c9631cd5.rds' does not look like a saved edaphos KG (format_version mismatch).</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

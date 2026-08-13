@@ -104,3 +104,60 @@ assemble their own hybrid loops outside of
 in particular, it is the primitive consumed by a future
 `quantum_krr_fit(..., backend = "ibmq")` release for quantum- kernel
 matrix elements.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+  ham <- quantum_hamiltonian_h2()          # 2 qubits, 5 Pauli terms
+
+  # `parameters` must match the ansatz length exactly: there is no
+  # recycling, and nothing on the R side checks it. EfficientSU2
+  # carries n_qubits * 2 * (reps + 1) angles, so 2 * 2 * 3 = 12 at
+  # the default `ansatz_reps = 2`. Compute it, do not guess it.
+  theta <- rep(0.1, 12)
+
+  job <- quantum_ibmq_submit(ham, parameters = theta,
+                              shots = 4096L, mitigation = "m3")
+  job
+
+  # One PUB is ONE expectation value at ONE parameter point -- this
+  # is not an optimisation. The noiseless value at this theta is
+  # -1.029329 while the ground state is -1.857275, so theta = 0.1
+  # sits 0.83 Hartree above the minimum. A hardware number near
+  # -1.03 therefore means the device worked, NOT that the chemistry
+  # converged; quantum_vqe_fit(backend = "ibmq") does the latter.
+  ref <- quantum_vqe_fit(ham, backend = "aer_statevector",
+                          initial_point = theta)$history[1L]
+  c(hardware = job$expectation, noiseless = ref,
+    ground_state = quantum_vqe_exact(ham))
+
+  # `std_error` is shot noise ONLY -- the EstimatorV2 standard
+  # error, of order 1/sqrt(shots) (0.0156 at 4096 shots).
+  # Quadrupling `shots` halves it and does nothing whatsoever to
+  # the coherent gate error, which is the bias `mitigation`
+  # attacks. A tight std_error next to an untreated bias is the
+  # classic way to over-trust a hardware run.
+  c(std_error = job$std_error, shot_floor = 1 / sqrt(job$shots))
+
+  # So compare mitigation levels rather than trusting one run, and
+  # pin `backend_name` while doing it: the default picks the
+  # least-busy device afresh each call, which would confound the
+  # comparison with a change of processor. Two queue slots.
+  raw <- quantum_ibmq_submit(ham, parameters = theta, shots = 4096L,
+                              backend_name = job$backend,
+                              mitigation = "none")
+  c(none = raw$expectation, m3 = job$expectation, noiseless = ref)
+
+  # `mitigation` is match.arg()'d here, so it is case sensitive
+  # even though the internal level map is not: "zne" works, "ZNE"
+  # errors.
+
+  # Supplying your own circuit ignores `ansatz_reps` and is
+  # unchecked: a handle whose width differs from ham$n_qubits gets
+  # past the transpiler and dies later inside apply_layout() with
+  # "Number of qargs does not match (3 != 2)". Match the width to
+  # hamiltonian$n_qubits yourself.
+  names(job$metadata)                      # primitive's own report
+} # }
+```

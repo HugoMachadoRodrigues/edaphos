@@ -53,7 +53,9 @@ every downstream user.
 - **B1** `ranger` quantile regression forest ([Meinshausen
   2006](#ref-Meinshausen2006qrf)) on the expanded covariate stack
   (SoilGrids + WorldClim monthly + SRTM + WorldCover + bio), target =
-  $`\log(1 + \text{SOC})`$.
+  SOC em g/kg, **sem transformacao** (o texto dizia
+  $`\log(1 + \text{SOC})`$, o que contradizia a propria seccao 2(a)
+  deste documento e o artefacto publicado).
 - **B2** B1 **plus** residual kriging via `gstat` ([Pebesma
   2004](#ref-Pebesma2004gstat)) — the full Hengl-style classical DSM
   recipe ([Hengl et al. 2017](#ref-Hengl2017soilgrids)).
@@ -84,7 +86,7 @@ real CC-BY-4.0 data. **Nothing in this vignette is synthetic.**
 The benchmark is reproduced by two scripts in the `edaphos` repository:
 
 ``` bash
-# ~1 h once (downloads ~2 GB of public rasters, samples 1212
+# ~1 h once (downloads ~2 GB of public rasters, selects 1 095
 # Cerrado WoSIS profiles, extracts covariates, writes the bundle).
 Rscript data-raw/case_cerrado_prepare.R
 
@@ -147,10 +149,12 @@ Evaluation uses **5-fold spatial cross-validation** — k-means clustering
 on longitude/latitude assigns each profile to one of 5 folds, and each
 fold serves as the test set exactly once. This is strictly better than
 the single 80/20 split shipped in v1.3.0: every profile contributes a
-held-out prediction, so the 302 pooled predictions give metrics whose
-binomial CI is ~4× tighter than the 60-point test set we had before. It
-also removes the systematic ±3 g/kg bias that the single-split v1.3.0
-estimate inherited from unlucky train/test SOC distribution drift.
+held-out prediction, so the 1095 pooled predictions give metrics whose
+binomial CI is much tighter than the 60-point test set we had before.
+(This paragraph said 302 for four releases; the artefact pools every
+profile.) It also removes the systematic ±3 g/kg bias that the
+single-split v1.3.0 estimate inherited from unlucky train/test SOC
+distribution drift.
 
 ## 4. Results
 
@@ -159,12 +163,12 @@ estimate inherited from unlucky train/test SOC distribution drift.
 | method | n | RMSE (g/kg) | MAE (g/kg) | R² | bias (g/kg) | <PICP@95> | Interval score |
 |:---|---:|---:|---:|---:|---:|:---|---:|
 | B1 ranger | 1095 | 13.51 | 7.72 | 0.219 | -0.62 | 0.944 | 65.81 |
-| B2 ranger + kriging | 910 | 13.86 | 7.86 | 0.233 | -0.23 | 0.816 | 99.52 |
+| B2 ranger + kriging | 893 | 14.01 | 7.93 | 0.205 | 0.04 | 0.945 | 79.90 |
 | E ranger + MoCo v1 | 923 | 14.07 | 7.95 | 0.157 | -0.65 | 0.940 | 71.66 |
 
 5-fold cross-validation results. `n` is smaller for the foundation-model
-stack because ~50 profiles are too close to the raster edge to extract a
-16×16 patch around them. {.table style="width:100%;"}
+stack because 172 profiles are too close to the raster edge to extract a
+16x16 patch around them. {.table style="width:100%;"}
 
 ### 4.2 Observed vs predicted
 
@@ -182,14 +186,13 @@ observation 95 % of the time. The PICP (Prediction Interval Coverage
 Probability) in the headline table is the honest probe:
 
 ![PICP@95 (target = 0.95) and mean interval width per method. All three
-stacks produce near-nominal coverage on 5-fold CV, with the QRF baseline
-reaching 0.937 — closer to the nominal 0.95 than either of the other
-two.](case-cerrado-end-to-end_files/figure-html/picp-bar-1.png)
+stacks produce near-nominal coverage on 5-fold CV; B2 ranger + kriging
+is closest at
+0.945.](case-cerrado-end-to-end_files/figure-html/picp-bar-1.png)
 
 <PICP@95> (target = 0.95) and mean interval width per method. All three
-stacks produce near-nominal coverage on 5-fold CV, with the QRF baseline
-reaching 0.937 — closer to the nominal 0.95 than either of the other
-two.
+stacks produce near-nominal coverage on 5-fold CV; B2 ranger + kriging
+is closest at 0.945.
 
 ### 4.4 Residual geography
 
@@ -214,8 +217,8 @@ benchmark is re-executed.)*
 
 - **RMSE**: **B1 ranger** has the lowest RMSE on held-out test (13.51
   g/kg).
-- **Calibration**: **B1 ranger** has the best 95% interval coverage
-  (PICP = 0.944 vs nominal 0.95).
+- **Calibration**: **B2 ranger + kriging** has the best 95% interval
+  coverage (PICP = 0.945 vs nominal 0.95).
 - **edaphos vs classical baseline**: the MoCo embedding
   **underperforms** the raw-covariate ranger on this AoI by 4.1 % RMSE.
   This is the transparent failure mode: the encoder we released was
@@ -224,10 +227,12 @@ benchmark is re-executed.)*
 
 ## 6. What we learned
 
-1.  **The 302-profile clean 0–10 cm Cerrado dataset** is a publicly
-    reproducible benchmark, built entirely from CC-BY-4.0 data and IBGE
-    public biome polygons. Every subsequent release of `edaphos` can be
-    re-evaluated against the same 5-fold CV by running the two scripts.
+1.  **The 1095-profile Cerrado dataset** — SOC in g/kg of the
+    surface-anchored horizon, `upper_depth == 0` with `lower_depth`
+    between 5 and 30 cm — is a publicly reproducible benchmark, built
+    entirely from CC-BY-4.0 data and IBGE public biome polygons. Every
+    subsequent release of `edaphos` can be re-evaluated against the same
+    5-fold CV by running the two scripts.
 
 2.  **Interval calibration is where the three stacks genuinely differ.**
     Point RMSE is an incomplete view of a probabilistic predictor. The
@@ -254,7 +259,7 @@ claim:
   outcome, is now reproducible on *real* WoSIS Cerrado data instead of
   the synthetic `br_cerrado` fixture. Scheduled for v1.5.0.
 
-- **Pillar 2 (PIML).** The 1212-profile data is the input to
+- **Pillar 2 (PIML).** The 1 095-profile data is the input to
   \[[`piml_hierarchical_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_hierarchical_fit.md)\]\[piml_hierarchical_fit\]
   for a pooled Neural-ODE profile model across pedons, with the
   posterior from
@@ -272,7 +277,7 @@ claim:
   field team planning an in-situ campaign.
 
 - **Pillar 6 (Quantum ML).** Scheduled for a future release: quantum
-  kernel over the Pillar 4 embedding of the 1212 profiles, with
+  kernel over the Pillar 4 embedding of the 1 095 profiles, with
   \[[`quantum_krr_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_krr_fit.md)\]\[quantum_krr_fit\]
   returning a probabilistic SOC prediction that plugs into the same
   metric table.

@@ -5,7 +5,7 @@ abstract.  For each backend pair (A, B), treats every (abstract,
 edge) as a binary rating: &quot;did backend X extract this edge?&quot;."><meta property="og:description" content="Computes agreement (Cohen's kappa) for every pair of backends on
 the union of edges seen across them (and optionally gold) per
 abstract.  For each backend pair (A, B), treats every (abstract,
-edge) as a binary rating: &quot;did backend X extract this edge?&quot;."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+edge) as a binary rating: &quot;did backend X extract this edge?&quot;."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ edge) as a binary rating: &quot;did backend X extract this edge?&quot;."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ edge) as a binary rating: &quot;did backend X extract this edge?&quot;."><meta p
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ edge) as a binary rating: &quot;did backend X extract this edge?&quot;."><meta p
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -132,6 +128,58 @@ edge) as a binary rating: "did backend X extract this edge?".</p>
     <p>Numeric matrix of kappa values (symmetric, diagonal = 1).</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"llm_benchmark_results.rds"</span>,</span></span>
+<span class="r-in"><span>                        package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">llm_benchmark_kappa</span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">backend_claims</span>, gold <span class="op">=</span> <span class="va">B</span><span class="op">$</span><span class="va">gold_df</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Read the `gold` column first: 0.342 / 0.256 / 0.567 against the</span></span></span>
+<span class="r-in"><span>  <span class="co"># pedologist -- "fair" to "moderate", nowhere near the 0.80 you</span></span></span>
+<span class="r-in"><span>  <span class="co"># would demand of a second human coder before trusting a KG.</span></span></span>
+<span class="r-in"><span>  <span class="co">#</span></span></span>
+<span class="r-in"><span>  <span class="co"># Then read the off-diagonals: two backends that each agree with</span></span></span>
+<span class="r-in"><span>  <span class="co"># gold can still land at -0.081 with EACH OTHER.  Agreement with a</span></span></span>
+<span class="r-in"><span>  <span class="co"># reference does not transfer between raters, because they miss</span></span></span>
+<span class="r-in"><span>  <span class="co"># and invent different edges.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Trap: the rating universe is the union of edges over whatever</span></span></span>
+<span class="r-in"><span>  <span class="co"># raters you hand in, so kappa is a property of the CALL, not of</span></span></span>
+<span class="r-in"><span>  <span class="co"># the pair.  Adding one sloppy fourth rater contributes 169 new</span></span></span>
+<span class="r-in"><span>  <span class="co"># edges that Gemma and GPT both (correctly) decline, and their</span></span></span>
+<span class="r-in"><span>  <span class="co"># kappa jumps from -0.081 to 0.385 without either changing a</span></span></span>
+<span class="r-in"><span>  <span class="co"># single extraction.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">junk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    abstract_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">gold_df</span><span class="op">$</span><span class="va">abstract_id</span><span class="op">)</span>, <span class="fl">200</span>,</span></span>
+<span class="r-in"><span>                         replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    cause  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"clay"</span>, <span class="st">"sand"</span>, <span class="st">"silt"</span>, <span class="st">"ph"</span>, <span class="st">"cec"</span><span class="op">)</span>, <span class="fl">200</span>,</span></span>
+<span class="r-in"><span>                    replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    effect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"erosion"</span>, <span class="st">"ndvi"</span>, <span class="st">"slope"</span>, <span class="st">"land_use"</span><span class="op">)</span>, <span class="fl">200</span>,</span></span>
+<span class="r-in"><span>                    replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">llm_benchmark_kappa</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">backend_claims</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>junk <span class="op">=</span> <span class="va">junk</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                  gold <span class="op">=</span> <span class="va">B</span><span class="op">$</span><span class="va">gold_df</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Honest caveat on the first matrix: these three "backends" were</span></span></span>
+<span class="r-in"><span>  <span class="co"># drawn from the gold set by llm_benchmark_simulate() with an</span></span></span>
+<span class="r-in"><span>  <span class="co"># independent keep-mask per backend, so near-zero pairwise kappa is</span></span></span>
+<span class="r-in"><span>  <span class="co"># arithmetic from the generator, not evidence about Gemma, GPT or</span></span></span>
+<span class="r-in"><span>  <span class="co"># Claude.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">mode</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Gemma 4 GPT-4o-mini Claude Sonnet-4.5  gold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gemma 4             1.000      -0.081             0.122 0.342</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GPT-4o-mini        -0.081       1.000            -0.076 0.256</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Claude Sonnet-4.5   0.122      -0.076             1.000 0.567</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> gold                0.342       0.256             0.567 1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Gemma 4 GPT-4o-mini</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gemma 4       1.000       0.385</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GPT-4o-mini   0.385       1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "simulated"</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

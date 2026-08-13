@@ -11,12 +11,12 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="edaphos — Frontier algorithms for Digital Soil Mapping">
-<meta name="description" content="Six research pillars confronting specific methodological gaps in DSM: Causal AI (with LLM-driven KG), Physics-Informed ML, 4D Pedometry, Foundation Models, Autonomous Active Learning, and Quantum ML. Unified uncertainty API + cross-pillar bridges.
+<meta name="description" content="Ten research pillars confronting specific methodological gaps in DSM: Causal AI (with LLM-driven KG), Physics-Informed ML, 4D Pedometry, Foundation Models, Autonomous Active Learning, Quantum ML, Bayesian Hierarchical Spatial models, Neural Operators, Diffusion Models, and Graph Attention Networks. Unified uncertainty API + cross-pillar bridges.
 ">
-<meta property="og:description" content="Six research pillars confronting specific methodological gaps in DSM: Causal AI (with LLM-driven KG), Physics-Informed ML, 4D Pedometry, Foundation Models, Autonomous Active Learning, and Quantum ML. Unified uncertainty API + cross-pillar bridges.
+<meta property="og:description" content="Ten research pillars confronting specific methodological gaps in DSM: Causal AI (with LLM-driven KG), Physics-Informed ML, 4D Pedometry, Foundation Models, Autonomous Active Learning, Quantum ML, Bayesian Hierarchical Spatial models, Neural Operators, Diffusion Models, and Graph Attention Networks. Unified uncertainty API + cross-pillar bridges.
 ">
 <meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png">
-<meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping">
+<meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@Hugo_MRodrigues">
 <meta name="twitter:site" content="@Hugo_MRodrigues">
@@ -48,7 +48,7 @@
 
     <a class="navbar-brand me-2" href="index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,14 +61,12 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+<li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -76,14 +74,12 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -133,7 +129,7 @@
 <blockquote>
 <p><em>From Greek <strong>ἔδαφος</strong> — “soil, ground.”</em></p>
 </blockquote>
-<p><strong><code>edaphos</code></strong> is a research-grade R package that implements frontier algorithms for Digital Soil Mapping (DSM) designed to extend — and, in the regimes where the raw covariate stack is thin, to surpass — the regression-tree state of the art [<a href="https://doi.org/10.1016/S0016-7061(03)00223-4" class="external-link">McBratney et al. 2003</a>; <a href="https://doi.org/10.1016/j.earscirev.2020.103359" class="external-link">Wadoux et al. 2020</a>]. It is organised around <strong>six research pillars</strong>, each confronting a specific methodological gap of the contemporary literature, each with a mathematically explicit governing object, a single R function family, and a dedicated vignette. v1.7.0 closes the circle with a <strong>capstone cross-pillar vignette</strong> that integrates all six pillars in a single Cerrado sampling-campaign narrative causally grounded in the generative DSM framework of <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang and Wadoux 2026</a>.</p>
+<p><strong><code>edaphos</code></strong> is a research-grade R package that implements frontier algorithms for Digital Soil Mapping (DSM) designed to extend — and, in the regimes where the raw covariate stack is thin, to surpass — the regression-tree state of the art [<a href="https://doi.org/10.1016/S0016-7061(03)00223-4" class="external-link">McBratney et al. 2003</a>; <a href="https://doi.org/10.1016/j.earscirev.2020.103359" class="external-link">Wadoux et al. 2020</a>]. It is organised around <strong>six research pillars</strong>, each confronting a specific methodological gap of the contemporary literature, each with a mathematically explicit governing object, a single R function family, and a dedicated vignette. v1.7.0 closes the circle with a <strong>capstone cross-pillar vignette</strong> that integrates the pillars in a single Cerrado sampling-campaign narrative causally grounded in the generative DSM framework of <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang and Wadoux 2026</a>.</p>
 <p align="center">
 <em> Correlation → Causation · Black-box ML → Physics-Informed ML<br> Static maps → 4D forecasts · Labelled-only → Foundation models<br> Fixed sampling → Autonomous Active Learning · Classical kernels → Quantum kernels </em>
 </p>
@@ -179,7 +175,8 @@
 </tr>
 </tbody>
 </table>
-<p>Each of <code>edaphos</code>’s six pillars addresses one of these gaps with a concrete, reproducible computational machinery. The package is the first R stack that — taken together — operationalises the generative DSM paradigm end-to-end, with quantified uncertainty at every step.</p>
+<p>Each of <code>edaphos</code>’s ten pillars addresses one of these gaps with a concrete, reproducible computational machinery, with quantified uncertainty at every step.</p>
+<p>It is worth being precise about how far that goes. The generative paradigm asks for models in which soil properties arise from explicitly specified processes. Pillar 2 does that for the depth dimension, and <code><a href="reference/piml_profile_fit_mechanistic.html">piml_profile_fit_mechanistic()</a></code> derives its equation from a carbon balance. Pillar 1’s graph, however, is over <strong>observed state variables</strong> — climate, terrain, texture — not over process parameters, and the shipped graph is rejected by <code><a href="reference/causal_dag_test.html">causal_dag_test()</a></code> on 33 of the 37 conditional independencies it implies (28 of 37 after removing spatial structure). So the package operationalises pieces of the generative paradigm and gives you the tools to find out where they fail; it does not deliver it end-to-end, and the failures are reported rather than hidden.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -195,7 +192,7 @@
         LIT[Literature&lt;br/&gt;SciELO + OpenAlex]
     end
 
-    subgraph PILLARS["🏛️ Six research pillars"]
+    subgraph PILLARS["🏛️ Ten research pillars"]
         P1["🧠 Pillar 1 — Causal AI&lt;br/&gt;DAG + backdoor adjustment&lt;br/&gt;LLM-KG via Gemma 4"]
         P2["⚛️ Pillar 2 — PIML&lt;br/&gt;pedogenetic ODE&lt;br/&gt;Neural ODE"]
         P3["🕓 Pillar 3 — 4D&lt;br/&gt;ConvLSTM + EnKF&lt;br/&gt;Gaspari-Cohn localization"]
@@ -237,13 +234,13 @@
     style POST fill:#F9F9F9,stroke:#555555
     style CAL fill:#F0F0F0,stroke:#555555
     style DEC fill:#D6EAF8,stroke:#154360</code></pre>
-<p>Dashed edges mark <strong>inter-pillar bridges</strong>: Pillar 1’s DAG constrains Pillar 2’s ODE parameter space; Pillar 2’s physics gate filters Pillar 5’s candidates; Pillar 3’s Kalman gain and Pillar 4’s embeddings feed Pillar 5’s acquisition score. All six converge to the same <code>edaphos_posterior</code> class, which <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> scores with identical diagnostics.</p>
+<p>Dashed edges mark <strong>inter-pillar bridges</strong>: Pillar 2’s physics gate filters Pillar 5’s candidates; Pillar 3’s Kalman gain and Pillar 4’s embeddings feed Pillar 5’s acquisition score. Seven of the ten converge to the same <code>edaphos_posterior</code> class, which <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> scores with identical diagnostics; Pillars 8, 9 and 10 have no coercion method.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="new-v170--capstone-cross-pillar-vignette">🆕 v1.7.0 — capstone cross-pillar vignette<a class="anchor" aria-label="anchor" href="#new-v170--capstone-cross-pillar-vignette"></a>
 </h2>
-<p>The headline feature of the current release is a new vignette: <strong>“Uma decisão de amostragem sob incerteza no Cerrado”</strong> (<code><a href="articles/capstone-cerrado-campaign.html">vignette("capstone-cerrado-campaign")</a></code>). It answers a single question with all six pillars acting together:</p>
+<p>The headline feature of the current release is a new vignette: <strong>“Uma decisão de amostragem sob incerteza no Cerrado”</strong> (<code><a href="articles/capstone-cerrado-campaign.html">vignette("capstone-cerrado-campaign")</a></code>). It answers a single question with the pillars acting together:</p>
 <blockquote>
 <p><em>A team has budget for exactly eight new soil-sampling points in the Cerrado. Where should they go — and why?</em></p>
 </blockquote>
@@ -261,7 +258,7 @@
     LIT-&gt;&gt;P1: Gemma 4 extracts causal edges
     P1-&gt;&gt;P1: Backdoor adjustment on DAG
     P1-&gt;&gt;P2: Identify exposures (MAP, cover, clay)
-    P2-&gt;&gt;P2: Fit pedogenetic ODE (Laplace)
+    P2-&gt;&gt;P2: Fit pedogenetic ODE (MCMC)
     P2-&gt;&gt;P5: Physics gate -- exclude implausible sites
     P3-&gt;&gt;P5: Kalman gain priorities
     P4-&gt;&gt;P5: Encoder embeddings (128D)
@@ -296,13 +293,17 @@
 </h2>
 <ol style="list-style-type: decimal">
 <li><a href="#installation">Installation</a></li>
-<li><a href="#the-six-pillars-at-a-glance">The six pillars at a glance</a></li>
+<li><a href="#the-ten-pillars-at-a-glance">The ten pillars at a glance</a></li>
 <li><a href="#pillar-1--causal-ai--llm-knowledge-graphs">Pillar 1 — Causal AI + LLM Knowledge Graphs</a></li>
 <li><a href="#pillar-2--physics-informed-ml">Pillar 2 — Physics-Informed ML</a></li>
 <li><a href="#pillar-3--4d-pedometry">Pillar 3 — 4D Pedometry</a></li>
 <li><a href="#pillar-4--foundation-models">Pillar 4 — Foundation Models</a></li>
 <li><a href="#pillar-5--autonomous-active-learning">Pillar 5 — Autonomous Active Learning</a></li>
 <li><a href="#pillar-6--quantum-ml">Pillar 6 — Quantum ML</a></li>
+<li><a href="#pillar-7--bayesian-hierarchical-spatial">Pillar 7 — Bayesian Hierarchical Spatial</a></li>
+<li><a href="#pillar-8--neural-operators">Pillar 8 — Neural Operators</a></li>
+<li><a href="#pillar-9--diffusion-models">Pillar 9 — Diffusion Models</a></li>
+<li><a href="#pillar-10--graph-neural-networks">Pillar 10 — Graph Neural Networks</a></li>
 <li><a href="#unified-uncertainty-api-v160">Unified uncertainty API (v1.6.0)</a></li>
 <li><a href="#capstone-vignette-v170">Capstone vignette (v1.7.0)</a></li>
 <li><a href="#benchmarks-on-real-data">Benchmarks on real data</a></li>
@@ -340,51 +341,108 @@
 <tbody>
 <tr>
 <td align="left">P1 OLS (DAG-selected covariates)</td>
-<td align="right">0.587</td>
-<td align="right">+0.160</td>
-<td align="right"><strong>+0.196</strong></td>
+<td align="right">0.586</td>
+<td align="right">+0.162</td>
+<td align="right"><strong>+0.204</strong></td>
 <td align="right">300</td>
 </tr>
 <tr>
 <td align="left">P5 QRF</td>
-<td align="right">0.594</td>
-<td align="right">+0.139</td>
-<td align="right">+0.175</td>
+<td align="right">0.597</td>
+<td align="right">+0.131</td>
+<td align="right">+0.174</td>
 <td align="right">99</td>
 </tr>
 <tr>
 <td align="left">P7 BHS</td>
-<td align="right">0.601</td>
-<td align="right">+0.119</td>
-<td align="right">+0.157</td>
+<td align="right">0.613</td>
+<td align="right">+0.084</td>
+<td align="right">+0.130</td>
 <td align="right">200</td>
 </tr>
 <tr>
 <td align="left">P4 Foundation embeddings + QRF</td>
-<td align="right">0.615</td>
-<td align="right">+0.077</td>
-<td align="right">+0.116</td>
+<td align="right">0.618</td>
+<td align="right">+0.070</td>
+<td align="right">+0.117</td>
 <td align="right">99</td>
 </tr>
 <tr>
-<td align="left">P10 GAT (trained attention)</td>
-<td align="right">0.617</td>
-<td align="right">+0.073</td>
-<td align="right">+0.112</td>
-<td align="right"><strong>8</strong></td>
+<td align="left">P6 Quantum KRR</td>
+<td align="right">0.663</td>
+<td align="right">−0.073</td>
+<td align="right">−0.019</td>
+<td align="right">100</td>
 </tr>
 <tr>
-<td align="left">P6 Quantum KRR</td>
-<td align="right">0.665</td>
-<td align="right">−0.079</td>
-<td align="right">−0.033</td>
-<td align="right">100</td>
+<td align="left">P10 GAT (trained attention)</td>
+<td align="right">0.672</td>
+<td align="right">−0.101</td>
+<td align="right">−0.046</td>
+<td align="right"><strong>8</strong></td>
 </tr>
 </tbody>
 </table>
-<p>RMSE is in <code>log1p(g/kg)</code> and is not comparable to a g/kg figure. The <code>draws</code> column is the ensemble each method actually got: they are not equal, and a ranking that ignores that is comparing budgets. P10 reaches +0.112 on <strong>8</strong> members against 99–300 for the others.</p>
-<p><strong>The honest reading.</strong> Ordinary least squares on a DAG-selected covariate subset is the strongest method here. None of the five more elaborate pillars beats it on this task, and the spread between the top four is small relative to the fold-to-fold variation. Only P6 falls below the achievable null, and only just.</p>
+<p>RMSE is in <code>log1p(g/kg)</code> and is not comparable to a g/kg figure. The <code>draws</code> column is the ensemble each method actually got: they are not equal, and a ranking that ignores that is comparing budgets.</p>
+<p>These folds carry a <strong>68 km buffer</strong>: training rows within that distance of any test row are discarded, which cost 88 training rows across the five folds — 2.0% of the fold-wise training rows, not of the 1,095 profiles — and raised the realised minimum training-to-test distance from 15.2 km to 68.5 km on these 1,095 profiles. (12.3 km is the corresponding figure for the denser 3,077-profile causal extract, a different data set; earlier versions of this README quoted it here by mistake.) Blocking without a dead zone under-states generalisation error (Roberts et al. 2017), and 15.2 km sits well inside the 69 km range at which the one fitted depth-function parameter with an identified variogram is still correlated. (Earlier versions said “the 55–68 km range” from two identified parameters; those variograms were computed on Gaussian-likelihood fits. Under the lognormal likelihood the package now defaults to, only one of the four parameters has an identified range — see <code>data-raw/piml_parameter_variograms.R</code>.)</p>
+<p><strong>What the buffer is worth, measured rather than asserted.</strong> Earlier versions of this README stated that P10 GAT “went from RMSE 0.617 to 0.679 … dropping from fifth to last”. That comparison was made by hand, was never scripted, and does not reproduce: it also predated the correction of the Pillar-10 graph from Euclidean degrees to great-circle kilometres, so it compared two different models. <code>data-raw/buffer_effect.R</code> now runs the same harness with the buffer switched off and writes <code>inst/extdata/buffer_effect.rds</code>. Fold-mean RMSE, five methods on identical test blocks:</p>
+<table class="table">
+<thead><tr>
+<th align="left">Method</th>
+<th align="right">unbuffered</th>
+<th align="right">buffered</th>
+<th align="right">Δ</th>
+<th align="right">rank un.</th>
+<th align="right">rank buf.</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left">P1 OLS (DAG-selected covariates)</td>
+<td align="right">0.583</td>
+<td align="right">0.583</td>
+<td align="right">+0.000</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="left">P5 QRF</td>
+<td align="right">0.588</td>
+<td align="right">0.592</td>
+<td align="right">+0.004</td>
+<td align="right">2</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="left">P7 BHS</td>
+<td align="right">0.605</td>
+<td align="right">0.608</td>
+<td align="right">+0.003</td>
+<td align="right">3</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td align="left">P6 Quantum KRR</td>
+<td align="right">0.660</td>
+<td align="right">0.663</td>
+<td align="right">+0.003</td>
+<td align="right">4</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td align="left">P10 GAT (trained attention)</td>
+<td align="right">0.672</td>
+<td align="right">0.680</td>
+<td align="right">+0.007</td>
+<td align="right">5</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<p>The buffer costs every method a little and the graph network the most, which is the direction the mechanism predicts — a network built on a spatial neighbour graph is what gains most from training points immediately across a block boundary. But the effect is an order of magnitude smaller than previously reported and <strong>the ranking is identical either way</strong>. The buffer stays because it is the right protocol, not because it changes the answer. (P4 is scored in a separate harness and is absent from this comparison rather than omitted quietly.)</p>
+<p><strong>The honest reading.</strong> Ordinary least squares on a DAG-selected covariate subset is the strongest method here. None of the five more elaborate pillars beats it on this task, and the spread between the top four is small relative to the fold-to-fold variation. Two methods fall below the achievable null — P6 and, once the fold buffer is in place, P10.</p>
+<p>Note which null. The third column is skill against the mean of each fold’s <strong>training</strong> rows, the null a deployed map could use. The second is against the global mean, which is computed partly from the rows being scored. The conventional per-fold R-squared uses a third and stricter denominator still — the test fold’s own mean — and by that measure three methods score negative. The manuscript reported that third figure under the first’s name until <code><a href="reference/edaphos_nse.html">edaphos_nse()</a></code>, which requires the null as an argument, made the three impossible to conflate.</p>
 <p><strong>Two figures for P10, both correct.</strong> The +0.112 above is a fixed-configuration comparison with every pillar at its defaults. Under nested cross-validation with tuned hyperparameters and a 10-member ensemble, the same GAT reaches <strong>NSE +0.184 against a tuned QRF’s +0.165</strong> (difference +0.019, 95 % block-bootstrap CI [−0.021, +0.057], P(GAT ahead) = 0.844 — a consistent edge, not a significant one). Those answer different questions: “how do the pillars compare out of the box” versus “does a tuned GAT beat a tuned forest”. Runner: <code>data-raw/pilar10_gat_tuning.R</code>; bundle <code>inst/extdata/pilar10_gat_tuning.rds</code>.</p>
+<p><strong>The torch backend, fixed.</strong> An earlier <code>backend = "torch"</code> GAT trained a linear head end-to-end with no input skip and no early stopping, and scored NSE ≈ <strong>−0.40</strong> — worse than predicting the mean — on held-out Cerrado nodes. Porting the R backend’s readout skip and best-validation selection into it lifts it to NSE ≈ <strong>0.52</strong> across four 20 %-held-out splits (OLS 0.55, R-GAT 0.54 on the same splits): competitive, not superior. The default backend stays <code>"r"</code> — marginally better here and dependency-free — while <code>"torch"</code> is now a correct, non-degenerate alternative rather than a broken one.</p>
 <p><strong>Earlier releases published a different table</strong> — RMSE ≈ 14.1 g/kg and R² of 0.034 / 0.064 / 0.070 for P4 / P5 / P7, described as a three-way tie. Those figures came from the raw g/kg scale, where 11 profiles (1 % of n) carry 48 % of the total sum of squares, and from an R² clamped at zero that hid negative values in 21 of 30 method-fold cells. The P4 row was additionally computed over a raster of <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">stats::rnorm()</a></code> noise. They have been withdrawn. <code>tests/testthat/test-headline-claims.R</code> now binds every figure in this section to the shipped bundle.</p>
 <p>Runners: <code>data-raw/benchmark_wosis_p4_p5_p7.R</code> and <code>data-raw/benchmark_wosis_6pilar.R</code>; bundle <code>inst/extdata/benchmark_wosis_6pilar.rds</code>.</p>
 <p><strong>Provenance.</strong> The WoSIS profiles were sampled between 1960 and 2010 (median 1982); the covariates are present-day products (SoilGrids 2020, WorldClim 2.1, SRTM 2000, WorldCover 2020). Land cover is measured roughly four decades after the median observation, so part of the irreducible error is temporal mismatch rather than model inadequacy.</p>
@@ -438,7 +496,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Tooling now in place</strong>: <code>src/</code> compiled Rcpp, <code>LinkingTo: Rcpp</code>, <code>Dockerfile</code>, <code>_pkgdown.yml</code>, <code>cran-comments.md</code>, <code>inst/rosc/submission.md</code>, <code>NEWS.md</code> back to v0.1.0, 75+ unit tests across 43 test files.</p>
+<p><strong>Tooling now in place</strong>: <code>src/</code> compiled Rcpp, <code>LinkingTo: Rcpp</code>, <code>Dockerfile</code>, <code>_pkgdown.yml</code>, <code>cran-comments.md</code>, <code>inst/rosc/submission.md</code>, <code>NEWS.md</code> reset to a single honest development entry, 2 051 passing expectations across 88 test files.</p>
 </div>
 <div class="section level2">
 <h2 id="new-v210--frente-d-polish--two-new-cross-pillar-bridges">🆕 v2.1.0 — Frente D polish + two new cross-pillar bridges<a class="anchor" aria-label="anchor" href="#new-v210--frente-d-polish--two-new-cross-pillar-bridges"></a>
@@ -488,7 +546,7 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Core package (light: clhs + deSolve + httr2 + jsonlite + ranger + stats)</span></span>
+<code class="sourceCode R"><span><span class="co"># Core package (light: clhs + httr2 + jsonlite + ranger + stats)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"HugoMachadoRodrigues/edaphos"</span>,</span>
 <span>                         build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -516,7 +574,7 @@
 <hr>
 </div>
 <div class="section level2">
-<h2 id="the-six-pillars-at-a-glance">The six pillars at a glance<a class="anchor" aria-label="anchor" href="#the-six-pillars-at-a-glance"></a>
+<h2 id="the-ten-pillars-at-a-glance">The ten pillars at a glance<a class="anchor" aria-label="anchor" href="#the-ten-pillars-at-a-glance"></a>
 </h2>
 <table class="table">
 <colgroup>
@@ -536,17 +594,17 @@
 <tbody>
 <tr>
 <td>1</td>
-<td><strong>Causal AI + LLM KG</strong></td>
+<td><strong>Causal inference</strong></td>
 <td><code>causal_*</code></td>
 <td>✅ v1.4.0</td>
-<td>Pedogenetic DAG <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math> + backdoor-adjusted <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>β</mi><mrow><mi>x</mi><mo>→</mo><mi>y</mi></mrow><mtext mathvariant="normal">do</mtext></msubsup><annotation encoding="application/x-tex">\beta_{x \to y}^{\text{do}}</annotation></semantics></math> [<a href="https://doi.org/10.1017/CBO9780511803161" class="external-link">Pearl 2009</a>] <strong>+ LLM-extracted claims</strong> via Gemma 4 / GPT / Claude (multi-backend voting + AGROVOC)</td>
+<td>Pedogenetic DAG <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math>, backdoor-adjusted <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>β</mi><mrow><mi>x</mi><mo>→</mo><mi>y</mi></mrow><mtext mathvariant="normal">do</mtext></msubsup><annotation encoding="application/x-tex">\beta_{x \to y}^{\text{do}}</annotation></semantics></math> [<a href="https://doi.org/10.1017/CBO9780511803161" class="external-link">Pearl 2009</a>], Cinelli–Hazlett sensitivity, and <code><a href="reference/causal_dag_test.html">causal_dag_test()</a></code> which falsifies the graph against the data. LLM knowledge-graph tooling is supplementary and is not used for any published result</td>
 </tr>
 <tr>
 <td>2</td>
 <td><strong>Physics-Informed ML</strong></td>
 <td><code>piml_*</code></td>
 <td>✅ v1.1.0</td>
-<td>Pedogenetic ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac></mstyle><mo>=</mo><mi>−</mi><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)</annotation></semantics></math>; Bayesian posterior over <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mn>0</mn></msub><mo>,</mo><mi>μ</mi><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\lambda_0, \mu, y_\infty)</annotation></semantics></math>; Neural ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac></mstyle><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})</annotation></semantics></math>
+<td>Pedogenetic ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac></mstyle><mo>=</mo><mi>−</mi><msub><mi>λ</mi><mn>0</mn></msub><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = -\lambda_0 e^{-\mu z}(y - y_\infty)</annotation></semantics></math>, solved in closed form and estimated in the identified coordinates <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>κ</mi><mo>,</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(y_0, y(\infty), \kappa, \mu)</annotation></semantics></math>; the derived advection-reaction alternative <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mspace width="0.167em"></mspace><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>C</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac></mstyle><mo>=</mo><mi>I</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>k</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">v\,\dfrac{dC}{dz} = I(z) - kC</annotation></semantics></math>; Neural ODE <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac></mstyle><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>𝐱</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\dfrac{dy}{dz} = f_\theta(z, y, \mathbf{x})</annotation></semantics></math>
 </td>
 </tr>
 <tr>
@@ -578,28 +636,61 @@
 <td>ZZFeatureMap quantum kernel [<a href="https://doi.org/10.1038/s41586-019-0980-2" class="external-link">Havlicek et al. 2019</a>] + Quantum Kernel Ridge Regression; <strong>Qiskit VQE</strong> with M3 / ZNE mitigation</td>
 </tr>
 <tr>
+<td>7</td>
+<td><strong>Bayesian Hierarchical Spatial</strong></td>
+<td><code>bhs_*</code></td>
+<td>✅ v2.3.0</td>
+<td>Hierarchical model <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>X</mi><mi>β</mi><mo>+</mo><mi>w</mi><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">y = X\beta + w + \varepsilon</annotation></semantics></math> with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo>∼</mo><mi>G</mi><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w \sim GP(0, \sigma^2 R(\phi))</annotation></semantics></math> [<a href="https://doi.org/10.1201/b17115" class="external-link">Banerjee et al. 2014</a>]; conjugate Gibbs sampler with profile-MLE for the rate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> (RcppArmadillo backend); Bayesian kriging that propagates every posterior draw</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Neural Operators</strong></td>
+<td><code>no_*</code></td>
+<td>✅ v2.4.0</td>
+<td>Solution operator <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒢</mi><mo>:</mo><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>↦</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{G}: u(z) \mapsto y(z)</annotation></semantics></math> between depth-function spaces — FNO <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>𝒦</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>ℱ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>θ</mi></msub><mo>⋅</mo><mi>ℱ</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathcal{K}v)(z) = \mathcal{F}^{-1}(R_\theta \cdot \mathcal{F}v)(z)</annotation></semantics></math> [<a href="https://openreview.net/forum?id=c8P9NQVtmnO" class="external-link">Li et al. 2021</a>] and DeepONet <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>k</mi></msub><msub><mi>b</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_k b_k(u)\,t_k(z)</annotation></semantics></math> [<a href="https://doi.org/10.1038/s42256-021-00302-5" class="external-link">Lu et al. 2021</a>]; off-grid depth queries</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Diffusion Models</strong></td>
+<td><code>dm_*</code></td>
+<td>✅ v2.5.0</td>
+<td>DDPM [<a href="https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html" class="external-link">Ho et al. 2020</a>] over map patches: forward <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>∣</mo><msub><mi>x</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msqrt><msub><mover><mi>α</mi><mo accent="true">‾</mo></mover><mi>t</mi></msub></msqrt><msub><mi>x</mi><mn>0</mn></msub><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mover><mi>α</mi><mo accent="true">‾</mo></mover><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">q(x_t \mid x_0) = N(\sqrt{\bar\alpha_t}x_0, (1-\bar\alpha_t)I)</annotation></semantics></math> on the cosine schedule [<a href="https://proceedings.mlr.press/v139/nichol21a.html" class="external-link">Nichol &amp; Dhariwal 2021</a>], denoiser <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϵ</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>,</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\epsilon_\theta(x_t,t)</annotation></semantics></math>, ancestral sampling with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math> clipping</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Graph Neural Networks</strong></td>
+<td><code>gnn_*</code></td>
+<td>✅ v2.6.0</td>
+<td>GAT [<a href="https://openreview.net/forum?id=rJXMpikCZ" class="external-link">Veličković et al. 2018</a>] on a k-NN co-location graph: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">x</mi></mrow><mi>j</mi></msub><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">k</mi><mi mathvariant="normal">y</mi><mi mathvariant="normal">R</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">U</mi></mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mi>⊤</mi></msup><mo stretchy="false" form="prefix">[</mo><mi>W</mi><msub><mi>h</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">‖</mo><mi>W</mi><msub><mi>h</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\alpha_{ij} = \mathrm{softmax}_j(\mathrm{LeakyReLU}(a^\top[Wh_i \Vert Wh_j]))</annotation></semantics></math> by analytic reverse-mode gradients, transductive train mask, closed-form ridge readout</td>
+</tr>
+<tr>
 <td><strong>🔗</strong></td>
 <td><strong>Unified uncertainty API</strong></td>
 <td><code>uncertainty_*</code></td>
 <td>✅ v1.6.0</td>
 <td>
-<code>edaphos_posterior</code> S3 class + <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> returning CRPS / PICP / MPIW / reliability diagram for <em>every</em> pillar</td>
+<code>edaphos_posterior</code> S3 class + <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> returning CRPS / PICP / MPIW / reliability diagram. <strong>7 of the 10 pillars</strong> carry an <code><a href="reference/as_edaphos_posterior.html">as_edaphos_posterior()</a></code> method (1, 2, 3, 4, 5, 6, 7); pillars 8, 9 and 10 do not — see the note below</td>
 </tr>
 <tr>
 <td><strong>🎬</strong></td>
 <td><strong>Capstone vignette</strong></td>
 <td>—</td>
 <td>✅ v1.7.0</td>
-<td>“Uma decisão de amostragem sob incerteza no Cerrado” — all six pillars integrated, causally grounded in <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a>
+<td>“Uma decisão de amostragem sob incerteza no Cerrado” — integrating the six pillars that existed at v1.7.0, causally grounded in <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a>
 </td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>Which pillars reach the uncertainty API, and why three do not.</strong> <code>methods("as_edaphos_posterior")</code> returns 12 methods covering pillars 1 through 7. Pillars 8 (neural operators), 9 (diffusion) and 10 (graph attention) have none, and this row previously claimed “every pillar”.</p>
+<p>For pillar 10 the omission is deliberate rather than pending. A fitted GAT exposes only <code>member_sd</code>, the spread between ensemble members that differ in their random seed. That is not a predictive distribution: it measures initialisation variance, and the function’s own documentation concedes that a ±1.96·sd band covers about a quarter of the profiles. Wrapping it in <code><a href="reference/edaphos_posterior.html">edaphos_posterior()</a></code> would make a calibration number computable and meaningless. The benchmark instead builds an interval explicitly, as member spread plus a noise term whose scale is estimated by inner spatially blocked CV, and reports it as such (<code><a href="reference/benchmark_fit_p10_gat.html">benchmark_fit_p10_gat()</a></code>). Even so, that interval carries no information about extrapolation distance — see <code>data-raw/interval_width_vs_extrapolation.R</code>, where its width correlates −0.08 with distance to the nearest training profile while its error correlates +0.11.</p>
+<p>Pillars 8 and 9 return field-valued objects (operator outputs, map patches), for which a per-site scalar posterior is the wrong shape; they are evaluated by their own task-appropriate diagnostics instead.</p>
+</blockquote>
 <p>Every pillar ships with (i) a mathematically explicit governing object; (ii) an R function family; (iii) one or more vignettes deriving the object from first principles and demonstrating it on real or reproducible synthetic data; and (iv) a <code>@references</code> entry in the shared <code>vignettes/references.bib</code>.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="pillar-1--causal-ai--llm-knowledge-graphs">Pillar 1 — Causal AI + LLM Knowledge Graphs<a class="anchor" aria-label="anchor" href="#pillar-1--causal-ai--llm-knowledge-graphs"></a>
+<h2 id="pillar-1--causal-inference-on-a-pedogenetic-graph">Pillar 1 — Causal inference on a pedogenetic graph<a class="anchor" aria-label="anchor" href="#pillar-1--causal-inference-on-a-pedogenetic-graph"></a>
 </h2>
 <div class="section level3">
 <h3 id="motivation">Motivation<a class="anchor" aria-label="anchor" href="#motivation"></a>
@@ -774,49 +865,62 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 </div>
 </div>
 <div class="section level3">
-<h3 id="real-data-results-1095-cerrado-profiles">Real-data results: 1095 Cerrado profiles<a class="anchor" aria-label="anchor" href="#real-data-results-1095-cerrado-profiles"></a>
+<h3 id="real-data-results-3-077-cerrado-profiles">Real-data results: 3 077 Cerrado profiles<a class="anchor" aria-label="anchor" href="#real-data-results-3-077-cerrado-profiles"></a>
 </h3>
-<p>Running the adjusted + naive comparison on <strong>1 095 real WoSIS Cerrado topsoil profiles</strong> (v1.4.0) with a block-bootstrap over k-means clusters:</p>
+<p>We estimate backdoor-<strong>adjusted associations</strong> — not identified causal effects — on <strong>3 077 real WoSIS topsoil profiles</strong> over the Cerrado, with covariates drawn from WorldClim 2.1, SoilGrids and Copernicus tree cover (all fetched from public endpoints; see <code>data-raw/causal_cerrado_real_rebuild.R</code>). Following <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a>, we do not claim causal sufficiency; instead each effect carries a Cinelli–Hazlett <strong>robustness value (RV)</strong>: the share of residual variance an unobserved confounder would need to explain in <em>both</em> exposure and outcome to drive the estimate to zero. Confidence intervals are a block bootstrap (B = 500) over 20 k-means spatial clusters. Every figure below is reproduced from the shipped <code>causal_cerrado_real_v2.rds</code> and pinned by <code>test-causal-real-bundle.R</code>.</p>
 <table class="table">
 <colgroup>
-<col width="20%">
-<col width="20%">
-<col width="20%">
-<col width="20%">
-<col width="20%">
+<col width="15%">
+<col width="15%">
+<col width="15%">
+<col width="19%">
+<col width="19%">
+<col width="15%">
 </colgroup>
 <thead><tr>
 <th align="left">Exposure</th>
-<th align="right">Naive β (g/kg per unit)</th>
-<th align="right">Adjusted β (g/kg per unit)</th>
-<th align="right">Confounding factor</th>
-<th align="left">Backdoor adjustment set</th>
+<th align="right">Naive β</th>
+<th align="right">Adjusted β</th>
+<th align="center">95% CI</th>
+<th align="center">Significant?</th>
+<th align="right">RV</th>
 </tr></thead>
 <tbody>
 <tr>
-<td align="left">MAP (mm/a)</td>
-<td align="right">0.013</td>
-<td align="right"><strong>0.009</strong></td>
-<td align="right">1.5×</td>
-<td align="left">slope, T2M, land-cover fractions</td>
+<td align="left">MAP (g/kg per mm)</td>
+<td align="right">0.0082</td>
+<td align="right"><strong>0.0097</strong></td>
+<td align="center">[0.0028, 0.0186]</td>
+<td align="center">yes</td>
+<td align="right">0.16</td>
 </tr>
 <tr>
-<td align="left">Tree cover (%)</td>
-<td align="right">0.42</td>
-<td align="right"><strong>0.31</strong></td>
-<td align="right">1.4×</td>
-<td align="left">MAP, T2M</td>
+<td align="left">MAT (g/kg per °C)</td>
+<td align="right">−0.467</td>
+<td align="right"><strong>−0.824</strong></td>
+<td align="center">[−1.37, 0.22]</td>
+<td align="center">no</td>
+<td align="right">0.08</td>
 </tr>
 <tr>
-<td align="left">Clay (%)</td>
-<td align="right">0.38</td>
-<td align="right"><strong>0.25</strong></td>
-<td align="right">1.5×</td>
-<td align="left">slope, bulk density, sand</td>
+<td align="left">Tree cover (g/kg per 0–1)</td>
+<td align="right">2.86</td>
+<td align="right"><strong>0.35</strong></td>
+<td align="center">[−3.31, 2.94]</td>
+<td align="center">no</td>
+<td align="right">0.01</td>
+</tr>
+<tr>
+<td align="left">Clay (g/kg per %)</td>
+<td align="right">0.446</td>
+<td align="right"><strong>0.449</strong></td>
+<td align="center">[0.29, 0.64]</td>
+<td align="center">yes</td>
+<td align="right">0.18</td>
 </tr>
 </tbody>
 </table>
-<p>Every effect is accompanied by an <code>edaphos_posterior</code> with a block-bootstrap sample (B = 500) or a native BART posterior — so <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> applies uniformly (see <a href="#unified-uncertainty-api-v160">§9</a>).</p>
+<p>Two effects survive as robust, mechanistically coherent associations: <strong>precipitation</strong> and <strong>clay content</strong> both raise topsoil carbon, and each would need a confounder explaining ~16–18 % of residual variance to overturn. The temperature effect has the expected (decomposition) sign but is not distinguishable from zero. The <strong>tree-cover</strong> row is the confounding demonstration: its naive association (2.86) all but disappears once climate is adjusted for (0.35, CI spanning zero, RV 0.01) — the raw signal was mostly shared climatic ancestry, exactly the pattern <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a> warn is misread as causal. Each effect is returned as an <code>edaphos_posterior</code>, so <code><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate()</a></code> applies uniformly (see <a href="#unified-uncertainty-api-v160">§9</a>).</p>
 </div>
 <div class="section level3">
 <h3 id="causal-discovery-trio-expert--llm--data-driven">Causal-discovery trio: expert × LLM × data-driven<a class="anchor" aria-label="anchor" href="#causal-discovery-trio-expert--llm--data-driven"></a>
@@ -852,7 +956,7 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <p><strong>The LLM adds nothing here, and that is the informative result.</strong> Of the 30 claims in <code>inst/extdata/cerrado_claims.jsonl</code>, only 3 have both endpoints expressible among the 10 WoSIS covariates, and all 3 were already in the expert DAG. The 32 remaining distinct concepts — <code>decomposition</code>, <code>primary_mineral_dissolution</code>, <code>argillic_horizon</code>, <code>root_input</code>, <code>effective_cation_exchange_capacity</code>, <code>twi</code> and others — have no counterpart in the covariate set. The extractor is not the bottleneck; the covariate set is.</p>
 <p>Earlier releases reported <code>SHD(Expert, LLM-augmented) = 2</code> and read it as the LLM being “conservative”. That figure came from six edges typed by hand into <code>data-raw/causal_discovery_benchmark.R</code>, carrying confidences (0.90, 0.82, 0.78, 0.75, 0.72, 0.71) that appear in no file in this package — every shipped claim has confidence 0.9. Those edges have been withdrawn; the benchmark now derives its edge set from the claims file through an explicit concept → column mapping that is validated against the columns which actually exist.</p>
 <p>The finding that survives is the disagreement between expert and data-driven structure. The backdoor adjustment set for MAP → SOC is <strong>5 covariates</strong> under the expert DAG (<code>slope</code>, <code>wc_bio_01</code>, <code>wc_landcover_cropland</code>, <code>wc_landcover_grassland</code>, <code>wc_landcover_trees</code>) but <strong>1</strong> under <code>pc-stable</code> (<code>wc_bio_01</code>) and 2 under <code>hc</code>/<code>tabu</code>. That difference directly changes the identified effect, so the three strategies are <strong>complementary</strong>, not substitutable, and the vignette recommends reporting the sensitivity rather than picking one.</p>
-<p>📖 Vignettes: <code><a href="articles/pilar1-causal.html">vignette("pilar1-causal")</a></code>, <code>vignette("pilar1-causal-real")</code>, <code><a href="articles/causal-discovery-trio.html">vignette("causal-discovery-trio")</a></code>.</p>
+<p>📖 Vignettes: <code><a href="articles/pilar1-causal.html">vignette("pilar1-causal")</a></code>, <code><a href="articles/causal-discovery-trio.html">vignette("causal-discovery-trio")</a></code>. The real-data Cerrado application ships as the bundled <code>causal_cerrado_real.rds</code> and is exercised from <code><a href="articles/case-cerrado-end-to-end.html">vignette("case-cerrado-end-to-end")</a></code>; it has no vignette of its own.</p>
 </div>
 <div class="section level3">
 <h3 id="multi-backend-llm-extraction-harness-not-vendor-comparison">Multi-backend LLM extraction: harness, not vendor comparison<a class="anchor" aria-label="anchor" href="#multi-backend-llm-extraction-harness-not-vendor-comparison"></a>
@@ -861,7 +965,7 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <p><strong>No measured vendor comparison is published here.</strong> The shipped bundle <code>inst/extdata/llm_benchmark_results.rds</code> carries <code>mode = "simulated"</code>: it is the output of <code><a href="reference/llm_benchmark_simulate.html">llm_benchmark_simulate()</a></code>, a deterministic noise model whose precision, recall, latency and cost are <em>inputs</em> supplied by the caller (see the <code>sim_args</code> list in <code>data-raw/llm_benchmark_run.R</code>). Earlier releases of this README presented those inputs as a measured head-to-head table of Gemma, GPT-4o-mini and Claude scores. No API was ever called to produce them, so the table has been withdrawn.</p>
 <p>What the simulated bundle legitimately demonstrates is that the harness works end to end: scoring against the gold standard, pairwise agreement, cost and latency accounting, and the voting rules all run deterministically in CI without network access or API keys.</p>
 <p>To produce a real comparison, set <code>EDAPHOS_USE_REAL_LLM=1</code>, provide the API keys, and re-run <code>data-raw/llm_benchmark_run.R</code>; the bundle it writes will carry <code>mode = "real"</code>, and <code>tests/testthat/test-headline-claims.R</code> will then permit a vendor-attributed table in this section.</p>
-<p>📖 Vignette: <code>vignette("llm-kg-benchmark")</code>.</p>
+<p>📖 Vignette: <code><a href="articles/llm-annotation-workflow.html">vignette("llm-annotation-workflow")</a></code>. The benchmark itself ships as <code>llm_benchmark_results.rds</code> + <code>cerrado_gold_standard_v1.jsonl</code>; there is no separate vignette.</p>
 </div>
 <div class="section level3">
 <h3 id="v181--annotation-tool-pre-annotation--shiny-review-ui">v1.8.1 — Annotation tool: pre-annotation + Shiny review UI<a class="anchor" aria-label="anchor" href="#v181--annotation-tool-pre-annotation--shiny-review-ui"></a>
@@ -942,11 +1046,11 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <span><span class="op">)</span></span>
 <span><span class="va">iv_fit</span></span>
 <span><span class="co">#&gt; &lt;edaphos_causal_iv&gt;</span></span>
-<span><span class="co">#&gt;   map -&gt; soc  (estimator: 2SLS, n = 1095)</span></span>
+<span><span class="co">#&gt;   map -&gt; soc  (estimator: 2SLS, n = 3020)</span></span>
 <span><span class="co">#&gt;   instruments : PC_1, PC_2, PC_3, PC_4, PC_5</span></span>
-<span><span class="co">#&gt;   effect      : 0.0081  (se = 0.0027, 95% CI [0.0028, 0.0134])</span></span>
-<span><span class="co">#&gt;   stage-1 F   : 20014 (p &lt; 2e-16)  partial R^2 = 0.948</span></span>
-<span><span class="co">#&gt;   Sargan J    : chi2(4) = 49.4, p = 4.7e-10</span></span></code></pre></div>
+<span><span class="co">#&gt;   effect      : 0.0039  (OLS 0.0063; backdoor OLS 0.0075)</span></span>
+<span><span class="co">#&gt;   stage-1 F   : 4630   (instruments very relevant)</span></span>
+<span><span class="co">#&gt;   Sargan J    : p = 2.0e-17   (over-identification rejected)</span></span></code></pre></div>
 <p><strong>Synthetic DGP validation (known truth β = 1.5):</strong></p>
 <table class="table">
 <thead><tr>
@@ -972,7 +1076,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 </tr>
 </tbody>
 </table>
-<p><strong>Honest finding on 1 095 real Cerrado profiles.</strong> With proxy embeddings (engineered features as a stand-in for MoCo v2, which is still training), Stage-1 F ≈ 20 000 (instruments very relevant) but <strong>Sargan p &lt; 10⁻⁹</strong> — the framework correctly flags that the proxy features <strong>don’t satisfy exclusion</strong>. This isn’t a bug; it’s the framework doing its job, and it demonstrates why we need the real MoCo v2 encoder (v1.9.1) rather than engineered proxies.</p>
+<p>The synthetic check confirms the estimator recovers a known truth when its assumptions hold. The real-data result is a <strong>negative</strong> one, and that is the point. The MoCo v2 encoder here is real — 7 channels, 12 000 tiles, 3 000 epochs on-device (Metal), InfoNCE 7.2 → 5.2 — not a proxy. Its embedding PCs are <em>extremely</em> relevant instruments (stage-1 F ≈ 1 955, covariate-adjusted 2SLS), yet they decisively <strong>fail the Sargan over-identification test</strong> (p ≈ 3 × 10⁻¹³). A learned landscape representation does not manufacture a valid instrument: it encodes climate, terrain, soil and vegetation together, so it reaches SOC through many paths and violates the exclusion restriction. This is the empirical face of <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a>’s argument that causal sufficiency — and, here, instrument validity — is seldom achievable in DSM from observational data. IV does not rescue identification; the honest report is the failed test, not a headline effect.</p>
 <p>📖 Vignette: <code><a href="articles/pilar1-pilar4-iv.html">vignette("pilar1-pilar4-iv")</a></code>.</p>
 </div>
 <div class="section level3">
@@ -1117,7 +1221,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 </tr>
 </tbody>
 </table>
-<p><strong>Scientific finding.</strong> <em>The only robust causal claim in the Cerrado stack is Clay → SOC under Naive OLS</em> (RV = 24%): no plausible confounder explaining less than a quarter of the residual variance could zero it out. MAP → SOC under Backdoor OLS is moderately robust (RV ≈ 8%); under real-encoder IV it drops to ≈ 4%, because the synthetic-stack mode yields weak instruments (Stage-1 F ≈ 10) and an inflated SE. Running with <code>EDAPHOS_IV_REAL_STACK=1</code> on the full geodata download should lift F and reduce the SE, restoring RV.</p>
+<p><strong>Scientific finding.</strong> <em>The only robust causal claim in the Cerrado stack is Clay → SOC under Naive OLS</em> (RV = 24%): no plausible confounder explaining less than a quarter of the residual variance could zero it out. MAP → SOC under Backdoor OLS is moderately robust (RV ≈ 8%); under real-encoder IV it drops to ≈ 4%, because the synthetic-stack mode yields weak instruments (Stage-1 F ≈ 10) and an inflated SE. A real-covariate run should lift F and reduce the SE, restoring RV — but note that the <code>EDAPHOS_IV_REAL_STACK</code> switch this README once told readers to set is read nowhere in the package. The real-stack path is a roadmap item, not a flag.</p>
 <p>The package was validated against the published Cinelli-Hazlett Theorem 4.4 example to four decimal places (RV = 0.1810 expected, 0.1810 computed).</p>
 <hr>
 </div>
@@ -1129,12 +1233,13 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="motivation-1">Motivation<a class="anchor" aria-label="anchor" href="#motivation-1"></a>
 </h3>
 <p>Classical depth-harmonisation uses <strong>equal-area splines</strong> [<a href="https://doi.org/10.1016/S0016-7061(99)00003-8" class="external-link">Bishop et al. 1999</a>] — a purely mathematical object disconnected from pedogenesis. Pillar 2 replaces the spline with a <em>physics-informed</em> kinetic of clay illuviation / organic-matter decay, parameterised either analytically or by a neural network and integrated end-to-end.</p>
-<p><strong>Alignment with <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a>.</strong> The pedogenetic ODE is the purest form of their <strong>generative causality</strong>: the soil property arises from a process explicitly specified by the modeller. This simultaneously satisfies conditions 1 (explicit causal model) and 3 (faithfulness), and gives the pedologist a mechanistic handle that variable-importance metrics never deliver.</p>
+<p><strong>Alignment with <a href="https://doi.org/10.1111/ejss.70284" class="external-link">Zhang &amp; Wadoux (2026)</a>.</strong> The pedogenetic ODE is the closest this package comes to their <strong>generative causality</strong>: the soil property arises from a process the modeller writes down, which is their condition 1 (an explicit model). It does <em>not</em> satisfy their condition 3, faithfulness — that is a property of the data relative to a graph, not of an equation, and the DAG this package ships fails its own implied-independence test (see <code><a href="reference/causal_dag_test.html">causal_dag_test()</a></code>). Earlier versions of this README claimed both conditions; the claim about faithfulness was a category error.</p>
+<p>Note also that the equation in this section is not itself derived from a process: it is the Russell &amp; Moore (1968) exponential depth function with a fourth shape parameter. <code><a href="reference/piml_profile_fit_mechanistic.html">piml_profile_fit_mechanistic()</a></code> is the derived alternative, from the steady-state advection-reaction balance, and on real multi-horizon profiles it is also the more accurate of the two.</p>
 </div>
 <div class="section level3">
 <h3 id="governing-object-1">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-1"></a>
 </h3>
-<p>Depth-dependent translocation toward a parent-material asymptote,</p>
+<p>Depth-dependent translocation toward an equilibrium coordinate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_\infty</annotation></semantics></math> — which, because the rate decays with depth, is <strong>not</strong> the value the profile reaches (see the note below the equation),</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mspace width="0.167em"></mspace><msub><mi>λ</mi><mn>0</mn></msub><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mspace width="0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">(parametric)</mtext><mspace width="2.0em"></mspace><mtext mathvariant="normal">or</mtext><mspace width="2.0em"></mspace><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><msub><mi>f</mi><mi>θ</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>𝐱</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">(Neural ODE).</mtext></mrow><annotation encoding="application/x-tex">
 \frac{dy}{dz} \;=\; -\,\lambda_0\,e^{-\mu z}\,\bigl(y(z) - y_\infty\bigr)
 \qquad\text{(parametric)}
@@ -1142,7 +1247,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 \frac{dy}{dz} \;=\; f_\theta\bigl(z, y, \mathbf{x}\bigr)
 \qquad\text{(Neural ODE).}
 </annotation></semantics></math></p>
-<p>The <strong>parametric</strong> form is integrated by <code><a href="https://rdrr.io/pkg/deSolve/man/lsoda.html" class="external-link">deSolve::lsoda</a></code>; the <strong>Neural ODE</strong> form by a fixed-step Runge-Kutta integrator in <code>torch</code> so training back-propagates through the whole trajectory [<a href="https://arxiv.org/abs/1806.07366" class="external-link">Chen et al. 2018</a>].</p>
+<p>The <strong>parametric</strong> form is separable, so it is solved in closed form rather than integrated numerically, and fitted through a horizon-average observation operator; the <strong>Neural ODE</strong> form uses a fixed-step Runge-Kutta integrator in <code>torch</code> so training back-propagates through the whole trajectory [<a href="https://arxiv.org/abs/1806.07366" class="external-link">Chen et al. 2018</a>].</p>
 </div>
 <div class="section level3">
 <h3 id="point-and-bayesian-apis">Point and Bayesian APIs<a class="anchor" aria-label="anchor" href="#point-and-bayesian-apis"></a>
@@ -1155,9 +1260,11 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <span><span class="co"># Point estimate</span></span>
 <span><span class="va">param</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/piml_profile_fit.html">piml_profile_fit</a></span><span class="op">(</span><span class="va">colusa</span><span class="op">$</span><span class="va">depth</span>, <span class="va">colusa</span><span class="op">$</span><span class="va">clay</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Bayesian posterior (Laplace by default; adaptive RWM available)</span></span>
+<span><span class="co"># Bayesian posterior. Laplace is the fast default; MCMC is what the paper</span></span>
+<span><span class="co"># reports, because on a real pedon Laplace narrows 5 of 7 intervals -- the</span></span>
+<span><span class="co"># observation noise by 1.8x -- being Gaussian on the log coordinates.</span></span>
 <span><span class="va">fit</span>    <span class="op">&lt;-</span> <span class="fu"><a href="reference/piml_profile_fit_bayesian.html">piml_profile_fit_bayesian</a></span><span class="op">(</span><span class="va">colusa</span><span class="op">$</span><span class="va">depth</span>, <span class="va">colusa</span><span class="op">$</span><span class="va">clay</span>,</span>
-<span>                                     method <span class="op">=</span> <span class="st">"laplace"</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
+<span>                                     method <span class="op">=</span> <span class="st">"mcmc"</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Neural ODE</span></span>
 <span><span class="va">neural</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/piml_neural_ode_fit.html">piml_neural_ode_fit</a></span><span class="op">(</span></span>
@@ -1170,7 +1277,12 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>,</span>
 <span>        interval <span class="op">=</span> <span class="fl">0.95</span>, include_obs_noise <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></code></pre></div>
-<p>The fitted parameters <strong>are</strong> the pedological interpretation: <code>y0 ≈ 23 %</code> is the clay at the surface horizon, <code>y_inf ≈ 62 %</code> is the argillic-horizon asymptote, <code>mu</code> tells us whether translocation accelerates or slows with depth. The Neural ODE fits the same four horizons to tighter RMSE and is the default for non-monotonic profiles (E-below-A, buried paleosols).</p>
+<p>The fitted parameters carry pedological meaning — <code>y0 ≈ 19 %</code> is the clay extrapolated to the surface, <code>mu</code> says whether translocation accelerates or slows with depth — but this pedon also shows the limit of that reading. Its four horizons stop at 42 cm and the clay is <em>still rising</em>, so the model has no information about where the argillic horizon levels off, and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> says so:</p>
+<pre><code>  NOTE: the deepest horizon (36 cm) has travelled only 0% of the
+        way to y(Inf), so the deep value is an extrapolation, not an
+        estimate. Do not read it as a parent-material value.</code></pre>
+<p>Earlier versions of this README quoted <code>y_inf ≈ 62 %</code> here and called it the argillic asymptote. That number was not estimated from the data: the L2 penalty was applied to the raw <code>y_inf</code>, so it scaled with the square of the property’s units and pinned the value. Removing the penalty on the same four horizons gives 533 %. The regulariser is now a scale-free shrinkage toward the observed range, and an unidentified asymptote is reported as unidentified. To estimate a parent-material value you need horizons deep enough to see the profile flatten.</p>
+<p>The Neural ODE fits the same four horizons to tighter RMSE and is the default for non-monotonic profiles (E-below-A, buried paleosols).</p>
 <p align="center">
 <img src="reference/figures/pillar2-piml.png" width="620" alt="Clay depth profile for the colusa pedon — parametric ODE and Neural ODE fits with uncertainty bands"></p>
 </div>
@@ -1210,7 +1322,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <div class="section level3">
 <h3 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cube</span>   <span class="op">&lt;-</span> <span class="fu"><a href="reference/temporal_synth_soc_cube.html">temporal_synth_soc_cube</a></span><span class="op">(</span>H <span class="op">=</span> <span class="fl">12L</span>, W <span class="op">=</span> <span class="fl">12L</span>, T_total <span class="op">=</span> <span class="fl">18L</span>, seed <span class="op">=</span> <span class="fl">7L</span><span class="op">)</span></span>
 <span><span class="va">past</span>   <span class="op">&lt;-</span> <span class="fu"><a href="reference/temporal_cube_to_tensor.html">temporal_cube_to_tensor</a></span><span class="op">(</span><span class="va">cube</span>, t_slice <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span></span>
 <span><span class="va">future</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/temporal_cube_to_tensor.html">temporal_cube_to_tensor</a></span><span class="op">(</span><span class="va">cube</span>, t_slice <span class="op">=</span> <span class="fl">13</span><span class="op">:</span><span class="fl">18</span><span class="op">)</span></span>
@@ -1236,7 +1348,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 </h3>
 <p>In a realistic DSM pipeline, new in-situ observations keep arriving <strong>after</strong> the ConvLSTM was trained. <code><a href="reference/temporal_kalman_update.html">temporal_kalman_update()</a></code> nudges the trained forecast toward those new observations with a stochastic Ensemble Kalman Filter [<a href="https://doi.org/10.1029/94JC00572" class="external-link">Evensen 1994</a>; <a href="https://doi.org/10.1175/1520-0493(1998)126%3C1719:ASITEK%3E2.0.CO;2" class="external-link">Burgers, van Leeuwen and Evensen 1998</a>]: a gain matrix is estimated directly from the ensemble sample covariance and applied per-member, so the posterior ensemble reflects the new evidence without retraining.</p>
 <p>The default localization is <strong>Gaspari-Cohn</strong> — a compactly supported 5th-order polynomial that tapers the gain smoothly to zero at twice the specified radius, preventing spurious long-range correlations typical of small ensembles.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fc_ens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="va">...</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>K <span class="op">=</span> <span class="fl">10</span>, H <span class="op">=</span> <span class="fl">10</span>, W <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">assim</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/temporal_kalman_update.html">temporal_kalman_update</a></span><span class="op">(</span></span>
@@ -1251,7 +1363,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <div class="section level3">
 <h3 id="real-data-demonstration-v150">Real-data demonstration (v1.5.0)<a class="anchor" aria-label="anchor" href="#real-data-demonstration-v150"></a>
 </h3>
-<p><code>vignette("pilar3-4d-real")</code> runs the full pipeline on a <strong>real Cerrado 2° × 2° AoI cube</strong> (MOD13Q1 NDVI + NASA POWER precipitation + NASA POWER T2M, 168 monthly steps, 2003 – 2016), with:</p>
+<p>The bundled <code>temporal_cerrado_results.rds</code> holds the full pipeline run on a <strong>real Cerrado 2° × 2° AoI cube</strong> (MOD13Q1 NDVI + NASA POWER precipitation + NASA POWER T2M, 168 monthly steps, 2003 – 2016), with:</p>
 <ul>
 <li>10 × 10 grid at 0.2° resolution</li>
 <li>K = 10-member ConvLSTM ensemble</li>
@@ -1279,7 +1391,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 </tr></tbody>
 </table>
 <p>The Kalman gain map becomes the first priority signal for the Pillar 5 active-learning loop — cells with large gain would benefit most from <em>another</em> in-situ sample.</p>
-<p>📖 Vignettes: <code><a href="articles/pilar3-4d-soc.html">vignette("pilar3-4d-soc")</a></code>, <code>vignette("pilar3-4d-real")</code>.</p>
+<p>📖 Vignette: <code><a href="articles/pilar3-4d-soc.html">vignette("pilar3-4d-soc")</a></code>. The real-AoI run above is distributed as a result bundle rather than as a vignette.</p>
 <hr>
 </div>
 </div>
@@ -1309,7 +1421,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <div class="section level3">
 <h3 id="zenodo-hosted-pre-trained-weights">Zenodo-hosted pre-trained weights<a class="anchor" aria-label="anchor" href="#zenodo-hosted-pre-trained-weights"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">moco</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/foundation_weights_load.html">foundation_weights_load</a></span><span class="op">(</span><span class="st">"edaphos-cerrado-moco-v1"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">fit</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/foundation_fit_classifier.html">foundation_fit_classifier</a></span><span class="op">(</span></span>
 <span>  <span class="va">moco</span>, <span class="va">labelled_patches</span>, <span class="va">soil_order</span>,</span>
@@ -1356,7 +1468,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <div class="section level3">
 <h3 id="example-1">Example<a class="anchor" aria-label="anchor" href="#example-1"></a>
 </h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
@@ -1391,7 +1503,7 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 \mathrm{BatchBALD}(B) \;=\; I(y_B; \theta \mid x_B, \mathcal D).
 </annotation></semantics></math></p>
 <p>For a QRF (the <code><a href="reference/al_fit.html">al_fit()</a></code> backbone) the trees are the parameter samples, so the joint covariance of the epistemic posterior is the per-tree empirical covariance across candidates. Under Gaussian aleatoric noise <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>a</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_a^2</annotation></semantics></math> the objective reduces to a log-determinant with a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>1</mn><mi>/</mi><mi>e</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1 - 1/e)</annotation></semantics></math> optimality guarantee [<a href="https://doi.org/10.1007/BF01588971" class="external-link">Nemhauser et al. 1978</a>]. Incremental Cholesky / Schur-complement updates make every greedy step <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>m</mi><mn>2</mn></msup><mo>⋅</mo><msub><mi>n</mi><mtext mathvariant="normal">pool</mtext></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(m^2 \cdot n_{\text{pool}})</annotation></semantics></math>.</p>
-<p>📖 Vignettes: <code><a href="articles/pilar5-active-learning.html">vignette("pilar5-active-learning")</a></code>, <code>vignette("pilar5-soilgrids-br")</code>.</p>
+<p>📖 Vignette: <code><a href="articles/pilar5-active-learning.html">vignette("pilar5-active-learning")</a></code>.</p>
 <hr>
 </div>
 </div>
@@ -1402,6 +1514,9 @@ zenodo_package.zip           (upload-ready archive)</code></pre>
 <h3 id="motivation-5">Motivation<a class="anchor" aria-label="anchor" href="#motivation-5"></a>
 </h3>
 <p>High-dimensional covariate stacks eventually hit the classical <strong>curse of dimensionality</strong>. Pillar 6 reformulates the kernel of the regression problem as the <strong>overlap of parametrised quantum states</strong> [<a href="https://doi.org/10.1038/s41586-019-0980-2" class="external-link">Havlicek et al. 2019</a>; <a href="https://doi.org/10.1103/PhysRevLett.122.040504" class="external-link">Schuld and Killoran 2019</a>], living in a Hilbert space of dimension <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math> in the number of qubits yet classically simulable in pure R for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≤</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">n \le 8</annotation></semantics></math>.</p>
+<blockquote>
+<p><strong>What it does on this repository’s own benchmark.</strong> Fifth of six methods, RMSE 0.663 against 0.586 for ordinary least squares on DAG-selected covariates, and an NSE of −0.019 — that is, marginally <em>worse</em> than predicting the training-fold mean everywhere. The construction below is sound and the implementation is verified against a reference, but on this data set the quantum kernel does not buy accuracy, and the pillar is presented as a method that is available rather than one that is recommended. The four-way head-to-head later in this section reaches the same conclusion from a different angle.</p>
+</blockquote>
 </div>
 <div class="section level3">
 <h3 id="governing-object-5">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-5"></a>
@@ -1438,7 +1553,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <h3 id="qiskit-vqe-pipeline-v090">Qiskit VQE pipeline (v0.9.0)<a class="anchor" aria-label="anchor" href="#qiskit-vqe-pipeline-v090"></a>
 </h3>
 <p>Three interchangeable execution backends for variational quantum eigensolvers:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ham</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/quantum_hamiltonian_h2.html">quantum_hamiltonian_h2</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1) Exact noiseless statevector</span></span>
@@ -1498,7 +1613,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <h3 id="v200--quantum-kernel-over-foundation-model-embeddings">v2.0.0 — Quantum kernel over foundation-model embeddings<a class="anchor" aria-label="anchor" href="#v200--quantum-kernel-over-foundation-model-embeddings"></a>
 </h3>
 <p>The <strong>Pilar 4 × Pilar 6 fusion</strong>. Foundation embeddings (64-dim MoCo v2 outputs) are compressed to <code>n_pcs</code> principal components rescaled to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mi>π</mi><mo>,</mo><mi>π</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-\pi, \pi]</annotation></semantics></math>, then lifted into a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>-dimensional Hilbert space by the ZZFeatureMap. Four new exported functions:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. Reduce foundation embeddings to top-n PCs in quantum range</span></span>
 <span><span class="va">red</span> <span class="op">&lt;-</span> <span class="fu">edaphos</span><span class="fu">::</span><span class="fu"><a href="reference/qf_embed_reduce.html">qf_embed_reduce</a></span><span class="op">(</span><span class="va">embeddings</span>, n_pcs <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span></span>
 <span></span>
@@ -1513,49 +1628,208 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <span><span class="co"># 4. 4-way head-to-head benchmark</span></span>
 <span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="fu">edaphos</span><span class="fu">::</span><span class="fu"><a href="reference/qf_krr_benchmark.html">qf_krr_benchmark</a></span><span class="op">(</span><span class="va">embeddings</span>, <span class="va">covariates</span>, <span class="va">y</span>,</span>
 <span>                                  n_pcs <span class="op">=</span> <span class="fl">6L</span>, reps <span class="op">=</span> <span class="fl">2L</span>, lambda <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
-<p><strong>5-fold spatial CV on 1 095 Cerrado profiles (synthetic-stack mode):</strong></p>
+<p><strong>This benchmark is a negative control.</strong> The raster stack the encoder sees is white noise — <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">stats::rnorm()</a></code> into every cell of every channel (<code>data-raw/quantum_foundation_benchmark.R</code>) — so the “foundation embeddings” describe a landscape that carries no signal, by construction. Three of the four methods below predict from features that <em>cannot</em> contain information about SOC. Read it as a check that the pipeline reports failure when there is nothing to find, not as a covariate benchmark. For the real-covariate answer see the six-method table below.</p>
+<p><strong>5-fold spatial CV on 1 081 Cerrado profiles (synthetic-stack mode).</strong> The Cerrado pool holds 1 095 profiles; 14 lose their embedding at the <code><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases()</a></code> step after the encoder pass, so the CV runs on 1 081. This table said 1 095 until the bundle was re-read.</p>
 <table class="table">
+<colgroup>
+<col width="45%">
+<col width="8%">
+<col width="6%">
+<col width="17%">
+<col width="21%">
+</colgroup>
 <thead><tr>
 <th align="left">Method</th>
 <th align="right">RMSE</th>
 <th align="right">MAE</th>
-<th align="right">R²</th>
+<th align="right">R² (pooled)</th>
+<th align="right">R² (fold mean)</th>
 </tr></thead>
 <tbody>
 <tr>
-<td align="left">Quantum KRR on foundation PCs</td>
-<td align="right">14.3</td>
-<td align="right">8.7</td>
-<td align="right">0.00</td>
+<td align="left">Quantum KRR on raw covariates</td>
+<td align="right">15.5</td>
+<td align="right">9.2</td>
+<td align="right">−0.075</td>
+<td align="right">−0.350</td>
 </tr>
 <tr>
-<td align="left">Quantum KRR on raw covariates</td>
-<td align="right">14.2</td>
-<td align="right">8.4</td>
-<td align="right">0.00</td>
+<td align="left">ranger (raw covariates)</td>
+<td align="right">15.5</td>
+<td align="right">9.0</td>
+<td align="right">−0.075</td>
+<td align="right">−0.795</td>
+</tr>
+<tr>
+<td align="left">Quantum KRR on foundation PCs</td>
+<td align="right">15.6</td>
+<td align="right">9.3</td>
+<td align="right">−0.089</td>
+<td align="right">−0.295</td>
 </tr>
 <tr>
 <td align="left">RBF-KRR on foundation PCs</td>
-<td align="right">14.8</td>
+<td align="right">16.1</td>
 <td align="right">9.8</td>
-<td align="right">0.00</td>
-</tr>
-<tr>
-<td align="left"><strong>ranger (raw covariates)</strong></td>
-<td align="right">14.3</td>
-<td align="right">9.0</td>
-<td align="right"><strong>0.08</strong></td>
+<td align="right">−0.159</td>
+<td align="right">−0.449</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Honest finding.</strong> Under synthetic embeddings (random Gaussian rasters), the quantum lift on foundation PCs <strong>matches but does not surpass</strong> ranger. The four regressors are statistically indistinguishable on this benchmark. Three testable explanations for v2.0.x:</p>
-<ol style="list-style-type: decimal">
-<li>Synthetic stack carries no real spatial signal → encoder sees noise → embeddings uninformative. Test: <code>EDAPHOS_IV_REAL_STACK=1</code>.</li>
-<li>Encoder v1 was undertrained (20k InfoNCE). Test: v2 (200k steps, currently training).</li>
-<li>6 qubits too few. Test: scale to 8–10 qubits.</li>
-</ol>
-<p><strong>The contribution is infrastructure.</strong> <code>qf_*</code> functions formalise the Pilar 4 × Pilar 6 fusion and ship a reproducible benchmark that decides the question empirically when richer inputs become available.</p>
+<p><strong>Finding: all four are worse than predicting the mean.</strong> Every pooled R² is negative, so no method here beats the zero-parameter null — and that includes the classical <code>ranger</code> baseline, which is the honest result on noise features. The four are close to one another (−0.075 to −0.159) and the differences between them are not worth interpreting.</p>
+<p><strong>What this table used to say, and why.</strong> Until this run it read <code>0.00</code> for the three kernel methods and <code>0.08</code> for <code>ranger</code>, under the conclusion that the four regressors were <em>statistically indistinguishable</em> and that the quantum lift <em>matched but did not surpass</em> ranger. Those zeros were not measured. <code><a href="reference/qf_krr_benchmark.html">qf_krr_benchmark()</a></code> computed <code>max(0, 1 - SS_res/SS_tot)</code>, so every negative R² — 17 of the 20 fold-by-method values — was floored to exactly zero, which converts “worse than the mean” into “explains none of the variance”. Two different findings, and the clamp published the flattering one. The clamp is gone (<code>R/quantum_foundation.R</code> delegates to <code><a href="reference/edaphos_r2.html">edaphos_r2()</a></code>, which is Nash–Sutcliffe and unclamped) and the bundle has been rebuilt from the same script and seed.</p>
+<p><strong>Two R² columns, because one of them is unstable.</strong> <code><a href="reference/edaphos_r2.html">edaphos_r2()</a></code> is Nash–Sutcliffe against each test fold’s <em>own</em> mean, so a fold whose profiles happen to be homogeneous has a small denominator and a wild R². Fold 2 of this partition has sd(SOC) = 5.9 g/kg against 11–21 in the other four; <code>ranger</code> scores −4.28 there, and that single fold drags its fold-mean to −0.80 and makes it look like the worst of the four. Pooled over folds — one ratio of summed squares rather than a mean of ratios — <code>ranger</code> is −0.075, mid-pack. The pooled column is the one to read; the fold mean is shown so the instability is visible instead of smoothed away.</p>
+<p>Earlier versions of this section listed three “testable explanations” for the null result — a synthetic stack, an undertrained encoder, too few qubits — and left them standing as though they were reasons to expect a different answer later. They are not. Each is a reason the run was <em>uninformative</em>; none is evidence that a corrected run would favour the quantum kernel. Two of the three have since been run, and both answered against it.</p>
+<table class="table">
+<colgroup>
+<col width="48%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr>
+<th align="left">Proposed test</th>
+<th align="left">Status</th>
+<th align="left">Result</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left">
+<strong>1.</strong> Real covariate stack instead of synthetic</td>
+<td align="left"><strong>Run</strong></td>
+<td align="left">Negative. The six-method benchmark (<code>inst/extdata/benchmark_wosis_6pilar.rds</code>) scores quantum KRR on the real SoilGrids / WorldClim / SRTM covariates over 1,095 WoSIS profiles and 5 spatially blocked folds with a 68 km buffer: RMSE 0.663 against 0.583 for DAG-restricted OLS, <strong>NSE −0.024</strong> — below the achievable null of the training-fold mean — and PICP90 0.663 against a nominal 0.90. It is also the most expensive method by a factor of 337 (762 s against 2.3 s).</td>
+</tr>
+<tr>
+<td align="left">
+<strong>2.</strong> Encoder trained 10× longer (<code>moco-v2</code>, 200k steps)</td>
+<td align="left"><strong>Run</strong></td>
+<td align="left">Negative, indirectly. Foundation embeddings do reach the benchmark, as P4, and rank <strong>fourth of six</strong> (RMSE 0.616, NSE 0.118) — below both plain OLS and a quantile forest on raw covariates. The embedding route does not carry information the covariates lack; see the instrumental-variable result, where those embeddings are extremely <em>relevant</em> and decisively <em>invalid</em>.</td>
+</tr>
+<tr>
+<td align="left">
+<strong>3.</strong> 8–10 qubits instead of 6</td>
+<td align="left"><strong>Not run</strong></td>
+<td align="left">Open. We do not claim it would fail; we claim nothing about it, which is the honest position for an experiment nobody has done.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The contribution is infrastructure.</strong> <code>qf_*</code> functions formalise the Pilar 4 × Pilar 6 fusion and ship a reproducible benchmark. That benchmark has now been run on real inputs and returned a negative result, which is reported here rather than deferred to a future version.</p>
 <p>📖 Vignette: <code><a href="articles/pilar4-pilar6-quantum.html">vignette("pilar4-pilar6-quantum")</a></code>.</p>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="pillar-7--bayesian-hierarchical-spatial">Pillar 7 — Bayesian Hierarchical Spatial<a class="anchor" aria-label="anchor" href="#pillar-7--bayesian-hierarchical-spatial"></a>
+</h2>
+<div class="section level3">
+<h3 id="motivation-6">Motivation<a class="anchor" aria-label="anchor" href="#motivation-6"></a>
+</h3>
+<p>A machine-learning soil map returns a number per pixel; it rarely returns an honest interval, because residual spatial structure is treated as noise rather than as a signal with a covariance. Pillar 7 puts the dependence <em>inside</em> the model as a Gaussian-process random effect and returns a posterior over every quantity of interest [<a href="https://doi.org/10.1201/b17115" class="external-link">Banerjee et al. 2014</a>].</p>
+</div>
+<div class="section level3">
+<h3 id="governing-object-6">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-6"></a>
+</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>X</mi><mi>β</mi><mo>+</mo><mi>w</mi><mo>+</mo><mi>ε</mi><mo>,</mo><mspace width="2.0em"></mspace><mi>w</mi><mo>∼</mo><mi>G</mi><mi>P</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mspace width="0.222em"></mspace><msup><mi>σ</mi><mn>2</mn></msup><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>ε</mi><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mspace width="0.222em"></mspace><msup><mi>τ</mi><mn>2</mn></msup><mi>I</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+y = X\beta + w + \varepsilon, \qquad
+w \sim GP\big(0,\ \sigma^2 R(\phi)\big), \qquad
+\varepsilon \sim N(0,\ \tau^2 I),
+</annotation></semantics></math></p>
+<p>with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>ϕ</mi><msub><mo stretchy="false" form="postfix">)</mo><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>ϕ</mi><mrow><mo stretchy="true" form="prefix">‖</mo><msub><mi>s</mi><mi>i</mi></msub><mo>−</mo><msub><mi>s</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">‖</mo></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(\phi)_{ij} = \exp(-\phi \lVert s_i - s_j \rVert)</annotation></semantics></math>. Note that <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> is a <strong>rate</strong> (units 1/distance), not a range; the practical correlation range is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>3</mn><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\approx 3/\phi</annotation></semantics></math>.</p>
+<p>Conditional on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> every update is conjugate, so <code><a href="reference/bhs_fit.html">bhs_fit()</a></code> profiles <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> by maximum likelihood over <code>phi_range</code> and runs a Metropolis-free Gibbs sampler for everything else — the same concession INLA makes [<a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x" class="external-link">Rue et al. 2009</a>]. The Cholesky-heavy inner loop runs through an RcppArmadillo backend.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/bhs_fit.html">bhs_fit</a></span><span class="op">(</span><span class="va">train</span>, <span class="va">soc</span> <span class="op">~</span> <span class="va">elev</span> <span class="op">+</span> <span class="va">slope</span> <span class="op">+</span> <span class="va">twi</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>,</span>
+<span>               nmcmc <span class="op">=</span> <span class="fl">1500L</span>, burn <span class="op">=</span> <span class="fl">500L</span>, phi_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">test</span><span class="op">)</span>   <span class="co"># Bayesian kriging, per draw</span></span></code></pre></div>
+<p><code><a href="reference/bhs_fit.html">bhs_fit()</a></code> <strong>warns when the profile-MLE of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> lands on an endpoint of <code>phi_range</code></strong>: the bracket rather than the data then set the correlation rate, and the spatial variance fraction is not interpretable. Read that warning before reading anything else — the vignette shows a case where the fraction reads 0.97 with a tight posterior in a fit that has no resolvable spatial field at all.</p>
+<p>📖 Vignette: <code><a href="articles/pilar7-bayesian-hierarchical.html">vignette("pilar7-bayesian-hierarchical")</a></code>.</p>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="pillar-8--neural-operators">Pillar 8 — Neural Operators<a class="anchor" aria-label="anchor" href="#pillar-8--neural-operators"></a>
+</h2>
+<div class="section level3">
+<h3 id="motivation-7">Motivation<a class="anchor" aria-label="anchor" href="#motivation-7"></a>
+</h3>
+<p>A soil profile is not a stack of independent points; it is a <em>function</em> of depth. Pillar 8 learns the operator that produced it, rather than a pointwise regression evaluated at fixed depths.</p>
+</div>
+<div class="section level3">
+<h3 id="governing-object-7">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-7"></a>
+</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒢</mi><mo>:</mo><mi>u</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>↦</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\mathcal{G} : u(z) \longmapsto y(z)
+</annotation></semantics></math></p>
+<p>Two architectures, both shipped:</p>
+<p><strong>Fourier Neural Operator</strong> [<a href="https://openreview.net/forum?id=c8P9NQVtmnO" class="external-link">Li et al. 2021</a>] — spectral convolution with the spectrum truncated to <code>n_modes</code>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>𝒦</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>ℱ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mi>θ</mi></msub><mo>⋅</mo><mi>ℱ</mi><mi>v</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+(\mathcal{K}v)(z) = \mathcal{F}^{-1}\big(R_\theta \cdot \mathcal{F}v\big)(z)
+</annotation></semantics></math></p>
+<p><strong>DeepONet</strong> [<a href="https://doi.org/10.1038/s42256-021-00302-5" class="external-link">Lu et al. 2021</a>] — branch/trunk factorisation, the constructive form of the Chen and Chen (1995) universal operator approximation theorem:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒢</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>p</mi></munderover><msub><mi>b</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mi>t</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+\mathcal{G}(u)(z) \approx \sum_{k=1}^{p} b_k(u)\, t_k(z)
+</annotation></semantics></math></p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">don</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/no_deeponet_fit.html">no_deeponet_fit</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">targets</span>, <span class="va">covariates</span>,</span>
+<span>                       branch_hidden <span class="op">=</span> <span class="fl">24L</span>, trunk_hidden <span class="op">=</span> <span class="fl">24L</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The trunk accepts any depth, including ones never trained on:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">don</span>, <span class="va">new_covariates</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7.5</span>, <span class="fl">33</span>, <span class="fl">61</span>, <span class="fl">97</span>, <span class="fl">133</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>That last line is the point of the pillar. On the training grid a quantile regression forest is at least as accurate; asked for depths it never saw, it is not. The vignette measures both.</p>
+<p>📖 Vignette: <code><a href="articles/pilar8-neural-operators.html">vignette("pilar8-neural-operators")</a></code>.</p>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="pillar-9--diffusion-models">Pillar 9 — Diffusion Models<a class="anchor" aria-label="anchor" href="#pillar-9--diffusion-models"></a>
+</h2>
+<div class="section level3">
+<h3 id="motivation-8">Motivation<a class="anchor" aria-label="anchor" href="#motivation-8"></a>
+</h3>
+<p>Every other pillar answers “what is the value here?”. None answers “what does a plausible soil landscape look like?” — a map assembled from per-pixel quantiles is smoother than any real landscape and corresponds to no coherent realisation. Pillar 9 samples whole maps.</p>
+</div>
+<div class="section level3">
+<h3 id="governing-object-8">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-8"></a>
+</h3>
+<p>Forward process (fixed, no parameters), on the cosine schedule of [<a href="https://proceedings.mlr.press/v139/nichol21a.html" class="external-link">Nichol and Dhariwal 2021</a>]:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>∣</mo><msub><mi>x</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msqrt><msub><mover><mi>α</mi><mo accent="true">‾</mo></mover><mi>t</mi></msub></msqrt><mspace width="0.167em"></mspace><msub><mi>x</mi><mn>0</mn></msub><mo>,</mo><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mover><mi>α</mi><mo accent="true">‾</mo></mover><mi>t</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>I</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
+q(x_t \mid x_0) = N\big(\sqrt{\bar\alpha_t}\,x_0,\ (1 - \bar\alpha_t) I\big)
+</annotation></semantics></math></p>
+<p>Only the denoiser <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϵ</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>t</mi></msub><mo>,</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\epsilon_\theta(x_t, t)</annotation></semantics></math> is learned, by score matching [<a href="https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html" class="external-link">Ho et al. 2020</a>]; <code><a href="reference/dm_sample.html">dm_sample()</a></code> then runs ancestral sampling from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">t = T</annotation></semantics></math> down to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math> with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>0</mn></msub><annotation encoding="application/x-tex">x_0</annotation></semantics></math> clipping.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sch</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dm_cosine_schedule.html">dm_cosine_schedule</a></span><span class="op">(</span>T <span class="op">=</span> <span class="fl">100L</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dm_fit.html">dm_fit</a></span><span class="op">(</span><span class="va">patch_stack</span>, T <span class="op">=</span> <span class="fl">100L</span>, epochs <span class="op">=</span> <span class="fl">250L</span><span class="op">)</span></span>
+<span><span class="va">gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dm_sample.html">dm_sample</a></span><span class="op">(</span><span class="va">fit</span>, n_samples <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Honest status.</strong> The pure-R backend trains a readout over frozen random features (an ELM regime) and does <strong>not</strong> reproduce the spatial autocorrelation of the training patches — measured, and reported in the vignette rather than hidden behind plausible-looking thumbnails. Use <code>backend = "torch"</code>, which trains every layer by autograd and does recover the structure.</p>
+<p>📖 Vignette: <code><a href="articles/pilar9-diffusion-models.html">vignette("pilar9-diffusion-models")</a></code>.</p>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="pillar-10--graph-neural-networks">Pillar 10 — Graph Neural Networks<a class="anchor" aria-label="anchor" href="#pillar-10--graph-neural-networks"></a>
+</h2>
+<div class="section level3">
+<h3 id="motivation-9">Motivation<a class="anchor" aria-label="anchor" href="#motivation-9"></a>
+</h3>
+<p>Kriging assumes you know the covariance function; a random forest assumes profiles are independent rows. Neither is right — profiles inform each other through a relation that should be <em>learned</em>.</p>
+</div>
+<div class="section level3">
+<h3 id="governing-object-9">Governing object<a class="anchor" aria-label="anchor" href="#governing-object-9"></a>
+</h3>
+<p>Graph attention [<a href="https://openreview.net/forum?id=rJXMpikCZ" class="external-link">Veličković et al. 2018</a>] over a k-NN co-location graph of profiles:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">k</mi><mi mathvariant="normal">y</mi><mi mathvariant="normal">R</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">U</mi></mrow><mspace width="-0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msup><mi>𝐚</mi><mi>⊤</mi></msup><mo stretchy="false" form="prefix">[</mo><mi>W</mi><msub><mi>h</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">‖</mo><mi>W</mi><msub><mi>h</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">]</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>α</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>e</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mi>k</mi><mo>∈</mo><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>e</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
+\qquad
+\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}(i)} \exp(e_{ik})}
+</annotation></semantics></math></p>
+<p>The softmax is grouped per neighbourhood, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">e_{ij}</annotation></semantics></math> depends on both endpoints’ features — so two pairs at identical separation can receive very different weights. That is what a fixed covariance function cannot express.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gnn_build_graph.html">gnn_build_graph</a></span><span class="op">(</span><span class="va">profiles</span>, k <span class="op">=</span> <span class="fl">8L</span>, feature_cols <span class="op">=</span> <span class="va">feat</span>,</span>
+<span>                     edges <span class="op">=</span> <span class="st">"spatial"</span>, self_loops <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ens</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gnn_fit_ensemble.html">gnn_fit_ensemble</a></span><span class="op">(</span><span class="va">g</span>, targets <span class="op">=</span> <span class="va">profiles</span><span class="op">$</span><span class="va">soc</span>,</span>
+<span>                        train_mask <span class="op">=</span> <span class="va">train_mask</span>, n_ensemble <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span></span></code></pre></div>
+<p>Attention is trained by <strong>analytic reverse-mode gradients</strong> through the grouped softmax — hand-derived, and checked against central finite differences across several architectures in <code>test-pilar10-gat-grad.R</code>. <code>train_mask</code> keeps every node in message passing while restricting the loss to training nodes, so no test label reaches the optimiser. <code><a href="reference/gnn_fit_ensemble.html">gnn_fit_ensemble()</a></code> averages seeds so the published comparison against a 500-tree QRF is ensemble-versus-ensemble rather than one model against a forest.</p>
+<p>📖 Vignette: <code><a href="articles/pilar10-graph-attention.html">vignette("pilar10-graph-attention")</a></code>.</p>
 <hr>
 </div>
 </div>
@@ -1566,7 +1840,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <pre class="mermaid"><code>flowchart LR
     subgraph NATIVE["Per-pillar native objects"]
         N1[P1 bootstrap&lt;br/&gt;effect vector]
-        N2[P2 Laplace&lt;br/&gt;MCMC draws]
+        N2[P2 MCMC&lt;br/&gt;4 chains]
         N3[P3 ensemble +&lt;br/&gt;Kalman posterior]
         N4[P4 fine-tune&lt;br/&gt;ensemble]
         N5[P5 QRF&lt;br/&gt;quantile grid]
@@ -1595,7 +1869,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
     ADAPT --&gt; REL
     ADAPT --&gt; RMSE</code></pre>
 <p>Three lines of code are now enough to calibrate any pillar:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/causal_effect_posterior.html">causal_effect_posterior</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">dag</span>, <span class="va">exposure</span>, <span class="va">outcome</span>, B <span class="op">=</span> <span class="fl">500L</span><span class="op">)</span></span>
 <span><span class="va">cal</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/uncertainty_calibrate.html">uncertainty_calibrate</a></span><span class="op">(</span><span class="va">post</span>, truth <span class="op">=</span> <span class="va">observed_effects</span><span class="op">)</span></span>
 <span><span class="fu">autoplot</span><span class="op">(</span><span class="va">post</span><span class="op">)</span>                       <span class="co"># ggplot2 figure by query type</span></span></code></pre></div>
@@ -1635,11 +1909,11 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <tr>
 <td align="left">P2 PIML</td>
 <td align="left">depth profile y(z)</td>
-<td align="right">7</td>
-<td align="right">0.408</td>
-<td align="right"><strong>0.714</strong></td>
-<td align="right">2.015</td>
-<td align="right">0.826</td>
+<td align="right">9</td>
+<td align="right">1.971</td>
+<td align="right">0.778</td>
+<td align="right">6.608</td>
+<td align="right">4.096</td>
 </tr>
 <tr>
 <td align="left">P3 4D</td>
@@ -1679,7 +1953,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 </tr>
 </tbody>
 </table>
-<p><strong>How to read this table.</strong> The 90% nominal PICP should be close to 0.90. <strong>P5 AL (0.93) and P6 Q-KRR (0.84) are the best-calibrated</strong> spatial-query pillars. P1 (0.78), P2 (0.71) and P3 (0.70) are well-calibrated in their own domains despite small n. <strong>P4’s 0.27 PICP flags a real failure mode</strong>: naïve ensembles of <code>ranger</code> heads underestimate epistemic SD because ranger already marginalises over trees — honestly reported rather than papered over. See <code><a href="articles/capstone-cerrado-campaign.html">vignette("capstone-cerrado-campaign")</a></code> §10 for the side-by-side comparison with the naïve unified-query table and its caveats.</p>
+<p><strong>How to read this table.</strong> The 90% nominal PICP should be close to 0.90. <strong>P5 AL (0.93) and P6 Q-KRR (0.84) are the best-calibrated</strong> spatial-query pillars; P1 (0.78) and P3 (0.70) are acceptable in their own domains despite small n. Two rows flag real failure modes, both reported rather than papered over. <strong>P4’s 0.27</strong> comes from naïve ensembles of <code>ranger</code> heads underestimating epistemic SD, because <code>ranger</code> already marginalises over trees. <strong>P2’s 0.78</strong> is the residue of two corrections. The row used to read 0.71 with an RMSE of 0.83, measured by leaving one horizon out of a seven-point profile that had been typed in by hand; on a real nine-horizon WoSIS profile reaching 550 cm the same procedure gave 0.44. Two things were wrong with that number and both are fixed. The interval being scored excluded observation noise, so a mean-function interval was being asked to cover a measured value it structurally cannot — restoring it takes the coverage to 0.67. And the likelihood was Gaussian on g/kg, which puts predictive mass below zero and weights every horizon by the same absolute error; a lognormal takes it to 0.78 and removes the negative draws entirely. The pedogenetic ODE is still overconfident at a nominal 0.90, and that is now the honest residual rather than an artefact of how it was scored. See <code><a href="articles/capstone-cerrado-campaign.html">vignette("capstone-cerrado-campaign")</a></code> §10 for the side-by-side comparison with the naïve unified-query table and its caveats.</p>
 <p>📖 Vignette: <code><a href="articles/uncertainty-unified.html">vignette("uncertainty-unified")</a></code>.</p>
 <hr>
 </div>
@@ -1687,7 +1961,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <div class="section level2">
 <h2 id="capstone-vignette-v170">Capstone vignette (v1.7.0)<a class="anchor" aria-label="anchor" href="#capstone-vignette-v170"></a>
 </h2>
-<p><code><a href="articles/capstone-cerrado-campaign.html">vignette("capstone-cerrado-campaign")</a></code> is the flagship of v1.7.0 — a ~900-line narrative that puts all six pillars to work on a single decision: <em>where should we place 8 new field samples in the Cerrado?</em></p>
+<p><code><a href="articles/capstone-cerrado-campaign.html">vignette("capstone-cerrado-campaign")</a></code> is the flagship of v1.7.0 — a ~900-line narrative that puts the pillars to work on a single decision: <em>where should we place 8 new field samples in the Cerrado?</em></p>
 <div class="section level3">
 <h3 id="what-it-contains">What it contains<a class="anchor" aria-label="anchor" href="#what-it-contains"></a>
 </h3>
@@ -1787,21 +2061,21 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <td align="left">
 <strong>B1</strong> <code>ranger</code> QRF — 56 covariates</td>
 <td align="right">1095</td>
-<td align="right">13.51</td>
+<td align="right"><strong>13.51</strong></td>
 <td align="right">7.72</td>
-<td align="right">0.219</td>
-<td align="right"><strong>0.944</strong></td>
-<td align="right"><strong>65.81</strong></td>
+<td align="right"><strong>0.219</strong></td>
+<td align="right">0.944</td>
+<td align="right"><strong>65.8</strong></td>
 </tr>
 <tr>
 <td align="left">
 <strong>B2</strong> <code>ranger</code> + <code>gstat</code> residual kriging</td>
-<td align="right">910*</td>
-<td align="right"><strong>13.86</strong></td>
-<td align="right">7.86</td>
-<td align="right"><strong>0.233</strong></td>
-<td align="right">0.817</td>
-<td align="right">99.5</td>
+<td align="right">893*</td>
+<td align="right">14.01</td>
+<td align="right">7.93</td>
+<td align="right">0.205</td>
+<td align="right"><strong>0.945</strong></td>
+<td align="right">79.9</td>
 </tr>
 <tr>
 <td align="left">
@@ -1816,10 +2090,10 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 </tbody>
 </table>
 <p>* Kriging drops test points whose variogram-range disk misses the training cloud; the foundation stack drops points within 16 pixels of the Cerrado raster edge.</p>
-<p><strong>Honest reading.</strong> R² ≈ 0.22–0.23 is in line with published regional Brazilian / Cerrado SOC DSM. Residual kriging gains +0.01 R² over B1 at the cost of much worse PICP (0.82 vs 0.94). The <strong>plain QRF is the calibration champion</strong>. The MoCo v1 embedding does not yet beat B1 on this dataset — v1 was trained for only 20 k InfoNCE steps (10% of the canonical MoCo v2 budget); v2 is in training, v1.3.2 will re-benchmark.</p>
+<p><strong>Honest reading.</strong> R² ≈ 0.22 is in line with published regional Brazilian / Cerrado SOC DSM. Residual kriging neither gains accuracy nor costs calibration: it <em>loses</em> 0.014 R² against B1 (0.205 vs 0.219) and its PICP is indistinguishable (0.945 vs 0.944). An earlier version of this table reported the opposite on both counts — a +0.01 R² gain bought with a PICP of 0.82 — and that was an artefact: B2’s training residuals were formed from IN-SAMPLE forest predictions, which are too small by about 4x, so the kriged correction and its variance were both understated and B2’s intervals came out too narrow. With out-of-bag predictions the intervals are right, the PICP recovers, and the apparent accuracy gain disappears with it. The <strong>plain QRF is still the calibration champion</strong>, now on a wider margin in interval score rather than in PICP. The MoCo v1 embedding does not yet beat B1 on this dataset — v1 was trained for only 20 k InfoNCE steps (10% of the canonical MoCo v2 budget); v2 is in training, v1.3.2 will re-benchmark.</p>
 <p>Reproduce with</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/case_cerrado_prepare.R   <span class="co"># ~60 min, downloads ~2 GB</span></span>
-<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/case_cerrado_run.R       <span class="co"># ~3 min</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/case_cerrado_prepare.R   <span class="co"># ~60 min, downloads ~2 GB</span></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/case_cerrado_run.R       <span class="co"># ~3 min</span></span></code></pre></div>
 <p>or read the pre-computed <code>.rds</code> shipped at <code>inst/extdata/case_cerrado_results.rds</code> and rebuild every plot via <code><a href="articles/case-cerrado-end-to-end.html">vignette("case-cerrado-end-to-end")</a></code>.</p>
 <hr>
 </div>
@@ -1945,7 +2219,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <tr>
 <td align="left"><code>causal_iv_cerrado_real.rds</code></td>
 <td align="right">~1 KB</td>
-<td align="left">Real-encoder IV benchmark (v1.9.1): 1 081 embeddings + Sargan passes</td>
+<td align="left">Real-encoder IV benchmark: 1 081 embeddings; Sargan PARTIAL (see below)</td>
 <td align="left">
 <code>pilar1-pilar4-iv</code> §7</td>
 </tr>
@@ -1989,14 +2263,14 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 </tr>
 </tbody>
 </table>
-<p>All real-data bundles are tracked in Zenodo for permanent DOI citation.</p>
+<p>The tagged release is archived on Zenodo with a DOI; the real-data bundles ship inside it, in <code>inst/extdata/</code>, rather than carrying DOIs of their own.</p>
 <hr>
 </div>
 </div>
 <div class="section level2">
 <h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
 </h2>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/browseVignettes.html" class="external-link">browseVignettes</a></span><span class="op">(</span><span class="st">"edaphos"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
@@ -2013,20 +2287,12 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <td>Backdoor adjustment in a pedogenetic DAG; naive vs. causal estimator on <code>br_cerrado</code>.</td>
 </tr>
 <tr>
-<td><code>pilar1-causal-real</code></td>
-<td>Backdoor-adjusted direct effects on <strong>1 095 real WoSIS Cerrado profiles</strong> (v1.4.0).</td>
-</tr>
-<tr>
 <td><code>pilar2-piml-profile</code></td>
 <td>Parametric ODE + Neural ODE of the depth profile on <code><a href="https://ncss-tech.github.io/aqp/reference/sp4.html" class="external-link">aqp::sp4</a></code>; Pillar 2 × 5 physics gate.</td>
 </tr>
 <tr>
 <td><code>pilar3-4d-soc</code></td>
 <td>Stacked ConvLSTM forecasting of the synthetic SOC cube; optional mass-balance physics loss.</td>
-</tr>
-<tr>
-<td><code>pilar3-4d-real</code></td>
-<td>ConvLSTM forecast of MODIS NDVI over a Cerrado 2° × 2° AoI + stochastic EnKF assimilation (v1.5.0).</td>
 </tr>
 <tr>
 <td><code>pilar4-simclr-embeddings</code></td>
@@ -2037,33 +2303,23 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <td>Formal derivation of the hybrid query policy on the classic <code>meuse</code> dataset.</td>
 </tr>
 <tr>
-<td><code>pilar5-soilgrids-br</code></td>
-<td>Same AL loop on a Cerrado recorte; migration path to live SoilGrids data.</td>
-</tr>
-<tr>
 <td><code>pilar6-quantum</code></td>
 <td>Pure-R ZZFeatureMap simulator + quantum-kernel Gram matrix + Quantum KRR on binary SOC classification.</td>
 </tr>
 <tr>
 <td><code>uncertainty-unified</code></td>
-<td>Unified <code>edaphos_posterior</code> class + single calibration diagnostic applied to all six pillars (v1.6.0).</td>
+<td>Unified <code>edaphos_posterior</code> class + single calibration diagnostic, applied at v1.6.0 to the six pillars that existed then.</td>
 </tr>
 <tr>
 <td>🏆 <code>capstone-cerrado-campaign</code>
 </td>
 <td>
-<strong>v1.7.0 capstone</strong>: all six pillars integrated in a Cerrado sampling-campaign decision.</td>
+<strong>v1.7.0 capstone</strong>: the six pillars of that release, integrated in a Cerrado sampling-campaign decision.</td>
 </tr>
 <tr>
 <td><code>causal-discovery-trio</code></td>
 <td>
 <strong>v1.7.2</strong>: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set.</td>
-</tr>
-<tr>
-<td>📊 <code>llm-kg-benchmark</code>
-</td>
-<td>
-<strong>v1.8.0</strong>: Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts — P/R/F1, Cohen’s κ, cost / 1k claims, latency, 10k-abstract scaling.</td>
 </tr>
 <tr>
 <td>🛠️ <code>llm-annotation-workflow</code>
@@ -2075,7 +2331,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <td>🔗 <code>pilar1-pilar4-iv</code>
 </td>
 <td>
-<strong>v1.9.0+</strong>: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (<code>foundation_embed_at_coords</code>) where Sargan passes; v1.9.2 adds Cinelli-Hazlett sensitivity analysis.</td>
+<strong>v1.9.0+</strong>: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (<code>foundation_embed_at_coords</code>); the Sargan test passes for one exposure of three and is reported as partial; v1.9.2 adds Cinelli-Hazlett sensitivity analysis.</td>
 </tr>
 <tr>
 <td>🌀 <code>pilar4-pilar6-quantum</code>
@@ -2097,13 +2353,13 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 </h2>
 <ul>
 <li>
-<strong>1 493 passing expectations</strong> across 484 <code>test_that</code> blocks in 70 test files (<code>testthat</code>), measured on aarch64-apple-darwin23, R 4.6.1. 1 expectations are skipped here because their optional dependency is absent; every skip is an explicit <code>skip_if_not_installed()</code> gate.</li>
+<strong>2 192 passing expectations</strong> across 601 <code>test_that</code> blocks in 92 test files (<code>testthat</code>), measured on aarch64-apple-darwin23, R 4.6.1. One expectation is skipped here, because its optional dependency is absent; every skip is an explicit <code>skip_if_not_installed()</code> gate.</li>
 <li>
 <strong>Gated dependencies:</strong> <code>torch</code>, <code>dagitty</code>, <code>bnlearn</code>, <code>dbarts</code>, <code>reticulate</code>, <code>terra</code>, <code>igraph</code>.</li>
 <li>
-<strong><code>R CMD check --as-cran</code>:</strong> <code>3 NOTEs</code> at commit <code>f9d459c</code>. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in <a href="cran-comments.html"><code>cran-comments.md</code></a>; the log itself is committed at <a href="tools/status/check.log"><code>tools/status/check.log</code></a>.</li>
+<strong><code>R CMD check --as-cran</code>:</strong> <code>2 NOTEs</code> at commit <code>8e725b9</code>. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in <a href="cran-comments.html"><code>cran-comments.md</code></a>; the log itself is committed at <a href="tools/status/check.log"><code>tools/status/check.log</code></a>.</li>
 <li>
-<strong>CI:</strong> GitHub Actions matrix on <code>macos-latest / R release</code>, <code>windows-latest / R release</code>, <code>ubuntu-latest / R devel</code>, <code>ubuntu-latest / R release</code>, <code>ubuntu-latest / R oldrel-1</code>, <code>ubuntu-latest / R release</code>. Note that <code>TORCH_INSTALL: 0</code> is set, so libtorch is never installed on any leg and the torch-gated tests do not execute in CI.</li>
+<strong>CI:</strong> GitHub Actions matrix on <code>macos-latest / R release</code>, <code>windows-latest / R release</code>, <code>ubuntu-latest / R devel</code>, <code>ubuntu-latest / R release</code>, <code>ubuntu-latest / R oldrel-1</code>, <code>ubuntu-latest / R release</code>. 1 of these 6 legs installs libtorch, so the torch-gated tests execute in CI rather than skipping.</li>
 <li>These figures are generated by <code>tools/status/patch-readme-metrics.R</code> from a real test run and a real check log. Do not edit them by hand.</li>
 </ul>
 <hr>
@@ -2141,7 +2397,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 </tr>
 <tr>
 <td align="center">v1.7.0</td>
-<td align="left">Capstone vignette integrating all six pillars</td>
+<td align="left">Capstone vignette integrating the then-six pillars</td>
 <td align="center">✅</td>
 </tr>
 <tr>
@@ -2176,7 +2432,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 </tr>
 <tr>
 <td align="center">v1.9.1</td>
-<td align="left">Real MoCo v2 patch extraction (<code>foundation_embed_at_coords</code>) — Sargan passes empirically</td>
+<td align="left">Real MoCo v2 patch extraction (<code>foundation_embed_at_coords</code>) — Sargan PARTIAL: 0.250 / 0.042 / 0.003</td>
 <td align="center">✅</td>
 </tr>
 <tr>
@@ -2271,32 +2527,32 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>Every release is archived on Zenodo with a permanent DOI. The <strong>concept DOI</strong> below resolves to the latest version and is the citation to use in publications:</p>
+<p>This package is a development version and has not been released. To cite the current development version:</p>
 <blockquote>
-<p>Rodrigues, H. (2026). <em>edaphos: Disruptive Algorithms for Digital Soil Mapping</em> (Version 2.8.0) [Software]. Zenodo. <a href="https://doi.org/10.5281/zenodo.19683708" class="external-link uri">https://doi.org/10.5281/zenodo.19683708</a></p>
+<p>Rodrigues, H. (2026). <em>edaphos: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods</em> (version 0.9.0, development) [Software]. <a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link uri">https://github.com/HugoMachadoRodrigues/edaphos</a></p>
 </blockquote>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="co">@software{Rodrigues_edaphos_2026,</span></span>
-<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="co">  author    = {Rodrigues, Hugo},</span></span>
-<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="co">  title     = {edaphos: Disruptive Algorithms for Digital Soil Mapping},</span></span>
-<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a><span class="co">  year      = {2026},</span></span>
-<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a><span class="co">  version   = {2.8.0},</span></span>
-<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="co">  publisher = {Zenodo},</span></span>
-<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="co">  doi       = {10.5281/zenodo.19683708},</span></span>
-<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">  url       = {https://github.com/HugoMachadoRodrigues/edaphos}</span></span>
-<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a><span class="co">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="co">@software{Rodrigues_edaphos_2026,</span></span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="co">  author    = {Rodrigues, Hugo},</span></span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="co">  title     = {edaphos: Digital Soil Mapping with Causal, Physics-Informed</span></span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a><span class="co">               and Generative Methods},</span></span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="co">  year      = {2026},</span></span>
+<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="co">  version   = {0.9.0},</span></span>
+<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="co">  note      = {Development version; not yet released},</span></span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a><span class="co">  url       = {https://github.com/HugoMachadoRodrigues/edaphos}</span></span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a><span class="co">}</span></span></code></pre></div>
 <p>An auto-generated citation is also available in R:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"edaphos"</span><span class="op">)</span></span></code></pre></div>
 <p>If you use the v1.7.0 capstone specifically, please also cite the paper that motivates its framework:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">Zhang2026causal</span>,</span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Zhang, Lei and Wadoux, Alexandre M. J.-C.},</span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>  <span class="dt">title</span>   = {Can Digital Soil Mapping Be Causal?},</span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>  <span class="dt">journal</span> = {European Journal of Soil Science},</span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>  <span class="dt">volume</span>  = {77},</span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>  <span class="dt">pages</span>   = {e70284},</span>
-<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
-<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1111/ejss.70284}</span>
-<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">Zhang2026causal</span>,</span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>  <span class="dt">author</span>  = {Zhang, Lei and Wadoux, Alexandre M. J.-C.},</span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  <span class="dt">title</span>   = {Can Digital Soil Mapping Be Causal?},</span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>  <span class="dt">journal</span> = {European Journal of Soil Science},</span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>  <span class="dt">volume</span>  = {77},</span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>  <span class="dt">pages</span>   = {e70284},</span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>  <span class="dt">year</span>    = {2026},</span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a>  <span class="dt">doi</span>     = {10.1111/ejss.70284}</span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a>}</span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -2384,7 +2640,7 @@ U_\phi(\mathbf{x}) \;=\; \exp\!\Bigl(i\!\sum_{S\subseteq[n]} \phi_S(\mathbf{x})\
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
-<a href="https://orcid.org/0000-0002-8070-8126" class="external-link">Hugo Rodrigues</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-8070-8126" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<a href="https://orcid.org/0000-0002-8070-8126" class="external-link">Hugo Rodrigues</a> <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-8070-8126" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 

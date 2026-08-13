@@ -23,19 +23,24 @@ An `edaphos_causal_kg` object (S3) containing an empty directed
 
 ``` r
 # \donttest{
-  kg <- causal_kg_new()
-  kg <- causal_kg_add_edge(
-    kg, "precipitation", "soc",
-    source     = "Jenny 1941",
-    evidence   = "Higher precipitation favours organic-matter accumulation.",
-    confidence = 0.9
-  )
-  causal_kg_edges(kg)
+# `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+# DOES execute \donttest blocks, so this guard is load-bearing:
+# without it the example errors on any machine lacking igraph.
+if (requireNamespace("igraph", quietly = TRUE)) {
+    kg <- causal_kg_new()
+    kg <- causal_kg_add_edge(
+      kg, "precipitation", "soc",
+      source     = "Jenny 1941",
+      evidence   = "Higher precipitation favours organic-matter accumulation.",
+      confidence = 0.9
+    )
+    causal_kg_edges(kg)
+}
 #>           cause effect     source
 #> 1 precipitation    soc Jenny 1941
 #>                                                    evidence confidence
 #> 1 Higher precipitation favours organic-matter accumulation.        0.9
 #>              timestamp
-#> 1 2026-07-27T16:45:19Z
+#> 1 2026-08-13T04:13:59Z
 # }
 ```

@@ -5,7 +5,7 @@ synonymous nodes and re-merging their edges (max confidence /
 concatenated evidence, as per causal_kg_add_edge())."><meta property="og:description" content="Applies the (original -&amp;gt; canonical) mapping computed by
 causal_kg_alignment() to an edaphos_causal_kg, collapsing
 synonymous nodes and re-merging their edges (max confidence /
-concatenated evidence, as per causal_kg_add_edge())."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+concatenated evidence, as per causal_kg_add_edge())."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ concatenated evidence, as per causal_kg_add_edge())."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ concatenated evidence, as per causal_kg_add_edge())."><meta property="og:image" 
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ concatenated evidence, as per causal_kg_add_edge())."><meta property="og:image" 
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -133,6 +129,40 @@ concatenated evidence, as per <code><a href="causal_kg_add_edge.html">causal_kg_
 canonical terms (unmapped nodes kept as-is).</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"precipitaton"</span>, <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"Paper A"</span>, confidence <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"soc_stocks"</span>, <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"Paper B"</span>, confidence <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">map</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_alignment.html">causal_kg_alignment</a></span><span class="op">(</span><span class="va">kg</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg2</span> <span class="op">&lt;-</span> <span class="fu">causal_kg_rename</span><span class="op">(</span><span class="va">kg</span>, <span class="va">map</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The typo is repaired: `precipitaton` becomes `precipitation`.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg2</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cause"</span>, <span class="st">"effect"</span>, <span class="st">"source"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Now count the edges. `soc_stocks` aligns onto `soc`, so the edge</span></span></span>
+<span class="r-in"><span>  <span class="co"># `soc_stocks -&gt; soc` collapses into a self-loop and is dropped</span></span></span>
+<span class="r-in"><span>  <span class="co"># without a warning: renaming can silently shrink a KG. Always</span></span></span>
+<span class="r-in"><span>  <span class="co"># compare edge counts before and after.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>before <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>          after  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Rows with an NA `canonical` are left untouched, so vetoing one</span></span></span>
+<span class="r-in"><span>  <span class="co"># bad match by hand is enough to keep its edge alive.</span></span></span>
+<span class="r-in"><span>  <span class="va">map</span><span class="op">$</span><span class="va">canonical</span><span class="op">[</span><span class="va">map</span><span class="op">$</span><span class="va">original</span> <span class="op">==</span> <span class="st">"soc_stocks"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="fu">causal_kg_rename</span><span class="op">(</span><span class="va">kg</span>, <span class="va">map</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           cause effect  source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 precipitation    soc Paper A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> before  after </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2      1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

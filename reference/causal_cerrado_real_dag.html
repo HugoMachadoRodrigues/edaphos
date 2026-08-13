@@ -13,7 +13,7 @@ causal_cerrado_dag(), which uses short schematic labels
 (elev, slope, twi, map_mm, ndvi, soc), this DAG is
 wired against bio1, bio12, soilgrids_clay,
 wc_landcover_trees etc. so that causal_estimate_effect() can
-consume the real profiles data frame without renaming."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+consume the real profiles data frame without renaming."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -39,7 +39,7 @@ consume the real profiles data frame without renaming."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,14 +50,12 @@ consume the real profiles data frame without renaming."><meta property="og:image
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -65,14 +63,12 @@ consume the real profiles data frame without renaming."><meta property="og:image
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -172,6 +168,53 @@ version; <code><a href="causal_adjustment_set.html">causal_adjustment_set()</a><
 <code><a href="causal_estimate_effect.html">causal_estimate_effect()</a></code> for identification + estimation.</p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dagitty"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">dag</span>  <span class="op">&lt;-</span> <span class="fu">causal_cerrado_real_dag</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">prof</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"case_cerrado_results.rds"</span>,</span></span>
+<span class="r-in"><span>                              package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">profiles</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The whole point of this DAG: all of its nodes are real columns</span></span></span>
+<span class="r-in"><span>  <span class="co"># of the WoSIS case-study table, whereas the schematic</span></span></span>
+<span class="r-in"><span>  <span class="co"># causal_cerrado_dag() shares only two names with it.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dag</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">prof</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="causal_cerrado_dag.html">causal_cerrado_dag</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">prof</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Total vs direct effect of clay on topsoil SOC. The total effect</span></span></span>
+<span class="r-in"><span>  <span class="co"># only needs slope; the direct effect must additionally block bulk</span></span></span>
+<span class="r-in"><span>  <span class="co"># density (a mediator) and then sand as well, because bdod is a</span></span></span>
+<span class="r-in"><span>  <span class="co"># collider of clay and sand.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="causal_adjustment_set.html">causal_adjustment_set</a></span><span class="op">(</span><span class="va">dag</span>, <span class="st">"soilgrids_clay"</span>,</span></span>
+<span class="r-in"><span>                              <span class="st">"soc_topsoil_gkg"</span>, effect <span class="op">=</span> <span class="st">"total"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="causal_adjustment_set.html">causal_adjustment_set</a></span><span class="op">(</span><span class="va">dag</span>, <span class="st">"soilgrids_clay"</span>,</span></span>
+<span class="r-in"><span>                              <span class="st">"soc_topsoil_gkg"</span>, effect <span class="op">=</span> <span class="st">"direct"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Roughly two thirds of the clay effect is mediated: the total</span></span></span>
+<span class="r-in"><span>  <span class="co"># slope is about 0.54 g/kg SOC per unit of soilgrids_clay, the</span></span></span>
+<span class="r-in"><span>  <span class="co"># direct one about 0.19 with an interval that only just clears</span></span></span>
+<span class="r-in"><span>  <span class="co"># zero. Report which one you mean.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="causal_estimate_effect.html">causal_estimate_effect</a></span><span class="op">(</span><span class="va">prof</span>, <span class="va">dag</span>, <span class="st">"soilgrids_clay"</span>,</span></span>
+<span class="r-in"><span>                               <span class="st">"soc_topsoil_gkg"</span>, effect <span class="op">=</span> <span class="st">"total"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="causal_estimate_effect.html">causal_estimate_effect</a></span><span class="op">(</span><span class="va">prof</span>, <span class="va">dag</span>, <span class="st">"soilgrids_clay"</span>,</span></span>
+<span class="r-in"><span>                               <span class="st">"soc_topsoil_gkg"</span>, effect <span class="op">=</span> <span class="st">"direct"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "elev"  "slope"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "slope"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "slope"          "soilgrids_bdod" "soilgrids_sand"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_causal_effect&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   soilgrids_clay -&gt; soc_topsoil_gkg   (estimator: lm)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   adjustment set : {slope}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   total effect   : 0.5371   (95% CI: 0.4239, 0.6504)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   naive effect   : 0.5257   (un-adjusted, likely confounded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_causal_effect&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   soilgrids_clay -&gt; soc_topsoil_gkg   (estimator: lm)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   adjustment set : {slope, soilgrids_bdod, soilgrids_sand}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   direct effect  : 0.1949   (95% CI: 0.009367, 0.3804)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   naive effect   : 0.5257   (un-adjusted, likely confounded)</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -7,7 +7,7 @@ al_loop() operate."><meta property="og:description" content="Fits a Quantile Reg
 labeled soil dataset, using ranger::ranger(..., quantreg = TRUE). The
 resulting object carries the data, model, and an initial history entry
 and is the value on which al_query(), al_update() and
-al_loop() operate."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+al_loop() operate."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ al_loop() operate."><meta property="og:image" content="https://hugomachadorodrig
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ al_loop() operate."><meta property="og:image" content="https://hugomachadorodrig
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ al_loop() operate."><meta property="og:image" content="https://hugomachadorodrig
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -149,7 +145,10 @@ with n) rather than letting <code>ranger</code> fail on some random seeds.</p></
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments forwarded to <code><a href="http://imbs-hl.github.io/ranger/reference/ranger.html" class="external-link">ranger::ranger()</a></code>.</p></dd>
+<dd><p>Additional arguments forwarded to <code><a href="http://imbs-hl.github.io/ranger/reference/ranger.html" class="external-link">ranger::ranger()</a></code>. Note
+<code>seed</code>: <code>ranger</code> draws its own random seed when none is given, so
+without it every call grows a different forest and reports a
+different out-of-bag RMSE.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -167,13 +166,27 @@ Learning Research</em> 7, 983-999.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"sp"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">meuse</span>, package <span class="op">=</span> <span class="st">"sp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">meuse</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">30</span>, <span class="op">]</span><span class="op">)</span>   <span class="co"># 29 rows survive na.omit()</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>    <span class="co"># `seed` is forwarded to ranger::ranger(). Without it the 500-tree</span></span></span>
+<span class="r-in"><span>    <span class="co"># forest -- and the "last RMSE" printed below -- differs on every</span></span></span>
+<span class="r-in"><span>    <span class="co"># run; with it, repeated calls print the same number.</span></span></span>
 <span class="r-in"><span>    <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">al_fit</span><span class="op">(</span></span></span>
-<span class="r-in"><span>      labeled    <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">meuse</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">30</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      labeled    <span class="op">=</span> <span class="va">d</span>,</span></span>
 <span class="r-in"><span>      target     <span class="op">=</span> <span class="st">"lead"</span>,</span></span>
 <span class="r-in"><span>      covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dist"</span>, <span class="st">"elev"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>      coords     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>      coords     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      seed       <span class="op">=</span> <span class="fl">42</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="va">m</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>    <span class="co"># That RMSE is not evidence of a useful model: it is an out-of-bag</span></span></span>
+<span class="r-in"><span>    <span class="co"># estimate from 29 points and 2 covariates. Compare it with the RMSE</span></span></span>
+<span class="r-in"><span>    <span class="co"># of simply predicting the mean of the 29 labeled values.</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>oob       <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span>,</span></span>
+<span class="r-in"><span>            mean_only <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">lead</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">lead</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="co"># A model worth acting on needs hundreds of labeled sites and</span></span></span>
+<span class="r-in"><span>    <span class="co"># spatially blocked validation -- run al_loop() to add points.</span></span></span>
 <span class="r-in"><span>  <span class="op">}</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_al_model&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   target     : lead </span>
@@ -181,7 +194,9 @@ Learning Research</em> 7, 983-999.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   coords     : x, y </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n labeled  : 29 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 0 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   last RMSE  : 41.99 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   last RMSE  : 42.11 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       oob mean_only </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  42.11348  66.54924 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

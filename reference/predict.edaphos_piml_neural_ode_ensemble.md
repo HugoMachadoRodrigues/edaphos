@@ -57,4 +57,10 @@ predict(
 ## Value
 
 Either a numeric matrix (when `interval` is NULL) or a data frame with
-columns `depth`, `mean`, `sd`, `lower`, `upper`.
+columns `depth`, `mean`, `sd`, `lower`, `upper`, `lower_sim` and
+`upper_sim`. `lower`/`upper` are pointwise – each depth covered
+separately – while `lower_sim`/`upper_sim` cover the whole curve at the
+same nominal level. Drawing the pointwise pair as a ribbon over a
+profile and calling it the band for that profile overstates its
+coverage; see
+[`predict.edaphos_piml_bayes()`](https://hugomachadorodrigues.github.io/edaphos/reference/predict.edaphos_piml_bayes.md).

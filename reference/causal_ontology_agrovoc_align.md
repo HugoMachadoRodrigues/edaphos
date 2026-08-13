@@ -53,3 +53,39 @@ causal_ontology_agrovoc_align(
 A data frame with columns `term` (input), `uri` (AGROVOC concept),
 `label` (AGROVOC pref label), `distance` (Levenshtein of lowercased
 label vs term).
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+  # Live SPARQL over HTTP: one round trip per uncached term, several
+  # seconds each. Point `cache_path` at a location that survives the
+  # session -- tempdir() is a fresh directory every time R starts, so
+  # a cache written there never gets read back.
+  cache <- "tools/.agrovoc_cache.rds"
+  ag <- causal_ontology_agrovoc_align(
+    c("soil organic carbon", "bulk density", "gibbsite"),
+    cache_path = cache, verbose = TRUE
+  )
+  ag
+
+  # `distance` is the Levenshtein distance between the AGROVOC pref
+  # label and the query, not a confidence. Zero means the label
+  # repeats the query verbatim; a large value means AGROVOC returned
+  # a much longer label that merely contains the query as a
+  # substring. Filter on it before trusting the mapping.
+  subset(ag, !is.na(uri) & distance <= 3)
+
+  # Failures are cached as well as hits, so an endpoint outage is
+  # persisted as a permanent NA row and later runs will not retry it.
+  # Delete the cache file after an outage.
+  unlink(cache)
+
+  # unique() is applied before the terms are lower-cased and trimmed,
+  # so two spellings of one concept both survive it and the result
+  # gains a duplicate row (only one query is sent -- the in-flight
+  # cache absorbs the second). De-duplicate yourself if the row count
+  # matters downstream.
+  nrow(causal_ontology_agrovoc_align(c("gibbsite", "Gibbsite")))
+} # }
+```

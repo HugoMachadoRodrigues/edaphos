@@ -23,3 +23,73 @@ al_history(model)
 
 A data frame with columns `iter`, `n_labeled`, `rmse_oob`,
 `mean_uncertainty`.
+
+## Examples
+
+``` r
+# 400 Cerrado cells: 120 already sampled, 280 candidates the loop
+# may request. `al_loop()` never forwards a seed to ranger, so
+# set.seed() outside it is what makes this table reproducible.
+set.seed(7)
+cells <- br_cerrado[sample(nrow(br_cerrado), 400L), ]
+covs  <- c("elev", "slope", "twi", "map_mm", "ndvi")
+m <- al_loop(labeled = cells[1:120, ], candidates = cells[121:400, ],
+             target = "soc", covariates = covs,
+             coords = c("x", "y"), budget = 30L, batch = 10L,
+             strategy = "hybrid", verbose = FALSE)
+h <- al_history(m)
+h
+#>   iter n_labeled rmse_oob mean_uncertainty
+#> 1    0       120 5.244873               NA
+#> 2    1       130 5.184739           24.936
+#> 3    2       140 5.117622           19.013
+#> 4    3       150 5.018283           18.102
+
+# Row `iter = 0` is the initial fit, before any query, so its
+# `mean_uncertainty` is NA by construction and any column summary
+# needs na.rm = TRUE.
+c(raw = mean(h$mean_uncertainty),
+  na_rm = mean(h$mean_uncertainty, na.rm = TRUE))
+#>      raw    na_rm 
+#>       NA 20.68367 
+
+# `rmse_oob` is out-of-bag on the labeled set of its own row, so
+# every row changes both the training data and the evaluation data.
+# It is a progress log, not a held-out learning curve, and the
+# 0.25 g/kg drop only means something next to a baseline: predicting
+# the mean of the same 150 points scores 6.94 g/kg.
+round(c(oob_final = h$rmse_oob[nrow(h)],
+        mean_only = sqrt(mean((m$labeled$soc -
+                                 mean(m$labeled$soc))^2))), 3)
+#> oob_final mean_only 
+#>     5.018     6.899 
+
+# Nor is the curve monotone. Same seed, same 120 starting points,
+# diversity-only queries: rmse_oob rises on the last iteration
+# (+0.0261) after falling twice.
+set.seed(7)
+cells2 <- br_cerrado[sample(nrow(br_cerrado), 400L), ]
+h2 <- al_history(al_loop(labeled = cells2[1:120, ],
+                         candidates = cells2[121:400, ],
+                         target = "soc", covariates = covs,
+                         coords = c("x", "y"), budget = 30L,
+                         batch = 10L, strategy = "diverse",
+                         verbose = FALSE))
+round(diff(h2$rmse_oob), 4)
+#> [1] -0.1594 -0.0912  0.0351
+
+# Both runs share the iter-0 forest -- identical rmse_oob there --
+# so the two `mean_uncertainty` columns are directly comparable:
+# the hybrid batch averages 24.64 g/kg of 80% interval width where
+# the diversity-only batch averages 12.66. The column describes the
+# batch the strategy picked, not the uncertainty of the map.
+identical(h$rmse_oob[1], h2$rmse_oob[1])
+#> [1] TRUE
+cbind(iter = h$iter, hybrid = h$mean_uncertainty,
+      diverse = h2$mean_uncertainty)
+#>      iter hybrid diverse
+#> [1,]    0     NA      NA
+#> [2,]    1 24.936 12.6260
+#> [3,]    2 19.013 12.5457
+#> [4,]    3 18.102 14.7610
+```

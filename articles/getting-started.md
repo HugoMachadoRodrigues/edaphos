@@ -86,20 +86,28 @@ values <- c(25, 18, 12, 8, 6.5)
 ode_fit <- piml_profile_fit(depths, values)
 ode_fit$params
 #> $lambda0
-#> log_lambda0 
-#>  0.04846412 
+#>  log_kappa 
+#> 0.05004378 
 #> 
 #> $mu
-#>          mu 
-#> 0.003277219 
+#>      log_mu 
+#> 0.006045496 
 #> 
 #> $y_inf
-#>    y_inf 
-#> 6.162168 
+#> log_y_asym 
+#>   5.956281 
 #> 
 #> $y0
-#>       y0 
-#> 30.07967
+#>   log_y0 
+#> 30.36438 
+#> 
+#> $kappa
+#> log_kappa 
+#>  8.277862 
+#> 
+#> $y_asym
+#> log_y_asym 
+#>   5.962483
 ```
 
 ## Pilar 3 – Temporal 4D cube (ConvLSTM)
@@ -147,7 +155,7 @@ post_p6 <- benchmark_fit_p6_quantum(tr, te, cov_cols,
                                          n_pcs = 4L, reps = 1L,
                                          n_boot = 5L, lambda = 0.5)
 uncertainty_calibrate(post_p6, truth = te$soc)$crps
-#> [1] 3.307072
+#> [1] 3.096894
 ```
 
 ## Pilar 7 – Bayesian Hierarchical Spatial
@@ -158,15 +166,19 @@ fit7 <- bhs_fit(tr, soc ~ map + mat + clay + sand + trees,
                   coords = c("lon", "lat"),
                   nmcmc = 200L, burn = 100L,
                   phi_range = c(0.1, 5), verbose = FALSE)
+#> Warning: bhs_fit(): the profile-MLE of phi (5) is at the upper end of phi_range
+#> = c(0.1, 5), supplied. Widen phi_range and refit; the spatial variance fraction
+#> is not trustworthy until phi is interior. phi is a rate (1/distance) in the
+#> units of `coords`.
 pr7 <- predict(fit7, te, n_draws = 80L)
 head(pr7[, c("mean", "sd")])
 #>       mean       sd
-#> 1 29.71762 1.936316
-#> 2 33.67780 1.846140
-#> 3 25.33814 2.309851
-#> 4 26.48597 2.131970
-#> 5 34.15971 1.619157
-#> 6 31.68490 1.871767
+#> 1 29.68250 2.083006
+#> 2 33.67515 1.945974
+#> 3 25.35889 2.493003
+#> 4 26.45289 2.270333
+#> 5 34.10626 1.807740
+#> 6 31.68502 2.007524
 ```
 
 ## Pilar 8 – Neural operators
@@ -179,6 +191,7 @@ targets   <- t(apply(tr[, cov_cols], 1L, function(r)
 no_fit <- no_deeponet_fit(depth_grid, targets,
                               as.matrix(tr[, cov_cols]),
                               epochs = 50L, seed = 1L)
+#> [no_deeponet_fit] backend = 'r' freezes the branch/trunk hidden layers and trains a random-feature readout; use backend = 'torch' (the default when libtorch is present) to train the full DeepONet.
 no_pred <- predict(no_fit, as.matrix(te[, cov_cols]))
 dim(no_pred)
 #> [1] 15  8
@@ -195,6 +208,7 @@ draws 4 posterior maps.
 patches <- array(rnorm(16L * 6L * 6L), dim = c(16L, 6L, 6L))
 dm <- dm_fit(patches, T = 8L, epochs = 10L,
                hidden = 8L, lr = 0.05, seed = 1L)
+#> [dm_fit] backend = 'r' is a reference sampler whose draws are over-dispersed and spatially incoherent (not calibrated to the field's spatial statistics); use backend = 'torch' (the default when libtorch is present) for coherent samples.
 samps <- dm_sample(dm, n_samples = 4L, seed = 1L)
 dim(samps)
 #> [1] 4 6 6
@@ -213,7 +227,7 @@ gat <- gnn_fit(g, targets = dat$soc,
                  hidden = 8L, n_heads = 2L, n_layers = 1L,
                  epochs = 30L, lr = 0.03, seed = 1L)
 gat$history[c(1, 30)]
-#> [1] 0.1835829 0.1077353
+#> [1] 0.1830076 0.1183967
 ```
 
 ## Cross-pillar bridges (v3.0.0)
@@ -265,7 +279,7 @@ crps <- c(
 )
 crps
 #>  P1_Causal P6_Quantum 
-#>   1.273975   3.307072
+#>   1.273975   3.096894
 ```
 
 For the full 1 095-profile WoSIS Cerrado benchmark comparing all six
@@ -287,5 +301,5 @@ For the full 1 095-profile WoSIS Cerrado benchmark comparing all six
 Please cite edaphos as:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive algorithms for digital soil
-> mapping.* R package version 4.0.0.
+> mapping.* R package version 0.9.0.
 > <https://github.com/HugoMachadoRodrigues/edaphos>

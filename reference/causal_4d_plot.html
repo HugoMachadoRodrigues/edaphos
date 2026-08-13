@@ -3,7 +3,7 @@
 with a Mann-Kendall trend summary as the plot subtitle.  Requires
 ggplot2."><meta property="og:description" content="Returns a ggplot object showing beta(t) + bootstrap CI ribbon,
 with a Mann-Kendall trend summary as the plot subtitle.  Requires
-ggplot2."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+ggplot2."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ ggplot2."><meta property="og:image" content="https://hugomachadorodrigues.github
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ ggplot2."><meta property="og:image" content="https://hugomachadorodrigues.github
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ ggplot2."><meta property="og:image" content="https://hugomachadorodrigues.github
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -129,6 +125,52 @@ with a Mann-Kendall trend summary as the plot subtitle.  Requires
     <p>A <code>ggplot</code> object.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Synthetic panel whose MAP -&gt; SOC effect decays over 36 slices,</span></span></span>
+<span class="r-in"><span>  <span class="co"># with elevation as the confounder that must be adjusted away.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>site <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, t <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">36</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">elev</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">400</span>, <span class="fl">1100</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">panel</span><span class="op">$</span><span class="va">elev</span>     <span class="op">&lt;-</span> <span class="va">elev</span><span class="op">[</span><span class="va">panel</span><span class="op">$</span><span class="va">site</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">panel</span><span class="op">$</span><span class="va">map_anom</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.10</span> <span class="op">*</span> <span class="op">(</span><span class="va">panel</span><span class="op">$</span><span class="va">elev</span> <span class="op">-</span> <span class="fl">750</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">panel</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">60</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">panel</span><span class="op">$</span><span class="va">soc</span>      <span class="op">&lt;-</span> <span class="fl">22</span> <span class="op">+</span> <span class="fl">0.006</span> <span class="op">*</span> <span class="va">panel</span><span class="op">$</span><span class="va">elev</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>    <span class="op">(</span><span class="fl">0.022</span> <span class="op">-</span> <span class="fl">0.0006</span> <span class="op">*</span> <span class="va">panel</span><span class="op">$</span><span class="va">t</span><span class="op">)</span> <span class="op">*</span> <span class="va">panel</span><span class="op">$</span><span class="va">map_anom</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">panel</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_effect_time_varying.html">causal_effect_time_varying</a></span><span class="op">(</span><span class="va">panel</span>, <span class="cn">NULL</span>, <span class="st">"map_anom"</span>, <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                                     window <span class="op">=</span> <span class="fl">12L</span>, step <span class="op">=</span> <span class="fl">3L</span>,</span></span>
+<span class="r-in"><span>                                     adjustment <span class="op">=</span> <span class="st">"elev"</span>, B <span class="op">=</span> <span class="fl">100L</span>,</span></span>
+<span class="r-in"><span>                                     seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">causal_4d_plot</span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">g</span>, <span class="st">"ggplot"</span><span class="op">)</span><span class="op">)</span>   <span class="co"># print(g) draws it on the device</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The subtitle is a live Mann-Kendall test on exactly the windows</span></span></span>
+<span class="r-in"><span>  <span class="co"># being drawn, so it inherits their overlap.  Read it as a label</span></span></span>
+<span class="r-in"><span>  <span class="co"># for the curve, not as an independent significance test.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">g</span><span class="op">$</span><span class="va">labels</span><span class="op">$</span><span class="va">subtitle</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The ribbon is simply ci_lo/ci_hi.  With B = 0 those are the OLS</span></span></span>
+<span class="r-in"><span>  <span class="co"># normal limits rather than a bootstrap, and the ribbon looks no</span></span></span>
+<span class="r-in"><span>  <span class="co"># different: here the bootstrap band is in fact the narrower of</span></span></span>
+<span class="r-in"><span>  <span class="co"># the two (mean width 0.00485 against 0.00515).</span></span></span>
+<span class="r-in"><span>  <span class="va">norm</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_effect_time_varying.html">causal_effect_time_varying</a></span><span class="op">(</span><span class="va">panel</span>, <span class="cn">NULL</span>, <span class="st">"map_anom"</span>, <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                                     window <span class="op">=</span> <span class="fl">12L</span>, step <span class="op">=</span> <span class="fl">3L</span>,</span></span>
+<span class="r-in"><span>                                     adjustment <span class="op">=</span> <span class="st">"elev"</span>, B <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bootstrap <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">boot</span><span class="op">$</span><span class="va">ci_hi</span> <span class="op">-</span> <span class="va">boot</span><span class="op">$</span><span class="va">ci_lo</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                normal    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">norm</span><span class="op">$</span><span class="va">ci_hi</span> <span class="op">-</span> <span class="va">norm</span><span class="op">$</span><span class="va">ci_lo</span><span class="op">)</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># No autoplot() method is registered for this class, despite the</span></span></span>
+<span class="r-in"><span>  <span class="co"># wording of the error raised when ggplot2 is missing.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="st">"try-error"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Mann-Kendall: S=-36, tau=-1, p=0.000263 (decreasing)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bootstrap    normal </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.00485   0.00515 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

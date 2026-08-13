@@ -5,7 +5,7 @@ and appends a history entry. Use this when you are driving the loop
 yourself instead of letting al_loop() orchestrate it."><meta property="og:description" content="Manual one-shot companion to al_loop(): takes a model, some freshly
 labeled samples (for instance returned from the lab), refits the QRF,
 and appends a history entry. Use this when you are driving the loop
-yourself instead of letting al_loop() orchestrate it."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+yourself instead of letting al_loop() orchestrate it."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ yourself instead of letting al_loop() orchestrate it."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ yourself instead of letting al_loop() orchestrate it."><meta property="og:image"
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ yourself instead of letting al_loop() orchestrate it."><meta property="og:image"
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -136,6 +132,86 @@ yourself instead of letting <code><a href="al_loop.html">al_loop()</a></code> or
     <p>An updated <code>edaphos_al_model</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">i_lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lab</span>   <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="va">i_lab</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">pool</span>  <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="op">-</span><span class="va">i_lab</span>, <span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1995</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_fit.html">al_fit</a></span><span class="op">(</span><span class="va">lab</span>, target <span class="op">=</span> <span class="st">"soc"</span>, covariates <span class="op">=</span> <span class="va">covs</span>,</span></span>
+<span class="r-in"><span>            coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># One turn of the loop by hand: query 8 cells, send them to the lab</span></span></span>
+<span class="r-in"><span><span class="co"># (br_cerrado already carries the truth), append them.</span></span></span>
+<span class="r-in"><span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_query.html">al_query</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"hybrid"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">new</span> <span class="op">&lt;-</span> <span class="va">pool</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `...` reaches ranger::ranger() through al_fit(). Without `seed` the</span></span></span>
+<span class="r-in"><span><span class="co"># refit grows a different forest on every call and the OOB RMSE moves.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu">al_update</span><span class="op">(</span><span class="va">m</span>, <span class="va">new</span><span class="op">)</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span>,</span></span>
+<span class="r-in"><span>          <span class="fu">al_update</span><span class="op">(</span><span class="va">m</span>, <span class="va">new</span><span class="op">)</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span><span class="op">)</span>             <span class="co"># FALSE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>; <span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu">al_update</span><span class="op">(</span><span class="va">m</span>, <span class="va">new</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>; <span class="va">m3</span> <span class="op">&lt;-</span> <span class="fu">al_update</span><span class="op">(</span><span class="va">m</span>, <span class="va">new</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">m2</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span>, <span class="va">m3</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span><span class="op">)</span>  <span class="co"># TRUE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The OOB RMSE went UP, 4.659 -&gt; 4.677, on 8 extra samples. That is</span></span></span>
+<span class="r-in"><span><span class="co"># the expected first move, not a failure: an uncertainty batch is by</span></span></span>
+<span class="r-in"><span><span class="co"># construction the part of the landscape the forest handles worst, so</span></span></span>
+<span class="r-in"><span><span class="co"># it enters the OOB average as 8 hard rows. Both are still well below</span></span></span>
+<span class="r-in"><span><span class="co"># predicting the labeled mean everywhere. Judge the loop on a</span></span></span>
+<span class="r-in"><span><span class="co"># held-out set, never on this column.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>before    <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span>,</span></span>
+<span class="r-in"><span>        after     <span class="op">=</span> <span class="va">m2</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span>,</span></span>
+<span class="r-in"><span>        mean_only <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">lab</span><span class="op">$</span><span class="va">soc</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">lab</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    before     after mean_only </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4.774     5.559     7.193 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `mean_uncertainty` is recorded under the PRE-update model: it is</span></span></span>
+<span class="r-in"><span><span class="co"># the width al_query() acted on, not the width the refit now reports</span></span></span>
+<span class="r-in"><span><span class="co"># at those eight cells -- they are labeled, so the forest has</span></span></span>
+<span class="r-in"><span><span class="co"># collapsed them from 18.54 to 11.43 g/kg.</span></span></span>
+<span class="r-in"><span><span class="va">wid</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mod</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">qq</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">mod</span><span class="op">$</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">new</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                       type <span class="op">=</span> <span class="st">"quantiles"</span>,</span></span>
+<span class="r-in"><span>                       quantiles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">qq</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">qq</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>recorded <span class="op">=</span> <span class="va">m2</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">mean_uncertainty</span>,</span></span>
+<span class="r-in"><span>        pre_update <span class="op">=</span> <span class="fu">wid</span><span class="op">(</span><span class="va">m</span><span class="op">)</span>, post_update <span class="op">=</span> <span class="fu">wid</span><span class="op">(</span><span class="va">m2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    recorded  pre_update post_update </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       19.06       19.06       14.91 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># history[[1]] stays frozen at iteration 0; read the LAST entry for</span></span></span>
+<span class="r-in"><span><span class="co"># the current state. `queried` is empty because al_update() is handed</span></span></span>
+<span class="r-in"><span><span class="co"># rows, not pool positions -- only al_loop() can record which.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">m2</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> List of 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ iter            : int 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ n_labeled       : int 38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ queried         : int(0) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rmse_oob        : num 5.56</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ mean_uncertainty: num 19.1</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>history_1 <span class="op">=</span> <span class="va">m2</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">n_labeled</span>, rows_now <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">m2</span><span class="op">$</span><span class="va">labeled</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> history_1  rows_now </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        30        38 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># $labeled is rebuilt as target + covariates + coords, in that order.</span></span></span>
+<span class="r-in"><span><span class="co"># Anything else carried on `new_samples` -- a lab id, a sampling date</span></span></span>
+<span class="r-in"><span><span class="co"># -- is dropped, and the column order is not the one you passed in.</span></span></span>
+<span class="r-in"><span><span class="va">new</span><span class="op">$</span><span class="va">lab_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"BR-%02d"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">new</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>; <span class="va">m4</span> <span class="op">&lt;-</span> <span class="fu">al_update</span><span class="op">(</span><span class="va">m</span>, <span class="va">new</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="st">"lab_id"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">m4</span><span class="op">$</span><span class="va">labeled</span><span class="op">)</span>                                <span class="co"># FALSE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>before <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">labeled</span><span class="op">)</span>, after <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">m4</span><span class="op">$</span><span class="va">labeled</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        [,1]  [,2]   [,3]    [,4]    [,5]     [,6]     [,7]   [,8] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> before "x"   "y"    "elev"  "slope" "twi"    "map_mm" "ndvi" "soc"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> after  "soc" "elev" "slope" "twi"   "map_mm" "ndvi"   "x"    "y"  </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

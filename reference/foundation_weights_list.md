@@ -21,35 +21,29 @@ A data frame; one row per registered encoder.
 New encoders are added by the `edaphos` maintainers on each minor
 release and propagated through the package. Users with bespoke
 pretrained encoders can bypass the registry entirely by passing a local
-`.pt` path directly to
-[`foundation_weights_load()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_weights_load.md).
+`.pt` path to
+[`foundation_weights_load()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_weights_load.md)
+— but a bare state dict carries no shape metadata, so that route
+additionally requires `n_channels`, `feature_dim` and `proj_dim`. For
+registered encoders those three come from the columns below.
 
 ## Examples
 
 ``` r
-foundation_weights_list()
-#>                      name
-#> 1 edaphos-cerrado-moco-v1
-#> 2 edaphos-cerrado-moco-v2
-#>                                                                                                                                                                                                                                                                                                              description
-#> 1                   MoCo v2 encoder pretrained on 50k 16x16 Cerrado tiles (SoilGrids 250m soc/clay/sand/phh2o/bdod + WorldClim 2.1 monthly prec/tavg + SRTM elev/slope), aligned to a 0.01-deg grid. 31 channels in, 64-dim feature embedding out. 20000 InfoNCE steps on an Apple M1 Max MPS; final InfoNCE loss ~1.64.
-#> 2 MoCo v2 encoder, same dataset / hyperparameters as v1 but 200000 InfoNCE steps (10x v1's budget).  Intended to give a fair benchmark of the contrastive representation against an undertrained baseline.  Final InfoNCE loss expected ~0.4 at step 200000 (was ~1.64 at v1's step 20000).  31 channels in, 64-dim out.
-#>   n_channels feature_dim proj_dim patch_size
-#> 1         31          64       32         16
-#> 2         31          64       32         16
-#>                                             aoi
-#> 1 Cerrado core (lon -53 to -43, lat -23 to -10)
-#> 2 Cerrado core (lon -53 to -43, lat -23 to -10)
-#>                                                      url
-#> 1 https://zenodo.org/records/19701276/files/encoder_q.pt
-#> 2                                                   <NA>
-#>                                                             sha256
-#> 1 44ace7f78c658b6028f1cf5ccfa624023295e5576f681d0135db64726c6738e8
-#> 2                                                             <NA>
-#>                       doi   license         published_at edaphos_version
-#> 1 10.5281/zenodo.19701276 CC-BY-4.0 2026-04-22T21:59:12Z           1.2.0
-#> 2                    <NA> CC-BY-4.0                 <NA>           4.0.0
-#>   norm_stats_url norm_stats_status
-#> 1           <NA>     unrecoverable
-#> 2           <NA>           pending
+reg <- foundation_weights_list()
+print(reg[, c("name", "n_channels", "feature_dim", "proj_dim",
+              "norm_stats_status")])
+#>                      name n_channels feature_dim proj_dim norm_stats_status
+#> 1 edaphos-cerrado-moco-v1         31          64       32     unrecoverable
+#> 2 edaphos-cerrado-moco-v2         31          64       32           pending
+
+# Only rows with a non-NA `url` can actually be fetched; the rest
+# are placeholders for a future release and error on download.
+print(reg$name[!is.na(reg$url)])
+#> [1] "edaphos-cerrado-moco-v1"
+
+# `norm_stats_status` is not cosmetic. v1's per-channel training
+# mean / sd were never written down and are unrecoverable, so an
+# exact reproduction of its training-time inputs is not possible:
+# standardise over your own area of interest, and say that you did.
 ```

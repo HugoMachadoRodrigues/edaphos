@@ -9,7 +9,7 @@ different random seeds and collects them in a single object. This
 formalises the hand-rolled ensemble loop from the v1.5.0 Pillar 3
 Cerrado runner (data-raw/temporal_cerrado_run.R) and produces the
 natural forecast-ensemble input for temporal_kalman_update() or
-for as_edaphos_posterior()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+for as_edaphos_posterior()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ for as_edaphos_posterior()."><meta property="og:image" content="https://hugomach
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ for as_edaphos_posterior()."><meta property="og:image" content="https://hugomach
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ for as_edaphos_posterior()."><meta property="og:image" content="https://hugomach
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -131,6 +127,7 @@ for <code><a href="as_edaphos_posterior.html">as_edaphos_posterior()</a></code>.
 <span>  physics_k_in <span class="op">=</span> <span class="fl">0.03</span>,</span>
 <span>  physics_k_out <span class="op">=</span> <span class="fl">0.015</span>,</span>
 <span>  physics_driver_channel <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  physics_scaling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -139,7 +136,7 @@ for <code><a href="as_edaphos_posterior.html">as_edaphos_posterior()</a></code>.
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-sequence-target-hidden-dims-kernel-size-return-sequence-epochs-lr-physics-lambda-physics-k-in-physics-k-out-physics-driver-channel-verbose">sequence, target, hidden_dims, kernel_size, return_sequence, epochs, lr, physics_lambda, physics_k_in, physics_k_out, physics_driver_channel, verbose<a class="anchor" aria-label="anchor" href="#arg-sequence-target-hidden-dims-kernel-size-return-sequence-epochs-lr-physics-lambda-physics-k-in-physics-k-out-physics-driver-channel-verbose"></a></dt>
+<dl><dt id="arg-sequence-target-hidden-dims-kernel-size-return-sequence-epochs-lr-physics-lambda-physics-scaling-physics-k-in-physics-k-out-physics-driver-channel-verbose">sequence, target, hidden_dims, kernel_size, return_sequence, epochs, lr, physics_lambda, physics_scaling, physics_k_in, physics_k_out, physics_driver_channel, verbose<a class="anchor" aria-label="anchor" href="#arg-sequence-target-hidden-dims-kernel-size-return-sequence-epochs-lr-physics-lambda-physics-scaling-physics-k-in-physics-k-out-physics-driver-channel-verbose"></a></dt>
 <dd><p>Passed through unchanged to <code><a href="temporal_convlstm_fit.html">temporal_convlstm_fit()</a></code>.</p></dd>
 
 
@@ -178,6 +175,65 @@ forecast ensemble, <code><a href="as_edaphos_posterior.html">as_edaphos_posterio
 uncertainty wrapper.</p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Pillar 3 on a 12-month synthetic Cerrado SOC cube: 8 x 8 cells,</span></span></span>
+<span class="r-in"><span><span class="co"># two channels (standardised elevation, monthly precipitation) and</span></span></span>
+<span class="r-in"><span><span class="co"># SOC in g/kg. Months 1-9 are the training window.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_is_installed.html" class="external-link">torch_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">cube</span> <span class="op">&lt;-</span> <span class="fu"><a href="temporal_synth_soc_cube.html">temporal_synth_soc_cube</a></span><span class="op">(</span>H <span class="op">=</span> <span class="fl">8L</span>, W <span class="op">=</span> <span class="fl">8L</span>, T_total <span class="op">=</span> <span class="fl">12L</span>,</span></span>
+<span class="r-in"><span>                                  seed <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">tt</span>   <span class="op">&lt;-</span> <span class="fu"><a href="temporal_cube_to_tensor.html">temporal_cube_to_tensor</a></span><span class="op">(</span><span class="va">cube</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">past_seq</span> <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">9</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>  <span class="co"># (1, 9, 2, 8, 8)</span></span></span>
+<span class="r-in"><span>  <span class="va">past_tgt</span> <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">target</span><span class="op">[</span>,   <span class="fl">1</span><span class="op">:</span><span class="fl">9</span>, , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>    <span class="co"># (1, 9, 8, 8)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># return_sequence = TRUE is not the default here, but it is what</span></span></span>
+<span class="r-in"><span>  <span class="co"># temporal_convlstm_ensemble_rollout() insists on further down.</span></span></span>
+<span class="r-in"><span>  <span class="va">ens</span> <span class="op">&lt;-</span> <span class="fu">temporal_convlstm_ensemble_fit</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    sequence <span class="op">=</span> <span class="va">past_seq</span>, target <span class="op">=</span> <span class="va">past_tgt</span>,</span></span>
+<span class="r-in"><span>    hidden_dims <span class="op">=</span> <span class="fl">4L</span>, return_sequence <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>    epochs <span class="op">=</span> <span class="fl">20L</span>, lr <span class="op">=</span> <span class="fl">0.05</span>, K_ens <span class="op">=</span> <span class="fl">3L</span>, base_seed <span class="op">=</span> <span class="fl">7L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ens</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># base_seed is the ONLY source of diversity: no bagging, no</span></span></span>
+<span class="r-in"><span>  <span class="co"># augmentation, every member sees the identical cube and differs</span></span></span>
+<span class="r-in"><span>  <span class="co"># purely by initialisation. At 20 epochs that has not settled --</span></span></span>
+<span class="r-in"><span>  <span class="co"># the worst member's loss is 2.1x the best member's. K_ens = 3 is</span></span></span>
+<span class="r-in"><span>  <span class="co"># kept here only for run time; it leaves the across-member sd with</span></span></span>
+<span class="r-in"><span>  <span class="co"># 2 degrees of freedom, which is why the default is 10.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ens</span><span class="op">$</span><span class="va">final_losses</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># final_loss is MSE in the standardised units of tt$target, so</span></span></span>
+<span class="r-in"><span>  <span class="co"># quote it against the MSE of predicting the training-window mean.</span></span></span>
+<span class="r-in"><span>  <span class="co"># Even the worst member beats that trivial model 9x.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>worst_member     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ens</span><span class="op">$</span><span class="va">final_losses</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                predict_the_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">past_tgt</span> <span class="op">-</span></span></span>
+<span class="r-in"><span>                                         <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">past_tgt</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Rescaled, those are in-sample RMSEs of 1.8-2.6 g/kg on a cube</span></span></span>
+<span class="r-in"><span>  <span class="co"># whose SOC spans 16.7-52.2 g/kg. In-sample only -- the forecast</span></span></span>
+<span class="r-in"><span>  <span class="co"># picture is in ?temporal_convlstm_ensemble_rollout.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">ens</span><span class="op">$</span><span class="va">final_losses</span><span class="op">)</span> <span class="op">*</span> <span class="va">tt</span><span class="op">$</span><span class="va">scaling</span><span class="op">$</span><span class="va">soc_sd</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">cube</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># loss_histories keeps the full per-member Adam trace.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ens</span><span class="op">$</span><span class="va">loss_histories</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">10L</span>, <span class="fl">20L</span><span class="op">)</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Trap: the default return_sequence = FALSE trains happily on a</span></span></span>
+<span class="r-in"><span>  <span class="co"># (batch, H, W) target, and only the rollout helper complains.</span></span></span>
+<span class="r-in"><span>  <span class="va">flat</span> <span class="op">&lt;-</span> <span class="fu">temporal_convlstm_ensemble_fit</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    sequence <span class="op">=</span> <span class="va">past_seq</span>,</span></span>
+<span class="r-in"><span>    target   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="va">past_tgt</span><span class="op">[</span><span class="fl">1L</span>, <span class="fl">9L</span>, , <span class="op">]</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">8L</span>, <span class="fl">8L</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    hidden_dims <span class="op">=</span> <span class="fl">4L</span>, epochs <span class="op">=</span> <span class="fl">3L</span>, K_ens <span class="op">=</span> <span class="fl">2L</span>, base_seed <span class="op">=</span> <span class="fl">7L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu"><a href="temporal_convlstm_ensemble_rollout.html">temporal_convlstm_ensemble_rollout</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>                   <span class="va">flat</span>, <span class="va">past_seq</span>,</span></span>
+<span class="r-in"><span>                   <span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">[</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">12</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">conditionMessage</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

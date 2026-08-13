@@ -38,10 +38,12 @@ llm_annotation_to_zenodo(
 
 - authors:
 
-  Data frame with `family_name`, `given_name`, optional `orcid`,
-  optional `affiliation` per row. Defaults to a single-author entry
-  using [`utils::maintainer()`](https://rdrr.io/r/utils/maintainer.html)
-  on the package.
+  Data frame with one row per creator and all four of `family_name`,
+  `given_name`, `orcid`, `affiliation` as columns. The `orcid` and
+  `affiliation` *values* may be `NA` (the field is then omitted from
+  that creator) but the *columns* must be present, or creator assembly
+  fails. Defaults to a single hard-coded entry for the package
+  maintainer.
 
 - description:
 
@@ -91,3 +93,87 @@ personal access token which should never be hard-coded). After the
 bundle is built the user uploads the zip / files manually at
 <https://zenodo.org/deposit/new> and records the minted DOI back into
 the package's CITATION.cff / .zenodo.json.
+
+## Examples
+
+``` r
+gs <- system.file("extdata", "cerrado_gold_standard_v1.jsonl",
+                  package = "edaphos")
+bundle <- file.path(tempdir(), "cerrado_kg_deposit")
+
+# `zip = FALSE` because utils::zip() shells out to an external
+# `zip` executable that is not present everywhere.  Pass `version`
+# explicitly too: it defaults to Sys.Date(), so metadata.json and
+# README.md otherwise differ on every run and the bundle is not
+# reproducible.
+llm_annotation_to_zenodo(gs, bundle,
+                         title = "Cerrado gold-standard KG (v1)",
+                         version = "1.0.0", zip = FALSE)
+#> === Exported gold standard: /tmp/RtmpNvtEGq/cerrado_kg_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===
+#> === Zenodo bundle ready: /tmp/RtmpNvtEGq/cerrado_kg_deposit ===
+sort(list.files(bundle))
+#> [1] "README.md"           "gold_standard.jsonl" "kg.ttl"             
+#> [4] "metadata.json"      
+
+# The 72 accepted claims become 72 reified rdf:Statement blocks,
+# plus 30 eda:Abstract provenance nodes carrying title and year.
+ttl <- readLines(file.path(bundle, "kg.ttl"), warn = FALSE)
+c(statements = sum(grepl("a rdf:Statement", ttl, fixed = TRUE)),
+  abstracts  = sum(grepl("a eda:Abstract", ttl, fixed = TRUE)))
+#> statements  abstracts 
+#>         72         30 
+
+# The licence is lower-cased into metadata.json on purpose: that is
+# the identifier the Zenodo REST API expects, not the SPDX spelling
+# you passed in.
+md <- jsonlite::fromJSON(file.path(bundle, "metadata.json"))
+c(license = md$metadata$license, version = md$metadata$version)
+#>     license     version 
+#> "cc-by-4.0"     "1.0.0" 
+
+# Trap: this runs llm_annotation_export() internally, so a reviewed
+# file whose claims are all still "draft" produces a bundle that
+# SUCCEEDS, prints its usual banner, and contains zero statements.
+# Check the count before you mint a DOI, not the exit status.
+draft <- system.file("extdata", "cerrado_gold_standard_v1_draft.jsonl",
+                     package = "edaphos")
+hollow <- file.path(tempdir(), "hollow_deposit")
+llm_annotation_to_zenodo(draft, hollow, version = "1.0.0", zip = FALSE)
+#> === Exported gold standard: /tmp/RtmpNvtEGq/hollow_deposit/gold_standard.jsonl (30 abstracts, 0 claims) ===
+#> === Zenodo bundle ready: /tmp/RtmpNvtEGq/hollow_deposit ===
+sum(grepl("a rdf:Statement",
+          readLines(file.path(hollow, "kg.ttl"), warn = FALSE), fixed = TRUE))
+#> [1] 0
+
+# `authors` must carry all four columns.  NA values are fine and
+# omit that field from the creator, but a missing COLUMN aborts
+# part-way through, leaving a half-written directory behind.
+who <- data.frame(family_name = c("Silva", "Costa"),
+                  given_name  = c("Ana", "Bruno"),
+                  orcid       = c("0000-0001-2345-6789", NA),
+                  affiliation = c("Embrapa Cerrados", NA),
+                  stringsAsFactors = FALSE)
+authored <- file.path(tempdir(), "authored_deposit")
+llm_annotation_to_zenodo(gs, authored, authors = who,
+                         version = "1.0.0", zip = FALSE)
+#> === Exported gold standard: /tmp/RtmpNvtEGq/authored_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===
+#> === Zenodo bundle ready: /tmp/RtmpNvtEGq/authored_deposit ===
+jsonlite::fromJSON(file.path(authored, "metadata.json"),
+                   simplifyVector = FALSE)$metadata$creators
+#> [[1]]
+#> [[1]]$name
+#> [1] "Silva, Ana"
+#> 
+#> [[1]]$orcid
+#> [1] "0000-0001-2345-6789"
+#> 
+#> [[1]]$affiliation
+#> [1] "Embrapa Cerrados"
+#> 
+#> 
+#> [[2]]
+#> [[2]]$name
+#> [1] "Costa, Bruno"
+#> 
+#> 
+```

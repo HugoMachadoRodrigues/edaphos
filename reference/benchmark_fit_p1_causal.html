@@ -9,7 +9,7 @@ direct parents of the outcome (falling back to the full covariate
 set when the DAG has no matching variables) and generates a
 parametric-bootstrap predictive posterior.  Intended for the
 v3.1.0 WoSIS head-to-head; the exported API is stable enough for
-use on any regional subset that follows the same schema."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+use on any regional subset that follows the same schema."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ use on any regional subset that follows the same schema."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ use on any regional subset that follows the same schema."><meta property="og:ima
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ use on any regional subset that follows the same schema."><meta property="og:ima
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -169,6 +165,94 @@ reproduce the v3.1.0 epistemic-only behaviour.</p></dd>
 <code>method = "bootstrap"</code>, <code>query_type = "map"</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The wrapper checks for the response `soc` and the named covariates</span></span></span>
+<span class="r-in"><span><span class="co"># and nothing else -- it never reads a coordinate column, and its</span></span></span>
+<span class="r-in"><span><span class="co"># bootstrap is a plain row resample. So the split below is RANDOM, not</span></span></span>
+<span class="r-in"><span><span class="co"># spatial, and the interval it produces does not account for spatial</span></span></span>
+<span class="r-in"><span><span class="co"># dependence between train and test. For a spatially blocked</span></span></span>
+<span class="r-in"><span><span class="co"># comparison see `data-raw/benchmark_wosis_6pilar.R`, which is what</span></span></span>
+<span class="r-in"><span><span class="co"># the published six-pillar figures use.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sub</span> <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">300L</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">covs</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">train</span> <span class="op">&lt;-</span> <span class="va">sub</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">240</span>, <span class="op">]</span>; <span class="va">test</span> <span class="op">&lt;-</span> <span class="va">sub</span><span class="op">[</span><span class="fl">241</span><span class="op">:</span><span class="fl">300</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu">benchmark_fit_p1_causal</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">covs</span>, n_boot <span class="op">=</span> <span class="fl">300L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">post</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span>          <span class="co"># 300 bootstrap draws x 60 held-out sites</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 300  60</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Score it against the baseline any soil map has to beat -- predicting</span></span></span>
+<span class="r-in"><span><span class="co"># the training mean everywhere.  3.680 g/kg against 6.173.</span></span></span>
+<span class="r-in"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="uncertainty_calibrate.html">uncertainty_calibrate</a></span><span class="op">(</span><span class="va">post</span>, truth <span class="op">=</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rmse <span class="op">=</span> <span class="va">cal</span><span class="op">$</span><span class="va">point_rmse</span>,</span></span>
+<span class="r-in"><span>        null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">train</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span> <span class="op">-</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  rmse  null </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.680 6.173 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `calibrate = TRUE` (the default) convolves the in-sample residual sd</span></span></span>
+<span class="r-in"><span><span class="co"># into every draw.  The noise is centred within each test column, so the</span></span></span>
+<span class="r-in"><span><span class="co"># point prediction survives untouched -- colMeans() moves by ~3e-14 --</span></span></span>
+<span class="r-in"><span><span class="co"># and only the interval changes.</span></span></span>
+<span class="r-in"><span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu">benchmark_fit_p1_causal</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">covs</span>, n_boot <span class="op">=</span> <span class="fl">300L</span>,</span></span>
+<span class="r-in"><span>                               seed <span class="op">=</span> <span class="fl">1L</span>, calibrate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">post</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">raw</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Read that next to the coverage, which is the whole point of the term.</span></span></span>
+<span class="r-in"><span><span class="co"># Bootstrap spread alone is the uncertainty of the FITTED MEAN, not of a</span></span></span>
+<span class="r-in"><span><span class="co"># new profile: its 90% intervals are 1.99 g/kg wide and hold 22% of the</span></span></span>
+<span class="r-in"><span><span class="co"># held-out truth.  With the aleatoric term they are 13.46 wide and hold</span></span></span>
+<span class="r-in"><span><span class="co"># 93%, which on 60 sites is 0.9 binomial standard errors off nominal --</span></span></span>
+<span class="r-in"><span><span class="co"># calibrated, as far as this test set can tell.</span></span></span>
+<span class="r-in"><span><span class="va">cal_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="uncertainty_calibrate.html">uncertainty_calibrate</a></span><span class="op">(</span><span class="va">raw</span>, truth <span class="op">=</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>picp90_raw <span class="op">=</span> <span class="va">cal_raw</span><span class="op">$</span><span class="va">picp</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>        picp90_cal <span class="op">=</span> <span class="va">cal</span><span class="op">$</span><span class="va">picp</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>        mpiw90_raw <span class="op">=</span> <span class="va">cal_raw</span><span class="op">$</span><span class="va">mpiw</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>        mpiw90_cal <span class="op">=</span> <span class="va">cal</span><span class="op">$</span><span class="va">mpiw</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>        se90 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">0.9</span> <span class="op">*</span> <span class="fl">0.1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">test</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> picp90_raw picp90_cal mpiw90_raw mpiw90_cal       se90 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.217      0.933      1.989     13.461      0.039 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># TRAP: the DAG filter asks for the parents of a hard-coded outcome node</span></span></span>
+<span class="r-in"><span><span class="co"># named "soc_topsoil_gkg".  A DAG that calls its outcome anything else</span></span></span>
+<span class="r-in"><span><span class="co"># raises inside dagitty::parents(), and the fallback keeps every node</span></span></span>
+<span class="r-in"><span><span class="co"># NAME in the graph -- so `elev` and `slope`, parents of nothing but</span></span></span>
+<span class="r-in"><span><span class="co"># `ndvi` and `twi`, survive a selection advertised as causal.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dagitty"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">d_wrong</span> <span class="op">&lt;-</span> <span class="fu">dagitty</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dagitty/man/dagitty.html" class="external-link">dagitty</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"dag { elev -&gt; ndvi ; ndvi -&gt; soc ; map_mm -&gt; soc ; slope -&gt; twi }"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">dagitty</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dagitty/man/AncestralRelations.html" class="external-link">parents</a></span><span class="op">(</span><span class="va">d_wrong</span>, <span class="st">"soc"</span><span class="op">)</span><span class="op">)</span>     <span class="co"># map_mm, ndvi</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">benchmark_fit_p1_causal</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">covs</span>, dag <span class="op">=</span> <span class="va">d_wrong</span>,</span></span>
+<span class="r-in"><span>                                n_boot <span class="op">=</span> <span class="fl">50L</span>,</span></span>
+<span class="r-in"><span>                                seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">adjusted_features</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Name the outcome the way the wrapper expects and the parent set is</span></span></span>
+<span class="r-in"><span>  <span class="co"># honoured: three covariates instead of five.</span></span></span>
+<span class="r-in"><span>  <span class="va">d_ok</span> <span class="op">&lt;-</span> <span class="fu">dagitty</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dagitty/man/dagitty.html" class="external-link">dagitty</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"dag { map_mm -&gt; soc_topsoil_gkg ; ndvi -&gt; soc_topsoil_gkg ;</span></span></span>
+<span class="r-in"><span><span class="st">           twi -&gt; soc_topsoil_gkg ; elev -&gt; map_mm ; slope -&gt; twi }"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">benchmark_fit_p1_causal</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">covs</span>, dag <span class="op">=</span> <span class="va">d_ok</span>,</span></span>
+<span class="r-in"><span>                                n_boot <span class="op">=</span> <span class="fl">50L</span>,</span></span>
+<span class="r-in"><span>                                seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">adjusted_features</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># And a DAG leaving fewer than two covariates reverts to the full set</span></span></span>
+<span class="r-in"><span>  <span class="co"># rather than fitting a one-covariate model -- also silently.</span></span></span>
+<span class="r-in"><span>  <span class="co"># `metadata$adjusted_features` is the only place any of this shows.</span></span></span>
+<span class="r-in"><span>  <span class="va">d_one</span> <span class="op">&lt;-</span> <span class="fu">dagitty</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dagitty/man/dagitty.html" class="external-link">dagitty</a></span><span class="op">(</span><span class="st">"dag { ndvi -&gt; soc_topsoil_gkg }"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">benchmark_fit_p1_causal</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">covs</span>, dag <span class="op">=</span> <span class="va">d_one</span>,</span></span>
+<span class="r-in"><span>                                n_boot <span class="op">=</span> <span class="fl">50L</span>,</span></span>
+<span class="r-in"><span>                                seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">adjusted_features</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "map_mm" "ndvi"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "elev"   "slope"  "twi"    "map_mm" "ndvi"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "twi"    "map_mm" "ndvi"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "elev"   "slope"  "twi"    "map_mm" "ndvi"  </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

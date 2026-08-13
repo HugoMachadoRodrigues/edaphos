@@ -5,7 +5,7 @@ instead of choosing candidates by marginal-Y uncertainty (classical
 AL), we choose by expected shrinkage of Var(beta_hat_{X-&amp;gt;Y})."><meta property="og:description" content="Closes the loop between Pillar 1 (causal identification via
 backdoor adjustment) and Pillar 5 (autonomous active learning):
 instead of choosing candidates by marginal-Y uncertainty (classical
-AL), we choose by expected shrinkage of Var(beta_hat_{X-&amp;gt;Y})."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+AL), we choose by expected shrinkage of Var(beta_hat_{X-&amp;gt;Y})."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ AL), we choose by expected shrinkage of Var(beta_hat_{X-&amp;gt;Y})."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ AL), we choose by expected shrinkage of Var(beta_hat_{X-&amp;gt;Y})."><meta prop
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ AL), we choose by expected shrinkage of Var(beta_hat_{X-&amp;gt;Y})."><meta prop
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -160,8 +156,12 @@ when <code>NULL</code>.</p></dd>
 
 <dt id="arg-strategy">strategy<a class="anchor" aria-label="anchor" href="#arg-strategy"></a></dt>
 <dd><p>One of <code>"leverage"</code> (hat-matrix diagonal,
-closed-form, fast) or <code>"bootstrap"</code> (re-bootstrap the effect for
-each candidate; slow but exact under the linear-OLS estimator).</p></dd>
+closed-form, fast, deterministic) or <code>"bootstrap"</code> (re-bootstrap
+<code>Var(beta_hat)</code> once per candidate). <code>"bootstrap"</code> costs
+<code>B * (|pool| + 1)</code> OLS fits and its ranking is a Monte-Carlo
+estimate: at <code>B = 100</code> on 80 sites the ordering of five candidates
+changes with <code>seed</code> (see the examples), so raise <code>B</code> until the
+ordering stabilises before reading anything into it.</p></dd>
 
 
 <dt id="arg-b">B<a class="anchor" aria-label="anchor" href="#arg-b"></a></dt>
@@ -180,6 +180,116 @@ descending expected reduction.  The top-<code>n_select</code> rows are the
 recommended next samples.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dagitty"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># 80 labelled sites, 200 unlabelled candidates. The question is not</span></span></span>
+<span class="r-in"><span>  <span class="co"># "where is SOC uncertain?" but "how hard does rainfall push SOC?".</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">i_d</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">80</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"map_mm"</span>, <span class="st">"elev"</span>, <span class="st">"twi"</span>, <span class="st">"ndvi"</span>, <span class="st">"soc"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">dat</span>  <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="va">i_d</span>, <span class="va">cols</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">pool</span> <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="op">-</span><span class="va">i_d</span>, <span class="va">cols</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">200</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># On 80 sites the effect is not distinguishable from zero (t = 0.79).</span></span></span>
+<span class="r-in"><span>  <span class="co"># That is the situation this bridge exists for. (Inside a guarded</span></span></span>
+<span class="r-in"><span>  <span class="co"># block nothing auto-prints, hence the explicit print() calls.)</span></span></span>
+<span class="r-in"><span>  <span class="va">cf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">soc</span> <span class="op">~</span> <span class="va">map_mm</span> <span class="op">+</span> <span class="va">elev</span> <span class="op">+</span> <span class="va">ndvi</span>, <span class="va">dat</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cf</span><span class="op">[</span><span class="st">"map_mm"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Estimate"</span>, <span class="st">"Std. Error"</span>, <span class="st">"t value"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">dag</span> <span class="op">&lt;-</span> <span class="fu">dagitty</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dagitty/man/dagitty.html" class="external-link">dagitty</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"dag { elev -&gt; map_mm ; elev -&gt; soc ; twi -&gt; soc ;</span></span></span>
+<span class="r-in"><span><span class="st">           map_mm -&gt; ndvi ; map_mm -&gt; soc ; ndvi -&gt; soc }"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">q</span> <span class="op">&lt;-</span> <span class="fu">al_query_causal</span><span class="op">(</span><span class="va">dat</span>, <span class="va">pool</span>, <span class="va">dag</span>, exposure <span class="op">=</span> <span class="st">"map_mm"</span>,</span></span>
+<span class="r-in"><span>                       outcome <span class="op">=</span> <span class="st">"soc"</span>, n_select <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">q</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The set is inferred for the DIRECT effect, so the mediator ndvi is</span></span></span>
+<span class="r-in"><span>  <span class="co"># in it while twi, which opens no backdoor path, is not.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">q</span>, <span class="st">"adjustment"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Row names are inherited from `pool`, `pool_index` is the position</span></span></span>
+<span class="r-in"><span>  <span class="co"># in it. Use the column; as.integer(rownames(q)) is a different row.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rowname     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">q</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>          pool_index  <span class="op">=</span> <span class="va">q</span><span class="op">$</span><span class="va">pool_index</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>          resolves_to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">pool</span><span class="op">)</span><span class="op">[</span><span class="va">q</span><span class="op">$</span><span class="va">pool_index</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Leverage is a property of the design matrix alone: blank out every</span></span></span>
+<span class="r-in"><span>  <span class="co"># outcome in the pool and the ranking does not move one place.</span></span></span>
+<span class="r-in"><span>  <span class="va">pool_na</span> <span class="op">&lt;-</span> <span class="va">pool</span>; <span class="va">pool_na</span><span class="op">$</span><span class="va">soc</span> <span class="op">&lt;-</span> <span class="cn">NA_real_</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">pool_index</span>,</span></span>
+<span class="r-in"><span>                  <span class="fu">al_query_causal</span><span class="op">(</span><span class="va">dat</span>, <span class="va">pool_na</span>, <span class="va">dag</span>, exposure <span class="op">=</span> <span class="st">"map_mm"</span>,</span></span>
+<span class="r-in"><span>                                  outcome <span class="op">=</span> <span class="st">"soc"</span><span class="op">)</span><span class="op">$</span><span class="va">pool_index</span><span class="op">)</span><span class="op">)</span>   <span class="co"># TRUE</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># And it is JOINT, not marginal. Row 187 sits at the 40th percentile</span></span></span>
+<span class="r-in"><span>  <span class="co"># of the exposure yet ranks 4th, on the strength of being at the 6th</span></span></span>
+<span class="r-in"><span>  <span class="co"># percentile of elev and the maximum of ndvi.</span></span></span>
+<span class="r-in"><span>  <span class="va">top</span> <span class="op">&lt;-</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">pool_index</span>, <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">pct</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cc</span>, <span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pool</span><span class="op">[[</span><span class="va">cc</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">pool</span><span class="op">[[</span><span class="va">cc</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">top</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>row <span class="op">=</span> <span class="va">i</span>, map_mm <span class="op">=</span> <span class="fu">pct</span><span class="op">(</span><span class="st">"map_mm"</span>, <span class="va">i</span><span class="op">)</span>, elev <span class="op">=</span> <span class="fu">pct</span><span class="op">(</span><span class="st">"elev"</span>, <span class="va">i</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      ndvi <span class="op">=</span> <span class="fu">pct</span><span class="op">(</span><span class="st">"ndvi"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Classical Pillar 5 asks a different question of the same pool and</span></span></span>
+<span class="r-in"><span>  <span class="co"># gets a disjoint answer: 0 of its 5 picks are in the causal top 5.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_fit.html">al_fit</a></span><span class="op">(</span><span class="va">dat</span>, target <span class="op">=</span> <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>              covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"map_mm"</span>, <span class="st">"elev"</span>, <span class="st">"twi"</span>, <span class="st">"ndvi"</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="va">top</span>, <span class="fu"><a href="al_query.html">al_query</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>                                       strategy <span class="op">=</span> <span class="st">"uncertainty"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `expected_var_reduction` is h / (1 + h), a monotone relabelling of</span></span></span>
+<span class="r-in"><span>  <span class="co"># `leverage`: under strategy = "leverage" the two columns always</span></span></span>
+<span class="r-in"><span>  <span class="co"># rank identically, and neither is a variance in the units of beta.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">leverage</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">expected_var_reduction</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># strategy = "bootstrap" re-bootstraps Var(beta_hat) once per</span></span></span>
+<span class="r-in"><span>  <span class="co"># candidate. At B = 100 the answer is Monte-Carlo noise: three seeds</span></span></span>
+<span class="r-in"><span>  <span class="co"># give three orderings of the same five candidates, none of them the</span></span></span>
+<span class="r-in"><span>  <span class="co"># closed-form one. Raise B until the ordering stops moving.</span></span></span>
+<span class="r-in"><span>  <span class="va">ord</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="fu">al_query_causal</span><span class="op">(</span><span class="va">dat</span>, <span class="va">pool</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, <span class="va">dag</span>,</span></span>
+<span class="r-in"><span>                                     exposure <span class="op">=</span> <span class="st">"map_mm"</span>,</span></span>
+<span class="r-in"><span>                                     outcome  <span class="op">=</span> <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                                     strategy <span class="op">=</span> <span class="st">"bootstrap"</span>,</span></span>
+<span class="r-in"><span>                                     B <span class="op">=</span> <span class="fl">100L</span>, seed <span class="op">=</span> <span class="va">s</span><span class="op">)</span><span class="op">$</span><span class="va">pool_index</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>seed1 <span class="op">=</span> <span class="fu">ord</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, seed2 <span class="op">=</span> <span class="fu">ord</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, seed3 <span class="op">=</span> <span class="fu">ord</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              leverage <span class="op">=</span> <span class="fu">al_query_causal</span><span class="op">(</span><span class="va">dat</span>, <span class="va">pool</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, <span class="va">dag</span>,</span></span>
+<span class="r-in"><span>                                         exposure <span class="op">=</span> <span class="st">"map_mm"</span>,</span></span>
+<span class="r-in"><span>                                         outcome  <span class="op">=</span> <span class="st">"soc"</span><span class="op">)</span><span class="op">$</span><span class="va">pool_index</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Estimate Std. Error    t value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.00230    0.00291    0.79033 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_causal_al_query&gt;  (Pilar 1 x Pilar 5 bridge)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   target effect : map_mm -&gt; soc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   adjustment    : elev, ndvi</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   strategy      : leverage</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_select      : 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   top-5 candidates:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pool_index  leverage expected_var_reduction</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 136        128 0.2223619              0.1819117</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44          41 0.1854640              0.1564484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            1 0.1467496              0.1279700</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 198        187 0.1457032              0.1271736</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 87          82 0.1362830              0.1199376</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "elev" "ndvi"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     rowname  pool_index resolves_to </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       "136"       "128"       "136" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      row map_mm elev ndvi</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 128      2   46   99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  41     99   28  100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]   1      6   61   96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 187     40    6  100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  82     96   24   24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1] [,2] [,3] [,4] [,5]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> seed1       1    4    2    5    3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> seed2       3    4    2    1    5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> seed3       4    2    1    3    5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> leverage    1    2    4    3    5</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

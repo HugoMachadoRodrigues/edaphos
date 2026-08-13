@@ -9,7 +9,7 @@ Also returns the target SOC array in (batch, T, H, W) form."><meta property="og:
 temporal_convlstm_fit(), with two channels:
 static elevation (broadcast along time);
 dynamic precipitation.
-Also returns the target SOC array in (batch, T, H, W) form."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+Also returns the target SOC array in (batch, T, H, W) form."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ Also returns the target SOC array in (batch, T, H, W) form."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ Also returns the target SOC array in (batch, T, H, W) form."><meta property="og:
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ Also returns the target SOC array in (batch, T, H, W) form."><meta property="og:
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -134,10 +130,69 @@ Also returns the target SOC array in (batch, T, H, W) form."><meta property="og:
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with <code>sequence</code> <code>(1, T', 2, H, W)</code> and <code>target</code>
-<code>(1, T', H, W)</code>.</p>
+    <p>A list with <code>sequence</code> <code>(1, T', 2, H, W)</code>, <code>target</code>
+<code>(1, T', H, W)</code>, and <code>scaling</code> — the six constants (<code>soc_mu</code>,
+<code>soc_sd</code>, <code>prec_mu</code>, <code>prec_sd</code>, <code>elev_mu</code>, <code>elev_sd</code>) needed to
+map z-scored predictions back to g/kg. <code>scaling</code> is always
+computed from the whole <code>cube</code>, never from <code>t_slice</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">cube</span> <span class="op">&lt;-</span> <span class="fu"><a href="temporal_synth_soc_cube.html">temporal_synth_soc_cube</a></span><span class="op">(</span>H <span class="op">=</span> <span class="fl">8</span>, W <span class="op">=</span> <span class="fl">8</span>, T_total <span class="op">=</span> <span class="fl">6</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The cube is a LIST of three fields of different rank: a static</span></span></span>
+<span class="r-in"><span><span class="co"># H x W elevation matrix and two T x H x W stacks. It is not an</span></span></span>
+<span class="r-in"><span><span class="co"># array, and it is not stacked in (T, C, H, W) order yet.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">cube</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">" x "</span><span class="op">)</span>, <span class="st">""</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        elev      precip         soc </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "8 x 8" "6 x 8 x 8" "6 x 8 x 8" </span>
+<span class="r-in"><span><span class="co">#        elev      precip         soc</span></span></span>
+<span class="r-in"><span><span class="co">#     "8 x 8" "6 x 8 x 8" "6 x 8 x 8"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu">temporal_cube_to_tensor</span><span class="op">(</span><span class="va">cube</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">)</span>   <span class="co"># 1 6 2 8 8 = (batch, T, channel, H, W)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 6 2 8 8</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">target</span><span class="op">)</span>     <span class="co"># 1 6 8 8   = (batch, T, H, W)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 6 8 8</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Channel 1 is elevation broadcast along time, channel 2 is the</span></span></span>
+<span class="r-in"><span><span class="co"># monthly precipitation. A static covariate therefore costs T</span></span></span>
+<span class="r-in"><span><span class="co"># identical copies of the same map.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, , <span class="op">]</span>, <span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">6</span>, <span class="fl">1</span>, , <span class="op">]</span><span class="op">)</span>  <span class="co"># TRUE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, , <span class="op">]</span>, <span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">6</span>, <span class="fl">2</span>, , <span class="op">]</span><span class="op">)</span>  <span class="co"># FALSE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trap: `t_slice` subsets the sequence but NOT the standardisation.</span></span></span>
+<span class="r-in"><span><span class="co"># mu and sd always come from the whole cube, so a training window</span></span></span>
+<span class="r-in"><span><span class="co"># is not centred -- months 1:4 sit 0.55 sd below the six-month mean.</span></span></span>
+<span class="r-in"><span><span class="va">train</span> <span class="op">&lt;-</span> <span class="fu">temporal_cube_to_tensor</span><span class="op">(</span><span class="va">cube</span>, t_slice <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>slice <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">train</span><span class="op">$</span><span class="va">target</span><span class="op">)</span>, full <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">target</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   slice    full </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5519  0.0000 </span>
+<span class="r-in"><span><span class="co">#   slice    full</span></span></span>
+<span class="r-in"><span><span class="co"># -0.5519  0.0000</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">train</span><span class="op">$</span><span class="va">scaling</span>, <span class="va">tt</span><span class="op">$</span><span class="va">scaling</span><span class="op">)</span>   <span class="co"># TRUE</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># That shared scaling is exactly what temporal_convlstm_rollout()</span></span></span>
+<span class="r-in"><span><span class="co"># needs to compare a train window with a forecast window. It also</span></span></span>
+<span class="r-in"><span><span class="co"># means the forecast months leak their mean and sd into the</span></span></span>
+<span class="r-in"><span><span class="co"># training normalisation; an operational forecast must standardise</span></span></span>
+<span class="r-in"><span><span class="co"># on history only.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `scaling` is the only route back to g/kg, and it is exact.</span></span></span>
+<span class="r-in"><span><span class="va">soc3</span> <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">target</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">3</span>, , <span class="op">]</span> <span class="op">*</span> <span class="va">tt</span><span class="op">$</span><span class="va">scaling</span><span class="op">$</span><span class="va">soc_sd</span> <span class="op">+</span> <span class="va">tt</span><span class="op">$</span><span class="va">scaling</span><span class="op">$</span><span class="va">soc_mu</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">soc3</span> <span class="op">-</span> <span class="va">cube</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="fl">3</span>, , <span class="op">]</span><span class="op">)</span><span class="op">)</span>       <span class="co"># 0</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">scaling</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"soc_mu"</span>, <span class="st">"soc_sd"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> soc_mu soc_sd </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23.782  4.313 </span>
+<span class="r-in"><span><span class="co"># soc_mu soc_sd</span></span></span>
+<span class="r-in"><span><span class="co"># 23.782  4.313</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

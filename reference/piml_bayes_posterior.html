@@ -3,7 +3,7 @@
 the requested depths with either the Laplace or the MCMC posterior
 samples, and returns the result as an edaphos_posterior()."><meta property="og:description" content="Convenience wrapper that calls predict.edaphos_piml_bayes() on
 the requested depths with either the Laplace or the MCMC posterior
-samples, and returns the result as an edaphos_posterior()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+samples, and returns the result as an edaphos_posterior()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ samples, and returns the result as an edaphos_posterior()."><meta property="og:i
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ samples, and returns the result as an edaphos_posterior()."><meta property="og:i
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ samples, and returns the result as an edaphos_posterior()."><meta property="og:i
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -153,6 +149,106 @@ the underlying chain. Defaults to <code>min(500, nrow(object$draws))</code>.</p>
     <p>An <code>edaphos_posterior</code> with <code>method = "bayesian"</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Simulate a Latossolo SOC profile FROM the ODE the model fits, so</span></span></span>
+<span class="r-in"><span><span class="co"># the true mean function g(z) is known and the band can be scored</span></span></span>
+<span class="r-in"><span><span class="co"># against it rather than against the data it was fitted to.</span></span></span>
+<span class="r-in"><span><span class="va">truth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda0 <span class="op">=</span> <span class="fl">0.045</span>, mu <span class="op">=</span> <span class="fl">0.012</span>, y_inf <span class="op">=</span> <span class="fl">5.5</span>, y0 <span class="op">=</span> <span class="fl">26</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">zobs</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">7.5</span>, <span class="fl">15</span>, <span class="fl">25</span>, <span class="fl">40</span>, <span class="fl">60</span>, <span class="fl">80</span>, <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">soc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="piml_profile_predict.html">piml_profile_predict</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">zobs</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>               <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">8L</span>, sd <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fit</span>  <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_fit_bayesian.html">piml_profile_fit_bayesian</a></span><span class="op">(</span><span class="va">zobs</span>, <span class="va">soc</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">zg</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">95</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu">piml_bayes_posterior</span><span class="op">(</span><span class="va">fit</span>, newdepths <span class="op">=</span> <span class="va">zg</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                             units <span class="op">=</span> <span class="st">"g/kg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">post</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_posterior&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   method      : bayesian</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   query_type  : sample</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   units       : g/kg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_samples   : 500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   query shape : 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean range  : [+7.4433, +20.6762]  mean = +10.4696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sd   range  : [+0.5096, +1.8667]  mean = +0.9718</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># edaphos_posterior()'s default probs are 5 / 50 / 95, so q05..q95 is</span></span></span>
+<span class="r-in"><span><span class="co"># a 90% band. It contains the true g(z) at 7 of the 10 depths --- and</span></span></span>
+<span class="r-in"><span><span class="co"># depths within one profile are strongly correlated, so read that as</span></span></span>
+<span class="r-in"><span><span class="co"># roughly one test, not ten.</span></span></span>
+<span class="r-in"><span><span class="va">gz</span> <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_predict.html">piml_profile_predict</a></span><span class="op">(</span><span class="va">truth</span>, <span class="va">zg</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gz</span> <span class="op">&gt;=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span> <span class="op">&amp;</span> <span class="va">gz</span> <span class="op">&lt;=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The misses are not scatter. At 95 cm the Laplace posterior mean</span></span></span>
+<span class="r-in"><span><span class="co"># sits at 9.116 g/kg where the truth is 7.100.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>post_mean <span class="op">=</span> <span class="va">post</span><span class="op">$</span><span class="va">mean</span><span class="op">[</span><span class="fl">10</span><span class="op">]</span>, truth <span class="op">=</span> <span class="va">gz</span><span class="op">[</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> post_mean     truth </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     7.443     7.100 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># include_obs_noise = FALSE is a band on the MEAN FUNCTION. It covers</span></span></span>
+<span class="r-in"><span><span class="co"># a future observation at 2 of 10 depths; the noise-inflated version</span></span></span>
+<span class="r-in"><span><span class="co"># covers 7. Never quote the first as a prediction interval.</span></span></span>
+<span class="r-in"><span><span class="va">pn</span> <span class="op">&lt;-</span> <span class="fu">piml_bayes_posterior</span><span class="op">(</span><span class="va">fit</span>, newdepths <span class="op">=</span> <span class="va">zg</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                           include_obs_noise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ynew</span> <span class="op">&lt;-</span> <span class="va">gz</span> <span class="op">+</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10L</span>, sd <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mean_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ynew</span> <span class="op">&gt;=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span> <span class="op">&amp;</span> <span class="va">ynew</span> <span class="op">&lt;=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  plus_noise <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ynew</span> <span class="op">&gt;=</span> <span class="va">pn</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span> <span class="op">&amp;</span> <span class="va">ynew</span> <span class="op">&lt;=</span> <span class="va">pn</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    mean_fn plus_noise </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          9          9 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Same data, same seed, Metropolis instead of Laplace. Its band is</span></span></span>
+<span class="r-in"><span><span class="co"># 2.3x NARROWER on average yet covers 10 of 10: narrower AND better,</span></span></span>
+<span class="r-in"><span><span class="co"># because the Laplace Gaussian here is mis-centred rather than</span></span></span>
+<span class="r-in"><span><span class="co"># over-confident. Width alone would have ranked the two backwards.</span></span></span>
+<span class="r-in"><span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_fit_bayesian.html">piml_profile_fit_bayesian</a></span><span class="op">(</span><span class="va">zobs</span>, <span class="va">soc</span>, method <span class="op">=</span> <span class="st">"mcmc"</span>,</span></span>
+<span class="r-in"><span>                                n_iter <span class="op">=</span> <span class="fl">3000L</span>, n_burn <span class="op">=</span> <span class="fl">1000L</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pm</span> <span class="op">&lt;-</span> <span class="fu">piml_bayes_posterior</span><span class="op">(</span><span class="va">fm</span>, newdepths <span class="op">=</span> <span class="va">zg</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>laplace <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span> <span class="op">-</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        mcmc    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pm</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span> <span class="op">-</span> <span class="va">pm</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> laplace    mcmc </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3.08    2.28 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>laplace <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gz</span> <span class="op">&gt;=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span> <span class="op">&amp;</span> <span class="va">gz</span> <span class="op">&lt;=</span> <span class="va">post</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  mcmc    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gz</span> <span class="op">&gt;=</span> <span class="va">pm</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q05</span> <span class="op">&amp;</span> <span class="va">gz</span> <span class="op">&lt;=</span> <span class="va">pm</span><span class="op">$</span><span class="va">quantiles</span><span class="op">$</span><span class="va">q95</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> laplace    mcmc </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       8      10 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>laplace <span class="op">=</span> <span class="va">post</span><span class="op">$</span><span class="va">mean</span><span class="op">[</span><span class="fl">10</span><span class="op">]</span>, mcmc <span class="op">=</span> <span class="va">pm</span><span class="op">$</span><span class="va">mean</span><span class="op">[</span><span class="fl">10</span><span class="op">]</span>, truth <span class="op">=</span> <span class="va">gz</span><span class="op">[</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> laplace    mcmc   truth </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   7.443   7.764   7.100 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Where the mis-centring comes from: 8 horizons identify the ODE</span></span></span>
+<span class="r-in"><span><span class="co"># coordinate y_inf (which the profile never attains) only weakly, and</span></span></span>
+<span class="r-in"><span><span class="co"># the Gaussian approximation to that</span></span></span>
+<span class="r-in"><span><span class="co"># skewed marginal is pulled upwards (6.795 against the true 5.5),</span></span></span>
+<span class="r-in"><span><span class="co"># which is exactly the depths at which the band misses.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>laplace <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>, <span class="va">parameter</span> <span class="op">==</span> <span class="st">"y_inf"</span>,</span></span>
+<span class="r-in"><span>                             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="st">"q2.5"</span>, <span class="st">"q97.5"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            mcmc    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fm</span><span class="op">)</span>, <span class="va">parameter</span> <span class="op">==</span> <span class="st">"y_inf"</span>,</span></span>
+<span class="r-in"><span>                             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="st">"q2.5"</span>, <span class="st">"q97.5"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           mean     sd    q2.5 q97.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> laplace -0.116 17.038 -43.496 7.781</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mcmc    -0.052 14.598 -45.168 8.395</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `seed` is not bookkeeping: it fixes WHICH n_draws of the stored</span></span></span>
+<span class="r-in"><span><span class="co"># draws are propagated. At n_draws = 50 the posterior mean at 30 cm</span></span></span>
+<span class="r-in"><span><span class="co"># moves by 0.12 g/kg between two seeds.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>seed1 <span class="op">=</span> <span class="fu">piml_bayes_posterior</span><span class="op">(</span><span class="va">fit</span>, <span class="fl">30</span>, n_draws <span class="op">=</span> <span class="fl">50L</span>,</span></span>
+<span class="r-in"><span>                                     seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">mean</span>,</span></span>
+<span class="r-in"><span>        seed2 <span class="op">=</span> <span class="fu">piml_bayes_posterior</span><span class="op">(</span><span class="va">fit</span>, <span class="fl">30</span>, n_draws <span class="op">=</span> <span class="fl">50L</span>,</span></span>
+<span class="r-in"><span>                                     seed <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">$</span><span class="va">mean</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   seed1   seed2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10.6754 10.6510 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># One depth is tagged "feature", several are "sample".</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>one <span class="op">=</span> <span class="fu">piml_bayes_posterior</span><span class="op">(</span><span class="va">fit</span>, <span class="fl">30</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">query_type</span>,</span></span>
+<span class="r-in"><span>  many <span class="op">=</span> <span class="va">post</span><span class="op">$</span><span class="va">query_type</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       one      many </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> "feature"  "sample" </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -17,7 +17,7 @@ target is (batch, T, H, W), which is the setup used by
 temporal_convlstm_rollout() to forecast a whole horizon when
 future driver channels are known (e.g. weather forecasts).
 
-"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -43,7 +43,7 @@ future driver channels are known (e.g. weather forecasts).
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,14 +54,12 @@ future driver channels are known (e.g. weather forecasts).
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -69,14 +67,12 @@ future driver channels are known (e.g. weather forecasts).
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -138,6 +134,7 @@ future driver channels are known (e.g. weather forecasts).</p></li>
 <span>  physics_k_in <span class="op">=</span> <span class="fl">0.03</span>,</span>
 <span>  physics_k_out <span class="op">=</span> <span class="fl">0.015</span>,</span>
 <span>  physics_driver_channel <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  physics_scaling <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -198,6 +195,22 @@ a pure temporal smoothness penalty.</p></dd>
 channel that carries the driver \(P_t\) (e.g. precipitation).</p></dd>
 
 
+<dt id="arg-physics-scaling">physics_scaling<a class="anchor" aria-label="anchor" href="#arg-physics-scaling"></a></dt>
+<dd><p>The <code>scaling</code> list returned by
+<code><a href="temporal_cube_to_tensor.html">temporal_cube_to_tensor()</a></code> (<code>soc_mu</code>, <code>soc_sd</code>, <code>prec_mu</code>, <code>prec_sd</code>).
+<strong>Required whenever <code>physics_lambda &gt; 0</code>.</strong> <code>physics_k_in</code> and
+<code>physics_k_out</code> are rates in the property's raw units, but the driver
+channel the network sees is standardised, whose mean is zero to machine
+precision — so the outflow term \(k_{out} y P / \bar P\) cannot be
+formed without the constants that map between the two scales. An earlier
+version guarded the division with <code>1e-6</code> instead, which turned the physics
+residual into a 1e6 amplification of numerical noise: it arrived 2.6e7
+times heavier than the data-fit term, its sign flipped with the seed, and
+it made the fit 12 times worse rather than regularising it. Supplying the
+scaling is now mandatory rather than optional, because there is no correct
+way to proceed without it.</p></dd>
+
+
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Optional integer for reproducibility.</p></dd>
 
@@ -212,6 +225,96 @@ channel that carries the driver \(P_t\) (e.g. precipitation).</p></dd>
 model, config, and loss history.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_is_installed.html" class="external-link">torch_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">cube</span> <span class="op">&lt;-</span> <span class="fu"><a href="temporal_synth_soc_cube.html">temporal_synth_soc_cube</a></span><span class="op">(</span>H <span class="op">=</span> <span class="fl">8</span>, W <span class="op">=</span> <span class="fl">8</span>, T_total <span class="op">=</span> <span class="fl">6</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">tt</span>   <span class="op">&lt;-</span> <span class="fu"><a href="temporal_cube_to_tensor.html">temporal_cube_to_tensor</a></span><span class="op">(</span><span class="va">cube</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Sequence-to-one: six months of (elev, precip) -&gt; the month-6 SOC</span></span></span>
+<span class="r-in"><span>  <span class="co"># map. `target` must keep its batch axis, so 3-D (1, H, W). The</span></span></span>
+<span class="r-in"><span>  <span class="co"># 2-D map that tt$target[1, 6, , ] returns is rejected by</span></span></span>
+<span class="r-in"><span>  <span class="co"># stopifnot(target$dim() == 3L).</span></span></span>
+<span class="r-in"><span>  <span class="va">y6</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">target</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">6</span>, , <span class="op">]</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">temporal_convlstm_fit</span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span>, <span class="va">y6</span>, hidden_dims <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                               epochs <span class="op">=</span> <span class="fl">150L</span>, lr <span class="op">=</span> <span class="fl">0.05</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># A loss number alone means nothing. The reference that makes it</span></span></span>
+<span class="r-in"><span>  <span class="co"># readable is the constant map: mean(y6) predicted everywhere.</span></span></span>
+<span class="r-in"><span>  <span class="va">baseline</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">y6</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y6</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>final <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">final_loss</span>, baseline <span class="op">=</span> <span class="va">baseline</span>,</span></span>
+<span class="r-in"><span>                ratio <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">final_loss</span> <span class="op">/</span> <span class="va">baseline</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co">#   final baseline    ratio</span></span></span>
+<span class="r-in"><span>  <span class="co">#  0.0091   0.5382   0.0169</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Adam at lr = 0.05 is not monotone: 7 of the 149 steps go uphill,</span></span></span>
+<span class="r-in"><span>  <span class="co"># so never read final_loss as "the best loss reached".</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>          <span class="co"># 7</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># And keep the ratio in proportion -- this fits 64 pixels with</span></span></span>
+<span class="r-in"><span>  <span class="co"># this many parameters and no held-out month, so 0.0169 measures</span></span></span>
+<span class="r-in"><span>  <span class="co"># capacity, not skill. temporal_convlstm_rollout() is where the</span></span></span>
+<span class="r-in"><span>  <span class="co"># same model has to face months it never saw.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">parameters</span>,</span></span>
+<span class="r-in"><span>                   <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 885</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Trap 1: the physics regulariser is silently inert unless</span></span></span>
+<span class="r-in"><span>  <span class="co"># return_sequence = TRUE. physics_lambda is stored on the object</span></span></span>
+<span class="r-in"><span>  <span class="co"># either way, so loss_phys_history is the only proof it ever ran.</span></span></span>
+<span class="r-in"><span>  <span class="va">off</span> <span class="op">&lt;-</span> <span class="fu">temporal_convlstm_fit</span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span>, <span class="va">y6</span>, epochs <span class="op">=</span> <span class="fl">20L</span>, lr <span class="op">=</span> <span class="fl">0.05</span>,</span></span>
+<span class="r-in"><span>                               seed <span class="op">=</span> <span class="fl">1L</span>, physics_lambda <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="va">off</span><span class="op">$</span><span class="va">physics_lambda</span>,</span></span>
+<span class="r-in"><span>          phys_loss <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">off</span><span class="op">$</span><span class="va">loss_phys_history</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co">#    lambda phys_loss</span></span></span>
+<span class="r-in"><span>  <span class="co">#        10         0</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Trap 2: the mass balance is written in RAW units -- physics_k_in</span></span></span>
+<span class="r-in"><span>  <span class="co"># and physics_k_out are the g/kg-per-mm rates of the generator --</span></span></span>
+<span class="r-in"><span>  <span class="co"># but temporal_cube_to_tensor() hands over a z-scored driver whose</span></span></span>
+<span class="r-in"><span>  <span class="co"># mean is zero to machine precision, so the outflow term</span></span></span>
+<span class="r-in"><span>  <span class="co"># k_out * y * P / mean(P) cannot be formed on that scale.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span><span class="op">[</span><span class="fl">1</span>, , <span class="fl">2</span>, , <span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>   <span class="co"># ~1.2e-16</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Supplying the scaling constants is therefore mandatory, not</span></span></span>
+<span class="r-in"><span>  <span class="co"># optional. Without them the fit refuses rather than guessing.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">temporal_convlstm_fit</span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span>, <span class="va">tt</span><span class="op">$</span><span class="va">target</span>, return_sequence <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                          epochs <span class="op">=</span> <span class="fl">2L</span>, physics_lambda <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>                                 <span class="co"># "try-error"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">on</span> <span class="op">&lt;-</span> <span class="fu">temporal_convlstm_fit</span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span>, <span class="va">tt</span><span class="op">$</span><span class="va">target</span>, hidden_dims <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                              return_sequence <span class="op">=</span> <span class="cn">TRUE</span>, epochs <span class="op">=</span> <span class="fl">30L</span>,</span></span>
+<span class="r-in"><span>                              lr <span class="op">=</span> <span class="fl">0.05</span>, seed <span class="op">=</span> <span class="fl">1L</span>, physics_lambda <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                              physics_scaling <span class="op">=</span> <span class="va">tt</span><span class="op">$</span><span class="va">scaling</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>fit   <span class="op">=</span> <span class="va">on</span><span class="op">$</span><span class="va">loss_fit_history</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                 phys  <span class="op">=</span> <span class="va">on</span><span class="op">$</span><span class="va">loss_phys_history</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                 ratio <span class="op">=</span> <span class="va">on</span><span class="op">$</span><span class="va">loss_phys_history</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">/</span></span></span>
+<span class="r-in"><span>                         <span class="va">on</span><span class="op">$</span><span class="va">loss_fit_history</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The physics term is now the same order of magnitude as the term it</span></span></span>
+<span class="r-in"><span>  <span class="co"># regularises, and it is itself minimised over training rather than</span></span></span>
+<span class="r-in"><span>  <span class="co"># merely recorded.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>phys_first <span class="op">=</span> <span class="va">on</span><span class="op">$</span><span class="va">loss_phys_history</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                 phys_last  <span class="op">=</span> <span class="va">on</span><span class="op">$</span><span class="va">loss_phys_history</span><span class="op">[</span><span class="fl">30</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># What it costs the data fit is now a normal regulariser trade-off,</span></span></span>
+<span class="r-in"><span>  <span class="co"># small and of either sign depending on the cube: on this one it</span></span></span>
+<span class="r-in"><span>  <span class="co"># costs about 8%, on the seed-1 cube it gains about 15%.</span></span></span>
+<span class="r-in"><span>  <span class="va">off2</span> <span class="op">&lt;-</span> <span class="fu">temporal_convlstm_fit</span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">sequence</span>, <span class="va">tt</span><span class="op">$</span><span class="va">target</span>, hidden_dims <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                                return_sequence <span class="op">=</span> <span class="cn">TRUE</span>, epochs <span class="op">=</span> <span class="fl">30L</span>,</span></span>
+<span class="r-in"><span>                                lr <span class="op">=</span> <span class="fl">0.05</span>, seed <span class="op">=</span> <span class="fl">1L</span>, physics_lambda <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>no_physics <span class="op">=</span> <span class="va">off2</span><span class="op">$</span><span class="va">loss_fit_history</span><span class="op">[</span><span class="fl">30</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                 with_physics <span class="op">=</span> <span class="va">on</span><span class="op">$</span><span class="va">loss_fit_history</span><span class="op">[</span><span class="fl">30</span><span class="op">]</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># For scale: an earlier version guarded the zero-mean division with</span></span></span>
+<span class="r-in"><span>  <span class="co"># 1e-6, which amplified the residual ~1e6-fold. It arrived 2.6e7</span></span></span>
+<span class="r-in"><span>  <span class="co"># times heavier than the data term and made the fit 12 times WORSE,</span></span></span>
+<span class="r-in"><span>  <span class="co"># so training optimised the guard rather than the soil. That is why</span></span></span>
+<span class="r-in"><span>  <span class="co"># the scaling constants are now required rather than optional.</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

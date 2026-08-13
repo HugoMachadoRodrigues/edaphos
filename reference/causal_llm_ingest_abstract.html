@@ -5,7 +5,7 @@ edaphos_causal_kg. Claims whose confidence is below
 min_confidence are discarded."><meta property="og:description" content="Wrapper that calls causal_llm_extract() on a single passage and
 then adds every returned claim as an edge of the supplied
 edaphos_causal_kg. Claims whose confidence is below
-min_confidence are discarded."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+min_confidence are discarded."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ min_confidence are discarded."><meta property="og:image" content="https://hugoma
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ min_confidence are discarded."><meta property="og:image" content="https://hugoma
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ min_confidence are discarded."><meta property="og:image" content="https://hugoma
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -148,6 +144,62 @@ every added edge (a bibliographic key, a DOI, etc.).</p></dd>
 inserted.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Ollama needs no credentials, only a reachable server. The hosted</span></span></span>
+<span class="r-in"><span>  <span class="co"># backends take their key from the environment instead:</span></span></span>
+<span class="r-in"><span>  <span class="co"># backend = "openai" reads OPENAI_API_KEY, backend = "anthropic"</span></span></span>
+<span class="r-in"><span>  <span class="co"># reads ANTHROPIC_API_KEY, and both ignore `host`.</span></span></span>
+<span class="r-in"><span>  <span class="va">abstract</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"Across 212 Cerrado profiles, mean annual precipitation was the"</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"dominant control on topsoil organic carbon, whereas slope"</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"position governed erosion losses under conventional tillage."</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu">causal_llm_ingest_abstract</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">kg</span>, <span class="va">abstract</span>,</span></span>
+<span class="r-in"><span>    source  <span class="op">=</span> <span class="st">"Silva et al. 2019"</span>,</span></span>
+<span class="r-in"><span>    backend <span class="op">=</span> <span class="st">"ollama"</span>, model <span class="op">=</span> <span class="st">"gemma4:latest"</span>,</span></span>
+<span class="r-in"><span>    host    <span class="op">=</span> <span class="st">"http://localhost:11434"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The "claims" attribute is what was INSERTED, not what the model</span></span></span>
+<span class="r-in"><span>  <span class="co"># returned -- anything below `min_confidence` is already gone. To</span></span></span>
+<span class="r-in"><span>  <span class="co"># audit what was discarded, call causal_llm_extract() yourself.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"claims"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># It also carries the model's own labels, which the graph does not:</span></span></span>
+<span class="r-in"><span>  <span class="co"># node names are snake_cased on insertion, so a claim about</span></span></span>
+<span class="r-in"><span>  <span class="co"># "mean annual precipitation" becomes the node</span></span></span>
+<span class="r-in"><span>  <span class="co"># "mean_annual_precipitation".</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg</span><span class="op">)</span><span class="op">$</span><span class="va">cause</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Trap: min_confidence = 0 does not mean "keep everything". The</span></span></span>
+<span class="r-in"><span>  <span class="co"># filter is `!is.na(confidence) &amp; confidence &gt;= min_confidence`, so</span></span></span>
+<span class="r-in"><span>  <span class="co"># a claim whose confidence field the model omitted is dropped at</span></span></span>
+<span class="r-in"><span>  <span class="co"># every threshold, silently.</span></span></span>
+<span class="r-in"><span>  <span class="va">kg_all</span> <span class="op">&lt;-</span> <span class="fu">causal_llm_ingest_abstract</span><span class="op">(</span><span class="fu"><a href="causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">abstract</span>,</span></span>
+<span class="r-in"><span>                                       source <span class="op">=</span> <span class="st">"Silva et al. 2019"</span>,</span></span>
+<span class="r-in"><span>                                       min_confidence <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Trap: a cause and effect that differ only in spacing or hyphens</span></span></span>
+<span class="r-in"><span>  <span class="co"># ("soil organic carbon" vs "soil-organic-carbon") pass the JSON</span></span></span>
+<span class="r-in"><span>  <span class="co"># parser, then collapse onto one node, and causal_kg_add_edge()</span></span></span>
+<span class="r-in"><span>  <span class="co"># raises "Self-loops are not allowed". That error aborts the whole</span></span></span>
+<span class="r-in"><span>  <span class="co"># call, so every other claim in the abstract is lost too. Wrap the</span></span></span>
+<span class="r-in"><span>  <span class="co"># ingest whenever the passages are not hand-checked.</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">causal_llm_ingest_abstract</span><span class="op">(</span><span class="va">kg</span>, <span class="va">abstract</span>, source <span class="op">=</span> <span class="st">"Silva 2019"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"skipped abstract: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">conditionMessage</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>      <span class="va">kg</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

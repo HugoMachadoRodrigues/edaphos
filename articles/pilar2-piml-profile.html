@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,14 +52,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+<li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -67,14 +65,12 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -138,10 +134,10 @@ mathematical object disconnected from pedogenesis. The <strong>Pillar
 2</strong> of <code>edaphos</code> replaces that spline with two
 Physics-Informed Machine Learning (PIML) <span class="citation">(<a href="#ref-Raissi2019">Raissi et al. 2019</a>; <a href="#ref-Karniadakis2021">Karniadakis et al. 2021</a>; <a href="#ref-Willcox2021pinns">Willard et al. 2022</a>)</span> models of
 the soil depth profile: a parametric pedogenetic Ordinary Differential
-Equation (ODE) integrated by <code>deSolve</code> <span class="citation">(<a href="#ref-Soetaert2010desolve">Soetaert et al.
-2010</a>)</span>, and a Neural ODE <span class="citation">(<a href="#ref-Chen2018neuralode">Chen et al. 2018</a>)</span> trained by
-back-propagation through a fixed-step Runge-Kutta integrator on
-<code>torch</code> <span class="citation">(<a href="#ref-PichlerRtorch">Falbel and Luraschi 2023</a>)</span>. Both
+Equation (ODE), solved in closed form and fitted through a
+horizon-average observation operator, and a Neural ODE <span class="citation">(<a href="#ref-Chen2018neuralode">Chen et al.
+2018</a>)</span> trained by back-propagation through a fixed-step
+Runge-Kutta integrator on <code>torch</code> <span class="citation">(<a href="#ref-PichlerRtorch">Falbel and Luraschi 2023</a>)</span>. Both
 models are demonstrated on the <code><a href="https://ncss-tech.github.io/aqp/reference/sp4.html" class="external-link">aqp::sp4</a></code> reference pedons
 and a hierarchical covariate-conditioned extension closes the loop with
 Pillar 5.</p>
@@ -154,10 +150,12 @@ Pillar 5.</p>
 denote a soil property (e.g. clay fraction, SOC) at depth
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">z\ge 0</annotation></semantics></math>.
 The one-dimensional kinetic model of translocation <span class="citation">(<a href="#ref-Jenny1941">Jenny 1941</a>; <a href="#ref-Minasny2016">Minasny and McBratney 2016</a>)</span> assumes a
-depth-dependent relaxation towards a parent-material asymptote
+depth-dependent relaxation towards an equilibrium coordinate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_{\infty}</annotation></semantics></math>
 with rate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\lambda(z)</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\lambda(z)</annotation></semantics></math>
+— a coordinate that, as Section 1 shows below, the solution does
+<strong>not</strong> reach:
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>λ</mi><mn>0</mn></msub><mspace width="0.167em"></mspace><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \frac{dy}{dz}\;=\;-\lambda(z)\,\bigl(y(z)-y_{\infty}\bigr),\qquad
 \lambda(z)=\lambda_{0}\,e^{-\mu z}.
@@ -168,20 +166,62 @@ carry explicit physical meaning:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\lambda_{0}</annotation></semantics></math>
 is the surface pedogenetic rate;
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
-controls how quickly that rate decays with depth;
+controls how quickly that rate decays with depth; and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>0</mn></msub><annotation encoding="application/x-tex">y_{0}</annotation></semantics></math>
-is the surface intercept; and
+is the surface intercept.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_{\infty}</annotation></semantics></math>
+needs care, because it is <strong>not</strong> the value the profile
+reaches. Equation (1) is separable and its solution is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">[</mo><mo>−</mo><mstyle displaystyle="false"><mfrac><msub><mi>λ</mi><mn>0</mn></msub><mi>μ</mi></mfrac></mstyle><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>μ</mi><mi>z</mi></mrow></msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">]</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+y(z)=y_{\infty}+(y_{0}-y_{\infty})
+      \exp\!\Bigl[-\tfrac{\lambda_{0}}{\mu}\bigl(1-e^{-\mu z}\bigr)\Bigr],
+\tag{2}
+</annotation></semantics></math> so, with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>κ</mi><mo>=</mo><msub><mi>λ</mi><mn>0</mn></msub><mi>/</mi><mi>μ</mi></mrow><annotation encoding="application/x-tex">\kappa=\lambda_{0}/\mu</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>y</mi><mi>∞</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>−</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>κ</mi></mrow></msup></mrow><annotation encoding="application/x-tex">y(\infty)=y_{\infty}+(y_{0}-y_{\infty})e^{-\kappa}</annotation></semantics></math>.
+Because the rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\lambda(z)</annotation></semantics></math>
+decays with depth, the profile traverses only a fraction
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>κ</mi></mrow></msup></mrow><annotation encoding="application/x-tex">1-e^{-\kappa}</annotation></semantics></math>
+of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>0</mn></msub><mo>→</mo><msub><mi>y</mi><mi>∞</mi></msub></mrow><annotation encoding="application/x-tex">y_{0}\to y_{\infty}</annotation></semantics></math>
+gap and then stops.
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_{\infty}</annotation></semantics></math>
-is the parent-material extrapolation. The implementation
-[<code><a href="../reference/piml_profile_fit.html">piml_profile_fit()</a></code>][piml_profile_fit] integrates (1) via
-<code><a href="https://rdrr.io/pkg/deSolve/man/lsoda.html" class="external-link">deSolve::lsoda</a></code> at every loss evaluation and minimises
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒥</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mi>j</mi></munder><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mi>j</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mn>2</mn></msup><mspace width="0.278em"></mspace><mo>+</mo><mspace width="0.278em"></mspace><mi>η</mi><mo stretchy="false" form="postfix">∥</mo><mi>θ</mi><msubsup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn><mn>2</mn></msubsup><mo>,</mo></mrow><annotation encoding="application/x-tex">
+is an equilibrium coordinate of the differential equation; the
+parent-material extrapolation is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y(\infty)</annotation></semantics></math>,
+and the two can differ in sign. The fit is carried out in the
+identified, positive coordinates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>κ</mi><mo>,</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(y_{0}, y(\infty), \kappa, \mu)</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\lambda_{0}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_{\infty}</annotation></semantics></math>
+recovered for reporting. The implementation
+[<code><a href="../reference/piml_profile_fit.html">piml_profile_fit()</a></code>][piml_profile_fit] evaluates (2)
+directly — the equation has a solution, so integrating it numerically is
+only slower and less accurate — and minimises
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒥</mi><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><munder><mo>∑</mo><mi>j</mi></munder><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mover><mi>y</mi><mo accent="true">‾</mo></mover><mo stretchy="false" form="prefix">(</mo><msubsup><mi>z</mi><mi>j</mi><mtext mathvariant="normal">top</mtext></msubsup><mo>,</mo><msubsup><mi>z</mi><mi>j</mi><mtext mathvariant="normal">bot</mtext></msubsup><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mn>2</mn></msup><mspace width="0.278em"></mspace><mo>+</mo><mspace width="0.278em"></mspace><mi>η</mi><mo stretchy="false" form="postfix">∥</mo><mi>θ</mi><mo>−</mo><msub><mi>θ</mi><mn>0</mn></msub><msubsup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn><mn>2</mn></msubsup><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mathcal{J}(\theta)\;=\;
-\sum_{j}\bigl(y(z_{j};\theta)-y_{j}\bigr)^{2}
-\;+\;\eta\|\theta\|_{2}^{2},\tag{2}
-</annotation></semantics></math> with Nelder–Mead and Tikhonov
-regularisation
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Physics is imposed by the &lt;em&gt;forward model itself&lt;/em&gt;
+\sum_{j}\bigl(\bar y(z_{j}^{\text{top}},z_{j}^{\text{bot}};\theta)-y_{j}\bigr)^{2}
+\;+\;\eta\|\theta-\theta_{0}\|_{2}^{2},\tag{3}
+</annotation></semantics></math> with Nelder–Mead from several starting
+points. Two details matter. The forward operator
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>y</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar y</annotation></semantics></math>
+is the model’s <strong>average over the horizon</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msubsup><mi>z</mi><mi>j</mi><mtext mathvariant="normal">top</mtext></msubsup><mo>,</mo><msubsup><mi>z</mi><mi>j</mi><mtext mathvariant="normal">bot</mtext></msubsup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[z^{\text{top}}_j, z^{\text{bot}}_j]</annotation></semantics></math>,
+by Gauss–Legendre quadrature on (2), rather than a point evaluation at
+the mid-depth — a laboratory value is a layer average, which is the same
+observation-operator issue the equal-area spline literature addresses
+<span class="citation">(<a href="#ref-Bishop1999">Bishop et al.
+1999</a>; <a href="#ref-Malone2009">Malone et al. 2009</a>)</span>. And
+the Tikhonov term is centred on the data-driven start
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\theta_0</annotation></semantics></math>:
+on log coordinates an uncentred penalty shrinks every concentration
+toward 1, and in earlier versions, applied to the raw
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_\infty</annotation></semantics></math>,
+it scaled with the square of the property’s units and silently did part
+of the fitting.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Physics is imposed by the &lt;em&gt;forward model itself&lt;/em&gt;
 — the optimiser cannot produce a profile that violates the exponential
 approach to
 &lt;math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;semantics&gt;&lt;msub&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mi&gt;∞&lt;/mi&gt;&lt;/msub&gt;&lt;annotation encoding="application/x-tex"&gt;y_{\infty}&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;,
@@ -210,46 +250,82 @@ concentrations of clay, sand, Ca, Mg, K, CEC and CF.</p>
 <span><span class="co">#&gt;  [9] "mendocino"      "shasta-trinity"</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="mono-pedon-fit-clay-translocation-in-napa">3. Mono-pedon fit: clay translocation in <code>napa</code><a class="anchor" aria-label="anchor" href="#mono-pedon-fit-clay-translocation-in-napa"></a>
+<h2 id="mono-pedon-fit-a-real-multi-horizon-profile">3. Mono-pedon fit: a real multi-horizon profile<a class="anchor" aria-label="anchor" href="#mono-pedon-fit-a-real-multi-horizon-profile"></a>
 </h2>
-<p>The <code>napa</code> pedon is a canonical argillic-horizon case:
-clay increases with depth through illuviation then converges to a
-plateau in the parent material. The ODE (1) captures that dynamics
-without prescribing the sign of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>∞</mi></msub><mo>−</mo><msub><mi>y</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">y_{\infty}-y_{0}</annotation></semantics></math>.</p>
+<p>Earlier versions of this vignette fitted the <code>napa</code> pedon
+and called it “a canonical argillic-horizon case … converging to a
+plateau in the parent material”. It is neither. <code>napa</code> has
+<strong>two</strong> horizons, A (0-6 cm) and Bt (6-20 cm), with clay
+15% and 17%: two points for a four-parameter model, no plateau to
+converge to, and no bulge. A monotone increase is not an argillic
+horizon — an argillic horizon is a clay <em>maximum</em> with depletion
+above and below it, and equation (1) is monotone by construction, so it
+cannot represent one at all (Section 4).</p>
+<p>We therefore fit a real multi-horizon profile from the WoSIS extract
+the package ships: 1,105 Cerrado profiles with four or more horizons,
+built by <code>data-raw/piml_wosis_multihorizon.R</code> from the cached
+ISRIC WFS layers. Horizon boundaries are known, so the model is matched
+to the layer average of each horizon rather than to a point at its
+mid-depth.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">napa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">sp4</span>, <span class="va">id</span> <span class="op">==</span> <span class="st">"napa"</span><span class="op">)</span></span>
-<span><span class="va">napa</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"depth"</span>, <span class="st">"clay"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;    name depth clay</span></span>
-<span><span class="co">#&gt; 10    A     3   15</span></span>
-<span><span class="co">#&gt; 11   Bt    13   17</span></span>
-<span><span class="va">fit_napa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/piml_profile_fit.html">piml_profile_fit</a></span><span class="op">(</span></span>
-<span>  depths <span class="op">=</span> <span class="va">napa</span><span class="op">$</span><span class="va">depth</span>,</span>
-<span>  values <span class="op">=</span> <span class="va">napa</span><span class="op">$</span><span class="va">clay</span></span>
+<code class="sourceCode R"><span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"piml_wosis_cerrado.rds"</span>,</span>
+<span>                         package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># the deepest, most completely described profile inside the model's domain</span></span>
+<span><span class="va">cand</span> <span class="op">&lt;-</span> <span class="va">W</span><span class="op">$</span><span class="va">profiles</span><span class="op">[</span><span class="va">W</span><span class="op">$</span><span class="va">profiles</span><span class="op">$</span><span class="va">monotone_decreasing</span>, <span class="op">]</span></span>
+<span><span class="va">cand</span> <span class="op">&lt;-</span> <span class="va">cand</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">cand</span><span class="op">$</span><span class="va">n_hor</span>, <span class="op">-</span><span class="va">cand</span><span class="op">$</span><span class="va">z_max</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">pedon</span> <span class="op">&lt;-</span> <span class="va">W</span><span class="op">$</span><span class="va">horizons</span><span class="op">[</span><span class="va">W</span><span class="op">$</span><span class="va">horizons</span><span class="op">$</span><span class="va">profile_id</span> <span class="op">==</span> <span class="va">cand</span><span class="op">$</span><span class="va">profile_id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="op">]</span></span>
+<span><span class="va">pedon</span> <span class="op">&lt;-</span> <span class="va">pedon</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">pedon</span><span class="op">$</span><span class="va">top</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">pedon</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"top"</span>, <span class="st">"bottom"</span>, <span class="st">"soc_g_kg"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;      top bottom soc_g_kg</span></span>
+<span><span class="co">#&gt; 6393   0     12     28.9</span></span>
+<span><span class="co">#&gt; 5704  12     35     17.4</span></span>
+<span><span class="co">#&gt; 979   35     60     13.6</span></span>
+<span><span class="co">#&gt; 7216  60    100     10.0</span></span>
+<span><span class="co">#&gt; 5567 100    150      8.5</span></span>
+<span><span class="co">#&gt; 842  150    250      6.7</span></span>
+<span><span class="co">#&gt; 6328 250    350      5.1</span></span>
+<span><span class="co">#&gt; 6097 350    450      3.7</span></span>
+<span><span class="co">#&gt; 2565 450    550      2.3</span></span>
+<span></span>
+<span><span class="va">fit_pedon</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/piml_profile_fit.html">piml_profile_fit</a></span><span class="op">(</span></span>
+<span>  depths <span class="op">=</span> <span class="va">pedon</span><span class="op">$</span><span class="va">depth_mid</span>,</span>
+<span>  values <span class="op">=</span> <span class="va">pedon</span><span class="op">$</span><span class="va">soc_g_kg</span>,</span>
+<span>  top    <span class="op">=</span> <span class="va">pedon</span><span class="op">$</span><span class="va">top</span>,</span>
+<span>  bottom <span class="op">=</span> <span class="va">pedon</span><span class="op">$</span><span class="va">bottom</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">fit_napa</span></span>
+<span><span class="va">fit_pedon</span></span>
 <span><span class="co">#&gt; &lt;edaphos_piml_profile&gt;</span></span>
 <span><span class="co">#&gt;   dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)</span></span>
-<span><span class="co">#&gt;   lambda0 = 0.6964    mu = -0.01849</span></span>
-<span><span class="co">#&gt;   y_inf   = 16.98     y0 = -0.01188</span></span>
-<span><span class="co">#&gt;   n obs   = 2         rmse = 0.01209</span></span>
+<span><span class="co">#&gt;   lambda0 = 0.009613  mu = 0.004151</span></span>
+<span><span class="co">#&gt;   y0      = 23.45     y(Inf) = 1.982      (kappa = 2.32)</span></span>
+<span><span class="co">#&gt;   y_inf   = -0.3678   (ODE coordinate, not the attained value)</span></span>
+<span><span class="co">#&gt;   n obs   = 9 (layer)         rmse = 2.517</span></span>
 <span><span class="co">#&gt;   converged = TRUE</span></span></code></pre></div>
+<p>The printed object separates two things the package used to conflate:
+<code>y(Inf)</code>, the value the profile actually reaches, and
+<code>y_inf</code>, a coordinate of the differential equation that it
+does not. It also reports <code>kappa</code>, the fraction of the
+journey the profile completes.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">grid_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">napa</span><span class="op">$</span><span class="va">depth</span><span class="op">)</span> <span class="op">+</span> <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">pred_napa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>depth <span class="op">=</span> <span class="va">grid_z</span>,</span>
-<span>                         clay  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_napa</span>, <span class="va">grid_z</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">grid_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pedon</span><span class="op">$</span><span class="va">bottom</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.1</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">pred_pedon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>depth <span class="op">=</span> <span class="va">grid_z</span>,</span>
+<span>                         soc   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_pedon</span>, <span class="va">grid_z</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred_napa</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">clay</span>, <span class="va">depth</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred_pedon</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">soc</span>, <span class="va">depth</span><span class="op">)</span>,</span>
 <span>            linewidth <span class="op">=</span> <span class="fl">1</span>, colour <span class="op">=</span> <span class="st">"steelblue"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">napa</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">clay</span>, <span class="va">depth</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pedon</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">soc_g_kg</span>, <span class="va">depth_mid</span><span class="op">)</span>,</span>
 <span>             size <span class="op">=</span> <span class="fl">3</span>, colour <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu">edaphos</span><span class="fu">:::</span><span class="fu">.piml_asymptote</span><span class="op">(</span><span class="va">fit_pedon</span><span class="op">$</span><span class="va">params</span><span class="op">)</span>,</span>
+<span>             linetype <span class="op">=</span> <span class="fl">2</span>, colour <span class="op">=</span> <span class="st">"grey40"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_reverse</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Clay (%)"</span>, y <span class="op">=</span> <span class="st">"Depth (cm)"</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Napa — pedogenetic ODE vs. observed horizons"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Organic carbon (g kg"</span><span class="op">^</span><span class="op">-</span><span class="fl">1</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>       y <span class="op">=</span> <span class="st">"Depth (cm)"</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"A real WoSIS profile and the fitted pedogenetic ODE"</span>,</span>
+<span>       subtitle <span class="op">=</span> <span class="st">"dashed line: y(Inf), the value the solution actually reaches"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pilar2-piml-profile_files/figure-html/plot-single-1.png" class="r-plt" alt="" width="624"></p>
+<p><img src="pilar2-piml-profile_files/figure-html/plot-single-1.png"><!-- --></p>
 </div>
 <div class="section level2">
 <h2 id="multi-pedon-diagnostics">4. Multi-pedon diagnostics<a class="anchor" aria-label="anchor" href="#multi-pedon-diagnostics"></a>
@@ -264,25 +340,60 @@ table where every row has a direct pedological meaning.</p>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">[[</span><span class="va">k</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">params</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    pedon   <span class="op">=</span> <span class="va">k</span>,</span>
-<span>    lambda0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">lambda0</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    mu      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">mu</span>,      <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    y_inf   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">y_inf</span>,   <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    y0      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">y0</span>,      <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    rmse    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">fits</span><span class="op">[[</span><span class="va">k</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span>    lambda0  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">lambda0</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    mu       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">mu</span>,      <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    kappa    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">kappa</span>,   <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    y0       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">y0</span>,      <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    <span class="co"># the value the profile reaches -- NOT y_inf, which is reported</span></span>
+<span>    <span class="co"># alongside it to show how far apart the two can be</span></span>
+<span>    y_attain <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="fu">edaphos</span><span class="fu">:::</span><span class="fu">.piml_asymptote</span><span class="op">(</span><span class="va">p</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    y_inf    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">y_inf</span>,   <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    rmse     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">fits</span><span class="op">[[</span><span class="va">k</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tab</span></span>
-<span><span class="co">#&gt;                       pedon  lambda0      mu  y_inf      y0   rmse</span></span>
-<span><span class="co">#&gt; log_lambda0          colusa 5.29e-03 -0.0964 61.900 22.8000 1.7600</span></span>
-<span><span class="co">#&gt; log_lambda01          glenn 2.62e-01 -0.0541 34.000 -0.0232 0.0239</span></span>
-<span><span class="co">#&gt; log_lambda02          kings 5.91e-02 -0.1090 27.000 -0.3850 0.0155</span></span>
-<span><span class="co">#&gt; log_lambda03       mariposa 1.15e-06  2.0900 10.000 30.2000 3.1100</span></span>
-<span><span class="co">#&gt; log_lambda04      mendocino 5.18e-01  0.0943 23.100  6.4900 0.0281</span></span>
-<span><span class="co">#&gt; log_lambda05           napa 6.96e-01 -0.0185 17.000 -0.0119 0.0121</span></span>
-<span><span class="co">#&gt; log_lambda06     san benito 3.81e-02 -0.7500 19.000  0.6070 0.0135</span></span>
-<span><span class="co">#&gt; log_lambda07         shasta 3.21e-02  1.8600  0.247 14.2000 0.0103</span></span>
-<span><span class="co">#&gt; log_lambda08 shasta-trinity 4.43e-02 -0.0160 75.800 18.7000 1.6100</span></span>
-<span><span class="co">#&gt; log_lambda09         tehama 5.77e-03 -0.5500 32.000 23.9000 0.0290</span></span></code></pre></div>
+<span><span class="co">#&gt;                     pedon lambda0      mu   kappa     y0 y_attain y_inf</span></span>
+<span><span class="co">#&gt; log_kappa          colusa 0.00441 0.00333  1.3200 19.900    181.0 239.0</span></span>
+<span><span class="co">#&gt; log_kappa1          glenn 0.05900 0.02330  2.5400 20.100     40.3  42.1</span></span>
+<span><span class="co">#&gt; log_kappa2          kings 0.03210 0.00887  3.6200  0.124     52.1  53.5</span></span>
+<span><span class="co">#&gt; log_kappa3       mariposa 1.02000 0.01210 84.0000 40.800     29.5  29.5</span></span>
+<span><span class="co">#&gt; log_kappa4      mendocino 0.42000 0.03680 11.4000  7.870     23.1  23.1</span></span>
+<span><span class="co">#&gt; log_kappa5           napa 0.10100 0.03860  2.6100 13.800     18.4  18.8</span></span>
+<span><span class="co">#&gt; log_kappa6     san benito 0.07720 0.03080  2.5100  6.750     26.0  27.7</span></span>
+<span><span class="co">#&gt; log_kappa7         shasta 0.00010 0.02330  0.0043 14.000     14.0  14.0</span></span>
+<span><span class="co">#&gt; log_kappa8 shasta-trinity 0.02500 0.01530  1.6400 18.700    102.0 123.0</span></span>
+<span><span class="co">#&gt; log_kappa9         tehama 0.01680 0.02560  0.6560 21.800     50.9  82.2</span></span>
+<span><span class="co">#&gt;                rmse</span></span>
+<span><span class="co">#&gt; log_kappa  3.55e+00</span></span>
+<span><span class="co">#&gt; log_kappa1 1.35e-02</span></span>
+<span><span class="co">#&gt; log_kappa2 1.72e+00</span></span>
+<span><span class="co">#&gt; log_kappa3 2.95e+00</span></span>
+<span><span class="co">#&gt; log_kappa4 8.20e-02</span></span>
+<span><span class="co">#&gt; log_kappa5 3.17e-03</span></span>
+<span><span class="co">#&gt; log_kappa6 2.80e-02</span></span>
+<span><span class="co">#&gt; log_kappa7 3.55e-15</span></span>
+<span><span class="co">#&gt; log_kappa8 1.58e+00</span></span>
+<span><span class="co">#&gt; log_kappa9 1.03e+00</span></span></code></pre></div>
+<p>Read this table with <code>y_attain</code> — the value the profile
+reaches — and not <code>y_inf</code>. On <code>colusa</code> and
+<code>tehama</code> the two differ by orders of magnitude, and both are
+absurd: those pedons have three or four horizons, all in the top 42 cm,
+with clay still rising at the deepest one. There is simply no
+information in them about where the argillic horizon levels off, so the
+curve is fitted through the observations and then points off to nowhere.
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> flags exactly these two, reporting how far down the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>0</mn></msub><mo>→</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_0 \to y(\infty)</annotation></semantics></math>
+journey the deepest horizon actually got:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">progress</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         colusa          glenn          kings       mariposa      mendocino </span></span>
+<span><span class="co">#&gt;      0.1893752      0.6859613      0.5464827      1.0000000      0.9967878 </span></span>
+<span><span class="co">#&gt;           napa     san benito         shasta shasta-trinity         tehama </span></span>
+<span><span class="co">#&gt;      0.6933642      0.6361349      1.0000000      0.5770621      0.3204463</span></span></code></pre></div>
+<p>On neither flagged pedon does the four-parameter equation improve on
+a two-parameter straight line (next section: 3.018 against 3.016, and
+0.839 against 0.836), which is the right outcome — the model should not
+be credited for a shape it did not determine.</p>
 </div>
 <div class="section level2">
 <h2 id="non-physical-baselines">5. Non-physical baselines<a class="anchor" aria-label="anchor" href="#non-physical-baselines"></a>
@@ -290,7 +401,7 @@ table where every row has a direct pedological meaning.</p>
 <p>Two baselines bound the improvement claim: the mean predictor and the
 linear-in-depth regression. A meaningful PIML gain should come from the
 physical constraint, <em>not</em> from extra parameters.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">baseline_rmse</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sub</span>, <span class="va">target</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="va">sub</span><span class="op">[[</span><span class="va">target</span><span class="op">]</span><span class="op">]</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mean   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -305,17 +416,17 @@ physical constraint, <em>not</em> from extra parameters.</p>
 <span>             linear_baseline <span class="op">=</span> <span class="va">bl</span><span class="op">[</span><span class="st">"linear"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">bench</span></span>
-<span><span class="co">#&gt;                         pedon       piml mean_baseline linear_baseline</span></span>
-<span><span class="co">#&gt; colusa                 colusa 1.75694932     12.871966       3.0163775</span></span>
-<span><span class="co">#&gt; glenn                   glenn 0.02392376      4.500000       0.0000000</span></span>
-<span><span class="co">#&gt; kings                   kings 0.01548473      9.797959       2.5628166</span></span>
-<span><span class="co">#&gt; mariposa             mariposa 3.11248566      3.112475       2.7467763</span></span>
-<span><span class="co">#&gt; mendocino           mendocino 0.02812509      4.320494       2.5935243</span></span>
-<span><span class="co">#&gt; napa                     napa 0.01209286      1.000000       0.0000000</span></span>
-<span><span class="co">#&gt; san benito         san benito 0.01352761      3.500000       0.0000000</span></span>
-<span><span class="co">#&gt; shasta                 shasta 0.01031422      0.000000       0.0000000</span></span>
-<span><span class="co">#&gt; shasta-trinity shasta-trinity 1.61442621     16.697305       3.0480840</span></span>
-<span><span class="co">#&gt; tehama                 tehama 0.02900815      3.559026       0.8360796</span></span></code></pre></div>
+<span><span class="co">#&gt;                         pedon         piml mean_baseline linear_baseline</span></span>
+<span><span class="co">#&gt; colusa                 colusa 3.548319e+00     12.871966       3.0163775</span></span>
+<span><span class="co">#&gt; glenn                   glenn 1.352830e-02      4.500000       0.0000000</span></span>
+<span><span class="co">#&gt; kings                   kings 1.718484e+00      9.797959       2.5628166</span></span>
+<span><span class="co">#&gt; mariposa             mariposa 2.949986e+00      3.112475       2.7467763</span></span>
+<span><span class="co">#&gt; mendocino           mendocino 8.202878e-02      4.320494       2.5935243</span></span>
+<span><span class="co">#&gt; napa                     napa 3.165961e-03      1.000000       0.0000000</span></span>
+<span><span class="co">#&gt; san benito         san benito 2.799550e-02      3.500000       0.0000000</span></span>
+<span><span class="co">#&gt; shasta                 shasta 3.552714e-15      0.000000       0.0000000</span></span>
+<span><span class="co">#&gt; shasta-trinity shasta-trinity 1.575534e+00     16.697305       3.0480840</span></span>
+<span><span class="co">#&gt; tehama                 tehama 1.034476e+00      3.559026       0.8360796</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="neural-ode-variant">6. Neural ODE variant<a class="anchor" aria-label="anchor" href="#neural-ode-variant"></a>
@@ -326,7 +437,7 @@ offers a Neural ODE alternative <span class="citation">(<a href="#ref-Chen2018ne
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>z</mi></mrow></mfrac><mo>=</mo><msub><mi>f</mi><mi>θ</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>f</mi><mi>θ</mi></msub><mo>=</mo><mtext mathvariant="normal">MLP</mtext><mo stretchy="false" form="prefix">(</mo><mi>z</mi><mo>,</mo><mi>y</mi><mo>;</mo><mspace width="0.167em"></mspace><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \frac{dy}{dz}=f_{\theta}(z,y),\qquad
 f_{\theta}=\text{MLP}(z,y;\,\theta).
-\tag{3}
+\tag{4}
 </annotation></semantics></math> The forward map is a fixed-step RK4
 integrator written directly in <code>torch</code>, so training
 back-propagates the squared-error loss through the whole trajectory:
@@ -337,29 +448,29 @@ back-propagates the squared-error loss through the whole trajectory:
                   +y_{0}}_{\text{RK4 rollout}}
       \;-\;y_{j}\Bigr)^{2}.
 </annotation></semantics></math></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nn_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/piml_neural_ode_fit.html">piml_neural_ode_fit</a></span><span class="op">(</span></span>
-<span>  depths  <span class="op">=</span> <span class="va">napa</span><span class="op">$</span><span class="va">depth</span>, values <span class="op">=</span> <span class="va">napa</span><span class="op">$</span><span class="va">clay</span>,</span>
+<span>  depths  <span class="op">=</span> <span class="va">pedon</span><span class="op">$</span><span class="va">depth_mid</span>, values <span class="op">=</span> <span class="va">pedon</span><span class="op">$</span><span class="va">soc_g_kg</span>,</span>
 <span>  hidden  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16L</span>, <span class="fl">16L</span><span class="op">)</span>, epochs <span class="op">=</span> <span class="fl">500L</span>,</span>
 <span>  seed    <span class="op">=</span> <span class="fl">1L</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">nn_fit</span></span>
 <span><span class="va">pred_nn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>depth <span class="op">=</span> <span class="va">grid_z</span>,</span>
-<span>                       clay  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">nn_fit</span>, <span class="va">grid_z</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<span>                      soc   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">nn_fit</span>, <span class="va">grid_z</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred_napa</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">clay</span>, <span class="va">depth</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred_pedon</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">soc</span>, <span class="va">depth</span>,</span>
 <span>            colour <span class="op">=</span> <span class="st">"Parametric ODE"</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred_nn</span>,   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">clay</span>, <span class="va">depth</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred_nn</span>,   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">soc</span>, <span class="va">depth</span>,</span>
 <span>            colour <span class="op">=</span> <span class="st">"Neural ODE"</span><span class="op">)</span>,     linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">napa</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">clay</span>, <span class="va">depth</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pedon</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">soc_g_kg</span>, <span class="va">depth_mid</span><span class="op">)</span>,</span>
 <span>             size <span class="op">=</span> <span class="fl">3</span>, colour <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_reverse</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Parametric ODE"</span> <span class="op">=</span> <span class="st">"steelblue"</span>,</span>
 <span>                                  <span class="st">"Neural ODE"</span>    <span class="op">=</span> <span class="st">"darkgreen"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Clay (%)"</span>, y <span class="op">=</span> <span class="st">"Depth (cm)"</span>,</span>
-<span>       colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Napa — parametric vs. Neural ODE"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Organic carbon (g kg"</span><span class="op">^</span><span class="op">-</span><span class="fl">1</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>       y <span class="op">=</span> <span class="st">"Depth (cm)"</span>, colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"Parametric vs. Neural ODE on the same real profile"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -368,12 +479,19 @@ back-propagates the squared-error loss through the whole trajectory:
 <p>Given a PIML fit (parametric or neural), the helper
 [<code><a href="../reference/al_physics_gate_piml.html">al_physics_gate_piml()</a></code>][al_physics_gate_piml] constructs a
 rejection function: candidates whose predicted target falls outside the
-envelope
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mrow><mi mathvariant="normal">min</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><msub><mi>y</mi><mi>∞</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[\min(y_{0},y_{\infty}),\,\max(y_{0},y_{\infty})]</annotation></semantics></math>
-inflated by a <code>safety_factor</code> are eliminated from the greedy
-Active-Learning selection (see the Pillar 5 vignette).</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/al_physics_gate_piml.html">al_physics_gate_piml</a></span><span class="op">(</span><span class="va">fit_napa</span>, safety_factor <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
+range the solution actually spans,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mrow><mi mathvariant="normal">min</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>0</mn></msub><mo>,</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[\min(y_{0},y(\infty)),\,\max(y_{0},y(\infty))]</annotation></semantics></math>,
+inflated by a <code>safety_factor</code>, are eliminated from the greedy
+Active-Learning selection (see the Pillar 5 vignette). The envelope used
+to be built from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_{\infty}</annotation></semantics></math>,
+which is not a value any profile reaches and is often negative: on 300
+real WoSIS pedons the gate then accepted an organic carbon of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>5</mn></mrow><annotation encoding="application/x-tex">-5</annotation></semantics></math>
+g/kg on 73 of them. It now floors at zero for a property the fit itself
+requires to be positive.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/al_physics_gate_piml.html">al_physics_gate_piml</a></span><span class="op">(</span><span class="va">fit_pedon</span>, safety_factor <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
 <span><span class="va">cand_dummy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu">gate</span><span class="op">(</span><span class="va">cand_dummy</span>, predicted_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">25</span>, <span class="fl">200</span>, <span class="op">-</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>A hierarchical extension
@@ -414,7 +532,39 @@ and is updated online by Haario recursion after a warm-up period — so
 non-Gaussian or multimodal posteriors are captured faithfully where
 Laplace would paper over them.</li>
 </ol>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p><strong>Which to use, measured rather than asserted.</strong> On the
+WoSIS pedon the manuscript reports (1115679, nine horizons to 550 cm,
+lognormal family, horizon-average operator, same seed), the two paths
+were compared parameter by parameter. Five of the seven 95% intervals
+are narrower under Laplace —
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>κ</mi><annotation encoding="application/x-tex">\kappa</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>∞</mi></msub><annotation encoding="application/x-tex">y_\infty</annotation></semantics></math>
+by more than a factor of two, the observation noise by 1.8, so its
+coefficient of variation reads 0.168 against 0.230 from the sampler.</p>
+<p>The split is not arbitrary. The attainable deep value
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>∞</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y(\infty)</annotation></semantics></math>,
+which these data identify, is essentially unchanged (width ratio 1.01),
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+is actually wider under Laplace. What moves is what is not identified.
+The derived
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>∞</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>−</mo><msub><mi>y</mi><mn>0</mn></msub><msup><mi>e</mi><mrow><mi>−</mi><mi>κ</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>κ</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_\infty = (A - y_0 e^{-\kappa})/(1 -
+e^{-\kappa})</annotation></semantics></math> has a pole at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>κ</mi><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\kappa \to 0</annotation></semantics></math>;
+the sampler puts 5.3% of its draws below
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>κ</mi><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">\kappa = 0.5</annotation></semantics></math>
+and reaches 0.080, while Laplace puts 0.5% there and stops at 0.285.
+Conditioning both on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>κ</mi><mo>≥</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">\kappa \ge
+0.5</annotation></semantics></math> brings them into agreement.</p>
+<p>So the practical rule is the one the description above already
+implies, now with a measurement behind it: Laplace is fine for the
+identified coordinates and for anything you intend to use as a point
+estimate, and it is not fine for a derived quantity whose map is
+unstable in a tail it cannot reach. The package’s reported numbers use
+MCMC.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">depths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">100</span><span class="op">)</span></span>
@@ -426,24 +576,27 @@ Laplace would paper over them.</li>
 <span><span class="co">#&gt; &lt;edaphos_piml_bayes&gt;</span></span>
 <span><span class="co">#&gt;   method     : laplace</span></span>
 <span><span class="co">#&gt;   n draws    : 2000</span></span>
-<span><span class="co">#&gt;   sigma (noise): 0.1653</span></span>
+<span><span class="co">#&gt;   sigma (noise): 0.009692</span></span>
 <span><span class="co">#&gt;   posterior summary (natural scale):</span></span>
-<span><span class="co">#&gt;  parameter      mean       sd      q2.5       q50    q97.5</span></span>
-<span><span class="co">#&gt;    lambda0  0.049297 0.002576  0.044338  0.049178  0.05456</span></span>
-<span><span class="co">#&gt;         mu  0.004304 0.005185 -0.006121  0.004381  0.01402</span></span>
-<span><span class="co">#&gt;      y_inf  6.099539 0.494554  5.152917  6.092925  7.08908</span></span>
-<span><span class="co">#&gt;         y0 30.235724 0.457493 29.318151 30.236646 31.14020</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt;  parameter      mean        sd       q2.5       q50    q97.5</span></span>
+<span><span class="co">#&gt;    lambda0   0.03740  0.012180   0.018942  0.035352  0.06675</span></span>
+<span><span class="co">#&gt;         mu   0.03509  0.005514   0.025552  0.034733  0.04736</span></span>
+<span><span class="co">#&gt;      y_inf -10.64234 11.818452 -41.257663 -8.089489  3.62039</span></span>
+<span><span class="co">#&gt;         y0  30.98891  0.602453  29.837477 31.006206 32.15824</span></span>
+<span><span class="co">#&gt;      kappa   1.14603  0.571184   0.399185  1.016122  2.59166</span></span>
+<span><span class="co">#&gt;     y_asym   6.05674  0.177663   5.707088  6.056401  6.41648</span></span>
+<span><span class="co">#&gt;      sigma   0.01029  0.003757   0.004745  0.009672  0.01924</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_bayes</span>,</span>
 <span>         newdepths         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>,</span>
 <span>         interval          <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>         include_obs_noise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>         seed              <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   depth      mean        sd     lower     upper</span></span>
-<span><span class="co">#&gt; 1    10 20.993046 0.2151183 20.584167 21.390906</span></span>
-<span><span class="co">#&gt; 2    20 15.493301 0.2146955 15.061513 15.954735</span></span>
-<span><span class="co">#&gt; 3    40 10.056425 0.2279395  9.605178 10.494935</span></span>
-<span><span class="co">#&gt; 4    80  7.031722 0.2363028  6.633251  7.457589</span></span></code></pre></div>
+<span><span class="co">#&gt;   depth      mean        sd     lower     upper lower_sim upper_sim</span></span>
+<span><span class="co">#&gt; 1    10 20.589711 0.5581681 19.319254 21.293824 18.788348 21.458065</span></span>
+<span><span class="co">#&gt; 2    20 15.054671 0.5770224 13.482066 15.709122 12.862055 15.794151</span></span>
+<span><span class="co">#&gt; 3    40  9.883594 0.3760792  8.874115 10.306881  8.553220 10.379022</span></span>
+<span><span class="co">#&gt; 4    80  6.905800 0.1433822  6.555402  7.121222  6.436077  7.160627</span></span></code></pre></div>
 <p><code>include_obs_noise = TRUE</code> adds Gaussian observation noise
 with the MAP-estimated
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>σ</mi><annotation encoding="application/x-tex">\sigma</annotation></semantics></math>
@@ -456,7 +609,7 @@ ensemble</strong> <span class="citation">(<a href="#ref-Lakshminarayanan2017ense
 different random seeds produce an empirical posterior whose mean and
 variance approximate the Bayesian predictive posterior <span class="citation">(<a href="#ref-Wilson2020bayesian">Wilson and Izmailov
 2020</a>)</span>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/piml_neural_ode_fit_ensemble.html">piml_neural_ode_fit_ensemble</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span>,</span>
 <span>                                       K <span class="op">=</span> <span class="fl">5L</span>, epochs <span class="op">=</span> <span class="fl">300L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">ens</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>, interval <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></code></pre></div>
@@ -552,11 +705,6 @@ Raissi, M., P. Perdikaris, and G. E. Karniadakis. 2019.
 Solving Forward and Inverse Problems Involving Nonlinear Partial
 Differential Equations.”</span> <em>Journal of Computational
 Physics</em> 378: 686–707. <a href="https://doi.org/10.1016/j.jcp.2018.10.045" class="external-link">https://doi.org/10.1016/j.jcp.2018.10.045</a>.
-</div>
-<div id="ref-Soetaert2010desolve" class="csl-entry">
-Soetaert, K., T. Petzoldt, and R. W. Setzer. 2010. <em>Solving
-Differential Equations in <span>R</span>: Package deSolve</em>. Vol. 33.
-Journal of Statistical Software. <a href="https://doi.org/10.18637/jss.v033.i09" class="external-link">https://doi.org/10.18637/jss.v033.i09</a>.
 </div>
 <div id="ref-Willcox2021pinns" class="csl-entry">
 Willard, J., X. Jia, S. Xu, M. Steinbach, and V. Kumar. 2022.

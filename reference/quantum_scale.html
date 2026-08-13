@@ -3,7 +3,7 @@
 ZZFeatureMap is only expressive when features are on a compact
 range — the de-facto convention is [0, pi]."><meta property="og:description" content="Utility for preparing a feature matrix for quantum encoding. The
 ZZFeatureMap is only expressive when features are on a compact
-range — the de-facto convention is [0, pi]."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+range — the de-facto convention is [0, pi]."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ range — the de-facto convention is [0, pi]."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ range — the de-facto convention is [0, pi]."><meta property="og:image" content
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ range — the de-facto convention is [0, pi]."><meta property="og:image" content
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -126,9 +122,73 @@ range — the de-facto convention is <code>[0, pi]</code>.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Numeric matrix with the same dimensions as <code>X</code>, rescaled
-column-wise.</p>
+column-wise – except for a single-row <code>X</code>, which the underlying
+<code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply()</a></code> hands back as a plain named vector.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## A clay sweep at constant pH, in field units. Holding pH fixed</span></span></span>
+<span class="r-in"><span><span class="co">## isolates one covariate, and shows the constant-column rule: a</span></span></span>
+<span class="r-in"><span><span class="co">## column with no spread is sent to the midpoint (lower + upper) / 2.</span></span></span>
+<span class="r-in"><span><span class="va">clay</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">58</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>                      <span class="co"># % clay</span></span></span>
+<span class="r-in"><span><span class="va">raw</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>clay <span class="op">=</span> <span class="va">clay</span>, ph <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">6.0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">clay</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">X</span>    <span class="op">&lt;-</span> <span class="fu">quantum_scale</span><span class="op">(</span><span class="va">raw</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">X</span>, <span class="fl">2L</span>, <span class="va">range</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>   <span class="co"># clay -&gt; [0, pi]; pH -&gt; 1.5708 twice</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        clay     ph</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.0000 1.5708</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 3.1416 1.5708</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Why the rescaling is not cosmetic: the ZZFeatureMap encodes</span></span></span>
+<span class="r-in"><span><span class="co">## covariate i as Rz(2 x_i), so the kernel is PERIODIC in the</span></span></span>
+<span class="r-in"><span><span class="co">## covariate. With a single column the period is exactly pi, and two</span></span></span>
+<span class="r-in"><span><span class="co">## sites pi apart encode to the same state.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="quantum_kernel.html">quantum_kernel</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">0.7</span> <span class="op">+</span> <span class="va">pi</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span>, reps <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span><span class="co">#  1 -- not "similar", indistinguishable</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Fed raw, clay spans 46 units = 14.6 periods, and kernel similarity</span></span></span>
+<span class="r-in"><span><span class="co">## stops tracking soil similarity. Row 1 is the 12% clay site;</span></span></span>
+<span class="r-in"><span><span class="co">## columns 2, 12 and 23 are the 14%, 34% and 56% sites.</span></span></span>
+<span class="r-in"><span><span class="va">k_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="quantum_kernel.html">quantum_kernel</a></span><span class="op">(</span><span class="va">raw</span>, reps <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">k_sc</span>  <span class="op">&lt;-</span> <span class="fu"><a href="quantum_kernel.html">quantum_kernel</a></span><span class="op">(</span><span class="va">X</span>,   reps <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>raw    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">k_raw</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">12</span>, <span class="fl">23</span><span class="op">)</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span>,   <span class="co"># 0.2974 0.9967 0.9871</span></span></span>
+<span class="r-in"><span>      scaled <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">k_sc</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">12</span>, <span class="fl">23</span><span class="op">)</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 0.9368 0.0005 0.0033</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          [,1]   [,2]   [,3]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> raw    0.2974 0.9967 0.9871</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> scaled 0.9368 0.0005 0.0033</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Raw, it is the 34% and 56% sites that come back near-identical to</span></span></span>
+<span class="r-in"><span><span class="co">## the 12% site while its actual neighbour at 14% does not. Over the</span></span></span>
+<span class="r-in"><span><span class="co">## whole sweep the raw encoding carries no distance information:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>raw    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k_raw</span>, <span class="op">-</span><span class="op">(</span><span class="va">clay</span> <span class="op">-</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>,   <span class="co"># 0.0223</span></span></span>
+<span class="r-in"><span>  scaled <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k_sc</span>,  <span class="op">-</span><span class="op">(</span><span class="va">clay</span> <span class="op">-</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 0.5382</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    raw scaled </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0223 0.5382 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Read 0.5382 as "some", not "all". The ZZ kernel is not a distance</span></span></span>
+<span class="r-in"><span><span class="co">## kernel even on [0, pi] -- it revives at large gaps. Rescaling</span></span></span>
+<span class="r-in"><span><span class="co">## removes the exact aliasing; it does not buy monotonicity.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## TRAP -- the map is refitted from whatever you pass, so scaling a</span></span></span>
+<span class="r-in"><span><span class="co">## validation set on its own puts the same soil at a different angle.</span></span></span>
+<span class="r-in"><span><span class="co">## Carry the CALIBRATION range across instead of calling</span></span></span>
+<span class="r-in"><span><span class="co">## quantum_scale() a second time.</span></span></span>
+<span class="r-in"><span><span class="va">val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>clay <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">34</span>, <span class="fl">40</span><span class="op">)</span>, ph <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">6.0</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rng</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">raw</span><span class="op">[</span>, <span class="st">"clay"</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>own_map   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu">quantum_scale</span><span class="op">(</span><span class="va">val</span><span class="op">)</span><span class="op">[</span><span class="fl">2L</span>, <span class="st">"clay"</span><span class="op">]</span><span class="op">)</span>,   <span class="co"># 2.1991</span></span></span>
+<span class="r-in"><span>        train_map <span class="op">=</span> <span class="op">(</span><span class="fl">34</span> <span class="op">-</span> <span class="va">rng</span><span class="op">[</span><span class="fl">1L</span><span class="op">]</span><span class="op">)</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">rng</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>      <span class="co"># 1.5025</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   own_map train_map </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2.1991    1.5025 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## One site scaled on its own is doubly broken: range() has no spread</span></span></span>
+<span class="r-in"><span><span class="co">## so every covariate collapses to pi/2, and apply() drops the result</span></span></span>
+<span class="r-in"><span><span class="co">## to a vector rather than the 1-row matrix.</span></span></span>
+<span class="r-in"><span><span class="fu">quantum_scale</span><span class="op">(</span><span class="va">val</span><span class="op">[</span><span class="fl">1L</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     clay       ph </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.570796 1.570796 </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

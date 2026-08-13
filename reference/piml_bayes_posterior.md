@@ -50,3 +50,104 @@ piml_bayes_posterior(
 ## Value
 
 An `edaphos_posterior` with `method = "bayesian"`.
+
+## Examples
+
+``` r
+# Simulate a Latossolo SOC profile FROM the ODE the model fits, so
+# the true mean function g(z) is known and the band can be scored
+# against it rather than against the data it was fitted to.
+truth <- list(lambda0 = 0.045, mu = 0.012, y_inf = 5.5, y0 = 26)
+zobs  <- c(2.5, 7.5, 15, 25, 40, 60, 80, 100)
+set.seed(11)
+soc <- round(piml_profile_predict(truth, zobs) +
+               stats::rnorm(8L, sd = 0.8), 2)
+
+fit  <- piml_profile_fit_bayesian(zobs, soc, seed = 1)
+zg   <- seq(5, 95, by = 10)
+post <- piml_bayes_posterior(fit, newdepths = zg, seed = 1,
+                             units = "g/kg")
+post
+#> <edaphos_posterior>
+#>   method      : bayesian
+#>   query_type  : sample
+#>   units       : g/kg
+#>   n_samples   : 500
+#>   query shape : 10
+#>   mean range  : [+7.4433, +20.6762]  mean = +10.4696
+#>   sd   range  : [+0.5096, +1.8667]  mean = +0.9718
+
+# edaphos_posterior()'s default probs are 5 / 50 / 95, so q05..q95 is
+# a 90% band. It contains the true g(z) at 7 of the 10 depths --- and
+# depths within one profile are strongly correlated, so read that as
+# roughly one test, not ten.
+gz <- piml_profile_predict(truth, zg)
+sum(gz >= post$quantiles$q05 & gz <= post$quantiles$q95)
+#> [1] 8
+
+# The misses are not scatter. At 95 cm the Laplace posterior mean
+# sits at 9.116 g/kg where the truth is 7.100.
+round(c(post_mean = post$mean[10], truth = gz[10]), 3)
+#> post_mean     truth 
+#>     7.443     7.100 
+
+# include_obs_noise = FALSE is a band on the MEAN FUNCTION. It covers
+# a future observation at 2 of 10 depths; the noise-inflated version
+# covers 7. Never quote the first as a prediction interval.
+pn <- piml_bayes_posterior(fit, newdepths = zg, seed = 1,
+                           include_obs_noise = TRUE)
+set.seed(12)
+ynew <- gz + stats::rnorm(10L, sd = 0.8)
+c(mean_fn = sum(ynew >= post$quantiles$q05 & ynew <= post$quantiles$q95),
+  plus_noise = sum(ynew >= pn$quantiles$q05 & ynew <= pn$quantiles$q95))
+#>    mean_fn plus_noise 
+#>          9          9 
+
+# Same data, same seed, Metropolis instead of Laplace. Its band is
+# 2.3x NARROWER on average yet covers 10 of 10: narrower AND better,
+# because the Laplace Gaussian here is mis-centred rather than
+# over-confident. Width alone would have ranked the two backwards.
+fm <- piml_profile_fit_bayesian(zobs, soc, method = "mcmc",
+                                n_iter = 3000L, n_burn = 1000L, seed = 1)
+pm <- piml_bayes_posterior(fm, newdepths = zg, seed = 1)
+round(c(laplace = mean(post$quantiles$q95 - post$quantiles$q05),
+        mcmc    = mean(pm$quantiles$q95 - pm$quantiles$q05)), 3)
+#> laplace    mcmc 
+#>    3.08    2.28 
+c(laplace = sum(gz >= post$quantiles$q05 & gz <= post$quantiles$q95),
+  mcmc    = sum(gz >= pm$quantiles$q05 & gz <= pm$quantiles$q95))
+#> laplace    mcmc 
+#>       8      10 
+round(c(laplace = post$mean[10], mcmc = pm$mean[10], truth = gz[10]), 3)
+#> laplace    mcmc   truth 
+#>   7.443   7.764   7.100 
+
+# Where the mis-centring comes from: 8 horizons identify the ODE
+# coordinate y_inf (which the profile never attains) only weakly, and
+# the Gaussian approximation to that
+# skewed marginal is pulled upwards (6.795 against the true 5.5),
+# which is exactly the depths at which the band misses.
+round(rbind(laplace = subset(summary(fit), parameter == "y_inf",
+                             c("mean", "sd", "q2.5", "q97.5")),
+            mcmc    = subset(summary(fm), parameter == "y_inf",
+                             c("mean", "sd", "q2.5", "q97.5"))), 3)
+#>           mean     sd    q2.5 q97.5
+#> laplace -0.116 17.038 -43.496 7.781
+#> mcmc    -0.052 14.598 -45.168 8.395
+
+# `seed` is not bookkeeping: it fixes WHICH n_draws of the stored
+# draws are propagated. At n_draws = 50 the posterior mean at 30 cm
+# moves by 0.12 g/kg between two seeds.
+round(c(seed1 = piml_bayes_posterior(fit, 30, n_draws = 50L,
+                                     seed = 1)$mean,
+        seed2 = piml_bayes_posterior(fit, 30, n_draws = 50L,
+                                     seed = 2)$mean), 4)
+#>   seed1   seed2 
+#> 10.6754 10.6510 
+
+# One depth is tagged "feature", several are "sample".
+c(one = piml_bayes_posterior(fit, 30, seed = 1)$query_type,
+  many = post$query_type)
+#>       one      many 
+#> "feature"  "sample" 
+```

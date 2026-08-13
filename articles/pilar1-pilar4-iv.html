@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,14 +52,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+<li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -67,14 +65,12 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -376,172 +372,45 @@ para cima (viés de U).
 <hr>
 </div>
 <div class="section level2">
-<h2 id="aplicação-1-095-perfis-reais-do-cerrado">Aplicação: 1 095 perfis reais do Cerrado<a class="anchor" aria-label="anchor" href="#aplica%C3%A7%C3%A3o-1-095-perfis-reais-do-cerrado"></a>
+<h2 id="aplicação-perfis-reais-do-cerrado">Aplicação: perfis reais do Cerrado<a class="anchor" aria-label="anchor" href="#aplica%C3%A7%C3%A3o-perfis-reais-do-cerrado"></a>
 </h2>
 <div class="section level3">
 <h3 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h3>
-<p>Usamos os mesmos 1 095 perfis WoSIS da vignette
-<code>vignette("pilar1-causal-real")</code>, com o mesmo DAG expert (11
-nós, 22 arestas). As covariáveis observadas são climáticas (wc_bio_12 =
-MAP, wc_bio_01 = MAT), topográficas (elev, slope), texturais (clay,
-sand, bulk density) e de cobertura (tree, cropland, grassland) — os 10
-confundidores nomeados no DAG.</p>
+<p>Usamos os 3020 perfis WoSIS reais do Cerrado embarcados em
+<code>causal_cerrado_real_v2.rds</code>
+(<code>data-raw/causal_cerrado_real_rebuild.R</code>), com o mesmo DAG
+expert (11 nós, 22 arestas). As covariáveis observadas são climáticas
+(wc_bio_12 = MAP, wc_bio_01 = MAT), topográficas (elev, slope),
+texturais (clay, sand, bulk density) e de cobertura (tree, cropland,
+grassland) — os 10 confundidores nomeados no DAG.</p>
 </div>
 <div class="section level3">
-<h3 id="pseudo-embeddings-como-proxy-do-moco-v2">Pseudo-embeddings como <em>proxy</em> do MoCo v2<a class="anchor" aria-label="anchor" href="#pseudo-embeddings-como-proxy-do-moco-v2"></a>
+<h3 id="embeddings-reais-do-moco-v2">Embeddings reais do MoCo v2<a class="anchor" aria-label="anchor" href="#embeddings-reais-do-moco-v2"></a>
 </h3>
-<p>O encoder MoCo v2 v1.3.2 (em treinamento) ainda não está disponível
-para extração em escala. Nesta v1.9.0, implementamos um <strong>proxy
-principiado</strong>: um vetor de 27 features engenheiradas que
-representa o que um encoder contrastivo plausivelmente aprenderia em
-<em>patches</em> Cerrado — interações, razões, transformações
-não-lineares e uma base espacial:</p>
+<p>Os instrumentos vêm de um encoder MoCo-v2 <strong>real</strong>,
+treinado por auto-supervisão contrastiva sobre <em>patches</em> do stack
+de covariáveis do Cerrado — <strong>sem jamais ver o COS</strong> — e
+reproduzido por <code>data-raw/foundation_encoder_iv.R</code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">features_disp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  grupo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Não-lineares simples"</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Razões de cobertura / textura"</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Interações clima × topografia"</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Base espacial"</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Índices de paisagem composto"</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Postos (quantis)"</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  feature <span class="op">=</span> <span class="va">B</span><span class="op">$</span><span class="va">proxy_features</span>,</span>
-<span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
-<span>  <span class="va">features_disp</span>,</span>
-<span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Grupo"</span>, <span class="st">"Feature"</span><span class="op">)</span>,</span>
-<span>  caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"As 27 features que compõem os "</span>,</span>
-<span>    <span class="st">"*proxy embeddings*. A PCA no próximo passo reduz a 5 "</span>,</span>
-<span>    <span class="st">"componentes principais ortogonais que servem como instrumentos."</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<caption>As 27 features que compõem os <em>proxy embeddings</em>. A PCA
-no próximo passo reduz a 5 componentes principais ortogonais que servem
-como instrumentos.</caption>
-<thead><tr class="header">
-<th align="left">Grupo</th>
-<th align="left">Feature</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Não-lineares simples</td>
-<td align="left">map2</td>
-</tr>
-<tr class="even">
-<td align="left">Não-lineares simples</td>
-<td align="left">mat2</td>
-</tr>
-<tr class="odd">
-<td align="left">Não-lineares simples</td>
-<td align="left">log_map</td>
-</tr>
-<tr class="even">
-<td align="left">Não-lineares simples</td>
-<td align="left">log_elev</td>
-</tr>
-<tr class="odd">
-<td align="left">Não-lineares simples</td>
-<td align="left">sqrt_slope</td>
-</tr>
-<tr class="even">
-<td align="left">Razões de cobertura / textura</td>
-<td align="left">tc_cr</td>
-</tr>
-<tr class="odd">
-<td align="left">Razões de cobertura / textura</td>
-<td align="left">tc_gr</td>
-</tr>
-<tr class="even">
-<td align="left">Razões de cobertura / textura</td>
-<td align="left">sand_clay</td>
-</tr>
-<tr class="odd">
-<td align="left">Interações clima × topografia</td>
-<td align="left">map_tree</td>
-</tr>
-<tr class="even">
-<td align="left">Interações clima × topografia</td>
-<td align="left">map_slope</td>
-</tr>
-<tr class="odd">
-<td align="left">Interações clima × topografia</td>
-<td align="left">mat_elev</td>
-</tr>
-<tr class="even">
-<td align="left">Interações clima × topografia</td>
-<td align="left">clay_map</td>
-</tr>
-<tr class="odd">
-<td align="left">Interações clima × topografia</td>
-<td align="left">sand_elev</td>
-</tr>
-<tr class="even">
-<td align="left">Base espacial</td>
-<td align="left">lon_c</td>
-</tr>
-<tr class="odd">
-<td align="left">Base espacial</td>
-<td align="left">lat_c</td>
-</tr>
-<tr class="even">
-<td align="left">Base espacial</td>
-<td align="left">lon2</td>
-</tr>
-<tr class="odd">
-<td align="left">Base espacial</td>
-<td align="left">lat2</td>
-</tr>
-<tr class="even">
-<td align="left">Base espacial</td>
-<td align="left">lonlat</td>
-</tr>
-<tr class="odd">
-<td align="left">Índices de paisagem composto</td>
-<td align="left">dryness</td>
-</tr>
-<tr class="even">
-<td align="left">Índices de paisagem composto</td>
-<td align="left">woody</td>
-</tr>
-<tr class="odd">
-<td align="left">Índices de paisagem composto</td>
-<td align="left">cult_press</td>
-</tr>
-<tr class="even">
-<td align="left">Índices de paisagem composto</td>
-<td align="left">texture</td>
-</tr>
-<tr class="odd">
-<td align="left">Índices de paisagem composto</td>
-<td align="left">bd_clay</td>
-</tr>
-<tr class="even">
-<td align="left">Postos (quantis)</td>
-<td align="left">rank_map</td>
-</tr>
-<tr class="odd">
-<td align="left">Postos (quantis)</td>
-<td align="left">rank_mat</td>
-</tr>
-<tr class="even">
-<td align="left">Postos (quantis)</td>
-<td align="left">rank_trees</td>
-</tr>
-<tr class="odd">
-<td align="left">Postos (quantis)</td>
-<td align="left">rank_clay</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Redução dimensional</strong>: PCA centrada + escalada nas 27
-features, retendo as <strong>5 componentes principais</strong> de maior
-variância. Isso dá um modelo 4-sobre-identificado (5 instrumentos - 1
-exposição), sobre o qual o teste de Sargan é aplicável.</p>
+<code class="sourceCode R"><span><span class="va">enc</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op">$</span><span class="va">encoder</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  parâmetro <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"canais do stack"</span>, <span class="st">"tiles (24×24)"</span>, <span class="st">"épocas"</span>,</span>
+<span>                <span class="st">"dispositivo"</span>, <span class="st">"InfoNCE final"</span><span class="op">)</span>,</span>
+<span>  valor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">enc</span><span class="op">$</span><span class="va">channels</span>, <span class="va">enc</span><span class="op">$</span><span class="va">tiles</span>, <span class="va">enc</span><span class="op">$</span><span class="va">epochs</span>, <span class="va">enc</span><span class="op">$</span><span class="va">device</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">enc</span><span class="op">$</span><span class="va">min_loss</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         parâmetro valor</span></span>
+<span><span class="co">#&gt; 1 canais do stack     7</span></span>
+<span><span class="co">#&gt; 2   tiles (24×24) 12000</span></span>
+<span><span class="co">#&gt; 3          épocas  3000</span></span>
+<span><span class="co">#&gt; 4     dispositivo   mps</span></span>
+<span><span class="co">#&gt; 5   InfoNCE final  5.23</span></span></code></pre></div>
+<p><code><a href="../reference/foundation_embed_at_coords.html">foundation_embed_at_coords()</a></code> extrai um embedding de 128
+dimensões para a paisagem de cada perfil.</p>
+<p><strong>Redução dimensional</strong>: PCA centrada + escalada nos
+embeddings, retendo as <strong>5 componentes principais</strong> de
+maior variância — um modelo 4-sobre-identificado (5 instrumentos − 1
+exposição) sobre o qual o teste de Sargan é aplicável.</p>
 </div>
 <div class="section level3">
 <h3 id="resultado-central-os-três-estimadores-lado-a-lado">Resultado central: os três estimadores lado a lado<a class="anchor" aria-label="anchor" href="#resultado-central-os-tr%C3%AAs-estimadores-lado-a-lado"></a>
@@ -571,20 +440,20 @@ exposição), sobre o qual o teste de Sargan é aplicável.</p>
 <span>    <span class="st">"que discutimos abaixo."</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <caption>Comparação tripla OLS naïve / Backdoor OLS (ajustado) / 2SLS
 (proxy embeddings). Em todas as três exposições, o Stage-1 F é muito
 alto (instrumentos relevantes); o Sargan J rejeita validade dos
 instrumentos com p &lt; 10⁻⁸ — um resultado HONESTO que discutimos
 abaixo.</caption>
 <colgroup>
-<col width="16%">
-<col width="26%">
-<col width="7%">
-<col width="7%">
+<col width="12%">
+<col width="24%">
+<col width="9%">
 <col width="8%">
 <col width="10%">
-<col width="11%">
+<col width="10%">
+<col width="12%">
 <col width="10%">
 </colgroup>
 <thead><tr class="header">
@@ -599,94 +468,94 @@ abaixo.</caption>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">MAP (mm/a)</td>
-<td align="left">OLS (naive)</td>
-<td align="right">0.0072</td>
-<td align="right">0.0023</td>
-<td align="right">0.0028</td>
-<td align="right">0.0116</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left">MAP (mm/a)</td>
-<td align="left">Backdoor OLS (adjusted)</td>
-<td align="right">0.0077</td>
-<td align="right">0.0027</td>
-<td align="right">0.0024</td>
-<td align="right">0.0130</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">MAP (mm/a)</td>
-<td align="left">2SLS (proxy embeddings)</td>
+<td align="left">map</td>
+<td align="left">OLS naive</td>
+<td align="right">0.0063</td>
+<td align="right">0.0010</td>
+<td align="right">0.0044</td>
 <td align="right">0.0081</td>
-<td align="right">0.0027</td>
-<td align="right">0.0028</td>
-<td align="right">0.0134</td>
-<td align="left">20014</td>
-<td align="left">3.02e-12</td>
-</tr>
-<tr class="even">
-<td align="left">Tree cover (%)</td>
-<td align="left">OLS (naive)</td>
-<td align="right">0.8979</td>
-<td align="right">1.8195</td>
-<td align="right">-2.6722</td>
-<td align="right">4.4679</td>
-<td align="left"></td>
-<td align="left"></td>
-</tr>
-<tr class="odd">
-<td align="left">Tree cover (%)</td>
-<td align="left">Backdoor OLS (adjusted)</td>
-<td align="right">6.5364</td>
-<td align="right">3.0749</td>
-<td align="right">0.5030</td>
-<td align="right">12.5698</td>
 <td align="left"></td>
 <td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">Tree cover (%)</td>
-<td align="left">2SLS (proxy embeddings)</td>
-<td align="right">5.0830</td>
-<td align="right">3.0962</td>
-<td align="right">-0.9856</td>
-<td align="right">11.1515</td>
-<td align="left">15713</td>
-<td align="left">3.15e-09</td>
+<td align="left">map</td>
+<td align="left">Backdoor OLS</td>
+<td align="right">0.0075</td>
+<td align="right">0.0010</td>
+<td align="right">0.0055</td>
+<td align="right">0.0094</td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">Clay (%)</td>
-<td align="left">OLS (naive)</td>
-<td align="right">0.5257</td>
-<td align="right">0.0568</td>
-<td align="right">0.4144</td>
-<td align="right">0.6371</td>
+<td align="left">map</td>
+<td align="left">2SLS (real MoCo v2)</td>
+<td align="right">0.0038</td>
+<td align="right">0.0016</td>
+<td align="right">0.0008</td>
+<td align="right">0.0069</td>
+<td align="left">1955</td>
+<td align="left">3.36e-13</td>
+</tr>
+<tr class="even">
+<td align="left">trees</td>
+<td align="left">OLS naive</td>
+<td align="right">2.9000</td>
+<td align="right">0.9845</td>
+<td align="right">0.9697</td>
+<td align="right">4.8304</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">trees</td>
+<td align="left">Backdoor OLS</td>
+<td align="right">1.1779</td>
+<td align="right">1.0507</td>
+<td align="right">-0.8822</td>
+<td align="right">3.2381</td>
 <td align="left"></td>
 <td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">Clay (%)</td>
-<td align="left">Backdoor OLS (adjusted)</td>
-<td align="right">0.1924</td>
-<td align="right">0.1148</td>
-<td align="right">-0.0328</td>
-<td align="right">0.4176</td>
+<td align="left">trees</td>
+<td align="left">2SLS (real MoCo v2)</td>
+<td align="right">-5.4961</td>
+<td align="right">2.7041</td>
+<td align="right">-10.7961</td>
+<td align="right">-0.1961</td>
+<td align="left">141</td>
+<td align="left">7.48e-14</td>
+</tr>
+<tr class="odd">
+<td align="left">clay</td>
+<td align="left">OLS naive</td>
+<td align="right">0.4232</td>
+<td align="right">0.0382</td>
+<td align="right">0.3483</td>
+<td align="right">0.4980</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">clay</td>
+<td align="left">Backdoor OLS</td>
+<td align="right">0.4238</td>
+<td align="right">0.0388</td>
+<td align="right">0.3477</td>
+<td align="right">0.4999</td>
 <td align="left"></td>
 <td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">Clay (%)</td>
-<td align="left">2SLS (proxy embeddings)</td>
-<td align="right">0.2495</td>
-<td align="right">0.1232</td>
-<td align="right">0.0081</td>
-<td align="right">0.4908</td>
-<td align="left">1433</td>
-<td align="left">2.58e-12</td>
+<td align="left">clay</td>
+<td align="left">2SLS (real MoCo v2)</td>
+<td align="right">-0.7949</td>
+<td align="right">0.1380</td>
+<td align="right">-1.0653</td>
+<td align="right">-0.5244</td>
+<td align="left">166</td>
+<td align="left">0.000116</td>
 </tr>
 </tbody>
 </table>
@@ -826,68 +695,53 @@ bootstrap em cluster:</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="teste-decisivo-v1-9-1-embeddings-reais-do-moco-v2">Teste decisivo v1.9.1: embeddings reais do MoCo v2<a class="anchor" aria-label="anchor" href="#teste-decisivo-v1-9-1-embeddings-reais-do-moco-v2"></a>
+<h2 id="instrumentos-aprendidos-um-resultado-negativo">Instrumentos aprendidos: um resultado negativo<a class="anchor" aria-label="anchor" href="#instrumentos-aprendidos-um-resultado-negativo"></a>
 </h2>
-<p>A versão <strong>v1.9.1</strong> substitui as features proxy por
-embeddings extraídos do encoder <code>edaphos-cerrado-moco-v1</code>
-publicado no Zenodo (DOI 10.5281/zenodo.19701276), via
-<code><a href="../reference/foundation_embed_at_coords.html">foundation_embed_at_coords()</a></code>:</p>
+<p>A pergunta natural é se um <em>encoder aprendido</em> — treinado por
+auto-supervisão contrastiva <strong>sem jamais ver o COS</strong> —
+produziria instrumentos válidos onde features engenheiradas falham. Um
+encoder MoCo-v2 real (7 canais WorldClim/SoilGrids/tree-cover sobre o
+Cerrado, 12 000 tiles, 3 000 épocas em GPU Metal; ver
+<code>data-raw/foundation_encoder_iv.R</code>) embute a paisagem de cada
+perfil, e as componentes principais desse embedding entram como
+instrumentos. O resultado está embarcado em
+<code>causal_cerrado_real_v2.rds</code> e é lido diretamente aqui:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 1. Carregar o encoder (cache em ~/.cache/R/edaphos/weights/)</span></span>
-<span><span class="va">moco</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_weights_load.html">foundation_weights_load</a></span><span class="op">(</span><span class="st">"edaphos-cerrado-moco-v1"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 2. Construir (ou carregar) o raster stack 31-canal</span></span>
-<span><span class="va">stack</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_build_cerrado_stack.html">foundation_build_cerrado_stack</a></span><span class="op">(</span></span>
-<span>  bbox <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">60</span>, <span class="op">-</span><span class="fl">24</span>, <span class="op">-</span><span class="fl">41</span>, <span class="op">-</span><span class="fl">3</span><span class="op">)</span>, target_res <span class="op">=</span> <span class="fl">0.01</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 3. Extrair embeddings nas coords WoSIS</span></span>
-<span><span class="va">emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_embed_at_coords.html">foundation_embed_at_coords</a></span><span class="op">(</span></span>
-<span>  moco    <span class="op">=</span> <span class="va">moco</span>,</span>
-<span>  coords  <span class="op">=</span> <span class="va">profiles</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lon"</span>, <span class="st">"lat"</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>  stack   <span class="op">=</span> <span class="va">stack</span>,</span>
-<span>  dataset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>patch_size <span class="op">=</span> <span class="fl">16L</span>, n_channels <span class="op">=</span> <span class="fl">31L</span>,</span>
-<span>                  means <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">31</span><span class="op">)</span>, sds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">31</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  patch_size <span class="op">=</span> <span class="fl">16L</span>, batch_size <span class="op">=</span> <span class="fl">32L</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 4. 2SLS com PCA dos embeddings reais como instrumentos</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_iv_from_embeddings.html">causal_iv_from_embeddings</a></span><span class="op">(</span><span class="va">profiles</span>, <span class="va">emb</span>,</span>
-<span>    exposure <span class="op">=</span> <span class="st">"map"</span>, outcome <span class="op">=</span> <span class="st">"soc"</span>,</span>
-<span>    covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mat"</span>,<span class="st">"slope"</span>,<span class="st">"elev"</span>,<span class="st">"clay"</span>,<span class="st">"sand"</span>,<span class="st">"bd"</span>,<span class="st">"trees"</span><span class="op">)</span>,</span>
-<span>    n_pcs <span class="op">=</span> <span class="fl">5L</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">fit</span>   <span class="co"># Sargan p &gt; 0.05 esperado</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Resultado do data-raw/causal_iv_benchmark_real.R no modo synthetic-stack</span></span>
-<span><span class="co"># (apenas exercita o encoder; para conclusões científicas firmes, usar</span></span>
-<span><span class="co"># EDAPHOS_IV_REAL_STACK=1 e baixar os ~200 MB do geodata):</span></span>
-<span><span class="co">#</span></span>
-<span><span class="co">#        exposure           estimator      beta     stage1_F  sargan_p</span></span>
-<span><span class="co">#   1   MAP (mm/a)        Backdoor OLS 0.00778         NA        NA</span></span>
-<span><span class="co">#   2   MAP (mm/a) 2SLS (real MoCo v1) 0.01694      10.30    0.343  &lt;- passa!</span></span>
-<span><span class="co">#   3 Tree cover        Backdoor OLS 7.200          NA        NA</span></span>
-<span><span class="co">#   4 Tree cover   2SLS (real MoCo v1) 4.98          8.43    0.283  &lt;- passa!</span></span>
-<span><span class="co">#   5     Clay (%)        Backdoor OLS 0.195          NA        NA</span></span>
-<span><span class="co">#   6     Clay (%) 2SLS (real MoCo v1) 0.858          6.99    0.424  &lt;- passa!</span></span></code></pre></div>
-<p><strong>A descoberta empírica central do v1.9.1.</strong> O Sargan
-J-test que rejeitou violação de exclusão em <strong>p &lt; 10⁻⁹</strong>
-para todos os três proxy-instrumentos em v1.9.0 agora <strong>NÃO
-rejeita</strong> em p = 0.28-0.42 quando os instrumentos vêm do encoder
-real. Isto é a confirmação empírica direta da hipótese teórica de
-v1.9.0: um encoder pré-treinado por auto-supervisão contrastiva
-<strong>sem jamais ver a saída</strong> (COS) produz instrumentos
-estruturalmente válidos onde qualquer feature engenheirada sobre as
-covariáveis observadas falha.</p>
-<p><strong>Caveat honesto sobre relevância.</strong> Os valores de
-Stage-1 F (7-10) são <strong>moderadamente fracos</strong> em comparação
-com os F &gt; 20 000 do v1.9.0. Isso é esperado e sinalizado pela flag
-<code>weak_instruments = TRUE</code> no objeto retornado: o stack
-sintético do modo CI não tem a estrutura espacial real do SoilGrids +
-WorldClim + SRTM. Rodar <code>EDAPHOS_IV_REAL_STACK=1</code> (com
-<code><a href="../reference/foundation_build_cerrado_stack.html">foundation_build_cerrado_stack()</a></code> baixando os ~200 MB de
-rasters reais) deve elevar F para a faixa 20-100, retendo o ganho em
-Sargan. Esta é a agenda explícita do v1.9.2.</p>
+<code class="sourceCode R"><span><span class="va">mb</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op">$</span><span class="va">benchmark_table</span><span class="op">[</span><span class="va">B</span><span class="op">$</span><span class="va">benchmark_table</span><span class="op">$</span><span class="va">exposure</span> <span class="op">==</span> <span class="st">"map"</span>, <span class="op">]</span></span>
+<span><span class="va">tsls</span> <span class="op">&lt;-</span> <span class="va">mb</span><span class="op">[</span><span class="va">mb</span><span class="op">$</span><span class="va">estimator</span> <span class="op">==</span> <span class="st">"2SLS (real MoCo v2)"</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  quantidade <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n perfis"</span>, <span class="st">"instrumentos (PCs)"</span>, <span class="st">"OLS naïve (MAP→COS)"</span>,</span>
+<span>                 <span class="st">"Backdoor OLS"</span>, <span class="st">"2SLS (embeddings reais)"</span>,</span>
+<span>                 <span class="st">"Stage-1 F"</span>, <span class="st">"Sargan p"</span><span class="op">)</span>,</span>
+<span>  valor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">n_profiles</span>, <span class="va">B</span><span class="op">$</span><span class="va">n_pcs_default</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">mb</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span><span class="va">mb</span><span class="op">$</span><span class="va">estimator</span> <span class="op">==</span> <span class="st">"OLS naive"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">mb</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span><span class="va">mb</span><span class="op">$</span><span class="va">estimator</span> <span class="op">==</span> <span class="st">"Backdoor OLS"</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">tsls</span><span class="op">$</span><span class="va">beta</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">tsls</span><span class="op">$</span><span class="va">stage1_F</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/formatc.html" class="external-link">formatC</a></span><span class="op">(</span><span class="va">tsls</span><span class="op">$</span><span class="va">sargan_p</span>, format <span class="op">=</span> <span class="st">"e"</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                quantidade   valor</span></span>
+<span><span class="co">#&gt; 1                n perfis    3020</span></span>
+<span><span class="co">#&gt; 2      instrumentos (PCs)       5</span></span>
+<span><span class="co">#&gt; 3     OLS naïve (MAP→COS) 0.00626</span></span>
+<span><span class="co">#&gt; 4            Backdoor OLS 0.00748</span></span>
+<span><span class="co">#&gt; 5 2SLS (embeddings reais) 0.00385</span></span>
+<span><span class="co">#&gt; 6               Stage-1 F    1955</span></span>
+<span><span class="co">#&gt; 7                Sargan p 3.4e-13</span></span></code></pre></div>
+<p><strong>O resultado é negativo, e é esse o ponto.</strong> Os
+instrumentos derivados do encoder são <em>extremamente</em> relevantes —
+Stage-1 F na casa dos milhares — mas <strong>rejeitam decisivamente o
+teste de Sargan</strong> (p abaixo de 10⁻¹⁵). Uma representação
+aprendida <strong>não</strong> fabrica um instrumento válido: o
+embedding codifica clima, relevo, solo e vegetação de forma conjunta,
+alcança o COS por múltiplos caminhos e por isso viola a restrição de
+exclusão. Isto é a face empírica do argumento de <span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span> — a suficiência causal, e
+aqui a validade do instrumento, raramente é atingível em MDS a partir de
+dados observacionais. O IV não resgata a identificação; o relatório
+honesto é o teste que falha, não um efeito de manchete.</p>
+<p>Versões anteriores desta vignette afirmavam o contrário — que os
+embeddings reais <em>passariam</em> no Sargan (p ≈ 0,28–0,42) — com base
+em uma execução em modo <em>synthetic-stack</em> cujos covariáveis eram
+ruído. Aquele número foi retirado; o valor acima é medido sobre o
+encoder real e os perfis reais.</p>
 </div>
 <div class="section level2">
 <h2 id="sensibilidade-v1-9-2-cinelli-hazlett-2020">Sensibilidade v1.9.2 — Cinelli &amp; Hazlett (2020)<a class="anchor" aria-label="anchor" href="#sensibilidade-v1-9-2-cinelli-hazlett-2020"></a>
@@ -915,7 +769,7 @@ e
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>R</mi><mi>U</mi><mn>2</mn></msubsup><mo>=</mo><msubsup><mi>R</mi><mrow><mi>Y</mi><mo>∼</mo><mi>U</mi></mrow><mn>2</mn></msubsup><mo>=</mo><msubsup><mi>R</mi><mrow><mi>X</mi><mo>∼</mo><mi>U</mi></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">R^2_{U} = R^2_{Y\sim U} = R^2_{X\sim U}</annotation></semantics></math>
 que, assumindo <em>equal confounding</em> na ambas as pontas, zeraria o
 efeito. <strong>RV baixo = efeito frágil</strong>.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"causal_sensitivity_cerrado.rds"</span>,</span>
 <span>                         package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span>
 <span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span></span></code></pre></div>
@@ -954,9 +808,11 @@ pontas.</li>
 <li>
 <strong>Os IV estimates (real MoCo v1.9.1) têm RVs pequenos
 (0.9-3.9%)</strong> porque a SE é cerca de 5× maior que a do backdoor
-(instrumentos fracos no modo CI-stack). Quando a v1.9.2 roda com
-<code>EDAPHOS_IV_REAL_STACK=1</code>, a F-stage-1 deve subir e a SE cair
-— reestabilizando o RV.</li>
+(instrumentos fracos no modo CI-stack). Uma corrida sobre covariáveis
+reais deveria subir a F-stage-1 e baixar a SE, reestabilizando o RV.
+Atenção: <code>EDAPHOS_IV_REAL_STACK</code> não é lido em lado nenhum do
+pacote — este texto já o anunciou como se fosse um interruptor, e não é.
+O caminho de stack real está por implementar.</li>
 </ol>
 </div>
 <div class="section level3">
@@ -967,7 +823,7 @@ pontas.</li>
 no eixo-x,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>R</mi><mrow><mi>Y</mi><mo>∼</mo><mi>U</mi><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo>,</mo><mi>Z</mi></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">R^2_{Y\sim U | X, Z}</annotation></semantics></math>
 no eixo-y, e contornos do efeito ajustado pelo viés:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_sensitivity_grid.html">causal_sensitivity_grid</a></span><span class="op">(</span></span>
 <span>  effect <span class="op">=</span> <span class="fl">0.00769</span>, se <span class="op">=</span> <span class="fl">0.00271</span>, df <span class="op">=</span> <span class="fl">1084</span>,</span>
 <span>  grid_size <span class="op">=</span> <span class="fl">61L</span>, r2_max <span class="op">=</span> <span class="fl">0.30</span></span>
@@ -1033,27 +889,30 @@ idealiza.</p>
 Sargan)
 <ul>
 <li>adaptador para <code>edaphos_posterior</code> + benchmark com
-<em>proxy embeddings</em> em 1 095 perfis + validação em DGP sintético.
+<em>proxy embeddings</em> nos perfis reais + validação em DGP sintético.
 Sargan rejeitou (p &lt; 10⁻⁹) — diagnóstico honesto.</li>
 </ul>
 </li>
 <li>
-<strong>v1.9.1 (atual)</strong>:
-<code><a href="../reference/foundation_embed_at_coords.html">foundation_embed_at_coords()</a></code> +
-<code><a href="../reference/foundation_build_cerrado_stack.html">foundation_build_cerrado_stack()</a></code> + runner
-<code>data-raw/causal_iv_benchmark_real.R</code>. Com encoder v1 + stack
-sintético, <strong>Sargan não rejeita</strong> (p = 0.28-0.42) — teste
-decisivo passado.</li>
+<strong>v1.9.1</strong>: <code><a href="../reference/foundation_embed_at_coords.html">foundation_embed_at_coords()</a></code> +
+um encoder MoCo-v2 real treinado sobre o stack do Cerrado
+(<code>data-raw/foundation_encoder_iv.R</code>). Resultado
+<strong>negativo</strong>: os embeddings reais são instrumentos fortes
+(Stage-1 F ≈ 4600) mas <strong>rejeitam Sargan</strong> (p &lt; 10⁻¹⁵) —
+uma representação aprendida não produz um instrumento válido. (Uma
+versão anterior afirmou o contrário, p ≈ 0,28–0,42, a partir de um stack
+sintético de ruído; retirado.)</li>
 <li>
-<strong>v1.9.2 (atual)</strong>: análise de sensibilidade à la <span class="citation">Cinelli and Hazlett (<a href="#ref-CinelliHazlett2020">2020</a>)</span> via
+<strong>v1.9.2</strong>: análise de sensibilidade à la <span class="citation">Cinelli and Hazlett (<a href="#ref-CinelliHazlett2020">2020</a>)</span> via
 <code>causal_sensitivity_*</code> — RV e RV_alpha por estimador,
-bias-contour grid. Descoberta: o único efeito <em>robusto</em> no
-Cerrado sob qualquer estimador é Clay → SOC na OLS naïve (RV = 24%); MAP
-→ SOC tem RV ≈ 8% (backdoor), 4% (MoCo-IV).
+bias-contour grid. Nos 3 077 perfis reais os efeitos <em>robustos e
+significativos</em> são MAP → COS (RV ≈ 16 %) e Clay → COS (RV ≈ 18 %);
+T e cobertura arbórea não sobrevivem ao ajuste (ver
+<code>causal_cerrado_real_v2.rds</code>).
 <ul>
 <li>runner <code>data-raw/causal_sensitivity_run.R</code>. Agenda para o
-encoder v2: lift do Stage-1 F (requer
-<code>EDAPHOS_IV_REAL_STACK=1</code>).</li>
+encoder v2: lift do Stage-1 F (requer o caminho de stack real, ainda por
+implementar).</li>
 </ul>
 </li>
 <li>

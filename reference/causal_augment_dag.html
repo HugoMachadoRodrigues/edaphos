@@ -13,7 +13,7 @@ confidence is at least min_confidence. Duplicate edges are
 dropped silently, and any edge whose insertion would introduce a
 directed cycle is rejected (warned but not inserted), so the
 returned DAG is guaranteed to be acyclic and usable for
-causal_adjustment_set()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+causal_adjustment_set()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -39,7 +39,7 @@ causal_adjustment_set()."><meta property="og:image" content="https://hugomachado
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,14 +50,12 @@ causal_adjustment_set()."><meta property="og:image" content="https://hugomachado
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -65,14 +63,12 @@ causal_adjustment_set()."><meta property="og:image" content="https://hugomachado
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -156,6 +152,59 @@ when the analyst wants to lock the structural vocabulary.</p></dd>
     <p>An object of class <code>dagitty</code>, augmented.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"dagitty"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_cerrado_dag.html">causal_cerrado_dag</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># 13 edges over the br_cerrado columns</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Three claims of the shape an LLM extractor returns: one</span></span></span>
+<span class="r-in"><span>  <span class="co"># plausible, one read backwards, one weakly supported.</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"elev"</span>, <span class="st">"ndvi"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"altitudinal zonation"</span>,</span></span>
+<span class="r-in"><span>                           confidence <span class="op">=</span> <span class="fl">0.92</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"soc"</span>, <span class="st">"map_mm"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"mis-extracted direction"</span>,</span></span>
+<span class="r-in"><span>                           confidence <span class="op">=</span> <span class="fl">0.99</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="st">"fire_frequency"</span>, <span class="st">"soc"</span>,</span></span>
+<span class="r-in"><span>                           source <span class="op">=</span> <span class="st">"single-site study"</span>,</span></span>
+<span class="r-in"><span>                           confidence <span class="op">=</span> <span class="fl">0.45</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># At the default threshold the 0.45 fire claim is never</span></span></span>
+<span class="r-in"><span>  <span class="co"># considered. The 0.99 reversed claim is, and is then thrown out</span></span></span>
+<span class="r-in"><span>  <span class="co"># by the acyclicity guard (with a warning) because base already</span></span></span>
+<span class="r-in"><span>  <span class="co"># has map_mm -&gt; soc. Only elev -&gt; ndvi is actually added.</span></span></span>
+<span class="r-in"><span>  <span class="va">aug</span> <span class="op">&lt;-</span> <span class="fu">causal_augment_dag</span><span class="op">(</span><span class="va">base</span>, <span class="va">kg</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attributes.html" class="external-link">attributes</a></span><span class="op">(</span><span class="va">aug</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n_base_edges"</span>, <span class="st">"n_added_edges"</span>,</span></span>
+<span class="r-in"><span>                                 <span class="st">"n_rejected"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Note what that implies: confidence 0.99 bought nothing and</span></span></span>
+<span class="r-in"><span>  <span class="co"># confidence 0.92 bought an edge. `min_confidence` ranks claims,</span></span></span>
+<span class="r-in"><span>  <span class="co"># it never weighs them -- an edge is either in or out.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Lowering the threshold buys the fire claim, and with it a node</span></span></span>
+<span class="r-in"><span>  <span class="co"># that no column of br_cerrado measures.</span></span></span>
+<span class="r-in"><span>  <span class="va">loose</span> <span class="op">&lt;-</span> <span class="fu">causal_augment_dag</span><span class="op">(</span><span class="va">base</span>, <span class="va">kg</span>, min_confidence <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">loose</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">base</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># allow_new_nodes = FALSE locks the structural vocabulary, so</span></span></span>
+<span class="r-in"><span>  <span class="co"># that edge is dropped again even though it cleared the</span></span></span>
+<span class="r-in"><span>  <span class="co"># threshold.</span></span></span>
+<span class="r-in"><span>  <span class="va">locked</span> <span class="op">&lt;-</span> <span class="fu">causal_augment_dag</span><span class="op">(</span><span class="va">base</span>, <span class="va">kg</span>, min_confidence <span class="op">=</span> <span class="fl">0.4</span>,</span></span>
+<span class="r-in"><span>                               allow_new_nodes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">locked</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">base</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Rejected 1 edge(s) that would have introduced a directed cycle: soc -&gt; map_mm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_base_edges n_added_edges    n_rejected </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            13             1             1 </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Rejected 1 edge(s) that would have introduced a directed cycle: soc -&gt; map_mm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "fire_frequency"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Rejected 1 edge(s) that would have introduced a directed cycle: soc -&gt; map_mm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> character(0)</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

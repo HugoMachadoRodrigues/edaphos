@@ -5,7 +5,7 @@ probability for each backend.  Useful for offline reproducibility
 and CI builds where real LLM APIs are unreachable."><meta property="og:description" content="Produces a realistic noisy extraction from a gold-standard data
 frame by sampling recall, false-positive rate and label-mutation
 probability for each backend.  Useful for offline reproducibility
-and CI builds where real LLM APIs are unreachable."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+and CI builds where real LLM APIs are unreachable."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ and CI builds where real LLM APIs are unreachable."><meta property="og:image" co
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ and CI builds where real LLM APIs are unreachable."><meta property="og:image" co
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ and CI builds where real LLM APIs are unreachable."><meta property="og:image" co
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -130,12 +126,16 @@ and CI builds where real LLM APIs are unreachable.</p>
 
 
 <dt id="arg-recall">recall<a class="anchor" aria-label="anchor" href="#arg-recall"></a></dt>
-<dd><p>Probability of keeping a gold claim.</p></dd>
+<dd><p>Probability of keeping a gold claim. This is the
+sampling probability, not the recall you will measure: mutation
+happens after sampling, so the realised recall is lower.</p></dd>
 
 
 <dt id="arg-precision-target">precision_target<a class="anchor" aria-label="anchor" href="#arg-precision-target"></a></dt>
-<dd><p>Implicit: FP rate calibrated so precision
-lands near this target.</p></dd>
+<dd><p>Used only to derive the false-positive
+rate, assuming no mutation. With <code>mutate_rate &gt; 0</code> the realised
+precision falls below this target, because every mutated endpoint
+converts a true positive into a false positive.</p></dd>
 
 
 <dt id="arg-mutate-rate">mutate_rate<a class="anchor" aria-label="anchor" href="#arg-mutate-rate"></a></dt>
@@ -143,12 +143,15 @@ lands near this target.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional RNG seed.</p></dd>
+<dd><p>Optional RNG seed. Pass one: without it the output,
+including its row count, differs between calls.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Data frame with the same columns as <code>gold</code> plus <code>confidence</code>.</p>
+    <p>Data frame with columns <code>abstract_id</code>, <code>cause</code>, <code>effect</code>
+and <code>confidence</code>. Any other column of <code>gold</code> (<code>polarity</code>, for
+instance) is dropped.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -158,6 +161,72 @@ benchmarks for the three backends (Gemma 4, GPT-4o-mini,
 Claude Sonnet-4.5) on soil-science causal-claim extraction.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">res_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"llm_benchmark_results.rds"</span>,</span></span>
+<span class="r-in"><span>                        package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Always pass `seed`.  Without one even the row count moves.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu">llm_benchmark_simulate</span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">gold_df</span>, seed <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  <span class="fu">llm_benchmark_simulate</span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">gold_df</span>, seed <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The shipped benchmark bundle IS this function, not an API call:</span></span></span>
+<span class="r-in"><span>  <span class="co"># replaying the Gemma 4 profile from data-raw/llm_benchmark_run.R</span></span></span>
+<span class="r-in"><span>  <span class="co"># reproduces its row of `metrics_table` to the digit.</span></span></span>
+<span class="r-in"><span>  <span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">llm_benchmark_simulate</span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">gold_df</span>, recall <span class="op">=</span> <span class="fl">0.80</span>,</span></span>
+<span class="r-in"><span>                                precision_target <span class="op">=</span> <span class="fl">0.85</span>,</span></span>
+<span class="r-in"><span>                                mutate_rate <span class="op">=</span> <span class="fl">0.06</span>, seed <span class="op">=</span> <span class="fl">101L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="llm_benchmark_metrics.html">llm_benchmark_metrics</a></span><span class="op">(</span><span class="fu"><a href="llm_benchmark_match.html">llm_benchmark_match</a></span><span class="op">(</span><span class="va">sim</span>, <span class="va">B</span><span class="op">$</span><span class="va">gold_df</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    replayed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"precision"</span>, <span class="st">"recall"</span>, <span class="st">"f1"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    shipped  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      <span class="va">B</span><span class="op">$</span><span class="va">metrics_table</span><span class="op">[</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"precision"</span>, <span class="st">"recall"</span>, <span class="st">"f1"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `recall` and `precision_target` are knobs on the sampler, not</span></span></span>
+<span class="r-in"><span>  <span class="co"># properties of the output: 0.80 and 0.85 in give 0.667 and 0.750</span></span></span>
+<span class="r-in"><span>  <span class="co"># out.  `mutate_rate` is why -- it corrupts endpoint labels AFTER</span></span></span>
+<span class="r-in"><span>  <span class="co"># sampling, so each mutation costs one TP and adds one FP, pushing</span></span></span>
+<span class="r-in"><span>  <span class="co"># both metrics down at once.</span></span></span>
+<span class="r-in"><span>  <span class="kw">for</span> <span class="op">(</span><span class="va">mr</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.05</span>, <span class="fl">0.20</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">llm_benchmark_simulate</span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">gold_df</span>, recall <span class="op">=</span> <span class="fl">0.82</span>,</span></span>
+<span class="r-in"><span>                                precision_target <span class="op">=</span> <span class="fl">0.90</span>,</span></span>
+<span class="r-in"><span>                                mutate_rate <span class="op">=</span> <span class="va">mr</span>, seed <span class="op">=</span> <span class="fl">7L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="llm_benchmark_metrics.html">llm_benchmark_metrics</a></span><span class="op">(</span><span class="fu"><a href="llm_benchmark_match.html">llm_benchmark_match</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">B</span><span class="op">$</span><span class="va">gold_df</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"mutate_rate %.2f -&gt; precision %.4f (target 0.90)\n"</span>,</span></span>
+<span class="r-in"><span>                <span class="va">mr</span>, <span class="va">mm</span><span class="op">$</span><span class="va">precision</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The mutation writes "&lt;label&gt;_alt", four edits away, so the</span></span></span>
+<span class="r-in"><span>  <span class="co"># default fuzzy_threshold of 2 recovers none of it and a threshold</span></span></span>
+<span class="r-in"><span>  <span class="co"># of 4 recovers all of it: F1 0.706 -&gt; 0.824.  That single line of</span></span></span>
+<span class="r-in"><span>  <span class="co"># the scoring rule moves F1 further (+0.118) than the whole spread</span></span></span>
+<span class="r-in"><span>  <span class="co"># between the three simulated backends (0.116).  Fix the rule</span></span></span>
+<span class="r-in"><span>  <span class="co"># before you compare models.</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"stringdist"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2L</span>, <span class="fl">4L</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">th</span><span class="op">)</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="llm_benchmark_metrics.html">llm_benchmark_metrics</a></span><span class="op">(</span><span class="fu"><a href="llm_benchmark_match.html">llm_benchmark_match</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="va">sim</span>, <span class="va">B</span><span class="op">$</span><span class="va">gold_df</span>, fuzzy_threshold <span class="op">=</span> <span class="va">th</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">f1</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `polarity` does not survive, although it is right there in the</span></span></span>
+<span class="r-in"><span>  <span class="co"># gold frame -- so a downstream KG built from simulated claims</span></span></span>
+<span class="r-in"><span>  <span class="co"># cannot be scored on the sign of the effect, only on its</span></span></span>
+<span class="r-in"><span>  <span class="co"># existence.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          precision recall     f1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> replayed      0.75 0.6667 0.7059</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> shipped       0.75 0.6667 0.7059</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mutate_rate 0.00 -&gt; precision 0.8696 (target 0.90)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mutate_rate 0.05 -&gt; precision 0.8261 (target 0.90)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mutate_rate 0.20 -&gt; precision 0.6377 (target 0.90)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7059 0.8235</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "abstract_id" "cause"       "effect"      "confidence" </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

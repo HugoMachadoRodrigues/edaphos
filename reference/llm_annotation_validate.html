@@ -5,7 +5,7 @@ fields, that cause / effect belong to the canonical vocabulary
 "-", and that confidence is in [0, 1].'><meta property="og:description" content='Checks every record for required fields, every claim for required
 fields, that cause / effect belong to the canonical vocabulary
 (unless strict_vocab = FALSE), that polarity is "+" or
-"-", and that confidence is in [0, 1].'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+"-", and that confidence is in [0, 1].'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ fields, that cause / effect belong to the canonical vocabulary
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ fields, that cause / effect belong to the canonical vocabulary
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ fields, that cause / effect belong to the canonical vocabulary
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -133,6 +129,68 @@ or <code>effect</code> outside <code><a href="llm_annotation_vocabulary.html">ll
 and <code>summary</code> (data frame with per-record counts).</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_gold_standard_v1.jsonl"</span>,</span></span>
+<span class="r-in"><span>                  package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu">llm_annotation_validate</span><span class="op">(</span><span class="va">gs</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">v</span><span class="op">$</span><span class="va">ok</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The v1 seed: 30 abstracts, 72 claims, 1 to 5 claims each, clean</span></span></span>
+<span class="r-in"><span><span class="co"># under the strict vocabulary.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>records <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span>, claims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">n_claims</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> records  claims </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      30      72 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">n_claims</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 5</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A file with one of each failure mode.  The second record has no</span></span></span>
+<span class="r-in"><span><span class="co"># `claims` key at all.</span></span></span>
+<span class="r-in"><span><span class="va">bad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"bad.jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'{"abstract_id":"BAD_01","abstract_text":"Tree cover raised SOC.",'</span>,</span></span>
+<span class="r-in"><span>         <span class="st">'"claims":[{"cause":"tree_cover","effect":"soc",'</span>,</span></span>
+<span class="r-in"><span>         <span class="st">'"polarity":"positive","confidence":0.8},'</span>,</span></span>
+<span class="r-in"><span>         <span class="st">'{"cause":"clay","effect":"soc","polarity":"+",'</span>,</span></span>
+<span class="r-in"><span>         <span class="st">'"confidence":1.4}]}'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="st">'{"abstract_id":"BAD_02","abstract_text":"No claims field at all."}'</span></span></span>
+<span class="r-in"><span><span class="op">)</span>, <span class="va">bad</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_validate</span><span class="op">(</span><span class="va">bad</span><span class="op">)</span><span class="op">$</span><span class="va">errors</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "BAD_01: 1 claim(s) with invalid polarity"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "BAD_01: 1 claim(s) with confidence outside [0,1]"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "BAD_01: 1 claim(s) with non-canonical vocabulary"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "BAD_02: missing required field(s) claims"        </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `strict_vocab = FALSE` retires the vocabulary error only -- the</span></span></span>
+<span class="r-in"><span><span class="co"># polarity and confidence checks always run.  Use it while a new</span></span></span>
+<span class="r-in"><span><span class="co"># term like "tree_cover" is still being argued about, not to make a</span></span></span>
+<span class="r-in"><span><span class="co"># file pass.</span></span></span>
+<span class="r-in"><span><span class="fu">llm_annotation_validate</span><span class="op">(</span><span class="va">bad</span>, strict_vocab <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">$</span><span class="va">errors</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "BAD_01: 1 claim(s) with invalid polarity"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "BAD_01: 1 claim(s) with confidence outside [0,1]"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "BAD_02: missing required field(s) claims"        </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Read `summary` next to `errors`, never alone: a record that fails</span></span></span>
+<span class="r-in"><span><span class="co"># the required-field check is skipped before it is counted, so</span></span></span>
+<span class="r-in"><span><span class="co"># BAD_02 has no row and nrow(summary) is not the file's length.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rows_in_summary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">llm_annotation_validate</span><span class="op">(</span><span class="va">bad</span><span class="op">)</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  lines_in_file   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">bad</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rows_in_summary   lines_in_file </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               1               2 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># And `ok` is a schema verdict, not a coverage one.  An export that</span></span></span>
+<span class="r-in"><span><span class="co"># dropped every claim validates perfectly, so gate a deposit on the</span></span></span>
+<span class="r-in"><span><span class="co"># claim count as well.</span></span></span>
+<span class="r-in"><span><span class="va">empty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"empty.jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">'{"abstract_id":"E_01","abstract_text":"x","claims":[]}'</span>, <span class="va">empty</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">llm_annotation_validate</span><span class="op">(</span><span class="va">empty</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">e</span><span class="op">$</span><span class="va">ok</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">e</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">n_claims</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

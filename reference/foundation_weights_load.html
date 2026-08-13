@@ -11,7 +11,7 @@ edaphos_foundation_moco object that is shape-compatible with
 the output of foundation_moco_pretrain_tiles(). The restored
 object is ready to feed into foundation_moco_embed(),
 foundation_fit_classifier() or foundation_fit_regressor()
-without any additional plumbing."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+without any additional plumbing."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -37,7 +37,7 @@ without any additional plumbing."><meta property="og:image" content="https://hug
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,14 +48,12 @@ without any additional plumbing."><meta property="og:image" content="https://hug
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -63,14 +61,12 @@ without any additional plumbing."><meta property="og:image" content="https://hug
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -139,15 +135,19 @@ without any additional plumbing.</p>
 <dd><p>Either a character name registered in
 <code><a href="foundation_weights_list.html">foundation_weights_list()</a></code> — in which case the encoder is
 downloaded (cached) via <code><a href="foundation_weights_download.html">foundation_weights_download()</a></code> — or a
-path to a local <code>.pt</code> file. For the local path case, pass the
-matching metadata as <code>n_channels</code> / <code>feature_dim</code> / etc.</p></dd>
+path to a local <code>.pt</code> file. The local-path branch is taken
+whenever <code>file.exists(source)</code>, and there is then no registry row
+to consult, so <code>n_channels</code>, <code>feature_dim</code> and <code>proj_dim</code> must
+all be supplied; omitting any of them is an error.</p></dd>
 
 
 <dt id="arg-n-channels-feature-dim-proj-dim">n_channels, feature_dim, proj_dim<a class="anchor" aria-label="anchor" href="#arg-n-channels-feature-dim-proj-dim"></a></dt>
-<dd><p>Optional integers; when
-<code>source</code> is a local path these must describe the shape the
-<code>.pt</code> file was saved from. When <code>source</code> is a registry name they
-are pulled from the registry.</p></dd>
+<dd><p>Integers. <strong>Required</strong> when
+<code>source</code> is a local path, where they must describe the shape the
+<code>.pt</code> file was saved from — a mismatch surfaces as a tensor-size
+error from <code>load_state_dict()</code>, not as a silent reshape. Optional
+when <code>source</code> is a registry name, in which case each unsupplied
+value defaults to the registry row.</p></dd>
 
 
 <dt id="arg-cache-dir-overwrite-verbose">cache_dir, overwrite, verbose<a class="anchor" aria-label="anchor" href="#arg-cache-dir-overwrite-verbose"></a></dt>
@@ -165,10 +165,55 @@ restored because it is only needed during training).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The registry route needs a network download from Zenodo, so it is</span></span></span>
+<span class="r-in"><span><span class="co"># not run here. It fills the three shapes from the registry row, so</span></span></span>
+<span class="r-in"><span><span class="co"># they are the one thing you do not have to pass.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span>  <span class="va">moco</span> <span class="op">&lt;-</span> <span class="fu">foundation_weights_load</span><span class="op">(</span><span class="st">"edaphos-cerrado-moco-v1"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">emb</span>  <span class="op">&lt;-</span> <span class="fu"><a href="foundation_moco_embed.html">foundation_moco_embed</a></span><span class="op">(</span><span class="va">moco</span>, <span class="va">patches</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># v1 expects 31 channels in the registry's band order; `patches`</span></span></span>
+<span class="r-in"><span>  <span class="co"># must be a numeric (N, 31, 16, 16) array, standardised over your</span></span></span>
+<span class="r-in"><span>  <span class="co"># own AoI (v1's training mean / sd are unrecoverable — see</span></span></span>
+<span class="r-in"><span>  <span class="co"># foundation_weights_list()$norm_stats_status).</span></span></span>
+<span class="r-in"><span>  <span class="va">emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_moco_embed.html">foundation_moco_embed</a></span><span class="op">(</span><span class="va">moco</span>, <span class="va">patches</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The local-path route is offline, and is also how you reload your</span></span></span>
+<span class="r-in"><span><span class="co"># own encoders. It is shown here end to end on a throwaway model.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_is_installed.html" class="external-link">torch_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A 3-step fit on random noise. This is plumbing, not a model: it</span></span></span>
+<span class="r-in"><span><span class="co"># has learned nothing and its embeddings are meaningless. A usable</span></span></span>
+<span class="r-in"><span><span class="co"># encoder needs a real tile corpus and thousands of steps — see</span></span></span>
+<span class="r-in"><span><span class="co"># foundation_moco_pretrain_tiles().</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">24L</span> <span class="op">*</span> <span class="fl">5L</span> <span class="op">*</span> <span class="fl">8L</span> <span class="op">*</span> <span class="fl">8L</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">24L</span>, <span class="fl">5L</span>, <span class="fl">8L</span>, <span class="fl">8L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_moco_pretrain.html">foundation_moco_pretrain</a></span><span class="op">(</span><span class="va">patches</span>, feature_dim <span class="op">=</span> <span class="fl">16L</span>, proj_dim <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">3L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_save.html" class="external-link">torch_save</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">encoder_q</span><span class="op">$</span><span class="fu">state_dict</span><span class="op">(</span><span class="op">)</span>, <span class="va">pt</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A `.pt` is a bare state dict: it fixes the tensor sizes but records</span></span></span>
+<span class="r-in"><span><span class="co"># nothing about what they mean, so all three shapes are mandatory here</span></span></span>
+<span class="r-in"><span><span class="co"># and must match what was saved.</span></span></span>
+<span class="r-in"><span><span class="va">moco</span> <span class="op">&lt;-</span> <span class="fu">foundation_weights_load</span><span class="op">(</span><span class="va">pt</span>, n_channels <span class="op">=</span> <span class="fl">5L</span>,</span></span>
+<span class="r-in"><span>                                feature_dim <span class="op">=</span> <span class="fl">16L</span>, proj_dim <span class="op">=</span> <span class="fl">8L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>n_channels <span class="op">=</span> <span class="va">moco</span><span class="op">$</span><span class="va">n_channels</span>, feature_dim <span class="op">=</span> <span class="va">moco</span><span class="op">$</span><span class="va">feature_dim</span>,</span></span>
+<span class="r-in"><span>        proj_dim <span class="op">=</span> <span class="va">moco</span><span class="op">$</span><span class="va">proj_dim</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Only encoder_q is restored, and it comes back in eval() mode, so the</span></span></span>
+<span class="r-in"><span><span class="co"># reloaded copy reproduces the source object's embeddings exactly.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="foundation_moco_embed.html">foundation_moco_embed</a></span><span class="op">(</span><span class="va">moco</span>, <span class="va">patches</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                <span class="fu"><a href="foundation_moco_embed.html">foundation_moco_embed</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">patches</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Omitting the shapes is a refusal, not a default. Note that this is</span></span></span>
+<span class="r-in"><span><span class="co"># what `foundation_weights_load(loc$path)` would hit after a</span></span></span>
+<span class="r-in"><span><span class="co"># foundation_weights_download() — pass loc$entry's shapes, or skip</span></span></span>
+<span class="r-in"><span><span class="co"># the download and load by name.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu">foundation_weights_load</span><span class="op">(</span><span class="va">pt</span><span class="op">)</span>, error <span class="op">=</span> <span class="va">conditionMessage</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">pt</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

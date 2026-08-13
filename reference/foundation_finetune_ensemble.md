@@ -67,3 +67,143 @@ fit-time encoder), and `final_losses` / `loss_histories`.
 Lakshminarayanan, B., Pritzel, A. and Blundell, C. (2017). Simple and
 scalable predictive uncertainty estimation using deep ensembles.
 *NeurIPS 30*.
+
+## Examples
+
+``` r
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+  # 8 x 8 covariate patches cut on a stride-6 grid over the 45 x 45
+  # br_cerrado raster; the label is mean SOC inside the patch.
+  g <- 45L; p <- 8L
+  cov4 <- lapply(br_cerrado[c("elev", "slope", "twi", "ndvi")],
+                 function(v) matrix(scale(v)[, 1L], g, g))
+  soc_m <- matrix(br_cerrado$soc, g, g)
+  ij <- expand.grid(i = seq(1L, g - p + 1L, by = 6L),
+                    j = seq(1L, g - p + 1L, by = 6L))
+  x <- array(0, dim = c(nrow(ij), 4L, p, p))
+  y <- numeric(nrow(ij))
+  for (k in seq_len(nrow(ij))) {
+    rr <- ij$i[k] + 0:(p - 1L); cc <- ij$j[k] + 0:(p - 1L)
+    for (ch in 1:4) x[k, ch, , ] <- cov4[[ch]][rr, cc]
+    y[k] <- mean(soc_m[rr, cc])
+  }
+  set.seed(2024)
+  test  <- sample(nrow(ij), 12L)
+  train <- setdiff(seq_len(nrow(ij)), test)
+
+  # A MoCo fit exposes backbone_features(), which is what the
+  # fine-tune heads read. A SimCLR fit does not: its heads are fed
+  # the projection output instead, so there proj_dim must equal
+  # feature_dim or the head is built at the wrong width.
+  enc <- foundation_moco_pretrain(
+    x[train, , , , drop = FALSE], feature_dim = 16L, proj_dim = 8L,
+    queue_size = 16L, batch_size = 8L, epochs = 5L, seed = 42L)
+
+  # READ THIS BEFORE READING ANY NUMBER BELOW. In
+  # foundation_moco_pretrain(), `epochs` counts optimiser steps and
+  # not passes over the data: one mini-batch is drawn per epoch. So
+  # `enc` above is five gradient steps on batches of 8 -- 40 patch
+  # presentations drawn from 37 patches. Its own diagnostic says
+  # what that buys: the InfoNCE loss of an encoder whose logits are
+  # all equal, i.e. one that cannot pick the positive key out of its
+  # queue_size negatives, is log1p(queue_size). The trace below is
+  # noise around that line rather than a descent: it is not
+  # monotone, and which side of the baseline its last value lands on
+  # is not stable.
+  print(round(enc$loss_history, 3))
+  print(round(c(final_infonce    = enc$final_loss,
+                all_logits_equal = log1p(enc$queue_size),
+                patch_draws      = length(enc$loss_history) *
+                                     enc$batch_size), 3))
+  print(c(monotone = all(diff(enc$loss_history) < 0)))
+  # Do not read the exact figures as a property of `seed = 42L`
+  # either: that argument fixes only the torch RNG, while the batch
+  # draw and the augmentations come from R's RNG, so the whole trace
+  # -- final value included -- moves with the ambient R seed.
+
+  # `enc` is therefore, for practical purposes, a random
+  # convolutional feature map -- and the fine-tune keeps it that
+  # way, because freeze_backbone defaults to TRUE and only the head
+  # is trained. Everything below is a demonstration of the ENSEMBLE
+  # MACHINERY -- the fitting loop, the (K_ens, N) predict contract,
+  # how to aggregate it, how to score it -- and none of it is
+  # evidence about soil carbon. A representation worth fine-tuning
+  # needs patches by the 1e4-1e6 and thousands of steps;
+  # foundation_moco_pretrain_tiles() is the entry point that
+  # streams a corpus that size.
+
+  # K_ens = 3 and 20 epochs keep this example short; an ensemble you
+  # would report wants 5-10 members. With K = 3 the member sd below
+  # has two degrees of freedom.
+  ens <- foundation_finetune_ensemble(
+    enc, x = x[train, , , , drop = FALSE], y = y[train],
+    task = "regression", K_ens = 3L, base_seed = 301L,
+    head = "mlp", hidden = 8L, dropout = 0.2,
+    epochs = 20L, batch_size = 16L, lr = 0.01, device = "cpu")
+  print(ens)
+
+  # Member k is fit with seed = base_seed + k - 1, and that seed
+  # drives the head initialisation, the mini-batch order AND the
+  # internal val_split holdout -- so no two members train on exactly
+  # the same patches, and they do not converge to the same loss.
+  print(round(ens$final_losses, 3))
+
+  # predict() returns the raw (K_ens, N) member stack, never a
+  # summary; aggregating it is the caller's job.
+  newx  <- x[test, , , , drop = FALSE]
+  preds <- predict(ens, x = newx)
+  print(dim(preds))
+  mu   <- colMeans(preds)
+  sd_k <- apply(preds, 2L, stats::sd)
+  print(round(rbind(mean = mu, sd = sd_k)[, 1:4], 2))
+
+  # Averaging is not cosmetic, and this part survives the useless
+  # backbone: in squared error the ensemble mean is at least as good
+  # as the average member for ANY collection of members, good or
+  # garbage (the ambiguity decomposition). It is not guaranteed to
+  # beat the best member, and it still has to beat an achievable
+  # null -- the training mean.
+  sq_err <- function(z) mean((y[test] - z)^2)
+  print(round(c(member         = apply(preds, 1L, sq_err),
+                ensemble_mean  = sq_err(mu),
+                average_member = mean(apply(preds, 1L, sq_err)),
+                train_mean     = sq_err(rep(mean(y[train]),
+                                            length(test)))), 3))
+
+  # Beating that null is no verdict on the pretraining either. With
+  # the backbone frozen this is random-feature regression, and a
+  # trained head on random features is already a real (weak)
+  # predictor. The matched control: same head, same seed 301, on an
+  # encoder given ONE gradient step instead of five.
+  enc1 <- foundation_moco_pretrain(
+    x[train, , , , drop = FALSE], feature_dim = 16L, proj_dim = 8L,
+    queue_size = 16L, batch_size = 8L, epochs = 1L, seed = 42L)
+  fit1 <- foundation_fit_regressor(
+    enc1, x = x[train, , , , drop = FALSE], y = y[train],
+    head = "mlp", hidden = 8L, dropout = 0.2, epochs = 20L,
+    batch_size = 16L, lr = 0.01, device = "cpu", seed = 301L)
+  print(round(c(
+    member1_enc_5ep   = sq_err(preds[1L, ]),
+    same_head_enc_1ep = sq_err(as.numeric(predict(fit1, x = newx))),
+    member_spread     = diff(range(apply(preds, 1L, sq_err)))), 3))
+  # That contrast would have to come out decisively for the 5-step
+  # encoder before any accuracy above could be credited to the
+  # pretraining, and 12 test patches cannot settle it whichever way
+  # it lands on your machine -- compare the gap between the two
+  # against member_spread, which is pure head-seed noise.
+
+  # The member spread is not a posterior: it covers initialisation
+  # and optimisation, not the noise in y. Score the band rather than
+  # trust it -- PICP against the nominal 0.95, read next to the
+  # interval score, which also charges for width.
+  lo <- mu - 1.96 * sd_k; up <- mu + 1.96 * sd_k
+  print(round(c(picp           = edaphos_picp(y[test], lo, up),
+                mean_width     = mean(up - lo),
+                interval_score = edaphos_interval_score(y[test],
+                                                         lo, up)), 3))
+  # With length(test) = 12, PICP moves in steps of 1/12 and carries
+  # a standard error near 0.1: a smoke test that the plumbing runs,
+  # not a calibration result for this or any encoder.
+}
+```

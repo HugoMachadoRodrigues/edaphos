@@ -71,3 +71,67 @@ causal_kg_alignment(
 
 A data frame with columns `original`, `canonical`, `method`, `distance`.
 When `vocab = "agrovoc"` an extra `uri` column is attached.
+
+## Examples
+
+``` r
+if (requireNamespace("igraph", quietly = TRUE)) {
+  # Node labels the way an LLM extractor really emits them: typos,
+  # plurals, US spellings, over-specific compounds.
+  kg <- causal_kg_new()
+  kg <- causal_kg_add_edge(kg, "precipitaton", "soc", source = "A")
+  kg <- causal_kg_add_edge(kg, "aluminum", "root_biomass",
+                           source = "B")
+  kg <- causal_kg_add_edge(kg, "steeper_slopes", "erosion",
+                           source = "C")
+  kg <- causal_kg_add_edge(kg, "microbial_biomass", "decomposition",
+                           source = "D")
+
+  print(causal_kg_alignment(kg))
+
+  # Two things to read off that table.
+  #
+  # `steeper_slopes` stays unmatched. The substring tier only matches
+  # whole underscore-separated tokens, so the plural "slopes" misses
+  # "slope", and the nearest vocabulary term is 8 edits away, past
+  # the default max_distance = 4.
+  #
+  # `microbial_biomass` is folded into `biomass` by the substring
+  # tier, silently merging two different carbon pools. Substring
+  # matching is lossy; drop the tier when you would rather see a
+  # node come back unmatched than wrongly matched.
+  print(causal_kg_alignment(kg, method = c("exact", "fuzzy")))
+
+  # Do not repair the misses by loosening the fuzzy cap. At
+  # max_distance = 8 the fuzzy tier maps `steeper_slopes` onto
+  # `temperature`, which is worse than no match at all.
+  causal_kg_alignment(kg, max_distance = 8L)
+}
+#>            original     canonical    method distance
+#> 1      precipitaton precipitation     fuzzy        1
+#> 2               soc           soc     exact        0
+#> 3          aluminum     aluminium     fuzzy        1
+#> 4      root_biomass  root_biomass     exact        0
+#> 5    steeper_slopes          <NA>      none       NA
+#> 6           erosion       erosion     exact        0
+#> 7 microbial_biomass       biomass substring       NA
+#> 8     decomposition decomposition     exact        0
+#>            original     canonical method distance
+#> 1      precipitaton precipitation  fuzzy        1
+#> 2               soc           soc  exact        0
+#> 3          aluminum     aluminium  fuzzy        1
+#> 4      root_biomass  root_biomass  exact        0
+#> 5    steeper_slopes          <NA>   none       NA
+#> 6           erosion       erosion  exact        0
+#> 7 microbial_biomass          <NA>   none       NA
+#> 8     decomposition decomposition  exact        0
+#>            original     canonical    method distance
+#> 1      precipitaton precipitation     fuzzy        1
+#> 2               soc           soc     exact        0
+#> 3          aluminum     aluminium     fuzzy        1
+#> 4      root_biomass  root_biomass     exact        0
+#> 5    steeper_slopes   temperature     fuzzy        8
+#> 6           erosion       erosion     exact        0
+#> 7 microbial_biomass       biomass substring       NA
+#> 8     decomposition decomposition     exact        0
+```

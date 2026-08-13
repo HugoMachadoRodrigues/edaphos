@@ -3,7 +3,7 @@
 (covariate trajectory, target profile) pairs.  The trained
 operator predicts the depth profile at new sites without re-fitting."><meta property="og:description" content="Learns the solution map u(z) -&amp;gt; y(z) from a collection of
 (covariate trajectory, target profile) pairs.  The trained
-operator predicts the depth profile at new sites without re-fitting."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+operator predicts the depth profile at new sites without re-fitting."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ operator predicts the depth profile at new sites without re-fitting."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ operator predicts the depth profile at new sites without re-fitting."><meta prop
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ operator predicts the depth profile at new sites without re-fitting."><meta prop
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -118,7 +114,7 @@ operator predicts the depth profile at new sites without re-fitting.</p>
 <span>  epochs <span class="op">=</span> <span class="fl">200L</span>,</span>
 <span>  lr <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r"</span>, <span class="st">"torch"</span><span class="op">)</span>,</span>
+<span>  backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"r"</span>, <span class="st">"torch"</span><span class="op">)</span>,</span>
 <span>  device <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cpu"</span>, <span class="st">"mps"</span>, <span class="st">"cuda"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -172,9 +168,13 @@ spectral convolution.  Default <code>4L</code>.</p></dd>
 
 
 <dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
-<dd><p><code>"r"</code> (default, pure-R ELM-style) or <code>"torch"</code>
-(full autograd via <code><a href="https://torch.mlverse.org/docs/reference/optim_adam.html" class="external-link">torch::optim_adam</a></code>; requires the <code>torch</code>
-Suggests dependency).  v2.7.0 upgrade.</p></dd>
+<dd><p>One of <code>"auto"</code> (default), <code>"torch"</code> or <code>"r"</code>. <code>"auto"</code>
+uses the trained torch operator when a working libtorch is present and
+otherwise falls back to the pure-R path. The pure-R path is a
+<strong>frozen-spectral random-feature reference</strong> that does not learn the
+operator (near-zero skill); it exists for illustration and torch-less
+checks, and emits a one-time note when used. Use <code>"torch"</code> for the trained
+Fourier Neural Operator (full autograd via <code><a href="https://torch.mlverse.org/docs/reference/optim_adam.html" class="external-link">torch::optim_adam</a></code>).</p></dd>
 
 
 <dt id="arg-device">device<a class="anchor" aria-label="anchor" href="#arg-device"></a></dt>
@@ -186,7 +186,105 @@ Suggests dependency).  v2.7.0 upgrade.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>edaphos_no_fno</code> fit.</p>
     </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K.,
+Stuart, A. and Anandkumar, A. (2021). Fourier Neural Operator for
+Parametric Partial Differential Equations. <em>International Conference
+on Learning Representations</em>.</p>
+<p>Kovachki, N., Li, Z., Liu, B., Azizzadenesheli, K., Bhattacharya, K.,
+Stuart, A. and Anandkumar, A. (2023). Neural Operator: Learning Maps
+Between Function Spaces With Applications to PDEs. <em>Journal of
+Machine Learning Research</em> <strong>24</strong>, 1-97.</p>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">depths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">150</span>, length.out <span class="op">=</span> <span class="fl">8L</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A profile bank whose operator is KNOWN: the Pilar 2 pedogenetic</span></span></span>
+<span class="r-in"><span><span class="co"># ODE solution, with its four parameters driven by site covariates.</span></span></span>
+<span class="r-in"><span><span class="va">site</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>clay   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">50L</span>, <span class="fl">0.10</span>, <span class="fl">0.60</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              map    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">50L</span>, <span class="fl">0.80</span>, <span class="fl">1.60</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              relief <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">50L</span>, <span class="fl">0.00</span>, <span class="fl">1.00</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">profile_of</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">s</span>, <span class="va">z</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">y0</span>  <span class="op">&lt;-</span> <span class="fl">20</span> <span class="op">+</span> <span class="fl">25</span> <span class="op">*</span> <span class="va">s</span><span class="op">[[</span><span class="st">"clay"</span><span class="op">]</span><span class="op">]</span>;       <span class="va">yinf</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">+</span> <span class="fl">6</span> <span class="op">*</span> <span class="va">s</span><span class="op">[[</span><span class="st">"map"</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">lam</span> <span class="op">&lt;-</span> <span class="fl">0.05</span> <span class="op">+</span> <span class="fl">0.04</span> <span class="op">*</span> <span class="va">s</span><span class="op">[[</span><span class="st">"relief"</span><span class="op">]</span><span class="op">]</span>; <span class="va">mu</span> <span class="op">&lt;-</span> <span class="fl">0.02</span> <span class="op">+</span> <span class="fl">0.01</span> <span class="op">*</span> <span class="va">s</span><span class="op">[[</span><span class="st">"clay"</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">yinf</span> <span class="op">+</span> <span class="op">(</span><span class="va">y0</span> <span class="op">-</span> <span class="va">yinf</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="va">lam</span> <span class="op">/</span> <span class="va">mu</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">mu</span> <span class="op">*</span> <span class="va">z</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">soc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">site</span>, <span class="fl">1L</span>, <span class="va">profile_of</span>, z <span class="op">=</span> <span class="va">depths</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>       <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">400L</span>, <span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span>, <span class="fl">50L</span>, <span class="fl">8L</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The FNO consumes a (sites, depths, channels) cube; static site</span></span></span>
+<span class="r-in"><span><span class="co"># covariates are broadcast along the depth axis.</span></span></span>
+<span class="r-in"><span><span class="va">cube</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">0</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">depths</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="va">a</span><span class="op">[</span>, , <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="va">a</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">30</span>; <span class="va">te</span> <span class="op">&lt;-</span> <span class="fl">31</span><span class="op">:</span><span class="fl">50</span></span></span>
+<span class="r-in"><span><span class="va">fno</span> <span class="op">&lt;-</span> <span class="fu">no_fno_fit</span><span class="op">(</span><span class="va">depths</span>, <span class="va">soc</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span>, <span class="fu">cube</span><span class="op">(</span><span class="va">site</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  n_modes <span class="op">=</span> <span class="fl">4L</span>, width <span class="op">=</span> <span class="fl">8L</span>, n_blocks <span class="op">=</span> <span class="fl">1L</span>,</span></span>
+<span class="r-in"><span>                  epochs <span class="op">=</span> <span class="fl">20L</span>, lr <span class="op">=</span> <span class="fl">0.05</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> [no_fno_fit] backend = 'r' is a frozen-spectral random-feature reference and does NOT learn the operator; use backend = 'torch' (the default when libtorch is present) for the trained Fourier Neural Operator.</span>
+<span class="r-in"><span><span class="va">fno</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_no_fno&gt;  (Pilar 8 -- Fourier Neural Operator)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_depths = 8   n_modes = 4   width = 8   blocks = 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_train  = 30   C_in = 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   initial MSE = 0.9664  final MSE = 0.9598</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Read that MSE against the only baseline that matters.  Targets are</span></span></span>
+<span class="r-in"><span><span class="co"># standardised PER DEPTH, so predicting the mean profile scores</span></span></span>
+<span class="r-in"><span><span class="co"># exactly 1 -- and 20 epochs have moved 4 percent off it.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>initial <span class="op">=</span> <span class="va">fno</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fl">1L</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>        final   <span class="op">=</span> <span class="va">fno</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fno</span><span class="op">$</span><span class="va">history</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>        mean_profile <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      initial        final mean_profile </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.9664       0.9598       1.0000 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Same story on held-out sites, and it vanishes if you score against</span></span></span>
+<span class="r-in"><span><span class="co"># the GRAND mean: that null does not know the shape of an average</span></span></span>
+<span class="r-in"><span><span class="co"># profile, so +0.85 is mostly "carbon decreases with depth".</span></span></span>
+<span class="r-in"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fno</span>, <span class="fu">cube</span><span class="op">(</span><span class="va">site</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">null_prof</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">soc</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">te</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">depths</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                    byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rmse_fno  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">pred</span> <span class="op">-</span> <span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        rmse_null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">null_prof</span> <span class="op">-</span> <span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        nse_vs_mean_profile <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">pred</span> <span class="op">-</span> <span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span></span></span>
+<span class="r-in"><span>                                  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span> <span class="op">-</span> <span class="va">null_prof</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        nse_vs_grand_mean   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">pred</span> <span class="op">-</span> <span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span></span></span>
+<span class="r-in"><span>                                  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">soc</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            rmse_fno           rmse_null nse_vs_mean_profile   nse_vs_grand_mean </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              1.6693              1.6746              0.0063              0.8517 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Why so weak: with backend = "r" the lift and the spectral</span></span></span>
+<span class="r-in"><span><span class="co"># multipliers stay at their random initialisation, and of the</span></span></span>
+<span class="r-in"><span><span class="co"># decoder only the weights move -- not even its bias.  That is an</span></span></span>
+<span class="r-in"><span><span class="co"># ELM regime, and a one-epoch fit proves it.</span></span></span>
+<span class="r-in"><span><span class="va">fno1</span> <span class="op">&lt;-</span> <span class="fu">no_fno_fit</span><span class="op">(</span><span class="va">depths</span>, <span class="va">soc</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span>, <span class="fu">cube</span><span class="op">(</span><span class="va">site</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   n_modes <span class="op">=</span> <span class="fl">4L</span>, width <span class="op">=</span> <span class="fl">8L</span>, n_blocks <span class="op">=</span> <span class="fl">1L</span>,</span></span>
+<span class="r-in"><span>                   epochs <span class="op">=</span> <span class="fl">1L</span>, lr <span class="op">=</span> <span class="fl">0.05</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>lift_frozen     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">fno1</span><span class="op">$</span><span class="va">W_in</span>, <span class="va">fno</span><span class="op">$</span><span class="va">W_in</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  spectral_frozen <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">fno1</span><span class="op">$</span><span class="va">R_list</span>, <span class="va">fno</span><span class="op">$</span><span class="va">R_list</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  bias_frozen     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">fno1</span><span class="op">$</span><span class="va">b_out</span>, <span class="va">fno</span><span class="op">$</span><span class="va">b_out</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  decoder_trained <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">fno1</span><span class="op">$</span><span class="va">W_out</span>, <span class="va">fno</span><span class="op">$</span><span class="va">W_out</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     lift_frozen spectral_frozen     bias_frozen decoder_trained </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            TRUE            TRUE            TRUE            TRUE </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>trained_weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fno</span><span class="op">$</span><span class="va">W_out</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> trained_weights </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               8 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># predict() takes no `newdepths`: an FNO fit is tied to its training</span></span></span>
+<span class="r-in"><span><span class="co"># grid.  A cube with a different depth extent is silently RECYCLED</span></span></span>
+<span class="r-in"><span><span class="co"># into that grid (with a warning) rather than rejected, so check the</span></span></span>
+<span class="r-in"><span><span class="co"># shape of what you pass -- the result looks perfectly normal.</span></span></span>
+<span class="r-in"><span><span class="va">short</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">0</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">te</span><span class="op">)</span>, <span class="fl">6L</span>, <span class="fl">3L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="va">short</span><span class="op">[</span>, , <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">site</span><span class="op">[</span><span class="va">te</span>, <span class="va">j</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fno</span>, <span class="va">short</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 20  8</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

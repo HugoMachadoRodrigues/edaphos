@@ -5,7 +5,7 @@ parametric profile (piml_profile_fit()) or the Neural ODE variant
 (piml_neural_ode_fit())."><meta property="og:description" content="Convenience helper for constructing the physics_gate argument of
 al_query() and al_loop() from an existing PIML fit — either the
 parametric profile (piml_profile_fit()) or the Neural ODE variant
-(piml_neural_ode_fit())."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+(piml_neural_ode_fit())."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ parametric profile (piml_profile_fit()) or the Neural ODE variant
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ parametric profile (piml_profile_fit()) or the Neural ODE variant
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ parametric profile (piml_profile_fit()) or the Neural ODE variant
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -135,12 +131,14 @@ parametric profile (<code><a href="piml_profile_fit.html">piml_profile_fit()</a>
 
 <dt id="arg-lower">lower<a class="anchor" aria-label="anchor" href="#arg-lower"></a></dt>
 <dd><p>Optional hard lower bound in the target units
-(e.g. <code>0</code> for mass fractions). If supplied, overrides the lower
-end of the envelope.</p></dd>
+(e.g. <code>0</code> for mass fractions). Applied as <code>max(lo_env, lower)</code>, so
+it can only raise the floor, never widen the envelope downwards.</p></dd>
 
 
 <dt id="arg-upper">upper<a class="anchor" aria-label="anchor" href="#arg-upper"></a></dt>
-<dd><p>Optional hard upper bound.</p></dd>
+<dd><p>Optional hard upper bound, applied as
+<code>min(hi_env, upper)</code>: likewise it can only lower the ceiling. Both
+clamp inwards; use <code>safety_factor</code> to widen.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -152,13 +150,117 @@ end of the envelope.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The gate rejects any candidate whose model-predicted target value falls
 outside a physically plausible envelope derived from the PIML fit. For
-the parametric ODE the envelope is
-<code>[min(y0, y_inf), max(y0, y_inf)]</code>; for the Neural ODE it is the
+the parametric ODE the envelope is the range the solution actually spans,
+<code>[min(y0, y(Inf)), max(y0, y(Inf))]</code>; for the Neural ODE it is the
 range of predictions between <code>z = 0</code> and the deepest training depth
 (extrapolated to <code>2 * max(depth)</code> as a conservative floor). Both are
 widened by <code>safety_factor</code>.</p>
+<p>The envelope used to be built from <code>y_inf</code>, the equilibrium coordinate of
+the differential equation. That is not a value any profile reaches, and on
+real fits it is routinely negative, so the gate certified impossible states
+as plausible — on the bundled pedon it accepted an SOC of -10 g/kg — while
+rejecting far more of the legitimate pool than it needed to.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># One described pedon from a deep Cerrado Latossolo. The auger log</span></span></span>
+<span class="r-in"><span><span class="co"># starts at 30 cm, so the surface value is never observed: the ODE</span></span></span>
+<span class="r-in"><span><span class="co"># extrapolates it, and the gate's ceiling inherits that extrapolation.</span></span></span>
+<span class="r-in"><span><span class="va">depths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">50</span>, <span class="fl">80</span>, <span class="fl">120</span>, <span class="fl">200</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">11.5</span>, <span class="fl">9.2</span>, <span class="fl">7.4</span>, <span class="fl">6.1</span>, <span class="fl">5.2</span><span class="op">)</span>          <span class="co"># SOC, g/kg</span></span></span>
+<span class="r-in"><span><span class="va">pf</span>     <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_fit.html">piml_profile_fit</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y0</span>     <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">pf</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">y0</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y_asym</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu">edaphos</span><span class="fu">:::</span><span class="fu">.piml_asymptote</span><span class="op">(</span><span class="va">pf</span><span class="op">$</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>y0 <span class="op">=</span> <span class="va">y0</span>, y_asym <span class="op">=</span> <span class="va">y_asym</span>, y_inf <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">pf</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">y_inf</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        shallowest_observed <span class="op">=</span> <span class="va">values</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, fit_rmse <span class="op">=</span> <span class="va">pf</span><span class="op">$</span><span class="va">rmse</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  y0              y_asym               y_inf shallowest_observed </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               17.34                4.78                4.78               11.50 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            fit_rmse </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                0.04 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># y0 = 18.61 g/kg is 62 % above the shallowest measurement -- the auger</span></span></span>
+<span class="r-in"><span><span class="co"># log starts at 30 cm, so the surface is extrapolated. The envelope is</span></span></span>
+<span class="r-in"><span><span class="co"># [y_asym, y0] widened by (safety_factor - 1) * (y0 - y_asym) on each</span></span></span>
+<span class="r-in"><span><span class="co"># side, so here [1.92, 21.39]. y_inf = 2.69 sits well below y_asym = 4.70:</span></span></span>
+<span class="r-in"><span><span class="co"># the profile stops less than a fifth of the way to it.</span></span></span>
+<span class="r-in"><span><span class="va">gate</span> <span class="op">&lt;-</span> <span class="fu">al_physics_gate_piml</span><span class="op">(</span><span class="va">pf</span>, safety_factor <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">span</span> <span class="op">&lt;-</span> <span class="va">y0</span> <span class="op">-</span> <span class="va">y_asym</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>lo <span class="op">=</span> <span class="va">y_asym</span> <span class="op">-</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">span</span>, hi <span class="op">=</span> <span class="va">y0</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">span</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    lo    hi </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.27 19.85 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The gate reads the PREDICTION only and never looks at the candidate</span></span></span>
+<span class="r-in"><span><span class="co"># covariates, so `candidates` can be anything at all.</span></span></span>
+<span class="r-in"><span><span class="fu">gate</span><span class="op">(</span>candidates <span class="op">=</span> <span class="cn">NULL</span>, predicted_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">10</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span>  <span class="co"># only 25 fails</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE  TRUE  TRUE  TRUE  TRUE FALSE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Point it at a real pool and COUNT: a gate that returns a mask has</span></span></span>
+<span class="r-in"><span><span class="co"># not necessarily rejected anything.</span></span></span>
+<span class="r-in"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">i_lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_fit.html">al_fit</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">[</span><span class="va">i_lab</span>, <span class="op">]</span>, target <span class="op">=</span> <span class="st">"soc"</span>, covariates <span class="op">=</span> <span class="va">covs</span>,</span></span>
+<span class="r-in"><span>            coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pool</span> <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="op">-</span><span class="va">i_lab</span>, <span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1995</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">pm</span>   <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">pool</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span></span>
+<span class="r-in"><span><span class="va">keep</span> <span class="op">&lt;-</span> <span class="fu">gate</span><span class="op">(</span><span class="va">pool</span>, <span class="va">pm</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rejected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="va">keep</span><span class="op">)</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">keep</span><span class="op">)</span><span class="op">)</span>             <span class="co"># 89 of 399</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rejected        n </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      138      399 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>rejected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">pm</span><span class="op">[</span><span class="op">!</span><span class="va">keep</span><span class="op">]</span><span class="op">)</span>, kept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">pm</span><span class="op">[</span><span class="va">keep</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]  [,2]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rejected 19.88 27.19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> kept      7.13 19.80</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A named casualty: pool row 22, predicted 27.34 g/kg, true SOC</span></span></span>
+<span class="r-in"><span><span class="co"># 26.37 -- an ordinary Cerrado topsoil, refused because one pedon</span></span></span>
+<span class="r-in"><span><span class="co"># described from 30 cm down says no profile may exceed 21.39.</span></span></span>
+<span class="r-in"><span><span class="va">j</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="op">!</span><span class="va">keep</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">pm</span><span class="op">[</span><span class="op">!</span><span class="va">keep</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>row <span class="op">=</span> <span class="va">j</span>, predicted <span class="op">=</span> <span class="va">pm</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, true_soc <span class="op">=</span> <span class="va">pool</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       row predicted  true_soc </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    368.00     27.19     29.80 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 72 % of the 89 refusals really are above the ceiling, so the gate</span></span></span>
+<span class="r-in"><span><span class="co"># is not firing at random -- it is mis-scaled. It promotes ONE</span></span></span>
+<span class="r-in"><span><span class="co"># pedon's dynamics into a constraint on every cell of a 0-5 cm map,</span></span></span>
+<span class="r-in"><span><span class="co"># and the cells it removes are the carbon-rich ones. Building the</span></span></span>
+<span class="r-in"><span><span class="co"># envelope from the attained value rather than y_inf cut the refusals</span></span></span>
+<span class="r-in"><span><span class="co"># from 178 to 89, but did not make the extrapolation legitimate.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>share_truly_above  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pool</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="op">!</span><span class="va">keep</span><span class="op">]</span> <span class="op">&gt;</span> <span class="va">y0</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">span</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        mean_true_rejected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pool</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="op">!</span><span class="va">keep</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        mean_true_kept     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">pool</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="va">keep</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  share_truly_above mean_true_rejected     mean_true_kept </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               0.74              23.55              16.78 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># It changes the batch, not just the mask: the batch ceiling drops</span></span></span>
+<span class="r-in"><span><span class="co"># from 21.83 to 19.15 g/kg.</span></span></span>
+<span class="r-in"><span><span class="va">b_gate</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_query.html">al_query</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"hybrid"</span>,</span></span>
+<span class="r-in"><span>                   physics_gate <span class="op">=</span> <span class="va">gate</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">b_open</span> <span class="op">&lt;-</span> <span class="fu"><a href="al_query.html">al_query</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8</span>, strategy <span class="op">=</span> <span class="st">"hybrid"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>gated <span class="op">=</span> <span class="va">b_gate</span>, open <span class="op">=</span> <span class="va">b_open</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> gated  264   35   82   29  238   62   32  366</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> open   264   35   82   29  238   62   32  366</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>max_pred_gated <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pm</span><span class="op">[</span><span class="va">b_gate</span><span class="op">]</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        max_pred_open  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pm</span><span class="op">[</span><span class="va">b_open</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max_pred_gated  max_pred_open </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          17.77          17.77 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `lower` and `upper` clamp inwards only. lower = 0, intended to</span></span></span>
+<span class="r-in"><span><span class="co"># "allow zero SOC", cannot widen anything; upper = 12 does bite.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu">al_physics_gate_piml</span><span class="op">(</span><span class="va">pf</span>, <span class="fl">1.2</span>, lower <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">(</span><span class="va">pool</span>, <span class="va">pm</span><span class="op">)</span>, <span class="va">keep</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="fu">al_physics_gate_piml</span><span class="op">(</span><span class="va">pf</span>, <span class="fl">1.2</span>, upper <span class="op">=</span> <span class="fl">12</span><span class="op">)</span><span class="op">(</span><span class="va">pool</span>, <span class="va">pm</span><span class="op">)</span><span class="op">)</span>      <span class="co"># 338</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 336</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A gate nobody can pass is an error, not an empty batch.</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="al_query.html">al_query</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>             physics_gate <span class="op">=</span> <span class="fu">al_physics_gate_piml</span><span class="op">(</span><span class="va">pf</span>, <span class="fl">1.2</span>, upper <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : `physics_gate` rejected every candidate; loosen the gate.</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

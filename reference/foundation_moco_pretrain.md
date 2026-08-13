@@ -115,3 +115,95 @@ vertical flip, 90-degree rotations, per-channel Bernoulli dropout
 (missing-band simulation), spatial cutout (cloud-mask simulation),
 per-channel multiplicative brightness jitter, and additive Gaussian
 sensor noise.
+
+## Examples
+
+``` r
+# `requireNamespace("torch")` is TRUE as soon as the R package is
+# installed, but the libtorch/lantern shared libraries are a separate
+# separate binary download that CI and CRAN machines routinely lack
+# (about 0.45 GB installed here). Both halves
+# of the guard are needed.
+if (requireNamespace("torch", quietly = TRUE) &&
+    isTRUE(torch::torch_is_installed())) {
+
+# MoCo v2 consumes (N, C, H, W). `br_cerrado` is a complete 45 x 45
+# grid, so every covariate reshapes into a surface and the 8 x 8
+# windows cut out of it are genuine soil-landscape patches.
+# Standardise the surfaces first: the augmentation stack adds noise
+# of a fixed sd and jitters brightness multiplicatively, so map_mm
+# (millimetres) and ndvi (a unitless index) would otherwise be
+# perturbed by wildly different relative amounts.
+g <- 45L
+cube <- vapply(c("elev", "slope", "twi", "map_mm", "ndvi"),
+               function(v) {
+                 m <- matrix(br_cerrado[[v]], g, g)
+                 (m - mean(m)) / stats::sd(m)
+               }, matrix(0, g, g))
+set.seed(42)
+top  <- sample(g - 7L, 24L, replace = TRUE)
+left <- sample(g - 7L, 24L, replace = TRUE)
+patches <- array(0, dim = c(24L, 5L, 8L, 8L))
+for (i in 1:24) {
+  patches[i, , , ] <- aperm(cube[top[i]:(top[i] + 7L),
+                                 left[i]:(left[i] + 7L), ], c(3, 1, 2))
+}
+
+set.seed(1)
+fit <- foundation_moco_pretrain(patches, feature_dim = 16L,
+                                proj_dim = 8L, queue_size = 1024L,
+                                batch_size = 8L, epochs = 8L,
+                                seed = 1L)
+print(fit)
+
+# `queue_size` is a request, not a setting: it is silently clamped
+# to N - batch_size, so the 1024-key dictionary asked for above is
+# 16 keys wide over 24 patches. Always read it back off the object.
+print(c(requested = 1024, actual = fit$queue_size))
+
+# Worse, the loss at step t is computed against the queue as it stood
+# at the END of step t - 1, and the FIFO first drops the oldest
+# batch_size rows, then appends the current keys. Halve the corpus and
+# the clamp leaves queue_size equal to batch_size, so the drop empties
+# the queue and the append refills it: the dictionary in force at step
+# t is exactly the keys of step t - 1. Every negative is then a key of
+# the PREVIOUS mini-batch under the previous momentum encoder, none
+# come from the current one (the current batch supplies only the
+# positive), and no key older than a single step ever survives --
+# which is MoCo's whole advantage over SimCLR. `retained` is how many
+# pre-existing keys outlive a step; keep N well above 2 * batch_size
+# to make it positive.
+tiny <- foundation_moco_pretrain(patches[1:16, , , , drop = FALSE],
+                                 feature_dim = 8L, proj_dim = 4L,
+                                 batch_size = 8L, epochs = 2L,
+                                 seed = 1L)
+print(c(queue = tiny$queue_size, batch = tiny$batch_size,
+        retained = tiny$queue_size - tiny$batch_size))
+
+# `epochs` counts optimiser steps, not passes over `patches`: one
+# mini-batch is drawn per epoch, so a short trace reports which
+# patches were sampled at least as much as it reports learning.
+# Read its tail next to log1p(queue_size) -- the InfoNCE value of a
+# model whose logits are all equal -- before concluding anything.
+print(round(fit$loss_history, 3))
+print(c(final = fit$final_loss,
+        all_logits_equal = log1p(fit$queue_size)))
+
+# Reproducibility needs BOTH generators. `seed=` only sets the torch
+# RNG (weight init, additive sensor noise); the mini-batch draw and
+# the crop / flip / rotation / channel-drop / cutout / brightness
+# augmentations are all drawn from R's RNG. The same `seed=` under a
+# different R seed is a different run.
+set.seed(99)
+a <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
+                              batch_size = 8L, epochs = 3L, seed = 1L)
+set.seed(123)
+b <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
+                              batch_size = 8L, epochs = 3L, seed = 1L)
+set.seed(99)
+d <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
+                              batch_size = 8L, epochs = 3L, seed = 1L)
+print(c(other_R_seed = identical(a$loss_history, b$loss_history),
+        same_R_seed  = identical(a$loss_history, d$loss_history)))
+}
+```

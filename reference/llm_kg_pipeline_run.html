@@ -7,7 +7,7 @@ hours to a day on a local Ollama instance."><meta property="og:description" cont
 (one JSON object with source + abstract per line) with
 resumable JSONL checkpointing and throttle / retry.  The function
 is engineered for 10 000+ abstract runs that can take several
-hours to a day on a local Ollama instance."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+hours to a day on a local Ollama instance."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ hours to a day on a local Ollama instance."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ hours to a day on a local Ollama instance."><meta property="og:image" content="h
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ hours to a day on a local Ollama instance."><meta property="og:image" content="h
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -210,6 +206,143 @@ retried up to <code>max_retries</code> times with exponential back-off
 <code>output_path.errors</code> and skipped without halting the run.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Everything outside \dontrun{} below runs offline: the corpus is</span></span></span>
+<span class="r-in"><span><span class="co"># arranged so that no record ever reaches an LLM.  The pipeline</span></span></span>
+<span class="r-in"><span><span class="co"># opens an `edaphos_causal_kg` on every path, so it needs igraph</span></span></span>
+<span class="r-in"><span><span class="co"># (a Suggests) even when it extracts nothing -- and R CMD check</span></span></span>
+<span class="r-in"><span><span class="co"># --as-cran does execute this block.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">out</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">'{"source":"silva2021","abstract":"MAP raised topsoil SOC."}'</span>,</span></span>
+<span class="r-in"><span>    <span class="st">'{"source":"reis2019","abstract":""}'</span>,</span></span>
+<span class="r-in"><span>    <span class="st">'{"source":"castro2020","abstract":"Clay content'</span>  <span class="co"># truncated</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>, <span class="va">corpus</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># What a run killed half way through leaves behind: two claims in</span></span></span>
+<span class="r-in"><span>  <span class="co"># the output file and one source logged in the `.done` sidecar.</span></span></span>
+<span class="r-in"><span>  <span class="va">claim</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">cause</span>, <span class="va">conf</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">toJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cause <span class="op">=</span> <span class="va">cause</span>, effect <span class="op">=</span> <span class="st">"soil organic carbon"</span>,</span></span>
+<span class="r-in"><span>                          evidence <span class="op">=</span> <span class="st">"quoted from the abstract"</span>,</span></span>
+<span class="r-in"><span>                          confidence <span class="op">=</span> <span class="va">conf</span>, source <span class="op">=</span> <span class="st">"silva2021"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                     auto_unbox <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">claim</span><span class="op">(</span><span class="st">"mean annual precipitation"</span>, <span class="fl">0.9</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               <span class="fu">claim</span><span class="op">(</span><span class="st">"clay content"</span>, <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span>, <span class="va">out</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"silva2021"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">".done"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `backend = "openai"` skips the Ollama pre-flight, and the</span></span></span>
+<span class="r-in"><span>  <span class="co"># hosted backends have no pre-flight of their own: the API key is</span></span></span>
+<span class="r-in"><span>  <span class="co"># read only once an abstract is actually sent.  Here none is.</span></span></span>
+<span class="r-in"><span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">llm_kg_pipeline_run</span><span class="op">(</span><span class="va">corpus</span>, <span class="va">out</span>, backend <span class="op">=</span> <span class="st">"openai"</span>,</span></span>
+<span class="r-in"><span>                             verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">n_processed</span>, <span class="va">res</span><span class="op">$</span><span class="va">n_skipped</span>, <span class="va">res</span><span class="op">$</span><span class="va">n_errors</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 0 1 1</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Read those three next to the corpus size: they account for 2 of</span></span></span>
+<span class="r-in"><span>  <span class="co"># 3 lines.  The truncated JSON is dropped at parse time and is</span></span></span>
+<span class="r-in"><span>  <span class="co"># invisible -- not an error, not a skip, never in `.errors`.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>                         <span class="co"># 3</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># An EMPTY abstract, by contrast, is charged as an error and</span></span></span>
+<span class="r-in"><span>  <span class="co"># logged.  Errors are logged and stepped over, never fatal.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">".errors"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>  <span class="co"># "[reis2019]\tempty abstract"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The trap: `res$kg` holds only the edges extracted in THIS call.</span></span></span>
+<span class="r-in"><span>  <span class="co"># Resumed sources are skipped and their claims are never read</span></span></span>
+<span class="r-in"><span>  <span class="co"># back from `output_path`, so the returned graph is empty while</span></span></span>
+<span class="r-in"><span>  <span class="co"># the claims file has two rows.  Never treat `res$kg` as the</span></span></span>
+<span class="r-in"><span>  <span class="co"># accumulated graph of a resumed job.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">kg</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>      <span class="co"># 0</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>             <span class="co"># 2</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># The claims file is the durable artefact; rebuild the graph from</span></span></span>
+<span class="r-in"><span>  <span class="co"># it.  Node labels are normalised on insertion, so the two rows</span></span></span>
+<span class="r-in"><span>  <span class="co"># become mean_annual_precipitation -&gt; soil_organic_carbon and</span></span></span>
+<span class="r-in"><span>  <span class="co"># clay_content -&gt; soil_organic_carbon.</span></span></span>
+<span class="r-in"><span>  <span class="va">prev</span> <span class="op">&lt;-</span> <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/stream_in.html" class="external-link">stream_in</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">file</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_new.html">causal_kg_new</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">prev</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">kg</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_kg_add_edge.html">causal_kg_add_edge</a></span><span class="op">(</span><span class="va">kg</span>, <span class="va">prev</span><span class="op">$</span><span class="va">cause</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">prev</span><span class="op">$</span><span class="va">effect</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                             source     <span class="op">=</span> <span class="va">prev</span><span class="op">$</span><span class="va">source</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                             evidence   <span class="op">=</span> <span class="va">prev</span><span class="op">$</span><span class="va">evidence</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                             confidence <span class="op">=</span> <span class="va">prev</span><span class="op">$</span><span class="va">confidence</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">kg</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cause"</span>, <span class="st">"effect"</span>, <span class="st">"confidence"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">out</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">out</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".done"</span>, <span class="st">".errors"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "[reis2019]\tempty abstract"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       cause              effect confidence</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 mean_annual_precipitation soil_organic_carbon        0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2              clay_content soil_organic_carbon        0.7</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A missing credential is treated as a TRANSIENT failure: it is put</span></span></span>
+<span class="r-in"><span><span class="co"># on the back-off ladder and then written off, instead of failing</span></span></span>
+<span class="r-in"><span><span class="co"># fast.  Guarded on the key so that a reader who has one is not</span></span></span>
+<span class="r-in"><span><span class="co"># billed for a live call by running this example.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"igraph"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPENAI_API_KEY"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">out</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">'{"source":"silva2021","abstract":"MAP raised SOC."}'</span>, <span class="va">corpus</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">llm_kg_pipeline_run</span><span class="op">(</span><span class="va">corpus</span>, <span class="va">out</span>, backend <span class="op">=</span> <span class="st">"openai"</span>,</span></span>
+<span class="r-in"><span>                             max_retries <span class="op">=</span> <span class="fl">0L</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">n_errors</span><span class="op">)</span>                       <span class="co"># 1</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">".errors"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>  <span class="co"># "Set OPENAI_API_KEY ..."</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">)</span>                   <span class="co"># FALSE -- an all-error</span></span></span>
+<span class="r-in"><span>                                            <span class="co"># run never creates</span></span></span>
+<span class="r-in"><span>                                            <span class="co"># output_path at all</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `max_retries = 0L` is what makes that instant.  At the default</span></span></span>
+<span class="r-in"><span>  <span class="co"># 3L the very same missing key costs the full back-off ladder,</span></span></span>
+<span class="r-in"><span>  <span class="co"># 1 + 2 + 4 = 7 s, per abstract before it is written off -- so on</span></span></span>
+<span class="r-in"><span>  <span class="co"># the 10 000-abstract corpus this function exists for, about 20 h</span></span></span>
+<span class="r-in"><span>  <span class="co"># of sleeping and not one claim.  Check credentials yourself</span></span></span>
+<span class="r-in"><span>  <span class="co"># before the run; the pipeline will not do it for you.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">".errors"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "[silva2021]\tSet OPENAI_API_KEY or pass `api_key`."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># The networked path.  No key is ever passed as an argument: each</span></span></span>
+<span class="r-in"><span><span class="co"># backend reads its own environment variable, and `host` reaches</span></span></span>
+<span class="r-in"><span><span class="co"># exactly one of them.</span></span></span>
+<span class="r-in"><span><span class="co">#   "ollama"    -- no key; POSTs to &lt;host&gt;/api/chat</span></span></span>
+<span class="r-in"><span><span class="co">#   "openai"    -- OPENAI_API_KEY;    `host` ignored</span></span></span>
+<span class="r-in"><span><span class="co">#   "anthropic" -- ANTHROPIC_API_KEY; `host` ignored</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Pass `model` explicitly.  The pre-flight only checks the model</span></span></span>
+<span class="r-in"><span><span class="co"># when it is non-NULL, so leaving it NULL starts the run happily</span></span></span>
+<span class="r-in"><span><span class="co"># and then fails on every single abstract if the default</span></span></span>
+<span class="r-in"><span><span class="co"># "gemma4:latest" was never pulled.</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">llm_kg_pipeline_run</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  corpus_path    <span class="op">=</span> <span class="st">"cerrado_10k.jsonl"</span>,   <span class="co"># {source, abstract} per line</span></span></span>
+<span class="r-in"><span>  output_path    <span class="op">=</span> <span class="st">"cerrado_claims.jsonl"</span>,</span></span>
+<span class="r-in"><span>  backend        <span class="op">=</span> <span class="st">"ollama"</span>,</span></span>
+<span class="r-in"><span>  model          <span class="op">=</span> <span class="st">"gemma4:latest"</span>,</span></span>
+<span class="r-in"><span>  min_confidence <span class="op">=</span> <span class="fl">0.6</span>,</span></span>
+<span class="r-in"><span>  max_abstracts  <span class="op">=</span> <span class="fl">250L</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">n_processed</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `min_confidence` is applied before anything is written, and the</span></span></span>
+<span class="r-in"><span><span class="co"># source is marked done even when the filter left nothing.  So</span></span></span>
+<span class="r-in"><span><span class="co"># raising the threshold on a resumed run is a no-op, and lowering</span></span></span>
+<span class="r-in"><span><span class="co"># it does not revisit what is already in `.done`: delete</span></span></span>
+<span class="r-in"><span><span class="co"># &lt;output_path&gt;.done to re-extract a corpus at a new threshold.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="causal_kg_edges.html">causal_kg_edges</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">kg</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cause"</span>, <span class="st">"effect"</span>, <span class="st">"confidence"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

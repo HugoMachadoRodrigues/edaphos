@@ -3,7 +3,7 @@
 \((\lambda_0, \mu, y_\infty, y_0)\) conditional on the observed
 depth profile. Two levels of approximation are offered:"><meta property="og:description" content="Returns the posterior distribution of
 \((\lambda_0, \mu, y_\infty, y_0)\) conditional on the observed
-depth profile. Two levels of approximation are offered:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+depth profile. Two levels of approximation are offered:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ depth profile. Two levels of approximation are offered:"><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ depth profile. Two levels of approximation are offered:"><meta property="og:imag
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ depth profile. Two levels of approximation are offered:"><meta property="og:imag
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -112,12 +108,16 @@ depth profile. Two levels of approximation are offered:</p>
 <span>  <span class="va">depths</span>,</span>
 <span>  <span class="va">values</span>,</span>
 <span>  y_surface <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  top <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bottom <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lognormal"</span>, <span class="st">"gaussian"</span>, <span class="st">"gamma"</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"laplace"</span>, <span class="st">"mcmc"</span><span class="op">)</span>,</span>
 <span>  prior <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>,</span>
-<span>  n_iter <span class="op">=</span> <span class="fl">5000L</span>,</span>
-<span>  n_burn <span class="op">=</span> <span class="fl">2000L</span>,</span>
+<span>  n_iter <span class="op">=</span> <span class="fl">20000L</span>,</span>
+<span>  n_burn <span class="op">=</span> <span class="fl">6000L</span>,</span>
+<span>  n_chains <span class="op">=</span> <span class="fl">4L</span>,</span>
 <span>  thin <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -136,15 +136,35 @@ depth profile. Two levels of approximation are offered:</p>
 <dd><p>Optional fixed surface value.</p></dd>
 
 
+<dt id="arg-top-bottom">top, bottom<a class="anchor" aria-label="anchor" href="#arg-top-bottom"></a></dt>
+<dd><p>Optional horizon boundaries — same as
+<code><a href="piml_profile_fit.html">piml_profile_fit()</a></code>. When supplied, each observation is compared to
+the model's depth-average over its horizon rather than to a point
+evaluation at the mid-depth.</p></dd>
+
+
+<dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
+<dd><p>Observation family, as in <code><a href="piml_profile_fit.html">piml_profile_fit()</a></code>. <code>"gaussian"</code>
+(default) puts predictive mass below zero and weights every horizon by
+the same absolute error; <code>"lognormal"</code> and <code>"gamma"</code> are strictly
+positive, mean-preserving, and weight by relative error. When it is not
+<code>"gaussian"</code>, <code>sigma</code> is a coefficient of variation rather than an SD in
+the property's units, and the default prior on it changes accordingly.</p></dd>
+
+
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>One of <code>"laplace"</code> (default) or <code>"mcmc"</code>.</p></dd>
 
 
 <dt id="arg-prior">prior<a class="anchor" aria-label="anchor" href="#arg-prior"></a></dt>
-<dd><p>Named list of hyperparameters for the priors. See the
-source for the default structure (fields
-<code>log_lambda0_mean</code>, <code>log_lambda0_sd</code>, <code>mu_sd</code>, <code>y_inf_mean</code>,
-<code>y_inf_sd</code>, <code>y0_mean</code>, <code>y0_sd</code>).</p></dd>
+<dd><p>Named list of hyperparameters for the priors, placed on the
+identified log coordinates (fields <code>log_kappa_mean</code>, <code>log_kappa_sd</code>,
+<code>log_mu_mean</code>, <code>log_mu_sd</code>, <code>log_y_asym_mean</code>, <code>log_y_asym_sd</code>,
+<code>log_y0_mean</code>, <code>log_y0_sd</code>). Each is log-normal on its natural scale,
+which is the right family for a rate, a depth scale and a
+concentration, and which puts no mass on the impossible region. Note
+there is no prior on <code>y_inf</code>: it is a derived coordinate the profile
+never attains, and the data do not identify it.</p></dd>
 
 
 <dt id="arg-start">start<a class="anchor" aria-label="anchor" href="#arg-start"></a></dt>
@@ -156,9 +176,33 @@ source for the default structure (fields
 <dd><p><code>optim</code> control list for the MAP step.</p></dd>
 
 
-<dt id="arg-n-iter-n-burn-thin-seed">n_iter, n_burn, thin, seed<a class="anchor" aria-label="anchor" href="#arg-n-iter-n-burn-thin-seed"></a></dt>
-<dd><p>MCMC settings. Only consulted when
+<dt id="arg-n-iter-n-burn-thin">n_iter, n_burn, thin<a class="anchor" aria-label="anchor" href="#arg-n-iter-n-burn-thin"></a></dt>
+<dd><p>MCMC settings. The defaults were 5000/2000,
+which do NOT converge on this posterior: four chains on the shipped pedon
+gave max split-R-hat 1.015 and min bulk ESS 361 at 6000 iterations,
+against 1.004 and 1113 at 20000. A default that silently fails its own
+diagnostic is a trap, so the default is now the converging one. Only
+consulted when
 <code>method = "mcmc"</code>.</p></dd>
+
+
+<dt id="arg-n-chains">n_chains<a class="anchor" aria-label="anchor" href="#arg-n-chains"></a></dt>
+<dd><p>Integer, number of MCMC chains started from dispersed
+points around the Laplace mode. Four or more are needed for split-R-hat
+to mean anything; with one chain there is no between-chain variance and
+convergence cannot be assessed at all. Only consulted when
+<code>method = "mcmc"</code>.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>Optional integer seed. Consulted by <em>both</em> methods, not
+only by MCMC: with <code>method = "laplace"</code> it seeds the 2000 Gaussian
+draws taken from the Laplace posterior, and with <code>method = "mcmc"</code>
+it seeds the Metropolis chain. Because every entry of the returned
+<code>summary</code> (and of any downstream <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>) is a Monte-Carlo
+average over those draws, leaving <code>seed = NULL</code> makes the reported
+posterior means, SDs and quantiles change on every call. Set it
+whenever you intend to quote or compare the numbers.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -246,24 +290,43 @@ Metropolis algorithm. <em>Bernoulli</em> <strong>7</strong>, 223–242.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">depths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">18</span>, <span class="fl">12</span>, <span class="fl">8</span>, <span class="fl">6.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit_bayes</span> <span class="op">&lt;-</span> <span class="fu">piml_profile_fit_bayesian</span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># The posterior summary is a Monte-Carlo average over 2000 draws from</span></span></span>
+<span class="r-in"><span><span class="co"># the Laplace posterior, so `seed` is required for it to be</span></span></span>
+<span class="r-in"><span><span class="co"># reproducible. Drop the seed and the printed means and quantiles</span></span></span>
+<span class="r-in"><span><span class="co"># change in the 4th significant figure on every call.</span></span></span>
+<span class="r-in"><span><span class="va">fit_bayes</span> <span class="op">&lt;-</span> <span class="fu">piml_profile_fit_bayesian</span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit_bayes</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_piml_bayes&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   method     : laplace</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n draws    : 2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   sigma (noise): 0.1653</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sigma (noise): 0.009692</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   posterior summary (natural scale):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  parameter      mean       sd      q2.5       q50    q97.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    lambda0  0.049372 0.002535  0.044675  0.049299  0.05443</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         mu  0.004418 0.005045 -0.005313  0.004254  0.01431</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      y_inf  6.093350 0.470976  5.151652  6.104465  6.99052</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         y0 30.249753 0.446190 29.368545 30.234666 31.14010</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  parameter      mean        sd       q2.5       q50    q97.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    lambda0   0.03740  0.012180   0.018942  0.035352  0.06675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         mu   0.03509  0.005514   0.025552  0.034733  0.04736</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      y_inf -10.64234 11.818452 -41.257663 -8.089489  3.62039</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         y0  30.98891  0.602453  29.837477 31.006206 32.15824</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      kappa   1.14603  0.571184   0.399185  1.016122  2.59166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     y_asym   6.05674  0.177663   5.707088  6.056401  6.41648</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      sigma   0.01029  0.003757   0.004745  0.009672  0.01924</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_bayes</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   parameter         mean          sd         q2.5         q50       q97.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   lambda0  0.049372224 0.002535136  0.044675167  0.04929949  0.05443345</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        mu  0.004418308 0.005045119 -0.005313292  0.00425414  0.01430524</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     y_inf  6.093350122 0.470975653  5.151652473  6.10446482  6.99052275</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        y0 30.249753364 0.446190249 29.368544610 30.23466595 31.14010333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   parameter         mean           sd          q2.5          q50       q97.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   lambda0   0.03740123  0.012180251   0.018942048  0.035352378  0.06674652</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        mu   0.03508764  0.005514196   0.025551619  0.034733311  0.04736049</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     y_inf -10.64233536 11.818451781 -41.257662502 -8.089489174  3.62039465</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        y0  30.98891120  0.602452740  29.837476872 31.006206466 32.15823896</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     kappa   1.14603011  0.571184179   0.399185068  1.016122245  2.59166097</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    y_asym   6.05673942  0.177663360   5.707088358  6.056401367  6.41647509</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7     sigma   0.01028772  0.003757481   0.004744681  0.009671538  0.01923742</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># With seed = 1 this profile gives a lambda0 posterior mean of 0.0493</span></span></span>
+<span class="r-in"><span><span class="co"># and a 95% credible interval of [0.04434, 0.05456] -- a relative</span></span></span>
+<span class="r-in"><span><span class="co"># width of 21%, so the decay rate is identified to roughly +/- 10%</span></span></span>
+<span class="r-in"><span><span class="co"># and the point estimate alone would overstate what 5 horizons buy.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_bayes</span><span class="op">)</span>, <span class="va">parameter</span> <span class="op">==</span> <span class="st">"lambda0"</span>,</span></span>
+<span class="r-in"><span>             <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"q2.5"</span>, <span class="st">"q97.5"</span><span class="op">)</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     mean    q2.5   q97.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.0374 0.01894 0.06675</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

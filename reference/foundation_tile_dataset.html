@@ -5,7 +5,7 @@ batched (B, C, H, W) tensors from the underlying raster on demand
 is what foundation_moco_pretrain_tiles() consumes."><meta property="og:description" content="Returns an edaphos_tile_dataset S3 object that knows how to sample
 batched (B, C, H, W) tensors from the underlying raster on demand
 – without ever loading the whole mosaic into memory. The dataset
-is what foundation_moco_pretrain_tiles() consumes."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+is what foundation_moco_pretrain_tiles() consumes."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ is what foundation_moco_pretrain_tiles() consumes."><meta property="og:image" co
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ is what foundation_moco_pretrain_tiles() consumes."><meta property="og:image" co
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ is what foundation_moco_pretrain_tiles() consumes."><meta property="og:image" co
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -170,6 +166,128 @@ extracted from the raster; missing values are replaced by the
 per-layer mean.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"terra"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span>, package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># br_cerrado is a complete 45 x 45 grid, so it converts straight to</span></span></span>
+<span class="r-in"><span>  <span class="co"># a SpatRaster; x and y have to be the first two columns.</span></span></span>
+<span class="r-in"><span>  <span class="va">cerr</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"soc"</span>, <span class="st">"elev"</span>, <span class="st">"twi"</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                      type <span class="op">=</span> <span class="st">"xyz"</span>, crs <span class="op">=</span> <span class="st">"EPSG:4326"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">ds</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_dataset</span><span class="op">(</span><span class="va">cerr</span>, patch_size <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                  n_patches <span class="op">=</span> <span class="fl">200L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ds</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># (B, C, H, W) -- channel-first, the layout torch conv layers want.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>batch_size <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Normalisation uses GLOBAL raster statistics computed once at</span></span></span>
+<span class="r-in"><span>  <span class="co"># construction, never per-batch ones. They are the column statistics</span></span></span>
+<span class="r-in"><span>  <span class="co"># of the source table -- to floating-point tolerance, not bit for</span></span></span>
+<span class="r-in"><span>  <span class="co"># bit, because terra accumulates in a different order:</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="va">means</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="va">sds</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="va">means</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>    <span class="co"># TRUE</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="va">means</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>            <span class="co"># FALSE</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `seed` fixes WHICH patches the dataset owns, not which ones a</span></span></span>
+<span class="r-in"><span>  <span class="co"># call draws. Two datasets built with the same seed agree on</span></span></span>
+<span class="r-in"><span>  <span class="co"># patch_cells and still disagree on their batches, so seed the RNG</span></span></span>
+<span class="r-in"><span>  <span class="co"># immediately before sample() when you need a reproducible batch.</span></span></span>
+<span class="r-in"><span>  <span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_dataset</span><span class="op">(</span><span class="va">cerr</span>, patch_size <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                  n_patches <span class="op">=</span> <span class="fl">200L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="va">patch_cells</span>, <span class="va">d2</span><span class="op">$</span><span class="va">patch_cells</span><span class="op">)</span><span class="op">)</span>   <span class="co"># TRUE</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">4L</span><span class="op">)</span>, <span class="va">d2</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">4L</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>     <span class="co"># FALSE</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span>; <span class="va">b1</span> <span class="op">&lt;-</span> <span class="va">ds</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">4L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span>; <span class="va">b2</span> <span class="op">&lt;-</span> <span class="va">d2</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">4L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">b1</span>, <span class="va">b2</span><span class="op">)</span><span class="op">)</span>                           <span class="co"># TRUE</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># normalise = FALSE returns raw units, which is what you want when</span></span></span>
+<span class="r-in"><span>  <span class="co"># inspecting a patch and not what you want in a contrastive loss:</span></span></span>
+<span class="r-in"><span>  <span class="co"># elevation in metres would swamp TWI.</span></span></span>
+<span class="r-in"><span>  <span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_dataset</span><span class="op">(</span><span class="va">cerr</span>, patch_size <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                   n_patches <span class="op">=</span> <span class="fl">200L</span>, normalise <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>                                   seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">raw</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">8L</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">mean</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">8L</span><span class="op">)</span>,  <span class="fl">2</span>, <span class="va">mean</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Patch CENTRES must sit at least patch_size %/% 2 cells from every</span></span></span>
+<span class="r-in"><span>  <span class="co"># edge, so a large patch on a small grid leaves very few of them.</span></span></span>
+<span class="r-in"><span>  <span class="co"># On 45 x 45 with patch_size = 40 only rows and columns 21 to 25</span></span></span>
+<span class="r-in"><span>  <span class="co"># qualify -- 25 centres -- and n_patches = 200 is then drawn WITH</span></span></span>
+<span class="r-in"><span>  <span class="co"># replacement. The dataset reports 200 patches and owns 25 windows.</span></span></span>
+<span class="r-in"><span>  <span class="va">crowded</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_dataset</span><span class="op">(</span><span class="va">cerr</span>, patch_size <span class="op">=</span> <span class="fl">40L</span>,</span></span>
+<span class="r-in"><span>                                       n_patches <span class="op">=</span> <span class="fl">200L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">crowded</span><span class="op">$</span><span class="va">n_patches</span><span class="op">)</span>                          <span class="co"># 200 reported</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">crowded</span><span class="op">$</span><span class="va">patch_cells</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>        <span class="co"># 25 distinct</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/xyCellFrom.html" class="external-link">rowColFromCell</a></span><span class="op">(</span><span class="va">cerr</span>,</span></span>
+<span class="r-in"><span>                                    <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">crowded</span><span class="op">$</span><span class="va">patch_cells</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              <span class="fl">2</span>, <span class="va">range</span><span class="op">)</span><span class="op">)</span>                            <span class="co"># rows/cols 21..25</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Ask for a patch the grid cannot hold at all and it is an error,</span></span></span>
+<span class="r-in"><span>  <span class="co"># not a silent shrink.</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">foundation_tile_dataset</span><span class="op">(</span><span class="va">cerr</span>, patch_size <span class="op">=</span> <span class="fl">46L</span>, n_patches <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># A valid_mask restricts eligible centres -- here to the cells above</span></span></span>
+<span class="r-in"><span>  <span class="co"># mean TWI, which is a bit over half the grid, not exactly half. It</span></span></span>
+<span class="r-in"><span>  <span class="co"># is resampled onto the stack with method "near", so a coarser mask</span></span></span>
+<span class="r-in"><span>  <span class="co"># is allowed.</span></span></span>
+<span class="r-in"><span>  <span class="va">wet</span> <span class="op">&lt;-</span> <span class="va">cerr</span><span class="op">[[</span><span class="st">"twi"</span><span class="op">]</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/global.html" class="external-link">global</a></span><span class="op">(</span><span class="va">cerr</span><span class="op">[[</span><span class="st">"twi"</span><span class="op">]</span><span class="op">]</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">wet</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>   <span class="co"># fraction of cells kept</span></span></span>
+<span class="r-in"><span>  <span class="va">dw</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_dataset</span><span class="op">(</span><span class="va">cerr</span>, patch_size <span class="op">=</span> <span class="fl">8L</span>, n_patches <span class="op">=</span> <span class="fl">100L</span>,</span></span>
+<span class="r-in"><span>                                  valid_mask <span class="op">=</span> <span class="va">wet</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">wet</span><span class="op">)</span><span class="op">[</span><span class="va">dw</span><span class="op">$</span><span class="va">patch_cells</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Only the FIRST layer decides eligibility. A gap in any other</span></span></span>
+<span class="r-in"><span>  <span class="co"># channel is invisible to the sampler; those cells are imputed to</span></span></span>
+<span class="r-in"><span>  <span class="co"># the channel mean instead, which after normalisation is an exact</span></span></span>
+<span class="r-in"><span>  <span class="co"># zero. Put the layer with the honest coverage first.</span></span></span>
+<span class="r-in"><span>  <span class="va">gappy</span> <span class="op">&lt;-</span> <span class="va">cerr</span></span></span>
+<span class="r-in"><span>  <span class="va">v</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">gappy</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>; <span class="va">v</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">900</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>   <span class="co"># the top 20 rows</span></span></span>
+<span class="r-in"><span>  <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">gappy</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">v</span></span></span>
+<span class="r-in"><span>  <span class="va">dg</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_dataset</span><span class="op">(</span><span class="va">gappy</span>, patch_size <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                  n_patches <span class="op">=</span> <span class="fl">200L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">dg</span><span class="op">$</span><span class="va">patch_cells</span>, <span class="va">ds</span><span class="op">$</span><span class="va">patch_cells</span><span class="op">)</span><span class="op">)</span>   <span class="co"># TRUE</span></span></span>
+<span class="r-in"><span>  <span class="co"># Numerator and denominator, plus the gap-free control that shows</span></span></span>
+<span class="r-in"><span>  <span class="co"># the zeros are imputation and not coincidence:</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">dg</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">16L</span><span class="op">)</span><span class="op">[</span>, <span class="fl">2</span>, , <span class="op">]</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>   <span class="co"># hundreds</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fl">16L</span> <span class="op">*</span> <span class="fl">8L</span> <span class="op">*</span> <span class="fl">8L</span><span class="op">)</span>                                    <span class="co"># of 1024</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="fl">16L</span><span class="op">)</span><span class="op">[</span>, <span class="fl">2</span>, , <span class="op">]</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 0</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># batch_size is capped by n_patches, not by memory.</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span>batch_size <span class="op">=</span> <span class="fl">1000L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_tile_dataset&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stack       : 45 x 45 x 3 (rows x cols x channels)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   patch_size  : 8 x 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_patches   : 200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   channels    : soc, elev, twi</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4 3 8 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 19.50303 19.50303</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.510679 6.510679</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  18.61 994.61   8.53</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.14  0.52 -0.49</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]   21   21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]   25   25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : No valid cells leave enough margin for patch_size = 46.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.517037</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 448</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error in ds$sample(batch_size = 1000L) : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   batch_size &lt;= n_patches is not TRUE</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -122,11 +122,48 @@ for the QRF backbone.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  al <- al_initial_design(br_cerrado, c("elev","slope","twi"),
-                           n = 20L, seed = 1L)
-  fit <- al_fit(al, target = "soc")
-  pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), al$idx), ]
-  batch <- al_query_batchbald(fit, pool, n = 10L)
-} # }
+# `al_initial_design()` returns a bare integer vector of row indices
+# into the pool -- not a list, so there is no `$idx` to pull out.
+covs <- c("elev", "slope", "twi", "map_mm")
+idx  <- al_initial_design(br_cerrado, covs, n = 30L, seed = 1L,
+                          iter = 500L)
+lab  <- br_cerrado[idx, ]
+pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ]
+
+# `al_fit()` requires `covariates`; `seed` is forwarded to ranger, so
+# the forest -- and hence the batch selected below -- is reproducible.
+fit <- al_fit(lab, target = "soc", covariates = covs, seed = 42)
+
+batch <- al_query_batchbald(fit, pool, n = 8L)
+batch                       # row indices into `pool`, in greedy order
+#> [1] 1196 1542 1905 1462 1951 1105  745 1770
+head(pool[batch, covs])
+#>        elev slope    twi map_mm
+#> 1215  982.8 20.00 12.328 1818.6
+#> 1567  989.5 15.87  6.870 1815.1
+#> 1934  828.0 16.34 12.276 1795.2
+#> 1485  929.5  3.15  7.968 1848.4
+#> 1980  876.7 20.00  8.662 1859.9
+#> 1123 1022.6 19.22  7.346 1790.2
+
+# What BatchBALD buys over a plain uncertainty sort: the top-n
+# strategy will happily return near-duplicate neighbours, while the
+# log-det penalises them. Compare the *closest pair* inside each
+# batch in standardised covariate space -- bigger is better spread.
+greedy <- al_query(fit, pool, n = 8L, strategy = "uncertainty")
+Z <- scale(pool[, covs])
+closest_pair <- function(rows) min(stats::dist(Z[rows, , drop = FALSE]))
+c(batchbald = closest_pair(batch), uncertainty = closest_pair(greedy))
+#>   batchbald uncertainty 
+#>  0.54237715  0.07703957 
+
+# This 30-point fit is a runnable demonstration, not a usable model:
+# its out-of-bag RMSE beats simply predicting the mean of the 30
+# labels by well under a factor of two. A model worth acting on needs
+# hundreds of labeled sites and spatially blocked validation; use
+# al_loop() to grow the labeled set before trusting any batch.
+c(oob_rmse  = fit$history[[1]]$rmse_oob,
+  mean_only = sqrt(mean((lab$soc - mean(lab$soc))^2)))
+#>  oob_rmse mean_only 
+#>  5.159085  6.687530 
 ```

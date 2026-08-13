@@ -7,7 +7,7 @@ uniformly."><meta property="og:description" content="Wraps causal_iv_fit_2sls() 
 rows (or over clusters if cluster is supplied) and packages the
 resulting vector of effect estimates as an edaphos_posterior()
 so that uncertainty_calibrate() and autoplot() apply
-uniformly."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+uniformly."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ uniformly."><meta property="og:image" content="https://hugomachadorodrigues.gith
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ uniformly."><meta property="og:image" content="https://hugomachadorodrigues.gith
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ uniformly."><meta property="og:image" content="https://hugomachadorodrigues.gith
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -177,6 +173,66 @@ block (e.g. <code>"kmeans_cluster"</code> for spatial resampling).</p></dd>
 <code>method = "bootstrap"</code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Geology is a landscape attribute, so the instruments are constant</span></span></span>
+<span class="r-in"><span><span class="co"># within a farm -- and the agronomy shock is shared within a farm</span></span></span>
+<span class="r-in"><span><span class="co"># too. That is the regime where row-wise resampling lies.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n_farm</span>     <span class="op">&lt;-</span> <span class="fl">40</span></span></span>
+<span class="r-in"><span><span class="va">farm</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_farm</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">farm_shock</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_farm</span>, <span class="fl">0</span>, <span class="fl">1.2</span><span class="op">)</span><span class="op">[</span><span class="va">farm</span><span class="op">]</span>   <span class="co"># shared agronomy</span></span></span>
+<span class="r-in"><span><span class="va">carbonate</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_farm</span>, <span class="fl">0</span>, <span class="fl">12</span><span class="op">)</span><span class="op">[</span><span class="va">farm</span><span class="op">]</span>    <span class="co"># parent-rock CaCO3</span></span></span>
+<span class="r-in"><span><span class="va">quarry_km</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_farm</span>, <span class="fl">1</span>, <span class="fl">60</span><span class="op">)</span><span class="op">[</span><span class="va">farm</span><span class="op">]</span>    <span class="co"># km to the lime quarry</span></span></span>
+<span class="r-in"><span><span class="va">n</span>     <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">farm</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mgmt</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ph</span>    <span class="op">&lt;-</span> <span class="fl">4.6</span> <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> <span class="va">carbonate</span> <span class="op">-</span> <span class="fl">0.010</span> <span class="op">*</span> <span class="va">quarry_km</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>         <span class="fl">0.45</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">yield</span> <span class="op">&lt;-</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> <span class="va">ph</span> <span class="op">+</span> <span class="fl">1.3</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="va">farm_shock</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">soil</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">ph</span>, <span class="va">yield</span>, <span class="va">carbonate</span>, <span class="va">quarry_km</span>, <span class="va">farm</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Resampling rows pretends the 320 plots are 320 independent draws.</span></span></span>
+<span class="r-in"><span><span class="va">iv_rows</span> <span class="op">&lt;-</span> <span class="fu">causal_iv_posterior</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">soil</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>, instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  B <span class="op">=</span> <span class="fl">150L</span>, seed <span class="op">=</span> <span class="fl">1</span>, units <span class="op">=</span> <span class="st">"t/ha per pH unit"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Resampling farms respects the level at which the instruments and</span></span></span>
+<span class="r-in"><span><span class="co"># the shock actually vary.</span></span></span>
+<span class="r-in"><span><span class="va">iv_farms</span> <span class="op">&lt;-</span> <span class="fu">causal_iv_posterior</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">soil</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>, instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  B <span class="op">=</span> <span class="fl">150L</span>, cluster <span class="op">=</span> <span class="st">"farm"</span>, seed <span class="op">=</span> <span class="fl">1</span>, units <span class="op">=</span> <span class="st">"t/ha per pH unit"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The cluster bootstrap is about twice as wide, 0.48 against 0.23.</span></span></span>
+<span class="r-in"><span><span class="co"># The analytic 2SLS standard error, 0.22, agrees with the row</span></span></span>
+<span class="r-in"><span><span class="co"># bootstrap and is just as wrong: neither knows the effective</span></span></span>
+<span class="r-in"><span><span class="co"># sample size is 40 farms, not 320 plots.</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="causal_iv_fit_2sls.html">causal_iv_fit_2sls</a></span><span class="op">(</span><span class="va">soil</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                          instruments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carbonate"</span>, <span class="st">"quarry_km"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>analytic <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">se</span>, boot_rows <span class="op">=</span> <span class="va">iv_rows</span><span class="op">$</span><span class="va">sd</span>, boot_farms <span class="op">=</span> <span class="va">iv_farms</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   analytic  boot_rows boot_farms </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2201736  0.2332016  0.4827354 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The centre barely moves: clustering is about uncertainty, not</span></span></span>
+<span class="r-in"><span><span class="co"># about bias. Both results are ordinary edaphos_posterior objects.</span></span></span>
+<span class="r-in"><span><span class="va">iv_farms</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_posterior&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   method      : bootstrap</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   query_type  : effect</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   units       : t/ha per pH unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_samples   : 150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   query shape : 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean range  : [+1.7026, +1.7026]  mean = +1.7026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sd   range  : [+0.4827, +0.4827]  mean = +0.4827</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rows <span class="op">=</span> <span class="va">iv_rows</span><span class="op">$</span><span class="va">mean</span>, farms <span class="op">=</span> <span class="va">iv_farms</span><span class="op">$</span><span class="va">mean</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     rows    farms </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.649371 1.702640 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Resamples that fail to fit are dropped silently, so check how</span></span></span>
+<span class="r-in"><span><span class="co"># many draws actually survived before quoting an interval.</span></span></span>
+<span class="r-in"><span><span class="va">iv_farms</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">B</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 150</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

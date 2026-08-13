@@ -45,3 +45,35 @@ causal_adjustment_set(
 
 A character vector of variable names to condition on, or `NULL` if no
 valid set exists.
+
+## Examples
+
+``` r
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- causal_clorpt_dag()
+
+  # `effect` decides WHICH estimand you are adjusting for, and the
+  # default is "direct". That distinction is not cosmetic.
+  #
+  # Climate is exogenous in this DAG -- it has no parents at all --
+  # so the TOTAL effect of Climate on SOC is not confounded by
+  # anything, and the adjustment set is empty:
+  dagitty::parents(dag, "Climate")
+  causal_adjustment_set(dag, "Climate", "SOC", effect = "total")
+
+  # The default asks a different question. Climate reaches SOC both
+  # directly and through Organisms, so isolating the DIRECT effect
+  # means blocking the indirect path:
+  causal_adjustment_set(dag, "Climate", "SOC")   # effect = "direct"
+
+  # Organisms is a CHILD of Climate, not a common cause of both.
+  dagitty::children(dag, "Climate")
+
+  # So do not read a non-empty adjustment set as "these are the
+  # confounders". Conditioning on a mediator does not remove bias --
+  # it changes the estimand from total to direct, and conditioning
+  # on one when you wanted the total effect introduces bias rather
+  # than removing it.
+}
+#> [1] "Organisms"  "SOC"        "Weathering"
+```

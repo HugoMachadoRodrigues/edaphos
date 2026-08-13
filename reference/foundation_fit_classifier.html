@@ -7,7 +7,7 @@ the transfer-learning literature are supported:"><meta property="og:description"
 produced by foundation_moco_pretrain_tiles(),
 foundation_moco_pretrain() or foundation_simclr_pretrain() and
 trains it against a labelled patch set. Two standard regimes from
-the transfer-learning literature are supported:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+the transfer-learning literature are supported:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -33,7 +33,7 @@ the transfer-learning literature are supported:"><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,12 @@ the transfer-learning literature are supported:"><meta property="og:image" conte
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -59,14 +57,12 @@ the transfer-learning literature are supported:"><meta property="og:image" conte
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -262,21 +258,57 @@ models transfer better? <em>CVPR 2019</em>.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="va">ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"tools/pretrain/cerrado_dataset.rds"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># The loaded object carries the shapes the encoder was trained</span></span></span>
+<span class="r-in"><span>  <span class="co"># with: 31 standardised channels of 16 x 16 patches for v1.</span></span></span>
 <span class="r-in"><span>  <span class="va">moco</span> <span class="op">&lt;-</span> <span class="fu"><a href="foundation_weights_load.html">foundation_weights_load</a></span><span class="op">(</span><span class="st">"edaphos-cerrado-moco-v1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">n_ch</span> <span class="op">&lt;-</span> <span class="va">moco</span><span class="op">$</span><span class="va">n_channels</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Label a subset of patches by soil order (synthetic example).</span></span></span>
-<span class="r-in"><span>  <span class="va">patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span> <span class="op">*</span> <span class="va">ds</span><span class="op">$</span><span class="va">n_channels</span> <span class="op">*</span> <span class="fl">16</span> <span class="op">*</span> <span class="fl">16</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                   dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">200</span>, <span class="va">ds</span><span class="op">$</span><span class="va">n_channels</span>, <span class="fl">16</span>, <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">soil_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Oxisol"</span>, <span class="st">"Ultisol"</span>, <span class="st">"Inceptisol"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                               <span class="fl">200</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># SYNTHETIC PATCHES, NOT A SOIL SURVEY. The patches below are</span></span></span>
+<span class="r-in"><span>  <span class="co"># standard normal noise, so the signal has to be planted by hand:</span></span></span>
+<span class="r-in"><span>  <span class="co"># each soil order gets a different mean level in channel 1. The</span></span></span>
+<span class="r-in"><span>  <span class="co"># label then genuinely depends on the patch it is paired with and</span></span></span>
+<span class="r-in"><span>  <span class="co"># the probe has something real to find -- but what it finds is the</span></span></span>
+<span class="r-in"><span>  <span class="co"># offset planted three lines down, not pedology.</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">soil_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Oxisol"</span>, <span class="st">"Ultisol"</span>, <span class="st">"Inceptisol"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                            each <span class="op">=</span> <span class="fl">70L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">210</span> <span class="op">*</span> <span class="va">n_ch</span> <span class="op">*</span> <span class="fl">16</span> <span class="op">*</span> <span class="fl">16</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">210</span>, <span class="va">n_ch</span>, <span class="fl">16</span>, <span class="fl">16</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">patches</span><span class="op">[</span>, <span class="fl">1</span>, , <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">patches</span><span class="op">[</span>, <span class="fl">1</span>, , <span class="op">]</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Oxisol <span class="op">=</span> <span class="op">-</span><span class="fl">1.5</span>, Ultisol <span class="op">=</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>      Inceptisol <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">soil_order</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">foundation_fit_classifier</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">moco</span>, <span class="va">patches</span>, <span class="va">soil_order</span>,</span></span>
 <span class="r-in"><span>    freeze_backbone <span class="op">=</span> <span class="cn">TRUE</span>, head <span class="op">=</span> <span class="st">"linear"</span>,</span></span>
 <span class="r-in"><span>    epochs <span class="op">=</span> <span class="fl">40L</span>, device <span class="op">=</span> <span class="st">"mps"</span>, seed <span class="op">=</span> <span class="fl">1L</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">patches</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Read the accuracy against what a constant predictor would score,</span></span></span>
+<span class="r-in"><span>  <span class="co"># which is the majority-class rate -- 1/3 for these balanced</span></span></span>
+<span class="r-in"><span>  <span class="co"># labels. The planted offset is 1.5 sd wide, so a linear probe</span></span></span>
+<span class="r-in"><span>  <span class="co"># should land far above it (a local encoder of the same</span></span></span>
+<span class="r-in"><span>  <span class="co"># architecture separates the three groups completely).</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>best_val_acc  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">val_accuracy_history</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>          final_val_acc <span class="op">=</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">val_accuracy_history</span>, <span class="fl">1L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>          majority_rate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">soil_order</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">soil_order</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">patches</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>   <span class="co"># in-sample labels</span></span></span>
+<span class="r-in"><span>  <span class="va">prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">patches</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Delete the two lines that add the offset into `patches` -- i.e.</span></span></span>
+<span class="r-in"><span>  <span class="co"># draw the labels independently of the patches, as an earlier</span></span></span>
+<span class="r-in"><span>  <span class="co"># version of this example did -- and `final_val_acc` falls back</span></span></span>
+<span class="r-in"><span>  <span class="co"># onto the majority rate: there is then nothing to learn, and any</span></span></span>
+<span class="r-in"><span>  <span class="co"># apparent skill is memorisation of 210 noise vectors. Note that</span></span></span>
+<span class="r-in"><span>  <span class="co"># `best_val_acc` stays visibly above the baseline even in that</span></span></span>
+<span class="r-in"><span>  <span class="co"># no-signal case; a maximum over 40 noisy epochs is an optimistic</span></span></span>
+<span class="r-in"><span>  <span class="co"># statistic, so quote the final epoch, not the best one.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># None of this is a soil-order model. That needs patches cut from</span></span></span>
+<span class="r-in"><span>  <span class="co"># real covariate rasters (foundation_tile_align() -&gt;</span></span></span>
+<span class="r-in"><span>  <span class="co"># foundation_tile_dataset()), standardised over your own area of</span></span></span>
+<span class="r-in"><span>  <span class="co"># interest, and soil orders observed at those same locations.</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

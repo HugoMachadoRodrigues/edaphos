@@ -50,14 +50,19 @@ for the human-readable RDF variant.
 
 ``` r
 # \donttest{
-  kg <- causal_kg_new()
-  kg <- causal_kg_add_edge(kg, "precipitation", "soc",
-                            source = "Jenny 1941",
-                            confidence = 0.9)
-  f <- tempfile(fileext = ".rds")
-  causal_kg_save(kg, f)
-  kg2 <- causal_kg_load(f)
-  identical(causal_kg_edges(kg), causal_kg_edges(kg2))
+# `causal_kg_*()` needs igraph, a Suggests. `R CMD check --as-cran`
+# DOES execute \donttest blocks, so this guard is load-bearing:
+# without it the example errors on any machine lacking igraph.
+if (requireNamespace("igraph", quietly = TRUE)) {
+    kg <- causal_kg_new()
+    kg <- causal_kg_add_edge(kg, "precipitation", "soc",
+                              source = "Jenny 1941",
+                              confidence = 0.9)
+    f <- tempfile(fileext = ".rds")
+    causal_kg_save(kg, f)
+    kg2 <- causal_kg_load(f)
+    identical(causal_kg_edges(kg), causal_kg_edges(kg2))
+}
 #> [1] TRUE
 # }
 ```

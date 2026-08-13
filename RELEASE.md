@@ -1,9 +1,26 @@
-# edaphos — public-release checklist (v2.9.1)
+# edaphos — public-release checklist
 
-This file lists the **four remaining manual actions** a maintainer must
-execute to complete a public release. Everything else (code, tests,
-metadata, bundle generation, pkgdown config, CRAN comments, rOpenSci
-submission template) is already in place.
+**This is the only release checklist.** A second one,
+`RELEASE-CHECKLIST-v3.10.0.md`, was deleted rather than merged: it was
+written for a version that never existed, asserted “code 100 % ready, CI
+green”, pointed at a tarball at `/tmp/edaphos_release_tarballs/` that is
+not there, and named `peaceiris/actions-gh-pages` when
+`.github/workflows/pkgdown.yaml:61` uses
+`JamesIves/github-pages-deploy-action@v4.5.0`. Two checklists that
+disagree are worse than one that is merely incomplete, because a reader
+cannot tell which is authoritative.
+
+**This file carries no version number on purpose.** Both predecessors
+were headed with one (v2.9.1 and v3.10.0) and both went stale the moment
+the version moved; the version this applies to is whatever `DESCRIPTION`
+says, currently 0.9.0 and not yet released.
+
+The four steps below are manual because each is a state-changing action
+on a third-party service tied to the maintainer’s identity. They are
+**not** the only remaining work: `STATUS.md` is the live list of open
+defects, and it is not empty. The previous version of this sentence
+claimed everything else “is already in place”, which was the kind of
+assertion this package has spent a campaign removing.
 
 The automated machinery assumes you are the package maintainer with (a)
 a GitHub account with push rights to the repository, (b) a Zenodo
@@ -24,7 +41,7 @@ devtools::load_all(".")
 edaphos_zenodo_release(
   output_dir = "tools/zenodo_release",
   title = sprintf(
-    "edaphos %s — Disruptive algorithms for Digital Soil Mapping",
+    "edaphos %s — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods",
     utils::packageVersion("edaphos")
   ),
   include_tarball = TRUE,   # requires devtools
@@ -54,8 +71,17 @@ into `CITATION.cff` under `identifiers:` as a new entry, and also update
 ## 2. Enable GitHub Pages for the pkgdown site
 
 The workflow `.github/workflows/pkgdown.yaml` is already wired; it
-deploys `docs/` to the `gh-pages` branch on every push to `main`. Enable
-the site **one time**:
+deploys to the `gh-pages` branch on every push to `main`, using
+`JamesIves/github-pages-deploy-action@v4.5.0` (`:61`).
+
+Before enabling the site, note that the pkgdown build was **broken**
+until the correctness campaign fixed it: the reference index aborted on
+an unindexed `spatial_block_folds`, five vignettes were missing from the
+articles index, and four navbar entries pointed at a top-level
+`articles/` directory that pkgdown does not render. Both indices build
+now; run
+[`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html)
+locally once before turning Pages on. Enable the site **one time**:
 
 1.  Open
     <https://github.com/HugoMachadoRodrigues/edaphos/settings/pages>.
@@ -91,11 +117,12 @@ devtools::release()
 devtools::submit_cran()
 ```
 
-CRAN’s policy requires **at most 24 MB of installed package**, **no
-“large files”** in `inst/` (the 1.9 MB `benchmark_wosis_p4_p5_p7.rds` is
-below the implicit ceiling but worth measuring:
-`tools::checkRdaFiles("inst/extdata/")` on a resaved version could
-shrink further with `compress = "xz"`).
+CRAN’s policy caps the **source tarball at 5 MB**, which is the binding
+constraint here: `R CMD build` currently produces about 5.3 MB, most of
+it base64 figure data inside the built vignettes. Measure it before
+submitting rather than assuming, and see `STATUS.md` for where the
+remaining room is. (This paragraph used to cite a 1.9 MB
+`benchmark_wosis_p4_p5_p7.rds`; that bundle is 37 KB.)
 
 After submission you get an automated email from CRAN within a few
 hours. Any **WARNING** must be fixed and re-submitted; **NOTEs** that
@@ -140,5 +167,5 @@ Once all four steps are executed:
 - Post a brief announcement on the Pedometrics community lists (AG-Pedo,
   linkedin/pedometrics.org, X) pointing at the Zenodo DOI.
 
-These four manual steps are the **only** remaining blockers between the
-current local state and full public release.
+These four steps are the manual, third-party half of a release. The
+other half is whatever `STATUS.md` still lists as open.

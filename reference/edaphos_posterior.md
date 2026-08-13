@@ -89,7 +89,18 @@ invariants the class satisfies.
 ## Examples
 
 ``` r
-# From a posterior sample
+# Both posteriors below are built from synthetic random draws, so
+# set.seed() is what makes the printed summaries reproducible.
+# They illustrate the container only -- neither is a fitted model.
+# A real `method = "bootstrap"` posterior comes from the Pillar-1
+# block bootstrap, a real `method = "gaussian"` one from the
+# Pillar-6 QKRR posterior variance; both are obtained by calling
+# `as_edaphos_posterior()` on that pillar's fit, not by hand.
+set.seed(42)
+
+# From a posterior sample: 100 draws over a 2-cell query. The draws
+# are standard normal noise, so this posterior is centred on ~0 with
+# sd ~1 and would imply no detectable effect at all.
 post <- edaphos_posterior(
   samples    = matrix(stats::rnorm(200), nrow = 100, ncol = 2),
   method     = "bootstrap",
@@ -103,10 +114,16 @@ post
 #>   units       : g/kg per mm
 #>   n_samples   : 100
 #>   query shape : 2
-#>   mean range  : [-0.0136, +0.0313]  mean = +0.0088
-#>   sd   range  : [+0.9701, +1.0418]  mean = +1.0060
+#>   mean range  : [-0.0875, +0.0325]  mean = -0.0275
+#>   sd   range  : [+0.9042, +1.0414]  mean = +0.9728
+# Under set.seed(42) the two summary lines printed above read
+#   mean range  : [-0.0875, +0.0325]  mean = -0.0275
+#   sd   range  : [+0.9042, +1.0414]  mean = +0.9728
 
-# From a Gaussian summary
+# From a Gaussian summary. `mean` and `sd` are stored verbatim, but
+# the constructor still draws `n_samples_if_gaussian` (500) samples
+# so that uncertainty_calibrate() and autoplot() have a sample to
+# work with -- that hidden draw is the other thing set.seed() fixes.
 post2 <- edaphos_posterior(
   mean       = c(0.5, 0.7),
   sd         = c(0.1, 0.2),
@@ -121,4 +138,27 @@ post2
 #>   query shape : 2
 #>   mean range  : [+0.5000, +0.7000]  mean = +0.6000
 #>   sd   range  : [+0.1000, +0.2000]  mean = +0.1500
+
+# Those synthesised draws only reproduce the requested sd up to
+# Monte-Carlo error at n = 500: this prints 0.099 and 0.205 against
+# the requested 0.1 and 0.2.
+round(apply(post2$samples, 2L, stats::sd), 3L)
+#> [1] 0.099 0.205
+
+# print() shows the exact mean / sd; summary() adds quantiles, and
+# those are computed from the synthesised draws, so they move with
+# the seed even though the mean / sd lines do not.
+summary(post2)
+#> <edaphos_posterior>
+#>   method      : gaussian
+#>   query_type  : param
+#>   n_samples   : 500
+#>   query shape : 2
+#>   mean range  : [+0.5000, +0.7000]  mean = +0.6000
+#>   sd   range  : [+0.1000, +0.2000]  mean = +0.1500
+#> 
+#> Quantiles (over query shape):
+#>   q05   : min=+0.3355  med=+0.3541  max=+0.3727
+#>   q50   : min=+0.4963  med=+0.5995  max=+0.7027
+#>   q95   : min=+0.6521  med=+0.8432  max=+1.0342
 ```

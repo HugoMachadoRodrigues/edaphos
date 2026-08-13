@@ -110,3 +110,84 @@ gnn_fit(
 ## Value
 
 An `edaphos_gnn_gat` fit.
+
+## References
+
+Veličković, P., Cucurull, G., Casanova, A., Romero, A., Liò, P. and
+Bengio, Y. (2018). Graph Attention Networks. *International Conference
+on Learning Representations*.
+
+Kipf, T. N. and Welling, M. (2017). Semi-Supervised Classification with
+Graph Convolutional Networks. *International Conference on Learning
+Representations*.
+
+## Examples
+
+``` r
+data(br_cerrado)
+set.seed(10)
+
+# gnn_build_graph() wants the coordinates under `lon` / `lat`.
+sub <- br_cerrado[sample(nrow(br_cerrado), 150L), ]
+names(sub)[names(sub) == "x"] <- "lon"
+names(sub)[names(sub) == "y"] <- "lat"
+g <- gnn_build_graph(sub, k = 6L,
+                     feature_cols = c("elev", "slope", "twi", "map_mm"))
+
+# Hold every third profile out by setting its target to NA: the
+# default train_mask is !is.na(targets), so those nodes still pass
+# messages to their neighbours but never enter the loss.
+test  <- rep(c(FALSE, FALSE, TRUE), length.out = nrow(sub))
+y     <- sub$soc
+y_obs <- y; y_obs[test] <- NA
+
+fit <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+               epochs = 60L, seed = 1L)
+c(n_train = fit$n_train, n_val = fit$n_val,
+  epochs_run = length(fit$history), best_epoch = fit$best_epoch)
+#>    n_train      n_val epochs_run best_epoch 
+#>        100         20         21          1 
+
+# Score the held-out nodes against an achievable null -- the
+# TRAINING mean -- and against OLS on the same four covariates.
+null_mean <- mean(y[!test])
+nse <- function(pred)
+  1 - sum((pred - y[test])^2) / sum((y[test] - null_mean)^2)
+ols <- lm(soc ~ elev + slope + twi + map_mm, data = sub[!test, ])
+round(c(gat = nse(predict(fit)[test]),
+        ols = nse(predict(ols, sub[test, ]))), 4)
+#>    gat    ols 
+#> 0.6259 0.5974 
+
+# Before crediting the graph, read `best_epoch`.  It is 1 here: no
+# epoch of attention training beat the initialisation on the
+# internal validation split, so what came back is the random-init
+# encoder plus the closed-form ridge head -- and the four raw
+# covariates the readout skip hands that head do nearly all of it.
+fit_ns <- gnn_fit(g, y_obs, hidden = 8L, n_heads = 2L, n_layers = 2L,
+                  epochs = 60L, seed = 1L, readout_skip = FALSE)
+round(c(with_skip = nse(predict(fit)[test]),
+        without   = nse(predict(fit_ns)[test])), 4)
+#> with_skip   without 
+#>    0.6259    0.3806 
+
+# Inventing a target for the held-out nodes instead of masking them
+# -- the training mean is the usual choice -- fits the head to
+# reproduce that invented value and drags the test set towards it.
+y_imp <- y; y_imp[test] <- null_mean
+fit_imp <- gnn_fit(g, y_imp, hidden = 8L, n_heads = 2L, n_layers = 2L,
+                   epochs = 60L, seed = 1L)
+round(c(masked = nse(predict(fit)[test]),
+        invented = nse(predict(fit_imp)[test])), 4)
+#>   masked invented 
+#>   0.6259   0.4186 
+
+# `history` is the TRAINING loss and the printed "final MSE" is its
+# last entry.  Neither describes the parameters you got back, which
+# come from `best_epoch` on the validation split.
+round(c(train_at_best = fit$history[fit$best_epoch],
+        train_min     = min(fit$history),
+        train_at_end  = fit$history[length(fit$history)]), 4)
+#> train_at_best     train_min  train_at_end 
+#>        0.5043        0.4820        0.8000 
+```

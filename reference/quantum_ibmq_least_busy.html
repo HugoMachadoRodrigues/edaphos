@@ -3,7 +3,7 @@
 a sane default when the caller has no reason to target a specific
 processor."><meta property="og:description" content="Thin wrapper around QiskitRuntimeService$least_busy(). Useful as
 a sane default when the caller has no reason to target a specific
-processor."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+processor."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ processor."><meta property="og:image" content="https://hugomachadorodrigues.gith
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ processor."><meta property="og:image" content="https://hugomachadorodrigues.gith
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ processor."><meta property="og:image" content="https://hugomachadorodrigues.gith
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -130,6 +126,44 @@ qubits on the returned backend.</p></dd>
 <code>NA_character_</code> when no backend matches.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Step 3 of the discovery path, for when you have no reason to</span></span></span>
+<span class="r-in"><span>  <span class="co"># prefer a particular processor.</span></span></span>
+<span class="r-in"><span>  <span class="va">name</span> <span class="op">&lt;-</span> <span class="fu">quantum_ibmq_least_busy</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="quantum_ibmq_backends.html">quantum_ibmq_backends</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># TRUE: it is one of them</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># `min_num_qubits` filters the DEVICE, and says nothing about the</span></span></span>
+<span class="r-in"><span>  <span class="co"># size of your problem. The 2-qubit preset from</span></span></span>
+<span class="r-in"><span>  <span class="co"># quantum_hamiltonian_organo_mineral_nature() is routed onto the</span></span></span>
+<span class="r-in"><span>  <span class="co"># full coupling map before submission, so the circuit that</span></span></span>
+<span class="r-in"><span>  <span class="co"># actually leaves R is as wide as the processor -- 127 qubits on</span></span></span>
+<span class="r-in"><span>  <span class="co"># an Eagle device. Width here is a capacity filter, not a limit.</span></span></span>
+<span class="r-in"><span>  <span class="fu">quantum_ibmq_least_busy</span><span class="op">(</span>min_num_qubits <span class="op">=</span> <span class="fl">127L</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># TRAP: NA_character_ is the only failure signal and it covers</span></span></span>
+<span class="r-in"><span>  <span class="co"># three unrelated causes -- no token (returns before any network</span></span></span>
+<span class="r-in"><span>  <span class="co"># call), no backend matching the filter, and any API error (the</span></span></span>
+<span class="r-in"><span>  <span class="co"># service call is wrapped in tryCatch). Split them by hand:</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="fu">quantum_ibmq_least_busy</span><span class="op">(</span>min_num_qubits <span class="op">=</span> <span class="fl">1000L</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="quantum_ibmq_available.html">quantum_ibmq_available</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"no IBMQ_TOKEN in this session"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"token present; no backend that wide, or API error"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># "Least busy" is a queue-depth decision, not a fidelity one, and</span></span></span>
+<span class="r-in"><span>  <span class="co"># it can return a different processor minutes apart. Resolve it</span></span></span>
+<span class="r-in"><span>  <span class="co"># once and pin the name when two runs have to be comparable:</span></span></span>
+<span class="r-in"><span>  <span class="va">pinned</span> <span class="op">&lt;-</span> <span class="fu">quantum_ibmq_least_busy</span><span class="op">(</span>min_num_qubits <span class="op">=</span> <span class="fl">127L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="quantum_ibmq_submit.html">quantum_ibmq_submit</a></span><span class="op">(</span><span class="fu"><a href="quantum_hamiltonian_h2.html">quantum_hamiltonian_h2</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                       parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">12</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                       backend_name <span class="op">=</span> <span class="va">pinned</span>, mitigation <span class="op">=</span> <span class="st">"m3"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

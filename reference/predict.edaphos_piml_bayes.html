@@ -3,7 +3,7 @@
 forward model to produce posterior-predictive draws of
 \(y(z)\) at user-supplied depths."><meta property="og:description" content="Propagates the full posterior over ODE parameters through the
 forward model to produce posterior-predictive draws of
-\(y(z)\) at user-supplied depths."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+\(y(z)\) at user-supplied depths."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ forward model to produce posterior-predictive draws of
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ forward model to produce posterior-predictive draws of
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ forward model to produce posterior-predictive draws of
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -156,7 +152,12 @@ uncertainty on the <em>mean function</em> \(g(z; \theta)\) alone.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional integer seed for the sub-sampling of draws.</p></dd>
+<dd><p>Optional integer seed for the sub-sampling of draws.
+Every returned number is a Monte-Carlo summary over the sub-sample,
+so without a seed the <code>mean</code>, <code>sd</code>, <code>lower</code> and <code>upper</code> columns
+move between calls. Note that this seed only controls <em>which</em>
+posterior draws are propagated — reproducing a result end-to-end
+also requires seeding <code><a href="piml_profile_fit_bayesian.html">piml_profile_fit_bayesian()</a></code> itself.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -165,21 +166,42 @@ uncertainty on the <em>mean function</em> \(g(z; \theta)\) alone.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Either a matrix (when <code>interval</code> is NULL) or a data frame
-with columns <code>depth</code>, <code>mean</code>, <code>sd</code>, <code>lower</code>, <code>upper</code>.</p>
+    <p>Either a matrix (when <code>interval</code> is NULL) or a data frame with
+columns <code>depth</code>, <code>mean</code>, <code>sd</code>, <code>lower</code>, <code>upper</code>, <code>lower_sim</code> and
+<code>upper_sim</code>.</p>
+<p><code>lower</code>/<code>upper</code> are POINTWISE: each depth taken alone is covered with
+probability <code>interval</code>. <code>lower_sim</code>/<code>upper_sim</code> are SIMULTANEOUS – the
+sup-t band of Montiel Olea and Plagborg-Moller (2019), which covers the
+whole curve with that probability. Over a few hundred depths the two
+differ substantially, and a ribbon drawn from the pointwise pair and
+described as a band for the profile overstates its coverage. The
+calibrated one-sided level behind the simultaneous pair is on
+<code>attr(out, "supt_level")</code>; it is at most <code>(1 - interval) / 2</code>, so the
+simultaneous band always contains the pointwise one.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">depths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">18</span>, <span class="fl">12</span>, <span class="fl">8</span>, <span class="fl">6.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_fit_bayesian.html">piml_profile_fit_bayesian</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>, interval <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   depth      mean        sd     lower     upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    10 21.012520 0.1387745 20.742415 21.278981</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    20 15.504483 0.1367901 15.214314 15.755396</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    40 10.069634 0.1481595  9.800381 10.377096</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    80  7.029437 0.1405769  6.787625  7.327181</span>
+<span class="r-in"><span><span class="co"># BOTH seeds are needed for a reproducible interval: one for the 2000</span></span></span>
+<span class="r-in"><span><span class="co"># posterior draws, one for the 500 of them that predict() propagates.</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_fit_bayesian.html">piml_profile_fit_bayesian</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>, interval <span class="op">=</span> <span class="fl">0.95</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   depth      mean        sd     lower     upper lower_sim upper_sim</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    10 20.599410 0.5166922 19.214017 21.077384 18.859595 21.143626</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    20 15.055432 0.5500231 13.628016 15.511919 13.133344 15.538307</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    40  9.889623 0.3615814  8.863635 10.213230  8.703147 10.260745</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    80  6.908342 0.1254720  6.569483  7.049522  6.484335  7.066974</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># At depth 10 that prints mean 21.00 with a 95% interval of</span></span></span>
+<span class="r-in"><span><span class="co"># [20.75, 21.24] for the mean function. `include_obs_noise = TRUE`</span></span></span>
+<span class="r-in"><span><span class="co"># widens it to [20.58, 21.39], the interval for a single future</span></span></span>
+<span class="r-in"><span><span class="co"># observation rather than for the mean function:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdepths <span class="op">=</span> <span class="fl">10</span>, interval <span class="op">=</span> <span class="fl">0.95</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>        include_obs_noise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   depth     mean        sd    lower    upper lower_sim upper_sim</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    10 20.58971 0.5581681 19.31925 21.29382  19.31925  21.29382</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

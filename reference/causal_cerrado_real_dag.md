@@ -64,3 +64,51 @@ for the short-label schematic version;
 and
 [`causal_estimate_effect()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_estimate_effect.md)
 for identification + estimation.
+
+## Examples
+
+``` r
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag  <- causal_cerrado_real_dag()
+  prof <- readRDS(system.file("extdata", "case_cerrado_results.rds",
+                              package = "edaphos"))$profiles
+
+  # The whole point of this DAG: all of its nodes are real columns
+  # of the WoSIS case-study table, whereas the schematic
+  # causal_cerrado_dag() shares only two names with it.
+  print(all(names(dag) %in% names(prof)))
+  print(intersect(names(causal_cerrado_dag()), names(prof)))
+
+  # Total vs direct effect of clay on topsoil SOC. The total effect
+  # only needs slope; the direct effect must additionally block bulk
+  # density (a mediator) and then sand as well, because bdod is a
+  # collider of clay and sand.
+  print(causal_adjustment_set(dag, "soilgrids_clay",
+                              "soc_topsoil_gkg", effect = "total"))
+  print(causal_adjustment_set(dag, "soilgrids_clay",
+                              "soc_topsoil_gkg", effect = "direct"))
+
+  # Roughly two thirds of the clay effect is mediated: the total
+  # slope is about 0.54 g/kg SOC per unit of soilgrids_clay, the
+  # direct one about 0.19 with an interval that only just clears
+  # zero. Report which one you mean.
+  print(causal_estimate_effect(prof, dag, "soilgrids_clay",
+                               "soc_topsoil_gkg", effect = "total"))
+  print(causal_estimate_effect(prof, dag, "soilgrids_clay",
+                               "soc_topsoil_gkg", effect = "direct"))
+}
+#> [1] TRUE
+#> [1] "elev"  "slope"
+#> [1] "slope"
+#> [1] "slope"          "soilgrids_bdod" "soilgrids_sand"
+#> <edaphos_causal_effect>
+#>   soilgrids_clay -> soc_topsoil_gkg   (estimator: lm)
+#>   adjustment set : {slope}
+#>   total effect   : 0.5371   (95% CI: 0.4239, 0.6504)
+#>   naive effect   : 0.5257   (un-adjusted, likely confounded)
+#> <edaphos_causal_effect>
+#>   soilgrids_clay -> soc_topsoil_gkg   (estimator: lm)
+#>   adjustment set : {slope, soilgrids_bdod, soilgrids_sand}
+#>   direct effect  : 0.1949   (95% CI: 0.009367, 0.3804)
+#>   naive effect   : 0.5257   (un-adjusted, likely confounded)
+```

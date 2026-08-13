@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,14 +52,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+<li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -67,14 +65,12 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -185,8 +181,11 @@ supersedes v1 for every downstream user.</p>
 <strong>B1</strong> <code>ranger</code> quantile regression forest
 <span class="citation">(<a href="#ref-Meinshausen2006qrf">Meinshausen
 2006</a>)</span> on the expanded covariate stack (SoilGrids + WorldClim
-monthly + SRTM + WorldCover + bio), target =
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mtext mathvariant="normal">SOC</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\log(1 + \text{SOC})</annotation></semantics></math>.</li>
+monthly + SRTM + WorldCover + bio), target = SOC em g/kg, <strong>sem
+transformacao</strong> (o texto dizia
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mtext mathvariant="normal">SOC</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\log(1 + \text{SOC})</annotation></semantics></math>,
+o que contradizia a propria seccao 2(a) deste documento e o artefacto
+publicado).</li>
 <li>
 <strong>B2</strong> B1 <strong>plus</strong> residual kriging via
 <code>gstat</code> <span class="citation">(<a href="#ref-Pebesma2004gstat">Pebesma 2004</a>)</span> — the full
@@ -269,7 +268,7 @@ v1.2.0)</td>
 </h2>
 <p>The benchmark is reproduced by two scripts in the
 <code>edaphos</code> repository:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># ~1 h once (downloads ~2 GB of public rasters, samples 1212</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># ~1 h once (downloads ~2 GB of public rasters, selects 1 095</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># Cerrado WoSIS profiles, extracts covariates, writes the bundle).</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">Rscript</span> data-raw/case_cerrado_prepare.R</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
@@ -365,11 +364,12 @@ longitude/latitude).
 k-means clustering on longitude/latitude assigns each profile to one of
 5 folds, and each fold serves as the test set exactly once. This is
 strictly better than the single 80/20 split shipped in v1.3.0: every
-profile contributes a held-out prediction, so the 302 pooled predictions
-give metrics whose binomial CI is ~4× tighter than the 60-point test set
-we had before. It also removes the systematic ±3 g/kg bias that the
-single-split v1.3.0 estimate inherited from unlucky train/test SOC
-distribution drift.</p>
+profile contributes a held-out prediction, so the 1095 pooled
+predictions give metrics whose binomial CI is much tighter than the
+60-point test set we had before. (This paragraph said 302 for four
+releases; the artefact pools every profile.) It also removes the
+systematic ±3 g/kg bias that the single-split v1.3.0 estimate inherited
+from unlucky train/test SOC distribution drift.</p>
 </div>
 <div class="section level2">
 <h2 id="results">4. Results<a class="anchor" aria-label="anchor" href="#results"></a>
@@ -379,8 +379,8 @@ distribution drift.</p>
 </h3>
 <table style="width:100%;" class="table">
 <caption>5-fold cross-validation results. <code>n</code> is smaller for
-the foundation-model stack because ~50 profiles are too close to the
-raster edge to extract a 16×16 patch around them.</caption>
+the foundation-model stack because 172 profiles are too close to the
+raster edge to extract a 16x16 patch around them.</caption>
 <colgroup>
 <col width="22%">
 <col width="5%">
@@ -414,13 +414,13 @@ raster edge to extract a 16×16 patch around them.</caption>
 </tr>
 <tr class="even">
 <td align="left">B2 ranger + kriging</td>
-<td align="right">910</td>
-<td align="right">13.86</td>
-<td align="right">7.86</td>
-<td align="right">0.233</td>
-<td align="right">-0.23</td>
-<td align="left">0.816</td>
-<td align="right">99.52</td>
+<td align="right">893</td>
+<td align="right">14.01</td>
+<td align="right">7.93</td>
+<td align="right">0.205</td>
+<td align="right">0.04</td>
+<td align="left">0.945</td>
+<td align="right">79.90</td>
 </tr>
 <tr class="odd">
 <td align="left">E ranger + MoCo v1</td>
@@ -452,11 +452,10 @@ once. Dashed grey line is the 1:1. Closer points = better prediction.
 observation 95 % of the time. The PICP (Prediction Interval Coverage
 Probability) in the headline table is the honest probe:</p>
 <div class="figure" style="text-align: center">
-<img src="case-cerrado-end-to-end_files/figure-html/picp-bar-1.png" class="r-plt" alt="PICP@95 (target = 0.95) and mean interval width per method. All three stacks produce near-nominal coverage on 5-fold CV, with the QRF baseline reaching 0.937 — closer to the nominal 0.95 than either of the other two." width="92%"><p class="caption">
+<img src="case-cerrado-end-to-end_files/figure-html/picp-bar-1.png" class="r-plt" alt="PICP@95 (target = 0.95) and mean interval width per method. All three stacks produce near-nominal coverage on 5-fold CV; B2 ranger + kriging is closest at 0.945." width="92%"><p class="caption">
 <a href="mailto:PICP@95" class="email">PICP@95</a> (target = 0.95) and
 mean interval width per method. All three stacks produce near-nominal
-coverage on 5-fold CV, with the QRF baseline reaching 0.937 — closer to
-the nominal 0.95 than either of the other two.
+coverage on 5-fold CV; B2 ranger + kriging is closest at 0.945.
 </p>
 </div>
 </div>
@@ -486,8 +485,8 @@ the benchmark is re-executed.)</em></p>
 <strong>RMSE</strong>: <strong>B1 ranger</strong> has the lowest
 RMSE on held-out test (13.51 g/kg).</li>
 <li>
-<strong>Calibration</strong>: <strong>B1 ranger</strong> has the
-best 95% interval coverage (PICP = 0.944 vs nominal 0.95).</li>
+<strong>Calibration</strong>: <strong>B2 ranger + kriging</strong>
+has the best 95% interval coverage (PICP = 0.945 vs nominal 0.95).</li>
 <li>
 <strong>edaphos vs classical baseline</strong>: the MoCo embedding
 <strong>underperforms</strong> the raw-covariate ranger on this AoI by
@@ -500,11 +499,13 @@ AoI; scaled pretraining on the full biome is on the v1.4.0 roadmap.</li>
 <h2 id="what-we-learned">6. What we learned<a class="anchor" aria-label="anchor" href="#what-we-learned"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li><p><strong>The 302-profile clean 0–10 cm Cerrado dataset</strong> is
-a publicly reproducible benchmark, built entirely from CC-BY-4.0 data
-and IBGE public biome polygons. Every subsequent release of
-<code>edaphos</code> can be re-evaluated against the same 5-fold CV by
-running the two scripts.</p></li>
+<li><p><strong>The 1095-profile Cerrado dataset</strong> — SOC in g/kg
+of the surface-anchored horizon, <code>upper_depth == 0</code> with
+<code>lower_depth</code> between 5 and 30 cm — is a publicly
+reproducible benchmark, built entirely from CC-BY-4.0 data and IBGE
+public biome polygons. Every subsequent release of <code>edaphos</code>
+can be re-evaluated against the same 5-fold CV by running the two
+scripts.</p></li>
 <li><p><strong>Interval calibration is where the three stacks genuinely
 differ.</strong> Point RMSE is an incomplete view of a probabilistic
 predictor. The bottom panel of the PICP plot and the interval-score
@@ -532,7 +533,7 @@ estimate of the climate→SOC effect, using the DAG
 <code>soc_topsoil_gkg</code> as outcome, is now reproducible on
 <em>real</em> WoSIS Cerrado data instead of the synthetic
 <code>br_cerrado</code> fixture. Scheduled for v1.5.0.</p></li>
-<li><p><strong>Pillar 2 (PIML).</strong> The 1212-profile data is the
+<li><p><strong>Pillar 2 (PIML).</strong> The 1 095-profile data is the
 input to [<code><a href="../reference/piml_hierarchical_fit.html">piml_hierarchical_fit()</a></code>][piml_hierarchical_fit]
 for a pooled Neural-ODE profile model across pedons, with the posterior
 from
@@ -548,7 +549,7 @@ held-out pool returns the next 30 sampling locations that maximally
 reduce model uncertainty — directly usable by an EMBRAPA field team
 planning an in-situ campaign.</p></li>
 <li><p><strong>Pillar 6 (Quantum ML).</strong> Scheduled for a future
-release: quantum kernel over the Pillar 4 embedding of the 1212
+release: quantum kernel over the Pillar 4 embedding of the 1 095
 profiles, with [<code><a href="../reference/quantum_krr_fit.html">quantum_krr_fit()</a></code>][quantum_krr_fit]
 returning a probabilistic SOC prediction that plugs into the same metric
 table.</p></li>

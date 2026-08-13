@@ -5,7 +5,7 @@ nominal level, the mean prediction-interval width (MPIW) at
 the same levels, and a ready-for-ggplot reliability data frame."><meta property="og:description" content="Computes the continuous ranked probability score (CRPS), a
 prediction-interval coverage probability (PICP) at each requested
 nominal level, the mean prediction-interval width (MPIW) at
-the same levels, and a ready-for-ggplot reliability data frame."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+the same levels, and a ready-for-ggplot reliability data frame."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ the same levels, and a ready-for-ggplot reliability data frame."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ the same levels, and a ready-for-ggplot reliability data frame."><meta property=
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ the same levels, and a ready-for-ggplot reliability data frame."><meta property=
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -138,6 +134,10 @@ PICP + MPIW, and for the reliability curve. Defaults to
     <p>A list with:</p><dl><dt>crps</dt>
 <dd><p>Mean sample-based CRPS across query cells.</p></dd>
 
+<dt>crps_per</dt>
+<dd><p>Numeric vector of per-query-cell CRPS, in the
+flattened order of <code>post$mean</code>; <code>crps</code> is its mean.</p></dd>
+
 <dt>picp</dt>
 <dd><p>Named vector of empirical coverage, one per <code>probs</code>.</p></dd>
 
@@ -173,6 +173,87 @@ rules, prediction, and estimation. <em>Journal of the American
 Statistical Association</em> <strong>102</strong>(477), 359-378.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A stand-in for a pillar posterior: `lm()` on 1825 Cerrado cells</span></span></span>
+<span class="r-in"><span><span class="co"># gives a predictive mean for 200 held-out cells and a residual sd.</span></span></span>
+<span class="r-in"><span><span class="co"># A real posterior arrives via as_edaphos_posterior() on a pillar</span></span></span>
+<span class="r-in"><span><span class="co"># fit; nothing below depends on which pillar produced it.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2024</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">holdout</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">200L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">test</span>    <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="va">holdout</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">train</span>   <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="op">-</span><span class="va">holdout</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">fit</span>     <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">soc</span> <span class="op">~</span> <span class="va">elev</span> <span class="op">+</span> <span class="va">slope</span> <span class="op">+</span> <span class="va">twi</span> <span class="op">+</span> <span class="va">map_mm</span> <span class="op">+</span> <span class="va">ndvi</span>,</span></span>
+<span class="r-in"><span>                     data <span class="op">=</span> <span class="va">train</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mu</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">test</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sigma</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">$</span><span class="va">sigma</span>          <span class="co"># 4.3064 g/kg</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Same predictive mean, two claims about its spread. The second</span></span></span>
+<span class="r-in"><span><span class="co"># understates the sd by a factor of three on purpose.</span></span></span>
+<span class="r-in"><span><span class="va">honest</span> <span class="op">&lt;-</span> <span class="fu"><a href="edaphos_posterior.html">edaphos_posterior</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">sigma</span>, <span class="fl">200L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                            method <span class="op">=</span> <span class="st">"gaussian"</span>,</span></span>
+<span class="r-in"><span>                            query_type <span class="op">=</span> <span class="st">"sample"</span>, units <span class="op">=</span> <span class="st">"g/kg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tight</span>  <span class="op">&lt;-</span> <span class="fu"><a href="edaphos_posterior.html">edaphos_posterior</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">sigma</span> <span class="op">/</span> <span class="fl">3</span>, <span class="fl">200L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                            method <span class="op">=</span> <span class="st">"gaussian"</span>,</span></span>
+<span class="r-in"><span>                            query_type <span class="op">=</span> <span class="st">"sample"</span>, units <span class="op">=</span> <span class="st">"g/kg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cal_h</span> <span class="op">&lt;-</span> <span class="fu">uncertainty_calibrate</span><span class="op">(</span><span class="va">honest</span>, <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cal_t</span> <span class="op">&lt;-</span> <span class="fu">uncertainty_calibrate</span><span class="op">(</span><span class="va">tight</span>,  <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `point_rmse` is blind to the difference -- the means are identical.</span></span></span>
+<span class="r-in"><span><span class="co"># Accuracy and calibration are separate questions.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>honest <span class="op">=</span> <span class="va">cal_h</span><span class="op">$</span><span class="va">point_rmse</span>, tight <span class="op">=</span> <span class="va">cal_t</span><span class="op">$</span><span class="va">point_rmse</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   honest    tight </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4.248001 4.248001 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Coverage is not blind. Nominal 90% intervals hold 90.5% of the</span></span></span>
+<span class="r-in"><span><span class="co"># truth for the honest posterior and 39.5% for the overconfident one.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>honest <span class="op">=</span> <span class="va">cal_h</span><span class="op">$</span><span class="va">picp</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0.50"</span>, <span class="st">"0.90"</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>            tight  <span class="op">=</span> <span class="va">cal_t</span><span class="op">$</span><span class="va">picp</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0.50"</span>, <span class="st">"0.90"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         0.50  0.90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> honest 0.490 0.905</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> tight  0.175 0.395</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Read those against sampling noise before calling it miscalibrated:</span></span></span>
+<span class="r-in"><span><span class="co"># on 200 cells the binomial standard error of a 90% coverage</span></span></span>
+<span class="r-in"><span><span class="co"># estimate is 0.021, so the honest posterior (0.005 off nominal) is</span></span></span>
+<span class="r-in"><span><span class="co"># indistinguishable from calibrated and the tight one is 24 SEs out.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>se90   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">0.9</span> <span class="op">*</span> <span class="fl">0.1</span> <span class="op">/</span> <span class="fl">200</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        honest <span class="op">=</span> <span class="va">cal_h</span><span class="op">$</span><span class="va">picp</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span> <span class="op">-</span> <span class="fl">0.9</span>,</span></span>
+<span class="r-in"><span>        tight  <span class="op">=</span> <span class="va">cal_t</span><span class="op">$</span><span class="va">picp</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span> <span class="op">-</span> <span class="fl">0.9</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    se90  honest   tight </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0212  0.0050 -0.5050 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># CRPS is a proper score and does move the right way, but only by</span></span></span>
+<span class="r-in"><span><span class="co"># 16% for a 3x understated sd. A report quoting CRPS alone can hide</span></span></span>
+<span class="r-in"><span><span class="co"># a badly overconfident map that PICP catches instantly.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>crps_honest <span class="op">=</span> <span class="va">cal_h</span><span class="op">$</span><span class="va">crps</span>, crps_tight <span class="op">=</span> <span class="va">cal_t</span><span class="op">$</span><span class="va">crps</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> crps_honest  crps_tight </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2.4314      2.8262 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The reliability curve is the readable version: all 19 nominal</span></span></span>
+<span class="r-in"><span><span class="co"># levels under-covered, none over, worst by 0.51.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">cal_t</span><span class="op">$</span><span class="va">reliability_df</span><span class="op">$</span><span class="va">diff</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">cal_t</span><span class="op">$</span><span class="va">reliability_df</span><span class="op">$</span><span class="va">diff</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.51</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Coverage on its own is still not enough: it is bought with width.</span></span></span>
+<span class="r-in"><span><span class="co"># Read PICP next to MPIW at the same level -- 14.1 g/kg against 4.7.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mpiw90_honest <span class="op">=</span> <span class="va">cal_h</span><span class="op">$</span><span class="va">mpiw</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>        mpiw90_tight  <span class="op">=</span> <span class="va">cal_t</span><span class="op">$</span><span class="va">mpiw</span><span class="op">[[</span><span class="st">"0.90"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mpiw90_honest  mpiw90_tight </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        14.123         4.695 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `crps_per` holds the 200 per-cell scores behind the scalar. Every</span></span></span>
+<span class="r-in"><span><span class="co"># cell here was handed the same sd, so CRPS is monotone in |error|</span></span></span>
+<span class="r-in"><span><span class="co"># and its worst cell is merely the worst residual; the per-cell</span></span></span>
+<span class="r-in"><span><span class="co"># scores only add information once sd varies by cell.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cal_h</span><span class="op">$</span><span class="va">crps_per</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 200</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">cal_h</span><span class="op">$</span><span class="va">crps_per</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">mu</span> <span class="op">-</span> <span class="va">test</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

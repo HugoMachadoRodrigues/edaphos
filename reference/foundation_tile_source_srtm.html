@@ -3,7 +3,7 @@
 crops it to the AoI. Optionally derives slope and aspect via
 terra::terrain()."><meta property="og:description" content="Wraps geodata::elevation_30s() (global, 30 arc-second SRTM) and
 crops it to the AoI. Optionally derives slope and aspect via
-terra::terrain()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+terra::terrain()."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -29,7 +29,7 @@ terra::terrain()."><meta property="og:image" content="https://hugomachadorodrigu
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,14 +40,12 @@ terra::terrain()."><meta property="og:image" content="https://hugomachadorodrigu
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -55,14 +53,12 @@ terra::terrain()."><meta property="og:image" content="https://hugomachadorodrigu
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -143,6 +139,46 @@ compute. Any subset of <code>c("slope","aspect","TPI","TRI","roughness")</code>.
 layers.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">aoi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">48</span>, <span class="op">-</span><span class="fl">16</span>, <span class="op">-</span><span class="fl">14</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">topo</span> <span class="op">&lt;-</span> <span class="fu">foundation_tile_source_srtm</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  aoi <span class="op">=</span> <span class="va">aoi</span>, derive <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"slope"</span>, <span class="st">"TPI"</span><span class="op">)</span>, country <span class="op">=</span> <span class="st">"BRA"</span>,</span></span>
+<span class="r-in"><span>  path <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"edaphos"</span>, <span class="st">"cache"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">topo</span><span class="op">)</span>   <span class="co"># "elev" "slope" "TPI"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `country` picks which national tile geodata fetches and the crop to</span></span></span>
+<span class="r-in"><span><span class="co"># `aoi` happens afterwards, so the default "BRA" is wrong the moment</span></span></span>
+<span class="r-in"><span><span class="co"># the AoI leaves Brazil. The failure comes from terra, not from a</span></span></span>
+<span class="r-in"><span><span class="co"># helpful check: "[crop] extents do not overlap".</span></span></span>
+<span class="r-in"><span><span class="fu">foundation_tile_source_srtm</span><span class="op">(</span>aoi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">32</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span>, country <span class="op">=</span> <span class="st">"KEN"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># geodata::elevation_30s() masks to the country border by default and</span></span></span>
+<span class="r-in"><span><span class="co"># this wrapper does not expose that argument, so an AoI straddling a</span></span></span>
+<span class="r-in"><span><span class="co"># border comes back NA on the foreign side.</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/global.html" class="external-link">global</a></span><span class="op">(</span><span class="va">topo</span>, <span class="st">"isNA"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Every entry of `derive` goes through terra::terrain(), which needs a</span></span></span>
+<span class="r-in"><span><span class="co"># full 3 x 3 neighbourhood, so each derived layer is NA on the outer</span></span></span>
+<span class="r-in"><span><span class="co"># ring of the tile even where `elev` is present.</span></span></span>
+<span class="r-in"><span><span class="co"># foundation_tile_dataset() imputes those NAs to the layer mean</span></span></span>
+<span class="r-in"><span><span class="co"># without warning -- crop with a margin if that matters to you.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `unit = "degrees"` is passed for every derived layer but only</span></span></span>
+<span class="r-in"><span><span class="co"># affects "slope" and "aspect"; TPI, TRI and roughness stay in the</span></span></span>
+<span class="r-in"><span><span class="co"># units of `elev`.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># elevation_30s() is the 30 arc-SECOND (roughly 1 km) aggregation of</span></span></span>
+<span class="r-in"><span><span class="co"># the 90 m CGIAR-SRTM, not a 30 m product -- the cell size says so:</span></span></span>
+<span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">res</a></span><span class="op">(</span><span class="va">topo</span><span class="op">)</span>   <span class="co"># ~0.008333 degrees = 30 arc-seconds, roughly 1 km</span></span></span>
+<span class="r-in"><span><span class="co"># Slope computed from that is a kilometre-scale gradient and will not</span></span></span>
+<span class="r-in"><span><span class="co"># match a slope map derived from a fine LiDAR DEM over the same field.</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

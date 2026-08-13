@@ -3,9 +3,9 @@
 Curated presets that build an `edaphos_quantum_hamiltonian` from a
 realistic molecular geometry through
 [`quantum_hamiltonian_from_pyscf()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_hamiltonian_from_pyscf.md).
-Three variants are shipped, each chosen to expose a distinct piece of
-organo-mineral chemistry at a qubit count that is accessible to
-present-day hardware:
+Three variants are shipped, of which the two closed-shell organics
+build; each is chosen to expose a distinct piece of organo-mineral
+chemistry at a qubit count accessible to present-day hardware:
 
 ## Usage
 
@@ -56,27 +56,38 @@ reconstruct the total molecular energy.
   HCOOH in STO-3G with the chemical core frozen and a `(2e, 2o)` active
   space. Models the **carboxylate functional group** that is the
   dominant coordinating moiety of humic acids. After parity tapering the
-  qubit Hamiltonian is 2 qubits / ~5 Pauli terms — fast enough to run on
+  qubit Hamiltonian is 2 qubits / 9 Pauli terms — fast enough to run on
   any hardware and small enough for CI.
 
 - `"methanediol"`:
 
   H\\\_2\\C(OH)\\\_2\\ in STO-3G with the core frozen and a `(2e, 2o)`
   active space. Models the **ortho-diol** motif that underpins
-  catechol-type Fe(III) chelation in humic substances. 2 qubits after
-  tapering.
+  catechol-type Fe(III) chelation in humic substances. 2 qubits / 5
+  Pauli terms after tapering. Note that this active space is nearly
+  closed shell: it recovers only 0.5 mHartree of correlation energy
+  against 34.2 mHartree for `"formic_acid"`, so the two are not
+  interchangeable as demonstrations even though they cost the same to
+  run. See
+  [`quantum_nature_total_energy()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_nature_total_energy.md).
 
 - `"ferric_formate"`:
 
-  Monodentate Fe(III)–OOCH complex in STO-3G. Open-shell (S = 5/2),
-  requires a `(4e, 4o)` active space around Fe 3d + carboxylate
-  \\\pi^\*\\, and produces a 4-qubit Hamiltonian after parity tapering.
-  This variant is the *minimum viable* representation of an
-  organo-mineral coordination event at the clay–humus interface; because
-  the SCF convergence is sensitive to the initial guess we recommend
-  running it on `backend = "aer_shots"` or `"ibmq"` with `"SPSA"` and at
-  least 100 iterations, and consulting `attr(ham, "reference_energy")`
-  as a sanity check.
+  Monodentate Fe(III)–OOCH complex in STO-3G, intended as the *minimum
+  viable* representation of an organo-mineral coordination event at the
+  clay–humus interface. **This variant does not currently build.** The
+  shipped geometry is neutral and open-shell (49 electrons, `spin = 5`);
+  after `FreezeCoreTransformer` it carries 25 active electrons, an odd
+  number, and `ActiveSpaceTransformer` then rejects every reachable
+  configuration: an even `num_active_electrons` leaves an odd inactive
+  count (`'The number of inactive electrons must be even.'`) while an
+  odd one fails the alpha/beta split
+  (`'Incorrect Active-Space configuration.'`). Because
+  `num_active_electrons` is coerced with
+  [`as.integer()`](https://rdrr.io/r/base/integer.html) it cannot carry
+  the `(alpha, beta)` tuple that qiskit-nature would need, so no
+  override rescues it from R. Treat it as a known gap, not as a slow
+  calculation.
 
 ## References
 

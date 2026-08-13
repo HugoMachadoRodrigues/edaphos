@@ -17,7 +17,7 @@ Quantum Kernel Ridge Regression over the RAW covariates
 Quantum Kernel Ridge Regression over the foundation-embedding
 PCs (the v2.0.0 contribution).
 
-"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -43,7 +43,7 @@ PCs (the v2.0.0 contribution).
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,14 +54,12 @@ PCs (the v2.0.0 contribution).
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -69,14 +67,12 @@ PCs (the v2.0.0 contribution).
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -176,6 +172,63 @@ either its quantum-only or foundation-only ancestor?" gets an
 empirical answer.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Stand-in MoCo encoder output plus the five raw covariates it was</span></span></span>
+<span class="r-in"><span><span class="co"># built from, over 200 Cerrado pixels, predicting SOC (g/kg).</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sub</span>  <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">200L</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">Z</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">sub</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">W</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5L</span> <span class="op">*</span> <span class="fl">64L</span><span class="op">)</span>, <span class="fl">5L</span>, <span class="fl">64L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">emb</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html" class="external-link">tanh</a></span><span class="op">(</span><span class="va">Z</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">W</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200L</span> <span class="op">*</span> <span class="fl">64L</span>, <span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span>, <span class="fl">200L</span>, <span class="fl">64L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">y</span>    <span class="op">&lt;-</span> <span class="va">sub</span><span class="op">$</span><span class="va">soc</span></span></span>
+<span class="r-in"><span><span class="va">tr</span>   <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">140</span>; <span class="va">te</span> <span class="op">&lt;-</span> <span class="fl">141</span><span class="op">:</span><span class="fl">200</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># set.seed() even with a fixed split: arm 1 draws 500 ranger trees</span></span></span>
+<span class="r-in"><span><span class="co"># from the ambient RNG stream, so its RMSE moves without one.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="fu">qf_krr_benchmark</span><span class="op">(</span><span class="va">emb</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">sub</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span><span class="op">)</span>, <span class="va">y</span>,</span></span>
+<span class="r-in"><span>                       train_ix <span class="op">=</span> <span class="va">tr</span>, test_ix <span class="op">=</span> <span class="va">te</span>,</span></span>
+<span class="r-in"><span>                       n_pcs <span class="op">=</span> <span class="fl">5L</span>, reps <span class="op">=</span> <span class="fl">2L</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bm</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"method"</span>, <span class="st">"rmse"</span>, <span class="st">"r2"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                             method     rmse          r2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rf         ranger (raw covariates) 5.051015  0.50603423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rbf      RBF-KRR on foundation PCs 4.981030  0.51962777</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> qraw Quantum KRR on raw covariates 6.798584  0.10509592</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> qf   Quantum KRR on foundation PCs 7.387175 -0.05656509</span>
+<span class="r-in"><span><span class="co">#   ranger (raw covariates)         5.02   0.513</span></span></span>
+<span class="r-in"><span><span class="co">#   RBF-KRR on foundation PCs       4.98   0.520</span></span></span>
+<span class="r-in"><span><span class="co">#   Quantum KRR on raw covariates   6.80   0.105</span></span></span>
+<span class="r-in"><span><span class="co">#   Quantum KRR on foundation PCs   7.39  -0.057</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The bridge's own arm comes last, and it loses to the null the</span></span></span>
+<span class="r-in"><span><span class="co"># whole table has to clear first:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="edaphos_rmse.html">edaphos_rmse</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">te</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">tr</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">te</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 7.21</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.208675</span>
+<span class="r-in"><span><span class="co"># Only the two classical arms beat it.  The quantum lift over the</span></span></span>
+<span class="r-in"><span><span class="co"># foundation PCs is worse than predicting the training mean here,</span></span></span>
+<span class="r-in"><span><span class="co"># which is what a Gram matrix collapsed onto the identity looks</span></span></span>
+<span class="r-in"><span><span class="co"># like downstream -- see qf_kernel_compare().</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Three things that make this table less of a head-to-head than</span></span></span>
+<span class="r-in"><span><span class="co"># it reads:</span></span></span>
+<span class="r-in"><span><span class="co">#  * arms 2 and 3 fit their preprocessing (the PCA, and</span></span></span>
+<span class="r-in"><span><span class="co">#    quantum_scale()'s column min/max) on ALL rows, test included;</span></span></span>
+<span class="r-in"><span><span class="co">#    arms 1 and 4 only ever see the training rows.</span></span></span>
+<span class="r-in"><span><span class="co">#  * arm 3 quantum-encodes the FIRST n_pcs covariate columns, in</span></span></span>
+<span class="r-in"><span><span class="co">#    whatever order the matrix happens to have -- not a selection.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">sub</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "elev"   "slope"  "twi"    "map_mm" "ndvi"  </span>
+<span class="r-in"><span><span class="co">#  * if ncol(covariates) &lt; n_pcs, arm 3 is dropped in silence and</span></span></span>
+<span class="r-in"><span><span class="co">#    you get a three-row table with no warning:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu">qf_krr_benchmark</span><span class="op">(</span><span class="va">emb</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">sub</span><span class="op">[</span>, <span class="va">covs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, <span class="va">y</span>,</span></span>
+<span class="r-in"><span>                      train_ix <span class="op">=</span> <span class="va">tr</span>, test_ix <span class="op">=</span> <span class="va">te</span>,</span></span>
+<span class="r-in"><span>                      n_pcs <span class="op">=</span> <span class="fl">5L</span>, reps <span class="op">=</span> <span class="fl">2L</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 3</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

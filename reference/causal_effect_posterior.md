@@ -77,3 +77,46 @@ causal_effect_posterior(
 
 An `edaphos_posterior` with `query_type = "effect"` and `method` set to
 `"bootstrap"` (LM) or `"bayesian"` (BART).
+
+## Examples
+
+``` r
+if (requireNamespace("dagitty", quietly = TRUE)) {
+  dag <- causal_cerrado_dag()
+  d   <- br_cerrado
+  set.seed(42)
+  d$kmeans_cluster <- stats::kmeans(d[, c("x", "y")], centers = 9L)$cluster
+
+  # LM path: the draws are the cluster block bootstrap. B = 50 keeps
+  # the example fast; use several hundred for anything you report.
+  post <- causal_effect_posterior(d, dag, "twi", "soc", B = 50L,
+                                  seed = 1L, units = "g/kg per TWI unit")
+  post
+
+  # `post$quantiles` holds q05/q50/q95 -- a 90% interval, not the
+  # 95% one most papers quote. Take that from the draws directly.
+  quantile(post$samples[, 1], c(0.025, 0.975))
+
+  # When the adjustment set is derived from the DAG rather than
+  # passed in, the LM path records `metadata$adjustment` as NULL.
+  # Recover the set from the graph for your provenance record.
+  post$metadata$adjustment
+  causal_adjustment_set(dag, "twi", "soc", effect = "direct")
+
+  # The posterior is conditional on the DAG *and* on the estimator.
+  # BART on the same graph and the same rows returns about 1.20,
+  # outside the LM bootstrap interval of roughly [1.36, 1.69]. No
+  # number of resamples exposes that -- it is a functional-form
+  # disagreement, not sampling noise.
+  if (requireNamespace("dbarts", quietly = TRUE)) {
+    pb <- causal_effect_posterior(
+      d, dag, "twi", "soc", estimator = "bart",
+      bart_kwargs = list(ntree = 50L, ndpost = 200L, nskip = 100L,
+                         seed = 1L)
+    )
+    c(lm = post$mean, bart = pb$mean)
+  }
+}
+#>       lm     bart 
+#> 1.512274 1.197336 
+```

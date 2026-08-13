@@ -13,7 +13,7 @@ Reduces them to n_pcs principal components,
 Attaches the PCs to data as new columns named PC_1, ...,
 Runs causal_iv_fit_2sls() with the PCs as instruments.
 
-"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -39,7 +39,7 @@ Runs causal_iv_fit_2sls() with the PCs as instruments.
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,14 +50,12 @@ Runs causal_iv_fit_2sls() with the PCs as instruments.
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -65,14 +63,12 @@ Runs causal_iv_fit_2sls() with the PCs as instruments.
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -167,6 +163,77 @@ default <code>n_pcs = 5L</code> yields a 4-over-identified model for a
 single-exposure query, enabling the Sargan J-test.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Patch embeddings as candidate instruments. Only four of the</span></span></span>
+<span class="r-in"><span><span class="co"># twelve dimensions track the parent material; the other eight</span></span></span>
+<span class="r-in"><span><span class="co"># track canopy, which carries no geology at all.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span></span>
+<span class="r-in"><span><span class="va">mgmt</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">carbonate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">12</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">quarry_km</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">60</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ph</span>    <span class="op">&lt;-</span> <span class="fl">4.6</span> <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> <span class="va">carbonate</span> <span class="op">-</span> <span class="fl">0.010</span> <span class="op">*</span> <span class="va">quarry_km</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>         <span class="fl">0.45</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">yield</span> <span class="op">&lt;-</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> <span class="va">ph</span> <span class="op">+</span> <span class="fl">1.3</span> <span class="op">*</span> <span class="va">mgmt</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="fl">0.4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">soil</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">ph</span>, <span class="va">yield</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">canopy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">canopy</span>, <span class="va">n</span>, <span class="fl">8</span><span class="op">)</span>           <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="fl">8</span>, <span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="va">n</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">carbonate</span><span class="op">)</span>, <span class="va">n</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="va">n</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">quarry_km</span><span class="op">)</span>, <span class="va">n</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"emb_"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The trap: prcomp ranks components by variance in the EMBEDDING,</span></span></span>
+<span class="r-in"><span><span class="co"># not by relevance to the exposure. PC_1 holds 0.56 of that</span></span></span>
+<span class="r-in"><span><span class="co"># variance and is pure canopy, so on its own it is a</span></span></span>
+<span class="r-in"><span><span class="co"># non-instrument: F = 0.03 and an interval from -13.5 to +19.4.</span></span></span>
+<span class="r-in"><span><span class="fu">causal_iv_from_embeddings</span><span class="op">(</span><span class="va">soil</span>, <span class="va">emb</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>, n_pcs <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_causal_iv&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ph -&gt; yield  (estimator: 2SLS, n = 300)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   instruments : PC_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   effect      : 2.9526  (se = 8.4082, 95% CI [-13.5272, 19.4324])</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stage-1 F   : 0.03 (p = 0.852)  partial R^2 = 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [warning] Stock-Yogo threshold F &lt; 10; instruments may be weak.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Three PCs reach the geology directions: F = 45.6, and the</span></span></span>
+<span class="r-in"><span><span class="co"># interval [0.87, 1.75] covers the true effect of 1.5.</span></span></span>
+<span class="r-in"><span><span class="fu">causal_iv_from_embeddings</span><span class="op">(</span><span class="va">soil</span>, <span class="va">emb</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>, n_pcs <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_causal_iv&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ph -&gt; yield  (estimator: 2SLS, n = 300)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   instruments : PC_1, PC_2, PC_3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   effect      : 1.3124  (se = 0.2251, 95% CI [0.8713, 1.7535])</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stage-1 F   : 45.55 (p = 3.12e-24)  partial R^2 = 0.316</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sargan J    : chi2(2) = 0.19, p = 0.908</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># More PCs is not monotonically better. The default n_pcs = 5L buys</span></span></span>
+<span class="r-in"><span><span class="co"># extra Sargan degrees of freedom but dilutes the joint first-stage</span></span></span>
+<span class="r-in"><span><span class="co"># F, which tests a growing number of restrictions: it falls from</span></span></span>
+<span class="r-in"><span><span class="co"># 45.6 at three PCs to 27.9 at five while the estimate barely</span></span></span>
+<span class="r-in"><span><span class="co"># moves. Choose n_pcs on the first stage, not on a default.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">causal_iv_from_embeddings</span><span class="op">(</span><span class="va">soil</span>, <span class="va">emb</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                            n_pcs <span class="op">=</span> <span class="va">k</span><span class="op">)</span><span class="op">$</span><span class="va">stage1_F</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.03498204  7.33208490 45.54941709 34.56315589 27.93657446</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `pca_variance_explained` documents the choice, but read it as an</span></span></span>
+<span class="r-in"><span><span class="co"># audit trail rather than a relevance ranking -- PC_1 dominates it</span></span></span>
+<span class="r-in"><span><span class="co"># and is the one component that identifies nothing.</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">causal_iv_from_embeddings</span><span class="op">(</span><span class="va">soil</span>, <span class="va">emb</span>, <span class="st">"ph"</span>, <span class="st">"yield"</span>, n_pcs <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">pca_variance_explained</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   PC1   PC2   PC3 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.560 0.153 0.147 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Constant embedding dimensions are dropped before PCA rather than</span></span></span>
+<span class="r-in"><span><span class="co"># breaking `scale. = TRUE`; `embedding_cols` records what survived.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">causal_iv_from_embeddings</span><span class="op">(</span><span class="va">soil</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">emb</span>, dead_dim <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                 <span class="st">"ph"</span>, <span class="st">"yield"</span>,</span></span>
+<span class="r-in"><span>                                 n_pcs <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span><span class="op">$</span><span class="va">embedding_cols</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 12</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

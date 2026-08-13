@@ -5,7 +5,7 @@ to the SimCLR scaffold in foundation_simclr_pretrain(), MoCo v2
 introduces three architectural upgrades:"><meta property="og:description" content="Self-supervised momentum-contrastive pre-training (He et al. 2020;
 Chen et al. 2020) with a raster-specific augmentation stack. Compared
 to the SimCLR scaffold in foundation_simclr_pretrain(), MoCo v2
-introduces three architectural upgrades:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+introduces three architectural upgrades:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -31,7 +31,7 @@ introduces three architectural upgrades:"><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,12 @@ introduces three architectural upgrades:"><meta property="og:image" content="htt
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -57,14 +55,12 @@ introduces three architectural upgrades:"><meta property="og:image" content="htt
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -226,6 +222,97 @@ Bernoulli dropout (missing-band simulation), spatial cutout
 jitter, and additive Gaussian sensor noise.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># `requireNamespace("torch")` is TRUE as soon as the R package is</span></span></span>
+<span class="r-in"><span><span class="co"># installed, but the libtorch/lantern shared libraries are a separate</span></span></span>
+<span class="r-in"><span><span class="co"># separate binary download that CI and CRAN machines routinely lack</span></span></span>
+<span class="r-in"><span><span class="co"># (about 0.45 GB installed here). Both halves</span></span></span>
+<span class="r-in"><span><span class="co"># of the guard are needed.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_is_installed.html" class="external-link">torch_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># MoCo v2 consumes (N, C, H, W). `br_cerrado` is a complete 45 x 45</span></span></span>
+<span class="r-in"><span><span class="co"># grid, so every covariate reshapes into a surface and the 8 x 8</span></span></span>
+<span class="r-in"><span><span class="co"># windows cut out of it are genuine soil-landscape patches.</span></span></span>
+<span class="r-in"><span><span class="co"># Standardise the surfaces first: the augmentation stack adds noise</span></span></span>
+<span class="r-in"><span><span class="co"># of a fixed sd and jitters brightness multiplicatively, so map_mm</span></span></span>
+<span class="r-in"><span><span class="co"># (millimetres) and ndvi (a unitless index) would otherwise be</span></span></span>
+<span class="r-in"><span><span class="co"># perturbed by wildly different relative amounts.</span></span></span>
+<span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fl">45L</span></span></span>
+<span class="r-in"><span><span class="va">cube</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               <span class="kw">function</span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>                 <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">[[</span><span class="va">v</span><span class="op">]</span><span class="op">]</span>, <span class="va">g</span>, <span class="va">g</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                 <span class="op">(</span><span class="va">m</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
+<span class="r-in"><span>               <span class="op">}</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">g</span>, <span class="va">g</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">top</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">g</span> <span class="op">-</span> <span class="fl">7L</span>, <span class="fl">24L</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">left</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">g</span> <span class="op">-</span> <span class="fl">7L</span>, <span class="fl">24L</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">0</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">24L</span>, <span class="fl">5L</span>, <span class="fl">8L</span>, <span class="fl">8L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">24</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">patches</span><span class="op">[</span><span class="va">i</span>, , , <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span><span class="va">cube</span><span class="op">[</span><span class="va">top</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">:</span><span class="op">(</span><span class="va">top</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">7L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                 <span class="va">left</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">:</span><span class="op">(</span><span class="va">left</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">7L</span><span class="op">)</span>, <span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain</span><span class="op">(</span><span class="va">patches</span>, feature_dim <span class="op">=</span> <span class="fl">16L</span>,</span></span>
+<span class="r-in"><span>                                proj_dim <span class="op">=</span> <span class="fl">8L</span>, queue_size <span class="op">=</span> <span class="fl">1024L</span>,</span></span>
+<span class="r-in"><span>                                batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">8L</span>,</span></span>
+<span class="r-in"><span>                                seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `queue_size` is a request, not a setting: it is silently clamped</span></span></span>
+<span class="r-in"><span><span class="co"># to N - batch_size, so the 1024-key dictionary asked for above is</span></span></span>
+<span class="r-in"><span><span class="co"># 16 keys wide over 24 patches. Always read it back off the object.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>requested <span class="op">=</span> <span class="fl">1024</span>, actual <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">queue_size</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Worse, the loss at step t is computed against the queue as it stood</span></span></span>
+<span class="r-in"><span><span class="co"># at the END of step t - 1, and the FIFO first drops the oldest</span></span></span>
+<span class="r-in"><span><span class="co"># batch_size rows, then appends the current keys. Halve the corpus and</span></span></span>
+<span class="r-in"><span><span class="co"># the clamp leaves queue_size equal to batch_size, so the drop empties</span></span></span>
+<span class="r-in"><span><span class="co"># the queue and the append refills it: the dictionary in force at step</span></span></span>
+<span class="r-in"><span><span class="co"># t is exactly the keys of step t - 1. Every negative is then a key of</span></span></span>
+<span class="r-in"><span><span class="co"># the PREVIOUS mini-batch under the previous momentum encoder, none</span></span></span>
+<span class="r-in"><span><span class="co"># come from the current one (the current batch supplies only the</span></span></span>
+<span class="r-in"><span><span class="co"># positive), and no key older than a single step ever survives --</span></span></span>
+<span class="r-in"><span><span class="co"># which is MoCo's whole advantage over SimCLR. `retained` is how many</span></span></span>
+<span class="r-in"><span><span class="co"># pre-existing keys outlive a step; keep N well above 2 * batch_size</span></span></span>
+<span class="r-in"><span><span class="co"># to make it positive.</span></span></span>
+<span class="r-in"><span><span class="va">tiny</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain</span><span class="op">(</span><span class="va">patches</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                                 feature_dim <span class="op">=</span> <span class="fl">8L</span>, proj_dim <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                                 batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">2L</span>,</span></span>
+<span class="r-in"><span>                                 seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>queue <span class="op">=</span> <span class="va">tiny</span><span class="op">$</span><span class="va">queue_size</span>, batch <span class="op">=</span> <span class="va">tiny</span><span class="op">$</span><span class="va">batch_size</span>,</span></span>
+<span class="r-in"><span>        retained <span class="op">=</span> <span class="va">tiny</span><span class="op">$</span><span class="va">queue_size</span> <span class="op">-</span> <span class="va">tiny</span><span class="op">$</span><span class="va">batch_size</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `epochs` counts optimiser steps, not passes over `patches`: one</span></span></span>
+<span class="r-in"><span><span class="co"># mini-batch is drawn per epoch, so a short trace reports which</span></span></span>
+<span class="r-in"><span><span class="co"># patches were sampled at least as much as it reports learning.</span></span></span>
+<span class="r-in"><span><span class="co"># Read its tail next to log1p(queue_size) -- the InfoNCE value of a</span></span></span>
+<span class="r-in"><span><span class="co"># model whose logits are all equal -- before concluding anything.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">loss_history</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>final <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">final_loss</span>,</span></span>
+<span class="r-in"><span>        all_logits_equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">queue_size</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Reproducibility needs BOTH generators. `seed=` only sets the torch</span></span></span>
+<span class="r-in"><span><span class="co"># RNG (weight init, additive sensor noise); the mini-batch draw and</span></span></span>
+<span class="r-in"><span><span class="co"># the crop / flip / rotation / channel-drop / cutout / brightness</span></span></span>
+<span class="r-in"><span><span class="co"># augmentations are all drawn from R's RNG. The same `seed=` under a</span></span></span>
+<span class="r-in"><span><span class="co"># different R seed is a different run.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain</span><span class="op">(</span><span class="va">patches</span>, feature_dim <span class="op">=</span> <span class="fl">8L</span>, proj_dim <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                              batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">3L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain</span><span class="op">(</span><span class="va">patches</span>, feature_dim <span class="op">=</span> <span class="fl">8L</span>, proj_dim <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                              batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">3L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">foundation_moco_pretrain</span><span class="op">(</span><span class="va">patches</span>, feature_dim <span class="op">=</span> <span class="fl">8L</span>, proj_dim <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>                              batch_size <span class="op">=</span> <span class="fl">8L</span>, epochs <span class="op">=</span> <span class="fl">3L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>other_R_seed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">loss_history</span>, <span class="va">b</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        same_R_seed  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">loss_history</span>, <span class="va">d</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

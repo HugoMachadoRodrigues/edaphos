@@ -73,9 +73,32 @@ quota-limited home directory.
 ## Examples
 
 ``` r
+# Needs network access to Zenodo, so it is not run here.
 if (FALSE) { # \dontrun{
   loc <- foundation_weights_download("edaphos-cerrado-moco-v1",
-                                       verbose = TRUE)
-  moco <- foundation_weights_load(loc$path)
+                                     verbose = TRUE)
+
+  # This function only fetches and SHA-256-verifies the file; it
+  # builds no encoder. `loc$path` is a bare state dict, and loading
+  # from a *path* cannot infer the encoder geometry, so the three
+  # shapes are mandatory. They live in the registry row that came
+  # back alongside the file:
+  moco <- foundation_weights_load(loc$path,
+                                  n_channels  = loc$entry$n_channels,
+                                  feature_dim = loc$entry$feature_dim,
+                                  proj_dim    = loc$entry$proj_dim)
+
+  # Equivalent, and the idiomatic route: pass the registry *name*
+  # and the download (or cache hit) and the shape lookup both happen
+  # for you. Call foundation_weights_download() directly only when
+  # you want the file itself — to stage it on an offline machine, or
+  # to pre-warm a shared cache_dir.
+  moco <- foundation_weights_load("edaphos-cerrado-moco-v1")
+
+  # Check what you got before you trust it. v1 predates the
+  # normalisation-statistics field, so its training mean / sd are
+  # unrecoverable: standardise your own inputs over your AoI and
+  # report that you did so.
+  print(loc$entry$norm_stats_status)   # "unrecoverable"
 } # }
 ```

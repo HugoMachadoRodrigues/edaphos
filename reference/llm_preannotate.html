@@ -9,7 +9,7 @@ the deterministic llm_benchmark_simulate() fallback over every
 abstract in the corpus, and writes a draft JSONL in the same
 schema as cerrado_gold_standard_v1.jsonl but with claims
 marked status = "draft" so the Shiny reviewer can distinguish
-machine-generated entries from human-added ones.'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Disruptive algorithms for Digital Soil Mapping"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+machine-generated entries from human-added ones.'><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -35,7 +35,7 @@ machine-generated entries from human-added ones.'><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">4.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,14 +46,12 @@ machine-generated entries from human-added ones.'><meta property="og:image" cont
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars integrated</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal-real.html">Causal on 1 095 real WoSIS profiles</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
-    <li><a class="dropdown-item" href="../articles/llm-kg-benchmark.html">LLM-KG benchmark (Gemma 4 × GPT × Claude)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
@@ -61,14 +59,12 @@ machine-generated entries from human-added ones.'><meta property="og:image" cont
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-real.html">Real MODIS + NASA POWER + EnKF</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-soilgrids-br.html">SoilGrids-BR live</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
     <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
@@ -141,10 +137,12 @@ of records already in memory.</p></dd>
 
 <dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
 <dd><p>One of <code>"ollama"</code>, <code>"openai"</code>, <code>"anthropic"</code>,
-<code>"simulator"</code>.  When <code>"simulator"</code> the function uses
-<code><a href="llm_benchmark_simulate.html">llm_benchmark_simulate()</a></code> against a pseudo-gold-standard
-derived from the abstract's first sentence – useful for demos
-and CI builds without API access.  Defaults to <code>"ollama"</code> with
+<code>"simulator"</code>.  When <code>"simulator"</code> the function does not call an
+LLM at all: it seeds the RNG from <code>abstract_id</code> and pairs
+<code><a href="llm_annotation_vocabulary.html">llm_annotation_vocabulary()</a></code> terms at random, ignoring
+<code>abstract_text</code> entirely.  That keeps demos and CI builds
+runnable without API access, but the claims it produces carry no
+information about the abstract.  Defaults to <code>"ollama"</code> with
 <code>gemma4:latest</code>.</p></dd>
 
 
@@ -182,6 +180,89 @@ process (useful for staged runs).</p></dd>
     <p>Invisibly, the list of records written.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Two abstracts in memory.  `abstract_id` and `abstract_text` are</span></span></span>
+<span class="r-in"><span><span class="co"># the only required fields; anything else the record carries (year,</span></span></span>
+<span class="r-in"><span><span class="co"># doi, topic) is passed straight through into the draft.</span></span></span>
+<span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>abstract_id   <span class="op">=</span> <span class="st">"CER_A"</span>,</span></span>
+<span class="r-in"><span>       abstract_text <span class="op">=</span> <span class="st">"Rainfall raised topsoil SOC on 520 Oxisols."</span>,</span></span>
+<span class="r-in"><span>       year <span class="op">=</span> <span class="fl">2021</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>abstract_id   <span class="op">=</span> <span class="st">"CER_B"</span>,</span></span>
+<span class="r-in"><span>       abstract_text <span class="op">=</span> <span class="st">"Fire frequency cut vegetation cover on sands."</span>,</span></span>
+<span class="r-in"><span>       year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">draft</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"cerrado_draft.jsonl"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">llm_preannotate</span><span class="op">(</span><span class="va">corpus</span>, backend <span class="op">=</span> <span class="st">"simulator"</span>,</span></span>
+<span class="r-in"><span>                     output_path <span class="op">=</span> <span class="va">draft</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">d</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">claims</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5 2</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Every drafted claim is stamped status = "draft".  That stamp is</span></span></span>
+<span class="r-in"><span><span class="co"># what makes llm_annotation_export() throw it away: nothing reaches</span></span></span>
+<span class="r-in"><span><span class="co"># the gold standard until a human changes it in the reviewer.</span></span></span>
+<span class="r-in"><span><span class="va">d</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">claims</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cause"</span>, <span class="st">"effect"</span>, <span class="st">"polarity"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        cause effect polarity status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 weathering   clay        +  draft</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       silt   sand        +  draft</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The simulator is a placeholder, not a weak extractor.  Draft the</span></span></span>
+<span class="r-in"><span><span class="co"># first 5 abstracts of the bundled gold standard and score its</span></span></span>
+<span class="r-in"><span><span class="co"># (cause, effect) pairs against the human annotation: 17 drafted,</span></span></span>
+<span class="r-in"><span><span class="co"># 17 true, exactly 1 pair in common.  A simulator run is never a</span></span></span>
+<span class="r-in"><span><span class="co"># measurement of pre-annotation quality.</span></span></span>
+<span class="r-in"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cerrado_gold_standard_v1.jsonl"</span>,</span></span>
+<span class="r-in"><span>                  package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">llm_preannotate</span><span class="op">(</span><span class="va">gs</span>, backend <span class="op">=</span> <span class="st">"simulator"</span>, max_abstracts <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>                       output_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                       verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">recs</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">recs</span>,</span></span>
+<span class="r-in"><span>  <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">claims</span><span class="op">$</span><span class="va">cause</span>, <span class="va">r</span><span class="op">$</span><span class="va">claims</span><span class="op">$</span><span class="va">effect</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">truth</span> <span class="op">&lt;-</span> <span class="fu">edges</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">gs</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fu">jsonlite</span><span class="fu">::</span><span class="va"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>true <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">truth</span><span class="op">)</span>, drafted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">edges</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  hits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="va">truth</span>, <span class="fu">edges</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    true drafted    hits </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      17      17       1 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Note what that run also did: it overwrote the human `claims` of</span></span></span>
+<span class="r-in"><span><span class="co"># CER_01..CER_05 with machine drafts.  Pre-annotate a corpus file,</span></span></span>
+<span class="r-in"><span><span class="co"># never a gold standard you want to keep.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The simulator keys on `abstract_id` alone, so its draft is stable</span></span></span>
+<span class="r-in"><span><span class="co"># across sessions -- but it does that with a bare set.seed(), which</span></span></span>
+<span class="r-in"><span><span class="co"># silently resets the CALLER's stream.  Draw what you need before</span></span></span>
+<span class="r-in"><span><span class="co"># the call, or re-seed after it.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span>; <span class="va">before</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu">llm_preannotate</span><span class="op">(</span><span class="va">corpus</span>, backend <span class="op">=</span> <span class="st">"simulator"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>                          output_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>before <span class="op">=</span> <span class="va">before</span>, after <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    before     after </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.9148060 0.6117337 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `cache_dir` keys on abstract_id plus the FIRST 200 CHARACTERS of</span></span></span>
+<span class="r-in"><span><span class="co"># the text, so fixing a typo past character 200 is a cache hit and</span></span></span>
+<span class="r-in"><span><span class="co"># silently reuses the stale extraction.  Two texts, one cache entry;</span></span></span>
+<span class="r-in"><span><span class="co"># edit the opening instead and a second entry appears.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"digest"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">head200</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Cerrado Oxisol rainfall carbon"</span>, <span class="fl">12</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">" "</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">cache</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"preann_cache"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">run1</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">txt</span><span class="op">)</span> <span class="fu">llm_preannotate</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>abstract_id <span class="op">=</span> <span class="st">"CER_A"</span>, abstract_text <span class="op">=</span> <span class="va">txt</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    backend <span class="op">=</span> <span class="st">"simulator"</span>, cache_dir <span class="op">=</span> <span class="va">cache</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>    output_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".jsonl"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu">run1</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">head200</span>, <span class="st">"original tail"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu">run1</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">head200</span>, <span class="st">"a completely different tail"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">n_tail</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">cache</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu">run1</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"DIFFERENT OPENING"</span>, <span class="va">head200</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>after_tail_edit <span class="op">=</span> <span class="va">n_tail</span>,</span></span>
+<span class="r-in"><span>          after_opening_edit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">cache</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    after_tail_edit after_opening_edit </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  1                  2 </span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
