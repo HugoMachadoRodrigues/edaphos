@@ -117,8 +117,17 @@ for (i in seq_len(nrow(cells)))
   stack[i, , ] <- field[cells$r[i]:(cells$r[i] + 7L),
                         cells$c[i]:(cells$c[i] + 7L)]
 
+# `backend = "r"` is PINNED, and that is not a performance choice.
+# Everything this example says is about the reference backend: it is
+# what CRAN runs (libtorch is not installed there) and what the
+# commentary below describes. Left unpinned, the backend defaults to
+# torch wherever libtorch happens to exist, and the printed output
+# then contradicts the prose around it -- the draws in `dm_sample`'s
+# example go from 5.4x over-dispersed to 1.1x, and their lag-1
+# correlation from -0.06 to +0.61. An example whose narrative depends
+# on the machine rendering it is not an example.
 fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
-              lr = 0.02, seed = 1L)
+              lr = 0.02, seed = 1L, backend = "r")
 fit
 #> <edaphos_dm_fit>  (Pilar 9 -- Denoising Diffusion Probabilistic Model)
 #>   patch shape : 8 x 8
@@ -136,15 +145,26 @@ round(c(initial = fit$history[1L],
 #>      initial        final eps_hat_zero 
 #>       2.7463       0.9268       1.0000 
 
-# Nor does the gap close with training: `backend = "r"` fits a
-# readout over frozen random features (an ELM), and that readout has
-# already converged.  2.7 times the epochs buys 0.05.
-fit_long <- dm_fit(stack, T = 50L, epochs = 400L, hidden = 32L,
-                   lr = 0.02, seed = 1L)
-round(c(epochs_150 = fit$history[150L],
-        epochs_400 = fit_long$history[400L]), 4)
-#> epochs_150 epochs_400 
-#>     0.9268     0.8753 
+# Nor does the gap close with training: `backend = "r"` fits a readout
+# over frozen random features (an ELM), and that readout converges
+# inside the first hundred epochs.  Read this as BLOCK MEANS, not as
+# two single epochs: the loss is stochastic in the sampled timestep,
+# and its epoch-to-epoch spread here (sd about 0.03) is comparable to
+# the whole remaining improvement, so comparing epoch 150 against
+# epoch 400 measures the noise.  This example used to do exactly that
+# and reported the difference as "0.05"; measured, the two epochs it
+# compared differ by -0.015 -- the later one is worse.
+blk <- function(i) mean(fit$history[i])
+round(c(epochs_51_100  = blk(51:100),
+        epochs_101_150 = blk(101:150),
+        noise_sd       = sd(fit$history[51:150])), 4)
+#>  epochs_51_100 epochs_101_150       noise_sd 
+#>         0.9884         0.9506         0.0341 
+
+# A second fit is not needed to see this, and this example no longer
+# runs one: training for longer does not change the epochs already
+# taken, so a 400-epoch trace contains the 150-epoch trace as its
+# prefix.  The second call cost 166 s of the example's 325 s.
 
 # And the patches overlap by construction (stride 5, window 8), so
 # these 64 are nowhere near 64 independent training examples.

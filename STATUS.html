@@ -130,7 +130,7 @@
 </tr><tr><td>Findings open (blocker/high)</td>
 <td>5</td>
 </tr><tr><td>Findings closed since the audit</td>
-<td>54</td>
+<td>55</td>
 </tr></tbody></table><div class="section level3">
 <h3 id="stage-assessment">Stage assessment<a class="anchor" aria-label="anchor" href="#stage-assessment"></a></h3>
 <p>From the audit’s completeness critic (editorial, not measured). It describes the tree at <code>272b378</code>, not at <code>8e725b9</code>: several of the specifics it cites have since been closed — see “Closed since the audit” in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.</p>
@@ -1084,7 +1084,7 @@ for details.</code></pre>
 </tr></thead><tbody><tr><td>blocker</td>
 <td align="right">4</td>
 </tr><tr><td>high</td>
-<td align="right">23</td>
+<td align="right">24</td>
 </tr><tr><td>medium</td>
 <td align="right">56</td>
 </tr><tr><td>low</td>
@@ -1108,7 +1108,7 @@ for details.</code></pre>
 </ul></div>
 <div class="section level3">
 <h3 id="closed-since-the-audit-measured-not-asserted">Closed since the audit (measured, not asserted)<a class="anchor" aria-label="anchor" href="#closed-since-the-audit-measured-not-asserted"></a></h3>
-<p>54 findings were true at <code>272b378</code> and cannot be reproduced at <code>8e725b9</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
+<p>55 findings were true at <code>272b378</code> and cannot be reproduced at <code>8e725b9</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
 <table style="width:100%;" class="table"><colgroup><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"></colgroup><thead><tr><th>ID</th>
 <th>Sev</th>
 <th>Area</th>
@@ -1230,6 +1230,12 @@ for details.</code></pre>
 <td><code>0cb0b0a</code></td>
 <td>The P4 “Foundation” row of the headline “first honest cross-pillar comparison” is computed on a pure Gaussian-noise raster</td>
 <td>predict.edaphos_bhs() now returns the sampler’s own predictive draws under draws = TRUE (as an attribute, so no existing caller changes), and data-raw/benchmark_wosis_p4_p5_p7.R uses them instead of rebuilding rnorm(200, mean, sd) from the summary. The cost of the substitution is measured rather than asserted: a paired diagnostic scores both distributions over the same predictions, fold and held-out truth, with the Gaussian drawn on a private RNG stream. On this archive it was CRPS 0.3405 vs 0.3420 and PICP90 0.9224 vs 0.9283 against a nominal 0.90; the per-fold table ships in the bundle as p7_gaussian_gap. The correction was propagated through benchmark_wosis_6pilar.rds, the README pooled table and the rendered manuscript.</td>
+</tr><tr><td>FB1970E</td>
+<td>high</td>
+<td></td>
+<td><code>c009c3d</code></td>
+<td>Four examples pick their backend from the machine, so their printed output contradicts their own commentary</td>
+<td>backend = “r” is pinned in all four examples (dm_fit, dm_sample x2, al_query_diffusion), with the reason recorded inline: these examples are about the reference backend’s limitations and it is what CRAN runs, having no libtorch. The prose and the printed output now agree on every machine. Two further defects in dm_fit’s example were fixed in the same pass: a second 400-epoch fit that was pure waste (verified that a long trace contains the short one as its prefix, so one fit suffices) and a claim that ‘2.7 times the epochs buys 0.05’ when the two epochs compared differ by -0.015 – the later one worse – because single-epoch comparison measures noise here, the epoch-to-epoch spread (sd 0.034) being the size of the entire remaining improvement. Measured effect on R CMD check: –run-donttest fell from 716s to 107s of CPU and the regular examples step from 102s to 84s. tests/testthat/test-example-backend-pinned.R fails if a call goes unpinned again, and a companion test asserts the backends genuinely disagree so the pin cannot become cosmetic unnoticed.</td>
 </tr><tr><td>F9E2C74</td>
 <td>high</td>
 <td>Incomplete implementations</td>

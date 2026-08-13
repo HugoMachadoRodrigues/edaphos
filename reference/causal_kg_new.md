@@ -41,6 +41,6 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 #>                                                    evidence confidence
 #> 1 Higher precipitation favours organic-matter accumulation.        0.9
 #>              timestamp
-#> 1 2026-08-13T04:13:59Z
+#> 1 2026-08-13T23:17:03Z
 # }
 ```

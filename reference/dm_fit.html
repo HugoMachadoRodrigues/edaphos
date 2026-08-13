@@ -211,8 +211,17 @@ the <code>backend = "r"</code> trainer operates in).</p>
 <span class="r-in"><span>  <span class="va">stack</span><span class="op">[</span><span class="va">i</span>, , <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">field</span><span class="op">[</span><span class="va">cells</span><span class="op">$</span><span class="va">r</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">:</span><span class="op">(</span><span class="va">cells</span><span class="op">$</span><span class="va">r</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">7L</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        <span class="va">cells</span><span class="op">$</span><span class="va">c</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">:</span><span class="op">(</span><span class="va">cells</span><span class="op">$</span><span class="va">c</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">7L</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `backend = "r"` is PINNED, and that is not a performance choice.</span></span></span>
+<span class="r-in"><span><span class="co"># Everything this example says is about the reference backend: it is</span></span></span>
+<span class="r-in"><span><span class="co"># what CRAN runs (libtorch is not installed there) and what the</span></span></span>
+<span class="r-in"><span><span class="co"># commentary below describes. Left unpinned, the backend defaults to</span></span></span>
+<span class="r-in"><span><span class="co"># torch wherever libtorch happens to exist, and the printed output</span></span></span>
+<span class="r-in"><span><span class="co"># then contradicts the prose around it -- the draws in `dm_sample`'s</span></span></span>
+<span class="r-in"><span><span class="co"># example go from 5.4x over-dispersed to 1.1x, and their lag-1</span></span></span>
+<span class="r-in"><span><span class="co"># correlation from -0.06 to +0.61. An example whose narrative depends</span></span></span>
+<span class="r-in"><span><span class="co"># on the machine rendering it is not an example.</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">dm_fit</span><span class="op">(</span><span class="va">stack</span>, T <span class="op">=</span> <span class="fl">50L</span>, epochs <span class="op">=</span> <span class="fl">150L</span>, hidden <span class="op">=</span> <span class="fl">32L</span>,</span></span>
-<span class="r-in"><span>              lr <span class="op">=</span> <span class="fl">0.02</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"><span>              lr <span class="op">=</span> <span class="fl">0.02</span>, seed <span class="op">=</span> <span class="fl">1L</span>, backend <span class="op">=</span> <span class="st">"r"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_dm_fit&gt;  (Pilar 9 -- Denoising Diffusion Probabilistic Model)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   patch shape : 8 x 8</span>
@@ -230,15 +239,26 @@ the <code>backend = "r"</code> trainer operates in).</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      initial        final eps_hat_zero </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       2.7463       0.9268       1.0000 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Nor does the gap close with training: `backend = "r"` fits a</span></span></span>
-<span class="r-in"><span><span class="co"># readout over frozen random features (an ELM), and that readout has</span></span></span>
-<span class="r-in"><span><span class="co"># already converged.  2.7 times the epochs buys 0.05.</span></span></span>
-<span class="r-in"><span><span class="va">fit_long</span> <span class="op">&lt;-</span> <span class="fu">dm_fit</span><span class="op">(</span><span class="va">stack</span>, T <span class="op">=</span> <span class="fl">50L</span>, epochs <span class="op">=</span> <span class="fl">400L</span>, hidden <span class="op">=</span> <span class="fl">32L</span>,</span></span>
-<span class="r-in"><span>                   lr <span class="op">=</span> <span class="fl">0.02</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>epochs_150 <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fl">150L</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>        epochs_400 <span class="op">=</span> <span class="va">fit_long</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fl">400L</span><span class="op">]</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> epochs_150 epochs_400 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     0.9268     0.8753 </span>
+<span class="r-in"><span><span class="co"># Nor does the gap close with training: `backend = "r"` fits a readout</span></span></span>
+<span class="r-in"><span><span class="co"># over frozen random features (an ELM), and that readout converges</span></span></span>
+<span class="r-in"><span><span class="co"># inside the first hundred epochs.  Read this as BLOCK MEANS, not as</span></span></span>
+<span class="r-in"><span><span class="co"># two single epochs: the loss is stochastic in the sampled timestep,</span></span></span>
+<span class="r-in"><span><span class="co"># and its epoch-to-epoch spread here (sd about 0.03) is comparable to</span></span></span>
+<span class="r-in"><span><span class="co"># the whole remaining improvement, so comparing epoch 150 against</span></span></span>
+<span class="r-in"><span><span class="co"># epoch 400 measures the noise.  This example used to do exactly that</span></span></span>
+<span class="r-in"><span><span class="co"># and reported the difference as "0.05"; measured, the two epochs it</span></span></span>
+<span class="r-in"><span><span class="co"># compared differ by -0.015 -- the later one is worse.</span></span></span>
+<span class="r-in"><span><span class="va">blk</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>epochs_51_100  <span class="op">=</span> <span class="fu">blk</span><span class="op">(</span><span class="fl">51</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        epochs_101_150 <span class="op">=</span> <span class="fu">blk</span><span class="op">(</span><span class="fl">101</span><span class="op">:</span><span class="fl">150</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        noise_sd       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">history</span><span class="op">[</span><span class="fl">51</span><span class="op">:</span><span class="fl">150</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  epochs_51_100 epochs_101_150       noise_sd </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         0.9884         0.9506         0.0341 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A second fit is not needed to see this, and this example no longer</span></span></span>
+<span class="r-in"><span><span class="co"># runs one: training for longer does not change the epochs already</span></span></span>
+<span class="r-in"><span><span class="co"># taken, so a 400-epoch trace contains the 150-epoch trace as its</span></span></span>
+<span class="r-in"><span><span class="co"># prefix.  The second call cost 166 s of the example's 325 s.</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># And the patches overlap by construction (stride 5, window 8), so</span></span></span>
 <span class="r-in"><span><span class="co"># these 64 are nowhere near 64 independent training examples.</span></span></span>

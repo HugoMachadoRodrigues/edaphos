@@ -42,7 +42,7 @@ draft <- system.file("extdata", "cerrado_gold_standard_v1_draft.jsonl",
 # abstracts, 0 claims.  "draft" means no human ever looked, and an
 # unreviewed claim is not gold-standard evidence.
 kept <- llm_annotation_export(draft, file.path(tempdir(), "hollow.jsonl"))
-#> === Exported gold standard: /tmp/RtmpNvtEGq/hollow.jsonl (30 abstracts, 0 claims) ===
+#> === Exported gold standard: /tmp/Rtmph4Y1fI/hollow.jsonl (30 abstracts, 0 claims) ===
 n_claims(kept)
 #> [1] 0
 
@@ -52,7 +52,7 @@ reviewed <- file.path(tempdir(), "reviewed.jsonl")
 writeLines(sub('"status":"draft"', '"status":"accepted"',
                readLines(draft, warn = FALSE), fixed = TRUE), reviewed)
 n_claims(llm_annotation_export(reviewed, file.path(tempdir(), "g2.jsonl")))
-#> === Exported gold standard: /tmp/RtmpNvtEGq/g2.jsonl (30 abstracts, 30 claims) ===
+#> === Exported gold standard: /tmp/Rtmph4Y1fI/g2.jsonl (30 abstracts, 30 claims) ===
 #> [1] 30
 
 # Back-compat trap in the other direction: the hand-annotated v1
@@ -65,8 +65,8 @@ once <- file.path(tempdir(), "once.jsonl")
 c(once  = n_claims(llm_annotation_export(gs, once)),
   twice = n_claims(llm_annotation_export(
             once, file.path(tempdir(), "twice.jsonl"))))
-#> === Exported gold standard: /tmp/RtmpNvtEGq/once.jsonl (30 abstracts, 72 claims) ===
-#> === Exported gold standard: /tmp/RtmpNvtEGq/twice.jsonl (30 abstracts, 72 claims) ===
+#> === Exported gold standard: /tmp/Rtmph4Y1fI/once.jsonl (30 abstracts, 72 claims) ===
+#> === Exported gold standard: /tmp/Rtmph4Y1fI/twice.jsonl (30 abstracts, 72 claims) ===
 #>  once twice 
 #>    72    72 
 
@@ -78,6 +78,6 @@ c(once  = n_claims(llm_annotation_export(gs, once)),
 # leaving the four fields llm_annotation_validate() requires.
 names(llm_annotation_export(gs, file.path(tempdir(), "no_rat.jsonl"),
                             include_rationale = FALSE)[[1]]$claims)
-#> === Exported gold standard: /tmp/RtmpNvtEGq/no_rat.jsonl (30 abstracts, 72 claims) ===
+#> === Exported gold standard: /tmp/Rtmph4Y1fI/no_rat.jsonl (30 abstracts, 72 claims) ===
 #> [1] "cause"      "effect"     "polarity"   "confidence"
 ```
