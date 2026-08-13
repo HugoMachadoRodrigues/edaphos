@@ -33,7 +33,7 @@ adversarial audit of commit `272b378`.
 | R CMD check status | Status: 2 NOTEs |
 | Source tarball (CRAN cap 5 MB) | 5.32 MB |
 | Findings open (blocker/high) | 5 |
-| Findings closed since the audit | 54 |
+| Findings closed since the audit | 55 |
 
 ### Stage assessment
 
@@ -568,7 +568,7 @@ original auditor reported.
 | Severity | Freq |
 | --- | --: |
 | blocker | 4 |
-| high | 23 |
+| high | 24 |
 | medium | 56 |
 | low | 39 |
 | non-issue | 1 |
@@ -586,7 +586,7 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-54 findings were true at `272b378` and cannot be reproduced at `8e725b9`. Each line states the measurement that closed it, not a claim that it was addressed.
+55 findings were true at `272b378` and cannot be reproduced at `8e725b9`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |
@@ -609,6 +609,7 @@ original auditor reported.
 | F485937 | high | Scientific reproducibility | `2fd03a5` | No test validates any headline number or any of the twelve committed result bundles | A claim-binding test layer was added across the campaign, so headline numbers and shipped bundles are now asserted against each other rather than published unchecked. |
 | F623876 | high | Scientific reproducibility | `ec04bee` | `.bench_inject_aleatoric()` manufactures the published PICP with author-chosen noise and silently degrades the published RMSE | Both defects fixed: the author-chosen aleatoric noise injection is gone and the RMSE degradation it caused was corrected, with the response scale made honest in the same pass. |
 | FF375C1 | high | Scientific reproducibility | `0cb0b0a` | The P4 "Foundation" row of the headline "first honest cross-pillar comparison" is computed on a pure Gaussian-noise raster | predict.edaphos_bhs() now returns the sampler's own predictive draws under draws = TRUE (as an attribute, so no existing caller changes), and data-raw/benchmark_wosis_p4_p5_p7.R uses them instead of rebuilding rnorm(200, mean, sd) from the summary. The cost of the substitution is measured rather than asserted: a paired diagnostic scores both distributions over the same predictions, fold and held-out truth, with the Gaussian drawn on a private RNG stream. On this archive it was CRPS 0.3405 vs 0.3420 and PICP90 0.9224 vs 0.9283 against a nominal 0.90; the per-fold table ships in the bundle as p7_gaussian_gap. The correction was propagated through benchmark_wosis_6pilar.rds, the README pooled table and the rendered manuscript. |
+| FB1970E | high |  | `c009c3d` | Four \donttest examples pick their backend from the machine, so their printed output contradicts their own commentary | backend = "r" is pinned in all four examples (dm_fit, dm_sample x2, al_query_diffusion), with the reason recorded inline: these examples are about the reference backend's limitations and it is what CRAN runs, having no libtorch. The prose and the printed output now agree on every machine. Two further defects in dm_fit's example were fixed in the same pass: a second 400-epoch fit that was pure waste (verified that a long trace contains the short one as its prefix, so one fit suffices) and a claim that '2.7 times the epochs buys 0.05' when the two epochs compared differ by -0.015 -- the later one worse -- because single-epoch comparison measures noise here, the epoch-to-epoch spread (sd 0.034) being the size of the entire remaining improvement. Measured effect on R CMD check: --run-donttest fell from 716s to 107s of CPU and the regular examples step from 102s to 84s. tests/testthat/test-example-backend-pinned.R fails if a call goes unpinned again, and a companion test asserts the backends genuinely disagree so the pin cannot become cosmetic unnoticed. |
 | F9E2C74 | high | Incomplete implementations | `2fd03a5` | qf_krr_benchmark() clamps R-squared at zero, contradicting the package's own edaphos_r2() and hiding worse-than-mean quantum models | The R-squared clamp was removed and the function now delegates to the package's own metrics, so worse-than-mean quantum models are reported as negative rather than censored to zero. |
 | F60AE85 | high | Test coverage | `3bd1938` | bhs_fit has no rank check on the model matrix: a constant covariate yields NA rgamma rates (the 2 live WARNINGs) then a cryptic Cholesky death | R/pilar7_bayesian_hierarchical.R now computes qr(X)$rank and names the aliased columns; the rank-deficient fit raises one informative error and zero warnings, against the 2 warnings the audit measured. |
 | F64B0F0 | high | Test coverage | `3f2d005` | R/foundation_finetune.R:41 makes the whole Pillar-4 fine-tuning API require `reticulate`, which it never uses | The spurious reticulate clause was deleted from the Pillar 4 fine-tuning gate, so the API no longer requires a package it never uses. |
