@@ -63,6 +63,12 @@ navbar:
     left:  [intro, reference, articles, news]
     right: [search, github]
   components:
+    # Four entries were removed here in the correctness campaign: they
+    # pointed at articles/pilar1-causal-real.html, articles/llm-kg-benchmark.html,
+    # articles/pilar3-4d-real.html and articles/pilar5-soilgrids-br.html.
+    # Their sources live in a top-level articles/ directory, which pkgdown
+    # does not render (it renders vignettes/ and vignettes/articles/), so all
+    # four were 404s on the published site.
     articles:
       text: Vignettes
       menu:
@@ -73,12 +79,8 @@ navbar:
       - text: "Pilar 1 — Causal AI"
       - text: Causal backdoor on br_cerrado
         href: articles/pilar1-causal.html
-      - text: Causal on 1 095 real WoSIS profiles
-        href: articles/pilar1-causal-real.html
       - text: Causal-discovery trio (expert × LLM × data-driven)
         href: articles/causal-discovery-trio.html
-      - text: LLM-KG benchmark (Gemma 4 × GPT × Claude)
-        href: articles/llm-kg-benchmark.html
       - text: Annotation workflow (pre-annotation + Shiny review)
         href: articles/llm-annotation-workflow.html
       - text: -------
@@ -89,8 +91,6 @@ navbar:
       - text: "Pilar 3 — 4D Pedometry"
       - text: ConvLSTM on synthetic cube
         href: articles/pilar3-4d-soc.html
-      - text: Real MODIS + NASA POWER + EnKF
-        href: articles/pilar3-4d-real.html
       - text: -------
       - text: "Pilar 4 — Foundation Models"
       - text: SimCLR / MoCo embeddings
@@ -99,8 +99,6 @@ navbar:
       - text: "Pilar 5 — Active Learning"
       - text: Hybrid policy + physics gate
         href: articles/pilar5-active-learning.html
-      - text: SoilGrids-BR live
-        href: articles/pilar5-soilgrids-br.html
       - text: -------
       - text: "Pilar 6 — Quantum ML"
       - text: ZZFeatureMap + Q-KRR
@@ -202,6 +200,10 @@ reference:
   desc: "Plug-and-play wrappers for the 6-pilar WoSIS Cerrado benchmark."
   contents:
   - starts_with("benchmark_fit_")
+  # spatial_block_folds was exported without being indexed, which aborts
+  # pkgdown's reference build outright -- so the site could not be built at
+  # all while a checklist claimed "pkgdown builds cleanly locally".
+  - spatial_block_folds
 
 - title: "LLM-KG production pipeline (v3.10.0)"
   desc: "Resumable 10k+ abstract orchestrator + Ollama pre-flight."
@@ -245,9 +247,17 @@ articles:
   - pilar1-pilar4-iv
   - pilar4-pilar6-quantum
 
+- title: "Pilares 7-10"
+  contents:
+  - pilar7-bayesian-hierarchical
+  - pilar8-neural-operators
+  - pilar9-diffusion-models
+  - pilar10-graph-attention
+
 - title: "End-to-end"
   contents:
   - case-cerrado-end-to-end
+  - edaphos-paper
 
 news:
   releases:

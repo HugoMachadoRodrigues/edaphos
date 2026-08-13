@@ -1,0 +1,18 @@
+# Files under inst/ that have no business in a user's library.
+#
+# WITHOUT THIS FILE, everything under inst/ installs. That shipped
+# inst/rosc/submission.md -- a self-report written for external reviewers --
+# into every user's library, where it asserted 1 345 expectations, 14
+# vignettes and "0 errors / 0 notes" against a package that had 2 151, 19 and
+# two NOTEs. The numbers are generated now, but the document still does not
+# belong in a library: it is process, not software.
+#
+# NOTE ON SCOPE: .Rinstignore removes files from the INSTALLED package only.
+# It does not shrink the source tarball -- that is .Rbuildignore's job -- so
+# nothing here helps with the CRAN 5 MB limit.
+# PATHS ARE RELATIVE TO THE SOURCE ROOT, not to inst/. The first version of
+# this file said `^rosc$` and `^WORDLIST$`, which match nothing: R applies
+# these patterns to `inst/rosc/...`. Verified by installing to a temporary
+# library and listing it, which is the only way to know.
+^inst/rosc
+^inst/WORDLIST$
