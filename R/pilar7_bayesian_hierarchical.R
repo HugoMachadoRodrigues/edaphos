@@ -574,9 +574,20 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
 #'   `c(0.025, 0.5, 0.975)`.
 #' @param n_draws Integer; how many posterior samples to use (capped
 #'   by the actual number available in the fit).  Default `500L`.
+#' @param draws Logical; when `TRUE`, attach the predictive draws themselves
+#'   as `attr(result, "draws")`, an `n_draws x nrow(newdata)` matrix. The
+#'   summaries are a lossy view of them: the predictive is a scale mixture of
+#'   normals, one component per posterior draw of \eqn{(\beta, \sigma^2,
+#'   \tau^2)}, and a caller that rebuilds `rnorm(n, mean, sd)` from the
+#'   summary is scoring a Gaussian rather than this model. The package's own
+#'   cross-pillar benchmark did exactly that until the draws were exposed
+#'   here; on the WoSIS Cerrado archive the substitution moved PICP90 by
+#'   0.6 percentage points. Default `FALSE`, so no existing caller sees a
+#'   different object.
 #' @param ... Unused.
 #' @return A data frame with `newdata` rows plus columns `mean`,
-#'   `sd`, and one column per quantile.
+#'   `sd`, and one column per quantile; with `draws = TRUE`, additionally
+#'   carrying the draws matrix in the `"draws"` attribute.
 #' @examples
 #' data(br_cerrado)
 #'
@@ -662,7 +673,7 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
 #' try(predict(fit, test[, c("elev", "slope", "twi", "map_mm", "ndvi")]))
 #' @export
 predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975),
-                                  n_draws = 500L, ...) {
+                                  n_draws = 500L, draws = FALSE, ...) {
   if (object$backend == "spBayes")
     stop("predict() for spBayes backend is not yet implemented; ",
           "use the pure-R gibbs backend for v2.3.0.", call. = FALSE)
@@ -719,7 +730,7 @@ predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975
 
   idx <- sample.int(nrow(object$beta_draws),
                      min(n_draws, nrow(object$beta_draws)))
-  draws <- matrix(NA_real_, length(idx), n_te)
+  draws_mat <- matrix(NA_real_, length(idx), n_te)
   for (i in seq_along(idx)) {
     b  <- object$beta_draws[idx[i], ]
     s2 <- object$sigma2_draws[idx[i]]
@@ -733,17 +744,36 @@ predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975
     v_new  <- s2 + t2 - s2^2 * as.numeric(colSums(dinv * Ut_r2))
     v_new  <- pmax(v_new, .Machine$double.eps)
 
-    draws[i, ] <- mu_new + stats::rnorm(n_te, 0, sqrt(v_new))
+    draws_mat[i, ] <- mu_new + stats::rnorm(n_te, 0, sqrt(v_new))
   }
-  mu  <- colMeans(draws)
-  sd_ <- apply(draws, 2L, stats::sd)
-  qmat <- apply(draws, 2L, stats::quantile, probs = quantiles,
+  mu  <- colMeans(draws_mat)
+  sd_ <- apply(draws_mat, 2L, stats::sd)
+  qmat <- apply(draws_mat, 2L, stats::quantile, probs = quantiles,
                  names = FALSE)
   res <- data.frame(mean = mu, sd = sd_)
   for (i in seq_along(quantiles)) {
     qn <- sprintf("q%03.0f",  round(quantiles[i] * 1000))
     res[[qn]] <- qmat[i, ]
   }
+  # THE DRAWS THEMSELVES, ON REQUEST.
+  #
+  # This function built `draws` -- one exact conditional predictive sample per
+  # posterior draw of (beta, sigma^2, tau^2) -- and then discarded it, handing
+  # back only mean, sd and quantiles. Every caller that needed a predictive
+  # DISTRIBUTION had to invent one, and the cross-pillar benchmark did exactly
+  # that: `samps[, j] <- rnorm(200, pr$mean[j], pr$sd[j])`.
+  #
+  # That substitution is not innocuous. The predictive here is a scale mixture
+  # of normals -- each draw contributes a Gaussian with its own variance -- and
+  # a mixture of Gaussians with differing variances is not Gaussian. It is
+  # leptokurtic: heavier in the tails than the single N(mean, sd) that matches
+  # its first two moments. Scoring CRPS or PICP against the moment-matched
+  # Gaussian therefore measures the approximation rather than the sampler, and
+  # gets the tails wrong in the direction that matters for coverage.
+  #
+  # Returned as an attribute rather than a changed return type, so no existing
+  # caller sees a different object.
+  if (isTRUE(draws)) attr(res, "draws") <- draws_mat
   res
 }
 

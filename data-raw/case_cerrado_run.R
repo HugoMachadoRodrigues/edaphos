@@ -7,7 +7,7 @@
 #
 # Evaluation: **5-fold spatial cross-validation** with k-means on
 # longitude/latitude as the stratification. Every profile is a test
-# point exactly once. Metrics are computed on the pooled 302
+# point exactly once. Metrics are computed on the pooled 1 095
 # predictions, which is much more robust than a single 80/20 split
 # with a 60-point test set (the v1.3.0 recipe, where train/test
 # imbalance produced a +6 g/kg bias floor unrelated to the model).
@@ -19,7 +19,10 @@
 #        stack.
 #
 #   (B2) Baseline + residual kriging: (B1) plus gstat::krige on the
-#        log1p-scale residuals (Hengl et al. 2017-style recipe).
+#        LINEAR-scale (g/kg) residuals (Hengl et al. 2017-style
+#        recipe). The header said log1p; the code has always kriged
+#        on the linear scale -- see the section header at the B2
+#        block and the OOB residual computation under it.
 #
 #   (E)  edaphos stack: (B1) covariates AUGMENTED with the 64-dim
 #        MoCo v2 foundation embedding of a 16x16 neighbourhood patch
@@ -27,9 +30,23 @@
 #        if present (200000 InfoNCE steps; v1.3.1 retrain) else
 #        falls back to the Zenodo-published v1 (20000 steps).
 #
-# Target: log1p(SOC, g/kg). Point estimate = back-transformed
-# MEDIAN (not mean) because median is the unbiased estimator of a
-# lognormal predictive's location.
+# TARGET: SOC concentration in RAW g/kg, UNTRANSFORMED, of the
+# shallowest WoSIS horizon anchored at the surface -- upper_depth == 0
+# with lower_depth in [5, 30] cm. It is a variable-thickness slice, not
+# a fixed window: all 1 095 profiles start at 0, but lower_depth spans
+# 5 to 30 cm (median 15), and only 27% end at or above 10 cm.
+#
+# THIS HEADER USED TO SAY "Target: log1p(SOC, g/kg). Point estimate =
+# back-transformed MEDIAN". That was false in both halves and it is the
+# reason four documents disagreed about what this benchmark measures.
+# The shipped artefact settles it: B1's 95% interval bounds are exactly
+# 0.8 and 194.0, which are the exact min and max of soc_topsoil_gkg on
+# the raw scale -- what ranger's quantile prediction returns when it is
+# trained on the untransformed response. A genuine log1p-scale RMSE
+# would be about 0.6; the published figure is 13.51.
+#
+# Point estimate = the predictive MEAN on that raw scale. There is no
+# back-transformation because there is no transformation.
 
 suppressPackageStartupMessages({
   devtools::load_all(".", quiet = TRUE)
@@ -40,8 +57,45 @@ suppressPackageStartupMessages({
   library(dplyr)
 })
 
+# WHAT A FRESH CLONE NEEDS, stated plainly rather than implied.
+#
+# This script is NOT runnable straight from a checkout, and no amount of
+# committing small files makes it so. `b$covariates` is a character path, not
+# data: the bundle is a POINTER to tools/case_cerrado/cerrado_covariates.tif,
+# a 674 MB, 56-layer raster that cannot go in git. Committing the 946 KB
+# bundle would hand a reader a filename for a file they do not have.
+#
+# The honest chain is two scripts, both committed:
+#
+#   Rscript data-raw/case_cerrado_prepare.R   # ~1 h, ~2 GB of public
+#                                             # downloads, writes the bundle
+#                                             # and the raster
+#   Rscript data-raw/case_cerrado_run.R       # ~3 min, writes the artefact
+#                                             # straight into inst/extdata
+#
+# So the benchmark IS reproducible from public sources -- it is expensive, not
+# closed. What was genuinely broken was the second step's output: it wrote to
+# a gitignored path and a human copied the file into inst/extdata, so nothing
+# committed connected the script to the shipped artefact. That is fixed below.
+#
+# NOT DONE, deliberately: carrying the 1 095 x 64 embeddings in the bundle so
+# the raster becomes unnecessary. It would make this script run anywhere, and
+# it would also make the E arm unfalsifiable -- the raster and the encoder are
+# the only things that can regenerate those numbers, and that is exactly what
+# such a change removes. Cheap reproducibility of the output is not worth
+# losing verifiability of the input.
 bundle_path <- "tools/case_cerrado/case_cerrado_bundle.rds"
-out_path    <- "tools/case_cerrado/case_cerrado_results.rds"
+# WRITE WHERE THE PACKAGE SHIPS FROM. This wrote to tools/case_cerrado/,
+# which is gitignored, and a human then copied the file to inst/extdata/ --
+# the two were byte-identical, so the copy was real, but no committed script,
+# Makefile or CI step performed it. Of the 47 data-raw scripts, this was the
+# only one whose artefact did not go straight to inst/extdata/.
+#
+# The cost was not theoretical. tests/testthat/test-bundle-provenance.R opens
+# by naming THIS file as the defect it exists for -- and skips it, because the
+# bundle carries no provenance block and the loop passes over any bundle that
+# has none. The contract written because of this artefact did not cover it.
+out_path    <- "inst/extdata/case_cerrado_results.rds"
 stopifnot(file.exists(bundle_path))
 b <- readRDS(bundle_path)
 profiles <- b$profiles
@@ -72,7 +126,9 @@ message(sprintf("[run] %d feature columns: %s ...",
                  length(covariate_cols),
                  paste(utils::head(covariate_cols, 6L), collapse = ", ")))
 
-.back_transform <- function(z) expm1(pmax(z, 0))
+# (The back-transform that used to live here was dead code: defined,
+# never called. It existed only to make the false log1p header look
+# supported, so it goes with the header.)
 # v1.3.1 target: SOC concentration (g/kg) of the shallowest WoSIS
 # horizon that starts at upper_depth == 0 and is 5-30 cm thick.
 # Shallowest-first slice among qualifying horizons, same physical
@@ -339,6 +395,11 @@ saveRDS(
       B2 = list(mean = pred_b2, lower = pred_b2_lo, upper = pred_b2_hi),
       E  = list(mean = pred_e,  lower = pred_e_lo,  upper = pred_e_hi)
     ),
+    # Binds this bundle to the script that made it: see R/provenance.R.
+    provenance       = edaphos_provenance(
+                         script = "data-raw/case_cerrado_run.R",
+                         n_profiles = nrow(profiles),
+                         target = "soc_topsoil_gkg, raw g/kg, untransformed"),
     edaphos_ver      = as.character(packageVersion("edaphos")),
     created_at       = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
   ),

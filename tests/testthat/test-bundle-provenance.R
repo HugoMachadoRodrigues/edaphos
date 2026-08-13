@@ -113,3 +113,70 @@ test_that("the check distinguishes stale from unbindable", {
   expect_false(v$ok)
   expect_match(v$reason, "has changed")
 })
+
+# ---------------------------------------------------------------------------
+# The silent skip, made loud.
+#
+# The test above passes over any bundle with no provenance block -- `next` --
+# so a NEW bundle shipped without one is indistinguishable from a bundle that
+# is bound and consistent. That is exactly how the artefact this file opens by
+# naming, inst/extdata/case_cerrado_results.rds, sat outside its own contract:
+# the test was written because of it and did not cover it.
+#
+# The migration is staged, so an allow-list is honest where a blanket
+# requirement would just fail. Its purpose is that the list can only SHRINK:
+# a bundle added or re-run from here on must carry provenance, and one that
+# gains it must leave the list rather than sit here forever pretending to be
+# legacy.
+# ---------------------------------------------------------------------------
+
+# Bundles that predate edaphos_provenance() and have not been re-run since.
+# Remove an entry when its script is re-run with a provenance block; never add.
+LEGACY_UNPROVENANCED <- c(
+  "al_policy_benchmark.rds",
+  "buffer_effect.rds", "capstone_campaign_results.rds",
+  "capstone_native_calibration.rds", "causal_cerrado_real_v2.rds",
+  "causal_cerrado_real.rds", "causal_discovery_results.rds",
+  "causal_iv_cerrado_real.rds", "causal_iv_cerrado.rds",
+  "causal_sensitivity_cerrado.rds", "interval_width_vs_extrapolation.rds",
+  "llm_benchmark_results.rds", "pilar10_gat_tuning.rds",
+  "piml_coverage.rds", "piml_depth_benchmark.rds",
+  "piml_parameter_variograms.rds", "piml_prior_sensitivity.rds",
+  "piml_wosis_cerrado.rds", "temporal_cerrado_results.rds"
+)
+
+test_that("no bundle outside the legacy list ships without provenance", {
+  skip_if(is.na(pkg_root()), "not running from a source checkout")
+  bundles <- all_bundles()
+  skip_if(!length(bundles), "no bundles")
+
+  unprovenanced <- vapply(bundles, function(f) {
+    b <- tryCatch(readRDS(f), error = function(e) NULL)
+    is.null(b) || !is.list(b) || is.null(b$provenance)
+  }, TRUE)
+  offenders <- setdiff(basename(bundles[unprovenanced]), LEGACY_UNPROVENANCED)
+
+  expect_equal(offenders, character(0),
+               info = paste("these bundles carry no provenance block and are",
+                            "not on the legacy list:",
+                            paste(offenders, collapse = ", ")))
+})
+
+test_that("the legacy list does not name bundles that now carry provenance", {
+  # A list that only ever grows is a list nobody trusts. If a bundle has been
+  # re-run with provenance, it must come off, or the allow-list quietly starts
+  # exempting things that no longer need exempting.
+  skip_if(is.na(pkg_root()), "not running from a source checkout")
+  bundles <- all_bundles()
+  skip_if(!length(bundles), "no bundles")
+
+  provenanced <- vapply(bundles, function(f) {
+    b <- tryCatch(readRDS(f), error = function(e) NULL)
+    is.list(b) && !is.null(b$provenance)
+  }, TRUE)
+  stale_entries <- intersect(basename(bundles[provenanced]), LEGACY_UNPROVENANCED)
+
+  expect_equal(stale_entries, character(0),
+               info = paste("remove from LEGACY_UNPROVENANCED:",
+                            paste(stale_entries, collapse = ", ")))
+})

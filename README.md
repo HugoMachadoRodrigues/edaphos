@@ -263,9 +263,9 @@ would be an oracle over the very rows being scored:
 | Method | RMSE | R² vs global mean | NSE vs training-fold mean | draws |
 |:---|---:|---:|---:|---:|
 | P1 OLS (DAG-selected covariates)  | 0.586 | +0.162 | **+0.204** | 300 |
-| P5 QRF                            | 0.596 | +0.134 | +0.177 | 99 |
-| P7 BHS                            | 0.613 | +0.085 | +0.131 | 200 |
-| P4 Foundation embeddings + QRF    | 0.621 | +0.060 | +0.107 | 99 |
+| P5 QRF                            | 0.597 | +0.131 | +0.174 | 99 |
+| P7 BHS                            | 0.613 | +0.084 | +0.130 | 200 |
+| P4 Foundation embeddings + QRF    | 0.618 | +0.070 | +0.117 | 99 |
 | P6 Quantum KRR                    | 0.663 | −0.073 | −0.019 | 100 |
 | P10 GAT (trained attention)       | 0.672 | −0.101 | −0.046 | **8** |
 

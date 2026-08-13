@@ -178,13 +178,36 @@ fit_p7_bhs <- function(train, test, cov_cols,
                    seed = 1L, verbose = FALSE)
   pr <- predict(fit, newdata = test,
                  quantiles = seq(0.025, 0.975, length.out = 20L),
-                 n_draws = 200L)
-  # Reconstruct samples ~ N(mean, sd) via the predicted summary
-  # (predict.edaphos_bhs returns mean+sd+quantiles).
-  samps <- matrix(NA_real_, nrow = 200L, ncol = nrow(test))
-  for (j in seq_len(nrow(test))) {
-    samps[, j] <- stats::rnorm(200L, pr$mean[j], pr$sd[j])
-  }
+                 n_draws = 200L, draws = TRUE)
+  # THE SAMPLER'S OWN DRAWS, not a Gaussian fitted to their summary.
+  #
+  # This used to be `samps[, j] <- rnorm(200, pr$mean[j], pr$sd[j])`: the
+  # Gibbs posterior was computed, reduced to a mean and an sd, and then a
+  # fresh Gaussian was simulated from those two numbers. Every uncertainty
+  # figure P7 published -- CRPS, PICP -- was therefore scoring that Gaussian,
+  # not the sampler, and nothing said so.
+  #
+  # HOW MUCH IT MATTERS IS AN EMPIRICAL QUESTION, and the honest answer on
+  # this model is: less than the principle suggests. The predictive is a scale
+  # mixture of normals -- one component per posterior draw of
+  # (beta, sigma^2, tau^2) -- so it is leptokurtic, heavier-tailed than the
+  # moment-matched Gaussian. But the mixture only separates from that Gaussian
+  # when the component variances differ appreciably across draws, and here
+  # they barely do: phi rails, the latent field is not distinguishable from a
+  # nugget, and tau^2 is tightly identified. Measured on a 21x21 br_cerrado
+  # block with 60 held-out sites, mixture against moment-matched Gaussian:
+  # CRPS 3.159 vs 3.172, PICP at 50/80/90/95% identical to three decimals,
+  # mean kurtosis 3.04 vs 2.95.
+  #
+  # The substitution is still wrong to ship. A published CRPS and PICP that
+  # were computed from a distribution the sampler did not produce, with
+  # nothing saying so, is a defect whether or not it moves the third decimal
+  # -- and its size on THIS archive is measured below, not assumed.
+  #
+  # predict.edaphos_bhs() had these draws all along and discarded them; it now
+  # returns them under `draws = TRUE`.
+  samps <- attr(pr, "draws")
+  stopifnot(is.matrix(samps), ncol(samps) == nrow(test))
   edaphos_posterior(samples = samps, method = "bayesian",
                       query_type = "map", units = "g/kg")
 }
@@ -234,6 +257,8 @@ message("=== [4/7] Running 5-fold spatial CV ===")
 
 fold_rows <- list()
 posterior_bank <- list()
+# Paired mixture-vs-Gaussian diagnostic for P7; see the block that fills it.
+gauss_rows <- list()
 
 for (fd in 1:5) {
   message(sprintf("  fold %d/5", fd))
@@ -288,6 +313,52 @@ for (fd in 1:5) {
               error = function(e) NULL)
   }
   c5 <- eval_post(post5); c4 <- eval_post(post4); c7 <- eval_post(post7)
+
+  # WHAT THE GAUSSIAN SUBSTITUTION COST, measured rather than argued.
+  #
+  # Through v3.10.0 this benchmark scored P7 on rnorm(200, mean, sd) rebuilt
+  # from the predictive summary instead of on the sampler's own draws. Simply
+  # comparing this run's numbers against the committed ones cannot isolate
+  # that: removing those rnorm() calls also shifts the RNG stream, so P4 and
+  # P5 move too, and every delta becomes unattributable.
+  #
+  # The clean measurement is paired -- both distributions over the SAME
+  # predictions, the same held-out truth, the same fold -- so the difference
+  # is the substitution and nothing else. It is recorded in the bundle so the
+  # claim about it is a number a reader can check.
+  #
+  # The draw of G runs on a private RNG stream: .Random.seed is saved and
+  # restored around it, so adding this diagnostic does not perturb the run it
+  # is diagnosing.
+  gauss_gap <- NULL
+  if (!is.null(post7) && !is.null(c7) && !is.null(post7$samples)) {
+    S <- post7$samples
+    old_seed <- if (exists(".Random.seed", .GlobalEnv))
+      get(".Random.seed", .GlobalEnv) else NULL
+    set.seed(4242L + fd)
+    G <- vapply(seq_len(ncol(S)),
+                function(j) stats::rnorm(nrow(S), mean(S[, j]), stats::sd(S[, j])),
+                numeric(nrow(S)))
+    if (!is.null(old_seed)) assign(".Random.seed", old_seed, .GlobalEnv)
+    cg <- eval_post(edaphos_posterior(samples = G, method = "bayesian",
+                                       query_type = "map", units = "g/kg"))
+    # uncertainty_calibrate() returns picp/mpiw as NAMED VECTORS over nominal
+    # levels, not as scalar `picp90` fields; reading them the wrong way yields
+    # a zero-length value and data.frame() then fails with "differing number
+    # of rows". Same extraction as grab() uses above.
+    at90 <- function(v) if ("0.90" %in% names(v)) v[["0.90"]] else
+                        if ("0.9"  %in% names(v)) v[["0.9"]]  else NA_real_
+    if (!is.null(cg))
+      gauss_gap <- data.frame(
+        fold = fd,
+        crps_mixture = c7$crps,             crps_gaussian = cg$crps,
+        picp90_mixture = at90(c7$picp),     picp90_gaussian = at90(cg$picp),
+        mpiw90_mixture = at90(c7$mpiw),     mpiw90_gaussian = at90(cg$mpiw),
+        kurtosis_mixture = mean(apply(S, 2L, function(s)
+          mean(((s - mean(s)) / stats::sd(s))^4))),
+        stringsAsFactors = FALSE)
+  }
+  gauss_rows[[length(gauss_rows) + 1L]] <- gauss_gap
 
   grab <- function(name, post, cal, elapsed) {
     if (is.null(cal)) {
@@ -365,6 +436,26 @@ for (fd in 1:5) {
 }
 
 cv_tbl <- bind_rows(fold_rows)
+
+# The paired diagnostic, aggregated. Every column is a difference between two
+# scorings of the SAME predictions, so it isolates the Gaussian substitution
+# from everything else that moves between runs.
+gauss_tbl <- if (length(Filter(Negate(is.null), gauss_rows)))
+  bind_rows(Filter(Negate(is.null), gauss_rows)) else NULL
+if (!is.null(gauss_tbl)) {
+  message("=== P7: the sampler's draws vs the Gaussian that was published ===")
+  print(as.data.frame(gauss_tbl), row.names = FALSE, digits = 4)
+  cat(sprintf(
+    "  mean over folds: CRPS %.4f (mixture) vs %.4f (Gaussian), delta %+.4f\n",
+    mean(gauss_tbl$crps_mixture), mean(gauss_tbl$crps_gaussian),
+    mean(gauss_tbl$crps_gaussian - gauss_tbl$crps_mixture)))
+  cat(sprintf(
+    "  PICP90 %.4f vs %.4f, delta %+.4f | mean kurtosis %.3f (3 = Gaussian)\n",
+    mean(gauss_tbl$picp90_mixture), mean(gauss_tbl$picp90_gaussian),
+    mean(gauss_tbl$picp90_gaussian - gauss_tbl$picp90_mixture),
+    mean(gauss_tbl$kurtosis_mixture)))
+}
+
 message("=== [5/7] Fold-level table ===")
 print(cv_tbl)
 
@@ -397,6 +488,10 @@ print(agg)
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [7/7] Saving bundle ===")
 R_out <- list(
+  # Binds this bundle to the script that made it: see R/provenance.R.
+  provenance = edaphos_provenance(
+                 script = "data-raw/benchmark_wosis_p4_p5_p7.R",
+                 p7_posterior = "sampler draws (not a Gaussian refit)"),
   response_scale = RESPONSE_SCALE,
   response_units = RESPONSE_UNITS,
   profile_years  = YEAR_SUMMARY,
@@ -408,7 +503,9 @@ R_out <- list(
   spatial_folds = SF,
   cv_fold_table  = cv_tbl,
   cv_aggregate   = agg,
-  posterior_bank = posterior_bank
+  posterior_bank = posterior_bank,
+  # What the pre-fix Gaussian substitution was worth, per fold.
+  p7_gaussian_gap = gauss_tbl
 )
 saveRDS(R_out, OUT_PATH, compress = "xz")
 sz_kb <- file.size(OUT_PATH) / 1024

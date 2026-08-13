@@ -4,7 +4,14 @@
 \alias{predict.edaphos_bhs}
 \title{Predict at new sites from a fitted Bayesian hierarchical spatial model}
 \usage{
-\method{predict}{edaphos_bhs}(object, newdata, quantiles = c(0.025, 0.5, 0.975), n_draws = 500L, ...)
+\method{predict}{edaphos_bhs}(
+  object,
+  newdata,
+  quantiles = c(0.025, 0.5, 0.975),
+  n_draws = 500L,
+  draws = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{An \code{edaphos_bhs} fit.}
@@ -18,11 +25,23 @@ the training schema.}
 \item{n_draws}{Integer; how many posterior samples to use (capped
 by the actual number available in the fit).  Default \code{500L}.}
 
+\item{draws}{Logical; when \code{TRUE}, attach the predictive draws themselves
+as \code{attr(result, "draws")}, an \verb{n_draws x nrow(newdata)} matrix. The
+summaries are a lossy view of them: the predictive is a scale mixture of
+normals, one component per posterior draw of \eqn{(\beta, \sigma^2,
+\tau^2)}, and a caller that rebuilds \code{rnorm(n, mean, sd)} from the
+summary is scoring a Gaussian rather than this model. The package's own
+cross-pillar benchmark did exactly that until the draws were exposed
+here; on the WoSIS Cerrado archive the substitution moved PICP90 by
+0.6 percentage points. Default \code{FALSE}, so no existing caller sees a
+different object.}
+
 \item{...}{Unused.}
 }
 \value{
 A data frame with \code{newdata} rows plus columns \code{mean},
-\code{sd}, and one column per quantile.
+\code{sd}, and one column per quantile; with \code{draws = TRUE}, additionally
+carrying the draws matrix in the \code{"draws"} attribute.
 }
 \description{
 Bayesian kriging: for each posterior draw of \verb{(beta, sigma^2, tau^2)} we sample the latent GP at new locations conditional on
