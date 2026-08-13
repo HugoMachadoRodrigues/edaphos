@@ -728,11 +728,21 @@ qkrr_al_compare <- data.frame(
   qkrr_epistemic  = ep_sd / max(ep_sd + 1e-9),
   selected        = candidate_df$selected
 )
+# NO PLAUSIBLE FALLBACK. This used to be `error = function(e) 0.75`: if the
+# fit failed, a hand-picked number that looks like a real concordance was
+# printed in its place, with no message, no warning and no flag. A reader of
+# the log could not tell a measurement from a substitute, and 0.75 is exactly
+# the value someone would choose to make the two methods look like they agree.
+# A failure is now NA and says so.
 qkrr_al_r2 <- tryCatch(
   summary(lm(qkrr_epistemic ~ al_uncertainty, qkrr_al_compare))$r.squared,
-  error = function(e) 0.75
+  error = function(e) {
+    message("  [warn] Q-KRR / AL concordance fit failed: ", conditionMessage(e))
+    NA_real_
+  }
 )
-message(sprintf("  Q-KRR / AL concordance R² = %.3f", qkrr_al_r2))
+message(if (is.na(qkrr_al_r2)) "  Q-KRR / AL concordance R² = NA (fit failed)"
+        else sprintf("  Q-KRR / AL concordance R² = %.3f", qkrr_al_r2))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 7. Unified calibration

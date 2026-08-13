@@ -1125,8 +1125,10 @@ confounder explaining less than a quarter of the residual variance
 could zero it out.  MAP → SOC under Backdoor OLS is moderately
 robust (RV ≈ 8%); under real-encoder IV it drops to ≈ 4%, because
 the synthetic-stack mode yields weak instruments (Stage-1 F ≈ 10) and
-an inflated SE.  Running with `EDAPHOS_IV_REAL_STACK=1` on the full
-geodata download should lift F and reduce the SE, restoring RV.
+an inflated SE.  A real-covariate run should lift F and reduce the SE,
+restoring RV — but note that the `EDAPHOS_IV_REAL_STACK` switch this
+README once told readers to set is read nowhere in the package.  The
+real-stack path is a roadmap item, not a flag.
 
 The package was validated against the published Cinelli-Hazlett
 Theorem 4.4 example to four decimal places (RV = 0.1810 expected,
@@ -1663,19 +1665,57 @@ bm <- edaphos::qf_krr_benchmark(embeddings, covariates, y,
                                   n_pcs = 6L, reps = 2L, lambda = 0.5)
 ```
 
-**5-fold spatial CV on 1 095 Cerrado profiles (synthetic-stack mode):**
+**This benchmark is a negative control.** The raster stack the encoder
+sees is white noise — `stats::rnorm()` into every cell of every channel
+(`data-raw/quantum_foundation_benchmark.R`) — so the "foundation
+embeddings" describe a landscape that carries no signal, by
+construction. Three of the four methods below predict from features
+that *cannot* contain information about SOC. Read it as a check that
+the pipeline reports failure when there is nothing to find, not as a
+covariate benchmark. For the real-covariate answer see the six-method
+table below.
 
-| Method                          |  RMSE  |   MAE | R²    |
-|:--------------------------------|------:|------:|------:|
-| Quantum KRR on foundation PCs   |  14.3 |   8.7 | 0.00  |
-| Quantum KRR on raw covariates   |  14.2 |   8.4 | 0.00  |
-| RBF-KRR on foundation PCs       |  14.8 |   9.8 | 0.00  |
-| **ranger (raw covariates)**     | 14.3  | 9.0   | **0.08** |
+**5-fold spatial CV on 1 081 Cerrado profiles (synthetic-stack mode).**
+The Cerrado pool holds 1 095 profiles; 14 lose their embedding at the
+`complete.cases()` step after the encoder pass, so the CV runs on 1 081.
+This table said 1 095 until the bundle was re-read.
 
-**Honest finding.** Under synthetic embeddings (random Gaussian
-rasters), the quantum lift on foundation PCs **matches but does not
-surpass** ranger. The four regressors are statistically
-indistinguishable on this benchmark.
+| Method                          | RMSE | MAE | R² (pooled) | R² (fold mean) |
+|:--------------------------------|-----:|----:|------------:|---------------:|
+| Quantum KRR on raw covariates   | 15.5 | 9.2 |     −0.075  |         −0.350 |
+| ranger (raw covariates)         | 15.5 | 9.0 |     −0.075  |         −0.795 |
+| Quantum KRR on foundation PCs   | 15.6 | 9.3 |     −0.089  |         −0.295 |
+| RBF-KRR on foundation PCs       | 16.1 | 9.8 |     −0.159  |         −0.449 |
+
+**Finding: all four are worse than predicting the mean.** Every pooled
+R² is negative, so no method here beats the zero-parameter null — and
+that includes the classical `ranger` baseline, which is the honest
+result on noise features. The four are close to one another (−0.075 to
+−0.159) and the differences between them are not worth interpreting.
+
+**What this table used to say, and why.** Until this run it read `0.00`
+for the three kernel methods and `0.08` for `ranger`, under the
+conclusion that the four regressors were *statistically
+indistinguishable* and that the quantum lift *matched but did not
+surpass* ranger. Those zeros were not measured. `qf_krr_benchmark()`
+computed `max(0, 1 - SS_res/SS_tot)`, so every negative R² — 17 of the
+20 fold-by-method values — was floored to exactly zero, which converts
+"worse than the mean" into "explains none of the variance". Two
+different findings, and the clamp published the flattering one. The
+clamp is gone (`R/quantum_foundation.R` delegates to `edaphos_r2()`,
+which is Nash–Sutcliffe and unclamped) and the bundle has been rebuilt
+from the same script and seed.
+
+**Two R² columns, because one of them is unstable.** `edaphos_r2()` is
+Nash–Sutcliffe against each test fold's *own* mean, so a fold whose
+profiles happen to be homogeneous has a small denominator and a wild
+R². Fold 2 of this partition has sd(SOC) = 5.9 g/kg against 11–21 in
+the other four; `ranger` scores −4.28 there, and that single fold drags
+its fold-mean to −0.80 and makes it look like the worst of the four.
+Pooled over folds — one ratio of summed squares rather than a mean of
+ratios — `ranger` is −0.075, mid-pack. The pooled column is the one to
+read; the fold mean is shown so the instability is visible instead of
+smoothed away.
 
 Earlier versions of this section listed three "testable explanations"
 for the null result — a synthetic stack, an undertrained encoder, too

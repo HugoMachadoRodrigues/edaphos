@@ -106,3 +106,64 @@ test_that("the README's buffer table matches the bundle", {
   expect_true(all(b$d_rmse >= -5e-4))
   expect_equal(b$rank_buf, b$rank_unbuf)
 })
+
+test_that("the README's quantum-foundation table matches the rebuilt bundle", {
+  # THIS TABLE IS WHY THE FILE EXISTS TWICE OVER. It published `0.00` for
+  # three methods and `0.08` for ranger for four months after the clamp that
+  # produced those zeros was removed, under the conclusion that the four
+  # regressors were "statistically indistinguishable". The zeros were floored
+  # negatives: 17 of 20 fold-by-method values were below zero. Nothing
+  # compared the table to the bundle, so nothing noticed.
+  rp <- readme_path(); skip_if(is.na(rp), "README.md not found")
+  f <- system.file("extdata", "quantum_foundation_cerrado.rds", package = "edaphos")
+  if (!nzchar(f)) f <- file.path("inst", "extdata", "quantum_foundation_cerrado.rds")
+  skip_if_not(file.exists(f), "quantum bundle not built")
+
+  B <- readRDS(f)
+  s <- as.data.frame(B$cv_summary)
+  s <- s[order(-s$r2_pooled), ]
+  md <- readLines(rp, warn = FALSE, encoding = "UTF-8")
+  tb <- parse_table(md, "^\\| Method +\\| RMSE \\| MAE \\| R. \\(pooled\\)", nrow(s))
+  skip_if(is.null(tb), "quantum table not found in README")
+
+  expect_equal(tb$method, s$method)
+  expect_equal(tb$num(vapply(tb$cells, `[`, "", 2L)),
+               round(s$rmse_pooled, 1), tolerance = 5e-2)
+  expect_equal(tb$num(vapply(tb$cells, `[`, "", 3L)),
+               round(s$mae_mean, 1), tolerance = 5e-2)
+  expect_equal(tb$num(vapply(tb$cells, `[`, "", 4L)),
+               round(s$r2_pooled, 3), tolerance = 5e-4)
+  expect_equal(tb$num(vapply(tb$cells, `[`, "", 5L)),
+               round(s$r2_mean, 3), tolerance = 5e-4)
+
+  # The prose states the profile count; it said 1 095 while the bundle used
+  # 1 081. Matched on the single line rather than on the whole file collapsed
+  # into one string: a failure here should print that line, not 110 kB of
+  # README, and the whole-file form reports only that "something, somewhere,
+  # does not match".
+  hdr <- grep("Cerrado profiles \\(synthetic-stack mode\\)", md, value = TRUE)
+  expect_length(hdr, 1L)
+  expect_true(grepl(format(B$n_profiles_used, big.mark = " "), hdr, fixed = TRUE))
+})
+
+test_that("the quantum bundle carries no censored R-squared", {
+  # The defect this whole section documents, asserted directly: a goodness-of
+  # fit column with exact zeros in it is the signature of a floor. Negative
+  # values are expected here and must survive into the artefact.
+  f <- system.file("extdata", "quantum_foundation_cerrado.rds", package = "edaphos")
+  if (!nzchar(f)) f <- file.path("inst", "extdata", "quantum_foundation_cerrado.rds")
+  skip_if_not(file.exists(f), "quantum bundle not built")
+
+  B <- readRDS(f)
+  expect_equal(sum(B$cv_table$r2 == 0), 0L)
+  expect_gt(B$n_negative_r2, 0L)
+  expect_equal(B$n_negative_r2, sum(B$cv_table$r2 < 0))
+
+  # And the bundle must say what it is, so a reader of the .rds alone cannot
+  # mistake a white-noise negative control for a covariate benchmark.
+  expect_identical(B$stack_mode, "synthetic")
+  expect_match(B$stack_note, "negative control")
+
+  # Every pooled R-squared is negative: the finding the README states.
+  expect_true(all(as.data.frame(B$cv_summary)$r2_pooled < 0))
+})

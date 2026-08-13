@@ -478,9 +478,11 @@ for the three Cerrado exposures:
    explicando mais de ~9% da variância residual em ambas as pontas.
 3. **Os IV estimates (real MoCo v1.9.1) têm RVs pequenos (0.9-3.9%)**
    porque a SE é cerca de 5× maior que a do backdoor (instrumentos
-   fracos no modo CI-stack).  Quando a v1.9.2 roda com
-   `EDAPHOS_IV_REAL_STACK=1`, a F-stage-1 deve subir e a SE cair —
-   reestabilizando o RV.
+   fracos no modo CI-stack).  Uma corrida sobre covariáveis reais
+   deveria subir a F-stage-1 e baixar a SE, reestabilizando o RV.
+   Atenção: `EDAPHOS_IV_REAL_STACK` não é lido em lado nenhum do
+   pacote — este texto já o anunciou como se fosse um interruptor, e
+   não é.  O caminho de stack real está por implementar.
 
 ## Bias contour: o MAP → SOC sob backdoor
 
@@ -556,7 +558,8 @@ que o framework de Pearl idealiza.
   são MAP → COS (RV ≈ 16 %) e Clay → COS (RV ≈ 18 %); T e cobertura
   arbórea não sobrevivem ao ajuste (ver `causal_cerrado_real_v2.rds`).
   + runner `data-raw/causal_sensitivity_run.R`.  Agenda para o
-  encoder v2: lift do Stage-1 F (requer `EDAPHOS_IV_REAL_STACK=1`).
+  encoder v2: lift do Stage-1 F (requer o caminho de stack real, ainda
+  por implementar).
 - **v2.0.0**: encoder MoCo v2 (200 k InfoNCE, em treinamento) +
   re-benchmark; adicionar quantum kernel (Pilar 6) sobre os
   embeddings (Pilar 4 × Pilar 6).
