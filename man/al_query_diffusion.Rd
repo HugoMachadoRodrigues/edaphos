@@ -57,8 +57,12 @@ for (i in 0:4) for (j in 0:4) {
   stack[k, , ] <- soc_grid[(i * 9L + 1L):(i * 9L + 9L),
                            (j * 9L + 1L):(j * 9L + 9L)]
 }
+# `backend = "r"` pinned: the loss values quoted below are the
+# reference backend's, and they are what CRAN sees (no libtorch
+# there). Unpinned, a machine with libtorch trains the torch model
+# instead and prints 1.16 -> 0.63 under a comment saying 3.64 -> 1.02.
 dm <- dm_fit(stack, T = 40L, epochs = 200L, hidden = 24L,
-             lr = 0.01, seed = 1L)
+             lr = 0.01, seed = 1L, backend = "r")
 c(first_epoch = dm$history[1L], last_epoch = dm$history[200L])
 # 3.64 -> 1.02 on the score-matching loss
 

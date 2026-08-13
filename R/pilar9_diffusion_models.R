@@ -245,8 +245,17 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #'   stack[i, , ] <- field[cells$r[i]:(cells$r[i] + 7L),
 #'                         cells$c[i]:(cells$c[i] + 7L)]
 #'
+#' # `backend = "r"` is PINNED, and that is not a performance choice.
+#' # Everything this example says is about the reference backend: it is
+#' # what CRAN runs (libtorch is not installed there) and what the
+#' # commentary below describes. Left unpinned, the backend defaults to
+#' # torch wherever libtorch happens to exist, and the printed output
+#' # then contradicts the prose around it -- the draws in `dm_sample`'s
+#' # example go from 5.4x over-dispersed to 1.1x, and their lag-1
+#' # correlation from -0.06 to +0.61. An example whose narrative depends
+#' # on the machine rendering it is not an example.
 #' fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
-#'               lr = 0.02, seed = 1L)
+#'               lr = 0.02, seed = 1L, backend = "r")
 #' fit
 #'
 #' # The score-matching target is standard normal, so a denoiser that
@@ -257,13 +266,24 @@ dm_cosine_schedule <- function(T = 50L, s = 0.008) {
 #'         final   = fit$history[length(fit$history)],
 #'         eps_hat_zero = 1), 4)
 #'
-#' # Nor does the gap close with training: `backend = "r"` fits a
-#' # readout over frozen random features (an ELM), and that readout has
-#' # already converged.  2.7 times the epochs buys 0.05.
-#' fit_long <- dm_fit(stack, T = 50L, epochs = 400L, hidden = 32L,
-#'                    lr = 0.02, seed = 1L)
-#' round(c(epochs_150 = fit$history[150L],
-#'         epochs_400 = fit_long$history[400L]), 4)
+#' # Nor does the gap close with training: `backend = "r"` fits a readout
+#' # over frozen random features (an ELM), and that readout converges
+#' # inside the first hundred epochs.  Read this as BLOCK MEANS, not as
+#' # two single epochs: the loss is stochastic in the sampled timestep,
+#' # and its epoch-to-epoch spread here (sd about 0.03) is comparable to
+#' # the whole remaining improvement, so comparing epoch 150 against
+#' # epoch 400 measures the noise.  This example used to do exactly that
+#' # and reported the difference as "0.05"; measured, the two epochs it
+#' # compared differ by -0.015 -- the later one is worse.
+#' blk <- function(i) mean(fit$history[i])
+#' round(c(epochs_51_100  = blk(51:100),
+#'         epochs_101_150 = blk(101:150),
+#'         noise_sd       = sd(fit$history[51:150])), 4)
+#'
+#' # A second fit is not needed to see this, and this example no longer
+#' # runs one: training for longer does not change the epochs already
+#' # taken, so a 400-epoch trace contains the 150-epoch trace as its
+#' # prefix.  The second call cost 166 s of the example's 325 s.
 #'
 #' # And the patches overlap by construction (stride 5, window 8), so
 #' # these 64 are nowhere near 64 independent training examples.
@@ -404,8 +424,13 @@ dm_fit <- function(stack, conditioning = NULL,
 #'   stack[i, , ] <- field[cells$r[i]:(cells$r[i] + 7L),
 #'                         cells$c[i]:(cells$c[i] + 7L)]
 #'
+#' # `backend = "r"` is pinned deliberately: the two-number check below
+#' # is a statement about the reference backend, and it is false of the
+#' # torch one. Unpinned, this example printed 5.4x over-dispersion on a
+#' # machine without libtorch and 1.1x on a machine with it, under prose
+#' # that only matched the first.
 #' fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
-#'               lr = 0.02, seed = 1L)
+#'               lr = 0.02, seed = 1L, backend = "r")
 #' gen <- dm_sample(fit, n_samples = 8L, seed = 7L)
 #' dim(gen)
 #'
@@ -447,7 +472,7 @@ dm_fit <- function(stack, conditioning = NULL,
 #' # direction.  Read it as a demonstration of the interface, not of a
 #' # calibrated conditional simulator.
 #' fit_c <- dm_fit(stack, conditioning = cond, T = 50L, epochs = 150L,
-#'                 hidden = 32L, lr = 0.02, seed = 1L)
+#'                 hidden = 32L, lr = 0.02, seed = 1L, backend = "r")
 #' lo <- dm_sample(fit_c, n_samples = 8L,
 #'                 conditioning = matrix(-1.5, 8L, 1L), seed = 3L)
 #' hi <- dm_sample(fit_c, n_samples = 8L,

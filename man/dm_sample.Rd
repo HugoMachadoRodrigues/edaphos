@@ -47,8 +47,13 @@ for (i in seq_len(nrow(cells)))
   stack[i, , ] <- field[cells$r[i]:(cells$r[i] + 7L),
                         cells$c[i]:(cells$c[i] + 7L)]
 
+# `backend = "r"` is pinned deliberately: the two-number check below
+# is a statement about the reference backend, and it is false of the
+# torch one. Unpinned, this example printed 5.4x over-dispersion on a
+# machine without libtorch and 1.1x on a machine with it, under prose
+# that only matched the first.
 fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
-              lr = 0.02, seed = 1L)
+              lr = 0.02, seed = 1L, backend = "r")
 gen <- dm_sample(fit, n_samples = 8L, seed = 7L)
 dim(gen)
 
@@ -90,7 +95,7 @@ round(cor(cond[, 1L], apply(stack, 1L, mean)), 3)
 # direction.  Read it as a demonstration of the interface, not of a
 # calibrated conditional simulator.
 fit_c <- dm_fit(stack, conditioning = cond, T = 50L, epochs = 150L,
-                hidden = 32L, lr = 0.02, seed = 1L)
+                hidden = 32L, lr = 0.02, seed = 1L, backend = "r")
 lo <- dm_sample(fit_c, n_samples = 8L,
                 conditioning = matrix(-1.5, 8L, 1L), seed = 3L)
 hi <- dm_sample(fit_c, n_samples = 8L,
