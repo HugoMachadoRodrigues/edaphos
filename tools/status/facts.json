@@ -1,7 +1,7 @@
 {
   "schema": "edaphos-status-facts/1",
   "environment": {
-    "measured_at_utc": "2026-08-12T22:54:41Z",
+    "measured_at_utc": "2026-08-13T01:06:00Z",
     "r_version": "4.6.1",
     "r_nickname": "Happy Hop",
     "platform": "aarch64-apple-darwin23",
@@ -9,16 +9,16 @@
     "os_release": "25.6.0"
   },
   "git": {
-    "head_sha": "bc59af88fa54030011d9b3807f3c57bb3ea5e233",
-    "head_sha_short": "bc59af8",
+    "head_sha": "23dc4d300cfb52a1b7ea2411f83b18bd784bdd88",
+    "head_sha_short": "23dc4d3",
     "branch": "main",
     "remote_url": "https://github.com/HugoMachadoRodrigues/edaphos.git",
-    "commit_count": 168,
+    "commit_count": 170,
     "first_commit": "2026-04-20T23:44:43-04:00",
     "first_subject": "Initial release of edaphos 0.1.0",
-    "last_commit": "2026-08-12T18:03:34-04:00",
-    "last_subject": "feat: bind bundles to the scripts that produce them, and shrink the tarball",
-    "span_days": 113.763090277778,
+    "last_commit": "2026-08-12T20:54:54-04:00",
+    "last_subject": "fix: re-run the quantum-foundation benchmark; the clamp had written the conclusion",
+    "span_days": 113.882071759259,
     "active_days": 19,
     "commits_per_day": {
       "2026-04-20": 1,
@@ -39,15 +39,15 @@
       "2026-08-05": 25,
       "2026-08-10": 2,
       "2026-08-11": 6,
-      "2026-08-12": 4
+      "2026-08-12": 6
     },
-    "days_since_last": 0.035503463494005,
+    "days_since_last": 0.00771949609948529,
     "tags": ["v0.1.0", "v0.2.0", "v0.3.0", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0", "v0.8.0", "v0.9.0", "v1.0.0", "v1.1.0", "v1.2.0", "v1.3.0", "v1.3.1", "v1.4.0", "v1.5.0", "v1.6.0", "v3.10.0", "v4.0.0"],
     "tag_count": 19,
     "worktree_clean": false,
-    "ahead_behind_origin_main": "0\t0",
+    "ahead_behind_origin_main": "1\t0",
     "remote_tag_count": 19,
-    "commits_since_last_tag": 79,
+    "commits_since_last_tag": 81,
     "last_tag": "v4.0.0"
   },
   "description": {
@@ -205,7 +205,7 @@
         "says_ten": 1
       }
     ],
-    "readme_bytes": 111250,
+    "readme_bytes": 113862,
     "readme_mentions_getting_started": 0
   },
   "rd_portability": {
@@ -1157,10 +1157,10 @@
     "n_phantom": 9
   },
   "tests_static": {
-    "test_file_count": 90,
-    "test_that_blocks": 591,
-    "expect_calls": 1649,
-    "skip_if_not_installed": 81,
+    "test_file_count": 91,
+    "test_that_blocks": 596,
+    "expect_calls": 1668,
+    "skip_if_not_installed": 84,
     "skip_on_cran": 13,
     "set_seed_calls": 144,
     "gate_counts": [
@@ -1214,14 +1214,14 @@
     "exports_never_in_tests": ["causal_ontology_agrovoc", "causal_ontology_envo", "edaphos_zenodo_release", "foundation_build_cerrado_stack", "foundation_tile_source_era5", "foundation_tile_source_modis", "foundation_tile_source_soilgrids", "foundation_tile_source_srtm", "foundation_tile_source_worldclim", "gnn_fit_ensemble", "llm_annotation_launch", "piml_neural_ode_predict", "piml_profile_fit_mechanistic", "temporal_convlstm_predict"]
   },
   "tests_run": {
-    "passed": 2123,
+    "passed": 2151,
     "failed": 0,
     "errored": 0,
     "skipped": 1,
     "warnings": 4,
-    "files": 90,
-    "results": 591,
-    "real_seconds": 528,
+    "files": 91,
+    "results": 596,
+    "real_seconds": 1727,
     "failing_files": []
   },
   "dependencies": {
@@ -1581,7 +1581,7 @@
   },
   "size": {
     "measured_over": "git-tracked files only (build artefacts excluded)",
-    "tracked_file_count": 580,
+    "tracked_file_count": 583,
     "by_dir": [
       {
         "dir": "paper",
@@ -1590,7 +1590,7 @@
       },
       {
         "dir": "inst",
-        "bytes": 2307614,
+        "bytes": 2308254,
         "ships_in_tarball": true
       },
       {
@@ -1605,27 +1605,27 @@
       },
       {
         "dir": "tools",
-        "bytes": 641813,
+        "bytes": 712194,
         "ships_in_tarball": false
       },
       {
         "dir": "data-raw",
-        "bytes": 494385,
+        "bytes": 499147,
         "ships_in_tarball": false
       },
       {
         "dir": "tests",
-        "bytes": 455353,
+        "bytes": 462491,
         "ships_in_tarball": true
       },
       {
         "dir": "<root>",
-        "bytes": 383477,
+        "bytes": 387000,
         "ships_in_tarball": true
       },
       {
         "dir": "vignettes",
-        "bytes": 361480,
+        "bytes": 363659,
         "ships_in_tarball": true
       },
       {
@@ -1654,13 +1654,131 @@
         "ships_in_tarball": false
       }
     ],
-    "shipped_bytes": 6149303,
-    "shipped_file_count": 435,
-    "tarball_bytes": null,
-    "tarball_file": null,
-    "tarball_composition": null,
+    "shipped_bytes": 6161872,
+    "shipped_file_count": 436,
+    "tarball_bytes": 5568606,
+    "tarball_file": "edaphos_0.9.0.tar.gz",
+    "tarball_composition": {
+      "total_bytes": 9407505,
+      "file_count": 493,
+      "by_dir": [
+        {
+          "dir": "inst/doc",
+          "bytes": 3244727,
+          "in_repo": false
+        },
+        {
+          "dir": "inst/extdata",
+          "bytes": 2253829,
+          "in_repo": true
+        },
+        {
+          "dir": "R",
+          "bytes": 1371646,
+          "in_repo": true
+        },
+        {
+          "dir": "man/figures",
+          "bytes": 721997,
+          "in_repo": true
+        },
+        {
+          "dir": "man",
+          "bytes": 703091,
+          "in_repo": true
+        },
+        {
+          "dir": "tests/testthat",
+          "bytes": 462097,
+          "in_repo": true
+        },
+        {
+          "dir": "vignettes",
+          "bytes": 363648,
+          "in_repo": true
+        },
+        {
+          "dir": "<root>",
+          "bytes": 148038,
+          "in_repo": true
+        },
+        {
+          "dir": "data",
+          "bytes": 66000,
+          "in_repo": true
+        },
+        {
+          "dir": "inst/shiny-apps",
+          "bytes": 28908,
+          "in_repo": true
+        },
+        {
+          "dir": "inst",
+          "bytes": 17811,
+          "in_repo": true
+        },
+        {
+          "dir": "src",
+          "bytes": 16264,
+          "in_repo": true
+        },
+        {
+          "dir": "inst/rosc",
+          "bytes": 7706,
+          "in_repo": true
+        },
+        {
+          "dir": "build",
+          "bytes": 1349,
+          "in_repo": true
+        },
+        {
+          "dir": "tests",
+          "bytes": 394,
+          "in_repo": true
+        }
+      ],
+      "inst_doc": {
+        "html_files": 19,
+        "html_bytes": 2775187,
+        "base64_bytes": 1677690,
+        "base64_share_of_html": 0.604532235125056,
+        "largest": [
+          {
+            "file": "capstone-cerrado-campaign.html",
+            "bytes": 787269,
+            "base64_bytes": 601441
+          },
+          {
+            "file": "case-cerrado-end-to-end.html",
+            "bytes": 256760,
+            "base64_bytes": 221336
+          },
+          {
+            "file": "pilar6-quantum.html",
+            "bytes": 199401,
+            "base64_bytes": 128446
+          },
+          {
+            "file": "pilar1-pilar4-iv.html",
+            "bytes": 193240,
+            "base64_bytes": 115368
+          },
+          {
+            "file": "edaphos-paper.html",
+            "bytes": 137672,
+            "base64_bytes": 102006
+          },
+          {
+            "file": "pilar4-simclr-embeddings.html",
+            "bytes": 169957,
+            "base64_bytes": 91729
+          }
+        ]
+      }
+    },
     "excluded_by_rbuildignore": 16,
-    "repo_bytes": 27759404,
+    "repo_bytes": 27848027,
     "cran_soft_cap_bytes": 5242880,
     "largest_shipped_files": [
       {
@@ -1710,7 +1828,7 @@
       },
       {
         "file": "README.md",
-        "bytes": 111250,
+        "bytes": 113862,
         "ships": true
       },
       {
@@ -1724,7 +1842,7 @@
         "ships": true
       }
     ],
-    "untracked_files": ["tools/status/apply-findings.R", "tools/status/verdicts-2026-08-12.json"]
+    "untracked_files": "tools/status/verdicts-quantum.json"
   },
   "ci": {
     "workflows": ["pkgdown.yaml", "R-CMD-check.yaml", "test-coverage.yaml"],
@@ -1815,27 +1933,15 @@
     "quantum_foundation": {
       "cv_summary": [
         {
-          "method": "Quantum KRR on foundation PCs",
-          "rmse_mean": 14.2857057679877,
-          "rmse_sd": 5.90044849438879,
-          "mae_mean": 8.72771668178284,
-          "r2_mean": 0,
-          "n_folds": 5
-        },
-        {
           "method": "Quantum KRR on raw covariates",
-          "rmse_mean": 14.1756040185241,
-          "rmse_sd": 5.90650057541846,
-          "mae_mean": 8.44716364228113,
-          "r2_mean": 0,
-          "n_folds": 5
-        },
-        {
-          "method": "RBF-KRR on foundation PCs",
-          "rmse_mean": 14.7612359911509,
-          "rmse_sd": 4.6001258700951,
-          "mae_mean": 9.76546880784567,
-          "r2_mean": 0,
+          "rmse_mean": 14.1258085924603,
+          "rmse_sd": 4.57942799886604,
+          "mae_mean": 9.21278419558158,
+          "r2_mean": -0.350087113668672,
+          "r2_sd": 0.725340932333907,
+          "r2_min": -1.64692754413502,
+          "r2_pooled": -0.0747513816067775,
+          "rmse_pooled": 15.5253264699069,
           "n_folds": 5
         },
         {
@@ -1843,14 +1949,42 @@
           "rmse_mean": 14.3430957873461,
           "rmse_sd": 4.03865111318048,
           "mae_mean": 8.9716542363945,
-          "r2_mean": 0.0806627990232907,
+          "r2_mean": -0.795094147879619,
+          "r2_sd": 1.95366170237609,
+          "r2_min": -4.28189415534055,
+          "r2_pooled": -0.0752979541458503,
+          "rmse_pooled": 15.5292737262957,
+          "n_folds": 5
+        },
+        {
+          "method": "Quantum KRR on foundation PCs",
+          "rmse_mean": 14.1870727789469,
+          "rmse_sd": 4.68333525647222,
+          "mae_mean": 9.33177402372738,
+          "r2_mean": -0.29510213685092,
+          "r2_sd": 0.484667083060248,
+          "r2_min": -1.15978860670146,
+          "r2_pooled": -0.0887124091793758,
+          "rmse_pooled": 15.6258381581145,
+          "n_folds": 5
+        },
+        {
+          "method": "RBF-KRR on foundation PCs",
+          "rmse_mean": 14.7612359911509,
+          "rmse_sd": 4.6001258700951,
+          "mae_mean": 9.76546880784567,
+          "r2_mean": -0.449191373285198,
+          "r2_sd": 0.673908027843358,
+          "r2_min": -1.64977568785854,
+          "r2_pooled": -0.159077179627801,
+          "rmse_pooled": 16.1228908182312,
           "n_folds": 5
         }
       ],
-      "methods_with_r2_exactly_zero": 3
+      "methods_with_r2_exactly_zero": 0
     },
-    "r2_clamp_sites": [],
-    "synthetic_covariate_sites": ["data-raw/causal_iv_benchmark_real.R:138", "data-raw/quantum_foundation_benchmark.R:53"],
+    "r2_clamp_sites": "data-raw/quantum_foundation_benchmark.R:27",
+    "synthetic_covariate_sites": ["data-raw/causal_iv_benchmark_real.R:138", "data-raw/quantum_foundation_benchmark.R:76"],
     "bundles_read_by_tests": ["test-al-policy-claims.R", "test-bundle-provenance.R", "test-causal-real-bundle.R", "test-extrapolation-claims.R", "test-headline-claims.R", "test-llm-annotation.R", "test-no-masked-loss.R", "test-piml-closed-form.R", "test-piml-convergence-verdict.R", "test-piml-coverage-claims.R", "test-piml-params-table-real.R", "test-ptf-stock-claims.R", "test-readme-numbers.R", "test-stock-validation.R"],
     "n_result_bundles": 29
   }
