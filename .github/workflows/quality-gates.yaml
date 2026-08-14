@@ -1,0 +1,109 @@
+# Spell check and URL check -- the two gates CONTRIBUTING.md tells contributors
+# to run, made to actually run.
+#
+# WHY THIS FILE EXISTS. CONTRIBUTING.md:46-47 instructs contributors to run
+# `devtools::spell_check()` and `urlchecker::url_check()`, and
+# .github/PULL_REQUEST_TEMPLATE.md:25 asks them to tick a box saying the first
+# is clean. Neither ran anywhere. A gate that lives only in prose is a request,
+# not a gate, and the box was ticked on trust.
+#
+# NOT INCLUDED: a lint job. The finding that prompted this file listed lint
+# alongside the other two, but nothing in this repository promises it -- no
+# .lintr, no mention in CONTRIBUTING or any template. Adding one would be new
+# policy on a 30,000-line package, not the closing of a gap, so it is left to
+# a deliberate decision rather than smuggled in here.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+name: quality-gates
+
+permissions:
+  contents: read
+
+jobs:
+  spelling:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::spelling
+
+      # ENGLISH SURFACES ONLY, and that is a real constraint rather than a
+      # convenience. The vignettes are written in Portuguese; running an en_US
+      # dictionary over them reports 375 unknown words, essentially all of them
+      # correct Portuguese. That is why this gate was never wired up. Checking
+      # man/, README, NEWS and DESCRIPTION -- the English surfaces -- gives a
+      # gate that can be clean and therefore means something when it is not.
+      #
+      # inst/WORDLIST carries the proper nouns, package names, British
+      # spellings and technical terms. It was reviewed word by word when this
+      # job was added: a WORDLIST that whitelists a genuine typo is worse than
+      # no WORDLIST, so the 152 entries added then were each read rather than
+      # bulk-accepted.
+      - name: Spell check (English surfaces)
+        run: |
+          wl <- if (file.exists("inst/WORDLIST"))
+            readLines("inst/WORDLIST", warn = FALSE) else character()
+          files <- c(list.files("man", "[.]Rd$", full.names = TRUE),
+                     "README.md", "NEWS.md", "DESCRIPTION")
+          files <- files[file.exists(files)]
+          r <- spelling::spell_check_files(files, ignore = wl, lang = "en_US")
+          if (nrow(r)) {
+            print(r)
+            stop(sprintf("%d unknown words. Fix the typo, or add the word to inst/WORDLIST if it is one.",
+                         nrow(r)))
+          }
+          cat("spell check clean across", length(files), "files\n")
+        shell: Rscript {0}
+
+  urls:
+    runs-on: ubuntu-latest
+    # ADVISORY, NOT BLOCKING, and for a reason worth stating. urlchecker
+    # reports 403 for every doi.org link and for researchgate.net: those hosts
+    # refuse programmatic requests without a browser user agent. The links are
+    # not broken. A gate that fails on correct DOIs gets switched off within a
+    # week, so this one reports and does not block; a genuine 404 still shows
+    # up in the log, which is what the check is for.
+    continue-on-error: true
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::urlchecker
+
+      - name: URL check (advisory)
+        run: |
+          r <- urlchecker::url_check(".")
+          if (nrow(r)) {
+            print(r)
+            # Separate the hosts known to block bots from everything else, so
+            # a real 404 is not lost among them.
+            blocked <- grepl("doi[.]org|researchgate[.]net|sciencedirect",
+                             r$URL, ignore.case = TRUE)
+            if (any(!blocked)) {
+              cat("\n--- URLs failing for reasons other than bot-blocking ---\n")
+              print(r[!blocked, ])
+            }
+          } else {
+            cat("every URL resolved\n")
+          }
+        shell: Rscript {0}

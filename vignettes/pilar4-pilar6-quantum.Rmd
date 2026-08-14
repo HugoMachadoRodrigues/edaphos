@@ -83,7 +83,11 @@ raw covariates (31 layers)
 
 Usando 300 perfis WoSIS e os embeddings reais do encoder v1:
 
-```{r eval = FALSE}
+O bloco corre: ler o `.rds` publicado não precisa de torch nem de rede,
+ao contrário do resto desta vinheta, cujo chunk de setup desliga a
+avaliação globalmente.
+
+```{r kernel-comparison, eval = TRUE}
 bundle <- readRDS(system.file("extdata", "quantum_foundation_cerrado.rds",
                                 package = "edaphos"))
 bundle$kernel_comparison
