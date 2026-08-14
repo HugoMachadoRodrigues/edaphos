@@ -362,7 +362,10 @@
       "evidence": "tools/status/check.log:31-36 records installed size is 11.7Mb with doc 4.5Mb, extdata 4.2Mb, help 1.5Mb. On disk at HEAD: du -sk inst/extdata = 2268 KB, man/figures = 716 KB.",
       "impact": "`* checking installed package size ... NOTE` is unavoidable and will be the first thing quoted back. CRAN routinely rejects >10 MB first submissions outright pending justification, and the justification currently on file (cran-comments.md:67-96) misstates the sizes it is justifying.",
       "action": "Three mechanical wins before touching the benchmark bundles: (1) re-encode `man/figures/logo.png` at 240px with `optipng`/`pngquant` — 1.9 MB to ~40 KB; (2) delete unreferenced `inst/extdata/llm_kg_smoke_claims.jsonl` and `man/figures/pillar4-foundation.png`; (3) re-save the five largest `.rds` with `saveRDS(..., compress = \"xz\")`. Then re-measure and rewrite the cran-comments size section from `du -b` output.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d009976",
+      "resolution": "The predicted NOTE does not fire and the arithmetic is stale in every term. R CMD check --as-cran at 7b881c2 reports 'checking installed package size ... INFO, installed size is 8.4Mb' -- under the 10Mb threshold that produces a NOTE. On disk: inst/extdata is 2.2 MB (the finding says 9.98 MB), man/figures is 0.7 MB (says 2.3 MB), and the '1.9 MB PNG logo' is 287 KB. The shrinking landed across bc59af8 and the vignette dpi reduction."
     },
     {
       "id": "F36D2FE",
@@ -378,7 +381,10 @@
       "evidence": "R/foundation_weights.R:82 edaphos_version = c(1.2.0, 4.0.0); DESCRIPTION:3 Version: 0.9.0; NEWS.md:1 is the sole heading, edaphos 0.9.0 (development version - not yet released).",
       "impact": "`foundation_weights_list()` tells a user of edaphos 3.10.0 that a registry row requires edaphos 3.11.0, and `?foundation_build_cerrado_stack` documents behaviour \"as of v3.11.0\" -- a version that does not and may never exist. Anyone bisecting, citing, or reproducing HEAD has no version handle at all: HEAD is 16 commits of unnamed work, two of which (05cb516, 7400a2c) announce version numbers in their subject lines that appear nowhere in the package metadata. The v3.11.0 changes are therefore unreleasable as-is and unciteable.",
       "action": "Decide the number once, then make it consistent in one commit: set DESCRIPTION:3 to `Version: 3.11.0`, prepend a `# edaphos 3.11.0` section to NEWS.md covering 05cb516 (31-channel IV refit), 7400a2c (MoCo v2 hand-off), 272b378 (MPS/CUDA resume fix), 01b7836 (covr workflow), 0adabef (governance docs), fd4ab0b (301-claim corpus), and tag it `git tag -a v3.11.0`. If v3.11.0 is not to be released, revert the v3.11.0 strings in R/foundation_weights.R:82, R/foundation_embed_coords.R:186,204,220 and re-roxygenise so man/ stops claiming a nonexistent version.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d009976",
+      "resolution": "R/foundation_weights.R stamped the unpublished edaphos-cerrado-moco-v2 with edaphos_version = '4.0.0', a version withdrawn as unreproducible and whose tag was deleted in the same commit, on an encoder that does not exist. It is NA now, matching every other field of that row that describes a publication which has not happened."
     },
     {
       "id": "F5EF8F6",
@@ -577,7 +583,10 @@
       "evidence": "The v2 registry row is still an all-NA placeholder in an exported function: R/foundation_weights.R:67 (url), :71 (sha256), :75 (doi) and :80 (published_at) are NA_character_ with the same filled-after-the-Zenodo-upload comments, and two further fields, norm_stats_url (:95-96) and norm_stats_status (:98-101), are NA and pending. The nonexistent version it is keyed to changed number rather than going away: :82 is now edaphos_version = c(1.2.0, 4.0.0) against DESCRIPTION:3 Version: 0.9.0.",
       "impact": "`foundation_weights_list()` is an exported catalogue documented (R/foundation_weights.R:87-100) as describing \"every pretrained encoder published by the `edaphos` project\". Half its rows describe an artefact that does not exist, with a `license = \"CC-BY-4.0\"` and a full hyperparameter spec that make it look publishable. Users reading the table, or scripting over it, cannot distinguish published from aspirational except by NA-checking four columns. The `edaphos_version = \"3.11.0\"` column tells a user the weights need a package release that is not on CRAN, GitHub, or in NEWS.",
       "action": "Either (a) drop the v2 row from `.foundation_weights_registry()` until the Zenodo deposit exists and re-add it in the release that publishes it, or (b) add an explicit `status` column (`\"published\"` / `\"pending\"`) so the placeholder is machine-readable, document it in the `@return` block at R/foundation_weights.R:100, and change `edaphos_version` to the version that will actually ship it. Separately, replace the v3.11.0 references in R/foundation_embed_coords.R:186,204,220 with 3.10.0 and re-roxygenise so man/foundation_build_cerrado_stack.Rd stops advertising a nonexistent release.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d009976",
+      "resolution": "The moco-v2 registry row is labelled NOT PUBLISHED and no longer quotes an expected InfoNCE loss. It had cited '~0.4 expected' beside v1's measured '~1.64', which reads as two numbers of equal standing when one is a measurement and the other a hope; no loss is stated until one is measured. The accessors were already honest -- foundation_weights_download() and _load() refuse with an explicit 'no published URL yet' message rather than failing obscurely -- so the defect was the description, not the behaviour."
     },
     {
       "id": "F873468",
@@ -666,7 +675,10 @@
       "evidence": ".github/workflows/R-CMD-check.yaml:33 adds - {os: ubuntu-latest, r: release, torch: true}; :41 TORCH_INSTALL: ${{ matrix.config.torch && 1 || 0 }}; a cached torch::install_torch() step and a post-check step that fails the leg if any torch test skipped. test-coverage.yaml:33-52 unchanged.",
       "impact": "Pillars 2 (Neural ODE / hierarchical), 3 (ConvLSTM), 4 (SimCLR/MoCo/fine-tune), 8, 9 and 10 torch backends -- the headline 'disruptive' content and roughly a third of R/ -- have zero regression protection. A refactor that breaks any of them ships green. Findings #2 and #3 below are live proof: both are real defects sitting inside or adjacent to torch-gated code, and neither is detectable by the current CI.",
       "action": "Add one CI leg (ubuntu-release) that omits `TORCH_INSTALL: 0` and runs `torch::install_torch()` with a cached ~/.cache/torch (actions/cache keyed on the torch version), so the 74 torch blocks execute at least once per push. Do the same in test-coverage.yaml, or add a .covrignore + codecov.yml `target` so the badge stops averaging in permanently-unexecuted files. Correct the misleading comment at R-CMD-check.yaml:31-33 to state explicitly that no torch code path is covered.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d51b0d6",
+      "resolution": "Fixed by d51b0d6, which added a sixth R-CMD-check matrix leg carrying torch: true with a cached libtorch install and a post-check step that fails the leg if any torch test skipped. The 74 test blocks the finding names now execute in CI rather than being asserted to pass."
     },
     {
       "id": "F29E750",
@@ -895,7 +907,10 @@
       "evidence": "Reproduces and is worse than reported. tests/testthat/helper-torch.R:7 still defines the canonical dotted .skip_if_no_torch(), used at 19 call sites in 7 files, while 13 test files each define their own non-dotted skip_if_no_torch() that shadows it: test-foundation.R, test-foundation-finetune.R, test-foundation-moco.R, test-foundation-posterior.R, test-foundation-tiles.R, test-foundation-weights.R, test-piml-hierarchical.R, test-piml-hierarchical-guards.R, test-piml-neural.R, test-piml-neural-ode-ensemble.R, test-piml-posterior.R, test-temporal.R, test-temporal-posterior.R. That is 13 copies in 4 flavours, up from 12 in 3.",
       "impact": "70 gate call sites, 13 definitions, 3 behaviours. Variant (b) actually allocates a tensor, which is the only one that reliably detects a broken-but-present Lantern; variant (c) trusts a flag. The centralisation effort that produced helper-torch.R stalled after 7 of 19 files, and the un-migrated files are precisely where the pillar-4 work lives. This is also the mechanism behind the live ERROR 2: tests/testthat/test-foundation-weights.R:28-37 sits two lines below a local gate definition it simply forgot to call.",
       "action": "Delete all 12 local definitions and rename the 52 undotted call sites to `.skip_if_no_torch()`. Adopt variant (b)'s tensor allocation inside helper-torch.R:7 (it is the only sound check) while keeping the `isTRUE()` wrapper. Then grep-assert in CI that `skip_if_no_torch <- function` appears nowhere under tests/ so the duplication cannot come back.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d009976",
+      "resolution": "The thirteen local definitions of skip_if_no_torch() are gone; tests/testthat/helper-torch.R holds one definition plus a non-dotted alias so the existing call sites resolve to it. The three flavours were not equivalent -- some checked torch_is_installed(), some wrapped it in tryCatch, some allocated a real tensor -- and the consolidation adopted the strongest, because torch_is_installed() reports the runtime is present rather than working, and a partial or architecture-mismatched Lantern answers TRUE and then dies on the first tensor. Deduplicating onto the shortest variant would have weakened thirteen files at once. Skip count verified unchanged at 15."
     },
     {
       "id": "FBDE0E9",
@@ -997,7 +1012,10 @@
       "evidence": "Reproduces unchanged; only the denominator moved, to 19 vignettes. DESCRIPTION:32 is still Language: en-US, while vignettes/capstone-cerrado-campaign.Rmd and the pilar1/pilar4 Portuguese vignettes still carry hundreds of Portuguese stopwords each (219 in the capstone alone).",
       "impact": "CRAN runs `aspell` against the declared `Language`; five Portuguese vignettes plus en-GB spellings in DESCRIPTION produce a large `checking for detritus`/spelling NOTE and a near-certain reviewer request (\"the Language field must match the documentation language\"). rOpenSci requires English-language documentation outright, so 5 of 14 vignettes are out of policy for the review the checklist is preparing to file.",
       "action": "Decide one way: either translate the 5 Portuguese vignettes to English (and fix `organised`->`organized`, `synthesised`->`synthesized` in DESCRIPTION:8,27), or move them out of `vignettes/` into `articles/` and drop them from the tarball. Then add `spelling` to Suggests plus `tests/spelling.R` so `inst/WORDLIST` is actually enforced instead of being 20 KB of shipped dead weight.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d009976",
+      "resolution": "DESCRIPTION declares Language: en-US, pt-BR, which is what the field accepts and what is true: five of the vignettes are written in Portuguese. Counted before deciding -- an initial detector returned zero because its threshold was set too high, which is why the count was measured per file rather than asserted."
     },
     {
       "id": "F4BEBBD",
@@ -1031,7 +1049,10 @@
       "evidence": "Untouched since the audited commit - src/Makevars.win does not appear in git diff --stat 272b378 HEAD. ls src/ is Makevars.win, RcppExports.cpp, bhs_gibbs_rcpp.cpp, quantum_kernel_rcpp.cpp (plus build objects): there is no Unix src/Makevars, yet Makevars.win:1-2 still describes itself as mirroring the Unix Makevars.",
       "impact": "On Linux/macOS the LAPACK/BLAS symbols currently resolve only by accident — because the already-loaded R process exports them and `.so` symbol resolution is lazy. On CRAN's Solaris/alternative-BLAS/`--disable-BLAS-shlib` build farms that assumption can break with the same `undefined reference to ddot_` the Windows file was written to fix, on a platform the CI matrix does not cover. The comment also misleads the next maintainer into believing a Unix counterpart exists.",
       "action": "Add `src/Makevars` containing `PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)` (the standard RcppArmadillo skeleton), which makes `Makevars.win`'s comment true and removes the platform-dependent link assumption.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d009976",
+      "resolution": "src/Makevars.win's comment claimed to mirror a Unix src/Makevars that does not exist. It does not need to exist: on Unix, R supplies $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) to RcppArmadillo packages by default, so an explicit file would restate the default. The comment now says that, and explains why Windows needs the flags spelled out for rtools ld.exe."
     },
     {
       "id": "F83F26A",
