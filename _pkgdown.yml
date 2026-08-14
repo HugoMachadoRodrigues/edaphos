@@ -276,6 +276,16 @@ articles:
   - case-cerrado-end-to-end
   - edaphos-paper
 
+- title: "Articles (web only)"
+  desc: >
+    Longer real-data walkthroughs. They live under vignettes/articles/, so
+    the site renders them and the source tarball does not carry them.
+  contents:
+  - articles/pilar1-causal-real
+  - articles/pilar3-4d-real
+  - articles/pilar5-soilgrids-br
+  - articles/llm-kg-benchmark
+
 news:
   releases:
   - text: "v2.0.0 — Quantum kernel × Foundation (Pilar 4 × Pilar 6)"

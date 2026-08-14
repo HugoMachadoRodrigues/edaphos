@@ -5,7 +5,7 @@ output:
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 3
-bibliography: references.bib
+bibliography: ../references.bib
 link-citations: true
 vignette: >
   %\VignetteIndexEntry{Pilar 3 on real data — 4D NDVI forecasting with sequential Bayesian assimilation}

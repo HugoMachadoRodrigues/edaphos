@@ -15,6 +15,30 @@ were headed with one (v2.9.1 and v3.10.0) and both went stale the moment
 the version moved; the version this applies to is whatever
 `DESCRIPTION` says, currently 0.9.0 and not yet released.
 
+## Before any of this: the tag name is taken
+
+`DESCRIPTION` says **0.9.0**, and a tag `v0.9.0` already exists. It points
+at `a394911` (2026-04-22), 169 commits behind HEAD, and was created during
+the version history that `NEWS.md` later withdrew as unreproducible. The
+same is true of `v3.10.0` and `v4.0.0`, tags for versions that were also
+withdrawn.
+
+So `git tag v0.9.0` will fail, and force-moving a published tag is not a
+fix — anyone who fetched it keeps the old one. The choice is the
+maintainer's and there are only two honest options:
+
+1. **Delete the withdrawn tags** (`v0.9.0`, `v3.10.0`, `v4.0.0`) locally
+   and on the remote, accepting that anyone who already fetched them
+   keeps a stale reference; or
+2. **Release under a version that does not collide**, which means moving
+   past the numbers the withdrawn history consumed.
+
+`.github/workflows/release-tag.yaml` refuses to tag until this is
+resolved, and says which of the three checks failed. It defaults to a dry
+run.
+
+---
+
 The four steps below are manual because each is a state-changing action
 on a third-party service tied to the maintainer's identity.  They are
 **not** the only remaining work: `STATUS.md` is the live list of open

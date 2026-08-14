@@ -18,7 +18,12 @@
 ^\.claude$
 ^RELEASE\.md$
 ^pkgdown$
-^articles$
+# vignettes/articles/ is the pkgdown convention for web-only articles: the
+# site renders them, the tarball does not carry them. They used to live in a
+# top-level articles/ directory, which neither chain reached -- excluded from
+# the build AND not a directory pkgdown renders -- so all four went unbuilt
+# for as long as they existed, and all four were broken.
+^vignettes/articles$
 ^cheatsheets$
 ^INTRO\.md$
 ^RELEASE-CHECKLIST-v3\.10\.0\.md$

@@ -4,7 +4,7 @@ author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
     toc: true
-bibliography: references.bib
+bibliography: ../references.bib
 link-citations: true
 vignette: >
   %\VignetteIndexEntry{Pilar 5 — Active Learning on a Brazilian Cerrado Transect}

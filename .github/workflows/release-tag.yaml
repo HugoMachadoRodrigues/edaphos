@@ -1,0 +1,90 @@
+# Create the release tag CONTRIBUTING.md promises, after checking it can be
+# created honestly.
+#
+# WHY THIS IS MANUAL AND WHY IT VALIDATES FIRST. CONTRIBUTING.md:87 states
+# that "every release gets a git tag (vX.Y.Z) and a NEWS.md entry", and no
+# workflow did either. But automating a tag on this repository would have been
+# premature, because the tag ledger cannot currently accept the next release:
+#
+#   DESCRIPTION says 0.9.0. A tag `v0.9.0` already exists, created during the
+#   version history that was later withdrawn as unreproducible, and it points
+#   at a394911 (2026-04-22) -- 169 commits behind HEAD and unrelated to this
+#   release. `git tag v0.9.0` will fail: the name is taken.
+#
+# A workflow that pushed tags blindly would either fail cryptically or, worse,
+# be "fixed" by force-moving a public tag. So this one runs on demand, states
+# what it found, and refuses rather than guesses. Resolving the collision --
+# deleting the withdrawn tags, or choosing a version that does not collide --
+# is a decision about published history and belongs to the maintainer.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Check only; do not create or push the tag"
+        type: boolean
+        default: true
+
+name: release-tag
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # tags are the point of this job
+
+      - name: Check the tag can be created honestly
+        id: check
+        run: |
+          set -euo pipefail
+          VER=$(grep -E '^Version:' DESCRIPTION | sed 's/^Version:[[:space:]]*//')
+          TAG="v${VER}"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "DESCRIPTION version: ${VER}"
+
+          fail=0
+
+          # 1. The tag name must be free. A taken name is the collision this
+          #    file's header describes, and force-moving a published tag is
+          #    not a fix.
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "::error::${TAG} already exists, pointing at $(git log -1 --format='%h %ad %s' --date=short ${TAG})."
+            echo "::error::That tag predates this release by $(git rev-list --count ${TAG}..HEAD) commits."
+            fail=1
+          fi
+
+          # 2. NEWS.md must carry an entry for this version -- the other half
+          #    of what CONTRIBUTING promises.
+          if ! grep -qE "^#+ +(edaphos +)?${VER}\b" NEWS.md; then
+            echo "::error::NEWS.md has no heading for ${VER}."
+            fail=1
+          fi
+
+          # 3. A development version is not a release.
+          if grep -qiE "development version|not yet released" NEWS.md; then
+            echo "::error::NEWS.md still marks this version as a development version."
+            fail=1
+          fi
+
+          if [ "$fail" -ne 0 ]; then
+            echo "Refusing to tag. Nothing has been created or pushed."
+            exit 1
+          fi
+          echo "All checks passed; ${TAG} can be created."
+
+      - name: Create and push the tag
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.check.outputs.tag }}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${TAG}" -m "edaphos ${{ steps.check.outputs.version }}"
+          git push origin "${TAG}"
+          echo "Created and pushed ${TAG}."
