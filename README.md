@@ -2133,21 +2133,34 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | File                                          | Size  | What it holds                                                               | Used by                           |
 |:----------------------------------------------|------:|:----------------------------------------------------------------------------|:----------------------------------|
 | `case_cerrado_results.rds`                    |~351 KB | QRF/kriging/MoCo benchmark (§Benchmarks)                                    | `case-cerrado-end-to-end`         |
-| `causal_cerrado_real.rds`                     | ~62 KB | 1 095 WoSIS profiles + DAG + identified effects                             | `pilar1-causal-real`              |
-| `temporal_cerrado_results.rds`                | ~194 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis                | `pilar3-4d-real`                  |
+| `causal_cerrado_real.rds`                     | ~62 KB | 1 095 WoSIS profiles + DAG + identified effects                             | `articles/pilar1-causal-real`†    |
+| `causal_cerrado_real_v2.rds`                  | ~70 KB | 3 077 WoSIS profiles + DAG + Simpson check + IV + encoder metadata          | `pilar1-pilar4-iv`                |
+| `temporal_cerrado_results.rds`                | ~194 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis                | `articles/pilar3-4d-real`†        |
 | `capstone_campaign_results.rds`               | ~287 KB | 6-pillar integrated bundle for the v1.7.0 capstone                          | `capstone-cerrado-campaign`       |
 | `capstone_native_calibration.rds`             | ~294 KB | Native-query calibration per pillar (v1.7.1 hotfix)                         | `capstone-cerrado-campaign` §10   |
 | `causal_discovery_results.rds`                |   ~1 KB | Expert × LLM × data-driven DAG benchmark (v1.7.2)                           | `causal-discovery-trio`           |
-| `cerrado_gold_standard_v1.jsonl`              |  ~18 KB | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)             | `llm-kg-benchmark`                |
+| `cerrado_gold_standard_v1.jsonl`              |  ~18 KB | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)             | `articles/llm-kg-benchmark`†      |
 | `cerrado_gold_standard_v1_draft.jsonl`        |  ~22 KB | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)           | `llm-annotation-workflow`         |
 | `causal_iv_cerrado.rds`                       |   ~4 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv`                |
 | `causal_iv_cerrado_real.rds`                  |   ~1 KB | Real-encoder IV benchmark: 1 081 embeddings; Sargan PARTIAL (see below)         | `pilar1-pilar4-iv` §7             |
 | `causal_sensitivity_cerrado.rds`              | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2)                             | `pilar1-pilar4-iv` §8             |
 | `quantum_foundation_cerrado.rds`              |   ~2 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)     | `pilar4-pilar6-quantum`           |
-| `llm_benchmark_results.rds`                   |  ~10 KB | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `llm-kg-benchmark`                |
+| `llm_benchmark_results.rds`                   |  ~10 KB | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `articles/llm-kg-benchmark`†      |
 | `cerrado_abstracts.jsonl`                     |   ~5 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |   ~8 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
 | `cerrado_claims_real_corpus.jsonl`            |  ~94 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
+
+† These four are **not vignettes**. Their sources live in the
+repository's top-level `articles/` directory, which is `.Rbuildignore`d
+and which pkgdown does not render, so asking R for them by name finds
+nothing and no page exists on the site. They are readable in the
+repository only. The column named them as though they were vignettes.
+
+(This paragraph deliberately does not spell out the `vignette(...)` call
+that fails: `tests/testthat/test-doc-references-resolve.R` requires every
+such call appearing in R/ or the README to resolve, and it is right to —
+a reader who sees one types it. Writing the failing call here to
+illustrate the failure tripped that test, which is the test working.)
 
 This table is a selection, not an inventory: `inst/extdata/` holds more
 bundles than are listed here — the benchmark and PIML result files are
