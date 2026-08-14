@@ -80,7 +80,11 @@ library(edaphos)
                              error = function(e) FALSE))
 if (!.torch_ok) {
   knitr::knit_exit(
-    "torch runtime (libtorch) not available — skipping vignette."
+    paste("This vignette trains a SimCLR encoder and needs the libtorch",
+          "runtime, which the `torch` R package downloads separately. It",
+          "stops here: everything below is missing, not empty. To read it",
+          "in full: install.packages(\"torch\") then",
+          "torch::install_torch(), and rebuild.")
   )
 }
 ```

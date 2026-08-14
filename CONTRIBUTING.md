@@ -38,13 +38,43 @@ By participating in this project you agree to abide by the
    committing.
 6. **Run locally** before pushing:
 
+   The fast loop, for iterating:
+
    ```r
    devtools::load_all()
    devtools::test()                                            # all green
    devtools::check(args = c("--no-manual",
-                            "--no-build-vignettes"))           # 0/0/0
-   devtools::spell_check()                                     # ideally empty
-   urlchecker::url_check()                                     # ideally empty
+                            "--no-build-vignettes"))
+   ```
+
+   `check()` reports **2 NOTEs**, not a clean sweep. This block used to
+   say `0/0/0`; that was never true of any tree this package has had, and
+   `cran-comments.md` explains what each note is. A checklist item that
+   can only be satisfied by a lie gets ticked anyway.
+
+   **And build the vignettes at least once** before opening a PR that
+   touches `vignettes/`, `R/`, or anything they read:
+
+   ```r
+   devtools::check(args = "--no-manual")     # builds all 19 vignettes
+   ```
+
+   `--no-build-vignettes` is convenient and it is also how documents rot
+   here. Four articles under `articles/` were excluded from the build and
+   went unbuilt for as long as they existed; all four were broken, by a
+   one-line bibliography path, and nothing noticed because nothing ever
+   built them. Several vignettes also carry `knitr::knit_exit()` gates
+   that truncate the document to a single line when an optional
+   dependency (`torch`, `dagitty`, `aqp`, `sp`) is absent — a full build
+   is the only thing that shows you what a reader without that dependency
+   actually receives.
+
+   Then the two documentation gates, which CI also runs
+   (`.github/workflows/quality-gates.yaml`):
+
+   ```r
+   devtools::spell_check()     # clean on the English surfaces
+   urlchecker::url_check()     # 403s from doi.org are bot-blocking, not breakage
    ```
 
 7. **Commit messages**: use the [Conventional Commits](https://www.conventionalcommits.org/)

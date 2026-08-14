@@ -21,10 +21,16 @@
 #                   supervised node-level target prediction.
 #
 # Two layers with width = 16 and 4 attention heads give a strong
-# demonstrator on n = 100-300 profiles.  Trained by finite-difference
-# gradient descent on the head weights (hidden layers remain at
-# random init, ELM-style).  A torch-autograd port with full-gradient
-# training is scheduled for v2.6.1.
+# demonstrator on n = 100-300 profiles.  The pure-R backend trains EVERY
+# layer: .gat_forward_all() and .gat_backward_all() are both called inside
+# the epoch loop, so the attention and projection weights are updated by
+# analytic reverse-mode gradients rather than left at their initialisation.
+#
+# This paragraph used to say the hidden layers "remain at random init,
+# ELM-style", which was true until 51bb2a7 moved those calls inside the
+# loop. Documentation can go stale in the flattering direction as easily as
+# the other one -- here the code got better and the comment kept describing
+# the weaker thing.
 
 # ---------------------------------------------------------------------------
 # Graph construction
@@ -464,12 +470,15 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL,
 #'   Default `16L`.
 #' @param n_heads Integer; number of attention heads.  Default `4L`.
 #' @param n_layers Integer; number of stacked GAT layers.  Default `2L`.
-#' @param epochs Integer; training epochs for the final linear head.
+#' @param epochs Integer; training epochs. Every layer is trained, not
+#'   only the readout head.
 #' @param lr Numeric; learning rate.
 #' @param seed RNG seed.
-#' @param backend `"r"` (default, ELM-style) or `"torch"` (full
-#'   autograd with multi-head attention; requires the `torch`
-#'   Suggests dependency).  v2.7.0 upgrade.
+#' @param backend `"r"` (default; analytic reverse-mode gradients over all
+#'   layers) or `"torch"` (autograd, same architecture; requires the `torch`
+#'   Suggests dependency). Unlike Pillars 8 and 9, whose pure-R paths are
+#'   frozen-feature references that do not learn the named architecture, the
+#'   Pillar 10 R backend trains the GAT itself.
 #' @param device `"cpu"` (default), `"mps"`, or `"cuda"` when
 #'   `backend = "torch"`.
 #' @return An `edaphos_gnn_gat` fit.

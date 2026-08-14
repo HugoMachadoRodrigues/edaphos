@@ -42,7 +42,8 @@ Default \code{16L}.}
 
 \item{n_layers}{Integer; number of stacked GAT layers.  Default \code{2L}.}
 
-\item{epochs}{Integer; training epochs for the final linear head.}
+\item{epochs}{Integer; training epochs. Every layer is trained, not
+only the readout head.}
 
 \item{lr}{Numeric; learning rate.}
 
@@ -68,9 +69,11 @@ can outperform the network.}
 \item{val_frac}{Numeric in (0, 1); fraction of the training nodes held out
 internally to select the stopping epoch. Default \code{0.2}.}
 
-\item{backend}{\code{"r"} (default, ELM-style) or \code{"torch"} (full
-autograd with multi-head attention; requires the \code{torch}
-Suggests dependency).  v2.7.0 upgrade.}
+\item{backend}{\code{"r"} (default; analytic reverse-mode gradients over all
+layers) or \code{"torch"} (autograd, same architecture; requires the \code{torch}
+Suggests dependency). Unlike Pillars 8 and 9, whose pure-R paths are
+frozen-feature references that do not learn the named architecture, the
+Pillar 10 R backend trains the GAT itself.}
 
 \item{device}{\code{"cpu"} (default), \code{"mps"}, or \code{"cuda"} when
 \code{backend = "torch"}.}

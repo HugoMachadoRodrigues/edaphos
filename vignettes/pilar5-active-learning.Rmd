@@ -116,7 +116,10 @@ information criteria [@Settles2009].
 # it protects still runs.
 library(edaphos)
 if (!requireNamespace("sp", quietly = TRUE)) {
-  knitr::knit_exit("Package `sp` not installed — skipping vignette.")
+  knitr::knit_exit(paste("This vignette needs the `sp` package and stops here without",
+          "it. The acquisition-policy comparison below is missing, not",
+          "empty. To read it in full: install.packages(\"sp\"), then",
+          "rebuild."))
 }
 ```
 

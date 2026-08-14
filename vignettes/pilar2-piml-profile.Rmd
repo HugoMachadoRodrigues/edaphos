@@ -116,7 +116,10 @@ library(edaphos)
              isTRUE(tryCatch(torch::torch_is_installed(),
                              error = function(e) FALSE))
 if (!requireNamespace("aqp", quietly = TRUE)) {
-  knitr::knit_exit("Package `aqp` not installed — skipping vignette.")
+  knitr::knit_exit(paste("This vignette needs the `aqp` package and stops here without",
+          "it. What follows -- the depth-function fits and their",
+          "diagnostics -- is missing, not empty. To read it in full:",
+          "install.packages(\"aqp\"), then rebuild."))
 }
 ```
 

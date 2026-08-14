@@ -383,8 +383,8 @@ R CMD check and a dedicated test suite:
 | **v2.2.0** | Physics-informed quantum kernels (P2 × P6): `piml_quantum_kernel()` + `piml_qkrr_fit()` fuse ZZFeatureMap overlap with ODE-residual RBF similarity. |
 | **v2.2.1** | Causal 4D time-varying effects (P1 × P3): `causal_effect_time_varying()` sliding-window backdoor + Mann-Kendall trend test + ggplot2 trajectory. |
 | **v2.3.0** | **Pilar 7 BHS** — Bayesian hierarchical spatial model via self-contained Gibbs sampler + optional `spBayes::spLM` backend. Profile-MLE phi for closed-form conditionals. |
-| **v2.4.0** | **Pilar 8 Neural Operators** — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021) in pure R. Learn `u(z) → y(z)` across sites without torch. |
-| **v2.5.0** | **Pilar 9 DDPM** — first pedometric diffusion-model for generative soil maps. Cosine-schedule (Nichol & Dhariwal 2021) + score-matching loss + ancestral sampling. |
+| **v2.4.0** | **Pilar 8 Neural Operators** — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021), trained with `backend = "torch"`. The pure-R fallback is a reference only: it freezes the spectral (FNO) and branch/trunk (DeepONet) layers and fits a random-feature readout, so it does **not** learn the operator. Both functions say so at call time. |
+| **v2.5.0** | **Pilar 9 DDPM** — pedometric diffusion model for generative soil maps. Cosine schedule (Nichol & Dhariwal 2021) + score-matching loss + ancestral sampling, trained with `backend = "torch"`. The pure-R fallback is a reference sampler whose draws are over-dispersed and spatially incoherent; `dm_fit()` says so at call time. |
 | **v2.8.0** | **Pilar 10 GAT** — first pedometric Graph Attention Network (Velickovic et al. 2018) over WoSIS k-NN co-location graphs. |
 
 **Tooling now in place**: `src/` compiled Rcpp, `LinkingTo: Rcpp`,

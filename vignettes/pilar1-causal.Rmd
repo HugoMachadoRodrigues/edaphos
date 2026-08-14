@@ -72,7 +72,11 @@ library(edaphos)
 # guard has to be the last thing in its own chunk -- otherwise the code it is
 # meant to protect still runs and R CMD build fails outright.
 if (!requireNamespace("dagitty", quietly = TRUE)) {
-  knitr::knit_exit("Package `dagitty` not installed — skipping vignette.")
+  knitr::knit_exit(paste("This vignette needs the `dagitty` package and stops here",
+          "without it. Everything below this point -- the DAG, the",
+          "backdoor adjustment and the sensitivity analysis -- is",
+          "missing, not empty. To read it in full:",
+          "install.packages(\"dagitty\"), then rebuild."))
 }
 ```
 
@@ -186,7 +190,9 @@ even on CI runners that do not have Ollama.
 ```{r igraph-gate, echo=FALSE}
 # Same reason as the dagitty gate above: knit_exit() must end its own chunk.
 if (!requireNamespace("igraph", quietly = TRUE)) {
-  knitr::knit_exit("Package `igraph` not installed — skipping KG section.")
+  knitr::knit_exit(paste("The knowledge-graph section needs `igraph` and stops here.",
+          "The preceding sections are complete. For the rest:",
+          "install.packages(\"igraph\"), then rebuild."))
 }
 ```
 
