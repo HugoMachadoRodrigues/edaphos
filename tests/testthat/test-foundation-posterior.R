@@ -1,9 +1,5 @@
 # v1.6.0-e -- Pillar 4 ensemble + MC-dropout adapter tests.
 
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  if (!torch::torch_is_installed()) skip("torch backend not installed")
-}
 
 .ft_fixture_patches <- function(N = 32L, C = 4L, P = 8L, seed = 1L) {
   set.seed(seed)

@@ -1,11 +1,5 @@
 # v1.6.0-c -- Pillar 2 adapter tests.
 
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  has_torch <- isTRUE(tryCatch(torch::torch_is_installed(),
-                                 error = function(e) FALSE))
-  if (!has_torch) skip("libtorch backend unavailable")
-}
 
 .small_profile <- function() {
   list(

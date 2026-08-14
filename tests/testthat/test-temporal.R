@@ -1,7 +1,3 @@
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  tryCatch(torch::torch_tensor(1), error = function(e) skip("torch runtime unavailable"))
-}
 
 test_that("temporal_convlstm_cell produces correctly-shaped outputs", {
   skip_if_no_torch()

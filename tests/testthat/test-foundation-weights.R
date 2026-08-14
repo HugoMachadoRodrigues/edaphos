@@ -1,11 +1,5 @@
 # Pillar 4 v1.2.0 tests: pretrained weights distribution.
 
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  if (!torch::torch_is_installed()) {
-    skip("torch backend not installed")
-  }
-}
 
 test_that("foundation_weights_list returns a data frame with required columns", {
   reg <- foundation_weights_list()

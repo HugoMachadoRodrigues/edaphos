@@ -4,12 +4,6 @@
 # native backend being available; the tests run with `device = "cpu"`
 # so they are reproducible on any CI runner.
 
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  if (!torch::torch_is_installed()) {
-    skip("torch backend not installed")
-  }
-}
 
 .ft_fixture_patches <- function(N = 60L, C = 4L, P = 16L, seed = 1L) {
   set.seed(seed)

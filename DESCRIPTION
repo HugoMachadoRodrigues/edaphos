@@ -29,7 +29,7 @@ Description: Digital soil mapping methods beyond regression trees,
     for the digital soil mapping framework.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Language: en-US
+Language: en-US, pt-BR
 URL: https://github.com/HugoMachadoRodrigues/edaphos
 BugReports: https://github.com/HugoMachadoRodrigues/edaphos/issues
 Roxygen: list(markdown = TRUE)

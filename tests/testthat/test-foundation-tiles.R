@@ -1,9 +1,4 @@
 skip_if_no_terra <- function() skip_if_not_installed("terra")
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  tryCatch(torch::torch_tensor(1),
-           error = function(e) skip("torch runtime unavailable"))
-}
 
 make_toy_stack <- function(C = 3L, nrow = 40L, ncol = 40L, seed = 1L) {
   skip_if_no_terra()

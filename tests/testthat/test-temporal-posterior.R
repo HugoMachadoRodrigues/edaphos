@@ -1,11 +1,5 @@
 # v1.6.0-d -- Pillar 3 adapters to edaphos_posterior.
 
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  has_torch <- isTRUE(tryCatch(torch::torch_is_installed(),
-                                 error = function(e) FALSE))
-  if (!has_torch) skip("libtorch backend unavailable")
-}
 
 .mini_cube_tensors <- function() {
   # Tiny synthetic 4D cube identical in shape to the v1.5.0 real-data

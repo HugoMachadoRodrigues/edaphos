@@ -52,7 +52,7 @@
     ),
     description = c(
       "MoCo v2 encoder pretrained on 50k 16x16 Cerrado tiles (SoilGrids 250m soc/clay/sand/phh2o/bdod + WorldClim 2.1 monthly prec/tavg + SRTM elev/slope), aligned to a 0.01-deg grid. 31 channels in, 64-dim feature embedding out. 20000 InfoNCE steps on an Apple M1 Max MPS; final InfoNCE loss ~1.64.",
-      "MoCo v2 encoder, same dataset / hyperparameters as v1 but 200000 InfoNCE steps (10x v1's budget).  Intended to give a fair benchmark of the contrastive representation against an undertrained baseline.  Final InfoNCE loss expected ~0.4 at step 200000 (was ~1.64 at v1's step 20000).  31 channels in, 64-dim out."
+      "NOT PUBLISHED. Planned MoCo v2 encoder: same dataset and hyperparameters as v1 but 200000 InfoNCE steps, ten times v1's budget, to benchmark the contrastive representation against an undertrained baseline. 31 channels in, 64-dim out. This row exists so the plan is visible; its url, sha256, doi and published_at are NA and every accessor refuses with an explicit message. It previously quoted a final InfoNCE loss of ~0.4 beside v1's measured ~1.64, which reads as two numbers of equal standing when one is a measurement and the other is a hope; no loss is stated here until one is measured."
     ),
     n_channels  = c(31L, 31L),
     feature_dim = c(64L, 64L),
@@ -79,7 +79,12 @@
       "2026-04-22T21:59:12Z",
       NA_character_
     ),
-    edaphos_version = c("1.2.0", "4.0.0"),
+    # v1 was published at 1.2.0, a real version from the original release run.
+    # v2's entry said "4.0.0" -- a version withdrawn as unreproducible, whose
+    # tag has since been deleted -- for an encoder that is not published at
+    # all. NA, like every other field of that row that describes a publication
+    # which has not happened.
+    edaphos_version = c("1.2.0", NA_character_),
     # Path to an RDS holding the per-channel training mean / sd vectors the
     # encoder was standardised with.  WITHOUT THESE THE ENCODER CANNOT BE
     # USED CORRECTLY: feeding it raw geophysical magnitudes kills roughly

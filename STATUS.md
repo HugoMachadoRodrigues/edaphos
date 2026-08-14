@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `8e725b9` (`main`) — **DESCRIPTION version** `0.9.0` — **measured** 2026-08-13T04:00:09Z
+**Commit** `7b881c2` (`main`) — **DESCRIPTION version** `0.9.0` — **measured** 2026-08-14T03:47:51Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,26 +18,26 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 173 |
-| First → last commit | 2026-04-20 → 2026-08-12 (114.0 calendar days, 19 with commits) |
+| Commits | 185 |
+| First → last commit | 2026-04-20 → 2026-08-13 (114.9 calendar days, 20 with commits) |
 | Days since last commit | 0 |
 | NEWS release sections | 1 |
-| Git tags | 19 |
+| Git tags | 17 |
 | NEWS versions with no tag | 0 |
-| R/ source lines | 30 768 |
+| R/ source lines | 30 848 |
 | Exported functions | 178 |
-| Test blocks | 601 |
-| Tests passing | 2 192 |
+| Test blocks | 608 |
+| Tests passing | 2 244 |
 | Tests skipped | 1 |
-| Test failures + errors | 0 |
+| Test failures + errors | 2 |
 | R CMD check status | Status: 2 NOTEs |
-| Source tarball (CRAN cap 5 MB) | 5.32 MB |
+| Source tarball (CRAN cap 5 MB) | _not measured_ |
 | Findings open (blocker/high) | 4 |
 | Findings closed since the audit | 63 |
 
 ### Stage assessment
 
-From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `8e725b9`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
+From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `7b881c2`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
 
 > Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and
 > nowhere near release-candidate. The eight audits read the artefact as a mature project that had
@@ -82,7 +82,7 @@ From the audit's completeness critic (editorial, not measured). It describes the
 | Platform | aarch64-apple-darwin23 |
 | OS | Darwin 25.6.0 |
 | Worktree clean | no |
-| Local vs origin/main | `2 / 0` (ahead / behind) |
+| Local vs origin/main | `0 / 0` (ahead / behind) |
 | Optional deps missing | 5 |
 
 Suggests **not installed** in the measuring environment: `DiagrammeR`, `ecmwfr`, `fmsb`, `ontologyIndex`, `spBayes`.
@@ -91,7 +91,7 @@ are a floor, not a total.
 
 ## 3. The git clock
 
-`8e725b9` — 173 commits across 19 active days.
+`7b881c2` — 185 commits across 20 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -114,10 +114,11 @@ are a floor, not a total.
 | 2026-08-10 | 2 |
 | 2026-08-11 | 6 |
 | 2026-08-12 | 9 |
+| 2026-08-13 | 12 |
 
-Releases declared in `NEWS.md`: **1**. Git tags: **19**.
-Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`, `v4.0.0`.
-Commits since the newest tag (`v4.0.0`): **84**.
+Releases declared in `NEWS.md`: **1**. Git tags: **17**.
+Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`.
+Commits since the newest tag (`v1.6.0`): **156**.
 
 ## 4. Version coherence
 
@@ -125,7 +126,7 @@ Commits since the newest tag (`v4.0.0`): **84**.
 | --- | --- |
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `0.9.0`, NEWS `0.9.0`) |
 | DESCRIPTION version has a git tag | ✅ (`v0.9.0`) |
-| HEAD is the tagged release commit | ❌ (84 commits past `v4.0.0`) |
+| HEAD is the tagged release commit | ❌ (156 commits past `v1.6.0`) |
 | Every NEWS release is tagged | ❌ (0 of 1 untagged; 1 tagged at a commit that predates the entry: `0.9.0`) |
 
 Version strings each artefact claims for the package:
@@ -138,7 +139,7 @@ Version strings each artefact claims for the package:
 | CITATION.cff | `0.9.0` |
 | .zenodo.json | has a version field |
 
-Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md` section nor a git tag declares** (23): `3.1.0`, `3.4.0`, `3.0.0`, `2.0.0`, `2.2.1`, `1.9.0`, `1.9.2`, `3.8.0`, `2.1.0`, `1.9.1`, `1.8.1`, `1.8.0`, `2.7.0`, `2.6.0`, `3.6.0`, `2.3.0`, `3.5.0`, `3.2.0`, `2.4.0`, `4.1.0` … (+3 more). Each names a release that never existed.
+Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md` section nor a git tag declares** (25): `3.1.0`, `3.4.0`, `3.10.0`, `3.0.0`, `2.0.0`, `2.2.1`, `1.9.0`, `1.9.2`, `3.8.0`, `2.1.0`, `1.9.1`, `4.0.0`, `1.8.1`, `1.8.0`, `2.7.0`, `2.6.0`, `3.6.0`, `2.3.0`, `3.5.0`, `3.2.0` … (+5 more). Each names a release that never existed.
 
 | File | Line | Version |
 | --- | --: | --- |
@@ -148,6 +149,7 @@ Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md
 | `R/benchmark_wosis.R` | 34 | `3.4.0` |
 | `R/benchmark_wosis.R` | 143 | `3.1.0` |
 | `R/benchmark_wosis.R` | 158 | `3.1.0` |
+| `R/benchmark_wosis.R` | 594 | `3.10.0` |
 | `R/bridges_active_learning_v3.R` | 1 | `3.0.0` |
 | `R/bridges_structure_v3.R` | 1 | `3.0.0` |
 | `R/bridges_structure_v3.R` | 338 | `2.0.0` |
@@ -160,15 +162,23 @@ Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md
 | `R/foundation_embed_coords.R` | 8 | `1.9.0` |
 | `R/foundation_embed_coords.R` | 15 | `1.9.0` |
 | `R/foundation_embed_coords.R` | 24 | `1.9.1` |
+| `R/foundation_embed_coords.R` | 340 | `4.0.0` |
+| `R/foundation_embed_coords.R` | 368 | `4.0.0` |
+| `R/foundation_embed_coords.R` | 391 | `4.0.0` |
+| `R/foundation_embed_coords.R` | 456 | `4.0.0` |
+| `R/foundation_weights.R` | 83 | `4.0.0` |
 | `R/llm_annotation.R` | 1 | `1.8.1` |
 | `R/llm_annotation.R` | 4 | `1.8.0` |
 | `R/llm_benchmark.R` | 1 | `1.8.0` |
+| `R/llm_kg_pipeline.R` | 1 | `3.10.0` |
 | `R/pilar10_graph_nn_torch.R` | 1 | `2.7.0` |
 | `R/pilar10_graph_nn_torch.R` | 3 | `2.6.0` |
 | `R/pilar10_graph_nn.R` | 2 | `2.6.0` |
+| `R/pilar10_graph_nn.R` | 185 | `3.10.0` |
 | `R/pilar10_graph_nn.R` | 222 | `3.6.0,2.6.0` |
 | `R/pilar10_graph_nn.R` | 226 | `2.6.0` |
 | `R/pilar10_graph_nn.R` | 247 | `2.6.0` |
+| `R/pilar10_graph_nn.R` | 279 | `3.10.0` |
 | `R/pilar10_graph_nn.R` | 472 | `2.7.0` |
 | `R/pilar7_bayesian_hierarchical.R` | 1 | `2.3.0` |
 | `R/pilar7_bayesian_hierarchical.R` | 58 | `2.3.0` |
@@ -182,7 +192,7 @@ Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md
 | `R/pilar8_neural_operators.R` | 59 | `4.1.0` |
 | `R/pilar9_diffusion_models.R` | 2 | `2.5.0` |
 | `R/pilar9_diffusion_models.R` | 168 | `3.2.0` |
-| `R/pilar9_diffusion_models.R` | 340 | `3.2.0` |
+| `R/pilar9_diffusion_models.R` | 360 | `3.2.0` |
 | `R/pilar9_diffusion_torch.R` | 2 | `2.7.0` |
 | `R/pilar9_diffusion_torch.R` | 4 | `2.5.0` |
 | `R/piml_quantum_bridge.R` | 2 | `2.2.0` |
@@ -194,10 +204,14 @@ Version strings asserted inside shipped `R/` or `man/` that **neither a `NEWS.md
 | `man/benchmark_fit_p1_causal.Rd` | 35 | `3.1.0` |
 | `man/benchmark_fit_p1_causal.Rd` | 46 | `3.1.0` |
 | `man/bhs_fit.Rd` | 85 | `2.3.0` |
+| `man/foundation_build_cerrado_stack.Rd` | 32 | `4.0.0` |
+| `man/foundation_build_cerrado_stack.Rd` | 40 | `4.0.0` |
+| `man/foundation_build_cerrado_stack.Rd` | 69 | `4.0.0` |
+| `man/foundation_build_cerrado_stack.Rd` | 142 | `4.0.0` |
 | `man/gnn_fit.Rd` | 73 | `2.7.0` |
 | `man/qf_krr_benchmark.Rd` | 43 | `2.0.0` |
 
-Conversely, git tags with **no `NEWS.md` section**: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v3.10.0`, `v4.0.0`.
+Conversely, git tags with **no `NEWS.md` section**: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`.
 
 ## 5. `R CMD build` / `R CMD check --as-cran`
 
@@ -226,7 +240,7 @@ Counts are taken from R's own `Status:` line; an independent walk of the log agr
 | --- | --- |
 | Maintainer | `Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>` |
 | CRAN status | **New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN |
-| Tarball size | 5.32 MB measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
+| Tarball size | _not measured_ measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
 | URLs flagged as invalid | 0 |
 
 Suggests unavailable to the check (so their tests and vignette chunks were skipped): 'DiagrammeR', 'ecmwfr', 'fmsb', 'ontologyIndex', 'spBayes'.
@@ -241,22 +255,22 @@ Installed size, verbatim from the log:
     help      1.5Mb
 ```
 
-Log: `tools/status/check.log` (98 lines, sha256 `40a6ffca0e46c061`). Verbatim tail:
+Log: `/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/tools/status/check.log` (98 lines, sha256 `fd895da950fc7df9`). Verbatim tail:
 
 ```
-* checking examples ... [102s/100s] OK
-* checking examples with --run-donttest ... [716s/542s] OK
+* checking examples ... [84s/81s] OK
+* checking examples with --run-donttest ... [107s/104s] OK
 * checking for unstated dependencies in tests ... OK
 * checking tests ...
-  Running testthat.R [546s/531s]
- [546s/531s] OK
+  Running testthat.R [467s/449s]
+ [467s/449s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [284s/274s] OK
+* checking re-building of vignette outputs ... [260s/248s] OK
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... NOTE
 Found the following files/directories:
-  tmp_5fp7pqq
+  tmpxhxwcnyp
 * DONE
 Status: 2 NOTEs
 See
@@ -331,39 +345,41 @@ Fixes, per item:
 
 | Measure | Value |
 | --- | --- |
-| Test files | 92 |
-| `test_that` blocks | 601 |
-| `expect_*` calls | 1 685 |
-| `skip_if_not_installed` gates | 85 |
-| `skip_on_cran` gates | 13 |
-| `set.seed` calls | 144 |
+| Test files | 95 |
+| `test_that` blocks | 608 |
+| `expect_*` calls | 1 707 |
+| `skip_if_not_installed` gates | 75 |
+| `skip_on_cran` gates | 14 |
+| `set.seed` calls | 145 |
 
 Live run in this environment:
 
 | Outcome | Count |
 | --- | --- |
-| Passed | 2 192 |
+| Passed | 2 244 |
 | Skipped | 1 |
-| Failed | 0 |
+| Failed | 2 |
 | Errored | 0 |
 | Warnings | 4 |
-| Wall clock (s) | 495.4 |
+| Wall clock (s) | 538.8 |
+
+Files with failures or errors: `test-submission-claims.R`.
 
 Conditional skipping by dependency (static gate count):
 
 | Dependency | Gate sites | Installed here |
 | --- | --: | :-: |
-| torch | 18 | ✅ |
 | igraph | 11 | ✅ |
 | dagitty | 10 | ✅ |
-| terra | 5 | ✅ |
+| torch | 6 | ✅ |
+| terra | 6 | ✅ |
 | bnlearn | 4 | ✅ |
 | reticulate | 2 | ✅ |
 | dbarts | 1 | ✅ |
 
 Result bundles in `inst/extdata/`: **29**. Test files that read `inst/extdata`: `test-al-policy-claims.R`, `test-bundle-provenance.R`, `test-causal-real-bundle.R`, `test-extrapolation-claims.R`, `test-headline-claims.R`, `test-llm-annotation.R`, `test-no-masked-loss.R`, `test-piml-closed-form.R`, `test-piml-convergence-verdict.R`, `test-piml-coverage-claims.R` … (+4 more).
 
-Exported functions never named in any test (**14**): `causal_ontology_agrovoc`, `causal_ontology_envo`, `edaphos_zenodo_release`, `foundation_build_cerrado_stack`, `foundation_tile_source_era5`, `foundation_tile_source_modis`, `foundation_tile_source_soilgrids`, `foundation_tile_source_srtm`, `foundation_tile_source_worldclim`, `gnn_fit_ensemble`, `llm_annotation_launch`, `piml_neural_ode_predict`, `piml_profile_fit_mechanistic`, `temporal_convlstm_predict`.
+Exported functions never named in any test (**13**): `causal_ontology_agrovoc`, `causal_ontology_envo`, `edaphos_zenodo_release`, `foundation_tile_source_era5`, `foundation_tile_source_modis`, `foundation_tile_source_soilgrids`, `foundation_tile_source_srtm`, `foundation_tile_source_worldclim`, `gnn_fit_ensemble`, `llm_annotation_launch`, `piml_neural_ode_predict`, `piml_profile_fit_mechanistic`, `temporal_convlstm_predict`.
 
 ## 7. Documentation coverage
 
@@ -378,9 +394,9 @@ Exported functions never named in any test (**14**): `causal_ontology_agrovoc`, 
 | Exports with no `.Rd` | 0 |
 | Rd with `\references` | 36 |
 | Vignettes | 19 |
-| Root `articles/` | 4 |
+| Root `articles/` | 0 |
 | Cheatsheets | 11 |
-| README size | 111 KB |
+| README size | 113 KB |
 
 "six pillars" vs "ten pillars", counted per file:
 
@@ -408,18 +424,17 @@ Function names called in `pilar1.md`, `pilar10.md`, `pilar2.md`, `pilar3.md`, `p
 | `inst` | 2.20 MB | ✅ |
 | `man` | 1.36 MB | ✅ |
 | `R` | 1.31 MB | ✅ |
-| `tools` | 707 KB | ❌ |
+| `tools` | 727 KB | ❌ |
 | `data-raw` | 497 KB | ❌ |
-| `tests` | 460 KB | ✅ |
-| `<root>` | 377 KB | ✅ |
-| `vignettes` | 356 KB | ✅ |
+| `tests` | 472 KB | ✅ |
+| `vignettes` | 399 KB | ✅ |
+| `<root>` | 376 KB | ✅ |
 | `data` | 64 KB | ✅ |
-| `articles` | 43 KB | ❌ |
+| `.github` | 19 KB | ❌ |
 | `src` | 16 KB | ✅ |
 | `cheatsheets` | 16 KB | ❌ |
-| `.github` | 10 KB | ❌ |
 
-Git-tracked bytes that ship: **5.89 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
+Git-tracked bytes that ship: **5.96 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
 
 Largest tracked files that ship:
 
@@ -434,46 +449,13 @@ Largest tracked files that ship:
 | `inst/extdata/piml_external_anchors.rds` | 124 KB |
 | `man/figures/pillar6-quantum.png` | 121 KB |
 | `inst/extdata/piml_depth_benchmark.rds` | 113 KB |
-| `README.md` | 111 KB |
+| `README.md` | 113 KB |
 | `inst/extdata/cerrado_claims_real_corpus.jsonl` | 94 KB |
 | `man/figures/pillar5-al-map.png` | 86 KB |
 
-### Where the tarball's bytes are
-
-`edaphos_0.9.0.tar.gz` is **5.32 MB** compressed, against the CRAN 5 MB guidance (5.00 MB) — **over by 326 KB**. The shares below are of its 8.99 MB uncompressed contents (495 files), measured by unpacking it; gzip does not compress the two big contributors evenly, so treat them as shares, not as MB off the cap.
-
-| Directory | Size | Share | In the repo |
-| --- | --: | --: | :-: |
-| `inst/doc` | 3.10 MB | 34% | ❌ |
-| `inst/extdata` | 2.15 MB | 24% | ✅ |
-| `R` | 1.31 MB | 15% | ✅ |
-| `man/figures` | 705 KB | 8% | ✅ |
-| `man` | 687 KB | 7% | ✅ |
-| `tests/testthat` | 460 KB | 5% | ✅ |
-| `vignettes` | 356 KB | 4% | ✅ |
-| `<root>` | 146 KB | 2% | ✅ |
-| `data` | 64 KB | 1% | ✅ |
-| `inst/shiny-apps` | 28 KB | 0% | ✅ |
-| `inst` | 17 KB | 0% | ✅ |
-| `src` | 16 KB | 0% | ✅ |
-| `inst/rosc` | 8 KB | 0% | ✅ |
-| `build` | 1 KB | 0% | ✅ |
-| `tests` | 0 KB | 0% | ✅ |
-
-`inst/doc` is 2.65 MB of rendered vignette HTML in 19 files, of which **1.60 MB (60%) is base64 image data inlined as `data:` URIs**. Base64 costs 4 bytes for every 3, so that payload is ~1.20 MB of PNG carried at 1.60 MB. It is generated at build time from the figure sizes in `vignettes/*.Rmd`, which means it is the one large contributor that can be reduced without moving a single committed file.
-
-| Vignette HTML | Size | of it base64 |
-| --- | --: | --: |
-| `capstone-cerrado-campaign.html` | 769 KB | 587 KB |
-| `case-cerrado-end-to-end.html` | 251 KB | 216 KB |
-| `pilar6-quantum.html` | 192 KB | 122 KB |
-| `pilar1-pilar4-iv.html` | 189 KB | 113 KB |
-| `edaphos-paper.html` | 134 KB | 100 KB |
-| `pilar4-simclr-embeddings.html` | 166 KB | 90 KB |
-
 ## 9. CI and infrastructure
 
-Workflows (3): `pkgdown.yaml`, `R-CMD-check.yaml`, `test-coverage.yaml`.
+Workflows (5): `pkgdown.yaml`, `quality-gates.yaml`, `R-CMD-check.yaml`, `release-tag.yaml`, `test-coverage.yaml`.
 
 `R-CMD-check` matrix legs:
 
@@ -484,7 +466,7 @@ Workflows (3): `pkgdown.yaml`, `R-CMD-check.yaml`, `test-coverage.yaml`.
 - `- {os: ubuntu-latest,  r: 'oldrel-1'}`
 - `- {os: ubuntu-latest,  r: 'release', torch: true}`
 
-`TORCH_INSTALL` setting found in the workflows: `TORCH_INSTALL: ${{ matrix.config.torch && '1' || '0' }}` — 1 of 6 matrix legs carry `torch: true` and install libtorch, so the torch-gated tests run on those legs.
+`TORCH_INSTALL` setting found in the workflows: `TORCH_INSTALL: ${{ matrix.config.torch && '1' || '0' }}`, `# WHY libtorch IS INSTALLED HERE. This job used to set no TORCH_INSTALL at`, `TORCH_INSTALL: '1'` — 1 of 6 matrix legs carry `torch: true` and install libtorch, so the torch-gated tests run on those legs.
 
 | Check | Result |
 | --- | --- |
@@ -586,7 +568,7 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-63 findings were true at `272b378` and cannot be reproduced at `8e725b9`. Each line states the measurement that closed it, not a claim that it was addressed.
+63 findings were true at `272b378` and cannot be reproduced at `7b881c2`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |

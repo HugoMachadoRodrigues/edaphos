@@ -1,6 +1,10 @@
-# Windows-specific Makevars -- mirror the Unix Makevars, but
-# explicit so rtools45 ld.exe can resolve the Armadillo BLAS/LAPACK
-# symbols (ddot_, dgemv_, dgemm_, dsyrk_, ...).  Without this file
-# the v3.5.0 RcppArmadillo Gibbs sampler fails to link on
-# windows-latest CI with "undefined reference" errors.
+# Windows-specific Makevars.
+#
+# There is NO Unix src/Makevars, and this comment used to say it mirrored one.
+# It does not need to: on Unix, R supplies $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+# to RcppArmadillo packages by default, so an explicit file would only restate
+# the default. Windows needs it spelled out or rtools ld.exe cannot resolve the
+# Armadillo BLAS/LAPACK symbols (ddot_, dgemv_, dgemm_, dsyrk_, ...) and the
+# RcppArmadillo Gibbs sampler fails to link on windows-latest CI with
+# "undefined reference" errors.
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)

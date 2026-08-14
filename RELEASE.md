@@ -17,25 +17,30 @@ the version moved; the version this applies to is whatever
 
 ## Before any of this: the tag name is taken
 
-`DESCRIPTION` says **0.9.0**, and a tag `v0.9.0` already exists. It points
-at `a394911` (2026-04-22), 169 commits behind HEAD, and was created during
-the version history that `NEWS.md` later withdrew as unreproducible. The
-same is true of `v3.10.0` and `v4.0.0`, tags for versions that were also
-withdrawn.
+`v3.10.0` and `v4.0.0` — tags for the inflated versions `NEWS.md`
+withdrew as unreproducible — **have been deleted**, locally and on the
+remote. The commits they marked are still in `main`'s history; only the
+version labels are gone.
 
-So `git tag v0.9.0` will fail, and force-moving a published tag is not a
-fix — anyone who fetched it keeps the old one. The choice is the
-maintainer's and there are only two honest options:
+`v0.9.0` was **not** deleted, and an earlier draft of this file was wrong
+to group it with them. It is not a withdrawn tag: it belongs to the
+original `v0.1.0`→`v1.6.0` run and marks a genuine 0.9.0 released on
+2026-04-22 (`a394911`), whose `DESCRIPTION` reads `Version: 0.9.0`. The
+collision exists because the version number was **reset** to 0.9.0, so
+today's 0.9.0 is a different package wearing a used number.
 
-1. **Delete the withdrawn tags** (`v0.9.0`, `v3.10.0`, `v4.0.0`) locally
-   and on the remote, accepting that anyone who already fetched them
-   keeps a stale reference; or
-2. **Release under a version that does not collide**, which means moving
-   past the numbers the withdrawn history consumed.
+That leaves a real choice, and it is the maintainer's:
 
-`.github/workflows/release-tag.yaml` refuses to tag until this is
-resolved, and says which of the three checks failed. It defaults to a dry
-run.
+1. **Delete `v0.9.0` too**, accepting that a legitimate historical marker
+   is destroyed to make a number reusable, and that anyone who fetched it
+   keeps a stale reference pointing at unrelated code; or
+2. **Release under a version the earlier run did not consume** — anything
+   past `1.6.0` — which leaves history intact and costs only the appeal
+   of a low version number.
+
+Option 2 is the one that destroys nothing. Until either is taken,
+`git tag v0.9.0` fails and `.github/workflows/release-tag.yaml` refuses,
+naming which of its three checks did so. It defaults to a dry run.
 
 ---
 

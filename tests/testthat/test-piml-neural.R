@@ -1,7 +1,3 @@
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  tryCatch(torch::torch_tensor(1), error = function(e) skip("torch runtime unavailable"))
-}
 
 test_that("piml_neural_ode_fit recovers a clean exponential decay", {
   skip_if_no_torch()

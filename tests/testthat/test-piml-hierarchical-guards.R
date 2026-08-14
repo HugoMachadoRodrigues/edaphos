@@ -14,10 +14,6 @@
 # return impossible numbers silently, and by anchoring the gate to data.
 # ---------------------------------------------------------------------------
 
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  skip_if_not(isTRUE(torch::torch_is_installed()), "libtorch not installed")
-}
 
 fit_small <- function(epochs = 40L) {
   data(br_cerrado, envir = environment())

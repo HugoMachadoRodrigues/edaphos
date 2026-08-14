@@ -1,7 +1,3 @@
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  tryCatch(torch::torch_tensor(1), error = function(e) skip("torch runtime unavailable"))
-}
 
 make_patches <- function(N = 12L, C = 3L, H = 8L, W = 8L, seed = 1L) {
   set.seed(seed)

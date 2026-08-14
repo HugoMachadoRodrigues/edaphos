@@ -1,11 +1,5 @@
 # Pillar 2 v1.1.0 tests: Neural ODE deep ensemble.
 
-skip_if_no_torch <- function() {
-  skip_if_not_installed("torch")
-  if (!torch::torch_is_installed()) {
-    skip("torch backend is not installed")
-  }
-}
 
 test_that("piml_neural_ode_fit_ensemble trains K independent members", {
   skip_if_no_torch()
