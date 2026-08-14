@@ -102,6 +102,28 @@
 #' # Spelling is British throughout, so American labels can only be
 #' # rescued by the fuzzy tier of causal_kg_alignment().
 #' grep("alumin|mineralis", vocab$term, value = TRUE)
+# One definition of what a vocabulary "term" is.
+#
+# causal_ontology_agrovoc() and causal_ontology_envo() carried this
+# verbatim, twice. That is not merely untidy: while testing the ENVO path I
+# injected a defect into what I thought was its normaliser, saw the tests
+# stay green, and nearly filed them as hollow -- I had edited the AGROVOC
+# copy. Duplicated logic makes a change look ineffective when it landed
+# somewhere else.
+#
+# THE `gsub("_+", "_", ...)` PASS THAT USED TO BE HERE IS GONE. It could not
+# fire: `[^[:alnum:]]+` is greedy, so it collapses any run of non-alphanumeric
+# characters -- underscores included, since `_` is not alnum -- into a single
+# `_` in one pass. Checked rather than reasoned: 19 adversarial inputs
+# ("a__b", "___", "-- Ferralsol / Oxisol --", tabs, newlines, accented
+# letters) plus 20,000 random strings over an alphabet seeded with `_`, `-`,
+# `.`, `/`, `(`, `)`, `:` and whitespace produced zero strings containing
+# "__" after the first substitution.
+.ontology_term <- function(label) {
+  term <- tolower(gsub("[^[:alnum:]]+", "_", trimws(label)))
+  gsub("^_|_$", "", term)
+}
+
 #' @export
 causal_ontology_cerrado <- function() {
   .cerrado_canonical_vocabulary()
@@ -162,8 +184,7 @@ causal_ontology_agrovoc <- function(query, limit = 10L,
   }
   uri   <- vapply(rows, function(r) r$uri$value,    character(1L))
   label <- vapply(rows, function(r) r$label$value,  character(1L))
-  term  <- tolower(gsub("[^[:alnum:]]+", "_", trimws(label)))
-  term  <- gsub("_+", "_", term); term <- gsub("^_|_$", "", term)
+  term  <- .ontology_term(label)
   data.frame(uri = uri, term = term, label = label,
              stringsAsFactors = FALSE)
 }
@@ -212,8 +233,7 @@ causal_ontology_envo <- function(path) {
                                 extract_tags = "minimal")
   label <- oi$name
   id    <- oi$id
-  term  <- tolower(gsub("[^[:alnum:]]+", "_", trimws(label)))
-  term  <- gsub("_+", "_", term); term <- gsub("^_|_$", "", term)
+  term  <- .ontology_term(label)
   data.frame(id = id, term = term, label = label,
              stringsAsFactors = FALSE)
 }

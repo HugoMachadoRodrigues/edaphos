@@ -319,9 +319,13 @@ test_that("soilgrids forwards var/stat/path unchanged and prefixes each layer", 
     expect_identical(cl$depth, 15L)
   }
 
-  # One layer per variable, prefixed, in request order.
-  expect_s4_class(out, "SpatRaster")
-  expect_equal(terra::nlyr(out), 3L)
+  # One layer per variable, prefixed, in request order. The exact-names
+  # equality is the whole assertion: it pins the count, the order and the
+  # prefix at once. An expect_s4_class(out, "SpatRaster") used to sit above
+  # it and was removed after a mutation sweep -- it survived all 16 injected
+  # defects, because do.call(c, layers) returns a SpatRaster under nearly any
+  # breakage. An assertion no defect can fail is documentation wearing a
+  # test's clothes.
   expect_equal(names(out), c("soilgrids_soc", "soilgrids_clay", "soilgrids_phh2o"))
 })
 
@@ -383,9 +387,10 @@ test_that("worldclim names layers wc_<var>_<nn> with a zero-padded index", {
   expect_equal(names(out),
                c(paste0("wc_prec_", sprintf("%02d", 1:12)),
                  paste0("wc_tavg_", sprintf("%02d", 1:12))))
-  # sprintf("%d") instead of "%02d" would give wc_prec_1, which sorts wrongly
-  # and contradicts the documented names.
-  expect_true(all(grepl("_(0[1-9]|1[0-2])$", names(out))))
+  # (A grepl() check for two-digit suffixes stood here. The equality above
+  # already pins every name exactly, including the zero-padding it was
+  # testing, so it could not fail unless the stronger assertion had failed
+  # first.)
 })
 
 test_that("a single-band worldclim product still gets a _01 suffix", {
