@@ -1794,7 +1794,10 @@
       "evidence": "Reproduces unchanged; only line numbers moved. Seven byte-identical definitions of `%||%` <- function(a, b) if (is.null(a)) b else a remain: R/core_utils.R:4 (the documented canonical home), R/llm_annotation.R:97, R/piml_quantum_bridge.R:374, R/uncertainty.R:710, R/bridges_structure_v3.R:473, R/quantum_foundation.R:365 and R/bridges_active_learning_v3.R:528, so which definition wins is still decided by collation order.",
       "impact": "Action-at-a-distance: the one function every pillar depends on for null-coalescing has seven sources of truth and its winner is chosen by filename sort order. R does not warn about the redefinitions, so nothing in R CMD check will ever surface this.",
       "action": "Delete the six redundant definitions (R/bridges_active_learning_v3.R:322, R/bridges_structure_v3.R:266, R/llm_annotation.R:97, R/piml_quantum_bridge.R:228, R/quantum_foundation.R:221, R/uncertainty.R:522), keeping only R/core_utils.R:4. Note that R >= 4.4 provides `%||%` in base, so the cleanest end state is to drop the definition entirely and bump `Depends: R (>= 4.4)`. Either way, add a one-line unit test asserting `NULL %||% 1 == 1` so a future accidental redefinition is caught.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "e290dd5",
+      "resolution": "Six of the seven byte-identical definitions of %||% under R/ are removed; one remains in R/core_utils.R. The collation-order risk the finding names does not bite while the copies agree, which is precisely what makes duplication dangerous: someone edits one and believes the behaviour changed. It was NOT deleted in favour of base R's, because base gained %||% in 4.4.0 while DESCRIPTION declares R (>= 4.0); that reason is recorded beside the definition so it is not removed later on the grounds that base has it."
     },
     {
       "id": "F503F9C",
@@ -1860,7 +1863,10 @@
       "evidence": "Narrowed from three broken sites to two, both in Pillar 8, both reproducing. The bare NA-injecting filter survives at R/pilar8_neural_operators.R:422 history = history[history > 0] inside no_fno_fit(), and at the sibling site in the same file; the Pillar 10 instance was fixed by 51bb2a7.",
       "impact": "Four different conventions for the same three-token idiom across seven sites in six files, with the correct one applied only to the torch variants. Someone found and fixed this bug in the torch files and never backported it, which is a strong signal that the pure-R/torch pairs are maintained as copies rather than as one implementation with two backends. The user-visible effect is a silently mis-aligned loss trajectory.",
       "action": "Add one internal helper to R/core_utils.R, e.g. `.trim_history <- function(h) h[seq_len(max(which(h != 0 | is.na(h)), 0L))]` (truncate at the last recorded epoch rather than filtering, which also preserves index-to-epoch alignment), and replace all seven sites: R/pilar8_neural_operators.R:269 and :527, R/pilar10_graph_nn.R:283, R/pilar8_neural_operators_torch.R:128 and :214, R/pilar9_diffusion_torch.R:212, R/pilar10_graph_nn_torch.R:179, plus R/pilar9_diffusion_models.R:257. Then add `expect_true(all(is.finite(fit$history)))` to the pure-R tests in tests/testthat/test-pilar8-neural-operators.R and test-pilar10-gat.R to match tests/testthat/test-pilar8-torch.R:21.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d80d1c4",
+      "resolution": "Both pure-R trims in R/pilar8_neural_operators.R now use history[history > 0 | is.na(history)], matching the four torch paths. The defect is more precise than the finding states: the forms agree on plain NA, and differ only on NaN -- NaN > 0 is NA and subsetting by NA yields NA, so the old trim converted NaN to NA. Measured over 20,000 random histories, they differ in 8,558, every difference a NaN. In a loss trace that erases the distinction between a run that diverged (NaN) and an epoch never recorded (NA). The test asserts is.nan() rather than is.na(), since is.na() is TRUE for both and would pass against the defect, and it greps R/ so a third unguarded path cannot appear quietly."
     },
     {
       "id": "FFAFBF2",
@@ -1945,7 +1951,10 @@
       "evidence": "The code defect reproduces at all five sites, shifted down by the campaign's edits: R/causal_active_learning.R:171 error = function(e) MASS::ginv(XtX), R/causal_iv.R:151 and :155, R/causal_iv.R:414 and :418 - all unguarded calls into a Suggests-only package. Mitigating fact for severity: MASS has Priority recommended on this machine, so the failure is near-unreachable in practice; the false blanket claim that every Suggests is wrapped no longer exists in the regenerated cran-comments.md.",
       "impact": "On any install without MASS, a rank-deficient design in `causal_iv_fit_2sls()` / `al_query_causal()` turns a recoverable numerical fallback into `there is no package called 'MASS'` — the opposite of the graceful degradation the code is trying to provide. Violates CRAN's \"packages in Suggests must be used conditionally\", and the blanket claim in cran-comments is false.",
       "action": "Either promote `MASS` from Suggests to Imports (it is a recommended package, so no real install cost), or wrap the fallback: `error = function(e) { if (!requireNamespace(\"MASS\", quietly = TRUE)) stop(\"Singular design; install 'MASS' for the pseudo-inverse fallback.\", call. = FALSE); MASS::ginv(XtX) }`. Then correct `cran-comments.md:49-50`.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "0b068d7",
+      "resolution": "The five unguarded MASS::ginv() fallbacks in R/causal_iv.R and R/causal_active_learning.R are replaced by one .safe_inverse() in R/core_utils.R, which tries solve(), falls back to the pseudo-inverse when MASS is available, and otherwise raises an error naming the singularity, the matrix and the package to install. MASS is in Suggests and Suggests are not installed by default; it is also a recommended package, which is why five unguarded copies survived unnoticed. Verified to return exactly what the previous code returned on both an invertible and a deliberately singular matrix. The test asserts the pseudo-inverse property M %*% M+ %*% M == M rather than its dimensions, and checks the MASS-absent path produces an actionable message."
     },
     {
       "id": "FEDA31F",
