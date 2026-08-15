@@ -33,7 +33,7 @@ adversarial audit of commit `272b378`.
 | R CMD check status | Status: 2 NOTEs |
 | Source tarball (CRAN cap 5 MB) | _not measured_ |
 | Findings open (blocker/high) | 0 |
-| Findings closed since the audit | 73 |
+| Findings closed since the audit | 74 |
 
 ### Stage assessment
 
@@ -568,7 +568,7 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-73 findings were true at `272b378` and cannot be reproduced at `7b881c2`. Each line states the measurement that closed it, not a claim that it was addressed.
+74 findings were true at `272b378` and cannot be reproduced at `7b881c2`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |
@@ -614,6 +614,7 @@ original auditor reported.
 | F7EC076 | medium | Code quality | `d009976` | Twelve copies of skip_if_no_torch() in three divergent flavours, orphaning the helper-torch.R that was added to replace them | The thirteen local definitions of skip_if_no_torch() are gone; tests/testthat/helper-torch.R holds one definition plus a non-dotted alias so the existing call sites resolve to it. The three flavours were not equivalent -- some checked torch_is_installed(), some wrapped it in tryCatch, some allocated a real tensor -- and the consolidation adopted the strongest, because torch_is_installed() reports the runtime is present rather than working, and a partial or architecture-mismatched Lantern answers TRUE and then dies on the first tensor. Deduplicating onto the shortest variant would have weakened thirteen files at once. Skip count verified unchanged at 15. |
 | FBDE0E9 | medium | Code quality | `3f2d005` | al_fit(num.trees=) has no lower bound against ranger's undocumented OOB-quantile minimum, and the test that breaks is unseeded — a ~25% flaky ERROR | Both prescribed changes landed: a derived lower bound now exists for num.trees, and the flaky test was seeded and given a valid tree count. |
 | FC841F7 | medium | Code quality | `28dac7d` | Same loop-invariant matrix product recomputed n_draws times, copy-pasted into two files | Both copies of the loop-invariant product were hoisted out of their loops. |
+| FCF64DC | medium | Code quality | `9409899` | Naming schism: pilar/pillar, ordinal/domain module names, al_* vs active_*, and five undocumented cryptic export prefixes | Measured before acting, and the measurement changed the answer. ZERO of 178 exports contain 'pilar' or 'pillar' -- NAMESPACE carries not even the substring 'pil' -- so the schism never reached the API and there is no break to migrate. The seven R/pilar*.R files were deliberately NOT renamed: the twelve vignette names and three inst/extdata bundles are a contract (vignette('pilar6-quantum'), system.file('extdata', 'pilar10_gat_tuning.rds')), so renaming only the private side would leave the public face on 'pilar' and the private on 'pillar', trading one inconsistency for another across thirty files. What the package actually is is bilingual -- 'pilar' is Portuguese, DESCRIPTION declares Language: en-US, pt-BR, five vignettes are in Portuguese -- and that convention is now stated in the package-level Rd so it reads as a decision. On prefixes: the finding claimed five undocumented, measurement found two (active_, spatial_, one function each). All 18 are documented now where ?edaphos finds them, including why active_learning_posterior() sits alone beside fourteen al_* functions. tests/testthat/test-export-prefixes-documented.R fails on any exported prefix a reader cannot look up. |
 | FD27999 | medium | Code quality | `2450e0c` | Twelve exported functions are never referenced anywhere in tests/, including the entire advertised tile-source pipeline | Of 178 exports, 12 were referenced by no test and 8 of those had only \dontrun examples, so they executed nowhere at all. Three new offline test files cover them: tests/testthat/test-foundation-tile-sources.R (206 assertions over the five foundation_tile_source_* functions), test-causal-ontology-envo.R (28), test-zenodo-release.R (67). No network, no Shiny launch, no writes outside a tempdir. Verified by defect injection rather than by assertion count: the tile-source file catches all 16 separately injected defects, and breaking the ontology term normalisation and the Zenodo SHA-256 computation fails 3 and 1 assertions respectively. Suite 2215 -> 2518. A side finding surfaced while injecting: the term-normalisation logic is duplicated verbatim between causal_ontology_agrovoc and causal_ontology_envo. |
 | F00A9C3 | medium | CRAN readiness | `3f2d005` | `Depends: R (>= 3.5)` is falsified by two features requiring R 4.0.0 and R 3.6.0 | DESCRIPTION Depends: R (>= 4.0). |
 | F4484D7 | medium | CRAN readiness | `d009976` | 5 of 14 vignettes are written in Portuguese while DESCRIPTION declares `Language: en-US` | DESCRIPTION declares Language: en-US, pt-BR, which is what the field accepts and what is true: five of the vignettes are written in Portuguese. Counted before deciding -- an initial detector returned zero because its threshold was set too high, which is why the count was measured per file rather than asserted. |
@@ -651,7 +652,6 @@ original auditor reported.
 | ID | Sev | Verdict | Area | Kind | Effort | Finding |
 | --- | --- | --- | --- | --- | --- | --- |
 | FD3C0C1 | medium | confirmed | CI & infra | bug | minutes | Chunk option in pilar4-simclr vignette calls `reticulate::` unguarded with broken `&&`/`\|\|` precedence -- hard error in exactly the Docker configuration |
-| FCF64DC | medium | confirmed | Code quality | inconsistency | days | Naming schism: pilar/pillar, ordinal/domain module names, al_* vs active_*, and five undocumented cryptic export prefixes |
 | F83F26A | medium | confirmed | CRAN readiness | inconsistency | hours | RELEASE-CHECKLIST-v3.10.0.md instructs the maintainer to upload two artefacts that do not exist, and asserts a green state contradicted by the live test run |
 | FB9DA9E | medium | partial | Release consistency | doc-gap | days | The 84 KB README documents nothing after v2.8.0; its only 3.x reference is the version badge |
 | FBB414A | medium | confirmed | Release consistency | missing-work | hours | .zenodo.json carries no version field at all and its description is frozen at v1.8.0 |
@@ -708,9 +708,6 @@ original auditor reported.
 
 - **FD3C0C1** (CI & infra, minutes) — Chunk option in pilar4-simclr vignette calls `reticulate::` unguarded with broken `&&`/`||` precedence -- hard error in exactly the Docker configuration
   - Replace the chunk option at vignettes/pilar4-simclr-embeddings.Rmd:361 with `eval=.torch_ok` (semantically identical, no reticulate dependency), or if the Python path is genuinely intended write `eval=.torch_ok && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_available()`. Add `reticulate` to the Dockerfile install list, or leave it out and confirm the vignette renders. Add a grep-based lint (or an explicit item in the release checklist) for `[a-zA-Z]+::` appearing in a chunk option without a preceding `requireNamespace` in the same expression.
-
-- **FCF64DC** (Code quality, days) — Naming schism: pilar/pillar, ordinal/domain module names, al_* vs active_*, and five undocumented cryptic export prefixes
-  - Three mechanical passes, none behaviour-changing. (1) `git mv` the 7 R/pilar*.R files and 17 test files to domain names matching pillars 1-6 (bhs_*.R, neural_operators*.R, diffusion*.R, graph_nn*.R) and fix the two user-facing print strings at R/bridges_active_learning_v3.R:313 and R/bridges_structure_v3.R:225 to "Pillar". (2) Extend R/pillars_roadmap.R:8-15 from six rows to ten, retitle :1 from "six pillars" to "ten pillars", and add the `bhs_*`/`no_*`/`dm_*`/`gnn_*`/`qf_*` namespace entries; either rename `active_learning_posterior` to `al_posterior` (with an alias for back-compat) or amend the `al_*` claim in R/pillars_roadmap.R:14 and README.md:379. (3) Rename the four shadowing parameters to `fit` or `object` (R/bridges_active_learning_v3.R:260, :174; R/bridges_structure_v3.R:50, :196) and re-roxygenise. Consider renaming the `no_*` prefix to `fno_*`/`don_*`.
 
 - **F83F26A** (CRAN readiness, hours) — RELEASE-CHECKLIST-v3.10.0.md instructs the maintainer to upload two artefacts that do not exist, and asserts a green state contradicted by the live test run
   - Replace the hard-coded artefact paths with the commands that produce them (`devtools::build()`, and whatever script built `zenodo_release.zip` — it is not in `tools/`). Rename/renumber the checklist for the actual next version, add a NEWS.md `# edaphos 3.11.0` section for the HEAD~1 work, and gate the header claim on a passing `devtools::test()`.
@@ -1048,7 +1045,6 @@ _Non-blocking, but cheaper to fix before the API is frozen by CRAN._
 
 | Done | ID | Sev | Effort | Item |
 | --- | --- | --- | --- | --- |
-| [ ] | FCF64DC | medium | days | Naming schism: pilar/pillar, ordinal/domain module names, al_* vs active_*, and five undocumented cryptic export prefixes |
 | [ ] | FB6D884 | medium | days | 12 exported functions are never called by any test, including the entire tile-download layer and a function that recursively deletes a directory |
 | [ ] | FBCB1E4 | medium | days | The v3.8.0 friendly-error work covers 4 of 169 exports; .assert_type/.stopf adopted in 6 of 70 R/ files |
 | [ ] | F86487C | medium | hours | R/pilar7_bayesian_hierarchical.R:270-272 cites a test that does not perform the verification it claims |
