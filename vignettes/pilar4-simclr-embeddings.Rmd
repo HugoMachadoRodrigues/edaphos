@@ -376,7 +376,19 @@ dataset
 
 ### 9.4 MoCo v2 training on the streamed dataset
 
-```{r tile-train, eval=requireNamespace("torch", quietly = TRUE) && reticulate::py_available() || .torch_ok}
+<!-- The chunk option below was
+     `requireNamespace("torch", ...) && reticulate::py_available() || .torch_ok`.
+     Three things were wrong with it. `reticulate::py_available()` is not
+     guarded, so on a machine with torch and without reticulate the option
+     ERRORS and the vignette build fails rather than skipping. The `&&`/`||`
+     precedence meant the reticulate clause could only ever change the answer
+     in the case where it crashes. And the chunk trains a MoCo encoder with
+     foundation_moco_pretrain_tiles() -- pure torch, no Python -- so it gated
+     on a runtime it never touches. `reticulate` appeared exactly once in this
+     vignette, here. `.torch_ok` is computed by the setup gate above and is
+     the whole condition. -->
+
+```{r tile-train, eval = .torch_ok}
 ck_dir <- tempfile("moco_ck_")
 moco_tiles <- foundation_moco_pretrain_tiles(
   dataset,
