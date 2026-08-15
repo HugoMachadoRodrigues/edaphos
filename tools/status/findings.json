@@ -788,7 +788,10 @@
       "evidence": "Unchanged in substance; the line moved from :361 to :375. vignettes/pilar4-simclr-embeddings.Rmd:375 is still the chunk header eval=requireNamespace(torch, quietly = TRUE) && reticulate::py_available(), with the unguarded reticulate:: call and the same &&/|| precedence, so it errors rather than skips in exactly the Docker configuration the finding names.",
       "impact": "The single environment where the torch vignettes are supposed to render fully -- the Docker image -- is the one environment where this line hard-errors: torch present, reticulate absent. So `docker build` followed by a vignette rebuild cannot reproduce the Pilar 4 article. The same combination can occur on a CRAN check machine that installs torch but not reticulate, producing a vignette-build ERROR rather than a graceful skip, and falsifying the cran-comments.md:49-52 claim.",
       "action": "Replace the chunk option at vignettes/pilar4-simclr-embeddings.Rmd:361 with `eval=.torch_ok` (semantically identical, no reticulate dependency), or if the Python path is genuinely intended write `eval=.torch_ok && requireNamespace(\"reticulate\", quietly = TRUE) && reticulate::py_available()`. Add `reticulate` to the Dockerfile install list, or leave it out and confirm the vignette renders. Add a grep-based lint (or an explicit item in the release checklist) for `[a-zA-Z]+::` appearing in a chunk option without a preceding `requireNamespace` in the same expression.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "1e48f3c",
+      "resolution": "The chunk option in vignettes/pilar4-simclr-embeddings.Rmd is now `eval = .torch_ok`. It had been `requireNamespace(\"torch\", ...) && reticulate::py_available() || .torch_ok`, which raises rather than skips on a machine with torch and without reticulate, because knitr evaluates chunk options before the chunk. Three defects in one line: the unguarded reticulate:: call, the &&/|| precedence that let the reticulate clause matter only in the case where it crashes, and the fact that the chunk trains a MoCo encoder with foundation_moco_pretrain_tiles() -- pure torch, no Python -- so it gated on a runtime it never uses. All 23 vignettes were swept; pilar6-quantum.Rmd uses the same construct correctly in six places, guard first. tests/testthat/test-chunk-options-guarded.R encodes the idiom and was verified to fail against the original line."
     },
     {
       "id": "FD941E5",
@@ -1080,7 +1083,10 @@
       "evidence": "The file has never been modified; its only commit is 65e8b91. RELEASE-CHECKLIST-v3.10.0.md:13-15 still instructs the maintainer to submit /tmp/edaphos_release_tarballs/edaphos_3.10.0.tar.gz (17 MB), which does not exist, and :3 still asserts code 100 % ready, CI green. The version reset makes it worse: it announces v3.10.0 as ready to submit in a tree whose DESCRIPTION:3 says 0.9.0 and whose NEWS.md:1 says not yet released.",
       "impact": "A maintainer following this checklist step-by-step reaches step 1 or 3 and finds nothing to submit or upload, with no recorded command to regenerate either artefact. The \"CI green / 100 % ready\" header actively suppresses the two real test failures that should gate the release.",
       "action": "Replace the hard-coded artefact paths with the commands that produce them (`devtools::build()`, and whatever script built `zenodo_release.zip` — it is not in `tools/`). Rename/renumber the checklist for the actual next version, add a NEWS.md `# edaphos 3.11.0` section for the HEAD~1 work, and gate the header claim on a passing `devtools::test()`.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "9747374",
+      "resolution": "RELEASE-CHECKLIST-v3.10.0.md was deleted in 9747374. The instruction it carried -- upload artefacts from a /tmp path that does not exist -- went with it, and RELEASE.md is the single checklist."
     },
     {
       "id": "F00AF5C",
@@ -1231,7 +1237,10 @@
       "evidence": "The four dead navbar links reproduce, at line numbers 1-4 higher than cited: _pkgdown.yml:77 articles/pilar1-causal-real.html, :81 articles/llm-kg-benchmark.html, :93 articles/pilar3-4d-real.html, :103 articles/pilar5-soilgrids-br.html - all sourced from articles/, which pkgdown does not render. The man-page half is fixed: 3bd1938 added the four missing pillar 7-10 vignettes, so man/edaphos-package.Rd's vignette pointer resolves.",
       "impact": "Four authored articles (~44 KB of .Rmd, including the only real-data P1 and P3 walkthroughs and the LLM-KG benchmark) are dead content: they 404 on the published site and are absent from the installed package. An installed-package user following the package-level man page gets `Error: vignette 'pilar5-soilgrids-br' not found`. Because the pkgdown workflow's `fail_ci_if_error` is not set for missing hrefs, CI stays green while the site ships broken menu entries.",
       "action": "Move the four files to `vignettes/articles/` (pkgdown's supported location for non-tarball articles) and add `^vignettes/articles$` to `.Rbuildignore` so they still stay out of the CRAN build; add them to the `_pkgdown.yml` `articles:` index. Then either drop the `vignette(\"pilar5-soilgrids-br\")` reference from `R/edaphos-package.R:153` or change it to a pkgdown URL. Fix the misleading comment at the top of `.github/workflows/pkgdown.yaml`.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "80ac33e",
+      "resolution": "Zero dead navbar links remain: measured by resolving every 'href: articles/' entry in _pkgdown.yml against pkgdown's articles index, 13 entries and 23 indexed articles with no orphans. Fixed across two earlier commits -- 8a04d21 removed four entries pointing at a top-level articles/ directory pkgdown does not render, and 80ac33e moved those documents into vignettes/articles/ where the site renders them."
     },
     {
       "id": "FD3DBCB",
@@ -1247,7 +1256,10 @@
       "evidence": "Both documents survive and still conflict. RELEASE.md:1 is headed edaphos - public-release checklist (v2.9.1) and :3 still claims four remaining manual actions; RELEASE-CHECKLIST-v3.10.0.md is a second checklist whose :15 still points at /tmp/edaphos_release_tarballs/edaphos_3.10.0.tar.gz, a path that does not exist. Neither was updated when ac7b9c2 reset the package to 0.9.0.",
       "impact": "There is no single authoritative \"what is left to do\" for the release. A maintainer resuming after a gap has to reconcile two documents with contradictory GH-Pages advice, and both reference artifacts (the /tmp tarball, tools/zenodo_release.zip) that are absent or machine-local, so neither checklist can be executed as written without re-running the build steps neither document specifies.",
       "action": "Delete or archive `RELEASE.md` (superseded) and make `RELEASE-CHECKLIST-v3.10.0.md` the single source; replace its two \"already built at\" claims with the commands that build them (`devtools::build()` and `edaphos_zenodo_release(...)` per RELEASE.md:22-31), since neither artifact survives a fresh clone. Pick one GH-Pages recommendation.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "9747374",
+      "resolution": "Same fix as F83F26A: the two competing checklists are one. RELEASE-CHECKLIST-v3.10.0.md, which pointed at /tmp/edaphos_release_tarballs/edaphos_3.10.0.tar.gz and named a GitHub Action the pkgdown workflow does not use, was deleted rather than merged."
     },
     {
       "id": "FD528FC",
