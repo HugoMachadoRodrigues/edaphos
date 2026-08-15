@@ -79,6 +79,45 @@ raw covariates (31 layers)
 
 ---
 
+# Usar a API: um exemplo que corre
+
+A secção seguinte lê resultados publicados; esta **chama as funções**.
+Até esta versão a vinheta descrevia as assinaturas em prosa e nunca
+demonstrava uma invocação, de modo que um leitor ficava a saber o que as
+funções são sem ficar a saber usá-las.
+
+Corre sobre o `br_cerrado` que acompanha o pacote — sem rede, sem torch,
+sem qiskit, em cerca de um décimo de segundo.
+
+```{r api-worked, eval = TRUE}
+data(br_cerrado)
+set.seed(1)
+i <- sample(nrow(br_cerrado), 60)
+X <- as.matrix(br_cerrado[i, c("elev", "slope", "twi", "map_mm", "ndvi")])
+y <- br_cerrado$soc[i]
+
+# 1. PCA + re-escala para o domínio do ZZFeatureMap.
+red <- qf_embed_reduce(X, n_pcs = 4L)
+c(dim = dim(red$X_q), min = min(red$X_q), max = max(red$X_q))
+
+# 2. As matrizes de Gram são materialmente diferentes?
+qf_kernel_compare(red$X_q, reps = 1L)$diagnostics
+
+# 3. Ajuste e previsão.
+fit <- qf_krr_fit(X, y, n_pcs = 4L, reps = 1L, lambda = 0.5)
+fit
+predict(fit, X[1:5, , drop = FALSE])
+```
+
+O intervalo de `X_q` é $[-\pi, \pi]$ por construção: é o domínio em que o
+ZZFeatureMap está definido, e a re-escala é o que o garante.
+
+**Estas cinco covariáveis não são embeddings de fundação.** O exemplo
+demonstra a interface, não o resultado científico — para esse, a secção
+do benchmark abaixo, que é um controlo negativo e diz porquê.
+
+---
+
 # Diagnóstico de kernel: quão diferente é o quantum do RBF?
 
 Usando 300 perfis WoSIS e os embeddings reais do encoder v1:
@@ -182,7 +221,7 @@ batemos).  É:
    todas exportadas e testadas.
 2. **Formalizar a hipótese** — a fusão quantum-foundation é um
    candidato natural no arcabouço generativo de @Zhang2026causal e
-   de [@SchuldKilloran2019], mas requer ou um encoder mais rico ou
+   de [@Schuld2019qml], mas requer ou um encoder mais rico ou
    um stack mais real.
 3. **Deixar o teste decisivo pronto** — quando o encoder v2 e os
    dados reais de geodata estiverem disponíveis, basta re-rodar
