@@ -167,8 +167,7 @@ al_query_causal <- function(data, pool, dag,
   # Hat-matrix diagonal of the combined design after pretending to add
   # one candidate at a time.
   XtX    <- crossprod(X_train)
-  XtX_inv <- tryCatch(solve(XtX),
-                        error = function(e) MASS::ginv(XtX))
+  XtX_inv <- .safe_inverse(XtX, "training design X'X")
   # Leverage of each pool candidate under the CURRENT design
   # (h_i = x_i' (X'X)^{-1} x_i).  Higher h = more sensitive response
   # to adding that point.

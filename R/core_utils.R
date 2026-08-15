@@ -3,6 +3,30 @@
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
+# Invert a matrix, falling back to a pseudo-inverse when it is singular.
+#
+# Five call sites in R/causal_iv.R and R/causal_active_learning.R each wrote
+#   tryCatch(solve(M), error = function(e) MASS::ginv(M))
+# with no check that MASS is available. MASS is in Suggests, which means a
+# user may not have it: Suggests are not installed by default. It is also a
+# "recommended" package, so it ships with virtually every R build and the
+# calls work in practice -- which is why five copies of an unguarded call
+# survived. R can be built --without-recommended-packages, and on such a
+# machine a singular design produced "there is no package called 'MASS'"
+# rather than anything a user could act on.
+#
+# This is the one place that reaches for it, and it says what to do.
+.safe_inverse <- function(M, what = "matrix") {
+  inv <- tryCatch(solve(M), error = function(e) NULL)
+  if (!is.null(inv)) return(inv)
+  if (!requireNamespace("MASS", quietly = TRUE))
+    stop(sprintf(paste("the %s is singular and cannot be inverted; the",
+                       "pseudo-inverse fallback needs the MASS package.",
+                       "Install it with install.packages(\"MASS\"), or supply",
+                       "a design of full rank."), what), call. = FALSE)
+  MASS::ginv(M)
+}
+
 .assert_covariates <- function(data, covariates) {
   missing <- setdiff(covariates, names(data))
   if (length(missing) > 0L) {

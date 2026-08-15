@@ -147,12 +147,10 @@ causal_iv_fit_2sls <- function(data, exposure, outcome, instruments,
   Z_all <- cbind(intercept = ones, W, Z)           # n x (1+p_w+p_z)
 
   # 2SLS closed form
-  ZZ_inv <- tryCatch(solve(crossprod(Z_all)),
-                      error = function(e) MASS::ginv(crossprod(Z_all)))
+  ZZ_inv <- .safe_inverse(crossprod(Z_all), "instrument cross-product Z'Z")
   P_Z    <- Z_all %*% ZZ_inv %*% t(Z_all)
   XPX    <- crossprod(X_all, P_Z %*% X_all)
-  XPX_inv <- tryCatch(solve(XPX),
-                       error = function(e) MASS::ginv(XPX))
+  XPX_inv <- .safe_inverse(XPX, "second-stage design X'P_Z X")
   XPy    <- crossprod(X_all, P_Z %*% y)
   beta   <- as.numeric(XPX_inv %*% XPy)
   names(beta) <- colnames(X_all)
@@ -410,12 +408,10 @@ causal_iv_sargan_test <- function(data, exposure, outcome,
   X_all <- cbind(intercept = ones, W, X)
   Z_all <- cbind(intercept = ones, W, Z)
 
-  ZZ_inv <- tryCatch(solve(crossprod(Z_all)),
-                      error = function(e) MASS::ginv(crossprod(Z_all)))
+  ZZ_inv <- .safe_inverse(crossprod(Z_all), "instrument cross-product Z'Z")
   P_Z    <- Z_all %*% ZZ_inv %*% t(Z_all)
   XPX    <- crossprod(X_all, P_Z %*% X_all)
-  XPX_inv <- tryCatch(solve(XPX),
-                       error = function(e) MASS::ginv(XPX))
+  XPX_inv <- .safe_inverse(XPX, "second-stage design X'P_Z X")
   beta   <- as.numeric(XPX_inv %*% crossprod(X_all, P_Z %*% y))
   resid_iv <- as.numeric(y - X_all %*% beta)
 
