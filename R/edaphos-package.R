@@ -196,6 +196,51 @@
 #'     structure learner.}
 #' }
 #'
+#' @section How exports are named:
+#' Every exported function carries a domain prefix. There are no pillar
+#' numbers in the API: the pillars organise the documentation, the prefixes
+#' organise the functions.
+#'
+#' \describe{
+#'   \item{`causal_`}{Causal inference and the LLM knowledge graph (Pillar 1).}
+#'   \item{`piml_`}{Physics-informed depth-profile models (Pillar 2).}
+#'   \item{`temporal_`}{4D pedometry: ConvLSTM, EnKF (Pillar 3).}
+#'   \item{`foundation_`}{Self-supervised encoders and their embeddings (Pillar 4).}
+#'   \item{`al_`}{Active learning: designs, acquisition policies, loops (Pillar 5).}
+#'   \item{`active_`}{One function, `active_learning_posterior()`, which is a
+#'     Pillar 5 posterior accessor. It predates the `al_` prefix and kept the
+#'     longer name; there is no second `active_` family.}
+#'   \item{`quantum_`}{Quantum kernels and VQE (Pillar 6).}
+#'   \item{`bhs_`}{Bayesian hierarchical spatial models (Pillar 7).}
+#'   \item{`no_`}{Neural operators: FNO, DeepONet (Pillar 8).}
+#'   \item{`dm_`}{Diffusion models (Pillar 9).}
+#'   \item{`gnn_`}{Graph neural networks (Pillar 10).}
+#'   \item{`qf_`}{The Pillar 4 x Pillar 6 bridge: quantum kernels over
+#'     foundation embeddings.}
+#'   \item{`uncertainty_`}{The shared calibration API across pillars.}
+#'   \item{`benchmark_`}{Thin wrappers used by the cross-pillar benchmark.}
+#'   \item{`spatial_`}{One function, `spatial_block_folds()`: buffered
+#'     spatially blocked cross-validation folds, used by every benchmark in
+#'     the package.}
+#'   \item{`llm_`}{Large-language-model extraction and annotation tooling.}
+#'   \item{`edaphos_`}{Package-level utilities: metrics, provenance, release
+#'     helpers.}
+#' }
+#'
+#' @section On "pilar" and "pillar":
+#' Both spellings appear, and the split is deliberate rather than accidental.
+#' English prose says **pillar**; identifiers say **pilar**, which is the
+#' Portuguese word. So `vignette("pilar6-quantum")` documents Pillar 6, and
+#' `inst/extdata/pilar10_gat_tuning.rds` holds Pillar 10's tuning run.
+#' `DESCRIPTION` declares `Language: en-US, pt-BR` for the same reason: five
+#' of the vignettes are written in Portuguese.
+#'
+#' No exported function carries either spelling, so the distinction never
+#' reaches code a user writes. It survives in file names, which are a
+#' contract -- renaming a vignette breaks every `vignette()` call and
+#' bookmark pointing at it -- and the package is not willing to break that
+#' for an orthographic preference.
+#'
 #' @section Vignettes:
 #' Each pillar ships a mathematically-derived vignette with examples on
 #' real or reproducible synthetic data. Entry points:

@@ -204,6 +204,55 @@ structure learner.}
 }
 }
 
+\section{How exports are named}{
+
+Every exported function carries a domain prefix. There are no pillar
+numbers in the API: the pillars organise the documentation, the prefixes
+organise the functions.
+
+\describe{
+\item{\code{causal_}}{Causal inference and the LLM knowledge graph (Pillar 1).}
+\item{\code{piml_}}{Physics-informed depth-profile models (Pillar 2).}
+\item{\code{temporal_}}{4D pedometry: ConvLSTM, EnKF (Pillar 3).}
+\item{\code{foundation_}}{Self-supervised encoders and their embeddings (Pillar 4).}
+\item{\code{al_}}{Active learning: designs, acquisition policies, loops (Pillar 5).}
+\item{\code{active_}}{One function, \code{active_learning_posterior()}, which is a
+Pillar 5 posterior accessor. It predates the \code{al_} prefix and kept the
+longer name; there is no second \code{active_} family.}
+\item{\code{quantum_}}{Quantum kernels and VQE (Pillar 6).}
+\item{\code{bhs_}}{Bayesian hierarchical spatial models (Pillar 7).}
+\item{\code{no_}}{Neural operators: FNO, DeepONet (Pillar 8).}
+\item{\code{dm_}}{Diffusion models (Pillar 9).}
+\item{\code{gnn_}}{Graph neural networks (Pillar 10).}
+\item{\code{qf_}}{The Pillar 4 x Pillar 6 bridge: quantum kernels over
+foundation embeddings.}
+\item{\code{uncertainty_}}{The shared calibration API across pillars.}
+\item{\code{benchmark_}}{Thin wrappers used by the cross-pillar benchmark.}
+\item{\code{spatial_}}{One function, \code{spatial_block_folds()}: buffered
+spatially blocked cross-validation folds, used by every benchmark in
+the package.}
+\item{\code{llm_}}{Large-language-model extraction and annotation tooling.}
+\item{\code{edaphos_}}{Package-level utilities: metrics, provenance, release
+helpers.}
+}
+}
+
+\section{On "pilar" and "pillar"}{
+
+Both spellings appear, and the split is deliberate rather than accidental.
+English prose says \strong{pillar}; identifiers say \strong{pilar}, which is the
+Portuguese word. So \code{vignette("pilar6-quantum")} documents Pillar 6, and
+\code{inst/extdata/pilar10_gat_tuning.rds} holds Pillar 10's tuning run.
+\code{DESCRIPTION} declares \verb{Language: en-US, pt-BR} for the same reason: five
+of the vignettes are written in Portuguese.
+
+No exported function carries either spelling, so the distinction never
+reaches code a user writes. It survives in file names, which are a
+contract -- renaming a vignette breaks every \code{vignette()} call and
+bookmark pointing at it -- and the package is not willing to break that
+for an orthographic preference.
+}
+
 \section{Vignettes}{
 
 Each pillar ships a mathematically-derived vignette with examples on
