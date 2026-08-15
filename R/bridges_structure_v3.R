@@ -470,4 +470,3 @@ print.edaphos_qf_krr_gat <- function(x, ...) {
   )
 }
 
-`%||%` <- function(a, b) if (is.null(a)) b else a

@@ -529,4 +529,3 @@ print.edaphos_al_bhs_query <- function(x, ...) {
   invisible(x)
 }
 
-`%||%` <- function(a, b) if (is.null(a)) b else a

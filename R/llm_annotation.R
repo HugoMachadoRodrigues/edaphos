@@ -94,7 +94,6 @@ llm_annotation_vocabulary <- function() {
             error = function(e) substr(rec$abstract_id %||% "", 1, 8))
 }
 
-`%||%` <- function(a, b) if (is.null(a)) b else a
 
 # ---------------------------------------------------------------------------
 # Pre-annotation

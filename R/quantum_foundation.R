@@ -362,7 +362,6 @@ predict.edaphos_qf_krr <- function(object, newdata, type = "numeric", ...) {
 }
 
 # Local helper
-`%||%` <- function(a, b) if (is.null(a)) b else a
 
 #' @export
 print.edaphos_qf_krr <- function(x, ...) {

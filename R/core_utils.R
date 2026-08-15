@@ -1,6 +1,14 @@
 # Internal utilities shared across pillars.
 # Not exported.
 
+# Base R gained `%||%` in 4.4.0, and DESCRIPTION declares R (>= 4.0), so the
+# package still has to carry its own for 4.0-4.3. One definition, here.
+#
+# There were seven, byte-identical, in seven files. That is harmless until
+# someone edits one and believes they changed the behaviour -- the same trap
+# that made an injected defect look like a hollow test earlier in this
+# package's history, when the term normaliser existed in two copies and the
+# edit landed on the wrong one.
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
 # Invert a matrix, falling back to a pseudo-inverse when it is singular.

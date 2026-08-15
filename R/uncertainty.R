@@ -707,7 +707,6 @@ uncertainty_plot_reliability <- function(calib, ...) {
 # Tiny local helper to avoid an Imports dependency on purrr
 # ---------------------------------------------------------------------------
 
-`%||%` <- function(a, b) if (is.null(a)) b else a
 
 # Silence the R CMD check note on the tidy-eval `.data` pronoun used
 # inside the autoplot / reliability-plot aes() calls: the pronoun is
