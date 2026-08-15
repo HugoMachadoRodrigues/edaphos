@@ -419,7 +419,13 @@ no_fno_fit <- function(depths, targets, covariates,
     R_list = R_list, W_list = W_list, b_list = b_list,
     W_out = W_out, b_out = b_out,
     cov_std = cov_std, tgt_std = tgt_std,
-    history = history[history > 0],
+    # `| is.na(history)` is not decoration. Without it, `NaN > 0` evaluates
+    # to NA and the subsetting CONVERTS a NaN into an NA -- which erases the
+    # difference between "this epoch diverged" and "this epoch was never
+    # run". The torch paths in pilar8_neural_operators_torch.R and
+    # pilar9_diffusion_torch.R already carried the guard; the two pure-R
+    # paths did not.
+    history = history[history > 0 | is.na(history)],
     n_obs = n_obs, C_in = C_in, n_depths = n_depths
   ), class = "edaphos_no_fno")
 }
@@ -792,7 +798,7 @@ no_deeponet_fit <- function(depths, targets, covariates,
     p_in = p_in, output_dim = output_dim,
     branch_hidden = branch_hidden, trunk_hidden = trunk_hidden,
     n_obs = n_obs, n_depths = n_depths,
-    history = history[history > 0]
+    history = history[history > 0 | is.na(history)]
   ), class = "edaphos_no_deeponet")
 }
 
