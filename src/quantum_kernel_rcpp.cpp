@@ -130,10 +130,31 @@ Rcpp::NumericMatrix quantum_kernel_rcpp(Rcpp::NumericMatrix X,
     }
     const int nY = same ? nX : Ymat.nrow();
 
-    if (n > 20) {
-        Rcpp::warning("quantum_kernel_rcpp with n_qubits > 20 may exhaust RAM.");
-    }
     const size_t dim = (size_t) 1 << n;
+
+    // MEMORY GUARD, keyed on what is actually allocated.
+    //
+    // The previous guard warned when n > 20 and ignored nX entirely, while
+    // the allocation below is nX vectors of 2^n complex doubles: nX * 2^n *
+    // 16 bytes. n = 20 with nX = 1000 needs 15.6 GB and produced NO warning,
+    // because 20 is not > 20. And it warned rather than stopping, so the
+    // process went on to allocate and was killed by the OOM reaper -- which
+    // gives the user no message at all, from R's point of view a crash.
+    //
+    // The cap is deliberately generous. It exists to turn an unkillable
+    // allocation into a legible error, not to second-guess a machine with
+    // the RAM to spare.
+    const double bytes_x = (double) nX * (double) dim * (double) sizeof(cplx);
+    const double bytes_y = same ? 0.0
+                                : (double) nY * (double) dim * (double) sizeof(cplx);
+    const double gb = (bytes_x + bytes_y) / 1073741824.0;
+    if (gb > 8.0) {
+        Rcpp::stop("quantum_kernel_rcpp would allocate %.1f GB of state "
+                   "vectors (%d x %d rows at 2^%d complex doubles each). "
+                   "Reduce n_qubits, or the number of rows: memory grows "
+                   "linearly in rows and doubles with every qubit.",
+                   gb, nX, nY, n);
+    }
 
     // Pre-compute all X-states
     std::vector<std::vector<cplx>> states_X(nX, std::vector<cplx>(dim));

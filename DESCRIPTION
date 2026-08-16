@@ -34,7 +34,6 @@ URL: https://github.com/HugoMachadoRodrigues/edaphos
 BugReports: https://github.com/HugoMachadoRodrigues/edaphos/issues
 Roxygen: list(markdown = TRUE)
 Suggests:
-    abind,
     aqp,
     bnlearn,
     bslib,
@@ -47,7 +46,6 @@ Suggests:
     dplyr,
     DT,
     ecmwfr,
-    fmsb,
     geobr,
     geodata,
     ggdag,
@@ -62,7 +60,6 @@ Suggests:
     mgcv,
     ontologyIndex,
     patchwork,
-    RColorBrewer,
     reticulate,
     rmarkdown,
     scales,

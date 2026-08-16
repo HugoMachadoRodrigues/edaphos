@@ -111,7 +111,22 @@ causal_corpus_scielo <- function(query,
                                                         from = from_year)
   if (!is.null(to_year))   req <- httr2::req_url_query(req,
                                                         to = to_year)
-  resp  <- httr2::req_perform(req)
+  # FAIL GRACEFULLY, as CRAN asks of anything that reaches the network. This
+  # was a bare req_perform(): with SciELO down or unreachable the user got a
+  # raw curl condition, which says nothing about which service failed or that
+  # the failure is external. The sibling fetcher at causal_corpus_openalex()
+  # already degraded this way; the inconsistency was inside one file.
+  #
+  # An empty corpus is returned rather than an error, matching the sibling,
+  # with a warning so the emptiness is never mistaken for "SciELO has no
+  # matching articles".
+  resp <- tryCatch(httr2::req_perform(req), error = function(e) e)
+  if (inherits(resp, "condition")) {
+    warning("SciELO could not be reached (", conditionMessage(resp),
+            "); returning an empty corpus. This is a network failure, not ",
+            "an empty search result.", call. = FALSE)
+    return(.corpus_normalise_frame(list()))
+  }
   body  <- httr2::resp_body_json(resp, simplifyVector = FALSE)
   items <- body$objects %||% body$articles %||% body %||% list()
 
