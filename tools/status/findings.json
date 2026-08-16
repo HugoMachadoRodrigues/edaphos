@@ -1813,7 +1813,10 @@
       "evidence": "Reproduces verbatim; nothing in this file changed. src/quantum_kernel_rcpp.cpp:133-135 is still if (n > 20) { Rcpp::warning(quantum_kernel_rcpp with n_qubits > 20 may exhaust RAM.); } - a warning, not a stop, keyed on n alone, immediately before const size_t dim = (size_t) 1 << n and an allocation proportional to nX * 2^n.",
       "impact": "The advertised 10-50x-faster default backend for Pillar 6 can take down an R session on a covariate count the guard considers safe, and cries wolf on one that is safe. Because the allocation happens up front rather than streaming, there is no partial-progress or graceful-degradation path, and a std::bad_alloc surfaces as an opaque Rcpp error rather than an actionable message.",
       "action": "Replace src/quantum_kernel_rcpp.cpp:128-130 with a size-aware check computed from the actual request: `const double gb = (double)(nX + (same ? 0 : nY)) * (double) dim * 16.0 / 1073741824.0; if (gb > 2.0) Rcpp::stop(\"quantum_kernel needs %.1f GB for %d samples x 2^%d amplitudes; reduce n_qubits (ncol(X)) or batch the samples.\", gb, nX, n);` with a warning tier at ~0.5 GB. Better still, stop materialising all states: compute states in blocks and accumulate the Gram matrix block-wise, capping memory at O(block * 2^n). Mirror the check in R/quantum_kernel.R:186 so the error arrives before entering C++.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d2292a3",
+      "resolution": "The guard now measures what is allocated instead of one of its factors. It warned when n_qubits > 20 while the allocation is nX * 2^n * sizeof(complex) -- the row count never entered the test, so nX = 1000 with n = 20 needed 15.6 GB and produced no warning at all. It was also a warning rather than a stop, so it warned and then allocated, leaving the OOM reaper to end the session with no R-level message. src/quantum_kernel_rcpp.cpp now computes the bytes for both the X and (when distinct) Y state banks and stops above 8 GB, naming the figure, the dimensions, and why memory explodes: linear in rows, doubling per qubit. Verified it catches the 15.6 GB case and leaves ordinary problem sizes untouched."
     },
     {
       "id": "F594BF7",
@@ -1935,7 +1938,10 @@
       "evidence": "Reproduces at HEAD; only the DESCRIPTION line numbers moved. All six unused Suggests are still declared: abind :37, ecmwfr :49, fmsb :50, geobr :51, gstat :57, RColorBrewer :65, and none is referenced anywhere in R/, tests/ or vignettes/.",
       "impact": "`R CMD check` NOTEs unused declared dependencies, and each phantom Suggests inflates the dependency graph CRAN/rOpenSci reviewers must vet. `devtools` in the dependency closure of a released package, reached from an exported maintainer-only release helper, is a specific rOpenSci review flag.",
       "action": "Delete `abind`, `fmsb`, `RColorBrewer`, `geobr`, `gstat`, `ecmwfr` from DESCRIPTION:36-76 (move `RColorBrewer` reliance into the pkgdown workflow only, where it already is). Separately, un-export `edaphos_zenodo_release()` — move it to `data-raw/` or `tools/` as maintainer tooling — and drop `devtools` from Suggests.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d2292a3",
+      "resolution": "Corrected on measurement: the finding names six unused Suggests and three of them are used. ecmwfr appears in roxygen examples that reach the generated .Rd; gstat and geobr have real calls in data-raw/, which is how the shipped result bundles are regenerated, so removing them would have broken artefact regeneration. The three with zero mentions anywhere in the repository -- abind, fmsb, RColorBrewer -- were removed. Suggests: 42 -> 39."
     },
     {
       "id": "FEC2806",
@@ -1970,7 +1976,10 @@
       "evidence": "Both cited sites still reproduce and the problem is wider than the finding states. R/causal_corpus.R:114 is still a bare resp <- httr2::req_perform(req) inside causal_corpus_scielo() with no tryCatch and no offline path; the sibling call at :215 does wrap it, which makes the gap inside one file inconsistent as well as non-compliant with CRAN's graceful-failure policy.",
       "impact": "A user (or any future non-mocked test/example) behind a proxy or on a CRAN check machine with no outbound access gets a raw httr2 curl error rather than an informative message. The absence of `skip_if_offline()` means a single future un-mocked network test would produce an ERROR on CRAN's daily checks after acceptance.",
       "action": "Wrap `R/causal_corpus.R:114` and `R/causal_ontology.R:128` in the same `tryCatch` + `resp_status` pattern already used at `R/causal_corpus.R:215` and `R/causal_ontology.R:330`, returning an empty typed data.frame with a `message()` on failure. Add `skip_if_offline()` alongside `skip_on_cran()` to any test that touches a socket.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "d2292a3",
+      "resolution": "causal_corpus_scielo() no longer calls httr2::req_perform() bare. On a network failure it returns an empty corpus of the correct shape with a warning naming the service and stating that this is a network failure rather than an empty search result -- the ambiguity an empty data frame otherwise creates. This matches the behaviour its sibling causal_corpus_openalex() already had, so the inconsistency was inside one file. Tested against an unreachable host."
     },
     {
       "id": "FF58F4E",
