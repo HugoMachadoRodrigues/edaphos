@@ -45,7 +45,6 @@ jobs:
             any::ggridges
             any::ggnewscale
             any::patchwork
-            any::RColorBrewer
             any::scales
             any::tidyr
             any::dplyr

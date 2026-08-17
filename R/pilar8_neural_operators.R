@@ -376,16 +376,22 @@ no_fno_fit <- function(depths, targets, covariates,
   # Finite-difference gradient descent -- slow but dependency-free
   # and sufficient for the demo scale.  The real-world torch version
   # uses autograd.
-  param_refs <- list(
-    "W_in"  = quote(W_in),
-    "W_out" = quote(W_out),
-    "b_out" = quote(b_out)
-  )
-  # Note: for the full pure-R training we only update W_in, W_out,
-  # b_out -- the FNO spectral layers are kept at initialisation
-  # (Fourier featurisation is a hard task for a finite-difference
-  # optimiser).  This is enough to drive the loss from ~1 down to
-  # ~0.2-0.5 on typical pedons, demonstrating the architecture.
+  # WHAT IS ACTUALLY TRAINED: W_out, and nothing else.
+  #
+  # This note used to say "we only update W_in, W_out, b_out". Read the loop
+  # below: W_out is the only parameter that receives an update. W_in, b_in
+  # and b_out appear exactly once more each -- in the returned object,
+  # carrying the values they were initialised with. The spectral layers are
+  # untouched too, as the old note did say.
+  #
+  # So the pure-R path fits a linear readout over frozen random features,
+  # which is what .resolve_backend() tells the caller at run time and what
+  # the README now states. The comment claimed two more trained parameters
+  # than exist, in the flattering direction.
+  #
+  # Finite differences are a poor optimiser for Fourier featurisation, which
+  # is why the spectral layers were frozen; backend = "torch" trains the
+  # whole operator.
   for (ep in seq_len(epochs)) {
     # Gradient wrt W_out (linear; analytic)
     y_hat <- forward()

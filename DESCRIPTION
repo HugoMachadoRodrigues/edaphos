@@ -74,6 +74,10 @@ Suggests:
     tidyr,
     torch
 Config/testthat/edition: 3
+Config/Needs/website: pkgdown, DiagrammeR, ggdag, ggridges, ggnewscale,
+    patchwork, scales
+Config/Needs/check: rcmdcheck
+Config/Needs/coverage: covr, xml2
 Imports:
     clhs,
     httr2,
