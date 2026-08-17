@@ -1746,7 +1746,10 @@
       "evidence": "Verbatim unchanged. .github/workflows/pkgdown.yaml:53 still passes needs: website and .github/workflows/test-coverage.yaml:33 still passes needs: coverage to r-lib/actions/setup-r-dependencies@v2, while DESCRIPTION declares no Config/Needs/website or Config/Needs/coverage field, so both are no-ops.",
       "impact": "The DESCRIPTION does not record what the site needs, so a maintainer running `pkgdown::build_site()` locally gets missing-package errors with no manifest to consult, and the YAML list can silently diverge from what the vignettes actually import. It also hides a real gap: `igraph` is needed by four gated chunks in vignettes/pilar1-causal.Rmd (:269, :466, :491, :513, :530) and is not in the pkgdown extra-packages list -- it is only pulled in because the action's default Suggests resolution happens to include it, which is incidental rather than declared.",
       "action": "Add `Config/Needs/website: pkgdown, DiagrammeR, ggdag, ggridges, ggnewscale, patchwork, RColorBrewer, scales, tidyr, dplyr, igraph` and `Config/Needs/coverage: covr, xml2` to DESCRIPTION, then reduce pkgdown.yaml:41-52 to `extra-packages: local::.` and test-coverage.yaml:29-32 to `local::.` so the manifest lives in one place and works locally too.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "4159ebf",
+      "resolution": "DESCRIPTION now declares Config/Needs/website, Config/Needs/check and Config/Needs/coverage, so the three needs: lines in the workflows resolve to something instead of nothing. The impact of the gap was nil -- each workflow also lists its packages under extra-packages, which is why it went unnoticed -- but a declaration a reader trusts and the machine ignores breaks the day someone deletes an extra-packages line expecting Config/Needs to cover it. tests/testthat/test-ci-needs-declared.R fails on any needs: without a matching field. Also removed any::RColorBrewer from the pkgdown workflow: its only occurrence anywhere in the repository is as a word in inst/WORDLIST, the spell-checker dictionary."
     },
     {
       "id": "FAF9367",
@@ -1832,7 +1835,10 @@
       "evidence": "Left NOT_VERIFIED in July; now verified and all four sub-claims reproduce. The dead param_refs <- list(W_in = quote(W_in), W_out = quote(W_out), b_out = quote(b_out)) is still in R/pilar8_neural_operators.R, the undocumented non-dotted internal is still exported-looking in the same module, and the three comment/code contradictions across the pillar 7-10 files are intact.",
       "impact": "None of these is a live defect, but together they are the residue of four rounds of copy-paste-and-tune (v2.7.0 torch, v3.2.0 fast path, v3.5.0 rcpp, v3.8.0 errors) landing in the same four files without a cleanup pass. The equivalence comments are the most costly because they actively discourage the tests that would catch backend divergence.",
       "action": "Delete R/pilar8_neural_operators.R:226-231. Rename `unclass_to_qf` to `.unclass_to_qf` (3 call sites, all in R/bridges_structure_v3.R:211/:215/:224) and add `@noRd` as the house convention. Fix the R/pilar8_neural_operators.R:202 comment to say \"leaky ReLU\" and note in the roxygen that the pure-R FNO uses leaky ReLU while the DeepONet path uses GELU. Downgrade the three equivalence claims to what the tests actually assert, and cite the specific tolerance.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "4159ebf",
+      "resolution": "One of the four sub-claims was real and is fixed; the rest are corrected on measurement. THE REAL ONE: the pure-R FNO trainer's comment read 'we only update W_in, W_out, b_out' while the loop updates W_out and nothing else -- W_in, b_in and b_out appear once more each, in the returned object, carrying their initialised values. It claimed two more trained parameters than exist, in the flattering direction, and now describes what the code does. THE DEAD CODE was real: param_refs was built from three quote() calls and never read; removed. THE OTHER TWO CONTRADICTIONS do not hold: Pillar 9 says 'SGD on last layer only (W3, b3), hidden layers randomly initialised' and does exactly that, and the DeepONet path updates W_b2/b_b2/W_t2/b_t2 under a runtime message saying it 'freezes the branch/trunk hidden layers and trains a random-feature readout', which is exact. THE NON-DOTTED INTERNALS were mostly false positives of my own check: three of four candidates are S3 methods registered via S3method(), one under a ggplot2:: prefix; the two genuine ones are both called, which is a convention inconsistency rather than a defect."
     },
     {
       "id": "FA36407",
@@ -1879,13 +1885,16 @@
       "effort": "days",
       "severity_reported": "low",
       "severity_verified": null,
-      "verdict": "NOT_VERIFIED",
+      "verdict": "REFUTED",
       "correction": null,
       "duplicate_of_another": false,
       "evidence": "Left NOT_VERIFIED in July; verified now, and every count in the evidence has grown. NAMESPACE holds 178 export() (was 169) and 79 S3method() (was 73) plus 1 importFrom(), i.e. 257 registered entries, over 74 files in R/. The internal-looking primitives the finding names are still exported.",
       "impact": "The wide surface is the main reason a single-author CRAN/rOpenSci submission of this package will be slow to review: a reviewer cannot form an opinion on 169 functions. Every export is also a permanent deprecation obligation.",
       "action": "Before submission, demote the clear primitives to internal (`temporal_convlstm_cell`, `qf_embed_reduce`, `quantum_scale`) or document them under `@keywords internal`, and move `edaphos_zenodo_release` and the three `benchmark_fit_p*` harnesses out of the public API (inst/ or a companion package). Target a first-release surface of ~100 exports and add the rest on demand. Separately, split R/foundation_moco.R into foundation_moco_augment.R (:117-206) and foundation_moco.R, and consider a shared `.print_edaphos_fit(x, fields)` helper in R/core_utils.R to collapse the 42 print methods.",
-      "evidence_refreshed_at": "2026-08-12"
+      "evidence_refreshed_at": "2026-08-12",
+      "resolved": true,
+      "resolved_in": "4159ebf",
+      "resolution": "withdrawn: Measured rather than judged, and the premises do not hold. The finding cites 169 exports and 73 S3 methods for 19.7k LOC; today it is 178 exports and 79 S3 methods over 30,970 lines in R/, i.e. one export per 174 lines, which is unremarkable. More to the point, the surface is not dead weight: 176 of 178 exports are referenced in tests, vignettes, data-raw or the README, and the remaining two (piml_neural_ode_predict, temporal_convlstm_predict) are exercised through roxygen examples and an internal call. Everything exported is documented and reached by something. The API is wide, and narrowing it is a design decision that would break users; no measured defect justifies it, so this is recorded as a design observation rather than closed as if something had been fixed."
     },
     {
       "id": "F363935",
