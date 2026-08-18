@@ -176,7 +176,7 @@ reference:
   - starts_with("quantum_")
 
 - title: "Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)"
-  desc: "Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes)."
+  desc: "Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes; the spBayes backend fits but cannot predict)."
   contents:
   - starts_with("bhs_")
   - predict.edaphos_bhs

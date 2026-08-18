@@ -126,9 +126,18 @@ What happens:
 
 * The four `NA_character_` placeholders in
   `R/foundation_weights.R` (URL / SHA256 / DOI / published_at)
-  are replaced by your real values.
+  are replaced by your real values, each anchored inside its own
+  `field = c(...)` block rather than by position.
 * Diff is tiny (4 single-line substitutions); review with
   `git diff R/foundation_weights.R` before committing.
+* The script now ASSERTS that end state before exiting. Until this was
+  fixed it promised those four substitutions and performed two: the
+  match patterns escaped the apostrophe in "user's" as `\'`, which
+  matches nothing, so the URL and DOI writes silently did nothing and a
+  positional fallback then wrote the timestamp into the `url` field. The
+  result was still valid R, so the script exited 0 with the registry
+  corrupted. If it stops with "still holds NA_character_", that is the
+  new guard doing its job.
 * The script prints the suggested follow-up commands:
 
     Rscript -e 'devtools::document(); devtools::test()'

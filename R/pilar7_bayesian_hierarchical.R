@@ -40,7 +40,11 @@
 #   backend = "spBayes" : dispatches to `spBayes::spLM` when the
 #                          Suggests-only package is installed --
 #                          runs the full Bayesian spatial linear
-#                          model with phi MCMC.
+#                          model with phi MCMC.  FITS BUT DOES NOT
+#                          PREDICT: predict.edaphos_bhs() refuses on
+#                          this backend, so the object is good for
+#                          posterior inspection and not for kriging.
+#                          bhs_fit() warns before sampling.
 #   backend = "stan"    : not implemented.
 #
 # References
@@ -65,9 +69,16 @@
 #' @param formula A `response ~ covariates` formula.
 #' @param coords Character length-2 (default `c("lon", "lat")`) giving
 #'   the coordinate columns.
-#' @param backend One of `"gibbs"` (pure-R Gibbs sampler, default,
-#'   no external deps), `"spBayes"` (dispatches to `spBayes::spLM`
-#'   when available).
+#' @param backend One of `"gibbs"` (pure-R Gibbs sampler, default, no
+#'   external deps), `"rcpp"` (the same sampler with an RcppArmadillo inner
+#'   loop), or `"spBayes"` (dispatches to `spBayes::spLM` when available).
+#'
+#'   **`"spBayes"` fits but cannot predict.** [predict.edaphos_bhs()] refuses
+#'   on that backend, so a fit made with it supports posterior inspection --
+#'   `beta_draws`, `sigma2_draws`, `tau2_draws`, `print()`, the spatial
+#'   variance share -- but not kriging at new sites. `bhs_fit()` warns about
+#'   this before it starts sampling rather than after. Use `"gibbs"` or
+#'   `"rcpp"` if you need predictions.
 #' @param nmcmc Integer; number of MCMC iterations.  Default `2000L`.
 #' @param burn Integer; burn-in to discard.  Default `nmcmc %/% 2`.
 #' @param thin Integer; keep every `thin`-th post-burn draw.  Default `1L`.
@@ -304,6 +315,23 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
   if (backend == "spBayes") {
     if (!requireNamespace("spBayes", quietly = TRUE))
       stop("Install `spBayes` to use backend = 'spBayes'.", call. = FALSE)
+    # SAY IT BEFORE THE SAMPLER, NOT AFTER.
+    #
+    # predict.edaphos_bhs() refuses on this backend. Until now the refusal
+    # arrived after spLM() had run nmcmc iterations (2000 by default) and
+    # spRecover() had reconstructed the latent field -- so a user asking for
+    # predictions paid the whole fit to be told it cannot serve them.
+    #
+    # The fit itself is NOT refused, because it is genuinely useful: this
+    # branch returns beta_draws, sigma2_draws and tau2_draws in a full
+    # edaphos_bhs object, which print(), the spatial-variance summary and any
+    # posterior inspection can use. Only prediction is missing, so only
+    # prediction is warned about.
+    warning("backend = 'spBayes' fits, but predict() is not implemented for ",
+            "it: the fit returns posterior draws you can inspect, and ",
+            "kriging at new sites needs backend = 'gibbs' or 'rcpp'. ",
+            "Warned before sampling rather than after.", call. = FALSE)
+
     # Dispatch to spBayes::spLM
     fit <- spBayes::spLM(
       formula = formula, data = data, coords = S,

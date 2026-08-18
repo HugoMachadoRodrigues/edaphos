@@ -29,9 +29,16 @@ coordinates.}
 \item{coords}{Character length-2 (default \code{c("lon", "lat")}) giving
 the coordinate columns.}
 
-\item{backend}{One of \code{"gibbs"} (pure-R Gibbs sampler, default,
-no external deps), \code{"spBayes"} (dispatches to \code{spBayes::spLM}
-when available).}
+\item{backend}{One of \code{"gibbs"} (pure-R Gibbs sampler, default, no
+external deps), \code{"rcpp"} (the same sampler with an RcppArmadillo inner
+loop), or \code{"spBayes"} (dispatches to \code{spBayes::spLM} when available).
+
+\strong{\code{"spBayes"} fits but cannot predict.} \code{\link[=predict.edaphos_bhs]{predict.edaphos_bhs()}} refuses
+on that backend, so a fit made with it supports posterior inspection --
+\code{beta_draws}, \code{sigma2_draws}, \code{tau2_draws}, \code{print()}, the spatial
+variance share -- but not kriging at new sites. \code{bhs_fit()} warns about
+this before it starts sampling rather than after. Use \code{"gibbs"} or
+\code{"rcpp"} if you need predictions.}
 
 \item{nmcmc}{Integer; number of MCMC iterations.  Default \code{2000L}.}
 
