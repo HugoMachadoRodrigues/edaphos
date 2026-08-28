@@ -709,9 +709,11 @@ Three additions promote the extractor from demo to literature-scale:
   wall-clock speedup at `max_active = 5`, near-instant on re-runs.
 
 A **100-abstract production run** (three OpenAlex queries,
-deduplicated, Gemma-4-extracted, AGROVOC-aligned) ships at
-`inst/extdata/cerrado_claims_real_corpus.jsonl` and is reproduced
-end-to-end by `data-raw/run_large_corpus.R`.
+deduplicated, Gemma-4-extracted, AGROVOC-aligned) is reproduced
+end-to-end by `data-raw/run_large_corpus.R`, which builds the corpus
+into your own cache. The corpus is **not shipped**: its evidence
+strings are verbatim extracts from copyrighted journal abstracts,
+which this package cannot redistribute under MIT.
 
 #### 🗳️ Multi-extractor LLM voting
 
@@ -2148,7 +2150,6 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `llm_benchmark_results.rds`                   |  ~10 KB | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)          | `articles/llm-kg-benchmark`†      |
 | `cerrado_abstracts.jsonl`                     |   ~5 KB | 10 curated Cerrado-pedology abstracts                                       | `pilar1-causal`                   |
 | `cerrado_claims.jsonl`                        |   ~8 KB | Gemma-4-extracted causal claims from the 10 abstracts                       | `pilar1-causal`                   |
-| `cerrado_claims_real_corpus.jsonl`            |  ~94 KB | **100-abstract production corpus** (OpenAlex + SciELO)                      | `data-raw/run_large_corpus.R`     |
 
 † These four are **not vignettes**. Their sources live in the
 repository's top-level `articles/` directory, which is `.Rbuildignore`d

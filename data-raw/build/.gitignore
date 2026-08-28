@@ -1,0 +1,4 @@
+# Build-time intermediates. Never move these into inst/extdata: several
+# carry per-record third-party measurements.
+*
+!.gitignore

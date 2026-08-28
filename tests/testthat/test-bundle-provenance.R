@@ -141,7 +141,7 @@ LEGACY_UNPROVENANCED <- c(
   "causal_sensitivity_cerrado.rds", "interval_width_vs_extrapolation.rds",
   "llm_benchmark_results.rds", "pilar10_gat_tuning.rds",
   "piml_coverage.rds", "piml_depth_benchmark.rds",
-  "piml_parameter_variograms.rds", "piml_prior_sensitivity.rds",
+  "piml_prior_sensitivity.rds",
   "piml_wosis_cerrado.rds", "temporal_cerrado_results.rds"
 )
 

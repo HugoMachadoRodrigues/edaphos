@@ -28,7 +28,7 @@ suppressMessages(library(dplyr))
 set.seed(20260501L)
 
 OUT_PATH  <- file.path("inst", "extdata", "benchmark_wosis_6pilar.rds")
-V280_PATH <- file.path("inst", "extdata", "benchmark_wosis_p4_p5_p7.rds")
+V280_PATH <- file.path("data-raw", "build", "benchmark_wosis_p4_p5_p7.rds")
 DAG_RDS   <- file.path("inst", "extdata", "causal_cerrado_real.rds")
 
 # ---------------------------------------------------------------------------
@@ -102,7 +102,8 @@ message(sprintf("  profile years: %g-%g (median %g, %d missing)",
 
 v280 <- tryCatch(readRDS(V280_PATH), error = function(e) NULL)
 if (is.null(v280))
-  stop("v2.8.0 benchmark RDS missing; run data-raw/benchmark_wosis_p4_p5_p7.R first.")
+  stop("v2.8.0 benchmark RDS missing at data-raw/build/; run ",
+       "data-raw/benchmark_wosis_p4_p5_p7.R first.")
 # Reuse the IDENTICAL buffered split P4/P5/P7 were scored on. Three methods on
 # buffered folds and three on unbuffered would not be a matched benchmark.
 SF <- v280$spatial_folds
@@ -367,7 +368,7 @@ print(pooled_tbl)
 message("=== [5/7] Saving combined bundle ===")
 R_out <- list(
   # Binds this bundle to the script that made it: see R/provenance.R.
-  # This bundle MERGES inst/extdata/benchmark_wosis_p4_p5_p7.rds, so it is
+  # This bundle MERGES data-raw/build/benchmark_wosis_p4_p5_p7.rds, so it is
   # stale whenever that one is re-run -- which is exactly what happened when
   # P7 stopped scoring a Gaussian refit of its own posterior.
   provenance = edaphos_provenance(script = "data-raw/benchmark_wosis_6pilar.R"),

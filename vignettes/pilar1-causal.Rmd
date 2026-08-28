@@ -444,9 +444,11 @@ kg <- causal_llm_ingest_corpus(
 length(attr(kg, "failed"))
 ```
 
-A bundled 100-abstract Cerrado run ships with the package as
-`inst/extdata/cerrado_claims_real_corpus.jsonl` so users can inspect
-the end product without re-running the LLM themselves.
+A 100-abstract Cerrado run is reproducible via
+`data-raw/run_large_corpus.R`, which writes the corpus into your own
+cache. It is not bundled: the extracted evidence strings are verbatim
+text from copyrighted abstracts, so the package cannot redistribute
+them.
 
 ### 10.3 Live AGROVOC alignment
 

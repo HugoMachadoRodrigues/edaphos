@@ -12,14 +12,16 @@
 ## MCMC posterior (P7 Gibbs); we unify them through the v1.6.0
 ## `edaphos_posterior` class and score with `uncertainty_calibrate()`.
 ##
-## Output: inst/extdata/benchmark_wosis_p4_p5_p7.rds
+## Output: data-raw/build/benchmark_wosis_p4_p5_p7.rds  (build-time
+##         intermediate -- NOT shipped; it carries the 1095-value measured
+##         truth vector, so it must never re-enter inst/extdata/)
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
 suppressMessages(library(dplyr))
 set.seed(20260424L)
 
-OUT_PATH <- file.path("inst", "extdata", "benchmark_wosis_p4_p5_p7.rds")
+OUT_PATH <- file.path("data-raw", "build", "benchmark_wosis_p4_p5_p7.rds")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Load the 1 095 real WoSIS Cerrado profiles
