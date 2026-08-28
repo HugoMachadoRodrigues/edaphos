@@ -120,15 +120,11 @@ retrieval and cleaning pipeline is `data-raw/causal_cerrado_real_rebuild.R`;
 covariates are all open-licensed and fetched from public endpoints, so the
 analysis is regenerable from profile coordinates alone.
 
-```{r data-map, echo = FALSE, fig.height = 3.6, fig.cap = "Topsoil organic carbon (g/kg) at the WoSIS Cerrado profiles used in the causal analysis. Colour is on a square-root scale to show the long right tail."}
-p <- CAU$profiles
-op <- par(mar = c(4, 4, 1, 1))
-cols <- hcl.colors(32, "YlOrBr", rev = TRUE)
-ci <- cut(sqrt(p$soc), 32, labels = FALSE)
-plot(p$lon, p$lat, pch = 19, cex = 0.35, col = cols[ci],
-     xlab = "Longitude", ylab = "Latitude")
-par(op)
-```
+> **The profile map is not reproduced here.** It plotted the coordinates of
+> the WoSIS profiles used in the causal analysis. `edaphos` distributes no
+> third-party soil data, so the coordinates are not in the package; the
+> aggregate results below are unaffected.
+
 
 ## A unified posterior and calibration interface
 

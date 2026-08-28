@@ -147,57 +147,33 @@ stopifnot(nzchar(results_path), file.exists(results_path))
 R <- readRDS(results_path)
 ```
 
-## 3. The dataset: `r nrow(R$profiles)` real Cerrado topsoil profiles
+## 3. The dataset: `r R$dataset_summary$n_profiles` real Cerrado topsoil profiles
 
 After the v1.3.1 quality gates — `upper_depth == 0 AND lower_depth ≤ 10 cm`
 (genuine 0–10 cm topsoil), `positional_uncertainty ≤ 500 m`, and
 fully observed covariates — the benchmark works with
-**`r nrow(R$profiles)`** SOC observations from
-**`r length(unique(R$profiles$dataset_id))`** independent Brazilian
+**`r R$dataset_summary$n_profiles`** SOC observations from
+**`r R$dataset_summary$n_datasets`** independent Brazilian
 soil surveys, ranging from
-**`r min(R$profiles$year, na.rm = TRUE)`** to
-**`r max(R$profiles$year, na.rm = TRUE)`**:
+**`r R$dataset_summary$year_min`** to
+**`r R$dataset_summary$year_max`**:
 
 ```{r dataset-table, echo = FALSE}
-R$profiles |>
-  dplyr::group_by(dataset_id) |>
-  dplyr::summarise(
-    n_profiles = dplyr::n(),
-    year_min   = suppressWarnings(min(year, na.rm = TRUE)),
-    year_max   = suppressWarnings(max(year, na.rm = TRUE)),
-    soc_median_gkg = round(stats::median(soc_topsoil_gkg), 1L),
-    .groups = "drop"
-  ) |>
-  dplyr::arrange(dplyr::desc(n_profiles)) |>
-  knitr::kable(caption = "WoSIS profile counts per underlying Brazilian survey.")
+knitr::kable(R$dataset_summary$by_dataset,
+             caption = "WoSIS profile counts per underlying Brazilian survey.")
 ```
 
-```{r map, echo = FALSE, fig.cap = "Real WoSIS 0–10 cm topsoil profiles inside the Cerrado biome. Colour = SOC (g/kg). Points coloured by 5-fold CV fold (k-means on longitude/latitude)."}
-prof_sf <- sf::st_as_sf(R$profiles, coords = c("lon", "lat"), crs = 4326)
-aoi_sf  <- R$aoi
-ggplot() +
-  geom_sf(data = aoi_sf, fill = "grey92", colour = "grey60",
-          linewidth = 0.2) +
-  geom_sf(data = prof_sf,
-          aes(colour = soc_topsoil_gkg, shape = factor(fold)),
-          size = 1.4, alpha = 0.85) +
-  scale_colour_viridis_c(option = "magma", direction = -1,
-                          name = "SOC\n(g/kg)",
-                          trans = "sqrt") +
-  scale_shape_manual(values = c(16L, 17L, 15L, 18L, 8L),
-                      name = "CV fold") +
-  coord_sf(crs = 4326) +
-  labs(title = "Cerrado 0–10 cm WoSIS topsoil profiles used in the benchmark",
-       subtitle = "Biome polygon: IBGE 1:250000 via geobr. SOC: WoSIS 2019 (CC-BY-4.0).") +
-  theme_minimal(base_size = 11) +
-  theme(panel.grid.major = element_line(linewidth = 0.2))
-```
+> **The profile map is not reproduced here.** It plotted the coordinates of
+> 1,095 real WoSIS survey sites, which this package no longer distributes.
+> Fetch the profiles yourself and the map is one `sf::st_as_sf()` call away;
+> `data-raw/case_cerrado_prepare.R` shows the query.
+
 
 Evaluation uses **5-fold spatial cross-validation** — k-means clustering
 on longitude/latitude assigns each profile to one of 5 folds, and each
 fold serves as the test set exactly once. This is strictly better than
 the single 80/20 split shipped in v1.3.0: every profile contributes a
-held-out prediction, so the `r nrow(R$profiles)` pooled predictions give
+held-out prediction, so the `r R$dataset_summary$n_profiles` pooled predictions give
 metrics whose binomial CI is much tighter than the 60-point test set we
 had before.  (This paragraph said 302 for four releases; the artefact
 pools every profile.)
@@ -229,29 +205,18 @@ knitr::kable(tbl,
 
 ### 4.2 Observed vs predicted
 
-```{r obs-vs-pred, echo = FALSE, fig.cap = "Observed vs cross-validated predicted topsoil SOC, every profile shown once. Dashed grey line is the 1:1. Closer points = better prediction."}
-prof <- R$profiles
-make_df <- function(label, pred) {
-  ok <- is.finite(pred)
-  data.frame(method = label,
-             obs   = prof$soc_topsoil_gkg[ok],
-             pred  = pred[ok])
-}
-long <- dplyr::bind_rows(
-  make_df("B1 ranger",              R$predictions$B1$mean),
-  make_df("B2 ranger + kriging",    R$predictions$B2$mean),
-  make_df(R$results$method[3L],     R$predictions$E$mean)
-)
-ggplot(long, aes(obs, pred, colour = method)) +
-  geom_abline(intercept = 0, slope = 1, linetype = 2, colour = "grey50") +
-  geom_point(alpha = 0.55, size = 1.3) +
-  facet_wrap(~ method, nrow = 1) +
-  coord_fixed() +
-  scale_colour_brewer(palette = "Set1", guide = "none") +
-  labs(x = "observed SOC (g/kg)", y = "predicted SOC (g/kg)") +
-  theme_minimal(base_size = 11) +
-  theme(strip.text = element_text(face = "bold"))
+```{r results-table, echo = FALSE}
+knitr::kable(R$results, digits = 3,
+             caption = paste("Cross-validated scores on the", 
+                             R$dataset_summary$n_profiles,
+                             "profiles. Computed when the bundle was built;",
+                             "the per-profile observations are not shipped."))
 ```
+
+> **The observed-vs-predicted scatter is not reproduced here.** It needed the
+> measured SOC of every profile, which is the third-party data this package
+> stopped bundling. The scores above are the same run, summarised.
+
 
 ### 4.3 Prediction-interval calibration
 
@@ -307,32 +272,12 @@ The final diagnostic is spatial: residuals should look like white
 noise, with no systematic Cerrado region where every stack
 overshoots or undershoots.
 
-```{r residual-map, echo = FALSE, fig.cap = "Cross-validated residuals (observed - predicted) for each stack. Blue = under-prediction, red = over-prediction. Large coloured clusters indicate unresolved covariate gaps that all three methods share.", fig.height = 5.2}
-res_df <- dplyr::bind_rows(
-  data.frame(method = "B1 ranger",
-             lon = prof$lon, lat = prof$lat,
-             resid = prof$soc_topsoil_gkg - R$predictions$B1$mean),
-  data.frame(method = "B2 ranger + kriging",
-             lon = prof$lon, lat = prof$lat,
-             resid = prof$soc_topsoil_gkg - R$predictions$B2$mean),
-  data.frame(method = R$results$method[3L],
-             lon = prof$lon, lat = prof$lat,
-             resid = prof$soc_topsoil_gkg - R$predictions$E$mean)
-)
-res_df <- res_df[is.finite(res_df$resid), , drop = FALSE]
-res_sf <- sf::st_as_sf(res_df, coords = c("lon", "lat"), crs = 4326)
-ggplot() +
-  geom_sf(data = R$aoi, fill = "grey94", colour = "grey60",
-          linewidth = 0.2) +
-  geom_sf(data = res_sf, aes(colour = resid), size = 1.3, alpha = 0.9) +
-  facet_wrap(~ method, nrow = 1) +
-  scale_colour_gradient2(low = "#2c7bb6", mid = "grey95",
-                          high = "#d7191c", midpoint = 0,
-                          name = "residual\n(g/kg)") +
-  coord_sf(crs = 4326) +
-  theme_minimal(base_size = 10) +
-  theme(strip.text = element_text(face = "bold"))
-```
+> **The residual map is not reproduced here.** Residuals are
+> `observed - predicted`, and the observed values are the measured SOC of
+> 1,095 real WoSIS profiles -- the third-party data this package stopped
+> bundling. The predictions survive in `R$predictions`; fetch the profiles and
+> the map is a `dplyr::bind_rows()` away.
+
 
 ## 5. Honest reading of the numbers
 
@@ -380,7 +325,7 @@ cat(paste(txt, collapse = "\n"), "\n")
 
 ## 6. What we learned
 
-1. **The `r nrow(R$profiles)`-profile Cerrado dataset** — SOC in g/kg of
+1. **The `r R$dataset_summary$n_profiles`-profile Cerrado dataset** — SOC in g/kg of
    the surface-anchored horizon, `upper_depth == 0` with `lower_depth`
    between 5 and 30 cm — is a publicly
    reproducible benchmark, built entirely from CC-BY-4.0 data and

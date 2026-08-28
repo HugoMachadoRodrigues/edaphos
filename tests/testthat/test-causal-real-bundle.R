@@ -11,16 +11,15 @@ test_that("the real causal bundle is present and well-formed", {
   skip_if(bpath == "", "causal_cerrado_real_v2.rds not installed")
   b <- readRDS(bpath)
   expect_identical(b$schema_version, 2L)
-  expect_equal(b$n_profiles, nrow(b$profiles))
-  expect_gt(b$n_profiles, 3000L)                       # real WoSIS Cerrado sample
-  expect_true(all(c("lon","lat","soc","mat","map","elev","slope",
-                    "clay","sand","bdod","trees") %in% names(b$profiles)))
-  expect_true(all(is.finite(b$profiles$soc)) &&
-              min(b$profiles$soc) >= 0 && max(b$profiles$soc) < 500)
+  expect_gt(b$n_profiles, 3000L)   # the size of the pull the analysis used
+  # $profiles itself is no longer shipped -- it was the pull.
+  expect_null(b$profiles)
+  expect_true(all(c("effects", "iv", "simpson", "encoder") %in% names(b)))
 })
 
 test_that("shipped backdoor betas are reproduced from the shipped profiles", {
   skip_if(bpath == "", "bundle not installed")
+  skip_if_stripped("causal_cerrado_real_v2", "profiles")
   b <- readRDS(bpath)
   d <- b$profiles
   # align to the DAG node names the effects table records

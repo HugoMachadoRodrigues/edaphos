@@ -48,6 +48,7 @@ test_that("the PTF barely beats a constant, which is the paper's claim", {
 
 test_that("the PTF's application error exceeds its cross-validated error", {
   S <- bundle("piml_stock_at_scale.rds")
+  skip_if_stripped("piml_stock_at_scale", "price")
   pr <- S$price
   applied <- sqrt(mean((pr$bd_ptf - pr$bd)^2)) / mean(pr$bd)
   # This is the sentence the paper rests on: a CV error estimated inside one

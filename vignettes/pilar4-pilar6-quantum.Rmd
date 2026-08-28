@@ -90,6 +90,12 @@ Corre sobre o `br_cerrado` que acompanha o pacote — sem rede, sem torch,
 sem qiskit, em cerca de um décimo de segundo.
 
 ```{r api-worked, eval = TRUE}
+# The setup chunk sets eval = FALSE globally, so any chunk that would have
+# attached the package never runs. Attach it here, in the first chunk that
+# does: without this the vignette depends on `data()` finding br_cerrado by
+# scanning every installed library, which holds under R CMD build and not
+# under R CMD check.
+library(edaphos)
 data(br_cerrado)
 set.seed(1)
 i <- sample(nrow(br_cerrado), 60)

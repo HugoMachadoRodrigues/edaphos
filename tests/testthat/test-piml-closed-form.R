@@ -243,6 +243,7 @@ test_that("causal_dag_test falsifies the shipped graph on both tests", {
   skip_if_not_installed("dagitty")
   f <- system.file("extdata", "causal_cerrado_real_v2.rds", package = "edaphos")
   skip_if(f == "", "causal bundle not installed")
+  skip_if_stripped("causal_cerrado_real_v2", "profiles")
   d <- readRDS(f)$profiles
   d$soc_topsoil_gkg <- d$soc; d$wc_bio_01 <- d$mat; d$wc_bio_12 <- d$map
   d$wc_landcover_trees <- d$trees; d$soilgrids_clay <- d$clay
@@ -396,19 +397,24 @@ test_that("the depth benchmark's domain stratifier does not read the test horizo
   f <- system.file("extdata", "piml_depth_benchmark.rds", package = "edaphos")
   skip_if(f == "", "depth benchmark not installed")
   B <- readRDS(f)
-  r <- B$rows[B$rows$task == "extrapolation", ]
-  expect_true(all(c("monotone", "monotone_full_profile") %in% names(r)))
+  # $rows carried the per-profile measurements and was removed; the same three
+  # facts are read off $domain_leak_table, the 2x2 it was tabulated into.
+  lt <- B$domain_leak_table
+  expect_identical(dim(lt), c(2L, 2L))
+  train_only   <- sum(lt["TRUE", ])
+  full_profile <- sum(lt[, "TRUE"])
   # The leak-free criterion is judged on fewer horizons, so it can only be
   # MORE permissive: every profile monotone over its whole record is monotone
   # over the record minus its last horizon.
-  expect_gte(sum(r$monotone), sum(r$monotone_full_profile))
-  expect_equal(sum(r$monotone_full_profile & !r$monotone), 0L)
+  expect_gte(train_only, full_profile)
+  expect_equal(unname(lt["FALSE", "TRUE"]), 0L)
   # And the difference is not empty -- if it were, there was nothing to fix.
-  expect_gt(sum(r$monotone & !r$monotone_full_profile), 0L)
-  # The leaking criterion admits only profiles whose held-out horizon behaves,
-  # which is what made it a leak.
-  jump <- abs(r$obs - r$copy_near)
-  expect_lt(max(jump[r$monotone_full_profile]), max(jump[r$monotone]))
+  expect_gt(unname(lt["TRUE", "FALSE"]), 0L)
+})
+
+test_that("the leaking criterion admits only profiles whose horizon behaves", {
+  # This one compared the held-out jump per profile, which needed $rows.
+  skip_if_stripped("piml_depth_benchmark", "rows")
 })
 
 test_that("the external anchors are stored with the sign and strength measured", {

@@ -148,12 +148,12 @@ Horizon boundaries are known, so the model is matched to the layer
 average of each horizon rather than to a point at its mid-depth.
 
 ```{r single-fit}
-W <- readRDS(system.file("extdata", "piml_wosis_cerrado.rds",
-                         package = "edaphos"))
-# the deepest, most completely described profile inside the model's domain
-cand <- W$profiles[W$profiles$monotone_decreasing, ]
+# Simulated profiles: this package ships no real soil data.
+# See `edaphos_example_profiles()` for how these values are generated.
+cand <- edaphos_example_profiles()
 cand <- cand[order(-cand$n_hor, -cand$z_max), ]
-pedon <- W$horizons[W$horizons$profile_id == cand$profile_id[1], ]
+H <- edaphos_example_profiles(what = "horizons")
+pedon <- H[H$profile_id == cand$profile_id[1], ]
 pedon <- pedon[order(pedon$top), ]
 pedon[, c("top", "bottom", "soc_g_kg")]
 

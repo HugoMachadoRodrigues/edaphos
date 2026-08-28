@@ -40,13 +40,8 @@ test after large-scale spatial structure has been removed.
 }
 \examples{
 if (requireNamespace("dagitty", quietly = TRUE)) {
-  CAU <- readRDS(system.file("extdata", "causal_cerrado_real_v2.rds",
-                             package = "edaphos"))
-  d <- CAU$profiles
-  # the bundle stores short names; the graph uses the long ones
-  d$soc_topsoil_gkg <- d$soc; d$wc_bio_01 <- d$mat; d$wc_bio_12 <- d$map
-  d$wc_landcover_trees <- d$trees; d$soilgrids_clay <- d$clay
-  d$soilgrids_sand <- d$sand; d$soilgrids_bdod <- d$bdod
+  # Simulated profiles, already using the graph's own column names.
+  d <- edaphos_example_profiles()
 
   tst <- causal_dag_test(causal_cerrado_real_dag(), d)
   tst

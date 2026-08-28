@@ -7,9 +7,9 @@
 causal_cerrado_real_dag()
 }
 \value{
-A \code{dagitty} DAG whose nodes match the column names of the
-\code{profiles} data frame in
-\code{inst/extdata/case_cerrado_results.rds}.
+A \code{dagitty} DAG whose nodes match the covariate column names
+returned by \code{\link[=edaphos_example_profiles]{edaphos_example_profiles()}}, which are in turn the names
+used by the WoSIS/SoilGrids/WorldClim covariate stack.
 }
 \description{
 Structural causal model over the exact covariate column names that
@@ -46,12 +46,11 @@ land-cover fractions are the dominant single factor.}
 \examples{
 if (requireNamespace("dagitty", quietly = TRUE)) {
   dag  <- causal_cerrado_real_dag()
-  prof <- readRDS(system.file("extdata", "case_cerrado_results.rds",
-                              package = "edaphos"))$profiles
+  prof <- edaphos_example_profiles()
 
-  # The whole point of this DAG: all of its nodes are real columns
-  # of the WoSIS case-study table, whereas the schematic
-  # causal_cerrado_dag() shares only two names with it.
+  # The whole point of this DAG: all of its nodes are columns of the
+  # covariate table, whereas the schematic causal_cerrado_dag() shares
+  # only two names with it.
   print(all(names(dag) \%in\% names(prof)))
   print(intersect(names(causal_cerrado_dag()), names(prof)))
 

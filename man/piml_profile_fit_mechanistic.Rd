@@ -90,10 +90,10 @@ and it is not testable from a single profile.
 }
 
 \examples{
-# A real WoSIS Cerrado profile shipped with the package.
-D <- readRDS(system.file("extdata", "piml_wosis_cerrado.rds",
-                         package = "edaphos"))
-h <- D$horizons[D$horizons$profile_id == D$profiles$profile_id[1], ]
+# A simulated Cerrado-shaped profile. This package ships no real soil
+# data; see [edaphos_example_profiles()] for what these values are.
+H <- edaphos_example_profiles(what = "horizons")
+h <- H[H$profile_id == H$profile_id[1], ]
 fit <- piml_profile_fit_mechanistic(h$depth_mid, h$soc_g_kg,
                                     top = h$top, bottom = h$bottom)
 fit

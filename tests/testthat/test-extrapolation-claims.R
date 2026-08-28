@@ -23,15 +23,16 @@ bundle_extra <- function() {
 
 test_that("the extrapolation bundle has the shape the manuscript reads", {
   E <- bundle_extra()
-  expect_true(all(c("per_profile", "summary", "n_folds", "buffer_km") %in%
+  expect_true(all(c("by_distance", "summary", "n_folds", "buffer_km") %in%
                     names(E)))
   expect_setequal(E$summary$method, c("P7", "P5", "P10"))
   expect_true(all(c("width_rho", "width_p", "width_rho_pc", "error_rho",
                     "error_p") %in% names(E$summary)))
 
-  # every held-out profile is scored, and the buffer is honoured
-  expect_gt(nrow(E$per_profile), 1000)
-  expect_gte(min(E$per_profile$d_km), E$buffer_km)
+  # every held-out profile is still counted, and the buffer is honoured --
+  # now through the distance bands rather than the per-profile rows
+  expect_gt(sum(E$by_distance$n), 1000)
+  expect_gte(min(E$by_distance$d_km_mid), E$buffer_km)
 })
 
 test_that("the geostatistical interval widens with distance and the graph one does not", {

@@ -153,21 +153,20 @@ causal_cerrado_dag <- function() {
 #'     land-cover fractions are the dominant single factor.}
 #' }
 #'
-#' @return A `dagitty` DAG whose nodes match the column names of the
-#'   `profiles` data frame in
-#'   `inst/extdata/case_cerrado_results.rds`.
+#' @return A `dagitty` DAG whose nodes match the covariate column names
+#'   returned by [edaphos_example_profiles()], which are in turn the names
+#'   used by the WoSIS/SoilGrids/WorldClim covariate stack.
 #' @seealso [causal_cerrado_dag()] for the short-label schematic
 #'   version; [causal_adjustment_set()] and
 #'   [causal_estimate_effect()] for identification + estimation.
 #' @examples
 #' if (requireNamespace("dagitty", quietly = TRUE)) {
 #'   dag  <- causal_cerrado_real_dag()
-#'   prof <- readRDS(system.file("extdata", "case_cerrado_results.rds",
-#'                               package = "edaphos"))$profiles
+#'   prof <- edaphos_example_profiles()
 #'
-#'   # The whole point of this DAG: all of its nodes are real columns
-#'   # of the WoSIS case-study table, whereas the schematic
-#'   # causal_cerrado_dag() shares only two names with it.
+#'   # The whole point of this DAG: all of its nodes are columns of the
+#'   # covariate table, whereas the schematic causal_cerrado_dag() shares
+#'   # only two names with it.
 #'   print(all(names(dag) %in% names(prof)))
 #'   print(intersect(names(causal_cerrado_dag()), names(prof)))
 #'

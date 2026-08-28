@@ -18,6 +18,7 @@ bundle_cov <- function() {
 
 test_that("the interval is scored on a held-out value the fit never saw", {
   C <- bundle_cov()
+  skip_if_stripped("piml_coverage", "coverage")
   cg <- C$coverage
   expect_gt(nrow(cg), 100L)
   # `covered` must be derivable from the stored bounds, or the rate is not
@@ -31,16 +32,16 @@ test_that("the interval is scored on a held-out value the fit never saw", {
 })
 
 test_that("the interval undercovers, and converging does not rescue it", {
+  # From $by_depth, the aggregate the manuscript quotes.
   C <- bundle_cov()
-  cg <- C$coverage; ok <- cg$converged
-
-  # the headline: nominal 0.90, observed far below
-  expect_lt(mean(cg$covered), 0.70)
-  expect_lt(mean(cg$covered[ok]), 0.85)
-  # and the converged subset is genuinely a subset worth reporting
-  expect_gt(sum(ok), 20L)
-  # widening is not what is missing: the converged fits are already wider
-  expect_gt(mean(cg$width[ok]), mean(cg$width))
+  bd <- C$by_depth
+  n <- sum(bd$n)
+  expect_lt(sum(bd$picp * bd$n) / n, 0.70)          # nominal 0.90
+  # picp_conv is a rate among the CONVERGED fits, so it weights by n_conv --
+  # weighting it by n silently mixes in the bands that had no converged fit.
+  ok <- bd$n_conv > 0L
+  expect_lt(sum(bd$picp_conv[ok] * bd$n_conv[ok]) / sum(bd$n_conv[ok]), 0.85)
+  expect_gt(n, 100L)
 })
 
 test_that("convergence is the minority, which is why both rates are reported", {
@@ -48,11 +49,13 @@ test_that("convergence is the minority, which is why both rates are reported", {
   # If a future change makes most fits converge, the paper's framing -- that
   # the two rates must both be shown -- needs revisiting rather than silently
   # standing.
-  expect_lt(mean(C$coverage$converged), 0.60)
+  expect_lt(sum(C$by_horizons$conv_rate * C$by_horizons$n) /
+              sum(C$by_horizons$n), 0.60)
 })
 
 test_that("the interval score penalises misses, so coverage cannot be bought with width", {
   C <- bundle_cov()
+  skip_if_stripped("piml_coverage", "coverage")
   cg <- C$coverage
   alpha <- 1 - C$nominal
   expected <- cg$width +

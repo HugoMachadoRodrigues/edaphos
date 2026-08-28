@@ -52,11 +52,10 @@ This constructor builds a prior from published values instead, so the two
 can be compared and the circularity measured rather than assumed harmless.
 }
 \examples{
-# Compare the empirical-Bayes default against a non-circular prior on the
-# pedon shipped with the package.
-B <- readRDS(system.file("extdata", "capstone_campaign_results.rds",
-                         package = "edaphos"))
-p <- B$piml_profile_obs
+# Compare the empirical-Bayes default against a non-circular prior on a
+# simulated deep profile. These are not measurements -- see
+# [edaphos_example_profiles()].
+p <- edaphos_example_profiles(what = "pedon")
 a <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
                                top = p$top, bottom = p$bottom, seed = 7L)
 b <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
