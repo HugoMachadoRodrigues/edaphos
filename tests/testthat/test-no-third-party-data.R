@@ -1,15 +1,22 @@
 # =============================================================================
 # The package must ship no third-party soil measurements.
 #
-# This walks every bundled .rds RECURSIVELY, descending into places a
-# name-based check cannot see. That is not paranoia: the bundle this package
-# used to ship, piml_external_anchors.rds, had a .slim_lm() helper that
-# explicitly nulled $model and $effects, with a comment asserting only
-# coefficients remained -- and still shipped residuals and fitted.values named
-# by real WoSIS profile ids, plus a row-named qr$qr. Three copies where the
-# author believed there were none. A top-level names() check passes that file.
+# This walks every bundled .rds AND every exported dataset under data/,
+# RECURSIVELY, descending into places a name-based check cannot see. That is
+# not paranoia: the bundle this package used to ship,
+# piml_external_anchors.rds, had a .slim_lm() helper that explicitly nulled
+# $model and $effects, with a comment asserting only coefficients remained --
+# and still shipped residuals and fitted.values named by real WoSIS profile
+# ids, plus a row-named qr$qr. Three copies where the author believed there
+# were none. A top-level names() check passes that file.
 #
-# The companion test at the bottom proves this one fires. A guard that has
+# data/ was added on 2026-08-28. Until then this test covered inst/extdata
+# only, which is two thirds of what the package ships; the three exported
+# grids were scanned by nobody. They turned out clean, but that was luck
+# rather than a result, because nothing was looking.
+#
+# Two companion tests prove the two guards fire -- one injects the historical
+# slimmed-lm defect, one hands the lattice check a scatter. A guard that has
 # never been shown to fail is not a guard.
 # =============================================================================
 
@@ -116,13 +123,27 @@ scan_object <- function(x, path = "$", depth = 0L, seen = 0L) {
 # -- allowlist ---------------------------------------------------------------
 # Coordinate-bearing elements that are verified synthetic. Every entry was
 # checked by (a) confirming the coordinates form a regular lattice rather than
-# a scatter, and (b) intersecting them against the full coordinate universe of
-# the third-party bundles this package used to ship: zero collisions.
+# a scatter, and (b) intersecting them against the coordinate universe of the
+# third-party records this package used to ship.
 #
 # capstone_campaign_results' simulation AOI is a perfect 10x10 grid, 10
 # distinct longitudes (-50.000 .. -48.000) crossed with 10 distinct latitudes
 # (-16.000 .. -14.000); $decision_matrix, $final_selection and
 # $temporal_results$obs_locations are 8-row subsets of that same grid.
+#
+# CORRECTION, 2026-08-28. This comment used to end "zero collisions", and for
+# capstone that is not what a measurement returns. Recovering the pre-strip
+# bundles from commit d8c1998 and subtracting what survives gives 3,047
+# distinct removed coordinates, and capstone collides with exactly one of
+# them: (-47.9, -14.1), row 8 of $temporal_results$obs_locations.
+#
+# It is not a leaked profile. What was removed from temporal_cerrado_results
+# is itself a perfect 10x10 grid at 0.2 degree spacing -- raster cell centres
+# of a simulation domain carrying gridded NDVI, precipitation and temperature,
+# not sampling sites -- and both bundles describe that same domain, so they
+# share its nodes. The eight rows still shipped carry lon and lat and no
+# measurement. The claim is corrected rather than the number, because the
+# number is right. tools/provenance-inventory.R recomputes both.
 #
 # The fixtures are synthetic by construction -- see data-raw/make_fixtures.R,
 # which generates from published literature parameters and places points on a
@@ -138,7 +159,22 @@ ALLOWED <- c(
   "capstone_campaign_results.rds$qkrr_df",
   "capstone_campaign_results.rds$decision_matrix",
   "capstone_campaign_results.rds$final_selection",
-  "capstone_campaign_results.rds$temporal_results$obs_locations"
+  "capstone_campaign_results.rds$temporal_results$obs_locations",
+
+  # -- the exported datasets under data/ ------------------------------------
+  # Added 2026-08-28, when this test was extended past inst/extdata. Until
+  # then data/ was a third of what the package ships and none of it was
+  # scanned. Checked the two ways this list demands:
+  #
+  #   (a) each is a COMPLETE 45 x 45 lattice -- all 2,025 cells filled, one
+  #       constant spacing per axis. Real profiles do not fill a rectangle.
+  #   (b) intersected against the 3,047 distinct real coordinates that the
+  #       2026-08-28 strip removed, recovered from commit d8c1998 by
+  #       tools/provenance-inventory.R: zero collisions, all three.
+  #
+  # (a) is NOT left to this comment. The lattice test below asserts it, so
+  # swapping a grid for real profiles fails even though the name sits here.
+  "br_amazon", "br_cerrado", "br_pantanal"
 )
 
 allowed <- function(offence) {
@@ -148,6 +184,23 @@ allowed <- function(offence) {
 }
 
 scan_bundle <- function(path) scan_object(readRDS(path), basename(path))
+
+# data/ is enumerated through utils::data() rather than list.files(). In an
+# INSTALLED package there are no .rda files -- data/ has been collapsed into
+# Rdata.rdb + Rdata.rdx -- so a file listing finds nothing and the scan would
+# silently cover nothing at all, which is the failure mode this test exists to
+# prevent. utils::data() resolves in both the source tree and an installation.
+dataset_names <- function() {
+  r <- utils::data(package = "edaphos")$results
+  if (!length(r)) return(character(0))
+  unique(sub(" .*$", "", r[, "Item"]))
+}
+
+scan_dataset <- function(nm) {
+  e <- new.env(parent = emptyenv())
+  utils::data(list = nm, package = "edaphos", envir = e)
+  scan_object(get(nm, envir = e), nm)
+}
 
 test_that("no shipped bundle carries third-party records", {
   dir <- system.file("extdata", package = "edaphos")
@@ -161,6 +214,70 @@ test_that("no shipped bundle carries third-party records", {
   expect_equal(offences, character(0),
                info = paste("third-party records found:\n",
                             paste(offences, collapse = "\n ")))
+})
+
+test_that("no exported dataset carries third-party records", {
+  nms <- dataset_names()
+  skip_if(length(nms) == 0L, "no exported datasets")
+
+  offences <- unlist(lapply(nms, scan_dataset), use.names = FALSE)
+  offences <- offences[!vapply(offences, allowed, logical(1))]
+
+  expect_equal(offences, character(0),
+               info = paste("third-party records found:\n",
+                            paste(offences, collapse = "\n ")))
+})
+
+# A complete rectangular lattice: every cell of an n x m grid filled, and one
+# constant spacing per axis. Real soil profiles do not have this property --
+# they are a scatter, and a scatter neither fills a rectangle nor keeps a
+# single gap between consecutive distinct values.
+is_complete_lattice <- function(d, xcol = "x", ycol = "y") {
+  if (!all(c(xcol, ycol) %in% names(d))) return(FALSE)
+  ux <- sort(unique(d[[xcol]])); uy <- sort(unique(d[[ycol]]))
+  if (length(ux) < 2L || length(uy) < 2L) return(FALSE)
+  nrow(d) == length(ux) * length(uy) &&
+    length(unique(round(diff(ux), 9))) == 1L &&
+    length(unique(round(diff(uy), 9))) == 1L
+}
+
+test_that("the allowlisted grids are still complete regular lattices", {
+  # This is what earns br_amazon / br_cerrado / br_pantanal their allowlist
+  # entries, and it is asserted rather than commented so the entry cannot
+  # outlive the fact it rests on. Swapping a grid for a real extract fails
+  # here even though the name is allowlisted above.
+  nms <- intersect(c("br_amazon", "br_cerrado", "br_pantanal"), dataset_names())
+  skip_if(length(nms) == 0L, "no exported grids")
+
+  for (nm in nms) {
+    e <- new.env(parent = emptyenv())
+    utils::data(list = nm, package = "edaphos", envir = e)
+    expect_true(is_complete_lattice(get(nm, envir = e)),
+                info = sprintf("%s is no longer a complete regular lattice", nm))
+  }
+})
+
+test_that("the lattice check actually rejects a scatter", {
+  # The companion proof for the guard above. Same shape of evidence the
+  # scanner's own firing test gives: without this, "every grid is a lattice"
+  # could hold because the check says yes to everything.
+  g <- expand.grid(x = seq(-50, -48, length.out = 45),
+                   y = seq(-16, -14, length.out = 45))
+  expect_true(is_complete_lattice(g))
+
+  set.seed(1)
+  scatter <- data.frame(x = stats::runif(2025, -50, -48),
+                        y = stats::runif(2025, -16, -14))
+  expect_false(is_complete_lattice(scatter))
+
+  # A lattice with cells missing -- the shape a real extract clipped to a
+  # bounding box would take.
+  expect_false(is_complete_lattice(g[-seq(1, nrow(g), by = 7), ]))
+
+  # Right cell count, irregular spacing on one axis.
+  warped <- expand.grid(x = c(seq(-50, -48.1, length.out = 44), -47.0),
+                        y = seq(-16, -14, length.out = 45))
+  expect_false(is_complete_lattice(warped))
 })
 
 test_that("the scanner actually fires on a known-bad object", {

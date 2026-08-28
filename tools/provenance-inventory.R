@@ -140,6 +140,66 @@ entry <- function(path) {
 cat("walking", length(files), "shipped artefacts ...\n")
 bundles <- lapply(files, entry)
 
+# -- the strongest check: synthetic points vs the real coordinates removed ---
+#
+# A bounding box tests where points ARE. This tests what they are NOT: it
+# rebuilds the coordinate universe that the 2026-08-28 strip removed and asks
+# whether anything still shipped coincides with it. That is the check the
+# accusation actually calls for -- content against the concrete set alleged to
+# have been copied, rather than content against a map.
+#
+# The removed universe is computed by DIFFERENCE, pre-strip minus post-strip,
+# rather than by parsing the manifest. The manifest is prose written by the
+# strip script; the difference is measured from the bundles themselves, and it
+# is what caught that the manifest under-reports (11 rows for 13 bundles).
+STRIP_COMMIT <- "8f23ddf"
+
+git_show_rds <- function(rev, path) {
+  tf <- tempfile(fileext = ".rds")
+  ok <- suppressWarnings(system2("git", c("show", paste0(rev, ":", path)),
+                                 stdout = tf, stderr = FALSE))
+  on.exit(unlink(tf), add = TRUE)
+  if (!identical(ok, 0L) || !file.exists(tf) || file.size(tf) == 0) return(NULL)
+  tryCatch(readRDS(tf), error = function(e) NULL)
+}
+
+ckey <- function(g) if (is.null(g)) character(0) else
+  paste(round(g$lon, 5), round(g$lat, 5))
+
+collision <- NULL
+parent <- suppressWarnings(system2("git", c("rev-parse", paste0(STRIP_COMMIT, "^")),
+                                   stdout = TRUE, stderr = FALSE))
+if (length(parent) == 1L && nzchar(parent)) {
+  pre_paths <- suppressWarnings(system2("git",
+    c("ls-tree", "-r", "--name-only", parent), stdout = TRUE, stderr = FALSE))
+  pre_paths <- grep("^inst/extdata/.*[.]rds$", pre_paths, value = TRUE)
+
+  removed <- character(0)
+  for (rp in pre_paths) {
+    pre <- ckey(coords_of(git_show_rds(parent, rp)))
+    cur <- if (file.exists(rp)) ckey(coords_of(read_any(rp))) else character(0)
+    removed <- c(removed, setdiff(pre, cur))
+  }
+  removed <- unique(removed)
+
+  per_file <- lapply(files, function(f) {
+    k <- ckey(coords_of(read_any(f)))
+    list(file = basename(f), n_coords = length(k),
+         collisions = sum(k %in% removed))
+  })
+  collision <- list(
+    strip_commit = STRIP_COMMIT,
+    compared_against = parent,
+    removed_coordinates_distinct = length(removed),
+    per_artefact = per_file,
+    total_collisions = sum(vapply(per_file, function(x) x$collisions, 0L))
+  )
+  cat(sprintf("  %d distinct coordinates were removed by the strip\n",
+              length(removed)))
+} else {
+  cat("  strip commit not reachable; collision check skipped\n")
+}
+
 # -- the absence search, over DECOMPRESSED content --------------------------
 # Two surfaces: the working tree's text files, and every blob that has ever
 # existed in this repository. See tools/history-term-scan.sh for the latter.
@@ -165,6 +225,7 @@ res <- list(
         grep("^Version:", readLines("DESCRIPTION", warn = FALSE), value = TRUE)[1]),
     error = function(e) NA_character_),
   bundles = bundles,
+  collision_check = collision,
   tree_search = tree_hits,
   totals = list(
     artefacts = length(bundles),
@@ -174,7 +235,9 @@ res <- list(
     stripped_bundles = sum(vapply(bundles, function(b) isTRUE(b$stripped), TRUE)),
     hashes_verified = sum(vapply(bundles, function(b) isTRUE(b$script_hash_verifies), TRUE)),
     artefacts_containing_terms =
-      sum(vapply(bundles, function(b) length(b$terms_found) > 0L, TRUE))
+      sum(vapply(bundles, function(b) length(b$terms_found) > 0L, TRUE)),
+    removed_coordinates = collision$removed_coordinates_distinct %||% NA_integer_,
+    coordinate_collisions = collision$total_collisions %||% NA_integer_
   )
 )
 
@@ -183,7 +246,9 @@ jsonlite::write_json(res, "tools/provenance-inventory.json",
 t <- res$totals
 cat(sprintf(paste0("\n  %d artefacts | %d coordinates (%d in Brazil, %d in the USA)\n",
                    "  %d stripped | %d provenance hashes verified\n",
-                   "  %d artefacts contain any search term\n"),
+                   "  %d artefacts contain any search term\n",
+                   "  %s coordinates removed by the strip | %s still-shipped collisions\n"),
             t$artefacts, t$coordinates, t$coordinates_in_brazil,
             t$coordinates_in_usa, t$stripped_bundles, t$hashes_verified,
-            t$artefacts_containing_terms))
+            t$artefacts_containing_terms,
+            format(t$removed_coordinates), format(t$coordinate_collisions)))

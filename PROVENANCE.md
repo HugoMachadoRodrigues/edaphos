@@ -186,6 +186,62 @@ checked individually:
 - **893 in the two `fixture_*` bundles** — synthetic by construction and
   documented as such.
 
+### 4.1 The stronger test: collision against the real coordinates
+
+A bounding box tests where points *are*. The check that the accusation actually
+calls for tests what they are *not* — whether anything still shipped coincides
+with the real coordinates that once were here.
+
+The pre-strip state of all 27 bundles is recoverable from commit `d8c1998`, the
+parent of the strip. Reading them back and subtracting what survives gives the
+coordinate universe the strip removed: **3,047 distinct real coordinates**, from
+`case_cerrado_results` (1,081), `causal_cerrado_real_v2` (2,872),
+`causal_cerrado_real` (1,081), `piml_external_anchors` (1,060),
+`piml_wosis_cerrado` (1,060), `capstone_campaign_results` (250),
+`soildata_uberaba_bd` (83) and `temporal_cerrado_results` (10). That set is
+computed by difference rather than read from the manifest, which is why it is
+trustworthy where the manifest is not — see §3.
+
+Intersecting everything still shipped against those 3,047 coordinates:
+
+| Artefact | Points | Collisions |
+|---|---|---|
+| `br_amazon` | 2,025 | **0** |
+| `br_cerrado` | 2,025 | **0** |
+| `br_pantanal` | 2,025 | **0** |
+| `fixture_wosis_like` | 833 | **0** |
+| `fixture_soildata_like` | 60 | **0** |
+| `capstone_campaign_results` | 424 | 1 |
+
+The three exported datasets are further confirmed as complete regular lattices:
+45 × 45 with all 2,025 cells filled and a single constant spacing on each axis
+(0.009091° for `br_amazon` and `br_pantanal`, 0.007955° × 0.006818° for
+`br_cerrado`). Real soil profiles do not fill a rectangular lattice.
+
+**The single collision, run down.** It is the point (−47.9, −14.1), row 8 of
+`capstone_campaign_results$temporal_results$obs_locations`, which also appears
+among the coordinates removed from `temporal_cerrado_results`. It is not a
+leaked profile. What was removed from that bundle is itself a perfect 10 × 10
+grid at exactly 0.2° spacing spanning −47.9 to −46.1 by −15.9 to −14.1: raster
+cell centres of a simulation domain, holding gridded NDVI, precipitation and
+temperature, not soil sampling sites. Both bundles describe the same domain, so
+they share its grid nodes. The eight rows the package still ships carry two
+columns, `lon` and `lat`, and no measurement of any kind.
+
+### 4.2 The automated guard
+
+`tests/testthat/test-no-third-party-data.R` enforces this on every test run. It
+walks each shipped bundle recursively to depth 12 and descends where a
+names-based check cannot see: into `lm`/`glm`/`nls` internals — `$residuals`,
+`$fitted.values`, `$qr`, `$effects` — and into the enclosing environments of
+closures. It was written after a bundle that had been "slimmed" by nulling
+`$model` turned out to still ship residuals named by real WoSIS profile ids, in
+three places the author believed were empty. It flags coordinate columns,
+columns and row names holding upstream-shaped identifiers, and atomic vectors
+keyed by them. A companion test constructs that exact defect and asserts the
+scanner fires on it, on the principle that a guard never shown to fail is not a
+guard.
+
 ---
 
 ## 5. Provenance records
@@ -227,10 +283,18 @@ licence per record.
 Every claim above is reproducible from a checkout. None of these commands needs
 network access.
 
-Regenerate the full inventory (~2 seconds):
+Regenerate the full inventory, including the §4.1 collision check — it reads the
+pre-strip bundles back out of git, so it needs no network and no archived copy
+(~4 seconds):
 
 ```bash
 Rscript tools/provenance-inventory.R
+```
+
+Run the automated guard of §4.2, and the companion test that proves it fires:
+
+```bash
+Rscript -e 'pkgload::load_all("."); testthat::test_file("tests/testthat/test-no-third-party-data.R")'
 ```
 
 Search every blob that has ever existed in the repository:

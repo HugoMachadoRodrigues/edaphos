@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/provenance-inventory.R",
   "repository": "edaphos",
-  "commit": "8f23ddfc98bd07f26d285643283ec19fb5f5cf43",
+  "commit": "de90423e5c1aa2400618c7db68bf75a133fd5cdc",
   "package_version": "0.9.0",
   "bundles": [
     {
@@ -422,6 +422,149 @@
       "coords_in_usa": 0
     }
   ],
+  "collision_check": {
+    "strip_commit": "8f23ddf",
+    "compared_against": "d8c19981e1a8c2de7a1c021f2e309b6a6654143c",
+    "removed_coordinates_distinct": 3047,
+    "per_artefact": [
+      {
+        "file": "al_policy_benchmark.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "benchmark_wosis_6pilar.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "buffer_effect.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "capstone_campaign_results.rds",
+        "n_coords": 424,
+        "collisions": 1
+      },
+      {
+        "file": "capstone_native_calibration.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "case_cerrado_results.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "causal_cerrado_real_v2.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "causal_discovery_results.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "causal_iv_cerrado_real.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "causal_iv_cerrado.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "causal_sensitivity_cerrado.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "fixture_soildata_like.rds",
+        "n_coords": 60,
+        "collisions": 0
+      },
+      {
+        "file": "fixture_wosis_like.rds",
+        "n_coords": 833,
+        "collisions": 0
+      },
+      {
+        "file": "interval_width_vs_extrapolation.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "llm_benchmark_results.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "pilar10_gat_tuning.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "pilar8_real_pedons.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "piml_coverage.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "piml_depth_benchmark.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "piml_prior_sensitivity.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "piml_stock_at_scale.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "piml_stock_validation.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "quantum_foundation_cerrado.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "temporal_cerrado_results.rds",
+        "n_coords": 0,
+        "collisions": 0
+      },
+      {
+        "file": "br_amazon.rda",
+        "n_coords": 2025,
+        "collisions": 0
+      },
+      {
+        "file": "br_cerrado.rda",
+        "n_coords": 2025,
+        "collisions": 0
+      },
+      {
+        "file": "br_pantanal.rda",
+        "n_coords": 2025,
+        "collisions": 0
+      }
+    ],
+    "total_collisions": 1
+  },
   "tree_search": [
     {
       "term": "datsoilspc",
@@ -481,6 +624,8 @@
     "coordinates_in_usa": 0,
     "stripped_bundles": 13,
     "hashes_verified": 16,
-    "artefacts_containing_terms": 1
+    "artefacts_containing_terms": 1,
+    "removed_coordinates": 3047,
+    "coordinate_collisions": 1
   }
 }
