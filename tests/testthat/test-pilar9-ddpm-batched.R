@@ -90,6 +90,22 @@ test_that("dm_fit training history matches a per-row reference within tol", {
   # batched path vs the old), but the loss trajectory on small data
   # should be in the same ballpark -- and more importantly, the
   # returned fit must still train (loss decreases).
+  #
+  # backend = "r" IS THE POINT OF THIS FILE, and it used to be left implicit.
+  # Everything here tests the pure-R batched path (.old_dm_epoch_loss vs
+  # .new_dm_epoch_loss above), but dm_fit() defaults to backend = "auto",
+  # which picks torch wherever libtorch is installed. So on the +torch CI job
+  # and under covr this test silently ran a different optimiser -- Adam over
+  # the whole U-Net instead of SGD on one layer -- at lr = 0.05, which suits
+  # the R path and is unstable for torch: across seeds 1-10 the torch loss
+  # spikes as high as 338 and ends below its start in only 8 of 10, and on
+  # Linux seed 4 ended at 1.63 against a start of 1.10. The R path passes
+  # 10 of 10 with a peak of 3.5.
+  #
+  # Torch training is not left uncovered by pinning this: the torch sampler
+  # test in test-pilar9-sampler-stability.R requires spatial structure in
+  # the samples (lag-1 correlation > 0.4), which an untrained network cannot
+  # produce -- a stronger bar than a falling loss.
   set.seed(4L)
   n <- 8L; H <- 4L; W <- 4L
   patches <- array(stats::rnorm(n * H * W), dim = c(n, H, W))
@@ -100,7 +116,7 @@ test_that("dm_fit training history matches a per-row reference within tol", {
     }
   }
   fit <- dm_fit(patches, T = 8L, epochs = 20L, hidden = 8L,
-                  lr = 0.05, seed = 4L)
+                  lr = 0.05, seed = 4L, backend = "r")
   expect_s3_class(fit, "edaphos_dm_fit")
   expect_lt(tail(fit$history, 1L), head(fit$history, 1L))
 })

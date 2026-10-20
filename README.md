@@ -2158,7 +2158,7 @@ and which pkgdown does not render, so asking R for them by name finds
 nothing and no page exists on the site. They are readable in the
 repository only. The column named them as though they were vignettes.
 
-(This paragraph deliberately does not spell out the `vignette(...)` call
+(This paragraph deliberately does not spell out the vignette call
 that fails: `tests/testthat/test-doc-references-resolve.R` requires every
 such call appearing in R/ or the README to resolve, and it is right to —
 a reader who sees one types it. Writing the failing call here to

@@ -14,11 +14,20 @@
 # ---------------------------------------------------------------------------
 
 test_that("every exported prefix is documented in the package-level Rd or README", {
+  # A SOURCE checkout is recognised by man/, not by NAMESPACE + DESCRIPTION.
+  # An installed package has those two as well, and covr runs the tests from
+  # inside one (<lib>/edaphos/edaphos-tests), so walking up used to stop at the
+  # installation and take it for the source. There R CMD INSTALL has copied
+  # README.md but there is no man/ -- so the check read the README alone,
+  # missed the Rd where active_ and spatial_ are documented, and failed on
+  # the coverage job while passing everywhere else. Installed packages never
+  # carry man/; a source checkout always does.
   root <- NA_character_
   d <- normalizePath(".", mustWork = FALSE)
   for (i in 1:6) {
     if (file.exists(file.path(d, "NAMESPACE")) &&
-        file.exists(file.path(d, "DESCRIPTION"))) { root <- d; break }
+        file.exists(file.path(d, "DESCRIPTION")) &&
+        dir.exists(file.path(d, "man"))) { root <- d; break }
     up <- dirname(d); if (identical(up, d)) break; d <- up
   }
   skip_if(is.na(root), "not running from a source checkout")
