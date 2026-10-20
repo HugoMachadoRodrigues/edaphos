@@ -32,14 +32,36 @@ Cerrado data**: 1 095 WoSIS topsoil profiles
 consumes. The three quantities below are publishable causal
 estimates, not pedagogic toys.
 
-```{r load, message = FALSE}
+```{r load-gate, echo = FALSE}
+# knit_exit() stops knitting AFTER this chunk finishes, so the guard
+# must be the last thing in a chunk of its own -- otherwise the code
+# it protects still runs.
+#
+# This used to be stopifnot(), which made the whole site build fail once
+# the bundle was gone. It went on 2026-08-28 (commit 8f23ddf): 1,095 real
+# WoSIS profiles with profile ids, coordinates and measured SOC, which the
+# package no longer redistributes. Nothing in the package can reproduce the
+# estimates below without it, so the article says so and stops, rather
+# than failing the build or showing numbers nothing shipped backs.
 library(edaphos)
 library(ggplot2)
 library(dplyr)
 
 res_path <- system.file("extdata", "causal_cerrado_real.rds",
                          package = "edaphos")
-stopifnot(nzchar(res_path), file.exists(res_path))
+if (!nzchar(res_path) || !file.exists(res_path)) {
+  knitr::knit_exit(paste(
+    "> **The results in this article have been withdrawn.** They were",
+    "computed from `causal_cerrado_real.rds`, a bundle of 1,095 real WoSIS",
+    "profiles that stopped shipping with `edaphos` on 2026-08-28 because it",
+    "carried third-party soil measurements. The package can no longer",
+    "reproduce them, so the article stops here rather than display numbers",
+    "that nothing in it backs. See `PROVENANCE.md` in the repository."
+  ))
+}
+```
+
+```{r load, message = FALSE}
 R <- readRDS(res_path)
 ```
 

@@ -71,6 +71,28 @@ if (!nzchar(res_path) || !file.exists(res_path)) {
     "Pre-computed Pillar 3 real-data bundle not found — skipping."
   )
 }
+
+# The bundle can be PRESENT and still lack what this article reads. On
+# 2026-08-28 (commit 8f23ddf) data-raw/strip_third_party_records.R removed
+# $obs, $scaling and $truth_future from it -- observed NDVI, precipitation
+# and temperature at named coordinates, invertible to physical units through
+# $scaling. Checking only that the file exists let the article run into a
+# zero-row data frame and failed the whole site build. Check for what is
+# actually used.
+needed  <- c("meta", "prior", "analysis", "obs", "scaling", "truth_future")
+missing <- setdiff(needed, names(readRDS(res_path)))
+if (length(missing)) {
+  knitr::knit_exit(paste(
+    "> **The results in this article have been withdrawn.** They need",
+    paste0("`$", missing, "`", collapse = ", "),
+    "from `temporal_cerrado_results.rds`, which were removed on 2026-08-28",
+    "because they carried observed values at named coordinates. The package",
+    "can no longer reproduce the forecast and assimilation figures, so the",
+    "article stops here rather than display numbers that nothing in it backs.",
+    "See `PROVENANCE.md` and `data-raw/build/stripped_elements.csv` in the",
+    "repository."
+  ))
+}
 ```
 
 ```{r load, message = FALSE}
