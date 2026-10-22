@@ -58,7 +58,8 @@ gnn_fit(
 
 - epochs:
 
-  Integer; training epochs for the final linear head.
+  Integer; training epochs. Every layer is trained, not only the readout
+  head.
 
 - lr:
 
@@ -100,8 +101,11 @@ gnn_fit(
 
 - backend:
 
-  `"r"` (default, ELM-style) or `"torch"` (full autograd with multi-head
-  attention; requires the `torch` Suggests dependency). v2.7.0 upgrade.
+  `"r"` (default; analytic reverse-mode gradients over all layers) or
+  `"torch"` (autograd, same architecture; requires the `torch` Suggests
+  dependency). Unlike Pillars 8 and 9, whose pure-R paths are
+  frozen-feature references that do not learn the named architecture,
+  the Pillar 10 R backend trains the GAT itself.
 
 - device:
 

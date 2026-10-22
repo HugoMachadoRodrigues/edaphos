@@ -15,6 +15,35 @@ were headed with one (v2.9.1 and v3.10.0) and both went stale the moment
 the version moved; the version this applies to is whatever `DESCRIPTION`
 says, currently 0.9.0 and not yet released.
 
+## Before any of this: the tag name is taken
+
+`v3.10.0` and `v4.0.0` — tags for the inflated versions `NEWS.md`
+withdrew as unreproducible — **have been deleted**, locally and on the
+remote. The commits they marked are still in `main`’s history; only the
+version labels are gone.
+
+`v0.9.0` was **not** deleted, and an earlier draft of this file was
+wrong to group it with them. It is not a withdrawn tag: it belongs to
+the original `v0.1.0`→`v1.6.0` run and marks a genuine 0.9.0 released on
+2026-04-22 (`a394911`), whose `DESCRIPTION` reads `Version: 0.9.0`. The
+collision exists because the version number was **reset** to 0.9.0, so
+today’s 0.9.0 is a different package wearing a used number.
+
+That leaves a real choice, and it is the maintainer’s:
+
+1.  **Delete `v0.9.0` too**, accepting that a legitimate historical
+    marker is destroyed to make a number reusable, and that anyone who
+    fetched it keeps a stale reference pointing at unrelated code; or
+2.  **Release under a version the earlier run did not consume** —
+    anything past `1.6.0` — which leaves history intact and costs only
+    the appeal of a low version number.
+
+Option 2 is the one that destroys nothing. Until either is taken,
+`git tag v0.9.0` fails and `.github/workflows/release-tag.yaml` refuses,
+naming which of its three checks did so. It defaults to a dry run.
+
+------------------------------------------------------------------------
+
 The four steps below are manual because each is a state-changing action
 on a third-party service tied to the maintainer’s identity. They are
 **not** the only remaining work: `STATUS.md` is the live list of open

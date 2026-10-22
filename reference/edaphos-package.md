@@ -264,6 +264,104 @@ From Greek \\\epsilon\delta\alpha\phi o\varsigma\\ — "soil, ground."
   [`gnn_causal_discovery()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_causal_discovery.md)
   hands them to Pillar 1's structure learner.
 
+## How exports are named
+
+Every exported function carries a domain prefix. There are no pillar
+numbers in the API: the pillars organise the documentation, the prefixes
+organise the functions.
+
+- `causal_`:
+
+  Causal inference and the LLM knowledge graph (Pillar 1).
+
+- `piml_`:
+
+  Physics-informed depth-profile models (Pillar 2).
+
+- `temporal_`:
+
+  4D pedometry: ConvLSTM, EnKF (Pillar 3).
+
+- `foundation_`:
+
+  Self-supervised encoders and their embeddings (Pillar 4).
+
+- `al_`:
+
+  Active learning: designs, acquisition policies, loops (Pillar 5).
+
+- `active_`:
+
+  One function,
+  [`active_learning_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/active_learning_posterior.md),
+  which is a Pillar 5 posterior accessor. It predates the `al_` prefix
+  and kept the longer name; there is no second `active_` family.
+
+- `quantum_`:
+
+  Quantum kernels and VQE (Pillar 6).
+
+- `bhs_`:
+
+  Bayesian hierarchical spatial models (Pillar 7).
+
+- `no_`:
+
+  Neural operators: FNO, DeepONet (Pillar 8).
+
+- `dm_`:
+
+  Diffusion models (Pillar 9).
+
+- `gnn_`:
+
+  Graph neural networks (Pillar 10).
+
+- `qf_`:
+
+  The Pillar 4 x Pillar 6 bridge: quantum kernels over foundation
+  embeddings.
+
+- `uncertainty_`:
+
+  The shared calibration API across pillars.
+
+- `benchmark_`:
+
+  Thin wrappers used by the cross-pillar benchmark.
+
+- `spatial_`:
+
+  One function,
+  [`spatial_block_folds()`](https://hugomachadorodrigues.github.io/edaphos/reference/spatial_block_folds.md):
+  buffered spatially blocked cross-validation folds, used by every
+  benchmark in the package.
+
+- `llm_`:
+
+  Large-language-model extraction and annotation tooling.
+
+- `edaphos_`:
+
+  Package-level utilities: metrics, provenance, release helpers.
+
+## On "pilar" and "pillar"
+
+Both spellings appear, and the split is deliberate rather than
+accidental. English prose says **pillar**; identifiers say **pilar**,
+which is the Portuguese word. So
+[`vignette("pilar6-quantum")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar6-quantum.md)
+documents Pillar 6, and `inst/extdata/pilar10_gat_tuning.rds` holds
+Pillar 10's tuning run. `DESCRIPTION` declares `Language: en-US, pt-BR`
+for the same reason: five of the vignettes are written in Portuguese.
+
+No exported function carries either spelling, so the distinction never
+reaches code a user writes. It survives in file names, which are a
+contract – renaming a vignette breaks every
+[`vignette()`](https://rdrr.io/r/utils/vignette.html) call and bookmark
+pointing at it – and the package is not willing to break that for an
+orthographic preference.
+
 ## Vignettes
 
 Each pillar ships a mathematically-derived vignette with examples on

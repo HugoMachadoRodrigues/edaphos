@@ -7,7 +7,20 @@ resumed without re-spending LLM compute."><meta property="og:description" conten
 extractor sequentially over a data frame of abstracts, optionally
 persisting per-abstract claim tables to a cache_dir so that
 multi-hour / multi-day ingestion runs can be interrupted and
-resumed without re-spending LLM compute."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+resumed without re-spending LLM compute."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.

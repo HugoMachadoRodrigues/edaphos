@@ -137,13 +137,11 @@ Brazilian soil surveys, ranging from **1960** to **2010**:
 
 WoSIS profile counts per underlying Brazilian survey. {.table}
 
-![Real WoSIS 0–10 cm topsoil profiles inside the Cerrado biome. Colour =
-SOC (g/kg). Points coloured by 5-fold CV fold (k-means on
-longitude/latitude).](case-cerrado-end-to-end_files/figure-html/map-1.png)
-
-Real WoSIS 0–10 cm topsoil profiles inside the Cerrado biome. Colour =
-SOC (g/kg). Points coloured by 5-fold CV fold (k-means on
-longitude/latitude).
+> **The profile map is not reproduced here.** It plotted the coordinates
+> of 1,095 real WoSIS survey sites, which this package no longer
+> distributes. Fetch the profiles yourself and the map is one
+> [`sf::st_as_sf()`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
+> call away; `data-raw/case_cerrado_prepare.R` shows the query.
 
 Evaluation uses **5-fold spatial cross-validation** — k-means clustering
 on longitude/latitude assigns each profile to one of 5 folds, and each
@@ -172,12 +170,19 @@ stack because 172 profiles are too close to the raster edge to extract a
 
 ### 4.2 Observed vs predicted
 
-![Observed vs cross-validated predicted topsoil SOC, every profile shown
-once. Dashed grey line is the 1:1. Closer points = better
-prediction.](case-cerrado-end-to-end_files/figure-html/obs-vs-pred-1.png)
+| method              |    n |   rmse |   mae |    r2 |   bias |  picp | interval_score |
+|:--------------------|-----:|-------:|------:|------:|-------:|------:|---------------:|
+| B1 ranger           | 1095 | 13.511 | 7.724 | 0.219 | -0.623 | 0.944 |         65.812 |
+| B2 ranger + kriging |  893 | 14.007 | 7.926 | 0.205 |  0.043 | 0.945 |         79.903 |
+| E ranger + MoCo v1  |  923 | 14.071 | 7.954 | 0.157 | -0.646 | 0.940 |         71.661 |
 
-Observed vs cross-validated predicted topsoil SOC, every profile shown
-once. Dashed grey line is the 1:1. Closer points = better prediction.
+Cross-validated scores on the 1095 profiles. Computed when the bundle
+was built; the per-profile observations are not shipped. {.table}
+
+> **The observed-vs-predicted scatter is not reproduced here.** It
+> needed the measured SOC of every profile, which is the third-party
+> data this package stopped bundling. The scores above are the same run,
+> summarised.
 
 ### 4.3 Prediction-interval calibration
 
@@ -200,14 +205,13 @@ The final diagnostic is spatial: residuals should look like white noise,
 with no systematic Cerrado region where every stack overshoots or
 undershoots.
 
-![Cross-validated residuals (observed - predicted) for each stack. Blue
-= under-prediction, red = over-prediction. Large coloured clusters
-indicate unresolved covariate gaps that all three methods
-share.](case-cerrado-end-to-end_files/figure-html/residual-map-1.png)
-
-Cross-validated residuals (observed - predicted) for each stack. Blue =
-under-prediction, red = over-prediction. Large coloured clusters
-indicate unresolved covariate gaps that all three methods share.
+> **The residual map is not reproduced here.** Residuals are
+> `observed - predicted`, and the observed values are the measured SOC
+> of 1,095 real WoSIS profiles – the third-party data this package
+> stopped bundling. The predictions survive in `R$predictions`; fetch
+> the profiles and the map is a
+> [`dplyr::bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html)
+> away.
 
 ## 5. Honest reading of the numbers
 

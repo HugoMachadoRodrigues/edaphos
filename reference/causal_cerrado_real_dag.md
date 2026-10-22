@@ -18,8 +18,10 @@ causal_cerrado_real_dag()
 
 ## Value
 
-A `dagitty` DAG whose nodes match the column names of the `profiles`
-data frame in `inst/extdata/case_cerrado_results.rds`.
+A `dagitty` DAG whose nodes match the covariate column names returned by
+[`edaphos_example_profiles()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_example_profiles.md),
+which are in turn the names used by the WoSIS/SoilGrids/WorldClim
+covariate stack.
 
 ## Details
 
@@ -70,12 +72,11 @@ for identification + estimation.
 ``` r
 if (requireNamespace("dagitty", quietly = TRUE)) {
   dag  <- causal_cerrado_real_dag()
-  prof <- readRDS(system.file("extdata", "case_cerrado_results.rds",
-                              package = "edaphos"))$profiles
+  prof <- edaphos_example_profiles()
 
-  # The whole point of this DAG: all of its nodes are real columns
-  # of the WoSIS case-study table, whereas the schematic
-  # causal_cerrado_dag() shares only two names with it.
+  # The whole point of this DAG: all of its nodes are columns of the
+  # covariate table, whereas the schematic causal_cerrado_dag() shares
+  # only two names with it.
   print(all(names(dag) %in% names(prof)))
   print(intersect(names(causal_cerrado_dag()), names(prof)))
 
@@ -97,6 +98,8 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
   print(causal_estimate_effect(prof, dag, "soilgrids_clay",
                                "soc_topsoil_gkg", effect = "direct"))
 }
+#> edaphos: returning SIMULATED profiles for demonstration.
+#>   These are not measurements. Fetch real data yourself; see `vignette("getting-started")`.
 #> [1] TRUE
 #> [1] "elev"  "slope"
 #> [1] "slope"
@@ -104,11 +107,11 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
 #> <edaphos_causal_effect>
 #>   soilgrids_clay -> soc_topsoil_gkg   (estimator: lm)
 #>   adjustment set : {slope}
-#>   total effect   : 0.5371   (95% CI: 0.4239, 0.6504)
-#>   naive effect   : 0.5257   (un-adjusted, likely confounded)
+#>   total effect   : -0.07328   (95% CI: -0.217, 0.07044)
+#>   naive effect   : -0.07384   (un-adjusted, likely confounded)
 #> <edaphos_causal_effect>
 #>   soilgrids_clay -> soc_topsoil_gkg   (estimator: lm)
 #>   adjustment set : {slope, soilgrids_bdod, soilgrids_sand}
-#>   direct effect  : 0.1949   (95% CI: 0.009367, 0.3804)
-#>   naive effect   : 0.5257   (un-adjusted, likely confounded)
+#>   direct effect  : 0.1316   (95% CI: -0.1086, 0.3717)
+#>   naive effect   : -0.07384   (un-adjusted, likely confounded)
 ```

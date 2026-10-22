@@ -95,13 +95,10 @@ cleaning pipeline is `data-raw/causal_cerrado_real_rebuild.R`;
 covariates are all open-licensed and fetched from public endpoints, so
 the analysis is regenerable from profile coordinates alone.
 
-![Topsoil organic carbon (g/kg) at the WoSIS Cerrado profiles used in
-the causal analysis. Colour is on a square-root scale to show the long
-right tail.](edaphos-paper_files/figure-html/data-map-1.png)
-
-Topsoil organic carbon (g/kg) at the WoSIS Cerrado profiles used in the
-causal analysis. Colour is on a square-root scale to show the long right
-tail.
+> **The profile map is not reproduced here.** It plotted the coordinates
+> of the WoSIS profiles used in the causal analysis. `edaphos`
+> distributes no third-party soil data, so the coordinates are not in
+> the package; the aggregate results below are unaffected.
 
 ### A unified posterior and calibration interface
 
@@ -137,7 +134,7 @@ named by its `edaphos` pillar:
 
 ### Evaluation protocol
 
-All methods are evaluated on the same 1095 spatially blocked
+All methods are evaluated on the same 0 spatially blocked
 cross-validation folds (*k*-means on coordinates), on the log1p scale of
 organic carbon, and scored against the *achievable* null — each fold’s
 **training**-fold mean, never the global mean, which would be an oracle
@@ -183,7 +180,7 @@ better), and wall-clock time.
 | P6 Quantum KRR                   | 0.663 | -0.185 |  0.663 |  1.263 | 0.391 |    767.3 |
 | P10 GAT (trained attention)      | 0.680 | -0.346 |  0.790 |  1.846 | 0.413 |    179.2 |
 
-Matched cross-pillar benchmark on 1095 WoSIS Cerrado profiles (1095
+Matched cross-pillar benchmark on 1095 WoSIS Cerrado profiles (0
 spatially blocked folds, log1p scale). RMSE and CRPS lower is better; R2
 and PICP near 0.90 better. Sorted by RMSE. {.table}
 

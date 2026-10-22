@@ -6,6 +6,7 @@
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/INTRO.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/LICENSE-text.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/LICENSE.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/PROVENANCE.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/PULL_REQUEST_TEMPLATE.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/RELEASE.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/SECURITY.html</loc></url>
@@ -17,14 +18,18 @@
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/getting-started.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/index.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/llm-annotation-workflow.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/llm-kg-benchmark.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal-real.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-pilar4-iv.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar10-graph-attention.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar2-piml-profile.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-real.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-soc.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-pilar6-quantum.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-simclr-embeddings.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-active-learning.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-soilgrids-br.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar6-quantum.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar7-bayesian-hierarchical.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/articles/pilar8-neural-operators.html</loc></url>
@@ -110,6 +115,7 @@
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/edaphos-roadmap.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_bias.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_ece.html</loc></url>
+<url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_example_profiles.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_interval_score.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_mae.html</loc></url>
 <url><loc>https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_metrics_summary.html</loc></url>

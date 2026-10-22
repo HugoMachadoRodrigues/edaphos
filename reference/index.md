@@ -445,8 +445,8 @@ ZZFeatureMap, Quantum KRR, Qiskit VQE, organo-mineral Hamiltonians.
 
 ## Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)
 
-Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo /
-spBayes).
+Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes;
+the spBayes backend fits but cannot predict).
 
 - [`bhs_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/bhs_fit.md)
   : Fit a Bayesian hierarchical spatial linear model (Pilar 7)
@@ -556,6 +556,9 @@ Common edaphos_posterior class + single calibration diagnostic.
 - [`edaphos_ece()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_ece.md)
   : Expected calibration error (ECE) for a regression reliability
   diagram
+
+- [`edaphos_example_profiles()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_example_profiles.md)
+  : Simulated soil profiles for examples and tests
 
 - [`edaphos_interval_score()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_interval_score.md)
   : Interval score (Gneiting and Raftery 2007)

@@ -26,8 +26,8 @@ spatial_block_folds(coords, k = 5L, buffer_km = 68, seed = NULL)
   Width of the dead zone in kilometres. Training rows closer than this
   to any test row are excluded from that fold. The default, 68 km, is
   the largest identified variogram range among the depth-function
-  parameters fitted to the profiles shipped with this package; see
-  `inst/extdata/piml_parameter_variograms.rds`. Set `0` to reproduce the
+  parameters fitted to Cerrado WoSIS profiles; reproduce it with
+  `data-raw/piml_parameter_variograms.R`. Set `0` to reproduce the
   unbuffered behaviour, which is what earlier versions did implicitly.
 
 - seed:

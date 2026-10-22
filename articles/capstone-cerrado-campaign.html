@@ -11,7 +11,20 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Capstone — Uma decisão de amostragem sob incerteza no Cerrado">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+<!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -429,29 +442,15 @@ decimais).</caption>
 <h3 id="perfis-wosis">Perfis WoSIS<a class="anchor" aria-label="anchor" href="#perfis-wosis"></a>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">profiles</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">wosis_profiles</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Perfis WoSIS no AoI: %d  |  COS médio: %.1f g/kg  |  Amplitude: %.1f–%.1f g/kg\n"</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">profiles</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">profiles</span><span class="op">$</span><span class="va">soc_g_kg</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">profiles</span><span class="op">$</span><span class="va">soc_g_kg</span>,  na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">profiles</span><span class="op">$</span><span class="va">soc_g_kg</span>,  na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Perfis WoSIS no AoI: 250  |  COS médio: 16.9 g/kg  |  Amplitude: 1.4–140.0 g/kg</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">profiles</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">soc_g_kg</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="fl">25</span>, fill <span class="op">=</span> <span class="st">"#2ECC71"</span>, color <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    x     <span class="op">=</span> <span class="st">"COS (g/kg)"</span>,</span>
-<span>    y     <span class="op">=</span> <span class="st">"Frequência"</span>,</span>
-<span>    title <span class="op">=</span> <span class="st">"Distribuição do Carbono Orgânico do Solo — Cerrado (WoSIS)"</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<img src="capstone-cerrado-campaign_files/figure-html/wosis-hist-1.png" class="r-plt" alt="Distribuição do COS topsoil (0–30 cm) nos perfis WoSIS dentro do AoI do Cerrado." width="96%"><p class="caption">
-Distribuição do COS topsoil (0–30 cm) nos perfis WoSIS dentro do AoI do
-Cerrado.
-</p>
-</div>
+<code class="sourceCode R"><span><span class="co"># Os perfis WoSIS reais nao acompanham mais o pacote: eram medicoes de</span></span>
+<span><span class="co"># terceiros com coordenadas. Busque-os voce mesmo se quiser este resumo.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Os perfis WoSIS do AoI nao sao distribuidos com o pacote.\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Os perfis WoSIS do AoI nao sao distribuidos com o pacote.</span></span></code></pre></div>
+<blockquote>
+<p><strong>O histograma de COS dos perfis WoSIS nao e reproduzido
+aqui.</strong> Ele resumia medicoes de terceiros que este pacote deixou
+de distribuir.</p>
+</blockquote>
 <hr>
 </div>
 </div>
@@ -480,7 +479,7 @@ via Ollama.</p>
 <div class="section level3">
 <h3 id="extração-de-arestas-com-gemma-4-llm-kg">Extração de arestas com Gemma 4 (LLM KG)<a class="anchor" aria-label="anchor" href="#extra%C3%A7%C3%A3o-de-arestas-com-gemma-4-llm-kg"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Passo executado offline (requer Ollama com gemma4:latest).</span></span>
 <span><span class="co"># O resultado está armazenado em R$llm_claims.</span></span>
 <span><span class="va">abstract_txt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
@@ -494,7 +493,7 @@ via Ollama.</p>
 <span>  backend <span class="op">=</span> <span class="st">"ollama"</span>,</span>
 <span>  model   <span class="op">=</span> <span class="st">"gemma4:latest"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">claims</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">llm_claims</span></span>
 <span><span class="va">prov</span>   <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">llm_provenance</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">claims</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -614,7 +613,7 @@ identificar.</p>
 <div class="section level3">
 <h3 id="dag-aumentado-pelo-gemma-4">DAG aumentado pelo Gemma 4<a class="anchor" aria-label="anchor" href="#dag-aumentado-pelo-gemma-4"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dag</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">dag</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggdag"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
@@ -650,7 +649,7 @@ Conjunto de ajuste backdoor para MAP→COS destacado em azul.
 conjunto de ajuste mínimo pelo critério de backdoor e ajustamos um
 estimador linear com bootstrap espacial em blocos (k-means sobre
 lon/lat).</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">causal_effects</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
 <span>  <span class="va">eff</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"estimate"</span>, <span class="st">"ci_lo"</span>, <span class="st">"ci_hi"</span>, <span class="st">"RV"</span>, <span class="st">"adjustment"</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -719,7 +718,7 @@ wc_landcover_grassland, wc_landcover_trees</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_list</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">causal_posteriors</span></span>
 <span></span>
 <span><span class="co"># Montar data.frame de amostras para ggplot</span></span>
@@ -804,9 +803,11 @@ predito. O caminho reportado deixou de ser a aproximação de Laplace:
 neste pedon ela subestima cinco dos sete intervalos, o do ruído de
 observação por um fator de 1,8, porque é gaussiana nas coordenadas
 logarítmicas e portanto tem caudas leves demais.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Dados do perfil e posterior Bayesiano (pré-computado)</span></span>
-<span><span class="va">prof_obs</span>  <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">piml_profile_obs</span></span>
+<span><span class="co"># As observacoes do pedon real foram removidas do pacote; o posterior</span></span>
+<span><span class="co"># pre-computado permanece, entao a curva e as faixas continuam corretas --</span></span>
+<span><span class="co"># apenas os pontos observados nao sao mais desenhados.</span></span>
 <span><span class="va">prof_post</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">piml_profile_posterior</span>  <span class="co"># edaphos_posterior</span></span>
 <span></span>
 <span><span class="co"># The depth grid comes from the bundle, not from an assumption about it: the</span></span>
@@ -831,11 +832,6 @@ logarítmicas e portanto tem caudas leves demais.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="va">q05</span>, xmax <span class="op">=</span> <span class="va">q95</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"#2ECC71"</span>, alpha <span class="op">=</span> <span class="fl">0.20</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="va">q25</span>, xmax <span class="op">=</span> <span class="va">q75</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"#27AE60"</span>, alpha <span class="op">=</span> <span class="fl">0.35</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#1A5C35"</span>, linewidth <span class="op">=</span> <span class="fl">1.1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
-<span>    data <span class="op">=</span> <span class="va">prof_obs</span>,</span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">soc_g_kg</span>, y <span class="op">=</span> <span class="op">-</span><span class="va">depth_mid</span><span class="op">)</span>,</span>
-<span>    color <span class="op">=</span> <span class="st">"#C0392B"</span>, size <span class="op">=</span> <span class="fl">2.5</span>, shape <span class="op">=</span> <span class="fl">16</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>    x     <span class="op">=</span> <span class="st">"COS (g/kg)"</span>,</span>
 <span>    y     <span class="op">=</span> <span class="st">"Profundidade (cm)"</span>,</span>
@@ -850,17 +846,18 @@ logarítmicas e portanto tem caudas leves demais.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">depths_seq</span><span class="op">)</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span>,</span>
 <span>                     labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">depths_seq</span><span class="op">)</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="capstone-cerrado-campaign_files/figure-html/piml-posterior-1.png" class="r-plt" alt="Perfil preditivo bayesiano da ODE pedogenética para um pedon representativo do Cerrado. Linha sólida: média posterior. Faixa escura: IC 50%. Faixa clara: IC 95%. Pontos: observações WoSIS." width="96%"><p class="caption">
+<img src="capstone-cerrado-campaign_files/figure-html/piml-posterior-1.png" class="r-plt" alt="Perfil preditivo bayesiano da ODE pedogenética para um pedon representativo do Cerrado. Linha sólida: média posterior. Faixa escura: IC 50%. Faixa clara: IC 95%. As observações WoSIS que ajustaram este posterior não acompanham o pacote e por isso não são desenhadas." width="96%"><p class="caption">
 Perfil preditivo bayesiano da ODE pedogenética para um pedon
 representativo do Cerrado. Linha sólida: média posterior. Faixa escura:
-IC 50%. Faixa clara: IC 95%. Pontos: observações WoSIS.
+IC 50%. Faixa clara: IC 95%. As observações WoSIS que ajustaram este
+posterior não acompanham o pacote e por isso não são desenhadas.
 </p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="parâmetros-pedogenéticos-aprendidos">Parâmetros pedogenéticos aprendidos<a class="anchor" aria-label="anchor" href="#par%C3%A2metros-pedogen%C3%A9ticos-aprendidos"></a>
 </h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Colunas seleccionadas por NOME, não por posição: a tabela ganhou as</span></span>
 <span><span class="co"># colunas de diagnóstico `rhat` e `ess` quando o caminho reportado passou a</span></span>
 <span><span class="co"># MCMC, e um `col.names` de comprimento fixo quebrou silenciosamente a</span></span>
@@ -1019,10 +1016,10 @@ claro — impossibilitando inferir qual variável antecede a outra. O Pilar
 3 responde a essa crítica: o ConvLSTM aprende a dinâmica espaço-temporal
 do NDVI, e o EnKF assimila observações <em>in situ</em> de COS
 atualizando a previsão prospectiva.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Resultados do temporal Cerrado pré-computados</span></span>
 <span><span class="va">temp_res</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">temporal_results</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prior_field</span>    <span class="op">&lt;-</span> <span class="va">temp_res</span><span class="op">$</span><span class="va">prior_mean</span></span>
 <span><span class="va">analysis_field</span> <span class="op">&lt;-</span> <span class="va">temp_res</span><span class="op">$</span><span class="va">analysis_mean</span></span>
 <span><span class="va">obs_locs</span>       <span class="op">&lt;-</span> <span class="va">temp_res</span><span class="op">$</span><span class="va">obs_locations</span></span>
@@ -1076,7 +1073,7 @@ análise posterior ao EnKF localizado (Gaspari-Cohn, raio=2 células) para
 o campo médio de COS normalizado. A assimilação reduz o RMSE em ~3%.
 </p>
 </div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># `mean_gain` is one value per assimilated observation, not per grid</span></span>
 <span><span class="co"># cell -- bind it to `obs_locs` directly to keep the data.frame</span></span>
 <span><span class="co"># rectangular (v3.10.0 fix).</span></span>
@@ -1118,18 +1115,12 @@ representação de 128 dimensões. Esse encoder, publicado no Zenodo (DOI
 da série: <code>10.5281/zenodo.19683708</code>), captura padrões de
 fitofisionomia e textura do solo visíveis em imagens de satélite que
 seriam difíceis de engenheirar manualmente.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">found_df</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">foundation_pred_df</span>  <span class="co"># colunas: lon, lat, mean_pred, sd_pred</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">found_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">mean_pred</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"B"</span>, name <span class="op">=</span> <span class="st">"COS pred.\n(g/kg)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
-<span>    data <span class="op">=</span> <span class="va">profiles</span>,</span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span>, color <span class="op">=</span> <span class="va">soc_g_kg</span><span class="op">)</span>,</span>
-<span>    size <span class="op">=</span> <span class="fl">2.5</span>, shape <span class="op">=</span> <span class="fl">21</span>,</span>
-<span>    fill <span class="op">=</span> <span class="st">"white"</span>, stroke <span class="op">=</span> <span class="fl">0.5</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_distiller</a></span><span class="op">(</span></span>
 <span>    palette <span class="op">=</span> <span class="st">"YlOrRd"</span>, direction <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    name <span class="op">=</span> <span class="st">"COS obs.\n(g/kg)"</span></span>
@@ -1140,13 +1131,14 @@ seriam difíceis de engenheirar manualmente.</p>
 <span>    title <span class="op">=</span> <span class="st">"Pilar 4 — Ensemble Foundation Model (K = 5 heads)"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="capstone-cerrado-campaign_files/figure-html/foundation-predictions-1.png" class="r-plt" alt="Mapa de COS predito pelo ensemble de heads (K=5) fine-tuned sobre o Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do ensemble. Pontos vermelhos: perfis WoSIS observados." width="96%"><p class="caption">
+<img src="capstone-cerrado-campaign_files/figure-html/foundation-predictions-1.png" class="r-plt" alt="Mapa de COS predito pelo ensemble de heads (K=5) fine-tuned sobre o Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do ensemble. Os perfis WoSIS observados não são distribuídos com o pacote e por isso não aparecem." width="96%"><p class="caption">
 Mapa de COS predito pelo ensemble de heads (K=5) fine-tuned sobre o
 Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do
-ensemble. Pontos vermelhos: perfis WoSIS observados.
+ensemble. Os perfis WoSIS observados não são distribuídos com o pacote e
+por isso não aparecem.
 </p>
 </div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">found_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span>, fill <span class="op">=</span> <span class="va">sd_pred</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"F"</span>, name <span class="op">=</span> <span class="st">"SD (g/kg)"</span>,</span>
@@ -1196,7 +1188,7 @@ automaticamente excluídos como fisicamente implausíveis.</li>
 é a diversidade normalizada, com
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">\alpha = 0{,}7</annotation></semantics></math>
 por padrão.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">query_res</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">al_query_results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Candidatos avaliados: %d  |  Rejeitados pelo gate físico: %d  |"</span>,</span>
@@ -1208,18 +1200,15 @@ por padrão.</p>
 <span>  <span class="va">query_res</span><span class="op">$</span><span class="va">n_selected</span>, <span class="va">query_res</span><span class="op">$</span><span class="va">max_score</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Selecionados (lote): 8  |  Score máximo: 0.910</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cand_df</span>    <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">candidate_df</span>   <span class="co"># lon, lat, score, selected, rejected_by_gate</span></span>
 <span><span class="va">sel_df</span>     <span class="op">&lt;-</span> <span class="va">cand_df</span><span class="op">[</span><span class="va">cand_df</span><span class="op">$</span><span class="va">selected</span>, <span class="op">]</span></span>
 <span><span class="va">rej_df</span>     <span class="op">&lt;-</span> <span class="va">cand_df</span><span class="op">[</span><span class="va">cand_df</span><span class="op">$</span><span class="va">rejected_by_gate</span>, <span class="op">]</span></span>
-<span><span class="va">exist_df</span>   <span class="op">&lt;-</span> <span class="va">profiles</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lon"</span>, <span class="st">"lat"</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">cand_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">score</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span>, name <span class="op">=</span> <span class="st">"Score AL"</span>,</span>
 <span>                       direction <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">exist_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span>,</span>
-<span>             color <span class="op">=</span> <span class="st">"grey60"</span>, size <span class="op">=</span> <span class="fl">1.5</span>, shape <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">rej_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span>,</span>
 <span>             color <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">2</span>, shape <span class="op">=</span> <span class="fl">4</span>, stroke <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sel_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span>,</span>
@@ -1229,19 +1218,18 @@ por padrão.</p>
 <span>    y     <span class="op">=</span> <span class="st">"Latitude"</span>,</span>
 <span>    title <span class="op">=</span> <span class="st">"Pilar 5 — Active Learning: 8 locais selecionados para campo"</span>,</span>
 <span>    caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>      <span class="st">"★ = selecionados  ✕ = rejeitados pelo gate físico (ODE)  "</span>,</span>
-<span>      <span class="st">"● = perfis existentes"</span></span>
+<span>      <span class="st">"★ = selecionados  ✕ = rejeitados pelo gate físico (ODE)"</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="capstone-cerrado-campaign_files/figure-html/al-map-1.png" class="r-plt" alt="Localizações selecionadas pela política de amostragem ativa (estrelas vermelhas). A cor de fundo é o score combinado de incerteza + diversidade. Os círculos cinza são os perfis WoSIS existentes. As cruzes pretas são candidatos rejeitados pelo gate físico da ODE." width="96%"><p class="caption">
+<img src="capstone-cerrado-campaign_files/figure-html/al-map-1.png" class="r-plt" alt="Localizações selecionadas pela política de amostragem ativa (estrelas vermelhas). A cor de fundo é o score combinado de incerteza + diversidade. As cruzes pretas são candidatos rejeitados pelo gate físico da ODE. Os perfis WoSIS existentes não são distribuídos com o pacote." width="96%"><p class="caption">
 Localizações selecionadas pela política de amostragem ativa (estrelas
 vermelhas). A cor de fundo é o score combinado de incerteza +
-diversidade. Os círculos cinza são os perfis WoSIS existentes. As cruzes
-pretas são candidatos rejeitados pelo gate físico da ODE.
+diversidade. As cruzes pretas são candidatos rejeitados pelo gate físico
+da ODE. Os perfis WoSIS existentes não são distribuídos com o pacote.
 </p>
 </div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
 <span>  <span class="va">sel_df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lon"</span>, <span class="st">"lat"</span>, <span class="st">"score"</span>, <span class="st">"uncertainty_score"</span>,</span>
 <span>             <span class="st">"diversity_score"</span>, <span class="st">"pred_mean"</span>, <span class="st">"pred_sd"</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -1361,7 +1349,7 @@ QRF.</caption>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">al_posts</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">al_posteriors</span>  <span class="co"># lista de edaphos_posterior por candidato</span></span>
 <span></span>
 <span><span class="va">posts_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">al_posts</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1413,7 +1401,7 @@ usada para a predição pontual — sem Monte Carlo adicional.</p>
 <p>O Q-KRR é especialmente útil para <strong>triagem inicial</strong> de
 uma grade densa de candidatos (centenas de pontos) antes de aplicar a
 política de amostragem ativa mais custosa do Pilar 5.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qkrr_df</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">qkrr_df</span>  <span class="co"># lon, lat, mean_pred, epistemic_sd, aleatoric_sd, total_sd</span></span>
 <span></span>
 <span><span class="va">qkrr_long</span> <span class="op">&lt;-</span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
@@ -1446,7 +1434,7 @@ epistêmica sinaliza regiões onde o kernel quântico interpola mal —
 candidatos prioritários.
 </p>
 </div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">compare_df</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">qkrr_al_compare</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">compare_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">al_uncertainty</span>, y <span class="op">=</span> <span class="va">qkrr_epistemic</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1523,7 +1511,7 @@ futuro</strong> (dinâmica temporal), não o valor estático no pixel.</li>
 produz os números do bloco abaixo — com PICP próximo de zero para P1–P3
 — que refletem mismatch de domínio, <strong>não</strong> calibração
 ruim.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal_tbl</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">calibration_table</span></span>
 <span><span class="va">cal_disp</span> <span class="op">&lt;-</span> <span class="va">cal_tbl</span></span>
 <span><span class="va">cal_disp</span><span class="op">$</span><span class="va">crps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cal_tbl</span><span class="op">$</span><span class="va">crps</span>, <span class="fl">3</span><span class="op">)</span></span>
@@ -1678,7 +1666,7 @@ quânticas</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">nat_tbl</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">$</span><span class="va">native_table</span></span>
 <span>  <span class="va">nat_disp</span> <span class="op">&lt;-</span> <span class="va">nat_tbl</span></span>
@@ -1818,7 +1806,7 @@ amostras de treinamento mostra que a posterior GP-equivalente do kernel
 quântico captura honestamente a incerteza mesmo em regime de dados
 escassos.</li>
 </ul>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">N</span><span class="op">$</span><span class="va">reliability_list</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">rel_df_nat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">N</span><span class="op">$</span><span class="va">reliability_list</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">nm</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">$</span><span class="va">reliability_list</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span></span>
@@ -1864,7 +1852,7 @@ adquiridos. Abaixo comparamos a política AL
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">\alpha=0{,}7</annotation></semantics></math>,
 híbrida incerteza + diversidade) contra amostragem puramente aleatória,
 ambas partindo do mesmo conjunto semente.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">N</span><span class="op">$</span><span class="va">p5</span><span class="op">$</span><span class="va">learning_curve</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">lc</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">$</span><span class="va">p5</span><span class="op">$</span><span class="va">learning_curve</span></span>
 <span>  <span class="va">rc</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">$</span><span class="va">p5</span><span class="op">$</span><span class="va">random_curve</span></span>
@@ -1909,7 +1897,7 @@ benefício de AL maior em regime inicial (n pequeno) do que terminal.
 </h3>
 <p>Consolidamos a informação dos seis pilares numa matriz de
 evidências:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dec_mat</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">decision_matrix</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
 <span>  <span class="va">dec_mat</span>,</span>
@@ -2063,7 +2051,7 @@ Found. = 0,20, Q-KRR = 0,10, P1-P2 = 0,10).</caption>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">final_sel</span> <span class="op">&lt;-</span> <span class="va">R</span><span class="op">$</span><span class="va">final_selection</span>  <span class="co"># lon, lat, final_score</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -2085,11 +2073,6 @@ Found. = 0,20, Q-KRR = 0,10, P1-P2 = 0,10).</caption>
 <span>    data <span class="op">=</span> <span class="va">final_sel</span>,</span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span>, label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">final_sel</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    color <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">3</span>, fontface <span class="op">=</span> <span class="st">"bold"</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
-<span>    data <span class="op">=</span> <span class="va">profiles</span>,</span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span>,</span>
-<span>    color <span class="op">=</span> <span class="st">"grey70"</span>, size <span class="op">=</span> <span class="fl">1.5</span>, shape <span class="op">=</span> <span class="fl">16</span>, alpha <span class="op">=</span> <span class="fl">0.6</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>    x     <span class="op">=</span> <span class="st">"Longitude"</span>,</span>

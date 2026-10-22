@@ -9,7 +9,20 @@ direct parents of the outcome (falling back to the full covariate
 set when the DAG has no matching variables) and generates a
 parametric-bootstrap predictive posterior.  Intended for the
 v3.1.0 WoSIS head-to-head; the exported API is stable enough for
-use on any regional subset that follows the same schema."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+use on any regional subset that follows the same schema."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -200,7 +213,7 @@ reproduce the v3.1.0 epistemic-only behaviour.</p></dd>
 <span class="r-in"><span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu">benchmark_fit_p1_causal</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">covs</span>, n_boot <span class="op">=</span> <span class="fl">300L</span>,</span></span>
 <span class="r-in"><span>                               seed <span class="op">=</span> <span class="fl">1L</span>, calibrate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">post</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">raw</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.552714e-15</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Read that next to the coverage, which is the whole point of the term.</span></span></span>
 <span class="r-in"><span><span class="co"># Bootstrap spread alone is the uncertainty of the FITTED MEAN, not of a</span></span></span>

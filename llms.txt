@@ -384,8 +384,8 @@ CMD check and a dedicated test suite:
 | **v2.2.0** | Physics-informed quantum kernels (P2 × P6): [`piml_quantum_kernel()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_quantum_kernel.md) + [`piml_qkrr_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_qkrr_fit.md) fuse ZZFeatureMap overlap with ODE-residual RBF similarity. |
 | **v2.2.1** | Causal 4D time-varying effects (P1 × P3): [`causal_effect_time_varying()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_effect_time_varying.md) sliding-window backdoor + Mann-Kendall trend test + ggplot2 trajectory. |
 | **v2.3.0** | **Pilar 7 BHS** — Bayesian hierarchical spatial model via self-contained Gibbs sampler + optional [`spBayes::spLM`](https://finleya.github.io/spBayes/reference/spLM.html) backend. Profile-MLE phi for closed-form conditionals. |
-| **v2.4.0** | **Pilar 8 Neural Operators** — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021) in pure R. Learn `u(z) → y(z)` across sites without torch. |
-| **v2.5.0** | **Pilar 9 DDPM** — first pedometric diffusion-model for generative soil maps. Cosine-schedule (Nichol & Dhariwal 2021) + score-matching loss + ancestral sampling. |
+| **v2.4.0** | **Pilar 8 Neural Operators** — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021), trained with `backend = "torch"`. The pure-R fallback is a reference only: it freezes the spectral (FNO) and branch/trunk (DeepONet) layers and fits a random-feature readout, so it does **not** learn the operator. Both functions say so at call time. |
+| **v2.5.0** | **Pilar 9 DDPM** — pedometric diffusion model for generative soil maps. Cosine schedule (Nichol & Dhariwal 2021) + score-matching loss + ancestral sampling, trained with `backend = "torch"`. The pure-R fallback is a reference sampler whose draws are over-dispersed and spatially incoherent; [`dm_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/dm_fit.md) says so at call time. |
 | **v2.8.0** | **Pilar 10 GAT** — first pedometric Graph Attention Network (Velickovic et al. 2018) over WoSIS k-NN co-location graphs. |
 
 **Tooling now in place**: `src/` compiled Rcpp, `LinkingTo: Rcpp`,
@@ -727,9 +727,11 @@ Three additions promote the extractor from demo to literature-scale:
   `max_active = 5`, near-instant on re-runs.
 
 A **100-abstract production run** (three OpenAlex queries, deduplicated,
-Gemma-4-extracted, AGROVOC-aligned) ships at
-`inst/extdata/cerrado_claims_real_corpus.jsonl` and is reproduced
-end-to-end by `data-raw/run_large_corpus.R`.
+Gemma-4-extracted, AGROVOC-aligned) is reproduced end-to-end by
+`data-raw/run_large_corpus.R`, which builds the corpus into your own
+cache. The corpus is **not shipped**: its evidence strings are verbatim
+extracts from copyrighted journal abstracts, which this package cannot
+redistribute under MIT.
 
 #### 🗳️ Multi-extractor LLM voting
 
@@ -2227,22 +2229,37 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 
 | File | Size | What it holds | Used by |
 |:---|---:|:---|:---|
-| `case_cerrado_results.rds` | ~351 KB | QRF/kriging/MoCo benchmark (§Benchmarks) | `case-cerrado-end-to-end` |
-| `causal_cerrado_real.rds` | ~62 KB | 1 095 WoSIS profiles + DAG + identified effects | `pilar1-causal-real` |
-| `temporal_cerrado_results.rds` | ~194 KB | 2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis | `pilar3-4d-real` |
-| `capstone_campaign_results.rds` | ~287 KB | 6-pillar integrated bundle for the v1.7.0 capstone | `capstone-cerrado-campaign` |
-| `capstone_native_calibration.rds` | ~294 KB | Native-query calibration per pillar (v1.7.1 hotfix) | `capstone-cerrado-campaign` §10 |
-| `causal_discovery_results.rds` | ~1 KB | Expert × LLM × data-driven DAG benchmark (v1.7.2) | `causal-discovery-trio` |
-| `cerrado_gold_standard_v1.jsonl` | ~18 KB | 30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed) | `llm-kg-benchmark` |
-| `cerrado_gold_standard_v1_draft.jsonl` | ~22 KB | Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo) | `llm-annotation-workflow` |
-| `causal_iv_cerrado.rds` | ~4 KB | 2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado | `pilar1-pilar4-iv` |
-| `causal_iv_cerrado_real.rds` | ~1 KB | Real-encoder IV benchmark: 1 081 embeddings; Sargan PARTIAL (see below) | `pilar1-pilar4-iv` §7 |
+| `case_cerrado_results.rds` | ~96 KB | QRF/kriging/MoCo benchmark scores + predictions (profiles removed) | `case-cerrado-end-to-end` |
+| `causal_cerrado_real_v2.rds` | ~2 KB | DAG + identified effects + Simpson check + IV + encoder metadata | `pilar1-pilar4-iv` |
+| `temporal_cerrado_results.rds` | ~5 KB | EnKF skill summary for the 4D ConvLSTM run (observed cube removed) | `uncertainty-unified` |
+| `capstone_campaign_results.rds` | ~285 KB | 6-pillar integrated bundle for the v1.7.0 capstone | `capstone-cerrado-campaign` |
+| `capstone_native_calibration.rds` | ~292 KB | Native-query calibration per pillar (v1.7.1 hotfix) | `capstone-cerrado-campaign` §10 |
+| `causal_discovery_results.rds` | ~1 KB | Expert x LLM x data-driven DAG benchmark (v1.7.2) | `causal-discovery-trio` |
+| `cerrado_gold_standard_v1.jsonl` | ~18 KB | 30 simulated abstracts x 72 annotated causal claims (v1.8.0 seed) | `articles/llm-kg-benchmark` |
+| `cerrado_gold_standard_v1_draft.jsonl` | ~22 KB | Simulator draft used by the annotation reviewer (v1.8.1 demo) | `llm-annotation-workflow` |
+| `causal_iv_cerrado.rds` | ~4 KB | 2SLS instrumental-variable benchmark (v1.9.0), synthetic DGP | `pilar1-pilar4-iv` |
+| `causal_iv_cerrado_real.rds` | ~1 KB | Real-encoder IV benchmark summary; Sargan PARTIAL (see below) | `pilar1-pilar4-iv` §7 |
 | `causal_sensitivity_cerrado.rds` | ~142 KB | Cinelli-Hazlett RV + bias-contour grid (v1.9.2) | `pilar1-pilar4-iv` §8 |
-| `quantum_foundation_cerrado.rds` | ~2 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0) | `pilar4-pilar6-quantum` |
-| `llm_benchmark_results.rds` | ~10 KB | Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency) | `llm-kg-benchmark` |
-| `cerrado_abstracts.jsonl` | ~5 KB | 10 curated Cerrado-pedology abstracts | `pilar1-causal` |
-| `cerrado_claims.jsonl` | ~8 KB | Gemma-4-extracted causal claims from the 10 abstracts | `pilar1-causal` |
-| `cerrado_claims_real_corpus.jsonl` | ~94 KB | **100-abstract production corpus** (OpenAlex + SciELO) | `data-raw/run_large_corpus.R` |
+| `quantum_foundation_cerrado.rds` | ~2 KB | Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors | `pilar4-pilar6-quantum` |
+| `llm_benchmark_results.rds` | ~10 KB | Simulated LLM benchmark bundle (P/R/F1, kappa, cost, latency) | `articles/llm-kg-benchmark` |
+| `cerrado_abstracts.jsonl` | ~5 KB | 10 SIMULATED Cerrado-pedology abstracts (invented citation keys) | `pilar1-causal` |
+| `cerrado_claims.jsonl` | ~8 KB | Causal claims extracted from the 10 simulated abstracts | `pilar1-causal` |
+| `fixture_wosis_like.rds` | ~4 KB | SIMULATED WoSIS-shaped profiles/horizons for examples and tests | [`edaphos_example_profiles()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_example_profiles.md) |
+| `fixture_soildata_like.rds` | ~2 KB | SIMULATED SoilData-shaped PTF calibration set | [`edaphos_example_profiles()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_example_profiles.md) |
+
+Entries written `articles/…` are **not vignettes**. They are web-only
+articles: their sources live in `vignettes/articles/`, which is
+`.Rbuildignore`d, so they are not in the installed package and asking R
+for them by name finds nothing. pkgdown renders them as pages on the
+package website. Of the four there, `pilar1-causal-real` and
+`pilar3-4d-real` stop at a notice: the data behind their results was
+withdrawn on 2026-08-28 and the package can no longer reproduce them.
+
+(This paragraph deliberately does not spell out the vignette call that
+fails: `tests/testthat/test-doc-references-resolve.R` requires every
+such call appearing in R/ or the README to resolve, and it is right to —
+a reader who sees one types it. Writing the failing call here to
+illustrate the failure tripped that test, which is the test working.)
 
 This table is a selection, not an inventory: `inst/extdata/` holds more
 bundles than are listed here — the benchmark and PIML result files are
@@ -2288,13 +2305,13 @@ bibliography (`vignettes/references.bib`).
 
 ## Testing and continuous integration
 
-- **2 192 passing expectations** across 601 `test_that` blocks in 92
+- **2 244 passing expectations** across 608 `test_that` blocks in 95
   test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1.
   One expectation is skipped here, because its optional dependency is
   absent; every skip is an explicit `skip_if_not_installed()` gate.
 - **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`,
   `reticulate`, `terra`, `igraph`.
-- **`R CMD check --as-cran`:** `2 NOTEs` at commit `8e725b9`. The
+- **`R CMD check --as-cran`:** `2 NOTEs` at commit `7b881c2`. The
   per-item breakdown, including which items are package defects and
   which are artefacts of the checking machine, is in
   [`cran-comments.md`](https://hugomachadorodrigues.github.io/edaphos/cran-comments.md);
@@ -2912,8 +2929,8 @@ ZZFeatureMap, Quantum KRR, Qiskit VQE, organo-mineral Hamiltonians.
 
 ## Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)
 
-Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo /
-spBayes).
+Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes;
+the spBayes backend fits but cannot predict).
 
 - [`bhs_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/bhs_fit.md)
   : Fit a Bayesian hierarchical spatial linear model (Pilar 7)
@@ -3023,6 +3040,9 @@ Common edaphos_posterior class + single calibration diagnostic.
 - [`edaphos_ece()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_ece.md)
   : Expected calibration error (ECE) for a regression reliability
   diagram
+
+- [`edaphos_example_profiles()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_example_profiles.md)
+  : Simulated soil profiles for examples and tests
 
 - [`edaphos_interval_score()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_interval_score.md)
   : Interval score (Gneiting and Raftery 2007)
@@ -3148,3 +3168,17 @@ Resumable 10k+ abstract orchestrator + Ollama pre-flight.
 - [Frontier methods for digital soil mapping, evaluated honestly: a
   reproducible benchmark on real WoSIS Cerrado
   profiles](https://hugomachadorodrigues.github.io/edaphos/articles/edaphos-paper.md):
+
+### Articles (web only)
+
+Longer real-data walkthroughs. They live under vignettes/articles/, so
+the site renders them and the source tarball does not carry them.
+
+- [Pilar 1 on real data — identified causal effects on Cerrado
+  SOC](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal-real.md):
+- [Pilar 3 on real data — 4D NDVI forecasting with sequential Bayesian
+  assimilation](https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-real.md):
+- [Pilar 5 — Active Learning on a Brazilian Cerrado
+  Transect](https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-soilgrids-br.md):
+- [LLM-driven causal-claim extraction for DSM: a multi-backend
+  benchmark](https://hugomachadorodrigues.github.io/edaphos/articles/llm-kg-benchmark.md):

@@ -43,9 +43,19 @@ bhs_fit(
 - backend:
 
   One of `"gibbs"` (pure-R Gibbs sampler, default, no external deps),
+  `"rcpp"` (the same sampler with an RcppArmadillo inner loop), or
   `"spBayes"` (dispatches to
   [`spBayes::spLM`](https://finleya.github.io/spBayes/reference/spLM.html)
   when available).
+
+  **`"spBayes"` fits but cannot predict.**
+  [`predict.edaphos_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/predict.edaphos_bhs.md)
+  refuses on that backend, so a fit made with it supports posterior
+  inspection – `beta_draws`, `sigma2_draws`, `tau2_draws`,
+  [`print()`](https://rdrr.io/r/base/print.html), the spatial variance
+  share – but not kriging at new sites. `bhs_fit()` warns about this
+  before it starts sampling rather than after. Use `"gibbs"` or `"rcpp"`
+  if you need predictions.
 
 - nmcmc:
 

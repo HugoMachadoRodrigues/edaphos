@@ -11,7 +11,20 @@ state of the art (McBratney, Mendonça Santos and Minasny,
 2003; Wadoux, Minasny and McBratney, 2020). Its contributions are
 organised across ten research pillars, each confronting a specific
 methodological gap of the contemporary literature and equipped with a
-vignette that derives the governing object from first principles."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+vignette that derives the governing object from first principles."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -326,6 +339,88 @@ structure learner.</p></dd>
 
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="how-exports-are-named">How exports are named<a class="anchor" aria-label="anchor" href="#how-exports-are-named"></a></h2>
+
+
+<p>Every exported function carries a domain prefix. There are no pillar
+numbers in the API: the pillars organise the documentation, the prefixes
+organise the functions.</p>
+<dl><dt><code>causal_</code></dt>
+<dd><p>Causal inference and the LLM knowledge graph (Pillar 1).</p></dd>
+
+<dt><code>piml_</code></dt>
+<dd><p>Physics-informed depth-profile models (Pillar 2).</p></dd>
+
+<dt><code>temporal_</code></dt>
+<dd><p>4D pedometry: ConvLSTM, EnKF (Pillar 3).</p></dd>
+
+<dt><code>foundation_</code></dt>
+<dd><p>Self-supervised encoders and their embeddings (Pillar 4).</p></dd>
+
+<dt><code>al_</code></dt>
+<dd><p>Active learning: designs, acquisition policies, loops (Pillar 5).</p></dd>
+
+<dt><code>active_</code></dt>
+<dd><p>One function, <code><a href="active_learning_posterior.html">active_learning_posterior()</a></code>, which is a
+Pillar 5 posterior accessor. It predates the <code>al_</code> prefix and kept the
+longer name; there is no second <code>active_</code> family.</p></dd>
+
+<dt><code>quantum_</code></dt>
+<dd><p>Quantum kernels and VQE (Pillar 6).</p></dd>
+
+<dt><code>bhs_</code></dt>
+<dd><p>Bayesian hierarchical spatial models (Pillar 7).</p></dd>
+
+<dt><code>no_</code></dt>
+<dd><p>Neural operators: FNO, DeepONet (Pillar 8).</p></dd>
+
+<dt><code>dm_</code></dt>
+<dd><p>Diffusion models (Pillar 9).</p></dd>
+
+<dt><code>gnn_</code></dt>
+<dd><p>Graph neural networks (Pillar 10).</p></dd>
+
+<dt><code>qf_</code></dt>
+<dd><p>The Pillar 4 x Pillar 6 bridge: quantum kernels over
+foundation embeddings.</p></dd>
+
+<dt><code>uncertainty_</code></dt>
+<dd><p>The shared calibration API across pillars.</p></dd>
+
+<dt><code>benchmark_</code></dt>
+<dd><p>Thin wrappers used by the cross-pillar benchmark.</p></dd>
+
+<dt><code>spatial_</code></dt>
+<dd><p>One function, <code><a href="spatial_block_folds.html">spatial_block_folds()</a></code>: buffered
+spatially blocked cross-validation folds, used by every benchmark in
+the package.</p></dd>
+
+<dt><code>llm_</code></dt>
+<dd><p>Large-language-model extraction and annotation tooling.</p></dd>
+
+<dt><code>edaphos_</code></dt>
+<dd><p>Package-level utilities: metrics, provenance, release
+helpers.</p></dd>
+
+
+</dl></div>
+    <div class="section level2">
+    <h2 id="on-pilar-and-pillar-">On "pilar" and "pillar"<a class="anchor" aria-label="anchor" href="#on-pilar-and-pillar-"></a></h2>
+
+
+<p>Both spellings appear, and the split is deliberate rather than accidental.
+English prose says <strong>pillar</strong>; identifiers say <strong>pilar</strong>, which is the
+Portuguese word. So <code><a href="../articles/pilar6-quantum.html">vignette("pilar6-quantum")</a></code> documents Pillar 6, and
+<code>inst/extdata/pilar10_gat_tuning.rds</code> holds Pillar 10's tuning run.
+<code>DESCRIPTION</code> declares <code>Language: en-US, pt-BR</code> for the same reason: five
+of the vignettes are written in Portuguese.</p>
+<p>No exported function carries either spelling, so the distinction never
+reaches code a user writes. It survives in file names, which are a
+contract – renaming a vignette breaks every <code><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette()</a></code> call and
+bookmark pointing at it – and the package is not willing to break that
+for an orthographic preference.</p>
+    </div>
     <div class="section level2">
     <h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a></h2>
 

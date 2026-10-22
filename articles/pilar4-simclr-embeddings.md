@@ -45,7 +45,10 @@ $`7\times 7\times 5`$ patch with five normalised channels (elevation,
 slope, TWI, mean annual precipitation, NDVI). Reflection padding
 preserves the original grid size.
 
-torch runtime (libtorch) not available — skipping vignette.
+This vignette trains a SimCLR encoder and needs the libtorch runtime,
+which the `torch` R package downloads separately. It stops here:
+everything below is missing, not empty. To read it in full:
+install.packages(“torch”) then torch::install_torch(), and rebuild.
 
 Chen, T., S. Kornblith, M. Norouzi, and G. Hinton. 2020. “A Simple
 Framework for Contrastive Learning of Visual Representations.”

@@ -64,7 +64,10 @@ $`k_{\text{out}}\mathrm{SOC}\,P/\bar P`$ captures humidity-modulated
 decomposition ([Lehmann and Kleber 2015](#ref-Lehmann2015); [Minasny et
 al. 2017](#ref-Minasny2017)).
 
-torch runtime (libtorch) not available — skipping vignette.
+This vignette trains a ConvLSTM and needs the libtorch runtime, which
+the `torch` R package downloads separately. It stops here: everything
+below is missing, not empty. To read it in full:
+install.packages(“torch”) then torch::install_torch(), and rebuild.
 
 Lehmann, J., and M. Kleber. 2015. “The Contentious Nature of Soil
 Organic Matter.” *Nature* 528: 60–68.

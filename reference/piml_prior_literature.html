@@ -9,7 +9,20 @@ its hyperparameters on the response being fitted (the deepest observation,
 the shallowest observation, and sd(obs)). That is empirical Bayes: the
 data enter both the likelihood and the prior, intervals narrow, and a
 prior-sensitivity check against it is partly a check of the data against
-themselves."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+themselves."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -177,11 +190,10 @@ can be compared and the circularity measured rather than assumed harmless.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Compare the empirical-Bayes default against a non-circular prior on the</span></span></span>
-<span class="r-in"><span><span class="co"># pedon shipped with the package.</span></span></span>
-<span class="r-in"><span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"capstone_campaign_results.rds"</span>,</span></span>
-<span class="r-in"><span>                         package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op">$</span><span class="va">piml_profile_obs</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Compare the empirical-Bayes default against a non-circular prior on a</span></span></span>
+<span class="r-in"><span><span class="co"># simulated deep profile. These are not measurements -- see</span></span></span>
+<span class="r-in"><span><span class="co"># [edaphos_example_profiles()].</span></span></span>
+<span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="edaphos_example_profiles.html">edaphos_example_profiles</a></span><span class="op">(</span>what <span class="op">=</span> <span class="st">"pedon"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_fit_bayesian.html">piml_profile_fit_bayesian</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">depth_mid</span>, <span class="va">p</span><span class="op">$</span><span class="va">soc_g_kg</span>,</span></span>
 <span class="r-in"><span>                               top <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">top</span>, bottom <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">bottom</span>, seed <span class="op">=</span> <span class="fl">7L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="piml_profile_fit_bayesian.html">piml_profile_fit_bayesian</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">depth_mid</span>, <span class="va">p</span><span class="op">$</span><span class="va">soc_g_kg</span>,</span></span>
@@ -191,13 +203,13 @@ can be compared and the circularity measured rather than assumed harmless.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>empirical_bayes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">$</span><span class="va">mean</span>,</span></span>
 <span class="r-in"><span>            literature      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">$</span><span class="va">mean</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      empirical_bayes literature</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]          0.0105     0.0108</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]          0.0048     0.0058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]         -2.2916    -4.1070</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]         24.2147    24.7398</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]          3.0343     2.3725</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]          2.2205     2.4540</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [7,]          0.1684     0.1741</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]          0.0019     0.0019</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]          0.0266     0.0266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]       -635.2874  -637.2169</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]         31.6772    31.6770</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]          0.0711     0.0709</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]          2.3911     2.3911</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [7,]          0.0055     0.0055</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

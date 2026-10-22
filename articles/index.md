@@ -56,3 +56,17 @@
 - [Frontier methods for digital soil mapping, evaluated honestly: a
   reproducible benchmark on real WoSIS Cerrado
   profiles](https://hugomachadorodrigues.github.io/edaphos/articles/edaphos-paper.md):
+
+### Articles (web only)
+
+Longer real-data walkthroughs. They live under vignettes/articles/, so
+the site renders them and the source tarball does not carry them.
+
+- [Pilar 1 on real data — identified causal effects on Cerrado
+  SOC](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal-real.md):
+- [Pilar 3 on real data — 4D NDVI forecasting with sequential Bayesian
+  assimilation](https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-real.md):
+- [Pilar 5 — Active Learning on a Brazilian Cerrado
+  Transect](https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-soilgrids-br.md):
+- [LLM-driven causal-claim extraction for DSM: a multi-backend
+  benchmark](https://hugomachadorodrigues.github.io/edaphos/articles/llm-kg-benchmark.md):

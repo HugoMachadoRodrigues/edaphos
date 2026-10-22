@@ -76,11 +76,10 @@ Jackson RB, Canadell J, Ehleringer JR, Mooney HA, Sala OE, Schulze ED
 ## Examples
 
 ``` r
-# Compare the empirical-Bayes default against a non-circular prior on the
-# pedon shipped with the package.
-B <- readRDS(system.file("extdata", "capstone_campaign_results.rds",
-                         package = "edaphos"))
-p <- B$piml_profile_obs
+# Compare the empirical-Bayes default against a non-circular prior on a
+# simulated deep profile. These are not measurements -- see
+# [edaphos_example_profiles()].
+p <- edaphos_example_profiles(what = "pedon")
 a <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
                                top = p$top, bottom = p$bottom, seed = 7L)
 b <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
@@ -90,11 +89,11 @@ b <- piml_profile_fit_bayesian(p$depth_mid, p$soc_g_kg,
 round(cbind(empirical_bayes = summary(a)$mean,
             literature      = summary(b)$mean), 4)
 #>      empirical_bayes literature
-#> [1,]          0.0105     0.0108
-#> [2,]          0.0048     0.0058
-#> [3,]         -2.2916    -4.1070
-#> [4,]         24.2147    24.7398
-#> [5,]          3.0343     2.3725
-#> [6,]          2.2205     2.4540
-#> [7,]          0.1684     0.1741
+#> [1,]          0.0019     0.0019
+#> [2,]          0.0266     0.0266
+#> [3,]       -635.2874  -637.2169
+#> [4,]         31.6772    31.6770
+#> [5,]          0.0711     0.0709
+#> [6,]          2.3911     2.3911
+#> [7,]          0.0055     0.0055
 ```

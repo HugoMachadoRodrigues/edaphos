@@ -11,7 +11,20 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Quantum kernel over foundation-model embeddings">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+<!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -183,13 +196,75 @@ as quatro regressões lado a lado.</li>
 <hr>
 </div>
 <div class="section level2">
+<h2 id="usar-a-api-um-exemplo-que-corre">Usar a API: um exemplo que corre<a class="anchor" aria-label="anchor" href="#usar-a-api-um-exemplo-que-corre"></a>
+</h2>
+<p>A secção seguinte lê resultados publicados; esta <strong>chama as
+funções</strong>. Até esta versão a vinheta descrevia as assinaturas em
+prosa e nunca demonstrava uma invocação, de modo que um leitor ficava a
+saber o que as funções são sem ficar a saber usá-las.</p>
+<p>Corre sobre o <code>br_cerrado</code> que acompanha o pacote — sem
+rede, sem torch, sem qiskit, em cerca de um décimo de segundo.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># The setup chunk sets eval = FALSE globally, so any chunk that would have</span></span>
+<span><span class="co"># attached the package never runs. Attach it here, in the first chunk that</span></span>
+<span><span class="co"># does: without this the vignette depends on `data()` finding br_cerrado by</span></span>
+<span><span class="co"># scanning every installed library, which holds under R CMD build and not</span></span>
+<span><span class="co"># under R CMD check.</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">60</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">[</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">$</span><span class="va">soc</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># 1. PCA + re-escala para o domínio do ZZFeatureMap.</span></span>
+<span><span class="va">red</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qf_embed_reduce.html">qf_embed_reduce</a></span><span class="op">(</span><span class="va">X</span>, n_pcs <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">red</span><span class="op">$</span><span class="va">X_q</span><span class="op">)</span>, min <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">red</span><span class="op">$</span><span class="va">X_q</span><span class="op">)</span>, max <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">red</span><span class="op">$</span><span class="va">X_q</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      dim1      dim2       min       max </span></span>
+<span><span class="co">#&gt; 60.000000  4.000000 -3.141593  3.141593</span></span>
+<span></span>
+<span><span class="co"># 2. As matrizes de Gram são materialmente diferentes?</span></span>
+<span><span class="fu"><a href="../reference/qf_kernel_compare.html">qf_kernel_compare</a></span><span class="op">(</span><span class="va">red</span><span class="op">$</span><span class="va">X_q</span>, reps <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">$</span><span class="va">diagnostics</span></span>
+<span><span class="co">#&gt;                pair   frob effrank_quantum effrank_rbf effrank_linear</span></span>
+<span><span class="co">#&gt; 1    quantum_vs_rbf 34.110           48.73        4.35           3.92</span></span>
+<span><span class="co">#&gt; 2 quantum_vs_linear 63.220           48.73        4.35           3.92</span></span>
+<span><span class="co">#&gt; 3     rbf_vs_linear 63.172           48.73        4.35           3.92</span></span>
+<span></span>
+<span><span class="co"># 3. Ajuste e previsão.</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qf_krr_fit.html">qf_krr_fit</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, n_pcs <span class="op">=</span> <span class="fl">4L</span>, reps <span class="op">=</span> <span class="fl">1L</span>, lambda <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="va">fit</span></span>
+<span><span class="co">#&gt; &lt;edaphos_qf_krr&gt;  (Pillar 4 x Pillar 6 bridge)</span></span>
+<span><span class="co">#&gt;   n_pcs  = 4  (qubits = 4)</span></span>
+<span><span class="co">#&gt;   reps   = 1</span></span>
+<span><span class="co">#&gt;   lambda = 0.500</span></span>
+<span><span class="co">#&gt;   n_train = 60</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 17.41749 18.75975 12.40832 23.89838 17.72459</span></span></code></pre></div>
+<p>O intervalo de <code>X_q</code> é
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mi>π</mi><mo>,</mo><mi>π</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-\pi, \pi]</annotation></semantics></math>
+por construção: é o domínio em que o ZZFeatureMap está definido, e a
+re-escala é o que o garante.</p>
+<p><strong>Estas cinco covariáveis não são embeddings de
+fundação.</strong> O exemplo demonstra a interface, não o resultado
+científico — para esse, a secção do benchmark abaixo, que é um controlo
+negativo e diz porquê.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="diagnóstico-de-kernel-quão-diferente-é-o-quantum-do-rbf">Diagnóstico de kernel: quão diferente é o quantum do RBF?<a class="anchor" aria-label="anchor" href="#diagn%C3%B3stico-de-kernel-qu%C3%A3o-diferente-%C3%A9-o-quantum-do-rbf"></a>
 </h2>
 <p>Usando 300 perfis WoSIS e os embeddings reais do encoder v1:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>O bloco corre: ler o <code>.rds</code> publicado não precisa de torch
+nem de rede, ao contrário do resto desta vinheta, cujo chunk de setup
+desliga a avaliação globalmente.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"quantum_foundation_cerrado.rds"</span>,</span>
 <span>                                package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">bundle</span><span class="op">$</span><span class="va">kernel_comparison</span></span></code></pre></div>
+<span><span class="va">bundle</span><span class="op">$</span><span class="va">kernel_comparison</span></span>
+<span><span class="co">#&gt;                pair    frob effrank_quantum effrank_rbf effrank_linear</span></span>
+<span><span class="co">#&gt; 1    quantum_vs_rbf 180.974          276.07        5.89           5.46</span></span>
+<span><span class="co">#&gt; 2 quantum_vs_linear 215.437          276.07        5.89           5.46</span></span>
+<span><span class="co">#&gt; 3     rbf_vs_linear 168.133          276.07        5.89           5.46</span></span></code></pre></div>
 <p>A questão central aqui é <em>se os kernels são materialmente
 diferentes</em>. Frobenius distance entre <code>K_quantum</code> e
 <code>K_rbf</code> próxima de zero sugere que o lift quântico não
@@ -213,7 +288,7 @@ que não corre não pode desactualizar-se com aviso — só em silêncio.</p>
 nesta vinheta, cujo chunk de setup desliga a avaliação globalmente: ler
 o <code>.rds</code> publicado não custa nada e não precisa de torch nem
 de rede, ao contrário do resto do documento.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"quantum_foundation_cerrado.rds"</span>,</span>
 <span>                 package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -291,8 +366,9 @@ Pilar 6 de modo completo e reproduzível —
 exportadas e testadas.</li>
 <li>
 <strong>Formalizar a hipótese</strong> — a fusão quantum-foundation
-é um candidato natural no arcabouço generativo de <span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span> e de <span class="citation">(<a href="#ref-SchuldKilloran2019"><strong>SchuldKilloran2019?</strong></a>)</span>,
-mas requer ou um encoder mais rico ou um stack mais real.</li>
+é um candidato natural no arcabouço generativo de <span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span> e de <span class="citation">(<a href="#ref-Schuld2019qml">Schuld and Killoran
+2019</a>)</span>, mas requer ou um encoder mais rico ou um stack mais
+real.</li>
 <li>
 <strong>Deixar o teste decisivo pronto</strong> — quando o encoder
 v2 e os dados reais de geodata estiverem disponíveis, basta re-rodar
@@ -336,6 +412,11 @@ resultados confirmarem ganho).</li>
 Havlíček, V., A. D. Córcoles, K. Temme, et al. 2019. <span>“Supervised
 Learning with Quantum-Enhanced Feature Spaces.”</span> <em>Nature</em>
 567: 209–12. <a href="https://doi.org/10.1038/s41586-019-0980-2" class="external-link">https://doi.org/10.1038/s41586-019-0980-2</a>.
+</div>
+<div id="ref-Schuld2019qml" class="csl-entry">
+Schuld, M., and N. Killoran. 2019. <span>“Quantum Machine Learning in
+Feature <span>H</span>ilbert Spaces.”</span> <em>Physical Review
+Letters</em> 122 (4): 040504. <a href="https://doi.org/10.1103/PhysRevLett.122.040504" class="external-link">https://doi.org/10.1103/PhysRevLett.122.040504</a>.
 </div>
 <div id="ref-Zhang2026causal" class="csl-entry">
 Zhang, Lei, and Alexandre M. J.-C. Wadoux. 2026. <span>“Can Digital Soil

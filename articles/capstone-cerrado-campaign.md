@@ -217,34 +217,14 @@ Primeiras 8 células da grade de 10 × 10 (lon/lat em graus decimais).
 
 ``` r
 
-profiles <- R$wosis_profiles
-cat(sprintf(
-  "Perfis WoSIS no AoI: %d  |  COS médio: %.1f g/kg  |  Amplitude: %.1f–%.1f g/kg\n",
-  nrow(profiles),
-  mean(profiles$soc_g_kg, na.rm = TRUE),
-  min(profiles$soc_g_kg,  na.rm = TRUE),
-  max(profiles$soc_g_kg,  na.rm = TRUE)
-))
-#> Perfis WoSIS no AoI: 250  |  COS médio: 16.9 g/kg  |  Amplitude: 1.4–140.0 g/kg
+# Os perfis WoSIS reais nao acompanham mais o pacote: eram medicoes de
+# terceiros com coordenadas. Busque-os voce mesmo se quiser este resumo.
+cat("Os perfis WoSIS do AoI nao sao distribuidos com o pacote.\n")
+#> Os perfis WoSIS do AoI nao sao distribuidos com o pacote.
 ```
 
-``` r
-
-ggplot(profiles, aes(x = soc_g_kg)) +
-  geom_histogram(bins = 25, fill = "#2ECC71", color = "white", alpha = 0.85) +
-  labs(
-    x     = "COS (g/kg)",
-    y     = "Frequência",
-    title = "Distribuição do Carbono Orgânico do Solo — Cerrado (WoSIS)"
-  )
-```
-
-![Distribuição do COS topsoil (0–30 cm) nos perfis WoSIS dentro do AoI
-do
-Cerrado.](capstone-cerrado-campaign_files/figure-html/wosis-hist-1.png)
-
-Distribuição do COS topsoil (0–30 cm) nos perfis WoSIS dentro do AoI do
-Cerrado.
+> **O histograma de COS dos perfis WoSIS nao e reproduzido aqui.** Ele
+> resumia medicoes de terceiros que este pacote deixou de distribuir.
 
 ------------------------------------------------------------------------
 
@@ -512,7 +492,9 @@ tem caudas leves demais.
 ``` r
 
 # Dados do perfil e posterior Bayesiano (pré-computado)
-prof_obs  <- R$piml_profile_obs
+# As observacoes do pedon real foram removidas do pacote; o posterior
+# pre-computado permanece, entao a curva e as faixas continuam corretas --
+# apenas os pontos observados nao sao mais desenhados.
 prof_post <- R$piml_profile_posterior  # edaphos_posterior
 
 # The depth grid comes from the bundle, not from an assumption about it: the
@@ -537,11 +519,6 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
   geom_ribbon(aes(xmin = q05, xmax = q95), fill = "#2ECC71", alpha = 0.20) +
   geom_ribbon(aes(xmin = q25, xmax = q75), fill = "#27AE60", alpha = 0.35) +
   geom_line(color = "#1A5C35", linewidth = 1.1) +
-  geom_point(
-    data = prof_obs,
-    aes(x = soc_g_kg, y = -depth_mid),
-    color = "#C0392B", size = 2.5, shape = 16
-  ) +
   labs(
     x     = "COS (g/kg)",
     y     = "Profundidade (cm)",
@@ -559,12 +536,14 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
 
 ![Perfil preditivo bayesiano da ODE pedogenética para um pedon
 representativo do Cerrado. Linha sólida: média posterior. Faixa escura:
-IC 50%. Faixa clara: IC 95%. Pontos: observações
-WoSIS.](capstone-cerrado-campaign_files/figure-html/piml-posterior-1.png)
+IC 50%. Faixa clara: IC 95%. As observações WoSIS que ajustaram este
+posterior não acompanham o pacote e por isso não são
+desenhadas.](capstone-cerrado-campaign_files/figure-html/piml-posterior-1.png)
 
 Perfil preditivo bayesiano da ODE pedogenética para um pedon
 representativo do Cerrado. Linha sólida: média posterior. Faixa escura:
-IC 50%. Faixa clara: IC 95%. Pontos: observações WoSIS.
+IC 50%. Faixa clara: IC 95%. As observações WoSIS que ajustaram este
+posterior não acompanham o pacote e por isso não são desenhadas.
 
 ### Parâmetros pedogenéticos aprendidos
 
@@ -760,12 +739,6 @@ found_df <- R$foundation_pred_df  # colunas: lon, lat, mean_pred, sd_pred
 ggplot(found_df, aes(x = lon, y = lat)) +
   geom_tile(aes(fill = mean_pred)) +
   scale_fill_viridis_c(option = "B", name = "COS pred.\n(g/kg)") +
-  geom_point(
-    data = profiles,
-    aes(x = lon, y = lat, color = soc_g_kg),
-    size = 2.5, shape = 21,
-    fill = "white", stroke = 0.5
-  ) +
   scale_color_distiller(
     palette = "YlOrRd", direction = 1,
     name = "COS obs.\n(g/kg)"
@@ -779,12 +752,14 @@ ggplot(found_df, aes(x = lon, y = lat)) +
 
 ![Mapa de COS predito pelo ensemble de heads (K=5) fine-tuned sobre o
 Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do
-ensemble. Pontos vermelhos: perfis WoSIS
-observados.](capstone-cerrado-campaign_files/figure-html/foundation-predictions-1.png)
+ensemble. Os perfis WoSIS observados não são distribuídos com o pacote e
+por isso não
+aparecem.](capstone-cerrado-campaign_files/figure-html/foundation-predictions-1.png)
 
 Mapa de COS predito pelo ensemble de heads (K=5) fine-tuned sobre o
 Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do
-ensemble. Pontos vermelhos: perfis WoSIS observados.
+ensemble. Os perfis WoSIS observados não são distribuídos com o pacote e
+por isso não aparecem.
 
 ``` r
 
@@ -854,14 +829,11 @@ cat(sprintf(
 cand_df    <- R$candidate_df   # lon, lat, score, selected, rejected_by_gate
 sel_df     <- cand_df[cand_df$selected, ]
 rej_df     <- cand_df[cand_df$rejected_by_gate, ]
-exist_df   <- profiles[, c("lon", "lat")]
 
 ggplot(cand_df, aes(x = lon, y = lat)) +
   geom_tile(aes(fill = score)) +
   scale_fill_viridis_c(option = "A", name = "Score AL",
                        direction = -1, alpha = 0.8) +
-  geom_point(data = exist_df, aes(x = lon, y = lat),
-             color = "grey60", size = 1.5, shape = 16) +
   geom_point(data = rej_df, aes(x = lon, y = lat),
              color = "black", size = 2, shape = 4, stroke = 1) +
   geom_point(data = sel_df, aes(x = lon, y = lat),
@@ -871,22 +843,21 @@ ggplot(cand_df, aes(x = lon, y = lat)) +
     y     = "Latitude",
     title = "Pilar 5 — Active Learning: 8 locais selecionados para campo",
     caption = paste0(
-      "★ = selecionados  ✕ = rejeitados pelo gate físico (ODE)  ",
-      "● = perfis existentes"
+      "★ = selecionados  ✕ = rejeitados pelo gate físico (ODE)"
     )
   )
 ```
 
 ![Localizações selecionadas pela política de amostragem ativa (estrelas
 vermelhas). A cor de fundo é o score combinado de incerteza +
-diversidade. Os círculos cinza são os perfis WoSIS existentes. As cruzes
-pretas são candidatos rejeitados pelo gate físico da
-ODE.](capstone-cerrado-campaign_files/figure-html/al-map-1.png)
+diversidade. As cruzes pretas são candidatos rejeitados pelo gate físico
+da ODE. Os perfis WoSIS existentes não são distribuídos com o
+pacote.](capstone-cerrado-campaign_files/figure-html/al-map-1.png)
 
 Localizações selecionadas pela política de amostragem ativa (estrelas
 vermelhas). A cor de fundo é o score combinado de incerteza +
-diversidade. Os círculos cinza são os perfis WoSIS existentes. As cruzes
-pretas são candidatos rejeitados pelo gate físico da ODE.
+diversidade. As cruzes pretas são candidatos rejeitados pelo gate físico
+da ODE. Os perfis WoSIS existentes não são distribuídos com o pacote.
 
 ``` r
 
@@ -1353,11 +1324,6 @@ ggplot() +
     data = final_sel,
     aes(x = lon, y = lat, label = seq_len(nrow(final_sel))),
     color = "black", size = 3, fontface = "bold"
-  ) +
-  geom_point(
-    data = profiles,
-    aes(x = lon, y = lat),
-    color = "grey70", size = 1.5, shape = 16, alpha = 0.6
   ) +
   labs(
     x     = "Longitude",

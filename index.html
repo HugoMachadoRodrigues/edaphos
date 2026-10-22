@@ -20,7 +20,20 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content="@Hugo_MRodrigues">
 <meta name="twitter:site" content="@Hugo_MRodrigues">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+<!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -482,12 +495,12 @@
 <tr>
 <td align="center"><strong>v2.4.0</strong></td>
 <td align="left">
-<strong>Pilar 8 Neural Operators</strong> — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021) in pure R. Learn <code>u(z) → y(z)</code> across sites without torch.</td>
+<strong>Pilar 8 Neural Operators</strong> — 1-D Fourier Neural Operator (Li et al. 2021) and Deep Operator Network (Lu et al. 2021), trained with <code>backend = "torch"</code>. The pure-R fallback is a reference only: it freezes the spectral (FNO) and branch/trunk (DeepONet) layers and fits a random-feature readout, so it does <strong>not</strong> learn the operator. Both functions say so at call time.</td>
 </tr>
 <tr>
 <td align="center"><strong>v2.5.0</strong></td>
 <td align="left">
-<strong>Pilar 9 DDPM</strong> — first pedometric diffusion-model for generative soil maps. Cosine-schedule (Nichol &amp; Dhariwal 2021) + score-matching loss + ancestral sampling.</td>
+<strong>Pilar 9 DDPM</strong> — pedometric diffusion model for generative soil maps. Cosine schedule (Nichol &amp; Dhariwal 2021) + score-matching loss + ancestral sampling, trained with <code>backend = "torch"</code>. The pure-R fallback is a reference sampler whose draws are over-dispersed and spatially incoherent; <code><a href="reference/dm_fit.html">dm_fit()</a></code> says so at call time.</td>
 </tr>
 <tr>
 <td align="center"><strong>v2.8.0</strong></td>
@@ -825,7 +838,7 @@ Output JSON object only, no prose, no markdown fences.</code></pre>
 <li>
 <strong>Live AGROVOC SPARQL alignment.</strong> <code><a href="reference/causal_ontology_agrovoc_align_batch.html">causal_ontology_agrovoc_align_batch()</a></code> resolves KG labels against FAO’s live AGROVOC SPARQL endpoint via <code><a href="https://httr2.r-lib.org/reference/req_perform_parallel.html" class="external-link">httr2::req_perform_parallel()</a></code> with on-disk caching — typically 5× wall-clock speedup at <code>max_active = 5</code>, near-instant on re-runs.</li>
 </ul>
-<p>A <strong>100-abstract production run</strong> (three OpenAlex queries, deduplicated, Gemma-4-extracted, AGROVOC-aligned) ships at <code>inst/extdata/cerrado_claims_real_corpus.jsonl</code> and is reproduced end-to-end by <code>data-raw/run_large_corpus.R</code>.</p>
+<p>A <strong>100-abstract production run</strong> (three OpenAlex queries, deduplicated, Gemma-4-extracted, AGROVOC-aligned) is reproduced end-to-end by <code>data-raw/run_large_corpus.R</code>, which builds the corpus into your own cache. The corpus is <strong>not shipped</strong>: its evidence strings are verbatim extracts from copyrighted journal abstracts, which this package cannot redistribute under MIT.</p>
 </div>
 <div class="section level4">
 <h4 id="ballot_box-multi-extractor-llm-voting">🗳️ Multi-extractor LLM voting<a class="anchor" aria-label="anchor" href="#ballot_box-multi-extractor-llm-voting"></a>
@@ -2150,10 +2163,10 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 </h3>
 <table class="table">
 <colgroup>
-<col width="28%">
-<col width="4%">
-<col width="46%">
-<col width="21%">
+<col width="26%">
+<col width="6%">
+<col width="45%">
+<col width="22%">
 </colgroup>
 <thead><tr>
 <th align="left">File</th>
@@ -2164,31 +2177,31 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 <tbody>
 <tr>
 <td align="left"><code>case_cerrado_results.rds</code></td>
-<td align="right">~351 KB</td>
-<td align="left">QRF/kriging/MoCo benchmark (§Benchmarks)</td>
+<td align="right">~96 KB</td>
+<td align="left">QRF/kriging/MoCo benchmark scores + predictions (profiles removed)</td>
 <td align="left"><code>case-cerrado-end-to-end</code></td>
 </tr>
 <tr>
-<td align="left"><code>causal_cerrado_real.rds</code></td>
-<td align="right">~62 KB</td>
-<td align="left">1 095 WoSIS profiles + DAG + identified effects</td>
-<td align="left"><code>pilar1-causal-real</code></td>
+<td align="left"><code>causal_cerrado_real_v2.rds</code></td>
+<td align="right">~2 KB</td>
+<td align="left">DAG + identified effects + Simpson check + IV + encoder metadata</td>
+<td align="left"><code>pilar1-pilar4-iv</code></td>
 </tr>
 <tr>
 <td align="left"><code>temporal_cerrado_results.rds</code></td>
-<td align="right">~194 KB</td>
-<td align="left">2° MODIS × POWER 4D cube + ConvLSTM ensemble + EnKF analysis</td>
-<td align="left"><code>pilar3-4d-real</code></td>
+<td align="right">~5 KB</td>
+<td align="left">EnKF skill summary for the 4D ConvLSTM run (observed cube removed)</td>
+<td align="left"><code>uncertainty-unified</code></td>
 </tr>
 <tr>
 <td align="left"><code>capstone_campaign_results.rds</code></td>
-<td align="right">~287 KB</td>
+<td align="right">~285 KB</td>
 <td align="left">6-pillar integrated bundle for the v1.7.0 capstone</td>
 <td align="left"><code>capstone-cerrado-campaign</code></td>
 </tr>
 <tr>
 <td align="left"><code>capstone_native_calibration.rds</code></td>
-<td align="right">~294 KB</td>
+<td align="right">~292 KB</td>
 <td align="left">Native-query calibration per pillar (v1.7.1 hotfix)</td>
 <td align="left">
 <code>capstone-cerrado-campaign</code> §10</td>
@@ -2196,31 +2209,31 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 <tr>
 <td align="left"><code>causal_discovery_results.rds</code></td>
 <td align="right">~1 KB</td>
-<td align="left">Expert × LLM × data-driven DAG benchmark (v1.7.2)</td>
+<td align="left">Expert x LLM x data-driven DAG benchmark (v1.7.2)</td>
 <td align="left"><code>causal-discovery-trio</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_gold_standard_v1.jsonl</code></td>
 <td align="right">~18 KB</td>
-<td align="left">30 Cerrado abstracts × 72 annotated causal claims (v1.8.0 seed)</td>
-<td align="left"><code>llm-kg-benchmark</code></td>
+<td align="left">30 simulated abstracts x 72 annotated causal claims (v1.8.0 seed)</td>
+<td align="left"><code>articles/llm-kg-benchmark</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_gold_standard_v1_draft.jsonl</code></td>
 <td align="right">~22 KB</td>
-<td align="left">Gemma-4-style draft used by the annotation reviewer (v1.8.1 demo)</td>
+<td align="left">Simulator draft used by the annotation reviewer (v1.8.1 demo)</td>
 <td align="left"><code>llm-annotation-workflow</code></td>
 </tr>
 <tr>
 <td align="left"><code>causal_iv_cerrado.rds</code></td>
 <td align="right">~4 KB</td>
-<td align="left">2SLS instrumental-variable benchmark (v1.9.0): synthetic DGP + 1 095 Cerrado</td>
+<td align="left">2SLS instrumental-variable benchmark (v1.9.0), synthetic DGP</td>
 <td align="left"><code>pilar1-pilar4-iv</code></td>
 </tr>
 <tr>
 <td align="left"><code>causal_iv_cerrado_real.rds</code></td>
 <td align="right">~1 KB</td>
-<td align="left">Real-encoder IV benchmark: 1 081 embeddings; Sargan PARTIAL (see below)</td>
+<td align="left">Real-encoder IV benchmark summary; Sargan PARTIAL (see below)</td>
 <td align="left">
 <code>pilar1-pilar4-iv</code> §7</td>
 </tr>
@@ -2234,36 +2247,43 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 <tr>
 <td align="left"><code>quantum_foundation_cerrado.rds</code></td>
 <td align="right">~2 KB</td>
-<td align="left">Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors (v2.0.0)</td>
+<td align="left">Pilar 4 x Pilar 6 benchmark: 5-fold spatial CV of 4 regressors</td>
 <td align="left"><code>pilar4-pilar6-quantum</code></td>
 </tr>
 <tr>
 <td align="left"><code>llm_benchmark_results.rds</code></td>
 <td align="right">~10 KB</td>
-<td align="left">Gemma 4 × GPT × Claude benchmark bundle (P/R/F1, κ, cost, latency)</td>
-<td align="left"><code>llm-kg-benchmark</code></td>
+<td align="left">Simulated LLM benchmark bundle (P/R/F1, kappa, cost, latency)</td>
+<td align="left"><code>articles/llm-kg-benchmark</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_abstracts.jsonl</code></td>
 <td align="right">~5 KB</td>
-<td align="left">10 curated Cerrado-pedology abstracts</td>
+<td align="left">10 SIMULATED Cerrado-pedology abstracts (invented citation keys)</td>
 <td align="left"><code>pilar1-causal</code></td>
 </tr>
 <tr>
 <td align="left"><code>cerrado_claims.jsonl</code></td>
 <td align="right">~8 KB</td>
-<td align="left">Gemma-4-extracted causal claims from the 10 abstracts</td>
+<td align="left">Causal claims extracted from the 10 simulated abstracts</td>
 <td align="left"><code>pilar1-causal</code></td>
 </tr>
 <tr>
-<td align="left"><code>cerrado_claims_real_corpus.jsonl</code></td>
-<td align="right">~94 KB</td>
-<td align="left">
-<strong>100-abstract production corpus</strong> (OpenAlex + SciELO)</td>
-<td align="left"><code>data-raw/run_large_corpus.R</code></td>
+<td align="left"><code>fixture_wosis_like.rds</code></td>
+<td align="right">~4 KB</td>
+<td align="left">SIMULATED WoSIS-shaped profiles/horizons for examples and tests</td>
+<td align="left"><code><a href="reference/edaphos_example_profiles.html">edaphos_example_profiles()</a></code></td>
+</tr>
+<tr>
+<td align="left"><code>fixture_soildata_like.rds</code></td>
+<td align="right">~2 KB</td>
+<td align="left">SIMULATED SoilData-shaped PTF calibration set</td>
+<td align="left"><code><a href="reference/edaphos_example_profiles.html">edaphos_example_profiles()</a></code></td>
 </tr>
 </tbody>
 </table>
+<p>Entries written <code>articles/…</code> are <strong>not vignettes</strong>. They are web-only articles: their sources live in <code>vignettes/articles/</code>, which is <code>.Rbuildignore</code>d, so they are not in the installed package and asking R for them by name finds nothing. pkgdown renders them as pages on the package website. Of the four there, <code>pilar1-causal-real</code> and <code>pilar3-4d-real</code> stop at a notice: the data behind their results was withdrawn on 2026-08-28 and the package can no longer reproduce them.</p>
+<p>(This paragraph deliberately does not spell out the vignette call that fails: <code>tests/testthat/test-doc-references-resolve.R</code> requires every such call appearing in R/ or the README to resolve, and it is right to — a reader who sees one types it. Writing the failing call here to illustrate the failure tripped that test, which is the test working.)</p>
 <p>This table is a selection, not an inventory: <code>inst/extdata/</code> holds more bundles than are listed here — the benchmark and PIML result files are covered in their own sections. The <strong>Size</strong> column is generated by <code>tools/status/patch-readme-metrics.R</code> from the files themselves; ten of the sixteen rows were once wrong by more than a third, two of them by figures that had never been measured at all.</p>
 <p>The tagged release is archived on Zenodo with a DOI; the real-data bundles ship inside it, in <code>inst/extdata/</code>, rather than carrying DOIs of their own.</p>
 <hr>
@@ -2355,11 +2375,11 @@ e_{ij} = \mathrm{LeakyReLU}\!\big(\mathbf{a}^\top[W h_i \Vert W h_j]\big),
 </h2>
 <ul>
 <li>
-<strong>2 192 passing expectations</strong> across 601 <code>test_that</code> blocks in 92 test files (<code>testthat</code>), measured on aarch64-apple-darwin23, R 4.6.1. One expectation is skipped here, because its optional dependency is absent; every skip is an explicit <code>skip_if_not_installed()</code> gate.</li>
+<strong>2 244 passing expectations</strong> across 608 <code>test_that</code> blocks in 95 test files (<code>testthat</code>), measured on aarch64-apple-darwin23, R 4.6.1. One expectation is skipped here, because its optional dependency is absent; every skip is an explicit <code>skip_if_not_installed()</code> gate.</li>
 <li>
 <strong>Gated dependencies:</strong> <code>torch</code>, <code>dagitty</code>, <code>bnlearn</code>, <code>dbarts</code>, <code>reticulate</code>, <code>terra</code>, <code>igraph</code>.</li>
 <li>
-<strong><code>R CMD check --as-cran</code>:</strong> <code>2 NOTEs</code> at commit <code>8e725b9</code>. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in <a href="cran-comments.html"><code>cran-comments.md</code></a>; the log itself is committed at <a href="tools/status/check.log"><code>tools/status/check.log</code></a>.</li>
+<strong><code>R CMD check --as-cran</code>:</strong> <code>2 NOTEs</code> at commit <code>7b881c2</code>. The per-item breakdown, including which items are package defects and which are artefacts of the checking machine, is in <a href="cran-comments.html"><code>cran-comments.md</code></a>; the log itself is committed at <a href="tools/status/check.log"><code>tools/status/check.log</code></a>.</li>
 <li>
 <strong>CI:</strong> GitHub Actions matrix on <code>macos-latest / R release</code>, <code>windows-latest / R release</code>, <code>ubuntu-latest / R devel</code>, <code>ubuntu-latest / R release</code>, <code>ubuntu-latest / R oldrel-1</code>, <code>ubuntu-latest / R release</code>. 1 of these 6 legs installs libtorch, so the torch-gated tests execute in CI rather than skipping.</li>
 <li>These figures are generated by <code>tools/status/patch-readme-metrics.R</code> from a real test run and a real check log. Do not edit them by hand.</li>

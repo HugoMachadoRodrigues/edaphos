@@ -11,7 +11,20 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Frontier methods for digital soil mapping, evaluated honestly: a reproducible benchmark on real WoSIS Cerrado profiles">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+<!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -118,7 +131,7 @@
                         <h4 data-toc-skip class="author">Hugo
 Rodrigues</h4>
             
-            <h4 data-toc-skip class="date">2026-08-13</h4>
+            <h4 data-toc-skip class="date">2026-10-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/HugoMachadoRodrigues/edaphos/blob/main/vignettes/edaphos-paper.Rmd" class="external-link"><code>vignettes/edaphos-paper.Rmd</code></a></small>
       <div class="d-none name"><code>edaphos-paper.Rmd</code></div>
@@ -224,11 +237,13 @@ The full retrieval and cleaning pipeline is
 <code>data-raw/causal_cerrado_real_rebuild.R</code>; covariates are all
 open-licensed and fetched from public endpoints, so the analysis is
 regenerable from profile coordinates alone.</p>
-<div class="float">
-<img src="edaphos-paper_files/figure-html/data-map-1.png" alt="Topsoil organic carbon (g/kg) at the WoSIS Cerrado profiles used in the causal analysis. Colour is on a square-root scale to show the long right tail."><div class="figcaption">Topsoil organic carbon (g/kg) at the WoSIS
-Cerrado profiles used in the causal analysis. Colour is on a square-root
-scale to show the long right tail.</div>
-</div>
+<blockquote>
+<p><strong>The profile map is not reproduced here.</strong> It plotted
+the coordinates of the WoSIS profiles used in the causal analysis.
+<code>edaphos</code> distributes no third-party soil data, so the
+coordinates are not in the package; the aggregate results below are
+unaffected.</p>
+</blockquote>
 </div>
 <div class="section level3">
 <h3 id="a-unified-posterior-and-calibration-interface">A unified posterior and calibration interface<a class="anchor" aria-label="anchor" href="#a-unified-posterior-and-calibration-interface"></a>
@@ -276,7 +291,7 @@ profile-MLE Gibbs sampler.</li>
 <div class="section level3">
 <h3 id="evaluation-protocol">Evaluation protocol<a class="anchor" aria-label="anchor" href="#evaluation-protocol"></a>
 </h3>
-<p>All methods are evaluated on the same 1095 spatially blocked
+<p>All methods are evaluated on the same 0 spatially blocked
 cross-validation folds (<em>k</em>-means on coordinates), on the log1p
 scale of organic carbon, and scored against the <em>achievable</em> null
 — each fold’s <strong>training</strong>-fold mean, never the global
@@ -320,8 +335,8 @@ achievable null (NSE / R², higher is better), calibration (PICP near
 better), and wall-clock time.</p>
 <table class="table">
 <caption>Matched cross-pillar benchmark on 1095 WoSIS Cerrado profiles
-(1095 spatially blocked folds, log1p scale). RMSE and CRPS lower is
-better; R2 and PICP near 0.90 better. Sorted by RMSE.</caption>
+(0 spatially blocked folds, log1p scale). RMSE and CRPS lower is better;
+R2 and PICP near 0.90 better. Sorted by RMSE.</caption>
 <colgroup>
 <col width="44%">
 <col width="8%">

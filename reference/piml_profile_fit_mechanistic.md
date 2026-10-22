@@ -130,18 +130,18 @@ for the comparison.
 ## Examples
 
 ``` r
-# A real WoSIS Cerrado profile shipped with the package.
-D <- readRDS(system.file("extdata", "piml_wosis_cerrado.rds",
-                         package = "edaphos"))
-h <- D$horizons[D$horizons$profile_id == D$profiles$profile_id[1], ]
+# A simulated Cerrado-shaped profile. This package ships no real soil
+# data; see [edaphos_example_profiles()] for what these values are.
+H <- edaphos_example_profiles(what = "horizons")
+h <- H[H$profile_id == H$profile_id[1], ]
 fit <- piml_profile_fit_mechanistic(h$depth_mid, h$soc_g_kg,
                                     top = h$top, bottom = h$bottom)
 fit
 #> <edaphos_piml_mech>
 #>   v dC/dz = I0 exp(-z/z_r) - k C     (steady-state advection-reaction)
 #>   dC/dz   = -lambda (C - [A + B exp(-z/z_r)]),  lambda = k/v, B = I0/k
-#>   y0    = 10.8       A (deep floor) = 0.2366   
-#>   B     = 21.24      z_r = 19.26     cm   lambda = 0.05127 /cm
-#>   implied Jackson beta = 0.9494
-#>   n obs = 4 (layer)       rmse = 1.653   converged = TRUE
+#>   y0    = 45.98      A (deep floor) = 0.2467   
+#>   B     = 31.49      z_r = 43.25     cm   lambda = 0.1734 /cm
+#>   implied Jackson beta = 0.9771
+#>   n obs = 5 (layer)       rmse = 0.4507   converged = TRUE
 ```

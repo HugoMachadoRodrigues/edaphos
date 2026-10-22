@@ -3,7 +3,20 @@
 that can be uploaded to Zenodo to mint a permanent DOI for the
 gold-standard.  Bundle contents:"><meta property="og:description" content="Generates a self-contained directory (and optionally a zip archive)
 that can be uploaded to Zenodo to mint a permanent DOI for the
-gold-standard.  Bundle contents:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+gold-standard.  Bundle contents:"><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -207,8 +220,8 @@ into the package's CITATION.cff / .zenodo.json.</p>
 <span class="r-in"><span><span class="fu">llm_annotation_to_zenodo</span><span class="op">(</span><span class="va">gs</span>, <span class="va">bundle</span>,</span></span>
 <span class="r-in"><span>                         title <span class="op">=</span> <span class="st">"Cerrado gold-standard KG (v1)"</span>,</span></span>
 <span class="r-in"><span>                         version <span class="op">=</span> <span class="st">"1.0.0"</span>, zip <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/cerrado_kg_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpPkPdUt/cerrado_kg_deposit ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/cerrado_kg_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpnYdPK5/cerrado_kg_deposit ===</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "README.md"           "gold_standard.jsonl" "kg.ttl"             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4] "metadata.json"      </span>
@@ -237,8 +250,8 @@ into the package's CITATION.cff / .zenodo.json.</p>
 <span class="r-in"><span>                     package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">hollow</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"hollow_deposit"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">llm_annotation_to_zenodo</span><span class="op">(</span><span class="va">draft</span>, <span class="va">hollow</span>, version <span class="op">=</span> <span class="st">"1.0.0"</span>, zip <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/hollow_deposit/gold_standard.jsonl (30 abstracts, 0 claims) ===</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpPkPdUt/hollow_deposit ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/hollow_deposit/gold_standard.jsonl (30 abstracts, 0 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpnYdPK5/hollow_deposit ===</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"a rdf:Statement"</span>,</span></span>
 <span class="r-in"><span>          <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">hollow</span>, <span class="st">"kg.ttl"</span><span class="op">)</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
@@ -254,8 +267,8 @@ into the package's CITATION.cff / .zenodo.json.</p>
 <span class="r-in"><span><span class="va">authored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"authored_deposit"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">llm_annotation_to_zenodo</span><span class="op">(</span><span class="va">gs</span>, <span class="va">authored</span>, authors <span class="op">=</span> <span class="va">who</span>,</span></span>
 <span class="r-in"><span>                         version <span class="op">=</span> <span class="st">"1.0.0"</span>, zip <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/authored_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpPkPdUt/authored_deposit ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/authored_deposit/gold_standard.jsonl (30 abstracts, 72 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Zenodo bundle ready: /tmp/RtmpnYdPK5/authored_deposit ===</span>
 <span class="r-in"><span><span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">authored</span>, <span class="st">"metadata.json"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                   simplifyVector <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">creators</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>

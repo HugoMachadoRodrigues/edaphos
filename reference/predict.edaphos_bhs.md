@@ -121,7 +121,7 @@ round(c(phi = fit$phi_hat, range_deg = 1 / fit$phi_hat,
         corr_at_min_spacing = exp(-fit$phi_hat * min(d[d > 0])),
         spatial_share = s2 / (s2 + t2)), 4)
 #>                 phi           range_deg         min_spacing corr_at_min_spacing 
-#>            804.1425              0.0012              0.0068              0.0042 
+#>            804.1422              0.0012              0.0068              0.0042 
 #>       spatial_share 
 #>              0.9382 
 

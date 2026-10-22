@@ -83,7 +83,7 @@ shipped <- list.files(system.file("extdata", package = "edaphos"),
 c(shipped = length(shipped),
   copied  = length(list.files(file.path(out, "bundles"))))
 #> shipped  copied 
-#>      34      34 
+#>      28      28 
 
 # manifest.csv carries a size and a SHA-256 per file -- but it is
 # written from a snapshot taken before itself and before
@@ -92,7 +92,7 @@ c(shipped = length(shipped),
 man <- read.csv(file.path(out, "manifest.csv"))
 c(rows = nrow(man), files = length(list.files(out, recursive = TRUE)))
 #>  rows files 
-#>    37    39 
+#>    31    33 
 setdiff(list.files(out, recursive = TRUE), man$path)
 #> [1] "ZENODO-README.md" "manifest.csv"    
 

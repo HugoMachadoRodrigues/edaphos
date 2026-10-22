@@ -133,9 +133,13 @@ Uses the v1.5.0 Pillar 3 bundle that ships with the package.
 res_path_p3 <- system.file("extdata",
                              "temporal_cerrado_results.rds",
                              package = "edaphos")
-skip_p3 <- !nzchar(res_path_p3) || !file.exists(res_path_p3)
+R3 <- if (nzchar(res_path_p3) && file.exists(res_path_p3))
+        readRDS(res_path_p3) else NULL
+# The forecast cube and its verification field were observed NDVI/climate at
+# 100 named coordinates, so they are no longer bundled; only the EnKF skill
+# summary survives.
+skip_p3 <- is.null(R3) || is.null(R3$ensemble_forecast)
 if (!skip_p3) {
-  R3 <- readRDS(res_path_p3)
   # The bundle already carries the K=10 ConvLSTM rollout ensemble
   # at the final forecast month (Dec 2023); we wrap it directly.
   fc_ens_final <- R3$ensemble_forecast[,
@@ -239,12 +243,10 @@ Pillar 1 where there is no observable “true” causal effect).
 |       | pillar         | method    |   n |    CRPS | <PICP@95> | <MPIW@95> |  pt_RMSE |
 |:------|:---------------|:----------|----:|--------:|----------:|----------:|---------:|
 | 0.95  | P1 causal      | bootstrap |   1 | 0.00632 |     1.000 |     0.111 | 0.000242 |
-| 0.951 | P3 4D NDVI map | ensemble  | 100 | 0.36600 |     0.740 |     1.380 | 0.637000 |
-| 0.952 | P5 AL / QRF    | ensemble  |  32 | 0.30000 |     0.969 |     2.140 | 0.588000 |
-| 0.953 | P6 quantum KRR | analytic  |  12 | 0.51600 |     0.917 |     3.210 | 0.905000 |
+| 0.951 | P5 AL / QRF    | ensemble  |  32 | 0.30000 |     0.969 |     2.140 | 0.588000 |
+| 0.952 | P6 quantum KRR | analytic  |  12 | 0.51600 |     0.917 |     3.210 | 0.905000 |
 
-Unified calibration across the six pillars (v1.6.0). {.table
-style="width:100%;"}
+Unified calibration across the six pillars (v1.6.0). {.table}
 
 ``` r
 

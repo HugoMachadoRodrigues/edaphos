@@ -44,15 +44,81 @@
 
 ------------------------------------------------------------------------
 
+## Usar a API: um exemplo que corre
+
+A secção seguinte lê resultados publicados; esta **chama as funções**.
+Até esta versão a vinheta descrevia as assinaturas em prosa e nunca
+demonstrava uma invocação, de modo que um leitor ficava a saber o que as
+funções são sem ficar a saber usá-las.
+
+Corre sobre o `br_cerrado` que acompanha o pacote — sem rede, sem torch,
+sem qiskit, em cerca de um décimo de segundo.
+
+``` r
+
+# The setup chunk sets eval = FALSE globally, so any chunk that would have
+# attached the package never runs. Attach it here, in the first chunk that
+# does: without this the vignette depends on `data()` finding br_cerrado by
+# scanning every installed library, which holds under R CMD build and not
+# under R CMD check.
+library(edaphos)
+data(br_cerrado)
+set.seed(1)
+i <- sample(nrow(br_cerrado), 60)
+X <- as.matrix(br_cerrado[i, c("elev", "slope", "twi", "map_mm", "ndvi")])
+y <- br_cerrado$soc[i]
+
+# 1. PCA + re-escala para o domínio do ZZFeatureMap.
+red <- qf_embed_reduce(X, n_pcs = 4L)
+c(dim = dim(red$X_q), min = min(red$X_q), max = max(red$X_q))
+#>      dim1      dim2       min       max 
+#> 60.000000  4.000000 -3.141593  3.141593
+
+# 2. As matrizes de Gram são materialmente diferentes?
+qf_kernel_compare(red$X_q, reps = 1L)$diagnostics
+#>                pair   frob effrank_quantum effrank_rbf effrank_linear
+#> 1    quantum_vs_rbf 34.110           48.73        4.35           3.92
+#> 2 quantum_vs_linear 63.220           48.73        4.35           3.92
+#> 3     rbf_vs_linear 63.172           48.73        4.35           3.92
+
+# 3. Ajuste e previsão.
+fit <- qf_krr_fit(X, y, n_pcs = 4L, reps = 1L, lambda = 0.5)
+fit
+#> <edaphos_qf_krr>  (Pillar 4 x Pillar 6 bridge)
+#>   n_pcs  = 4  (qubits = 4)
+#>   reps   = 1
+#>   lambda = 0.500
+#>   n_train = 60
+predict(fit, X[1:5, , drop = FALSE])
+#> [1] 17.41749 18.75975 12.40832 23.89838 17.72459
+```
+
+O intervalo de `X_q` é $`[-\pi, \pi]`$ por construção: é o domínio em
+que o ZZFeatureMap está definido, e a re-escala é o que o garante.
+
+**Estas cinco covariáveis não são embeddings de fundação.** O exemplo
+demonstra a interface, não o resultado científico — para esse, a secção
+do benchmark abaixo, que é um controlo negativo e diz porquê.
+
+------------------------------------------------------------------------
+
 ## Diagnóstico de kernel: quão diferente é o quantum do RBF?
 
 Usando 300 perfis WoSIS e os embeddings reais do encoder v1:
+
+O bloco corre: ler o `.rds` publicado não precisa de torch nem de rede,
+ao contrário do resto desta vinheta, cujo chunk de setup desliga a
+avaliação globalmente.
 
 ``` r
 
 bundle <- readRDS(system.file("extdata", "quantum_foundation_cerrado.rds",
                                 package = "edaphos"))
 bundle$kernel_comparison
+#>                pair    frob effrank_quantum effrank_rbf effrank_linear
+#> 1    quantum_vs_rbf 180.974          276.07        5.89           5.46
+#> 2 quantum_vs_linear 215.437          276.07        5.89           5.46
+#> 3     rbf_vs_linear 168.133          276.07        5.89           5.46
 ```
 
 A questão central aqui é *se os kernels são materialmente diferentes*.
@@ -154,9 +220,9 @@ O valor do v2.0.0 não é bater os baselines (tentamos e não batemos). É:
     todas exportadas e testadas.
 2.  **Formalizar a hipótese** — a fusão quantum-foundation é um
     candidato natural no arcabouço generativo de Zhang and Wadoux
-    ([2026](#ref-Zhang2026causal)) e de
-    ([**SchuldKilloran2019?**](#ref-SchuldKilloran2019)), mas requer ou
-    um encoder mais rico ou um stack mais real.
+    ([2026](#ref-Zhang2026causal)) e de ([Schuld and Killoran
+    2019](#ref-Schuld2019qml)), mas requer ou um encoder mais rico ou um
+    stack mais real.
 3.  **Deixar o teste decisivo pronto** — quando o encoder v2 e os dados
     reais de geodata estiverem disponíveis, basta re-rodar
     `data-raw/quantum_foundation_benchmark.R` para obter uma comparação
@@ -189,6 +255,10 @@ O valor do v2.0.0 não é bater os baselines (tentamos e não batemos). É:
 Havlíček, V., A. D. Córcoles, K. Temme, et al. 2019. “Supervised
 Learning with Quantum-Enhanced Feature Spaces.” *Nature* 567: 209–12.
 <https://doi.org/10.1038/s41586-019-0980-2>.
+
+Schuld, M., and N. Killoran. 2019. “Quantum Machine Learning in Feature
+Hilbert Spaces.” *Physical Review Letters* 122 (4): 040504.
+<https://doi.org/10.1103/PhysRevLett.122.040504>.
 
 Zhang, Lei, and Alexandre M. J.-C. Wadoux. 2026. “Can Digital Soil
 Mapping Be Causal?” *European Journal of Soil Science* 77: e70284.

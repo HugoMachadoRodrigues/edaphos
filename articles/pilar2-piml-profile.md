@@ -119,24 +119,25 @@ layer average of each horizon rather than to a point at its mid-depth.
 
 ``` r
 
-W <- readRDS(system.file("extdata", "piml_wosis_cerrado.rds",
-                         package = "edaphos"))
-# the deepest, most completely described profile inside the model's domain
-cand <- W$profiles[W$profiles$monotone_decreasing, ]
+# Simulated profiles: this package ships no real soil data.
+# See `edaphos_example_profiles()` for how these values are generated.
+cand <- edaphos_example_profiles()
+#> edaphos: returning SIMULATED profiles for demonstration.
+#>   These are not measurements. Fetch real data yourself; see `vignette("getting-started")`.
 cand <- cand[order(-cand$n_hor, -cand$z_max), ]
-pedon <- W$horizons[W$horizons$profile_id == cand$profile_id[1], ]
+H <- edaphos_example_profiles(what = "horizons")
+pedon <- H[H$profile_id == cand$profile_id[1], ]
 pedon <- pedon[order(pedon$top), ]
 pedon[, c("top", "bottom", "soc_g_kg")]
-#>      top bottom soc_g_kg
-#> 6393   0     12     28.9
-#> 5704  12     35     17.4
-#> 979   35     60     13.6
-#> 7216  60    100     10.0
-#> 5567 100    150      8.5
-#> 842  150    250      6.7
-#> 6328 250    350      5.1
-#> 6097 350    450      3.7
-#> 2565 450    550      2.3
+#>     top bottom soc_g_kg
+#> 657   0     19    29.83
+#> 658  19     54    13.76
+#> 659  54     78     7.59
+#> 660  78    122     4.67
+#> 661 122    147     4.10
+#> 662 147    186     3.39
+#> 663 186    211     3.91
+#> 664 211    254     2.69
 
 fit_pedon <- piml_profile_fit(
   depths = pedon$depth_mid,
@@ -147,11 +148,15 @@ fit_pedon <- piml_profile_fit(
 fit_pedon
 #> <edaphos_piml_profile>
 #>   dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)
-#>   lambda0 = 0.009613  mu = 0.004151
-#>   y0      = 23.45     y(Inf) = 1.982      (kappa = 2.32)
-#>   y_inf   = -0.3678   (ODE coordinate, not the attained value)
-#>   n obs   = 9 (layer)         rmse = 2.517
-#>   converged = TRUE
+#>   lambda0 = 0.04241   mu = 0.0101  
+#>   y0      = 41.72     y(Inf) = 2.795      (kappa = 4.2)
+#>   y_inf   = 2.201     (ODE coordinate, not the attained value)
+#>   n obs   = 8 (layer)         rmse = 0.3166
+#>   converged = TRUE 
+#>   NOTE: the observations are not monotone in depth, and this model is monotone
+#>         by construction (first-order relaxation, lambda > 0). It cannot represent
+#>         an argillic bulge, an E horizon under an A, or a buried A. The fit is a
+#>         least-squares compromise, not a description of the profile.
 ```
 
 The printed object separates two things the package used to conflate:

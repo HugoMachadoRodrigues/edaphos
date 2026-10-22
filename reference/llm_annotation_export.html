@@ -3,7 +3,20 @@
 have not been reviewed, removes the internal status field, and
 re-validates the result."><meta property="og:description" content="Drops claims flagged as rejected, drops draft-only claims that
 have not been reviewed, removes the internal status field, and
-re-validates the result."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script><script>
+re-validates the result."><meta property="og:image" content="https://hugomachadorodrigues.github.io/edaphos/reference/figures/logo.png"><meta property="og:image:alt" content="edaphos — Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@Hugo_MRodrigues"><meta name="twitter:site" content="@Hugo_MRodrigues"><!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
+     This read `mermaid@11` with no integrity attribute: a floating major
+     tag, so the bytes the CDN serves change whenever upstream publishes,
+     and nothing checked what arrived. SECURITY.md:37 declares this site
+     in scope, which makes a third party's ability to change the
+     JavaScript on every page a real exposure rather than a theoretical
+     one.
+     Pinning alone is not enough and integrity alone is impossible: a
+     hash cannot be pinned to a tag that moves. Both, or neither.
+     The hash is of mermaid 11.16.1 (3,566,058 bytes), computed here from
+     the bytes and cross-checked against the same file served by unpkg;
+     the two agree. Bumping the version means recomputing it:
+       curl -sL https://cdn.jsdelivr.net/npm/mermaid@X.Y.Z/dist/mermaid.min.js |
+         openssl dgst -sha384 -binary | openssl base64 -A --><script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js" integrity="sha384-aBQXj4hK6Jm05i7aQAsUV3bLdSUrHX1BGYfMB0166TtWt/RRaw+h0Eelme9OCOvy" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script>
   document.addEventListener("DOMContentLoaded", function () {
     // pkgdown wraps fenced ```mermaid blocks as
     // <pre><code class="language-mermaid">...</code></pre>.
@@ -143,7 +156,7 @@ field (default <code>TRUE</code>).</p></dd>
 <span class="r-in"><span><span class="co"># abstracts, 0 claims.  "draft" means no human ever looked, and an</span></span></span>
 <span class="r-in"><span><span class="co"># unreviewed claim is not gold-standard evidence.</span></span></span>
 <span class="r-in"><span><span class="va">kept</span> <span class="op">&lt;-</span> <span class="fu">llm_annotation_export</span><span class="op">(</span><span class="va">draft</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"hollow.jsonl"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/hollow.jsonl (30 abstracts, 0 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/hollow.jsonl (30 abstracts, 0 claims) ===</span>
 <span class="r-in"><span><span class="fu">n_claims</span><span class="op">(</span><span class="va">kept</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span></span></span>
@@ -153,7 +166,7 @@ field (default <code>TRUE</code>).</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">'"status":"draft"'</span>, <span class="st">'"status":"accepted"'</span>,</span></span>
 <span class="r-in"><span>               <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">draft</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="va">reviewed</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">n_claims</span><span class="op">(</span><span class="fu">llm_annotation_export</span><span class="op">(</span><span class="va">reviewed</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"g2.jsonl"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/g2.jsonl (30 abstracts, 30 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/g2.jsonl (30 abstracts, 30 claims) ===</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 30</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Back-compat trap in the other direction: the hand-annotated v1</span></span></span>
@@ -166,8 +179,8 @@ field (default <code>TRUE</code>).</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>once  <span class="op">=</span> <span class="fu">n_claims</span><span class="op">(</span><span class="fu">llm_annotation_export</span><span class="op">(</span><span class="va">gs</span>, <span class="va">once</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  twice <span class="op">=</span> <span class="fu">n_claims</span><span class="op">(</span><span class="fu">llm_annotation_export</span><span class="op">(</span></span></span>
 <span class="r-in"><span>            <span class="va">once</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"twice.jsonl"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/once.jsonl (30 abstracts, 72 claims) ===</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/twice.jsonl (30 abstracts, 72 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/once.jsonl (30 abstracts, 72 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/twice.jsonl (30 abstracts, 72 claims) ===</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  once twice </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    72    72 </span>
 <span class="r-in"><span></span></span>
@@ -179,7 +192,7 @@ field (default <code>TRUE</code>).</p></dd>
 <span class="r-in"><span><span class="co"># leaving the four fields llm_annotation_validate() requires.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">llm_annotation_export</span><span class="op">(</span><span class="va">gs</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"no_rat.jsonl"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                            include_rationale <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">claims</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpPkPdUt/no_rat.jsonl (30 abstracts, 72 claims) ===</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> === Exported gold standard: /tmp/RtmpnYdPK5/no_rat.jsonl (30 abstracts, 72 claims) ===</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "cause"      "effect"     "polarity"   "confidence"</span>
 </code></pre></div>
     </div>

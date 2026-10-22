@@ -93,7 +93,7 @@ round(c(rmse = cal$point_rmse,
 raw <- benchmark_fit_p1_causal(train, test, covs, n_boot = 300L,
                                seed = 1L, calibrate = FALSE)
 max(abs(colMeans(post$samples) - colMeans(raw$samples)))
-#> [1] 0
+#> [1] 3.552714e-15
 
 # Read that next to the coverage, which is the whole point of the term.
 # Bootstrap spread alone is the uncertainty of the FITTED MEAN, not of a

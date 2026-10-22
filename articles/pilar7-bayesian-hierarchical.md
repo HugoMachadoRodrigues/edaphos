@@ -231,7 +231,7 @@ c(phi_hat        = fit_drop$phi_hat,
   range_per_dmin = (3 / fit_drop$phi_hat) / d_min,
   corr_nearest   = exp(-fit_drop$phi_hat * d_min))
 #>        phi_hat       interior   range_3_over range_per_dmin   corr_nearest 
-#>   130.33663476     1.00000000     0.02301732     3.37587357     0.41120686
+#>   130.33663481     1.00000000     0.02301732     3.37587356     0.41120686
 ```
 
 No warning this time: $`\hat\phi`$ is interior, so the data — not the

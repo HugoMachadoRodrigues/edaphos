@@ -8,20 +8,24 @@ articles:
   edaphos-paper: edaphos-paper.html
   getting-started: getting-started.html
   llm-annotation-workflow: llm-annotation-workflow.html
+  articles/llm-kg-benchmark: llm-kg-benchmark.html
+  articles/pilar1-causal-real: pilar1-causal-real.html
   pilar1-causal: pilar1-causal.html
   pilar1-pilar4-iv: pilar1-pilar4-iv.html
   pilar10-graph-attention: pilar10-graph-attention.html
   pilar2-piml-profile: pilar2-piml-profile.html
+  articles/pilar3-4d-real: pilar3-4d-real.html
   pilar3-4d-soc: pilar3-4d-soc.html
   pilar4-pilar6-quantum: pilar4-pilar6-quantum.html
   pilar4-simclr-embeddings: pilar4-simclr-embeddings.html
   pilar5-active-learning: pilar5-active-learning.html
+  articles/pilar5-soilgrids-br: pilar5-soilgrids-br.html
   pilar6-quantum: pilar6-quantum.html
   pilar7-bayesian-hierarchical: pilar7-bayesian-hierarchical.html
   pilar8-neural-operators: pilar8-neural-operators.html
   pilar9-diffusion-models: pilar9-diffusion-models.html
   uncertainty-unified: uncertainty-unified.html
-last_built: 2026-08-13T23:45Z
+last_built: 2026-10-22T17:11Z
 urls:
   reference: https://hugomachadorodrigues.github.io/edaphos/reference
   article: https://hugomachadorodrigues.github.io/edaphos/articles
