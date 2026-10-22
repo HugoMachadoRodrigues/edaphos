@@ -72,7 +72,9 @@ Suggests:
     terra,
     testthat (>= 3.0.0),
     tidyr,
-    torch
+    torch,
+    withr,
+    yaml
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown, DiagrammeR, ggdag, ggridges, ggnewscale,
     patchwork, scales

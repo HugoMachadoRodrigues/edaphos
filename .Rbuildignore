@@ -39,3 +39,5 @@
 ^\.positai$
 ^manuscript$
 ^paper/S2_File_pipeline\.zip$
+^PROVENANCE\.md$
+^codecov\.yml$

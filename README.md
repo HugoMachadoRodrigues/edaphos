@@ -2152,13 +2152,15 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `fixture_wosis_like.rds`               |   ~4 KB | SIMULATED WoSIS-shaped profiles/horizons for examples and tests    | `edaphos_example_profiles()`    |
 | `fixture_soildata_like.rds`            |   ~2 KB | SIMULATED SoilData-shaped PTF calibration set                      | `edaphos_example_profiles()`    |
 
-† These four are **not vignettes**. Their sources live in the
-repository's top-level `articles/` directory, which is `.Rbuildignore`d
-and which pkgdown does not render, so asking R for them by name finds
-nothing and no page exists on the site. They are readable in the
-repository only. The column named them as though they were vignettes.
+Entries written `articles/…` are **not vignettes**. They are web-only
+articles: their sources live in `vignettes/articles/`, which is
+`.Rbuildignore`d, so they are not in the installed package and asking R
+for them by name finds nothing. pkgdown renders them as pages on the
+package website. Of the four there, `pilar1-causal-real` and
+`pilar3-4d-real` stop at a notice: the data behind their results was
+withdrawn on 2026-08-28 and the package can no longer reproduce them.
 
-(This paragraph deliberately does not spell out the `vignette(...)` call
+(This paragraph deliberately does not spell out the vignette call
 that fails: `tests/testthat/test-doc-references-resolve.R` requires every
 such call appearing in R/ or the README to resolve, and it is right to —
 a reader who sees one types it. Writing the failing call here to
