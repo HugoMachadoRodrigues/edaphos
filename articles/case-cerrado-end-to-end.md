@@ -75,7 +75,7 @@ real CC-BY-4.0 data. **Nothing in this vignette is synthetic.**
 | Artefact | Source | Licence |
 |:---|:---|:---|
 | Cerrado biome polygon | IBGE Biomes 1:250 000 via `geobr` ([Pereira and Goncalves 2019](#ref-Pereira2019geobr)) | IBGE public data |
-| SOC point observations | WoSIS snapshot 2019 ([Batjes et al. 2020](#ref-Batjes2020wosis)) via ISRIC WFS | CC-BY-4.0 |
+| SOC point observations | WoSIS latest layer ([Batjes et al. 2024](#ref-Batjes2024wosis)) via ISRIC WFS, fetched live | Per profile, as WoSIS records it: CC BY 4.0 (842), CC BY-NC 4.0 (250), CC0 (1), U.S. Public Domain (2) |
 | Soil covariates (5 layers) | SoilGrids 250m 0-5cm mean ([Hengl et al. 2017](#ref-Hengl2017soilgrids)) via `geodata` | CC-BY-4.0 |
 | Climate (24 layers) | WorldClim 2.1 Brazil country pack ([Fick and Hijmans 2017](#ref-Fick2017worldclim)) via `geodata` | open research |
 | Terrain (2 layers) | SRTM 30-arcsec ([Jarvis et al. 2008](#ref-Jarvis2008srtm)) via `geodata` | NASA public domain |
@@ -288,10 +288,10 @@ claim:
 
 ## References
 
-Batjes, N. H., E. Ribeiro, and A. van Oostrum. 2020. “Standardised Soil
-Profile Data to Support Global Mapping and Modelling (WoSIS Snapshot
-2019).” *Earth System Science Data* 12 (1): 299–320.
-<https://doi.org/10.5194/essd-12-299-2020>.
+Batjes, N. H., L. Calisto, and L. M. de Sousa. 2024. “Providing
+Quality-Assessed and Standardised Soil Data to Support Global Mapping
+and Modelling (WoSIS Snapshot 2023).” *Earth System Science Data* 16:
+4735–65. <https://doi.org/10.5194/essd-16-4735-2024>.
 
 Chen, X., H. Fan, R. Girshick, and K. He. 2020. “Improved Baselines with
 Momentum Contrastive Learning.” *arXiv Preprint arXiv:2003.04297*.

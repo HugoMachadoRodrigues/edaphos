@@ -262,7 +262,7 @@ q
 #>   pool_index posterior_var posterior_sd
 #> 7          7      3.810010     1.951925
 #> 3          3      3.730268     1.931390
-#> 2          2      3.224361     1.795651
+#> 1          1      3.224361     1.795651
 ```
 
 ## Head-to-head: unified uncertainty scoring

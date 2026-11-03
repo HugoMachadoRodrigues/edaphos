@@ -46,9 +46,9 @@ given in full.
 ### 2.1 What is genuinely present
 
 **Two of the 1,095 soil profiles behind the Cerrado case study carry the
-WoSIS dataset identifier `US-NCSS`.** They were obtained through ISRIC’s
-WoSIS 2019 snapshot, not from any USDA service. WoSIS records their
-licence, and it is this:
+WoSIS dataset identifier `US-NCSS`.** They were obtained from ISRIC’s
+continuously updated WoSIS layer, `wosis_latest`, not from any USDA
+service. WoSIS records their licence, and it is this:
 
 | Licence recorded by WoSIS                                  | Profiles |
 |------------------------------------------------------------|----------|
@@ -274,12 +274,19 @@ two conventions looks like a tampered file and is not one.
 ## 6. Upstream sources, as declared
 
 The Cerrado case study bundle declares its sources in the artefact
-itself:
+itself. The soil organic carbon row is shown as corrected on 2026-11-03
+by `data-raw/fix_wosis_source_labels.R`: the bundle used to declare
+“WoSIS snapshot 2019 (Batjes et al. 2020), CC-BY-4.0”, and an earlier
+version of this document repeated that label. Both halves were wrong.
+The fetch code has always read the `wosis_latest` WFS layer, not the
+fixed 2019 snapshot, and the profiles carry four licences, not one
+(§2.1). The conclusion is unchanged — the data are WoSIS’s, served by
+ISRIC — but the citation is now the one the code supports.
 
 | Layer | Source |
 |----|----|
 | Area of interest | IBGE Biomes via `geobr` (Pereira & Gonçalves 2019) |
-| Soil organic carbon | WoSIS snapshot 2019 (Batjes et al. 2020), CC-BY-4.0, ISRIC |
+| Soil organic carbon | WoSIS latest, ISRIC WFS (maps.isric.org), fetched live; procedures per Batjes et al. 2024. Per-profile licences: CC BY 4.0 (842), CC BY-NC 4.0 (250), CC0 1.0 (1), U.S. Public Domain (2) |
 | Soil covariates | SoilGrids 250 m (Hengl et al. 2017), CC-BY-4.0, ISRIC |
 | Climate | WorldClim 2.1 (Fick & Hijmans 2017) |
 | Elevation | SRTM 30-arcsec (Jarvis et al. 2008; NASA public domain) |

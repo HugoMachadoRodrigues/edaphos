@@ -1411,4 +1411,4 @@ Mapping Be Causal?” *European Journal of Soil Science* 77: e70284.
 
 ------------------------------------------------------------------------
 
-*Construído com* **edaphos** 0.9.0 · R version 4.6.1 (2026-06-24)
+*Construído com* **edaphos** 0.9.0 · R version 4.6.2 (2026-10-29)
