@@ -28,7 +28,7 @@ the backdoor-adjustment machinery from Pearl 2009 and demonstrates it
 on the `br_cerrado` synthetic dataset that ships with the package.
 As of **v1.4.0** the Pillar 1 story runs on **real Brazilian
 Cerrado data**: 1 095 WoSIS topsoil profiles
-[@Batjes2020wosis], the same dataset the v1.3.1 case-study benchmark
+from the `wosis_latest` layer [@Batjes2024wosis], the same dataset the v1.3.1 case-study benchmark
 consumes. The three quantities below are publishable causal
 estimates, not pedagogic toys.
 

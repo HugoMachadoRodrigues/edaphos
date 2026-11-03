@@ -103,7 +103,7 @@ real CC-BY-4.0 data. **Nothing in this vignette is synthetic.**
 | Artefact | Source | Licence |
 |:---|:---|:---|
 | Cerrado biome polygon | IBGE Biomes 1:250 000 via `geobr` [@Pereira2019geobr] | IBGE public data |
-| SOC point observations | WoSIS snapshot 2019 [@Batjes2020wosis] via ISRIC WFS | CC-BY-4.0 |
+| SOC point observations | WoSIS latest layer [@Batjes2024wosis] via ISRIC WFS, fetched live | Per profile, as WoSIS records it: CC BY 4.0 (842), CC BY-NC 4.0 (250), CC0 (1), U.S. Public Domain (2) |
 | Soil covariates (5 layers) | SoilGrids 250m 0-5cm mean [@Hengl2017soilgrids] via `geodata` | CC-BY-4.0 |
 | Climate (24 layers) | WorldClim 2.1 Brazil country pack [@Fick2017worldclim] via `geodata` | open research |
 | Terrain (2 layers) | SRTM 30-arcsec [@Jarvis2008srtm] via `geodata` | NASA public domain |
