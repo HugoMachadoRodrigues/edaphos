@@ -15,15 +15,20 @@
 #     the `geobr` R package (Pereira and Goncalves, 2019).
 #     License: open -- IBGE public data.
 #
-#   * WoSIS soil profile database
-#     Batjes, N. H., Ribeiro, E. and van Oostrum, A. (2020).
-#     Standardised soil profile data to support global mapping and
-#     modelling (WoSIS snapshot 2019). Earth System Science Data,
-#     12(1), 299-320. DOI: 10.5194/essd-12-299-2020.
-#     License: Creative Commons Attribution 4.0 International
-#     (CC-BY-4.0), on every profile.
-#     Accessed via the public WFS endpoint of ISRIC World Data
-#     Centre for Soils: https://maps.isric.org/mapserv.
+#   * WoSIS soil profile database -- the `wosis_latest` WFS layer,
+#     fetched live from the ISRIC World Data Centre for Soils
+#     (https://maps.isric.org/mapserv, map=/map/wosis_latest.map).
+#     This is the continuously updated layer, NOT the fixed 2019
+#     snapshot this header used to cite; a later fetch can return a
+#     different set of profiles. Procedures: Batjes, N. H., Calisto, L.
+#     and de Sousa, L. M. (2024). Providing quality-assessed and
+#     standardised soil data to support global mapping and modelling
+#     (WoSIS snapshot 2023). Earth System Science Data, 16, 4735-4765.
+#     DOI: 10.5194/essd-16-4735-2024.
+#     License: per profile, as WoSIS records it. This header used to say
+#     CC-BY-4.0 "on every profile"; the 1,095-profile Cerrado pull holds
+#     four licences, CC BY-NC 4.0 among them. See the bundle's
+#     dataset_summary$by_licence.
 #
 #   * SoilGrids 250 m gridded soil attributes
 #     Hengl, T. et al. (2017). SoilGrids250m: global gridded soil
@@ -514,7 +519,9 @@ saveRDS(
     edaphos_ver = as.character(packageVersion("edaphos")),
     sources = list(
       aoi        = "IBGE Biomes via geobr (Pereira & Goncalves 2019)",
-      soc        = "WoSIS snapshot 2019 (Batjes et al. 2020), CC-BY-4.0, ISRIC",
+      soc        = paste0("WoSIS latest, ISRIC WFS (maps.isric.org), fetched live; ",
+                          "procedures per Batjes et al. 2024. Licences per profile, ",
+                          "as recorded by WoSIS"),
       soilgrids  = "SoilGrids 250m (Hengl et al. 2017), CC-BY-4.0, ISRIC",
       worldclim  = "WorldClim 2.1 (Fick & Hijmans 2017)",
       srtm       = "SRTM 30-arcsec (Jarvis et al. 2008; NASA public domain)",

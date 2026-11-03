@@ -2060,8 +2060,11 @@ As of **v1.3.1** every performance claim against the classical
 regression-tree state of the art is backed by a reproducible
 real-data benchmark. The canonical case study runs on **1 095 real
 Cerrado topsoil profiles** pulled live from
-[WoSIS 2019](https://essd.copernicus.org/articles/12/299/2020/)
-([Batjes et al. 2020][batjes2020wosis], CC-BY-4.0), evaluated by
+the continuously updated WoSIS layer from ISRIC, `wosis_latest`
+([Batjes et al. 2024][batjes2024wosis]), under the licence WoSIS
+records for each profile — CC BY 4.0 for 842, CC BY-NC 4.0 for 250,
+CC0 for 1 and U.S. Public Domain for 2. The profiles themselves no
+longer ship with the package; see `PROVENANCE.md`. It is evaluated by
 **5-fold spatial cross-validation** (k-means on coordinates), with
 covariates from SoilGrids 250 m, WorldClim 2.1, SRTM 30-arcsec, and
 ESA WorldCover 2020.
@@ -2130,7 +2133,12 @@ A reproducible, offline, ~30 km × 30 km area near Brasília.
 | `ndvi`   | Dry-season NDVI (0–1)                               |
 | `soc`    | **Target** — SOC, 0–5 cm (g kg⁻¹)                  |
 
-### `inst/extdata` real-data bundles (CC-BY-4.0)
+### `inst/extdata` real-data bundles
+
+Since 2026-08-28 these bundles carry no third-party record-level data: only
+aggregate tables, model scores and predictions computed from it. The upstream
+sources and the licence each one carries — for WoSIS, per profile — are listed
+in [`PROVENANCE.md`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/PROVENANCE.md), which also gives the commands to verify it.
 
 | File                                   |    Size | What it holds                                                      | Used by                         |
 |:---------------------------------------|--------:|:-------------------------------------------------------------------|:--------------------------------|
@@ -2353,6 +2361,7 @@ paper that motivates its framework:
   Mapping Be Causal? *European Journal of Soil Science* 77, e70284.**
 
 [batjes2020wosis]: https://doi.org/10.5194/essd-12-299-2020
+[batjes2024wosis]: https://doi.org/10.5194/essd-16-4735-2024
 [bishop1999]:    https://doi.org/10.1016/S0016-7061(99)00003-8
 [brus2019]:      https://doi.org/10.1016/j.geoderma.2018.07.036
 [burgers1998]:   https://doi.org/10.1175/1520-0493(1998)126%3C1719:ASITEK%3E2.0.CO;2
