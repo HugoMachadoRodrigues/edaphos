@@ -31,6 +31,17 @@ a single honest development entry. Live, measured status (test counts, check
 result, install size) is generated into `STATUS.md` and `cran-comments.md` by the
 scripts in `tools/status/`, not written by hand.
 
+## Removed before first release
+
+* `foundation_tile_source_modis()` and `foundation_tile_source_era5()` are
+  removed. Both were exported stubs that could only throw an error: MODIS and
+  ERA5 need an account and a client package, and edaphos never wrapped either.
+  The guidance their error messages carried — which client to use, the MOD13Q1
+  scale factor and fill value, the reversed CDS bounding-box order, and the
+  9 km resolution of ERA5-Land — now lives in the "MODIS and ERA5" section of
+  `?foundation_tile_align`, the function a pre-processed raster is passed to.
+  `ecmwfr` is no longer a suggested dependency.
+
 ## Pillar 2 reworked around the equation's closed-form solution
 
 The depth-profile ODE `dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)` is separable

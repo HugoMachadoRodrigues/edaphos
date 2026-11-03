@@ -39,6 +39,30 @@ resolutions (SoilGrids at 250 m, WorldClim at 30 arc-sec, SRTM at
 30 arc-sec, MODIS at 250 m, ERA5 at 0.1 degree) so MoCo v2
 pretraining can consume a single multi-channel tensor.
 }
+\section{MODIS and ERA5}{
+
+Neither is wrapped by edaphos: both need an account and a client
+package. Download and pre-process them outside the package, read the
+result with \code{terra::rast()}, and pass it in \code{sources} like any other
+raster -- nothing downstream cares where a raster came from.
+\itemize{
+\item \strong{MODIS} (NASA EarthData login): \code{MODIStsp}, \code{rgee} or the AppEEARS
+service. MOD13Q1 stores NDVI as int16 with a 1e-4 scale factor and
+-3000 as the fill value, and both survive \code{terra::rast()} untouched:
+set values below -2000 to \code{NA} and multiply by 1e-4 before aligning,
+or the channel mixes index values with sentinels. A 16-day composite
+is not a snapshot -- neighbouring pixels can come from different days.
+\item \strong{ERA5-Land} (Copernicus Climate Data Store key): the \code{ecmwfr}
+package. The CDS bounding box is ordered north, west, south, east --
+the reverse of the \code{c(xmin, xmax, ymin, ymax)} every
+\verb{foundation_tile_*} function expects. ERA5-Land is a 0.1 degree
+(about 9 km) reanalysis; projected onto a 250 m grid with bilinear
+resampling it becomes a smooth channel with no information below
+9 km, harmless for a contrastive encoder and misleading in a
+covariate-importance table.
+}
+}
+
 \examples{
 if (requireNamespace("terra", quietly = TRUE)) {
   # Two Cerrado covariates on deliberately mismatched grids: soil at

@@ -104,6 +104,11 @@ test_that(".gnn_gat_layer: sparse matches dense fallback (Matrix-less path)", {
 })
 
 test_that(".gnn_gat_layer: sparse path is faster than per-node reference at n = 500", {
+  # Wall-clock assertion: skipped on CRAN, whose builders are shared, some
+  # single-core, some under valgrind, so an absolute ceiling or an A < B
+  # timing comparison flips for reasons unrelated to the code. It still runs
+  # on every CI leg and in local test runs.
+  skip_on_cran()
   # Sparse-matrix construction has fixed-cost overhead so it only
   # PAYS at moderate-to-large graph sizes.  At n = 500 with k = 8
   # the sparse path is empirically 4-10x faster than the loop on

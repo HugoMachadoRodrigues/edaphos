@@ -47,6 +47,16 @@ readout — it does learn, but is not the full DeepONet.}
 \item{device}{\code{"cpu"}, \code{"mps"}, or \code{"cuda"} when
 \code{backend = "torch"}.}
 }
+\value{
+An \code{edaphos_no_deeponet} fit: a list carrying \code{backend}, the
+training \code{depths}, \code{targets} and \code{covariates}, the standardisation
+constants (\code{cov_std}, \code{tgt_std}, \code{depth_std}), the architecture
+(\code{branch_hidden}, \code{trunk_hidden}, \code{output_dim}), \code{n_obs}, \code{n_depths}
+and the per-epoch loss \code{history}. The trained network is stored as
+weight matrices (\code{W_b1} ... \code{b_t2}, \code{bias}) for \code{backend = "r"}, or
+as \code{torch_module} plus \code{device} for \code{backend = "torch"}. Predict with
+\code{predict()}.
+}
 \description{
 Fit a DeepONet for depth-profile operators
 }

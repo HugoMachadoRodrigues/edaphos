@@ -76,10 +76,17 @@ test_that("fast-path bhs_fit: predict() produces finite summaries", {
 })
 
 test_that("fast-path bhs_fit: faster than a (hypothetical) dense-inverse path", {
+  # Wall-clock assertion: skipped on CRAN, whose builders are shared, some
+  # single-core, some under valgrind, so an absolute ceiling or an A < B
+  # timing comparison flips for reasons unrelated to the code. It still runs
+  # on every CI leg and in local test runs.
+  skip_on_cran()
   # We can't easily run the v2.3.0 dense path in-line here, but we
   # DO contract that the fast path is reasonably fast on a modest
-  # problem: 500 iterations at n = 150 should complete in < 3 s on a
-  # modern laptop.
+  # problem: 500 iterations at n = 150. The ceiling asserted below is
+  # 10 s. This comment used to say "< 3 s", which no assertion ever
+  # checked; a typical laptop takes well under 3 s, and 10 s leaves room
+  # for a loaded CI runner.
   set.seed(13L)
   n <- 150L
   dat <- data.frame(
