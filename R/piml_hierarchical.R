@@ -483,10 +483,12 @@ print.edaphos_piml_hierarchical <- function(x, ...) {
 #'   # wiring a gate into al_loop().
 #'   print(round(range(pm), 1))
 #'   print(round(range(br_cerrado$soc), 1))
+#'   \donttest{
 #'   print(vapply(c(1, 1.2, 2, 5), function(s)
 #'     sum(al_physics_gate_piml_hierarchical(
 #'           fit, safety_factor = s,
 #'           envelope_depths = c(0, 30, 60))(cand, pm)), 0))
+#'   }
 #'
 #'   # A gate can also shrink the batch: al_query() clamps `n` to the
 #'   # number of survivors, so n = 3 returns 2 rows here -- and none
@@ -494,6 +496,7 @@ print.edaphos_piml_hierarchical <- function(x, ...) {
 #'   print(al_query(m, cand, n = 3L, physics_gate = gate))
 #'   print(al_query(m, cand, n = 3L))
 #'
+#'   \donttest{
 #'   # `candidate_covariate_cols` is a positional rename, not a lookup.
 #'   # Given in training order it reproduces the gate above; permuted,
 #'   # it feeds rainfall into the twi input and silently flips two of
@@ -509,6 +512,7 @@ print.edaphos_piml_hierarchical <- function(x, ...) {
 #'     envelope_depths = c(0, 30, 60))
 #'   print(identical(ok(cand2, pm), gate(cand, pm)))
 #'   print(sum(ok(cand2, pm) != bad(cand2, pm)))
+#'   }
 #'
 #'   # Cost: one ODE integration per candidate per call, times
 #'   # length(envelope_depths).  Eight rows are instant, 400 rows with

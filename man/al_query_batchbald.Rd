@@ -98,7 +98,8 @@ pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ]
 
 # `al_fit()` requires `covariates`; `seed` is forwarded to ranger, so
 # the forest -- and hence the batch selected below -- is reproducible.
-fit <- al_fit(lab, target = "soc", covariates = covs, seed = 42)
+fit <- al_fit(lab, target = "soc", covariates = covs, num.trees = 200L,
+              seed = 42)
 
 batch <- al_query_batchbald(fit, pool, n = 8L)
 batch                       # row indices into `pool`, in greedy order
