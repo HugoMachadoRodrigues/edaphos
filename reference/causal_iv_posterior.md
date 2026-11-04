@@ -72,7 +72,11 @@ causal_iv_posterior(
 ## Value
 
 An `edaphos_posterior` with `query_type = "effect"` and
-`method = "bootstrap"`.
+`method = "bootstrap"`. Its `metadata` records `B_requested`,
+`B_effective` (the draws actually used) and `n_failed`. A replicate
+fails when its resample does not identify the effect – typically an
+instrument left without variation – and failures raise a warning naming
+both counts. Fewer than two identified replicates is an error.
 
 ## Examples
 
@@ -129,8 +133,16 @@ c(rows = iv_rows$mean, farms = iv_farms$mean)
 #>     rows    farms 
 #> 1.649371 1.702640 
 
-# Resamples that fail to fit are dropped silently, so check how
-# many draws actually survived before quoting an interval.
-iv_farms$metadata$B
+# Resamples that do not identify the effect are dropped with a
+# warning; the metadata records how many were asked for and used.
+iv_farms$metadata[c("B_requested", "B_effective", "n_failed")]
+#> $B_requested
 #> [1] 150
+#> 
+#> $B_effective
+#> [1] 150
+#> 
+#> $n_failed
+#> [1] 0
+#> 
 ```

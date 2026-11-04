@@ -183,7 +183,11 @@ block (e.g. <code>"kmeans_cluster"</code> for spatial resampling).</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>edaphos_posterior</code> with <code>query_type = "effect"</code> and
-<code>method = "bootstrap"</code>.</p>
+<code>method = "bootstrap"</code>. Its <code>metadata</code> records <code>B_requested</code>,
+<code>B_effective</code> (the draws actually used) and <code>n_failed</code>. A replicate
+fails when its resample does not identify the effect – typically an
+instrument left without variation – and failures raise a warning
+naming both counts. Fewer than two identified replicates is an error.</p>
     </div>
 
     <div class="section level2">
@@ -240,10 +244,18 @@ block (e.g. <code>"kmeans_cluster"</code> for spatial resampling).</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     rows    farms </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1.649371 1.702640 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Resamples that fail to fit are dropped silently, so check how</span></span></span>
-<span class="r-in"><span><span class="co"># many draws actually survived before quoting an interval.</span></span></span>
-<span class="r-in"><span><span class="va">iv_farms</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">B</span></span></span>
+<span class="r-in"><span><span class="co"># Resamples that do not identify the effect are dropped with a</span></span></span>
+<span class="r-in"><span><span class="co"># warning; the metadata records how many were asked for and used.</span></span></span>
+<span class="r-in"><span><span class="va">iv_farms</span><span class="op">$</span><span class="va">metadata</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"B_requested"</span>, <span class="st">"B_effective"</span>, <span class="st">"n_failed"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $B_requested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $B_effective</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $n_failed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
