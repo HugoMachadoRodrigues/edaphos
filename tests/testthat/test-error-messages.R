@@ -1,4 +1,4 @@
-## Tests for the v3.8.0 user-facing error messages.  Contract:
+## Tests for the user-facing error messages.  Contract:
 ##
 ##   1. The new `.stopf()` and `.assert_type()` helpers prepend the
 ##      caller name and append a "Hint:" line when one is provided.
@@ -161,4 +161,55 @@ test_that("no_deeponet_fit: depths/targets dimension mismatch", {
   )
   expect_match(conditionMessage(e),
                  "columns|disagree|3 entries|3 columns")
+})
+
+# ---------------------------------------------------------------------------
+# Entry points that used to answer a mistake with raw stopifnot() text
+# ("nrow(X) == length(y) is not TRUE"), or with a mislabelled message.
+# Each message must name the function, the argument and what was wrong.
+# ---------------------------------------------------------------------------
+
+test_that("quantum_krr_fit: names the argument and the mismatch", {
+  X <- matrix(stats::runif(20), 10L); y <- stats::rnorm(10L)
+  expect_error(quantum_krr_fit(X, y[1:5]),
+               "\\[quantum_krr_fit\\] `X` has 10 rows but `y` has 5 values")
+  expect_error(quantum_krr_fit(X, y, lambda = -1),
+               "`lambda` must be a single positive number, got -1")
+  X2 <- X; X2[1] <- NA
+  expect_error(quantum_krr_fit(X2, y), "must be finite.*Hint")
+  # A character column used to be coerced to NA with only a warning.
+  expect_error(quantum_krr_fit(data.frame(a = letters[1:10]), y),
+               "`X` must be a numeric matrix.*character")
+})
+
+test_that("piml_profile_fit: names the argument and the problem", {
+  expect_error(piml_profile_fit(c(5, 15, 30), c(20, 12)),
+               "\\[piml_profile_fit\\] `depths` has 3 values but `values` has 2")
+  expect_error(piml_profile_fit(c(-5, 15, 30), c(20, 12, 8)),
+               "depths must be >= 0.*got -5")
+  expect_error(piml_profile_fit(c(5, 15, 30), c(20, NA, 8)),
+               "must be finite.*Hint")
+  expect_error(piml_profile_fit(c("5", "15", "30"), c(20, 12, 8)),
+               "`depths` must be numeric, got character")
+})
+
+test_that("causal_estimate_effect: an unknown exposure is called an exposure", {
+  skip_if_not_installed("dagitty")
+  data(br_cerrado, package = "edaphos", envir = environment())
+  # It used to say "Covariates not found in data: nope".
+  expect_error(causal_estimate_effect(br_cerrado, causal_cerrado_dag(),
+                                      exposure = "nope", outcome = "soc"),
+               "exposure `nope` is not a column of `data`")
+  expect_error(causal_estimate_effect(br_cerrado, causal_cerrado_dag(),
+                                      exposure = "map_mm", outcome = "carbon"),
+               "outcome `carbon` is not a column of `data`")
+  expect_error(causal_estimate_effect(as.list(1:3), causal_cerrado_dag(),
+                                      exposure = "map_mm", outcome = "soc"),
+               "`data` must be a data frame, got list")
+})
+
+test_that("temporal_convlstm_fit: a wrongly shaped sequence says which shape", {
+  skip_if_no_torch()
+  expect_error(temporal_convlstm_fit(array(0, c(2, 2)), array(0, c(1, 4, 4))),
+               "5 dimensions.*got 2.*temporal_cube_to_tensor")
 })

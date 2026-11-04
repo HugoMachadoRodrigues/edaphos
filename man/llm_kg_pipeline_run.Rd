@@ -2,7 +2,7 @@
 % Please edit documentation in R/llm_kg_pipeline.R
 \name{llm_kg_pipeline_run}
 \alias{llm_kg_pipeline_run}
-\title{Run the Pilar 1 LLM-KG pipeline on a (potentially large) corpus}
+\title{Run the Pillar 1 LLM-KG pipeline on a (potentially large) corpus}
 \usage{
 llm_kg_pipeline_run(
   corpus_path,

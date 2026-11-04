@@ -2,7 +2,7 @@
 % Please edit documentation in R/bridges_active_learning_v3.R
 \name{al_query_neural_operator}
 \alias{al_query_neural_operator}
-\title{Causal-driven AL via Neural Operator disagreement (Pilar 8 x Pilar 5)}
+\title{Causal-driven AL via Neural Operator disagreement (Pillar 8 x Pillar 5)}
 \usage{
 al_query_neural_operator(
   no_fit,
@@ -43,7 +43,7 @@ sorted by descending score.
 }
 \description{
 Ranks candidate sites by the disagreement between a Neural
-Operator's predicted depth profile and a classical Pilar 2
+Operator's predicted depth profile and a classical Pillar 2
 pedogenetic ODE's predicted profile, normalised by the NO's
 perturbation-spread uncertainty.
 }

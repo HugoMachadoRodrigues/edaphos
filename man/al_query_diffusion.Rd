@@ -2,7 +2,7 @@
 % Please edit documentation in R/bridges_active_learning_v3.R
 \name{al_query_diffusion}
 \alias{al_query_diffusion}
-\title{Diffusion-posterior-driven AL (Pilar 9 x Pilar 5)}
+\title{Diffusion-posterior-driven AL (Pillar 9 x Pillar 5)}
 \usage{
 al_query_diffusion(
   dm_fit,

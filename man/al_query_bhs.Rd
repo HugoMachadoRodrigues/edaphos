@@ -2,7 +2,7 @@
 % Please edit documentation in R/bridges_active_learning_v3.R
 \name{al_query_bhs}
 \alias{al_query_bhs}
-\title{Bayesian Hierarchical Active Learning (Pilar 7 x Pilar 5)}
+\title{Bayesian Hierarchical Active Learning (Pillar 7 x Pillar 5)}
 \usage{
 al_query_bhs(bhs_fit, pool_data, n_select = 5L, n_draws = 200L)
 }

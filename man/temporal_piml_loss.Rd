@@ -2,7 +2,7 @@
 % Please edit documentation in R/bridges_structure_v3.R
 \name{temporal_piml_loss}
 \alias{temporal_piml_loss}
-\title{Physics-informed ConvLSTM mass-balance loss (Pilar 2 x Pilar 3)}
+\title{Physics-informed ConvLSTM mass-balance loss (Pillar 2 x Pillar 3)}
 \usage{
 temporal_piml_loss(ode_fit, weight = 0.1)
 }
@@ -28,7 +28,7 @@ array, a scalar \code{torch_tensor} for a \code{torch_tensor}.
 \description{
 Factory that returns a \verb{function(y_pred, y_true, driver)} closure
 penalising SOC-dynamics predictions that violate the local-rate
-kinetics inferred from the Pilar 2 ODE fit.
+kinetics inferred from the Pillar 2 ODE fit.
 }
 \details{
 \code{\link[=temporal_convlstm_fit]{temporal_convlstm_fit()}} has no argument that takes this

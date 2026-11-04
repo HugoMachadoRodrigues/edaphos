@@ -52,7 +52,7 @@ cov_cols <- intersect(cov_cols, names(profiles))
 profiles <- profiles[stats::complete.cases(profiles[, cov_cols]), ]
 message(sprintf("  After NA drop: %d profiles", nrow(profiles)))
 
-# Response scale -- must match data-raw/benchmark_wosis_6pilar.R, which merges
+# Response scale -- must match data-raw/benchmark_wosis_6pillar.R, which merges
 # this bundle.  See the long note there: on raw g/kg, 1 % of profiles carry
 # 48 % of the sum of squares and every method scores near zero; log1p is the
 # conventional scale for soil organic carbon.
@@ -365,7 +365,7 @@ for (fd in 1:5) {
   grab <- function(name, post, cal, elapsed) {
     if (is.null(cal)) {
       # keep the column set identical to the success path, or bind_rows in
-      # benchmark_wosis_6pilar.R backfills NA and the disclosure columns go
+      # benchmark_wosis_6pillar.R backfills NA and the disclosure columns go
       # missing for whole methods
       return(data.frame(method = name, fold = fd, n_test = n_te,
                           n_train = if (grepl("^P7", name)) p7_n_train else n_tr,

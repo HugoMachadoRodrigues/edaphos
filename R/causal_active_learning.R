@@ -238,7 +238,7 @@ al_query_causal <- function(data, pool, dag,
 
 #' @export
 print.edaphos_causal_al_query <- function(x, ...) {
-  cat("<edaphos_causal_al_query>  (Pilar 1 x Pilar 5 bridge)\n")
+  cat("<edaphos_causal_al_query>  (Pillar 1 x Pillar 5 bridge)\n")
   cat(sprintf("  target effect : %s -> %s\n",
                attr(x, "exposure"), attr(x, "outcome")))
   cat(sprintf("  adjustment    : %s\n",

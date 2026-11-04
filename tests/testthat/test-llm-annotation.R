@@ -1,4 +1,4 @@
-## Tests for the gold-standard annotation toolkit (v1.8.1, v1.8.2).
+## Tests for the gold-standard annotation toolkit.
 
 test_that("llm_annotation_vocabulary: returns a non-trivial character vector", {
   v <- llm_annotation_vocabulary()

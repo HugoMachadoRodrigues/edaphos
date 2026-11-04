@@ -363,7 +363,7 @@ knitr::include_graphics("figures/causal-discovery-trio.svg")
    carries no statistical bias because it does not depend on the sample.
 2. **Augment it with an LLM.** Use `causal_llm_extract()` +
    `causal_llm_vote()` over the relevant literature corpus (see
-   `vignette("pilar1-causal")` for the full pipeline). Edges with
+   `vignette("pillar1-causal")` for the full pipeline). Edges with
    confidence of at least 0.70 tend to be good additions.
 3. **Validate with bnlearn.** Run hc, tabu **and** pc-stable with the
    pedological whitelist + blacklist. If all three agree, the structure

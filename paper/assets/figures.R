@@ -128,7 +128,7 @@ save_fig(fig_area, "Fig1", 9.2, 8.0)
 # Fig 2 — benchmark (accuracy, skill, calibration, cost)
 # =============================================================================
 message("Fig 2: benchmark")
-B6 <- ex("benchmark_wosis_6pilar.rds")
+B6 <- ex("benchmark_wosis_6pillar.rds")
 tb <- B6$cv_aggregate
 tb$short <- sub(" .*", "", tb$method)
 tb$label <- c("OLS on DAG set", "Quantile forest", "Bayesian spatial",

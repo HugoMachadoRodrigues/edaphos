@@ -40,24 +40,27 @@ jobs:
         with:
           extra-packages: any::spelling
 
-      # ENGLISH SURFACES ONLY, and that is a real constraint rather than a
-      # convenience. The vignettes are written in Portuguese; running an en_US
-      # dictionary over them reports 375 unknown words, essentially all of them
-      # correct Portuguese. That is why this gate was never wired up. Checking
-      # man/, README, NEWS and DESCRIPTION -- the English surfaces -- gives a
-      # gate that can be clean and therefore means something when it is not.
+      # Every English surface: man/, README, NEWS, DESCRIPTION, and the
+      # vignettes and web articles. The vignettes were
+      # left out while five of them were in Portuguese (375 unknown words,
+      # nearly all correct Portuguese); since 2.0.0 they are in English and
+      # are checked like everything else.
       #
       # inst/WORDLIST carries the proper nouns, package names, British
-      # spellings and technical terms. It was reviewed word by word when this
-      # job was added: a WORDLIST that whitelists a genuine typo is worse than
-      # no WORDLIST, so the 152 entries added then were each read rather than
-      # bulk-accepted.
+      # spellings and technical terms -- and only the words the checker
+      # still needs: when the vignettes were translated it was cut from 2,195
+      # entries to the ones the English text uses, and each word that was
+      # new to it was read before it went in. A WORDLIST that whitelists a
+      # genuine typo is worse than no WORDLIST.
       - name: Spell check (English surfaces)
         run: |
           wl <- if (file.exists("inst/WORDLIST"))
             readLines("inst/WORDLIST", warn = FALSE) else character()
           files <- c(list.files("man", "[.]Rd$", full.names = TRUE),
-                     "README.md", "NEWS.md", "DESCRIPTION")
+                     "README.md", "NEWS.md", "DESCRIPTION",
+                     list.files("vignettes", "[.]Rmd$", full.names = TRUE),
+                     list.files("vignettes/articles", "[.]Rmd$",
+                                full.names = TRUE))
           files <- files[file.exists(files)]
           r <- spelling::spell_check_files(files, ignore = wl, lang = "en_US")
           if (nrow(r)) {

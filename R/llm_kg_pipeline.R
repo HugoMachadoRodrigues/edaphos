@@ -1,4 +1,4 @@
-# Pilar 1 -- 10k LLM-KG pipeline (edaphos v3.10.0).
+# Pillar 1 -- 10k LLM-KG pipeline.
 #
 # Production-grade orchestrator for running `causal_llm_extract()`
 # over a large abstract corpus (10 000+ abstracts), with:
@@ -135,7 +135,7 @@ llm_kg_ollama_check <- function(host = "http://localhost:11434",
   nrow(claims)
 }
 
-#' Run the Pilar 1 LLM-KG pipeline on a (potentially large) corpus
+#' Run the Pillar 1 LLM-KG pipeline on a (potentially large) corpus
 #'
 #' Drives `causal_llm_extract()` over a JSONL corpus of abstracts
 #' (one JSON object with `source` + `abstract` per line) with

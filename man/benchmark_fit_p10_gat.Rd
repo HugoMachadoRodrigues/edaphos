@@ -2,7 +2,7 @@
 % Please edit documentation in R/benchmark_wosis.R
 \name{benchmark_fit_p10_gat}
 \alias{benchmark_fit_p10_gat}
-\title{Benchmark wrapper: Pilar 10 -- GAT seed-ensemble on k-NN graph}
+\title{Benchmark wrapper: Pillar 10 -- GAT seed-ensemble on k-NN graph}
 \usage{
 benchmark_fit_p10_gat(
   train,
@@ -38,7 +38,7 @@ features.}
 
 \item{calibrate}{Logical (default \code{TRUE}).  When \code{TRUE}, residual
 noise from a representative full-data GAT fit is injected on
-every posterior sample (see Pilar-1 wrapper for the rationale).}
+every posterior sample (see Pillar-1 wrapper for the rationale).}
 }
 \value{
 An \code{edaphos_posterior} with

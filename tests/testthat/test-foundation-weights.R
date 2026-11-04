@@ -105,3 +105,26 @@ test_that("the default list offers only encoders that can be downloaded", {
                     is.na(planned$published_at)))
   expect_error(foundation_weights_list(include_planned = NA))
 })
+
+test_that("an HTTP error is reported with its status and leaves nothing cached", {
+  # httr2 turns every 4xx/5xx into an error by default, before the function's
+  # own status check can run. That check was dead code, and the error body
+  # could be left on disk under the weights' file name. The network call is
+  # mocked: it writes an error page to the requested path and returns 404.
+  skip_if_not_installed("httr2")
+  reg  <- foundation_weights_list()
+  skip_if(nrow(reg) == 0L, "no published encoder in the registry")
+  name <- reg$name[1L]
+  cache <- withr::local_tempdir()
+  local_mocked_bindings(
+    req_perform = function(req, path = NULL, ...) {
+      if (!is.null(path)) writeLines("<html>Not Found</html>", path)
+      structure(list(status_code = 404L, url = req$url,
+                     headers = structure(list(), class = "httr2_headers"),
+                     body = raw()), class = "httr2_response")
+    },
+    .package = "httr2")
+  expect_error(foundation_weights_download(name, cache_dir = cache),
+               "HTTP status 404")
+  expect_false(file.exists(file.path(cache, "weights", name, "encoder_q.pt")))
+})

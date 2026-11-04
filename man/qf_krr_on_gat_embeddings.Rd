@@ -2,7 +2,7 @@
 % Please edit documentation in R/bridges_structure_v3.R
 \name{qf_krr_on_gat_embeddings}
 \alias{qf_krr_on_gat_embeddings}
-\title{Quantum KRR over GAT node embeddings (Pilar 6 x Pilar 10)}
+\title{Quantum KRR over GAT node embeddings (Pillar 6 x Pillar 10)}
 \usage{
 qf_krr_on_gat_embeddings(gnn_fit, y, n_pcs = 6L, reps = 2L, lambda = 0.5)
 }

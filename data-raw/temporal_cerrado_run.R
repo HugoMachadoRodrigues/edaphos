@@ -18,7 +18,7 @@
 #   6. Applies temporal_kalman_update() to obtain the posterior ensemble.
 #   7. Computes prior and analysis RMSE, gain norms, innovation vector,
 #      and saves a slim bundle to inst/extdata/temporal_cerrado_results.rds
-#      for the pilar3-4d-real vignette.
+#      for the pillar3-4d-real vignette.
 #
 # This script is *not* rebuilt by devtools::build(); it is run once by
 # the maintainer (Hugo) and its output is checked in.
@@ -31,7 +31,7 @@ suppressPackageStartupMessages({
 stopifnot(torch::torch_is_installed())
 
 use_mps <- torch::backends_mps_is_available()
-message(sprintf("[pilar3-run] torch device: %s",
+message(sprintf("[pillar3-run] torch device: %s",
                  if (use_mps) "mps" else "cpu"))
 
 # --- Load cube ------------------------------------------------------------
@@ -44,7 +44,7 @@ H      <- dim(cube)[1L]
 W      <- dim(cube)[2L]
 T_total <- dim(cube)[3L]
 stopifnot(dim(cube)[4L] == 3L)
-message(sprintf("[pilar3-run] cube: %d x %d x %d x 3  (ndvi, precip, tavg)",
+message(sprintf("[pillar3-run] cube: %d x %d x %d x 3  (ndvi, precip, tavg)",
                  H, W, T_total))
 
 # --- Normalisation -------------------------------------------------------
@@ -81,7 +81,7 @@ for (t in seq_len(T_total)) {
 # Past = first 132 months (Jan 2010 -- Dec 2020), future = last 36.
 T_past   <- 132L
 T_future <- T_total - T_past
-message(sprintf("[pilar3-run] past = %d months (Jan 2010 - Dec 2020), future = %d months (Jan 2021 - Dec 2023)",
+message(sprintf("[pillar3-run] past = %d months (Jan 2010 - Dec 2020), future = %d months (Jan 2021 - Dec 2023)",
                  T_past, T_future))
 
 past_seq     <- seq_arr[, 1L:T_past,            , , , drop = FALSE]
@@ -104,14 +104,14 @@ ens_fits_path  <- "tools/temporal_cerrado/ens_fits_K10.rds"
 if (file.exists(ens_cache_path) && file.exists(ens_fits_path)) {
   ens_rolls <- readRDS(ens_cache_path)
   ens_fits  <- readRDS(ens_fits_path)
-  message(sprintf("[pilar3-run] loaded cached ensemble (K = %d)",
+  message(sprintf("[pillar3-run] loaded cached ensemble (K = %d)",
                    dim(ens_rolls)[1L]))
 } else {
   ens_fits  <- vector("list", K_ens)
   ens_rolls <- array(NA_real_, dim = c(K_ens, T_future, H, W))
   for (k in seq_len(K_ens)) {
     seed_k <- 100L + k
-    message(sprintf("[pilar3-run] training ensemble member %d/%d (seed = %d)",
+    message(sprintf("[pillar3-run] training ensemble member %d/%d (seed = %d)",
                      k, K_ens, seed_k))
     t0 <- Sys.time()
     fit <- temporal_convlstm_fit(
@@ -141,7 +141,7 @@ if (file.exists(ens_cache_path) && file.exists(ens_fits_path)) {
   }
   saveRDS(ens_rolls, ens_cache_path)
   saveRDS(ens_fits,  ens_fits_path)
-  message("[pilar3-run] ensemble forecast cached to ",
+  message("[pillar3-run] ensemble forecast cached to ",
            ens_cache_path)
 }
 
@@ -150,9 +150,9 @@ if (file.exists(ens_cache_path) && file.exists(ens_fits_path)) {
 target_t_in_future <- T_future          # last month = Dec 2023
 fc_ens <- ens_rolls[, target_t_in_future, , ]    # (K, H, W)
 truth  <- future_target[1L, target_t_in_future, , ]
-message(sprintf("[pilar3-run] forecast ensemble shape: %s",
+message(sprintf("[pillar3-run] forecast ensemble shape: %s",
                  paste(dim(fc_ens), collapse = " x ")))
-message(sprintf("[pilar3-run] truth (NDVI z-units) range: [%.3f, %.3f]",
+message(sprintf("[pillar3-run] truth (NDVI z-units) range: [%.3f, %.3f]",
                  min(truth, na.rm = TRUE), max(truth, na.rm = TRUE)))
 
 # Prior mean + SD (in normalised NDVI units).
@@ -202,12 +202,12 @@ analysis_sd   <- assim$analysis_sd
 prior_rmse    <- sqrt(mean((prior_mean    - truth)^2))
 analysis_rmse <- sqrt(mean((analysis_mean - truth)^2))
 sd_reduction  <- mean(analysis_sd) / mean(prior_sd)
-message(sprintf("[pilar3-run] prior RMSE    = %.4f (NDVI z-units)",
+message(sprintf("[pillar3-run] prior RMSE    = %.4f (NDVI z-units)",
                  prior_rmse))
-message(sprintf("[pilar3-run] analysis RMSE = %.4f (NDVI z-units)  (-%.1f%% vs prior)",
+message(sprintf("[pillar3-run] analysis RMSE = %.4f (NDVI z-units)  (-%.1f%% vs prior)",
                  analysis_rmse,
                  100 * (1 - analysis_rmse / prior_rmse)))
-message(sprintf("[pilar3-run] mean posterior SD / prior SD = %.3f",
+message(sprintf("[pillar3-run] mean posterior SD / prior SD = %.3f",
                  sd_reduction))
 
 # --- Persist slim bundle -------------------------------------------------
@@ -261,5 +261,5 @@ out_dir  <- "inst/extdata"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 out_path <- file.path(out_dir, "temporal_cerrado_results.rds")
 saveRDS(slim, out_path)
-message(sprintf("[pilar3-run] slim bundle written to %s (%.1f KB)",
+message(sprintf("[pillar3-run] slim bundle written to %s (%.1f KB)",
                  out_path, file.info(out_path)$size / 1024))

@@ -1,15 +1,15 @@
-# Benchmark helpers for the v3.1.0 6-pilar head-to-head on WoSIS
+# Benchmark helpers for the 6-pillar head-to-head on WoSIS
 # topsoil SOC regression.  Each wrapper returns an `edaphos_posterior`
 # consumable by `uncertainty_calibrate()`.
 #
-# These helpers are used by `data-raw/benchmark_wosis_6pilar.R`.  They
+# These helpers are used by `data-raw/benchmark_wosis_6pillar.R`.  They
 # are EXPORTED so that users reproducing the benchmark on their own
 # regional subset can call them directly, and so that downstream
 # consumers can validate that their input frames satisfy the
 # structural requirements (response column `soc`, coord columns `lon`,
 # `lat`, and the requested covariates).
 #
-# Reasons for not including every pilar:
+# Reasons for not including every pillar:
 #   P2 -- targets depth-profile dynamics, not topsoil scalar regression.
 #   P3 -- targets time-stacked raster cubes.
 #   P8 -- parameterised over a depth function space.
@@ -18,7 +18,7 @@
 # vignette.
 
 # ---------------------------------------------------------------------------
-# Helpers (v3.4.0)
+# Helpers
 # ---------------------------------------------------------------------------
 #
 # Predictive-posterior calibration helper.
@@ -26,12 +26,12 @@
 # The bootstrap- and seed-ensemble posteriors of P1/P6/P10 carry only
 # EPISTEMIC uncertainty -- the spread of predictive MEANS under different
 # model fits -- and so under-cover an honest 90 % predictive interval
-# (PICP 0.07 - 0.25 in the v3.1.0 head-to-head).  A predictive interval
+# (PICP 0.07 - 0.25 in the original, epistemic-only head-to-head).  A predictive interval
 # needs the ALEATORIC term as well, so an estimate of the residual
 # standard deviation is convolved into the posterior.  That much is
 # standard and is not in question.
 #
-# HOW it is done matters.  The v3.4.0 implementation drew iid Gaussian
+# HOW it is done matters.  The earlier implementation drew iid Gaussian
 # noise and added it to the posterior matrix.  The benchmark then reads
 # the point prediction as `colMeans(samples)`, and the column mean of
 # n_draws iid draws is not zero -- it is a perturbation of standard
@@ -134,13 +134,13 @@
   sqrt(max(0, sigma_total^2 - v_ens))
 }
 
-#' Benchmark wrapper: Pilar 1 -- DAG-adjusted OLS + parametric bootstrap
+#' Benchmark wrapper: Pillar 1 -- DAG-adjusted OLS + parametric bootstrap
 #'
 #' Restricts OLS to covariates that appear in the supplied DAG as
 #' direct parents of the outcome (falling back to the full covariate
 #' set when the DAG has no matching variables) and generates a
 #' parametric-bootstrap predictive posterior.  Intended for the
-#' v3.1.0 WoSIS head-to-head; the exported API is stable enough for
+#' WoSIS head-to-head; the exported API is stable enough for
 #' use on any regional subset that follows the same schema.
 #'
 #' @param train,test Data frames with a response column `soc`, coord
@@ -155,7 +155,7 @@
 #'   as iid Gaussian noise to every posterior sample so the
 #'   predictive posterior carries BOTH epistemic (bootstrap-spread)
 #'   AND aleatoric (residual) uncertainty.  Set to `FALSE` to
-#'   reproduce the v3.1.0 epistemic-only behaviour.
+#'   reproduce the original epistemic-only behaviour.
 #' @return An `edaphos_posterior` with
 #'   `method = "bootstrap"`, `query_type = "map"`.
 #' @examples
@@ -166,7 +166,7 @@
 #' # bootstrap is a plain row resample. So the split below is RANDOM, not
 #' # spatial, and the interval it produces does not account for spatial
 #' # dependence between train and test. For a spatially blocked
-#' # comparison see `data-raw/benchmark_wosis_6pilar.R`, which is what
+#' # comparison see `data-raw/benchmark_wosis_6pillar.R`, which is what
 #' # the published six-pillar figures use.
 #' set.seed(1)
 #' sub <- br_cerrado[sample(nrow(br_cerrado), 300L), ]
@@ -301,7 +301,7 @@ benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
                                         sigma_resid = sigma_resid))
 }
 
-#' Benchmark wrapper: Pilar 6 -- bootstrap-ensembled quantum KRR
+#' Benchmark wrapper: Pillar 6 -- bootstrap-ensembled quantum KRR
 #'
 #' PCA-reduces the covariate matrix to `n_pcs` components rescaled to
 #' `[-pi, pi]`, then trains `n_boot` quantum-kernel ridge regressors
@@ -317,7 +317,7 @@ benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
 #' @param seed Optional RNG seed.
 #' @param calibrate Logical (default `TRUE`).  When `TRUE`, residual
 #'   noise from a full-data quantum-KRR fit is injected into every
-#'   posterior sample (see Pilar-1 wrapper for the rationale).
+#'   posterior sample (see Pillar-1 wrapper for the rationale).
 #' @return An `edaphos_posterior` with
 #'   `method = "ensemble"`, `query_type = "map"`.
 #' @examples
@@ -472,7 +472,7 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 }
 
 
-#' Benchmark wrapper: Pilar 10 -- GAT seed-ensemble on k-NN graph
+#' Benchmark wrapper: Pillar 10 -- GAT seed-ensemble on k-NN graph
 #'
 #' Builds a joint k-NN co-location graph on `rbind(train, test)`
 #' using (lon, lat) for adjacency and `cov_cols` as node features,
@@ -491,7 +491,7 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 #' @param seed Base RNG seed (each member uses `seed + b`).
 #' @param calibrate Logical (default `TRUE`).  When `TRUE`, residual
 #'   noise from a representative full-data GAT fit is injected on
-#'   every posterior sample (see Pilar-1 wrapper for the rationale).
+#'   every posterior sample (see Pillar-1 wrapper for the rationale).
 #' @return An `edaphos_posterior` with
 #'   `method = "ensemble"`, `query_type = "map"`.
 #' @examples
@@ -591,7 +591,7 @@ benchmark_fit_p10_gat <- function(train, test, cov_cols,
   n_tr <- nrow(train); n_all <- nrow(df_all)
   # Transductive split: the graph spans both sets so message passing can use
   # the full spatial structure, but only the training nodes carry an observed
-  # target.  Through v3.10.0 the held-out targets were filled with the training
+  # target.  Before 2.0.0 the held-out targets were filled with the training
   # mean and the head was fitted over ALL nodes, so the model was explicitly
   # trained to emit that mean at every test location.  Under spatially blocked
   # folds nearly all of a test node's k-NN neighbours are other test nodes, so

@@ -1,7 +1,7 @@
 # edaphos -- Introduction and Scientific Motivation
 
 This file is the **high-density narrative** that complements the
-README's "at-a-glance" pitch and the per-pilar cheatsheets in
+README's "at-a-glance" pitch and the per-pillar cheatsheets in
 `cheatsheets/`.  Read this when you want the WHY before the HOW.
 
 > *From Greek **edaphos** -- "soil, ground."*
@@ -60,7 +60,7 @@ references and `vignettes/` for narrative tutorials.
 
 ---
 
-## Cross-pillar bridges (v3.0.0)
+## Cross-pillar bridges
 
 Six bridges compose two pillars into a single API:
 
@@ -80,7 +80,7 @@ Six bridges compose two pillars into a single API:
 Every pillar's predictive output funnels through a single S3 class:
 
 ```r
-post <- as_edaphos_posterior(any_pilar_fit)
+post <- as_edaphos_posterior(any_pillar_fit)
 uncertainty_calibrate(post, truth = test$y)
 # -> CRPS, PICP_50/80/90/95, MPIW_50/80/90/95
 ```
@@ -91,10 +91,10 @@ metrics on the same 5 spatial folds.
 
 ---
 
-## Honest readout (v3.4.0)
+## Honest readout
 
 The 1 095-profile WoSIS Cerrado benchmark
-(`inst/extdata/benchmark_wosis_6pilar.rds`):
+(`inst/extdata/benchmark_wosis_6pillar.rds`):
 
 | Method             | RMSE  | R^2    | PICP_90 | MPIW_90 | CRPS  |
 |--------------------|------:|-------:|--------:|--------:|------:|
@@ -107,23 +107,26 @@ The 1 095-profile WoSIS Cerrado benchmark
 
 * RMSE lies in a tight 13.9 - 15.2 g/kg band: the Cerrado subset
   does not discriminate between architectures on point accuracy.
-* Calibration (PICP_90) splits the field at the v3.4.0 calibrated
+* Calibration (PICP_90) splits the field at the calibrated
   posteriors -- everyone is now within 0.6-0.95 of nominal 0.9.
 * P1 Causal+OLS is the single best RMSE + R^2 + CRPS performer at
   negligible cost (~0.7 s / fold) -- a useful interpretable
   baseline.
 
-P2, P3, P8, P9 target depth profiles, temporal stacks, and raster
-patches respectively; they have their own task-appropriate
-benchmarks in `vignettes/`.
+P2, P3, P8 and P9 target depth profiles, temporal stacks and raster
+patches, so they are not in that table. P2, P3 and P8 are compared
+against baselines in their own vignettes. P9 is not: its vignette
+checks only that the training loss falls below the trivial-null loss
+of 1, which shows the model learned something and says nothing about
+how good its samples are.
 
 ---
 
 ## Where to go next
 
-* `vignette("getting-started")` -- 200-line tour of all 10 pilares.
-* `cheatsheets/` -- one-page references per pilar.
-* `vignette("uncertainty-unified")` -- the cross-pilar
+* `vignette("getting-started")` -- 200-line tour of all 10 pillars.
+* `cheatsheets/` -- one-page references per pillar.
+* `vignette("uncertainty-unified")` -- the cross-pillar
   `edaphos_posterior` contract.
 * `vignette("capstone-cerrado-campaign")` -- end-to-end Cerrado
   sampling-campaign narrative integrating all pillars.

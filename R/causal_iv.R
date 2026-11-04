@@ -1,4 +1,4 @@
-# Pillar 1 x Pillar 4 bridge -- Instrumental variable estimation (v1.9.0).
+# Pillar 1 x Pillar 4 bridge -- Instrumental variable estimation.
 #
 # Estimates the causal effect of an exposure X on an outcome Y using
 # instruments Z, optionally conditional on exogenous controls W.

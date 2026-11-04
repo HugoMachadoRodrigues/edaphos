@@ -1,5 +1,4 @@
-// Pillar 6 — Rcpp port of the ZZFeatureMap quantum-kernel simulator
-// (edaphos v2.1.3).
+// Pillar 6 — Rcpp port of the ZZFeatureMap quantum-kernel simulator.
 //
 // Mathematical contract
 // ---------------------

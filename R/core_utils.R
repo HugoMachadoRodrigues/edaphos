@@ -58,7 +58,7 @@
   invisible(TRUE)
 }
 
-# v3.8.0 -- friendly-error helper.
+# Friendly-error helper.
 #
 # Wraps `stop()` with the calling function's name and a "Hint:" line
 # so a typical user-facing failure becomes self-diagnosing instead of
@@ -122,6 +122,19 @@
 
 .torch_usable <- function() {
   isTRUE(tryCatch(torch::torch_is_installed(), error = function(e) FALSE))
+}
+
+# The one guard every torch entry point calls. requireNamespace("torch")
+# alone is TRUE as soon as the R package is installed, but libtorch is a
+# separate download that CI machines and fresh installs routinely lack; the
+# guards that checked only the package let calls through to fail later with
+# "Lantern is not loaded".
+.require_torch <- function(what) {
+  if (!requireNamespace("torch", quietly = TRUE) || !.torch_usable())
+    stop(what, " needs the `torch` package with a working libtorch. ",
+         "Install the package, then run torch::install_torch() once.",
+         call. = FALSE)
+  invisible(TRUE)
 }
 
 .resolve_backend <- function(backend = c("auto", "r", "torch"),

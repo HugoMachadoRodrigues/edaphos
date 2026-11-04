@@ -1,16 +1,16 @@
-# Active-Learning bridges for Pilar 5 (edaphos v3.0.0).
+# Active-Learning bridges for Pillar 5.
 #
 # Three bridges that feed posterior-like uncertainty signals from
-# Pilares 7, 8 and 9 into Pilar 5's query step:
+# Pillars 7, 8 and 9 into Pillar 5's query step:
 #
-#   al_query_neural_operator()  (Pilar 8 x Pilar 5)
-#   al_query_diffusion()        (Pilar 9 x Pilar 5)
-#   al_query_bhs()              (Pilar 7 x Pilar 5)
+#   al_query_neural_operator()  (Pillar 8 x Pillar 5)
+#   al_query_diffusion()        (Pillar 9 x Pillar 5)
+#   al_query_bhs()              (Pillar 7 x Pillar 5)
 #
 # All three return an `edaphos_al_query` data frame with `pool_index`,
 # `score`, and optional auxiliary columns for diagnostics.  They
 # follow the `al_query_causal()` signature pattern so they
-# plug straight into Pilar 5's existing `al_loop()` machinery by way
+# plug straight into Pillar 5's existing `al_loop()` machinery by way
 # of a custom acquisition-function callback.
 
 # ---------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 # ----------
 # A DeepONet trained on labelled profiles produces mean-field
 # predictions at every candidate site.  Candidates whose NO
-# prediction DISAGREES with the Pilar 2 local ODE fit are where the
+# prediction DISAGREES with the Pillar 2 local ODE fit are where the
 # operator's extrapolation is most uncertain, and therefore the
 # highest-value next samples for a campaign that targets the
 # process-model / operator-model alignment.
@@ -35,10 +35,10 @@
 # the spread of resulting profiles (in the absence of a proper
 # Bayesian NO, this perturbation proxy is a lightweight alternative).
 
-#' Causal-driven AL via Neural Operator disagreement (Pilar 8 x Pilar 5)
+#' Causal-driven AL via Neural Operator disagreement (Pillar 8 x Pillar 5)
 #'
 #' Ranks candidate sites by the disagreement between a Neural
-#' Operator's predicted depth profile and a classical Pilar 2
+#' Operator's predicted depth profile and a classical Pillar 2
 #' pedogenetic ODE's predicted profile, normalised by the NO's
 #' perturbation-spread uncertainty.
 #'
@@ -189,7 +189,7 @@ al_query_neural_operator <- function(no_fit, ode_fit,
 
 #' @export
 print.edaphos_al_neural_operator_query <- function(x, ...) {
-  cat("<edaphos_al_neural_operator_query>  (Pilar 8 x Pilar 5)\n")
+  cat("<edaphos_al_neural_operator_query>  (Pillar 8 x Pillar 5)\n")
   cat(sprintf("  pool size : %d\n", nrow(x)))
   cat(sprintf("  n_select  : %d\n", attr(x, "n_select")))
   cat("  top candidates (NO vs ODE disagreement, normalised):\n")
@@ -213,7 +213,7 @@ print.edaphos_al_neural_operator_query <- function(x, ...) {
 # per-cell posterior SD, and ranks candidate cells by a
 # combination of SD and optional logistical cost.
 
-#' Diffusion-posterior-driven AL (Pilar 9 x Pilar 5)
+#' Diffusion-posterior-driven AL (Pillar 9 x Pillar 5)
 #'
 #' Ranks candidate cells by the standard deviation of DDPM posterior
 #' samples.  High-SD cells are the most uncertain map locations;
@@ -345,7 +345,7 @@ al_query_diffusion <- function(dm_fit, conditioning = NULL,
 
 #' @export
 print.edaphos_al_diffusion_query <- function(x, ...) {
-  cat("<edaphos_al_diffusion_query>  (Pilar 9 x Pilar 5)\n")
+  cat("<edaphos_al_diffusion_query>  (Pillar 9 x Pillar 5)\n")
   cat(sprintf("  pool size : %d\n", nrow(x)))
   cat(sprintf("  combine   : %s\n", attr(x, "combine")))
   cat(sprintf("  top-%d cells:\n", attr(x, "n_select")))
@@ -367,7 +367,7 @@ print.edaphos_al_diffusion_query <- function(x, ...) {
 # predictive uncertainty is HIGH for many plausible theta values,
 # not just the posterior mean.
 #
-# `al_query_bhs()` implements this for a Pilar 7 `edaphos_bhs` fit.
+# `al_query_bhs()` implements this for a Pillar 7 `edaphos_bhs` fit.
 # For each MCMC draw (beta, sigma^2, tau^2) we compute the
 # predictive variance of a candidate site as
 #
@@ -375,7 +375,7 @@ print.edaphos_al_diffusion_query <- function(x, ...) {
 #
 # and average across draws.
 
-#' Bayesian Hierarchical Active Learning (Pilar 7 x Pilar 5)
+#' Bayesian Hierarchical Active Learning (Pillar 7 x Pillar 5)
 #'
 #' Ranks candidate sites by their predictive variance averaged over
 #' the BHS posterior MCMC draws -- Thompson-sampling-style AL in
@@ -520,7 +520,7 @@ al_query_bhs <- function(bhs_fit, pool_data,
 
 #' @export
 print.edaphos_al_bhs_query <- function(x, ...) {
-  cat("<edaphos_al_bhs_query>  (Pilar 7 x Pilar 5)\n")
+  cat("<edaphos_al_bhs_query>  (Pillar 7 x Pillar 5)\n")
   cat(sprintf("  pool size : %d\n", nrow(x)))
   cat(sprintf("  n_draws   : %d   n_select: %d\n",
                attr(x, "n_draws"), attr(x, "n_select")))

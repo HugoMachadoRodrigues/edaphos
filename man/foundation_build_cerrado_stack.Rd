@@ -29,7 +29,7 @@ every source arrives on.}
 
 \item{schema}{One of \code{"v1_encoder"} (default; 31-channel encoder-
 compatible stack) or \code{"minimal"} (10-channel legacy stack used
-pre-v4.0.0).  Pass \code{"minimal"} to reproduce the older bundles.}
+by the older bundles).  Pass \code{"minimal"} to reproduce them.}
 }
 \value{
 A \code{terra::SpatRaster} with the requested number of aligned
@@ -37,8 +37,8 @@ layers.
 }
 \description{
 Downloads / assembles the covariate raster stack that the
-\code{edaphos-cerrado-moco-v1} encoder was pretrained on.  As of v4.0.0
-the stack matches the v1 encoder's 31-channel input schema:
+\code{edaphos-cerrado-moco-v1} encoder was pretrained on.  The stack matches
+the v1 encoder's 31-channel input schema:
 }
 \details{
 \itemize{
@@ -66,8 +66,8 @@ detail the sources never had.
 
 Earlier versions assembled only a 10-channel subset, which forced
 the IV benchmark (\code{data-raw/causal_iv_benchmark_real.R}) to fall
-back to a synthetic 31-channel stack -- the v4.0.0 rewrite closes
-that gap.
+back to a synthetic 31-channel stack -- the 31-channel rewrite
+closes that gap.
 
 \strong{Heavy download.}  Not because of the file it writes: the default
 2-deg x 2-deg AoI at 0.01 deg is 200 x 200 cells x 31 \code{FLT4S}
@@ -139,7 +139,7 @@ stk_tmp <- foundation_build_cerrado_stack(
 # no monthly climate at all.  The published v1 encoder's input layer
 # is fixed at 31 channels -- `foundation_weights_list()` reports
 # `n_channels` -- so a minimal stack cannot feed it.  It exists to
-# reproduce the pre-v4.0.0 bundles.
+# reproduce the older, 10-channel bundles.
 legacy <- foundation_build_cerrado_stack(schema = "minimal")
 terra::nlyr(legacy)          # 10
 

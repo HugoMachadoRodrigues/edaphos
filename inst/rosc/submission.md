@@ -17,7 +17,7 @@ Issue body to paste into the rOpenSci pre-submission inquiry template
   Active Learning (P5), Quantum ML (P6), Bayesian Hierarchical
   Spatial (P7), Neural Operators (P8), Diffusion Models (P9), and
   Graph Attention Networks (P10) -- with a unified `edaphos_posterior`
-  uncertainty API and six v3.0.0 cross-pillar bridges.
+  uncertainty API and six cross-pillar bridges.
 - **Repository**: <https://github.com/HugoMachadoRodrigues/edaphos>
 - **Zenodo concept DOI**: 10.5281/zenodo.19683708
 - **Documentation site**: <https://hugomachadorodrigues.github.io/edaphos>
@@ -40,9 +40,9 @@ We believe the package fits best under:
    That step was an author-chosen widening of the intervals until
    they covered; it has been removed, and the honest reading is that
    those three pillars' intervals under-cover.
-3. **Machine Learning** -- Pilars 2-4, 8-10 are all ML (Neural
+3. **Machine Learning** -- Pillars 2-4, 8-10 are all ML (Neural
    ODEs, ConvLSTM, MoCo v2, DeepONet, FNO, DDPM, GAT).
-4. **Statistical estimation and inference** -- Pilar 1's backdoor
+4. **Statistical estimation and inference** -- Pillar 1's backdoor
    OLS / BART / IV / sensitivity analysis + structure learning
    via bnlearn.
 
@@ -96,7 +96,7 @@ emerging methodology lines.
 - [x] Vignettes follow a consistent methods-paper structure.
 - [x] `README.md` has badges, install instructions, pillar-by-pillar
       narrative, bundled datasets table, and roadmap.
-- [x] `INTRO.md` (v3.9.0) provides a high-density narrative
+- [x] `INTRO.md` provides a high-density narrative
       complement to README.
 - [x] `cheatsheets/` one-page references per pillar.
 - [x] `NEWS.md` is current (2.0.0, development version — the 43 internal
@@ -116,7 +116,7 @@ emerging methodology lines.
 ## Known open issues that a reviewer would find
 
 1. **`quantum_kernel()` scales O(n^2 * 4^n_qubits)** in pure R.
-   v2.1.3 ships a Rcpp port that is ~12x faster on
+   The package ships a Rcpp port that is ~12x faster on
    n_samples >= 100 (`quantum_kernel_rcpp()`).  Beyond
    n_qubits = 12 the state-vector simulation is intrinsically
    exponential in n_qubits.
@@ -127,10 +127,10 @@ emerging methodology lines.
 3. **P6 Quantum KRR PICP_90 is 0.60** (vs 0.81-0.95 for the other
    five methods) at the 1 095-profile Cerrado benchmark with
    `n_pcs = 6, reps = 1` (the n_pcs ceiling for tractable
-   classical simulation).  Documented in v3.4.0 NEWS as a
+   classical simulation).  Documented as a
    modelling limit, not a software bug.
 4. **Some Suggests are pinned** (`bnlearn`, `dagitty`) because
-   downstream changes in their public API would break Pilar 1.
+   downstream changes in their public API would break Pillar 1.
    Tracked in our CI matrix.
 
 ## Questions for the rOpenSci editor
@@ -142,7 +142,7 @@ emerging methodology lines.
 2. `torch` is a heavy optional dependency.  Is our
    `requireNamespace()`-gated pattern acceptable, or would the
    reviewers prefer deeper separation?
-3. The benchmark in `inst/extdata/benchmark_wosis_6pilar.rds`
+3. The benchmark in `inst/extdata/benchmark_wosis_6pillar.rds`
    takes ~30 minutes to regenerate.  Would the editors prefer
    this bundle to be downloaded from Zenodo at runtime instead of
    shipped with the package?

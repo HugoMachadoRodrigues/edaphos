@@ -98,7 +98,7 @@ RUN R -e "install.packages(c( \
 RUN R -e "install.packages('torch', repos = Sys.getenv('R_CRAN_WEB')); \
           torch::install_torch(timeout = 600)"
 
-# Optional reticulate + Python stack for the Qiskit bridge (Pilar 6).
+# Optional reticulate + Python stack for the Qiskit bridge (Pillar 6).
 # Skip by default to keep the image small; uncomment if you need VQE.
 # RUN R -e "install.packages('reticulate', repos = Sys.getenv('R_CRAN_WEB'))"
 # RUN pip install qiskit qiskit-aer qiskit-nature pyscf

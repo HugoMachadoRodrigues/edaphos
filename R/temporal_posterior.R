@@ -416,10 +416,7 @@ temporal_convlstm_mcdropout_predict <- function(object, sequence,
                                                   return_sequence = NULL,
                                                   seed = NULL) {
   stopifnot(inherits(object, "edaphos_temporal_convlstm"))
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("torch is required for temporal_convlstm_mcdropout_predict().",
-         call. = FALSE)
-  }
+  .require_torch("temporal_convlstm_mcdropout_predict()")
   if (!is.null(seed)) torch::torch_manual_seed(seed)
   if (!inherits(sequence, "torch_tensor")) {
     sequence <- torch::torch_tensor(sequence)$to(dtype = torch::torch_float())

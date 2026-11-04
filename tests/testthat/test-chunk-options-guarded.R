@@ -6,14 +6,14 @@
 # fails -- it does not quietly evaluate to FALSE and skip. The failure lands
 # on whoever builds the package, not on whoever wrote the vignette.
 #
-# vignettes/pilar4-simclr-embeddings.Rmd had:
+# vignettes/pillar4-simclr-embeddings.Rmd had:
 #   eval = requireNamespace("torch", ...) && reticulate::py_available() || .torch_ok
 # On a machine with torch and without reticulate that raises rather than
 # skips. It was also pointless twice over: `&&` binds tighter than `||`, so
 # the reticulate clause could only change the answer in the case where it
 # crashes, and the chunk trains a MoCo encoder -- pure torch, no Python.
 #
-# vignettes/pilar6-quantum.Rmd shows the correct idiom in six places:
+# vignettes/pillar6-quantum.Rmd shows the correct idiom in six places:
 # requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available(...)
 # -- the guard first, and && short-circuits. This test encodes that idiom.
 # ---------------------------------------------------------------------------

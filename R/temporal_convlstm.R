@@ -6,15 +6,11 @@
 # forecasting pattern when future drivers are known, e.g. from weather
 # forecasts).
 #
-# All torch code is guarded by `requireNamespace("torch")` so the
-# package loads cleanly without libtorch.
+# All torch code is guarded by .require_torch() so the package loads
+# cleanly without libtorch.
 
 .temporal_require_torch <- function() {
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("Install the `torch` package to use temporal_convlstm_*().",
-         call. = FALSE)
-  }
-  invisible(TRUE)
+  .require_torch("temporal_convlstm_*()")
 }
 
 .temporal_build_cell <- function() {
@@ -339,7 +335,9 @@ temporal_convlstm_fit <- function(sequence, target,
   if (!inherits(target, "torch_tensor")) {
     target <- torch::torch_tensor(target)$to(dtype = torch::torch_float())
   }
-  stopifnot(sequence$dim() == 5L)
+  if (sequence$dim() != 5L)
+    .stopf("`sequence` must have 5 dimensions (batch, time, channel, height, width); got %d.",
+           sequence$dim(), hint = "temporal_cube_to_tensor() builds this layout")
   if (return_sequence) {
     stopifnot(target$dim() == 4L)
   } else {

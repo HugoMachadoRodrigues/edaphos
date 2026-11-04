@@ -278,8 +278,14 @@ foundation_weights_download <- function(name,
     req <- httr2::req_timeout(req, timeout_sec)
     req <- httr2::req_retry(req, max_tries = 3L,
                               backoff = function(i) 2 ^ i)
+    # Handle the status here rather than let httr2 throw: its default turns
+    # every 4xx/5xx into an error before this code sees it, which left the
+    # check below unreachable and could leave the error body cached under
+    # the weights' file name.
+    req <- httr2::req_error(req, is_error = function(resp) FALSE)
     resp <- httr2::req_perform(req, path = pt_path)
     if (httr2::resp_status(resp) >= 400L) {
+      unlink(pt_path)
       stop("Download of '", name, "' failed with HTTP status ",
            httr2::resp_status(resp), ".", call. = FALSE)
     }

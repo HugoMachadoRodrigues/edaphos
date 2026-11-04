@@ -1,9 +1,8 @@
-# Pilar 1 x Pilar 3 bridge -- Causal 4D time-varying effects
-# (edaphos v2.2.1).
+# Pillar 1 x Pillar 3 bridge -- Causal 4D time-varying effects.
 #
 # Mathematical setup
 # ------------------
-# Pilar 1's backdoor adjustment returns a time-invariant scalar:
+# Pillar 1's backdoor adjustment returns a time-invariant scalar:
 #
 #     beta_hat = E[ dY / dX | Z ]   averaged over the sample.
 #
@@ -15,7 +14,7 @@
 #     beta_hat(t) = argmin_beta  sum_{i in W_t} ( y_i - beta x_i - theta' z_i )^2
 #
 # on a sliding window W_t of width `window` time-slices and stride
-# `step`, where (x, y, z) come from the 4D cube of Pilar 3.  The
+# `step`, where (x, y, z) come from the 4D cube of Pillar 3.  The
 # resulting time series beta_hat(t) is complemented by:
 #
 #   * bootstrap CIs per window
@@ -46,7 +45,7 @@
 
 #' Time-varying causal effect beta(t) over a sliding window
 #'
-#' Closes the Pilar 1 x Pilar 3 loop: the v1.4.0 backdoor-adjusted
+#' Closes the Pillar 1 x Pillar 3 loop: the v1.4.0 backdoor-adjusted
 #' estimator is applied within non-overlapping (or overlapping)
 #' windows of the temporal frame, producing a beta_hat(t) trajectory
 #' with bootstrap CIs.  Mann-Kendall tests for a significant trend.
@@ -293,7 +292,7 @@ causal_effect_trend_test <- function(beta_df) {
 
 #' @export
 print.edaphos_causal_4d <- function(x, ...) {
-  cat("<edaphos_causal_4d>  (Pilar 1 x Pilar 3 bridge)\n")
+  cat("<edaphos_causal_4d>  (Pillar 1 x Pillar 3 bridge)\n")
   cat(sprintf("  target effect : %s -> %s\n",
                attr(x, "exposure"), attr(x, "outcome")))
   adj <- attr(x, "adjustment")

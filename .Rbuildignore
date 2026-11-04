@@ -3,7 +3,6 @@
 ^\.github$
 ^\.gitignore$
 ^data-raw$
-^README\.Rmd$
 ^cran-comments\.md$
 ^doc$
 ^Meta$
@@ -15,8 +14,6 @@
 ^\.dockerignore$
 ^_pkgdown\.yml$
 ^docs$
-^\.claude$
-^RELEASE\.md$
 ^pkgdown$
 # vignettes/articles/ is the pkgdown convention for web-only articles: the
 # site renders them, the tarball does not carry them. They used to live in a
@@ -26,7 +23,7 @@
 ^vignettes/articles$
 ^cheatsheets$
 ^INTRO\.md$
-^RELEASE-CHECKLIST-v3\.10\.0\.md$
+^RELEASE.*\.md$
 ^CONTRIBUTING\.md$
 ^CODE_OF_CONDUCT\.md$
 ^SECURITY\.md$
@@ -38,6 +35,5 @@
 ^\.Rproj\.user$
 ^\.positai$
 ^manuscript$
-^paper/S2_File_pipeline\.zip$
 ^PROVENANCE\.md$
 ^codecov\.yml$

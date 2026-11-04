@@ -1,4 +1,4 @@
-## Tests for the v3.10.0 Pilar 1 LLM-KG pipeline orchestrator.
+## Tests for the Pillar 1 LLM-KG pipeline orchestrator.
 ## We MOCK the Ollama HTTP call (no live server in CI) and test:
 ##
 ##   1. `llm_kg_ollama_check()` reports the right state when the

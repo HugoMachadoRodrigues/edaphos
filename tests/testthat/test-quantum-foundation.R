@@ -1,4 +1,4 @@
-## Tests for the Pilar 4 x Pilar 6 quantum-foundation bridge (v2.0.0).
+## Tests for the Pillar 4 x Pillar 6 quantum-foundation bridge.
 
 test_that("qf_embed_reduce: produces PCs in [-pi, pi]", {
   set.seed(1L)

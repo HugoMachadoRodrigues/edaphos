@@ -1,7 +1,7 @@
-# Pillar 1 -- Gold-standard annotation tooling (v1.8.1).
+# Pillar 1 -- Gold-standard annotation tooling.
 #
 # Two-phase workflow for scaling the Cerrado gold-standard beyond the
-# 72-claim seed shipped in v1.8.0:
+# original 72-claim seed:
 #
 #   Phase 1 (pre-annotation)  -- the LLM (Gemma 4 by default) reads each
 #     abstract and produces a draft set of (cause, effect, polarity,

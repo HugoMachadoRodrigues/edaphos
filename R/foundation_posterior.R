@@ -419,10 +419,7 @@ foundation_mcdropout_predict <- function(object, x,
                                             seed = NULL) {
   stopifnot(inherits(object, c("edaphos_foundation_classifier",
                                  "edaphos_foundation_regressor")))
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("torch is required for foundation_mcdropout_predict().",
-         call. = FALSE)
-  }
+  .require_torch("foundation_mcdropout_predict()")
   if (!is.null(seed)) torch::torch_manual_seed(seed)
   n_draws <- as.integer(n_draws)
   stopifnot(n_draws >= 1L)

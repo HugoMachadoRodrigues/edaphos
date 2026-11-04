@@ -9,11 +9,7 @@
 # without libtorch.
 
 .piml_require_torch <- function() {
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("Install the `torch` package (and run torch::install_torch() ",
-         "once) to use piml_neural_ode_*().", call. = FALSE)
-  }
-  invisible(TRUE)
+  .require_torch("piml_neural_ode_*()")
 }
 
 .piml_rk4_step <- function(f, z, y, h) {

@@ -200,7 +200,7 @@ test_that("the LLM edge set is derived from the shipped claims, not typed in", {
 # ---------------------------------------------------------------------------
 
 test_that("the GAT tuning bundle records an honest nested-CV protocol", {
-  b <- bundle("pilar10_gat_tuning.rds")
+  b <- bundle("pillar10_gat_tuning.rds")
   # The protocol is the claim: tuning must not have touched the evaluated folds.
   expect_match(b$protocol, "nested CV")
   expect_match(b$protocol, "never tuned on")
@@ -217,7 +217,7 @@ test_that("the GAT tuning bundle records an honest nested-CV protocol", {
 })
 
 test_that("the GAT vs QRF figures in README match the tuning bundle", {
-  b <- bundle("pilar10_gat_tuning.rds")
+  b <- bundle("pillar10_gat_tuning.rds")
   p <- b$pooled
   gat <- p[grepl("GAT", p$method), ]
   qrf <- p[grepl("QRF", p$method), ]
@@ -239,7 +239,7 @@ test_that("the GAT vs QRF figures in README match the tuning bundle", {
 })
 
 test_that("no edge construction dominates, so none may be presented as best", {
-  b <- bundle("pilar10_gat_tuning.rds")
+  b <- bundle("pillar10_gat_tuning.rds")
   picked <- vapply(b$chosen_per_fold, function(z) as.character(z$gat$edges),
                    character(1))
   expect_true(all(picked %in% c("spatial", "feature", "hybrid")))
@@ -259,7 +259,7 @@ test_that("no edge construction dominates, so none may be presented as best", {
 # ---------------------------------------------------------------------------
 
 test_that("the six-pillar bundle declares its scale and an achievable null", {
-  b <- bundle("benchmark_wosis_6pilar.rds")
+  b <- bundle("benchmark_wosis_6pillar.rds")
   expect_true(b$response_scale %in% c("log1p", "raw"))
   expect_equal(b$response_scale, "log1p")
   expect_equal(b$response_units, "log1p(g/kg)")
@@ -284,7 +284,7 @@ test_that("the six-pillar bundle declares its scale and an achievable null", {
 })
 
 test_that("README's six-pillar figures match the shipped bundle", {
-  b <- bundle("benchmark_wosis_6pilar.rds")
+  b <- bundle("benchmark_wosis_6pillar.rds")
   p <- b$cv_pooled
   get <- function(m) p$nse_vs_training_fold_mean[p$method == m]
 
@@ -302,7 +302,7 @@ test_that("README's six-pillar figures match the shipped bundle", {
 
 test_that("README does not re-publish the withdrawn raw-scale six-pillar table", {
   skip_on_cran()
-  b <- bundle("benchmark_wosis_6pilar.rds")
+  b <- bundle("benchmark_wosis_6pillar.rds")
   skip_if(!identical(b$response_scale, "log1p"), "bundle is on the raw scale")
   ln <- readme_lines()
   # The withdrawn table reported ~14.1 g/kg RMSE for three methods at once and
@@ -320,7 +320,7 @@ test_that("README does not re-publish the withdrawn raw-scale six-pillar table",
 # ---------------------------------------------------------------------------
 # The README must be followable
 #
-# Through v3.10.0 the only install instruction in an 84 KB README pinned
+# Before 2.0.0 the only install instruction in an 84 KB README pinned
 # `@v2.8.0`, a tag that does not exist -- so nobody had ever installed this
 # package by following its own documentation. The gap survived because
 # tools/status/facts.R MEASURED it and STATUS.md REPORTED it, but nothing

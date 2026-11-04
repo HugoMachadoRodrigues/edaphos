@@ -1,7 +1,7 @@
 ## Documentation cross-references must point at things that exist.
 ##
-## Two drifts this catches, both of which shipped in v4.0.0:
-##   * `vignette("pilar5-soilgrids-br")` was advertised from
+## Two drifts this catches, both of which shipped before 2.0.0:
+##   * `vignette("pillar5-soilgrids-br")` was advertised from
 ##     R/edaphos-package.R and the README; no such vignette exists.
 ##     The README named three more that do not exist either.
 ##   * The roadmap and package overview link functions with [fn()].  A
@@ -114,6 +114,6 @@ test_that("the ten-pillar claim is consistent across DESCRIPTION and docs", {
   # Each of the ten pillars needs a vignette on disk.
   have <- list.files(file.path(root, "vignettes"), pattern = "\\.Rmd$")
   for (i in 1:10)
-    expect_true(any(grepl(sprintf("^pilar%d-", i), have)),
+    expect_true(any(grepl(sprintf("^pillar%d-", i), have)),
                 info = sprintf("no vignette for pillar %d", i))
 })

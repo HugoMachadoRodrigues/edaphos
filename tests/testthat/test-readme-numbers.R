@@ -56,8 +56,8 @@ parse_table <- function(md, header_regex, n_rows) {
 
 test_that("the README's pooled benchmark table matches the bundle", {
   rp <- readme_path(); skip_if(is.na(rp), "README.md not found")
-  f <- system.file("extdata", "benchmark_wosis_6pilar.rds", package = "edaphos")
-  if (!nzchar(f)) f <- file.path("inst", "extdata", "benchmark_wosis_6pilar.rds")
+  f <- system.file("extdata", "benchmark_wosis_6pillar.rds", package = "edaphos")
+  if (!nzchar(f)) f <- file.path("inst", "extdata", "benchmark_wosis_6pillar.rds")
   skip_if_not(file.exists(f), "benchmark bundle not built")
 
   B <- readRDS(f)

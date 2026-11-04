@@ -71,8 +71,8 @@ test_that("the graph network's error does grow with extrapolation distance", {
 })
 
 test_that("the six-pillar bundle still supports the ranking claims after the interval fixes", {
-  p <- system.file("extdata", "benchmark_wosis_6pilar.rds", package = "edaphos")
-  if (!nzchar(p)) p <- file.path("inst", "extdata", "benchmark_wosis_6pilar.rds")
+  p <- system.file("extdata", "benchmark_wosis_6pillar.rds", package = "edaphos")
+  if (!nzchar(p)) p <- file.path("inst", "extdata", "benchmark_wosis_6pillar.rds")
   skip_if_not(file.exists(p))
   a <- readRDS(p)$cv_aggregate
   pick <- function(m) a[a$method == m, ]

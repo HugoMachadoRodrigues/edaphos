@@ -40,6 +40,24 @@ development entry. Live, measured status (test counts, check
 result, install size) is generated into `STATUS.md` and `cran-comments.md` by the
 scripts in `tools/status/`, not written by hand.
 
+## English throughout; "pilar" renamed to "pillar"
+
+* Every vignette, figure, comment and label is now in English. Five
+  vignettes were in Portuguese and have been translated; `DESCRIPTION`
+  declares `Language: en-US`.
+* Identifiers used "pilar", the Portuguese word. They now say "pillar":
+  `vignette("pilar6-quantum")` is `vignette("pillar6-quantum")`, and so on
+  for all fifteen pillar vignettes and articles. On the pkgdown site the old
+  article addresses redirect to the new ones. No exported function carried
+  either spelling.
+* Three bundles are renamed — `pillar8_real_pedons.rds`,
+  `benchmark_wosis_6pillar.rds`, `pillar10_gat_tuning.rds` — and the two
+  capstone bundles' labels are translated ("Tree cover (%)", "Clay (%)",
+  "SOC (g/kg)", column `pillar`). No value changed: the script that did it,
+  `data-raw/rename_bundles_to_english.R`, checks that reversing the
+  relabelling gives back the original object exactly, and it records itself
+  in each bundle's provenance with the previous producer kept in the chain.
+
 ## Removed before first release
 
 * `foundation_tile_source_modis()` and `foundation_tile_source_era5()` are
@@ -357,7 +375,7 @@ They are corrected here rather than merely deleted:
   MoCo-v2 encoder on real WoSIS Cerrado profiles, the embedding-PC instruments
   are strong (stage-1 F ≈ 1955) but **fail** the Sargan over-identification test
   (p ≈ 3×10⁻¹³): a learned representation does not manufacture a valid
-  instrument. The README and the `pilar1-pilar4-iv` vignette now report this
+  instrument. The README and the `pillar1-pillar4-iv` vignette now report this
   negative result, and `tests/testthat/test-causal-real-bundle.R` binds the
   figures to the shipped bundle so they cannot drift again.
 - **Multi-backend LLM benchmark** (Gemma 4 / GPT-4o-mini / Claude). The shipped

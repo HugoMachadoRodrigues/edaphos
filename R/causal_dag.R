@@ -378,7 +378,12 @@ causal_estimate_effect <- function(data, dag, exposure, outcome,
                                     delta     = NULL,
                                     bart_kwargs = list()) {
   .causal_require_dagitty()
-  .assert_covariates(data, c(exposure, outcome))
+  .assert_type(is.data.frame(data), "data", "a data frame", class(data)[1L])
+  for (role in c("exposure", "outcome")) {
+    v <- get(role)
+    if (!v %in% names(data))
+      .stopf("%s `%s` is not a column of `data`.", role, v)
+  }
   effect    <- match.arg(effect)
   type      <- match.arg(type)
   estimator <- match.arg(estimator)

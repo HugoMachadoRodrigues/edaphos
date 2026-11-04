@@ -237,39 +237,36 @@ helpers.}
 }
 }
 
-\section{On "pilar" and "pillar"}{
+\section{Names and language}{
 
-Both spellings appear, and the split is deliberate rather than accidental.
-English prose says \strong{pillar}; identifiers say \strong{pilar}, which is the
-Portuguese word. So \code{vignette("pilar6-quantum")} documents Pillar 6, and
-\code{inst/extdata/pilar10_gat_tuning.rds} holds Pillar 10's tuning run.
-\code{DESCRIPTION} declares \verb{Language: en-US, pt-BR} for the same reason: five
-of the vignettes are written in Portuguese.
-
-No exported function carries either spelling, so the distinction never
-reaches code a user writes. It survives in file names, which are a
-contract -- renaming a vignette breaks every \code{vignette()} call and
-bookmark pointing at it -- and the package is not willing to break that
-for an orthographic preference.
+The package is written in English throughout. Up to 2.0.0 its identifiers
+used "pilar", the Portuguese word for pillar -- vignettes such as
+\code{pilar6-quantum}, files such as \code{R/pilar7_bayesian_hierarchical.R},
+bundles such as \code{pilar10_gat_tuning.rds} -- and five vignettes were in
+Portuguese. 2.0.0 renamed them all to "pillar" and translated the
+vignettes, so the vignette once named \code{pilar6-quantum} is now
+\code{vignette("pillar6-quantum")}. On the pkgdown site the old article
+addresses redirect to the new ones. No exported function carried either
+spelling, so no code calling the package changes.
 }
 
 \section{Vignettes}{
 
 Each pillar ships a mathematically-derived vignette with examples on
 real or reproducible synthetic data. Entry points:
-\code{vignette("pilar1-causal", package = "edaphos")},
-\code{vignette("pilar2-piml-profile", package = "edaphos")},
-\code{vignette("pilar3-4d-soc", package = "edaphos")},
-\code{vignette("pilar4-simclr-embeddings", package = "edaphos")},
-\code{vignette("pilar5-active-learning", package = "edaphos")},
-\code{vignette("pilar6-quantum", package = "edaphos")},
-\code{vignette("pilar7-bayesian-hierarchical", package = "edaphos")},
-\code{vignette("pilar8-neural-operators", package = "edaphos")},
-\code{vignette("pilar9-diffusion-models", package = "edaphos")},
-\code{vignette("pilar10-graph-attention", package = "edaphos")}.
+\code{vignette("pillar1-causal", package = "edaphos")},
+\code{vignette("pillar2-piml-profile", package = "edaphos")},
+\code{vignette("pillar3-4d-soc", package = "edaphos")},
+\code{vignette("pillar4-simclr-embeddings", package = "edaphos")},
+\code{vignette("pillar5-active-learning", package = "edaphos")},
+\code{vignette("pillar6-quantum", package = "edaphos")},
+\code{vignette("pillar7-bayesian-hierarchical", package = "edaphos")},
+\code{vignette("pillar8-neural-operators", package = "edaphos")},
+\code{vignette("pillar9-diffusion-models", package = "edaphos")},
+\code{vignette("pillar10-graph-attention", package = "edaphos")}.
 Cross-pillar bridges have their own:
-\code{vignette("pilar1-pilar4-iv", package = "edaphos")},
-\code{vignette("pilar4-pilar6-quantum", package = "edaphos")},
+\code{vignette("pillar1-pillar4-iv", package = "edaphos")},
+\code{vignette("pillar4-pillar6-quantum", package = "edaphos")},
 \code{vignette("uncertainty-unified", package = "edaphos")},
 \code{vignette("causal-discovery-trio", package = "edaphos")},
 \code{vignette("llm-annotation-workflow", package = "edaphos")}.

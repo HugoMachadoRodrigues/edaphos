@@ -1,4 +1,4 @@
-## Tests for the Cinelli & Hazlett (2020) sensitivity module (v1.9.2).
+## Tests for the Cinelli & Hazlett (2020) sensitivity module.
 
 test_that("causal_sensitivity_summary: recovers Cinelli-Hazlett Theorem 4.4 example", {
   # Published worked example: beta = 1, SE = 0.5, df = 100 => |t| = 2

@@ -2,7 +2,7 @@
 % Please edit documentation in R/benchmark_wosis.R
 \name{benchmark_fit_p6_quantum}
 \alias{benchmark_fit_p6_quantum}
-\title{Benchmark wrapper: Pilar 6 -- bootstrap-ensembled quantum KRR}
+\title{Benchmark wrapper: Pillar 6 -- bootstrap-ensembled quantum KRR}
 \usage{
 benchmark_fit_p6_quantum(
   train,
@@ -33,7 +33,7 @@ benchmark_fit_p6_quantum(
 
 \item{calibrate}{Logical (default \code{TRUE}).  When \code{TRUE}, residual
 noise from a full-data quantum-KRR fit is injected into every
-posterior sample (see Pilar-1 wrapper for the rationale).}
+posterior sample (see Pillar-1 wrapper for the rationale).}
 }
 \value{
 An \code{edaphos_posterior} with

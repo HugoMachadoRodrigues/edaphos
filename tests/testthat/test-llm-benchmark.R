@@ -1,4 +1,4 @@
-## Tests for llm_benchmark_* (v1.8.0)
+## Tests for llm_benchmark_*
 ##
 ## Validates the matching, metrics, kappa, cost, and simulator
 ## functions against hand-computed ground truth.

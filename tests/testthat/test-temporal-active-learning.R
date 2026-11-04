@@ -1,4 +1,4 @@
-## Tests for the Pilar 3 x Pilar 5 Temporal AL bridge (v2.1.2).
+## Tests for the Pillar 3 x Pillar 5 Temporal AL bridge.
 
 test_that("al_query_temporal: returns top cells sorted by priority", {
   # Build a minimal edaphos_temporal_kalman-like object (just the

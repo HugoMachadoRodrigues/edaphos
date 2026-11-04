@@ -112,5 +112,5 @@ explicit soil organic matter model. \emph{Ecological Modelling} 222:1712–1730.
 }
 \seealso{
 \code{\link[=piml_profile_fit]{piml_profile_fit()}} for the attenuating-rate form, and
-\code{vignette("pilar2-piml-profile")} for the comparison.
+\code{vignette("pillar2-piml-profile")} for the comparison.
 }

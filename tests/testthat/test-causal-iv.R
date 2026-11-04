@@ -1,4 +1,4 @@
-## Tests for the Pillar 1 x Pillar 4 IV estimator (v1.9.0-v1.9.1).
+## Tests for the Pillar 1 x Pillar 4 IV estimator.
 
 # ─────────────────────────────────────────────────────────────────────────────
 # causal_iv_fit_2sls: synthetic DGP with known truth

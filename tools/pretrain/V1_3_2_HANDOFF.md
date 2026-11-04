@@ -20,7 +20,7 @@ run.  Step 3 is the Zenodo web UI.
 ## Step 1.  Resume training: 110k -> 200k steps  (~2 hours on MPS)
 
 ```bash
-cd /path/to/GeoVersa
+cd /path/to/edaphos
 Rscript data-raw/pretrain_cerrado_train_v2.R
 ```
 

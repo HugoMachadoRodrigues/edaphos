@@ -91,7 +91,7 @@ safe_cal <- function(post, truth, label, method, query_type) {
               cal$mpiw[length(cal$mpiw) %/% 2]
     list(
       row = data.frame(
-        pilar      = label,
+        pillar      = label,
         method     = method,
         query      = query_type,
         n_truth    = length(truth),
@@ -105,7 +105,7 @@ safe_cal <- function(post, truth, label, method, query_type) {
     )
   }, error = function(e) {
     message("    [cal warn] ", label, ": ", conditionMessage(e))
-    list(row = data.frame(pilar = label, method = method, query = query_type,
+    list(row = data.frame(pillar = label, method = method, query = query_type,
                            n_truth = NA, crps = NA, picp = NA, mpiw = NA,
                            rmse = NA, stringsAsFactors = FALSE),
          reliability = NULL)

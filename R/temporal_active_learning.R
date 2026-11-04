@@ -192,7 +192,7 @@ al_query_temporal <- function(kalman_update,
 
 #' @export
 print.edaphos_temporal_al_query <- function(x, ...) {
-  cat("<edaphos_temporal_al_query>  (Pilar 3 x Pilar 5 bridge)\n")
+  cat("<edaphos_temporal_al_query>  (Pillar 3 x Pillar 5 bridge)\n")
   cat(sprintf("  grid dims : %d x %d\n",
                attr(x, "grid_dims")[1L], attr(x, "grid_dims")[2L]))
   cat(sprintf("  combine   : %s\n", attr(x, "combine")))

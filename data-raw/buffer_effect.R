@@ -24,7 +24,7 @@ suppressMessages(pkgload::load_all(".", quiet = TRUE))
 suppressMessages(library(dplyr))
 set.seed(20260501L)
 
-BUF <- readRDS("inst/extdata/benchmark_wosis_6pilar.rds")
+BUF <- readRDS("inst/extdata/benchmark_wosis_6pillar.rds")
 v28 <- readRDS("data-raw/build/benchmark_wosis_p4_p5_p7.rds")
 
 P <- readRDS("inst/extdata/causal_cerrado_real.rds")$profiles |>

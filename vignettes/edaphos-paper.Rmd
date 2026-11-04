@@ -29,8 +29,8 @@ library(edaphos)
 ex   <- function(f) readRDS(system.file("extdata", f, package = "edaphos"))
 fmt  <- function(x, d = 3) formatC(x, format = "f", digits = d)
 CAU  <- ex("causal_cerrado_real_v2.rds")
-B6   <- ex("benchmark_wosis_6pilar.rds")
-GAT  <- ex("pilar10_gat_tuning.rds")
+B6   <- ex("benchmark_wosis_6pillar.rds")
+GAT  <- ex("pillar10_gat_tuning.rds")
 ```
 
 > **Reproducibility.** This article is a package vignette: every number and

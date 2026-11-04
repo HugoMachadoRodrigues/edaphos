@@ -1,5 +1,5 @@
-## Tests for the Pilar 2 x Pilar 6 physics-informed quantum kernel
-## bridge (v2.2.0).
+## Tests for the Pillar 2 x Pillar 6 physics-informed quantum kernel
+## bridge.
 
 # Helper: synthesize an ODE-like pedon and a cheap mock fit
 .mk_ode_pedon <- function(n = 30L) {
@@ -62,5 +62,5 @@ test_that("piml_qkrr_fit: print() emits a readable header", {
                          alpha = 0.5, reps = 1L, lambda = 0.1)
   out <- utils::capture.output(print(fit))
   expect_true(any(grepl("edaphos_piml_qkrr", out)))
-  expect_true(any(grepl("Pilar 2 x Pilar 6", out)))
+  expect_true(any(grepl("Pillar 2 x Pillar 6", out)))
 })

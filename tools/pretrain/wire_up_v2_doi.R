@@ -33,6 +33,13 @@ stopifnot(grepl("^https://zenodo\\.org/records/[0-9]+/", URL))
 stopifnot(nchar(SHA256) == 64L)
 stopifnot(grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}T", PUB_AT))
 
+# The registry must not point at an undertrained encoder: the same 200k-step
+# check package_v2_for_zenodo.R makes before it packages the weights.
+state <- "tools/pretrain/edaphos-cerrado-moco-v2/checkpoints/state.rds"
+if (!file.exists(state) || readRDS(state)$next_epoch <= 200000L)
+  stop("the v2 encoder has not reached 200000 steps (", state, "); finish ",
+       "training and package it before wiring up a DOI", call. = FALSE)
+
 src <- "R/foundation_weights.R"
 txt <- readLines(src, warn = FALSE)
 
