@@ -1,0 +1,37 @@
+[
+  {
+    "id": "FF58F4E",
+    "status": "RESOLVED",
+    "resolved_in": "e11515b",
+    "resolution": "Both stubs removed with their man pages and tests (PR #3). foundation_tile_source_modis() and foundation_tile_source_era5() could only throw; their guidance -- which client to use, the MOD13Q1 1e-4 scale and -3000 fill value, the CDS bounding box's north-west-south-east order, ERA5-Land's 9 km resolution -- now sits in a 'MODIS and ERA5' section of ?foundation_tile_align (R/foundation_tiles.R). The Pillar 4 vignette and NEWS.md record the removal; ecmwfr, used only by the ERA5 stub's example, left Suggests. The \\value half of this finding is closed by F52B874.",
+    "current_evidence": ""
+  },
+  {
+    "id": "F52B874",
+    "status": "RESOLVED",
+    "resolved_in": "e11515b",
+    "resolution": "no_deeponet_fit() now has @return documenting the edaphos_no_deeponet fit, including what differs between the r and torch backends (R/pilar8_neural_operators.R). foundation_tile_source_era5(), the other function without \\value, was removed (FF58F4E). A scan of every man/*.Rd with \\usage finds no function without \\value; the three without are the br_* datasets, which use \\format. R CMD check --as-cran at e11515b: Status OK, 0 notes.",
+    "current_evidence": ""
+  },
+  {
+    "id": "FC5841E",
+    "status": "RESOLVED",
+    "resolved_in": "e11515b",
+    "resolution": "The three wall-clock blocks start with skip_on_cran(): test-pilar7-bhs-rcpp.R, test-pilar7-bhs-fastpath.R, test-pilar10-gat-sparse.R (PR #3). Verified in both modes: NOT_CRAN=true runs and passes all three, CRAN mode skips all three. The fast-path comment that promised '< 3 s' while asserting < 10 s now states what is asserted. A follow-up, PR #6 (open when this was recorded), makes the same three also skip_on_covr(), after the rcpp comparison flipped once in ten coverage runs (0.286 s vs 0.277 s) because covr instruments R but not C++; the rcpp comparison now takes the minimum of three alternating runs.",
+    "current_evidence": ""
+  },
+  {
+    "id": "F3A34C0",
+    "status": "RESOLVED",
+    "resolved_in": "43f9724",
+    "resolution": "foundation_build_cerrado_stack() checks requireNamespace('digest') alongside terra and geodata, before dir.create() touches the disk (R/foundation_embed_coords.R, PR #4). The hash is kept rather than replaced by a base-R key, so stacks already in a user's cache stay valid. The test hides digest and makes dir.create() fail on the cache path, so a regression fails in seconds and offline instead of starting a 439 MB download; verified to pass with the guard and fail without it.",
+    "current_evidence": ""
+  },
+  {
+    "id": "FFFC52E",
+    "status": "RESOLVED",
+    "resolved_in": "43f9724",
+    "resolution": "Worse than reported, and fixed in two steps. PR #4 (43f9724): causal_iv_posterior() counts failed replicates, warns naming both counts, errors below two identified draws, and records B_requested / B_effective / n_failed instead of overwriting B. It also found that unidentified resamples did not fail at all: .safe_inverse()'s pseudo-inverse returned an effect near zero with NA se and NA F, which the bootstrap took as a draw (a constant instrument gave a posterior of 20 fabricated draws). PR #5 (28c704c, merged 97c7a9a): causal_iv_fit_2sls() now checks the rank condition before fitting -- unidentified designs are an error, redundant covariates and instruments are dropped with a warning as lm() aliases them. Test with a rare instrument: 71 of 200 replicates dropped against a theoretical 73. Published IV results unchanged: all 19 stored standard errors are finite.",
+    "current_evidence": ""
+  }
+]
