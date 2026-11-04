@@ -130,6 +130,13 @@ Rcpp::NumericMatrix quantum_kernel_rcpp(Rcpp::NumericMatrix X,
     }
     const int nY = same ? nX : Ymat.nrow();
 
+    // Defence in depth: quantum_kernel() validates reps before calling, but
+    // a direct call with reps < 1 would leave every state at |0...0> and
+    // return an all-ones kernel.
+    if (reps < 1) {
+        Rcpp::stop("reps must be >= 1 (got %d)", reps);
+    }
+
     const size_t dim = (size_t) 1 << n;
 
     // MEMORY GUARD, keyed on what is actually allocated.

@@ -66,9 +66,19 @@
 #' @param batch_size Integer; number of patches to forward through the
 #'   encoder in a single call (trades memory for speed).  Defaults
 #'   to `32L`.
+#' @param max_na_share Number in `[0, 1]`; the largest share of missing
+#'   (NoData) pixel values a patch may have and still be embedded. Missing
+#'   values below this share are imputed with the channel mean, as before;
+#'   a patch above it gets an `NA` row instead of an embedding that would
+#'   mostly describe the imputation. Default `0.5`.
 #' @return A numeric matrix with `nrow(coords)` rows and `D` columns,
-#'   where `D` is `moco$feature_dim` or `moco$proj_dim`.  Rows that
-#'   could not be extracted contain `NA`.
+#'   where `D` is `moco$feature_dim` or `moco$proj_dim`. A row is `NA` when
+#'   its coordinate falls within `patch_size / 2` of the raster edge or
+#'   outside it, when the raster block could not be read, or when its patch
+#'   has more than `max_na_share` missing values; the last two raise a
+#'   warning with the count and, for read failures, the cause. Attribute
+#'   `na_share` gives each row's share of imputed values (`NA` where no
+#'   patch was read), so the imputation is visible downstream.
 #' @examples
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed()) &&
@@ -176,7 +186,8 @@
 foundation_embed_at_coords <- function(moco, coords, stack, dataset,
                                          patch_size = NULL,
                                          projection = FALSE,
-                                         batch_size = 32L) {
+                                         batch_size = 32L,
+                                         max_na_share = 0.5) {
   if (!requireNamespace("torch", quietly = TRUE))
     stop("Install `torch` to run the encoder.", call. = FALSE)
   if (!requireNamespace("terra", quietly = TRUE))
@@ -187,6 +198,8 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
     is.list(dataset),
     all(c("means", "sds", "n_channels", "patch_size") %in% names(dataset))
   )
+  stopifnot(is.numeric(max_na_share), length(max_na_share) == 1L,
+            max_na_share >= 0, max_na_share <= 1)
   coords <- as.data.frame(coords)
   if (!all(c("lon", "lat") %in% names(coords)))
     stop("`coords` must contain columns `lon` and `lat`.", call. = FALSE)
@@ -232,8 +245,26 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
                  dimnames = list(NULL, paste0("emb_", sprintf("%03d",
                                                                  seq_len(D)))))
 
+  # NOTHING THAT FAILED MAY LOOK LIKE AN EMBEDDING.
+  #
+  # Every patch used to be z-scored and then had its NAs set to 0 -- the
+  # channel mean -- and a failed block read came back as an all-NA matrix
+  # from the tryCatch. Both roads ended in the same place: a failed read, or
+  # a patch over ocean or a masked area, became a "perfectly average" patch,
+  # and the encoder turned it into a finite, in-range embedding identical for
+  # every such site. Nothing downstream (the IV benchmark, qf_embed_reduce(),
+  # foundation_fit_regressor()) could tell it from data. Now a failed read
+  # and a mostly-missing patch give NA rows and a warning, and every row
+  # reports how much of it was imputed.
+  na_share   <- rep(NA_real_, n)
+  read_error <- character(0)
+  n_too_sparse <- 0L
+
   valid_idx <- which(is_valid)
-  if (length(valid_idx) == 0L) return(out)
+  if (length(valid_idx) == 0L) {
+    attr(out, "na_share") <- na_share
+    return(out)
+  }
 
   # Pre-allocate a single (batch_size, C, patch, patch) tensor
   # re-used to avoid allocation churn
@@ -247,6 +278,7 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
     ]
     n_b <- length(b_idx)
     arr_b <- array(0, dim = c(n_b, C, patch_size, patch_size))
+    keep  <- logical(n_b)
 
     for (k in seq_along(b_idx)) {
       i  <- b_idx[k]
@@ -257,8 +289,17 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
       blk <- tryCatch(
         terra::values(stack, row = r0, nrows = patch_size,
                        col = c0, ncols = patch_size, mat = TRUE),
-        error = function(e) matrix(NA_real_, patch_size * patch_size, C)
+        error = function(e) {
+          read_error <<- c(read_error, conditionMessage(e))
+          NULL
+        }
       )
+      if (is.null(blk)) next
+      na_share[i] <- mean(is.na(blk))
+      if (na_share[i] > max_na_share) {
+        n_too_sparse <- n_too_sparse + 1L
+        next
+      }
       patch_arr <- aperm(
         array(blk, dim = c(patch_size, patch_size, C)),
         c(3L, 1L, 2L)
@@ -269,14 +310,17 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
         patch_arr[ch, , ] <- v
       }
       arr_b[k, , , ] <- patch_arr
+      keep[k] <- TRUE
     }
+    if (!any(keep)) next
+    arr_b <- arr_b[keep, , , , drop = FALSE]
 
     x <- torch::torch_tensor(arr_b)$to(dtype = torch::torch_float())
     emb <- torch::with_no_grad({
       if (projection) enc(x) else enc$backbone_features(x)
     })$cpu()
     emb_mat <- as.matrix(as.array(emb))
-    out[b_idx, ] <- emb_mat
+    out[b_idx[keep], ] <- emb_mat
 
     if (pb_enabled) {
       message(sprintf("  batch %d/%d  (%d / %d coords)",
@@ -286,6 +330,18 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
     }
   }
 
+  if (length(read_error))
+    warning(sprintf(paste(
+      "%d of %d raster block reads failed; those rows are NA, not an embedding.",
+      "First error: %s"), length(read_error), length(valid_idx), read_error[1L]),
+      call. = FALSE)
+  if (n_too_sparse > 0L)
+    warning(sprintf(paste(
+      "%d of %d patches had more than %.0f%% missing values; their rows are NA",
+      "rather than an embedding of the imputed channel means (see",
+      "`max_na_share`)."), n_too_sparse, length(valid_idx), 100 * max_na_share),
+      call. = FALSE)
+  attr(out, "na_share") <- na_share
   out
 }
 
