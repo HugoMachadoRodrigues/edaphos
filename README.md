@@ -656,9 +656,9 @@ ship in `inst/extdata/cerrado_abstracts.jsonl` +
 `inst/extdata/cerrado_claims.jsonl`, so the vignette builds fully
 offline on CI.
 
-#### 📈 Scaling from 10 to 10 000 abstracts
+#### 📈 Ingesting larger corpora
 
-Three additions promote the extractor from demo to literature-scale:
+Three additions let the extractor run over larger corpora:
 
 - **Paginated corpus clients.** `causal_corpus_scielo()` and
   `causal_corpus_openalex()` page through keyless public APIs,
@@ -684,10 +684,11 @@ which this package cannot redistribute under MIT.
 
 #### 🗳️ Multi-extractor LLM voting
 
-A single LLM backend inherits that model's idiosyncrasies: GPT tends
-to over-generate claims, Claude to under-specify confidence, Gemma to
-be the strictest. `causal_llm_vote()` runs all three on the same
-abstract and resolves disagreements by one of three rules:
+A single LLM backend inherits that model's idiosyncrasies.
+`causal_llm_vote()` runs several backends on the same abstract and
+resolves disagreements by one of three rules (how the backends differ
+has not been measured here: the shipped benchmark is simulated -- see
+the [LLM-KG benchmark article](https://hugomachadorodrigues.github.io/edaphos/articles/llm-kg-benchmark.html)):
 
 ```r
 cons <- causal_llm_vote(

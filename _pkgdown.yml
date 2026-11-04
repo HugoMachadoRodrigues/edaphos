@@ -220,7 +220,7 @@ reference:
   - starts_with("edaphos_")
 
 - title: "Benchmark wrappers"
-  desc: "Plug-and-play wrappers for the 6-pillar WoSIS Cerrado benchmark."
+  desc: "Wrappers that put Pillars 1, 6 and 10 into the WoSIS Cerrado benchmark; the other methods are scored by the data-raw benchmark scripts."
   contents:
   - starts_with("benchmark_fit_")
   # spatial_block_folds was exported without being indexed, which aborts
