@@ -77,7 +77,9 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(round(sd_ * rmse(ins, past_y), 3))          # 0.288
 
   # Training longer widens that gap rather than closing it: the fit
-  # keeps improving while the forecast decays.
+  # keeps improving while the forecast decays. (Not run on CRAN: a
+  # second, 300-epoch fit puts this example over the time limit.)
+  \donttest{
   more <- temporal_convlstm_fit(past, past_y, hidden_dims = 8L,
                                 return_sequence = TRUE,
                                 epochs = 300L, lr = 0.05, seed = 1L)
@@ -88,6 +90,7 @@ if (requireNamespace("torch", quietly = TRUE) &&
     h2 = sd_ * rmse(fc2[1, 2, , ], fut_y[1, 2, , ])), 3))
   # in_sample        h1        h2
   #     0.176     2.451     5.685
+  }
 
   # The cause is not compounding feedback -- there is none -- it is
   # extrapolation. A third of the forecast window is wetter than
