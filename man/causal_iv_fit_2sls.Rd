@@ -69,8 +69,8 @@ unobserved confounder.
 }
 \section{Identification}{
 
-The design is checked before it is fitted, by the rank condition after
-partialling out the intercept and covariates. A covariate that is a
+The design is checked before it is fitted, by the rank condition once
+the intercept and covariates have been projected out. A covariate that is a
 linear combination of the others, or an instrument that is constant or
 a combination of the other instruments and the covariates, carries no
 information: it is dropped with a warning, as \code{\link[stats:lm]{stats::lm()}} aliases
