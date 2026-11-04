@@ -106,16 +106,16 @@
 
 <div id="edaphos--development-status" class="section level1">
 
-<p><strong>Commit</strong> <code>7b881c2</code> (<code>main</code>) — <strong>DESCRIPTION version</strong> <code>0.9.0</code> — <strong>measured</strong> 2026-08-14T03:47:51Z</p>
+<p><strong>Commit</strong> <code>97c7a9a</code> (<code>Hugo/register-close-five</code>) — <strong>DESCRIPTION version</strong> <code>0.9.0</code> — <strong>measured</strong> 2026-11-04T16:17:56Z</p>
 <p>Every quantity in this document is measured at render time by <a href="tools/status/facts.R"><code>tools/status/facts.R</code></a> and rendered by <a href="tools/status/render.R"><code>tools/status/render.R</code></a>. Nothing is typed by hand. A quantity that could not be measured prints <code>_not measured_</code> rather than a plausible-looking value. The findings register comes from <a href="tools/status/findings.json"><code>tools/status/findings.json</code></a>, the frozen output of an adversarial audit of commit <code>272b378</code>.</p>
 <div class="section level2">
 <h2 id="id_1-headline">1. Headline<a class="anchor" aria-label="anchor" href="#id_1-headline"></a></h2>
 <table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Measure</th>
 <th>Value</th>
 </tr></thead><tbody><tr><td>Commits</td>
-<td>185</td>
+<td>222</td>
 </tr><tr><td>First → last commit</td>
-<td>2026-04-20 → 2026-08-13 (114.9 calendar days, 20 with commits)</td>
+<td>2026-04-20 → 2026-11-04 (197.5 calendar days, 28 with commits)</td>
 </tr><tr><td>Days since last commit</td>
 <td>0</td>
 </tr><tr><td>NEWS release sections</td>
@@ -125,28 +125,28 @@
 </tr><tr><td>NEWS versions with no tag</td>
 <td>0</td>
 </tr><tr><td>R/ source lines</td>
-<td>30 848</td>
+<td>31 208</td>
 </tr><tr><td>Exported functions</td>
-<td>178</td>
+<td>177</td>
 </tr><tr><td>Test blocks</td>
-<td>608</td>
+<td>665</td>
 </tr><tr><td>Tests passing</td>
-<td>2 244</td>
+<td>2 412</td>
 </tr><tr><td>Tests skipped</td>
-<td>1</td>
+<td>18</td>
 </tr><tr><td>Test failures + errors</td>
-<td>2</td>
+<td>0</td>
 </tr><tr><td>R CMD check status</td>
-<td>Status: 2 NOTEs</td>
+<td>Status: OK</td>
 </tr><tr><td>Source tarball (CRAN cap 5 MB)</td>
 <td><em>not measured</em></td>
 </tr><tr><td>Findings open (blocker/high)</td>
 <td>0</td>
 </tr><tr><td>Findings closed since the audit</td>
-<td>92</td>
+<td>97</td>
 </tr></tbody></table><div class="section level3">
 <h3 id="stage-assessment">Stage assessment<a class="anchor" aria-label="anchor" href="#stage-assessment"></a></h3>
-<p>From the audit’s completeness critic (editorial, not measured). It describes the tree at <code>272b378</code>, not at <code>7b881c2</code>: several of the specifics it cites have since been closed — see “Closed since the audit” in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.</p>
+<p>From the audit’s completeness critic (editorial, not measured). It describes the tree at <code>272b378</code>, not at <code>97c7a9a</code>: several of the specifics it cites have since been closed — see “Closed since the audit” in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.</p>
 <blockquote>
 <p>Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and nowhere near release-candidate. The eight audits read the artefact as a mature project that had drifted; the git clock says the opposite: this is a single 8-day build (2026-04-20 → 2026-04-27, 82 commits) that emitted 43 NEWS “releases”, 19,700 lines of R, 10 “research pillars”, 185 man pages, 14 vignettes, a Dockerfile, a Zenodo dossier and an rOpenSci submission draft, and has had no commit in the 90 days since. That single fact explains nearly every finding the other auditors reported as independent drift: metadata “9 minor versions stale”, 32 untagged releases, four contradictory citation versions, four contradictory test counts, a README frozen at v2.8.0 and a homepage that still says six pillars — none of these are decay, they are the natural state of version labels that were minted faster than any of them could be verified, because no version was ever cut, installed or consumed by a third party. The structural tell is that the project’s own roadmap agrees with me: README’s terminal milestone is still <code>| v3.0.0 | CRAN + rOpenSci submission | 📝 |</code> — unstarted — while DESCRIPTION reads 3.10.0, so the package shipped ten minor versions past its own submission gate without submitting. The code itself is genuinely substantial and much of it works (the pkgdown site does build and deploy at HEAD, 184 reference pages, 1022 passing expectations), which is why this is alpha rather than a sketch; but the outer shell is systematically unverified. Documentation artefacts fail the cheapest possible check — cheatsheets/pilar4.md’s entire “Core API” block calls four functions that exist nowhere in R/; the README’s vignette table advertises four vignettes that are not in the tarball or on the site while omitting <code>getting-started</code>, whose name appears nowhere in the 84 KB README; pillars 8-10 cite their source papers only in <code>#</code> comments and have no bibliography entries at all; and the two deep-learning pillars render as empty stubs on the live public site. A beta means the outside of the box has been checked once against the inside; here it demonstrably never has.</p>
 </blockquote>
@@ -161,23 +161,22 @@
 <table class="table"><thead><tr><th>Field</th>
 <th>Value</th>
 </tr></thead><tbody><tr><td>R version</td>
-<td>4.6.1 (Happy Hop)</td>
+<td>4.6.2 (Diversified Portfolio)</td>
 </tr><tr><td>Platform</td>
 <td>aarch64-apple-darwin23</td>
 </tr><tr><td>OS</td>
-<td>Darwin 25.6.0</td>
+<td>Darwin 27.2.0</td>
 </tr><tr><td>Worktree clean</td>
 <td>no</td>
 </tr><tr><td>Local vs origin/main</td>
 <td>
-<code>0 / 0</code> (ahead / behind)</td>
+<code>0 / 12</code> (ahead / behind)</td>
 </tr><tr><td>Optional deps missing</td>
-<td>5</td>
-</tr></tbody></table><p>Suggests <strong>not installed</strong> in the measuring environment: <code>DiagrammeR</code>, <code>ecmwfr</code>, <code>fmsb</code>, <code>ontologyIndex</code>, <code>spBayes</code>. Every test and vignette gated on these is skipped, so the pass counts below are a floor, not a total.</p>
-</div>
+<td>0</td>
+</tr></tbody></table></div>
 <div class="section level2">
 <h2 id="id_3-the-git-clock">3. The git clock<a class="anchor" aria-label="anchor" href="#id_3-the-git-clock"></a></h2>
-<p><code>7b881c2</code> — 185 commits across 20 active days.</p>
+<p><code>97c7a9a</code> — 222 commits across 28 active days.</p>
 <table class="table"><thead><tr><th>Date</th>
 <th align="right">Commits</th>
 </tr></thead><tbody><tr><td>2026-04-20</td>
@@ -219,8 +218,24 @@
 </tr><tr><td>2026-08-12</td>
 <td align="right">9</td>
 </tr><tr><td>2026-08-13</td>
-<td align="right">12</td>
-</tr></tbody></table><p>Releases declared in <code>NEWS.md</code>: <strong>1</strong>. Git tags: <strong>17</strong>. Tags present: <code>v0.1.0</code>, <code>v0.2.0</code>, <code>v0.3.0</code>, <code>v0.4.0</code>, <code>v0.5.0</code>, <code>v0.6.0</code>, <code>v0.7.0</code>, <code>v0.8.0</code>, <code>v0.9.0</code>, <code>v1.0.0</code>, <code>v1.1.0</code>, <code>v1.2.0</code>, <code>v1.3.0</code>, <code>v1.3.1</code>, <code>v1.4.0</code>, <code>v1.5.0</code>, <code>v1.6.0</code>. Commits since the newest tag (<code>v1.6.0</code>): <strong>156</strong>.</p>
+<td align="right">14</td>
+</tr><tr><td>2026-08-14</td>
+<td align="right">3</td>
+</tr><tr><td>2026-08-15</td>
+<td align="right">11</td>
+</tr><tr><td>2026-08-17</td>
+<td align="right">5</td>
+</tr><tr><td>2026-08-28</td>
+<td align="right">4</td>
+</tr><tr><td>2026-10-19</td>
+<td align="right">2</td>
+</tr><tr><td>2026-10-22</td>
+<td align="right">1</td>
+</tr><tr><td>2026-11-03</td>
+<td align="right">6</td>
+</tr><tr><td>2026-11-04</td>
+<td align="right">3</td>
+</tr></tbody></table><p>Releases declared in <code>NEWS.md</code>: <strong>1</strong>. Git tags: <strong>17</strong>. Tags present: <code>v0.1.0</code>, <code>v0.2.0</code>, <code>v0.3.0</code>, <code>v0.4.0</code>, <code>v0.5.0</code>, <code>v0.6.0</code>, <code>v0.7.0</code>, <code>v0.8.0</code>, <code>v0.9.0</code>, <code>v1.0.0</code>, <code>v1.1.0</code>, <code>v1.2.0</code>, <code>v1.3.0</code>, <code>v1.3.1</code>, <code>v1.4.0</code>, <code>v1.5.0</code>, <code>v1.6.0</code>. Commits since the newest tag (<code>v1.6.0</code>): <strong>193</strong>.</p>
 </div>
 <div class="section level2">
 <h2 id="id_4-version-coherence">4. Version coherence<a class="anchor" aria-label="anchor" href="#id_4-version-coherence"></a></h2>
@@ -231,7 +246,7 @@
 </tr><tr><td>DESCRIPTION version has a git tag</td>
 <td>✅ (<code>v0.9.0</code>)</td>
 </tr><tr><td>HEAD is the tagged release commit</td>
-<td>❌ (156 commits past <code>v1.6.0</code>)</td>
+<td>❌ (193 commits past <code>v1.6.0</code>)</td>
 </tr><tr><td>Every NEWS release is tagged</td>
 <td>❌ (0 of 1 untagged; 1 tagged at a commit that predates the entry: <code>0.9.0</code>)</td>
 </tr></tbody></table><p>Version strings each artefact claims for the package:</p>
@@ -247,7 +262,7 @@
 <td><code>0.9.0</code></td>
 </tr><tr><td>.zenodo.json</td>
 <td>has a version field</td>
-</tr></tbody></table><p>Version strings asserted inside shipped <code>R/</code> or <code>man/</code> that <strong>neither a <code>NEWS.md</code> section nor a git tag declares</strong> (25): <code>3.1.0</code>, <code>3.4.0</code>, <code>3.10.0</code>, <code>3.0.0</code>, <code>2.0.0</code>, <code>2.2.1</code>, <code>1.9.0</code>, <code>1.9.2</code>, <code>3.8.0</code>, <code>2.1.0</code>, <code>1.9.1</code>, <code>4.0.0</code>, <code>1.8.1</code>, <code>1.8.0</code>, <code>2.7.0</code>, <code>2.6.0</code>, <code>3.6.0</code>, <code>2.3.0</code>, <code>3.5.0</code>, <code>3.2.0</code> … (+5 more). Each names a release that never existed.</p>
+</tr></tbody></table><p>Version strings asserted inside shipped <code>R/</code> or <code>man/</code> that <strong>neither a <code>NEWS.md</code> section nor a git tag declares</strong> (26): <code>3.1.0</code>, <code>3.4.0</code>, <code>3.10.0</code>, <code>3.0.0</code>, <code>2.0.0</code>, <code>2.2.1</code>, <code>1.9.0</code>, <code>1.9.2</code>, <code>4.4.0</code>, <code>3.8.0</code>, <code>2.1.0</code>, <code>1.9.1</code>, <code>4.0.0</code>, <code>1.8.1</code>, <code>1.8.0</code>, <code>2.7.0</code>, <code>2.6.0</code>, <code>3.6.0</code>, <code>2.3.0</code>, <code>3.5.0</code> … (+6 more). Each names a release that never existed.</p>
 <table class="table"><thead><tr><th>File</th>
 <th align="right">Line</th>
 <th>Version</th>
@@ -291,7 +306,10 @@
 <td align="right">1</td>
 <td><code>1.9.2</code></td>
 </tr><tr><td><code>R/core_utils.R</code></td>
-<td align="right">29</td>
+<td align="right">4</td>
+<td><code>4.4.0</code></td>
+</tr><tr><td><code>R/core_utils.R</code></td>
+<td align="right">61</td>
 <td><code>3.8.0</code></td>
 </tr><tr><td><code>R/edaphos_zenodo_release.R</code></td>
 <td align="right">1</td>
@@ -345,40 +363,37 @@
 <td align="right">2</td>
 <td><code>2.6.0</code></td>
 </tr><tr><td><code>R/pilar10_graph_nn.R</code></td>
-<td align="right">185</td>
+<td align="right">191</td>
 <td><code>3.10.0</code></td>
 </tr><tr><td><code>R/pilar10_graph_nn.R</code></td>
-<td align="right">222</td>
+<td align="right">228</td>
 <td><code>3.6.0,2.6.0</code></td>
 </tr><tr><td><code>R/pilar10_graph_nn.R</code></td>
-<td align="right">226</td>
+<td align="right">232</td>
 <td><code>2.6.0</code></td>
 </tr><tr><td><code>R/pilar10_graph_nn.R</code></td>
-<td align="right">247</td>
+<td align="right">253</td>
 <td><code>2.6.0</code></td>
 </tr><tr><td><code>R/pilar10_graph_nn.R</code></td>
-<td align="right">279</td>
+<td align="right">285</td>
 <td><code>3.10.0</code></td>
-</tr><tr><td><code>R/pilar10_graph_nn.R</code></td>
-<td align="right">472</td>
-<td><code>2.7.0</code></td>
 </tr><tr><td><code>R/pilar7_bayesian_hierarchical.R</code></td>
 <td align="right">1</td>
 <td><code>2.3.0</code></td>
 </tr><tr><td><code>R/pilar7_bayesian_hierarchical.R</code></td>
-<td align="right">58</td>
+<td align="right">62</td>
 <td><code>2.3.0</code></td>
 </tr><tr><td><code>R/pilar7_bayesian_hierarchical.R</code></td>
-<td align="right">420</td>
+<td align="right">448</td>
 <td><code>3.5.0</code></td>
 </tr><tr><td><code>R/pilar7_bayesian_hierarchical.R</code></td>
-<td align="right">421</td>
+<td align="right">449</td>
 <td><code>3.2.0</code></td>
 </tr><tr><td><code>R/pilar7_bayesian_hierarchical.R</code></td>
-<td align="right">480</td>
+<td align="right">508</td>
 <td><code>3.2.0</code></td>
 </tr><tr><td><code>R/pilar7_bayesian_hierarchical.R</code></td>
-<td align="right">493</td>
+<td align="right">521</td>
 <td><code>2.3.0</code></td>
 </tr><tr><td><code>R/pilar8_neural_operators_torch.R</code></td>
 <td align="right">1</td>
@@ -417,10 +432,10 @@
 <td align="right">2</td>
 <td><code>2.0.0</code></td>
 </tr><tr><td><code>R/quantum_foundation.R</code></td>
-<td align="right">390</td>
+<td align="right">389</td>
 <td><code>2.0.0</code></td>
 </tr><tr><td><code>R/quantum_foundation.R</code></td>
-<td align="right">530</td>
+<td align="right">529</td>
 <td><code>2.0.0</code></td>
 </tr><tr><td><code>R/quantum_kernel.R</code></td>
 <td align="right">185</td>
@@ -432,7 +447,7 @@
 <td align="right">46</td>
 <td><code>3.1.0</code></td>
 </tr><tr><td><code>man/bhs_fit.Rd</code></td>
-<td align="right">85</td>
+<td align="right">92</td>
 <td><code>2.3.0</code></td>
 </tr><tr><td><code>man/foundation_build_cerrado_stack.Rd</code></td>
 <td align="right">32</td>
@@ -446,9 +461,6 @@
 </tr><tr><td><code>man/foundation_build_cerrado_stack.Rd</code></td>
 <td align="right">142</td>
 <td><code>4.0.0</code></td>
-</tr><tr><td><code>man/gnn_fit.Rd</code></td>
-<td align="right">73</td>
-<td><code>2.7.0</code></td>
 </tr><tr><td><code>man/qf_krr_benchmark.Rd</code></td>
 <td align="right">43</td>
 <td><code>2.0.0</code></td>
@@ -460,60 +472,54 @@
 <table class="table"><thead><tr><th>Result</th>
 <th>Value</th>
 </tr></thead><tbody><tr><td>Status</td>
-<td>Status: 2 NOTEs</td>
+<td>Status: OK</td>
 </tr><tr><td>ERRORs</td>
 <td>0</td>
 </tr><tr><td>WARNINGs</td>
 <td>0</td>
 </tr><tr><td>NOTEs</td>
-<td>2</td>
+<td>0</td>
 </tr></tbody></table><p>Counts are taken from R’s own <code>Status:</code> line; an independent walk of the log agrees.</p>
-<p><strong>NOTES:</strong></p>
-<ul><li><code>checking CRAN incoming feasibility</code></li>
-<li><code>checking for detritus in the temp directory</code></li>
-</ul><p><strong>INFOS:</strong></p>
-<ul><li><code>checking package dependencies</code></li>
-<li><code>checking installed package size</code></li>
+<p><strong>INFOS:</strong></p>
+<ul><li><code>checking installed package size</code></li>
 </ul><div class="section level4">
 <h4 id="checking-cran-incoming-feasibility"><code>checking CRAN incoming feasibility</code><a class="anchor" aria-label="anchor" href="#checking-cran-incoming-feasibility"></a></h4>
 <table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Field</th>
 <th>Value</th>
 </tr></thead><tbody><tr><td>Maintainer</td>
-<td><code>Hugo Rodrigues &lt;rodrigues.machado.hugo@gmail.com&gt;</code></td>
+<td><code>?</code></td>
 </tr><tr><td>CRAN status</td>
-<td>
-<strong>New submission</strong> — R’s own confirmation that nothing named <code>edaphos</code> exists on CRAN</td>
+<td>not a new submission</td>
 </tr><tr><td>Tarball size</td>
 <td>
 <em>not measured</em> measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB)</td>
 </tr><tr><td>URLs flagged as invalid</td>
 <td>0</td>
-</tr></tbody></table><p>Suggests unavailable to the check (so their tests and vignette chunks were skipped): ‘DiagrammeR’, ‘ecmwfr’, ‘fmsb’, ‘ontologyIndex’, ‘spBayes’.</p>
-<p>Installed size, verbatim from the log:</p>
-<pre><code>  installed size is  8.4Mb
+</tr></tbody></table><p>Installed size, verbatim from the log:</p>
+<pre><code>  installed size is 11.0Mb
   sub-directories of 1Mb or more:
-    doc       3.2Mb
-    extdata   2.2Mb
-    help      1.5Mb</code></pre>
-<p>Log: <code>/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/tools/status/check.log</code> (98 lines, sha256 <code>fd895da950fc7df9</code>). Verbatim tail:</p>
-<pre><code>* checking examples ... [84s/81s] OK
-* checking examples with --run-donttest ... [107s/104s] OK
+    doc       7.0Mb
+    extdata   1.0Mb
+    help      1.6Mb</code></pre>
+<p>Log: <code>/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/chk4/check.log</code> (89 lines, sha256 <code>f280797ee34e3d63</code>). Verbatim tail:</p>
+<pre><code>* checking pragmas in C/C++ headers and code ... OK
+* checking compilation flags used ... OK
+* checking compiled code ... OK
+* checking installed files from inst/doc ... OK
+* checking files in vignettes ... OK
+* checking examples ... [83s/80s] OK
+* checking examples with --run-donttest ... [84s/81s] OK
 * checking for unstated dependencies in tests ... OK
 * checking tests ...
-  Running testthat.R [467s/449s]
- [467s/449s] OK
+  Running testthat.R [435s/432s]
+ [435s/432s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [260s/248s] OK
+* checking re-building of vignette outputs ... [263s/266s] OK
 * checking for non-standard things in the check directory ... OK
-* checking for detritus in the temp directory ... NOTE
-Found the following files/directories:
-  tmpxhxwcnyp
+* checking for detritus in the temp directory ... OK
 * DONE
-Status: 2 NOTEs
-See
-  /Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/edaphos.Rcheck/00check.log
-for details.</code></pre>
+Status: OK</code></pre>
 </div>
 <div class="section level4">
 <h4 id="each-reported-item-package-defect-or-measuring-environment">Each reported item: package defect or measuring environment?<a class="anchor" aria-label="anchor" href="#each-reported-item-package-defect-or-measuring-environment"></a></h4>
@@ -625,7 +631,7 @@ for details.</code></pre>
 </div>
 <div class="section level3">
 <h3 id="rd-portability-the-source-of-the-pdf-manual-check-items">Rd portability (the source of the PDF-manual check items)<a class="anchor" aria-label="anchor" href="#rd-portability-the-source-of-the-pdf-manual-check-items"></a></h3>
-<p><code>man/*.Rd</code> files containing characters outside latin1: <strong>67</strong> of 191. Most are cosmetic — R’s Rd-to-LaTeX pass maps dashes and ellipses. Distinct characters found:</p>
+<p><code>man/*.Rd</code> files containing characters outside latin1: <strong>67</strong> of 190. Most are cosmetic — R’s Rd-to-LaTeX pass maps dashes and ellipses. Distinct characters found:</p>
 <table class="table"><thead><tr><th>Character</th>
 <th>Codepoint</th>
 <th align="right">Occurrences</th>
@@ -655,7 +661,7 @@ for details.</code></pre>
 <th>Line</th>
 </tr></thead><tbody><tr><td><code>R/edaphos-package.R:182</code></td>
 <td>#’ (Velikovi et al., 2018) over a k-NN</td>
-</tr><tr><td><code>R/pilar10_graph_nn.R:478</code></td>
+</tr><tr><td><code>R/pilar10_graph_nn.R:487</code></td>
 <td>#’ Velikovi, P., Cucurull, G., Casanova, A., Romero,</td>
 </tr><tr><td><code>R/pillars_roadmap.R:19</code></td>
 <td>#’ | 10. Graph Neural Networks | <code>gnn_*</code> | implemented | Graph Attention Network (Velikovi et al., 2018) over a k-NN co-location graph of profiles ([gnn_build_graph()], with <code>edges = "spatial"</code>, <code>"feature"</code> or <code>"hybrid"</code> and optional self-loops). [gnn_fit()] trains multi-head attention  by analytic reverse-mode gradients through the grouped softmax &lt;U+2014&gt; verified against central finite differences &lt;U+2014&gt; with residual connections, head averaging, a transductive <code>train_mask</code> and a closed-form ridge readout. [gnn_fit_ensemble()] averages seeds so the comparison against a quantile regression forest is between two ensembles rather than one model and a forest; [gnn_embed()] exposes the learned node embeddings and [gnn_causal_discovery()] feeds them to Pillar 1’s structure learner. |</td>
@@ -666,39 +672,38 @@ for details.</code></pre>
 <table class="table"><thead><tr><th>Measure</th>
 <th>Value</th>
 </tr></thead><tbody><tr><td>Test files</td>
-<td>95</td>
+<td>105</td>
 </tr><tr><td>
 <code>test_that</code> blocks</td>
-<td>608</td>
+<td>665</td>
 </tr><tr><td>
 <code>expect_*</code> calls</td>
-<td>1 707</td>
+<td>1 909</td>
 </tr><tr><td>
 <code>skip_if_not_installed</code> gates</td>
-<td>75</td>
+<td>87</td>
 </tr><tr><td>
 <code>skip_on_cran</code> gates</td>
-<td>14</td>
+<td>18</td>
 </tr><tr><td>
 <code>set.seed</code> calls</td>
-<td>145</td>
+<td>150</td>
 </tr></tbody></table><p>Live run in this environment:</p>
 <table class="table"><thead><tr><th>Outcome</th>
 <th>Count</th>
 </tr></thead><tbody><tr><td>Passed</td>
-<td>2 244</td>
+<td>2 412</td>
 </tr><tr><td>Skipped</td>
-<td>1</td>
+<td>18</td>
 </tr><tr><td>Failed</td>
-<td>2</td>
+<td>0</td>
 </tr><tr><td>Errored</td>
 <td>0</td>
 </tr><tr><td>Warnings</td>
-<td>4</td>
+<td>6</td>
 </tr><tr><td>Wall clock (s)</td>
-<td>538.8</td>
-</tr></tbody></table><p>Files with failures or errors: <code>test-submission-claims.R</code>.</p>
-<p>Conditional skipping by dependency (static gate count):</p>
+<td>490.3</td>
+</tr></tbody></table><p>Conditional skipping by dependency (static gate count):</p>
 <table class="table"><thead><tr><th>Dependency</th>
 <th align="right">Gate sites</th>
 <th align="center">Installed here</th>
@@ -708,10 +713,10 @@ for details.</code></pre>
 </tr><tr><td>dagitty</td>
 <td align="right">10</td>
 <td align="center">✅</td>
-</tr><tr><td>torch</td>
-<td align="right">6</td>
-<td align="center">✅</td>
 </tr><tr><td>terra</td>
+<td align="right">8</td>
+<td align="center">✅</td>
+</tr><tr><td>torch</td>
 <td align="right">6</td>
 <td align="center">✅</td>
 </tr><tr><td>bnlearn</td>
@@ -720,11 +725,14 @@ for details.</code></pre>
 </tr><tr><td>reticulate</td>
 <td align="right">2</td>
 <td align="center">✅</td>
+</tr><tr><td>geodata</td>
+<td align="right">2</td>
+<td align="center">✅</td>
 </tr><tr><td>dbarts</td>
 <td align="right">1</td>
 <td align="center">✅</td>
-</tr></tbody></table><p>Result bundles in <code>inst/extdata/</code>: <strong>29</strong>. Test files that read <code>inst/extdata</code>: <code>test-al-policy-claims.R</code>, <code>test-bundle-provenance.R</code>, <code>test-causal-real-bundle.R</code>, <code>test-extrapolation-claims.R</code>, <code>test-headline-claims.R</code>, <code>test-llm-annotation.R</code>, <code>test-no-masked-loss.R</code>, <code>test-piml-closed-form.R</code>, <code>test-piml-convergence-verdict.R</code>, <code>test-piml-coverage-claims.R</code> … (+4 more).</p>
-<p>Exported functions never named in any test (<strong>13</strong>): <code>causal_ontology_agrovoc</code>, <code>causal_ontology_envo</code>, <code>edaphos_zenodo_release</code>, <code>foundation_tile_source_era5</code>, <code>foundation_tile_source_modis</code>, <code>foundation_tile_source_soilgrids</code>, <code>foundation_tile_source_srtm</code>, <code>foundation_tile_source_worldclim</code>, <code>gnn_fit_ensemble</code>, <code>llm_annotation_launch</code>, <code>piml_neural_ode_predict</code>, <code>piml_profile_fit_mechanistic</code>, <code>temporal_convlstm_predict</code>.</p>
+</tr></tbody></table><p>Result bundles in <code>inst/extdata/</code>: <strong>24</strong>. Test files that read <code>inst/extdata</code>: <code>test-al-policy-claims.R</code>, <code>test-bundle-provenance.R</code>, <code>test-causal-real-bundle.R</code>, <code>test-extrapolation-claims.R</code>, <code>test-headline-claims.R</code>, <code>test-llm-annotation.R</code>, <code>test-no-masked-loss.R</code>, <code>test-no-third-party-data.R</code>, <code>test-piml-closed-form.R</code>, <code>test-piml-convergence-verdict.R</code> … (+6 more).</p>
+<p>Exported functions never named in any test (<strong>5</strong>): <code>edaphos_example_profiles</code>, <code>gnn_fit_ensemble</code>, <code>piml_neural_ode_predict</code>, <code>piml_profile_fit_mechanistic</code>, <code>temporal_convlstm_predict</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="id_7-documentation-coverage">7. Documentation coverage<a class="anchor" aria-label="anchor" href="#id_7-documentation-coverage"></a></h2>
@@ -732,18 +740,18 @@ for details.</code></pre>
 <th>Value</th>
 </tr></thead><tbody><tr><td>
 <code>man/*.Rd</code> files</td>
-<td>191</td>
+<td>190</td>
 </tr><tr><td>Rd with <code>\examples</code>
 </td>
-<td>180</td>
+<td>179</td>
 </tr><tr><td>— wrapping <code>\dontrun</code>
 </td>
-<td>43</td>
+<td>41</td>
 </tr><tr><td>— wrapping <code>\donttest</code>
 </td>
 <td>12</td>
 </tr><tr><td>— with an example <code>R CMD check</code> runs</td>
-<td>125</td>
+<td>126</td>
 </tr><tr><td>Exports with no example anywhere</td>
 <td>0</td>
 </tr><tr><td>Exports with no <code>.Rd</code>
@@ -751,7 +759,7 @@ for details.</code></pre>
 <td>0</td>
 </tr><tr><td>Rd with <code>\references</code>
 </td>
-<td>36</td>
+<td>37</td>
 </tr><tr><td>Vignettes</td>
 <td>19</td>
 </tr><tr><td>Root <code>articles/</code>
@@ -760,7 +768,7 @@ for details.</code></pre>
 </tr><tr><td>Cheatsheets</td>
 <td>11</td>
 </tr><tr><td>README size</td>
-<td>113 KB</td>
+<td>114 KB</td>
 </tr></tbody></table><p>“six pillars” vs “ten pillars”, counted per file:</p>
 <table class="table"><thead><tr><th>File</th>
 <th align="right">says “six”</th>
@@ -806,29 +814,29 @@ for details.</code></pre>
 </tr></thead><tbody><tr><td><code>paper</code></td>
 <td align="right">19.23 MB</td>
 <td align="center">❌</td>
-</tr><tr><td><code>inst</code></td>
-<td align="right">2.20 MB</td>
-<td align="center">✅</td>
 </tr><tr><td><code>man</code></td>
-<td align="right">1.36 MB</td>
+<td align="right">1.37 MB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>R</code></td>
-<td align="right">1.31 MB</td>
+<td align="right">1.33 MB</td>
+<td align="center">✅</td>
+</tr><tr><td><code>inst</code></td>
+<td align="right">1022 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>tools</code></td>
-<td align="right">727 KB</td>
-<td align="center">❌</td>
-</tr><tr><td><code>data-raw</code></td>
-<td align="right">497 KB</td>
+<td align="right">876 KB</td>
 <td align="center">❌</td>
 </tr><tr><td><code>tests</code></td>
-<td align="right">472 KB</td>
+<td align="right">556 KB</td>
 <td align="center">✅</td>
+</tr><tr><td><code>data-raw</code></td>
+<td align="right">522 KB</td>
+<td align="center">❌</td>
 </tr><tr><td><code>vignettes</code></td>
-<td align="right">399 KB</td>
+<td align="right">402 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>&lt;root&gt;</code></td>
-<td align="right">376 KB</td>
+<td align="right">392 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>data</code></td>
 <td align="right">64 KB</td>
@@ -837,39 +845,39 @@ for details.</code></pre>
 <td align="right">19 KB</td>
 <td align="center">❌</td>
 </tr><tr><td><code>src</code></td>
-<td align="right">16 KB</td>
+<td align="right">17 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>cheatsheets</code></td>
 <td align="right">16 KB</td>
 <td align="center">❌</td>
-</tr></tbody></table><p>Git-tracked bytes that ship: <strong>5.96 MB</strong>. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because <code>R CMD build</code> renders the vignettes into <code>inst/doc</code>, which does not exist in the repository.</p>
+</tr></tbody></table><p>Git-tracked bytes that ship: <strong>4.86 MB</strong>. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because <code>R CMD build</code> renders the vignettes into <code>inst/doc</code>, which does not exist in the repository.</p>
 <p>Largest tracked files that ship:</p>
 <table class="table"><thead><tr><th>File</th>
 <th align="right">Size</th>
-</tr></thead><tbody><tr><td><code>inst/extdata/case_cerrado_results.rds</code></td>
-<td align="right">351 KB</td>
-</tr><tr><td><code>inst/extdata/capstone_native_calibration.rds</code></td>
-<td align="right">294 KB</td>
-</tr><tr><td><code>inst/extdata/capstone_campaign_results.rds</code></td>
-<td align="right">287 KB</td>
+</tr></thead><tbody><tr><td><code>inst/extdata/capstone_native_calibration.rds</code></td>
+<td align="right">292 KB</td>
 </tr><tr><td><code>man/figures/logo.png</code></td>
 <td align="right">287 KB</td>
-</tr><tr><td><code>inst/extdata/temporal_cerrado_results.rds</code></td>
-<td align="right">194 KB</td>
+</tr><tr><td><code>inst/extdata/capstone_campaign_results.rds</code></td>
+<td align="right">285 KB</td>
 </tr><tr><td><code>inst/extdata/causal_sensitivity_cerrado.rds</code></td>
 <td align="right">142 KB</td>
-</tr><tr><td><code>inst/extdata/piml_external_anchors.rds</code></td>
-<td align="right">124 KB</td>
 </tr><tr><td><code>man/figures/pillar6-quantum.png</code></td>
 <td align="right">121 KB</td>
-</tr><tr><td><code>inst/extdata/piml_depth_benchmark.rds</code></td>
-<td align="right">113 KB</td>
 </tr><tr><td><code>README.md</code></td>
-<td align="right">113 KB</td>
-</tr><tr><td><code>inst/extdata/cerrado_claims_real_corpus.jsonl</code></td>
-<td align="right">94 KB</td>
+<td align="right">114 KB</td>
+</tr><tr><td><code>inst/extdata/case_cerrado_results.rds</code></td>
+<td align="right">96 KB</td>
 </tr><tr><td><code>man/figures/pillar5-al-map.png</code></td>
 <td align="right">86 KB</td>
+</tr><tr><td><code>man/figures/pillar2-piml.png</code></td>
+<td align="right">67 KB</td>
+</tr><tr><td><code>man/figures/pillar3-4d.png</code></td>
+<td align="right">55 KB</td>
+</tr><tr><td><code>R/piml_bayesian.R</code></td>
+<td align="right">52 KB</td>
+</tr><tr><td><code>man/figures/pillar5-al-learning.png</code></td>
+<td align="right">51 KB</td>
 </tr></tbody></table></div>
 <div class="section level2">
 <h2 id="id_9-ci-and-infrastructure">9. CI and infrastructure<a class="anchor" aria-label="anchor" href="#id_9-ci-and-infrastructure"></a></h2>
@@ -1075,7 +1083,7 @@ for details.</code></pre>
 </ul></div>
 <div class="section level3">
 <h3 id="closed-since-the-audit-measured-not-asserted">Closed since the audit (measured, not asserted)<a class="anchor" aria-label="anchor" href="#closed-since-the-audit-measured-not-asserted"></a></h3>
-<p>92 findings were true at <code>272b378</code> and cannot be reproduced at <code>7b881c2</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
+<p>97 findings were true at <code>272b378</code> and cannot be reproduced at <code>97c7a9a</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
 <table style="width:100%;" class="table"><colgroup><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"></colgroup><thead><tr><th>ID</th>
 <th>Sev</th>
 <th>Area</th>
@@ -1399,9 +1407,11 @@ for details.</code></pre>
 | FAEC54C | medium | Incomplete implementations | `3f2d005` | al_fit() performs no validation of num.trees against nrow(labeled), producing an opaque ranger error; the guarding test is unseeded and fails ~12% of runs | al_fit(&lt;20 rows&gt;, num.trees = 3) now stops with "[al_fit] num.trees = 3 is too small for out-of-bag quantile regression on 20 labeled rows" instead of the opaque ranger error. |
 | FC68E1D | medium | Incomplete implementations | `a809ec9` | foundation_weights_load() requires torch BEFORE resolving the registry, so the placeholder v2 entry reports the wrong reason for failing | Same measurement as FAC0043. |
 | FD825FD | medium | Incomplete implementations | `3bd1938` | bhs_fit() returns an all-NaN posterior for a rank-deficient design matrix, and the edge-case test is written to accept it | bhs_fit(dd, y ~ x1 + const, ...) on a design with a constant column now stops with "[bhs_fit] design matrix is rank-deficient: rank 2 for 3 columns. Aliased column(s): const." instead of returning an all-NaN posterior. |
+| FFFC52E | medium | Incomplete implementations | `43f9724` | causal_iv bootstrap silently discards failed 2SLS replicates and rewrites B to the survivor count | Worse than reported, and fixed in two steps. PR #4 (43f9724): causal_iv_posterior() counts failed replicates, warns naming both counts, errors below two identified draws, and records B_requested / B_effective / n_failed instead of overwriting B. It also found that unidentified resamples did not fail at all: .safe_inverse()'s pseudo-inverse returned an effect near zero with NA se and NA F, which the bootstrap took as a draw (a constant instrument gave a posterior of 20 fabricated draws). PR #5 (28c704c, merged 97c7a9a): causal_iv_fit_2sls() now checks the rank condition before fitting -- unidentified designs are an error, redundant covariates and instruments are dropped with a warning as lm() aliases them. Test with a rare instrument: 71 of 200 replicates dropped against a theoretical 73. Published IV results unchanged: all 19 stored standard errors are finite. |
 | F21DBBA | medium | Test coverage | `3f2d005` | test-foundation-weights.R:29-36 asserts an error message that is unreachable without torch (live ERROR 2) -- green on CI, red on CRAN | The unreachable expectation was fixed at the source the finding preferred: foundation_weights_load() now runs its argument validation before the torch gate, so the n_channels error is raised with or without torch. |
 | F2C0D91 | medium | Test coverage | `3f2d005` | al_fit is ~14.5%-flaky by construction: test-active-quantum-posterior.R:30-35 has no set.seed and passes num.trees=50 for OOB quantile regression (live ERROR 1) | Fixed at both levels the finding asked for: the test was seeded and given a valid tree count, and the underlying floor was derived in the package rather than hard-coded in the test. |
 | FB609A4 | medium | Test coverage | `ac7b9c2` | NEWS.md v3.10.0 test and check claims are not reproducible in any environment the project automates | NEWS.md was reset to a single honest development entry that explicitly retracts the unreproducible test and check claims instead of restating them. |
+| FC5841E | medium | Test coverage | `e11515b` | Three of four wall-clock assertions run on CRAN: only 1 skip_on_cran() exists in the whole 460-block suite | The three wall-clock blocks start with skip_on_cran(): test-pilar7-bhs-rcpp.R, test-pilar7-bhs-fastpath.R, test-pilar10-gat-sparse.R (PR #3). Verified in both modes: NOT_CRAN=true runs and passes all three, CRAN mode skips all three. The fast-path comment that promised '&lt; 3 s' while asserting &lt; 10 s now states what is asserted. A follow-up, PR #6 (open when this was recorded), makes the same three also skip_on_covr(), after the rcpp comparison flipped once in ten coverage runs (0.286 s vs 0.277 s) because covr instruments R but not C++; the rcpp comparison now takes the minimum of three alternating runs. |
 | F0CBFC4 | low | CI &amp; infra | `0741f8b` | test-coverage has no threshold gate, no codecov.yml, and diverges from R-CMD-check on TORCH_INSTALL; reported coverage has an invisible ~75% ceiling | codecov.yml adds a project gate (target: auto against the parent commit, 1% threshold) and a 70% patch rule, so a regression fails the check instead of silently moving a badge; a fixed project target is either aspirational, and gets ignored, or set at today's number, which is an unchosen ratchet. .github/workflows/test-coverage.yaml now sets TORCH_INSTALL and installs libtorch, sharing R-CMD-check.yaml's cache key so the ~2 GB download is paid once per run rather than twice. Measured while fixing: 5 files under R/ are torch-only (1,679 lines, 5%), not the ~4,500 this finding recorded, but 26 of 74 files mention torch and carry 39% of R/'s lines, and those lines were entering the badge as untested because the job could not run the tests that exercise them. The .covrignore alternative was rejected in writing: it makes the badge silent about two fifths of the package while still printing one number. |
 | F6330AE | low | CI &amp; infra | `9747374` | pkgdown site loads mermaid from a third-party CDN with no integrity attribute, on a surface SECURITY.md declares in scope | _pkgdown.yml now loads mermaid from a fully pinned version (11.16.1) with integrity, crossorigin and referrerpolicy attributes. The missing hash was the second defect; the first was the floating `@11` tag, under which the served bytes change whenever upstream publishes -- so a hash alone would have broken the site and a pin alone would still trust whatever the CDN returned. The SHA-384 was computed from the bytes and cross-checked against the same file served by unpkg, which is byte-identical. tests/testthat/test-pkgdown-external-scripts.R requires integrity, crossorigin and a full major.minor.patch on every external script, rejecting specifically the combination that looks safe and is not: a hash pinned to a tag that moves. |
 | FA46190 | low | CI &amp; infra | `9747374` | Documented quality gates (spell check, URL check, lint) exist in prose and templates but in no workflow; `_R_CHECK_FORCE_SUGGESTS_` is never relaxed across 40 Suggests | .github/workflows/quality-gates.yaml runs the two gates CONTRIBUTING.md:46-47 tells contributors to run and which ran nowhere. Spelling is blocking and clean: it had never been wired because spell_check() reports 375 unknown words, almost all correct Portuguese from the Portuguese-language vignettes, so the job checks the English surfaces (man/, README, NEWS, DESCRIPTION) where 157 words needed adding to inst/WORDLIST -- each read individually rather than bulk-accepted, since a list that whitelists a typo is worse than no list. The URL check is advisory because urlchecker returns 403 for every doi.org link and for researchgate.net, hosts that refuse programmatic requests; it separates those from URLs failing for other reasons. The finding also named lint, which nothing in the repository promises -- no .lintr, no mention in CONTRIBUTING or any template -- so no lint job was added and the reason is recorded in the workflow. |
@@ -1420,7 +1430,7 @@ for details.</code></pre>
 </tr><tr><td>F363935</td>
 <td>low</td>
 <td>CRAN readiness</td>
-<td><code>| pkgdown reference index selects on `has_concept("pilar1")` but no Rd file has a `\concept{}` tag | withdrawn: Closed as not a defect, confirming the register's REFUTED verdict by re-derivation rather than inheritance. The premise is true - _pkgdown.yml:125 is still - has_concept(pilar1) and no man/*.Rd carries a matching \concept{} tag - but the consequence is false: in pkgdown 2.2.0, section_topics() calls select_topics() without check = TRUE, so the zero-match abort branch is unreachable and the selector is silently ignored. The pkgdown build does fail at HEAD, for two unrelated reasons tracked under FE42047. | | F4516A9 | low | CRAN readiness | `632e47f` | Maintainer-only files install into the user's library; CITATION metadata is stale and there is no inst/CITATION | A .Rinstignore now excludes inst/rosc and inst/WORDLIST from the installed package, verified by installing to a temporary library and listing it -- the first pattern written, ^rosc$, matched nothing, because .Rinstignore matches paths relative to the source root rather than to inst/. inst/rosc/submission.md's quantitative self-report is generated from tools/status/facts.json by tools/status/render-submission-qa.R, including the version, which had declared 3.10.0 while the block below it conceded 0.9.0. | | F5825EA | low | CRAN readiness | `d2292a3` | 6 of 40 Suggests are never used anywhere in the package | Corrected on measurement: the finding names six unused Suggests and three of them are used. ecmwfr appears in roxygen examples that reach the generated .Rd; gstat and geobr have real calls in data-raw/, which is how the shipped result bundles are regenerated, so removing them would have broken artefact regeneration. The three with zero mentions anywhere in the repository -- abind, fmsb, RColorBrewer -- were removed. Suggests: 42 -&gt; 39. | | FEC2806 | low | CRAN readiness | `0b068d7` | `MASS::ginv()` called unguarded at 5 sites while MASS is Suggests-only | The five unguarded MASS::ginv() fallbacks in R/causal_iv.R and R/causal_active_learning.R are replaced by one .safe_inverse() in R/core_utils.R, which tries solve(), falls back to the pseudo-inverse when MASS is available, and otherwise raises an error naming the singularity, the matrix and the package to install. MASS is in Suggests and Suggests are not installed by default; it is also a recommended package, which is why five unguarded copies survived unnoticed. Verified to return exactly what the previous code returned on both an invertible and a deliberately singular matrix. The test asserts the pseudo-inverse property M %*% M+ %*% M == M rather than its dimensions, and checks the MASS-absent path produces an actionable message. | | FEDA31F | low | CRAN readiness | `d2292a3` | Two network entry points call `httr2::req_perform()` with no error handling, against CRAN's graceful-failure policy | causal_corpus_scielo() no longer calls httr2::req_perform() bare. On a network failure it returns an empty corpus of the correct shape with a warning naming the service and stating that this is a network failure rather than an empty search result -- the ambiguity an empty data frame otherwise creates. This matches the behaviour its sibling causal_corpus_openalex() already had, so the inconsistency was inside one file. Tested against an unreachable host. | | FA7F096 | low | Release consistency | `8e725b9 (`fix: stop shipping a self-report that was wrong, and keep one release checklist`); confirmed with `git log --diff-filter=D`.` | RELEASE-CHECKLIST-v3.10.0.md instructs the maintainer to upload artefacts that do not exist and names the wrong deploy action | The file the finding is about no longer exists: `ls RELEASE-CHECKLIST-v3.10.0.md` returns 'No such file or directory'. It was deleted rather than patched, and RELEASE.md:1-11 records the deletion and each of the three defects verbatim — the /tmp tarball path that is not there, the 'code 100 % ready, CI green' assertion, and the wrong action name — closing with the correct one: '`.github/workflows/pkgdown.yaml:61` uses `JamesIves/github-pages-deploy-action@v4.5.0`'. RELEASE.md:13-16 also drops the version number from the header on purpose ('Both predecessors were headed with one (v2.9.1 and v3.10.0) and both went stale'). The surviving checklist carries the Zenodo bundle-generation call at RELEASE.md:65-77, which is what step 3 was missing. | | FEA55C5 | low | Release consistency | `ac7b9c2` | 32 of the last 33 NEWS releases have no git tag, violating the project's own documented release policy | The set of untagged NEWS releases no longer exists: commit ac7b9c2 reset NEWS.md to a single 0.9.0 development section, which is also the commit that withdraws the fabricated 43-release history. | | FFBBEBB | low | Release consistency | `80ac33e (`fix: four articles that never built, a Dockerfile that was not reproducible, and a tag name already taken`); `git log -- Dockerfile` shows only 45e24d2 and 80ac33e.` | Dockerfile self-identifies as v2.1.0 and pins a 2026-04-23 CRAN snapshot, but installs HEAD | The Dockerfile was rewritten and no longer self-identifies as v2.1.0. The header at Dockerfile:3-15 now narrates the old defect as history ('This file called itself a "reproducibility Dockerfile (v2.1.0)" and then built from the moving tip of `main`'); the build/run examples at :23, :26, :32 and :37 tag `edaphos:&lt;sha&gt;` and `edaphos:dev` instead of a version; the LABEL block at :49-54 records `org.opencontainers.image.revision="${EDAPHOS_REF}"` with `ARG EDAPHOS_REF=main` hoisted to :47 so it interpolates, and :107-110 states plainly that the default tracks main and is a convenience image, not a reproducibility artefact. The base moved to `rocker/geospatial:4.6.1` at :42 to match CI. The CRAN snapshot at :79 is still 2026-04-23 and is now documented at :74-78 as a deliberate pin, which the register had already established is correct. The impact clause is moot as well: cran-comments.md no longer mentions Docker anywhere, so no CRAN reviewer is pointed at this image. Residual worth one edit, flagged not held: Dockerfile:66-67 still carries the exact phrase '(pin to the date of the edaphos v2.1.0 release so every rebuild is byte-reproducible)' that :76-78 retracts eleven lines later — the retraction was appended without deleting the sentence it retracts. | | F9EDEBA | low | Roadmap promises | `ac7b9c2` | Pilar 7 was promised as INLA/Stan and delivered as a hand-rolled Gibbs sampler; the substitution is never disclosed | The INLA/Stan promise was the Deferred (explicit roadmap entries) block in NEWS.md, and commit ac7b9c2 deleted it; git log -S confirms 45e24d2 added that block and ac7b9c2 removed it. Nothing else in the repository promises an INLA or Stan backend for Pillar 7. | | F3CACF8 | low | Incomplete implementations | `99cd6a1` | Off-by-one in the RcppArmadillo Gibbs sampler's w_post_mean accumulation makes the rcpp backend disagree with the R backend it claims to reproduce | The off-by-one in the RcppArmadillo Gibbs accumulation was fixed and verified against the R backend it claims to reproduce. | | F0EEC2D | non-issue | Incomplete implementations |</code></td>
+<td><code>| pkgdown reference index selects on `has_concept("pilar1")` but no Rd file has a `\concept{}` tag | withdrawn: Closed as not a defect, confirming the register's REFUTED verdict by re-derivation rather than inheritance. The premise is true - _pkgdown.yml:125 is still - has_concept(pilar1) and no man/*.Rd carries a matching \concept{} tag - but the consequence is false: in pkgdown 2.2.0, section_topics() calls select_topics() without check = TRUE, so the zero-match abort branch is unreachable and the selector is silently ignored. The pkgdown build does fail at HEAD, for two unrelated reasons tracked under FE42047. | | F4516A9 | low | CRAN readiness | `632e47f` | Maintainer-only files install into the user's library; CITATION metadata is stale and there is no inst/CITATION | A .Rinstignore now excludes inst/rosc and inst/WORDLIST from the installed package, verified by installing to a temporary library and listing it -- the first pattern written, ^rosc$, matched nothing, because .Rinstignore matches paths relative to the source root rather than to inst/. inst/rosc/submission.md's quantitative self-report is generated from tools/status/facts.json by tools/status/render-submission-qa.R, including the version, which had declared 3.10.0 while the block below it conceded 0.9.0. | | F5825EA | low | CRAN readiness | `d2292a3` | 6 of 40 Suggests are never used anywhere in the package | Corrected on measurement: the finding names six unused Suggests and three of them are used. ecmwfr appears in roxygen examples that reach the generated .Rd; gstat and geobr have real calls in data-raw/, which is how the shipped result bundles are regenerated, so removing them would have broken artefact regeneration. The three with zero mentions anywhere in the repository -- abind, fmsb, RColorBrewer -- were removed. Suggests: 42 -&gt; 39. | | FEC2806 | low | CRAN readiness | `0b068d7` | `MASS::ginv()` called unguarded at 5 sites while MASS is Suggests-only | The five unguarded MASS::ginv() fallbacks in R/causal_iv.R and R/causal_active_learning.R are replaced by one .safe_inverse() in R/core_utils.R, which tries solve(), falls back to the pseudo-inverse when MASS is available, and otherwise raises an error naming the singularity, the matrix and the package to install. MASS is in Suggests and Suggests are not installed by default; it is also a recommended package, which is why five unguarded copies survived unnoticed. Verified to return exactly what the previous code returned on both an invertible and a deliberately singular matrix. The test asserts the pseudo-inverse property M %*% M+ %*% M == M rather than its dimensions, and checks the MASS-absent path produces an actionable message. | | FEDA31F | low | CRAN readiness | `d2292a3` | Two network entry points call `httr2::req_perform()` with no error handling, against CRAN's graceful-failure policy | causal_corpus_scielo() no longer calls httr2::req_perform() bare. On a network failure it returns an empty corpus of the correct shape with a warning naming the service and stating that this is a network failure rather than an empty search result -- the ambiguity an empty data frame otherwise creates. This matches the behaviour its sibling causal_corpus_openalex() already had, so the inconsistency was inside one file. Tested against an unreachable host. | | FF58F4E | low | CRAN readiness | `e11515b` | Two exported functions are unconditional `stop()` stubs, documented and counted as shipped features | Both stubs removed with their man pages and tests (PR #3). foundation_tile_source_modis() and foundation_tile_source_era5() could only throw; their guidance -- which client to use, the MOD13Q1 1e-4 scale and -3000 fill value, the CDS bounding box's north-west-south-east order, ERA5-Land's 9 km resolution -- now sits in a 'MODIS and ERA5' section of ?foundation_tile_align (R/foundation_tiles.R). The Pillar 4 vignette and NEWS.md record the removal; ecmwfr, used only by the ERA5 stub's example, left Suggests. The \value half of this finding is closed by F52B874. | | FA7F096 | low | Release consistency | `8e725b9 (`fix: stop shipping a self-report that was wrong, and keep one release checklist`); confirmed with `git log --diff-filter=D`.` | RELEASE-CHECKLIST-v3.10.0.md instructs the maintainer to upload artefacts that do not exist and names the wrong deploy action | The file the finding is about no longer exists: `ls RELEASE-CHECKLIST-v3.10.0.md` returns 'No such file or directory'. It was deleted rather than patched, and RELEASE.md:1-11 records the deletion and each of the three defects verbatim — the /tmp tarball path that is not there, the 'code 100 % ready, CI green' assertion, and the wrong action name — closing with the correct one: '`.github/workflows/pkgdown.yaml:61` uses `JamesIves/github-pages-deploy-action@v4.5.0`'. RELEASE.md:13-16 also drops the version number from the header on purpose ('Both predecessors were headed with one (v2.9.1 and v3.10.0) and both went stale'). The surviving checklist carries the Zenodo bundle-generation call at RELEASE.md:65-77, which is what step 3 was missing. | | FEA55C5 | low | Release consistency | `ac7b9c2` | 32 of the last 33 NEWS releases have no git tag, violating the project's own documented release policy | The set of untagged NEWS releases no longer exists: commit ac7b9c2 reset NEWS.md to a single 0.9.0 development section, which is also the commit that withdraws the fabricated 43-release history. | | FFBBEBB | low | Release consistency | `80ac33e (`fix: four articles that never built, a Dockerfile that was not reproducible, and a tag name already taken`); `git log -- Dockerfile` shows only 45e24d2 and 80ac33e.` | Dockerfile self-identifies as v2.1.0 and pins a 2026-04-23 CRAN snapshot, but installs HEAD | The Dockerfile was rewritten and no longer self-identifies as v2.1.0. The header at Dockerfile:3-15 now narrates the old defect as history ('This file called itself a "reproducibility Dockerfile (v2.1.0)" and then built from the moving tip of `main`'); the build/run examples at :23, :26, :32 and :37 tag `edaphos:&lt;sha&gt;` and `edaphos:dev` instead of a version; the LABEL block at :49-54 records `org.opencontainers.image.revision="${EDAPHOS_REF}"` with `ARG EDAPHOS_REF=main` hoisted to :47 so it interpolates, and :107-110 states plainly that the default tracks main and is a convenience image, not a reproducibility artefact. The base moved to `rocker/geospatial:4.6.1` at :42 to match CI. The CRAN snapshot at :79 is still 2026-04-23 and is now documented at :74-78 as a deliberate pin, which the register had already established is correct. The impact clause is moot as well: cran-comments.md no longer mentions Docker anywhere, so no CRAN reviewer is pointed at this image. Residual worth one edit, flagged not held: Dockerfile:66-67 still carries the exact phrase '(pin to the date of the edaphos v2.1.0 release so every rebuild is byte-reproducible)' that :76-78 retracts eleven lines later — the retraction was appended without deleting the sentence it retracts. | | F9EDEBA | low | Roadmap promises | `ac7b9c2` | Pilar 7 was promised as INLA/Stan and delivered as a hand-rolled Gibbs sampler; the substitution is never disclosed | The INLA/Stan promise was the Deferred (explicit roadmap entries) block in NEWS.md, and commit ac7b9c2 deleted it; git log -S confirms 45e24d2 added that block and ac7b9c2 removed it. Nothing else in the repository promises an INLA or Stan backend for Pillar 7. | | F3A34C0 | low | Incomplete implementations | `43f9724` | foundation_build_cerrado_stack() calls digest::digest() unguarded, but digest is Suggests-only -- the exported function dies on a clean install | foundation_build_cerrado_stack() checks requireNamespace('digest') alongside terra and geodata, before dir.create() touches the disk (R/foundation_embed_coords.R, PR #4). The hash is kept rather than replaced by a base-R key, so stacks already in a user's cache stay valid. The test hides digest and makes dir.create() fail on the cache path, so a regression fails in seconds and offline instead of starting a 439 MB download; verified to pass with the guard and fail without it. | | F3CACF8 | low | Incomplete implementations | `99cd6a1` | Off-by-one in the RcppArmadillo Gibbs sampler's w_post_mean accumulation makes the rcpp backend disagree with the R backend it claims to reproduce | The off-by-one in the RcppArmadillo Gibbs accumulation was fixed and verified against the R backend it claims to reproduce. | | F52B874 | low | Incomplete implementations | `e11515b` | Two exported functions ship without \value in man/, contradicting the NEWS claim of 0 R CMD check notes | no_deeponet_fit() now has @return documenting the edaphos_no_deeponet fit, including what differs between the r and torch backends (R/pilar8_neural_operators.R). foundation_tile_source_era5(), the other function without \value, was removed (FF58F4E). A scan of every man/*.Rd with \usage finds no function without \value; the three without are the br_* datasets, which use \format. R CMD check --as-cran at e11515b: Status OK, 0 notes. | | F0EEC2D | non-issue | Incomplete implementations |</code></td>
 <td>.batchbald_aleatoric_var() silently falls back to in-sample random-forest residuals whenever any OOB prediction is NA</td>
 <td>withdrawn: Closed as not a defect, matching the register’s own REFUTED verdict. The code is unchanged and reads exactly as quoted, but the in-sample fallback branch is unreachable for any model al_fit() can produce: al_fit -&gt; .fit_core always calls ranger with quantreg = TRUE, and ranger itself refuses to fit when min OOB count is under 10, so rg$predictions never contains NA and the length test at R/active_batchbald.R:71 always passes. The campaign made it less reachable still, by adding the derived num.trees floor .al_min_trees_for_quantreg() at R/active_fit.R:13-20. No failure mode exists to trigger the described bias.</td>
 </tr></tbody></table></div>
@@ -1482,13 +1492,6 @@ for details.</code></pre>
 <td>doc-gap</td>
 <td>minutes</td>
 <td>bhs_fit()’s rcpp backend is absent from its own @param documentation, and al_query_bhs() rejects it despite the fit being complete</td>
-</tr><tr><td>FFFC52E</td>
-<td>medium</td>
-<td>confirmed</td>
-<td>Incomplete implementations</td>
-<td>bug</td>
-<td>minutes</td>
-<td>causal_iv bootstrap silently discards failed 2SLS replicates and rewrites B to the survivor count</td>
 </tr><tr><td>F86487C</td>
 <td>medium</td>
 <td>confirmed</td>
@@ -1517,13 +1520,6 @@ for details.</code></pre>
 <td>incomplete-implementation</td>
 <td>days</td>
 <td>The v3.8.0 friendly-error work covers 4 of 169 exports; .assert_type/.stopf adopted in 6 of 70 R/ files</td>
-</tr><tr><td>FC5841E</td>
-<td>medium</td>
-<td>confirmed</td>
-<td>Test coverage</td>
-<td>process-gap</td>
-<td>minutes</td>
-<td>Three of four wall-clock assertions run on CRAN: only 1 skip_on_cran() exists in the whole 460-block suite</td>
 </tr><tr><td>FAF9367</td>
 <td>low</td>
 <td>partial</td>
@@ -1539,13 +1535,6 @@ for details.</code></pre>
 <td>hours</td>
 <td>No dependency pinning outside the Dockerfile; floating action tags in a job granted <code>contents: write</code>
 </td>
-</tr><tr><td>FF58F4E</td>
-<td>low</td>
-<td>partial</td>
-<td>CRAN readiness</td>
-<td>incomplete-implementation</td>
-<td>hours</td>
-<td>Two exported functions are unconditional <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> stubs, documented and counted as shipped features</td>
 </tr><tr><td>F63C7AD</td>
 <td>low</td>
 <td>partial</td>
@@ -1616,20 +1605,6 @@ for details.</code></pre>
 <td>bug</td>
 <td>hours</td>
 <td>foundation_embed_at_coords() converts a failed raster block read into an all-zero patch that is indistinguishable from a real embedding</td>
-</tr><tr><td>F3A34C0</td>
-<td>low</td>
-<td>confirmed</td>
-<td>Incomplete implementations</td>
-<td>bug</td>
-<td>minutes</td>
-<td>foundation_build_cerrado_stack() calls digest::digest() unguarded, but digest is Suggests-only – the exported function dies on a clean install</td>
-</tr><tr><td>F52B874</td>
-<td>low</td>
-<td>partial</td>
-<td>Incomplete implementations</td>
-<td>doc-gap</td>
-<td>minutes</td>
-<td>Two exported functions ship without in man/, contradicting the NEWS claim of 0 R CMD check notes</td>
 </tr><tr><td>F649AF8</td>
 <td>low</td>
 <td>partial</td>
@@ -1694,10 +1669,6 @@ for details.</code></pre>
 <ul><li>Add <code>"rcpp"</code> to the <code>@param backend</code> block at R/pilar7_bayesian_hierarchical.R:68-70 (describing the RcppArmadillo fast path) and re-roxygenise. Relax R/bridges_active_learning_v3.R:263 to <code>if (!bhs_fit$backend %in% c("gibbs", "rcpp"))</code> and add a test in tests/testthat/test-bridges-v3.R that <code><a href="reference/al_query_bhs.html">al_query_bhs()</a></code> succeeds on a <code>backend = "rcpp"</code> fit.</li>
 </ul></li>
 <li>
-<strong>FFFC52E</strong> (Incomplete implementations, minutes) — causal_iv bootstrap silently discards failed 2SLS replicates and rewrites B to the survivor count
-<ul><li>In R/causal_iv.R:360-372, record both counts and warn: keep <code>B_requested</code>, compute <code>n_failed &lt;- B - length(draws)</code>, add <code>if (n_failed &gt; 0) warning(sprintf("%d of %d bootstrap replicates failed to fit 2SLS (weak or collinear instruments after resampling); the posterior uses %d draws.", n_failed, B, length(draws)))</code>, <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> when <code>length(draws) &lt; 2</code>, and store both <code>B_requested</code> and <code>B_effective</code> in the metadata list at :369 instead of silently reassigning <code>B</code>.</li>
-</ul></li>
-<li>
 <strong>F86487C</strong> (Test coverage, hours) — R/pilar7_bayesian_hierarchical.R:270-272 cites a test that does not perform the verification it claims
 <ul><li>Either implement the claimed check – keep a <code>.bhs_gibbs_dense()</code> reference implementation as an internal (not exported) function and assert <code>expect_equal(draws_fast, draws_dense, tolerance = 1e-10)</code> under a fixed seed in test-pilar7-bhs-fastpath.R – or delete the unsupported sentence at R/pilar7_bayesian_hierarchical.R:270-272 and replace it with what the test actually contracts.</li>
 </ul></li>
@@ -1712,10 +1683,6 @@ for details.</code></pre>
 <li>
 <strong>FBCB1E4</strong> (Test coverage, days) — The v3.8.0 friendly-error work covers 4 of 169 exports; .assert_type/.stopf adopted in 6 of 70 R/ files
 <ul><li>Extend .stopf/.assert_type to the public entry points of pillars 1-6, starting with the ones the suite already stresses: al_fit (R/active_fit.R:52), al_loop (R/active_loop.R:73), quantum_krr_fit, piml_profile_fit, temporal_convlstm_fit, causal_estimate_effect, foundation_weights_load (replace the bare stop at R/foundation_weights.R:312 and the stopifnot at :318). Grow tests/testthat/test-error-messages.R in lockstep – it is the highest-value file in the suite because it is the only large one that is 100% ungated and therefore runs everywhere including CRAN.</li>
-</ul></li>
-<li>
-<strong>FC5841E</strong> (Test coverage, minutes) — Three of four wall-clock assertions run on CRAN: only 1 skip_on_cran() exists in the whole 460-block suite
-<ul><li>Add <code>skip_on_cran()</code> as the first line of the three blocks: tests/testthat/test-pilar7-bhs-rcpp.R:84, tests/testthat/test-pilar7-bhs-fastpath.R:80, tests/testthat/test-pilar10-gat-sparse.R:112 – matching the pattern already used correctly at test-quantum-kernel-rcpp.R:46. Consider also gating them on <code>Sys.getenv("NOT_CRAN")</code> in the coverage job so they still run somewhere.</li>
 </ul></li>
 </ul></div>
 <div class="section level3">
@@ -1733,10 +1700,6 @@ for details.</code></pre>
 <td>hours</td>
 <td>No dependency pinning outside the Dockerfile; floating action tags in a job granted <code>contents: write</code>
 </td>
-</tr><tr><td>FF58F4E</td>
-<td>CRAN readiness</td>
-<td>hours</td>
-<td>Two exported functions are unconditional <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> stubs, documented and counted as shipped features</td>
 </tr><tr><td>F63C7AD</td>
 <td>Release consistency</td>
 <td>hours</td>
@@ -1777,14 +1740,6 @@ for details.</code></pre>
 <td>Incomplete implementations</td>
 <td>hours</td>
 <td>foundation_embed_at_coords() converts a failed raster block read into an all-zero patch that is indistinguishable from a real embedding</td>
-</tr><tr><td>F3A34C0</td>
-<td>Incomplete implementations</td>
-<td>minutes</td>
-<td>foundation_build_cerrado_stack() calls digest::digest() unguarded, but digest is Suggests-only – the exported function dies on a clean install</td>
-</tr><tr><td>F52B874</td>
-<td>Incomplete implementations</td>
-<td>minutes</td>
-<td>Two exported functions ship without in man/, contradicting the NEWS claim of 0 R CMD check notes</td>
 </tr><tr><td>F649AF8</td>
 <td>Incomplete implementations</td>
 <td>minutes</td>
@@ -2079,11 +2034,6 @@ for details.</code></pre>
 <td>medium</td>
 <td>minutes</td>
 <td>bhs_fit()’s rcpp backend is absent from its own @param documentation, and al_query_bhs() rejects it despite the fit being complete</td>
-</tr><tr><td>[ ]</td>
-<td>FFFC52E</td>
-<td>medium</td>
-<td>minutes</td>
-<td>causal_iv bootstrap silently discards failed 2SLS replicates and rewrites B to the survivor count</td>
 </tr></tbody></table></div>
 <div class="section level3">
 <h3 id="phase-4--cran-submission">Phase 4 — CRAN submission<a class="anchor" aria-label="anchor" href="#phase-4--cran-submission"></a></h3>
@@ -2118,11 +2068,6 @@ for details.</code></pre>
 <td>medium</td>
 <td>hours</td>
 <td>The RcppArmadillo BHS Gibbs backend has no real numerical-agreement test: one scalar mean at 0.2 tolerance, w_post_mean never compared, no edge cases</td>
-</tr><tr><td>[ ]</td>
-<td>FC5841E</td>
-<td>medium</td>
-<td>minutes</td>
-<td>Three of four wall-clock assertions run on CRAN: only 1 skip_on_cran() exists in the whole 460-block suite</td>
 </tr></tbody></table></div>
 <div class="section level3">
 <h3 id="unphased">Unphased<a class="anchor" aria-label="anchor" href="#unphased"></a></h3>
@@ -2142,11 +2087,6 @@ for details.</code></pre>
 <td>CI &amp; infra</td>
 <td>No dependency pinning outside the Dockerfile; floating action tags in a job granted <code>contents: write</code>
 </td>
-</tr><tr><td>[ ]</td>
-<td>FF58F4E</td>
-<td>low</td>
-<td>CRAN readiness</td>
-<td>Two exported functions are unconditional <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> stubs, documented and counted as shipped features</td>
 </tr><tr><td>[ ]</td>
 <td>F63C7AD</td>
 <td>low</td>
@@ -2197,16 +2137,6 @@ for details.</code></pre>
 <td>low</td>
 <td>Incomplete implementations</td>
 <td>foundation_embed_at_coords() converts a failed raster block read into an all-zero patch that is indistinguishable from a real embedding</td>
-</tr><tr><td>[ ]</td>
-<td>F3A34C0</td>
-<td>low</td>
-<td>Incomplete implementations</td>
-<td>foundation_build_cerrado_stack() calls digest::digest() unguarded, but digest is Suggests-only – the exported function dies on a clean install</td>
-</tr><tr><td>[ ]</td>
-<td>F52B874</td>
-<td>low</td>
-<td>Incomplete implementations</td>
-<td>Two exported functions ship without in man/, contradicting the NEWS claim of 0 R CMD check notes</td>
 </tr><tr><td>[ ]</td>
 <td>F649AF8</td>
 <td>low</td>

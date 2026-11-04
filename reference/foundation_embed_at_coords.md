@@ -18,7 +18,8 @@ foundation_embed_at_coords(
   dataset,
   patch_size = NULL,
   projection = FALSE,
-  batch_size = 32L
+  batch_size = 32L,
+  max_na_share = 0.5
 )
 ```
 
@@ -63,11 +64,24 @@ foundation_embed_at_coords(
   Integer; number of patches to forward through the encoder in a single
   call (trades memory for speed). Defaults to `32L`.
 
+- max_na_share:
+
+  Number in `[0, 1]`; the largest share of missing (NoData) pixel values
+  a patch may have and still be embedded. Missing values below this
+  share are imputed with the channel mean, as before; a patch above it
+  gets an `NA` row instead of an embedding that would mostly describe
+  the imputation. Default `0.5`.
+
 ## Value
 
 A numeric matrix with `nrow(coords)` rows and `D` columns, where `D` is
-`moco$feature_dim` or `moco$proj_dim`. Rows that could not be extracted
-contain `NA`.
+`moco$feature_dim` or `moco$proj_dim`. A row is `NA` when its coordinate
+falls within `patch_size / 2` of the raster edge or outside it, when the
+raster block could not be read, or when its patch has more than
+`max_na_share` missing values; the last two raise a warning with the
+count and, for read failures, the cause. Attribute `na_share` gives each
+row's share of imputed values (`NA` where no patch was read), so the
+imputation is visible downstream.
 
 ## Details
 

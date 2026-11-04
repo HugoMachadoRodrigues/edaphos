@@ -159,12 +159,13 @@ the coordinate columns.</p></dd>
 <dd><p>One of <code>"gibbs"</code> (pure-R Gibbs sampler, default, no
 external deps), <code>"rcpp"</code> (the same sampler with an RcppArmadillo inner
 loop), or <code>"spBayes"</code> (dispatches to <code><a href="https://finleya.github.io/spBayes/reference/spLM.html" class="external-link">spBayes::spLM</a></code> when available).</p>
-<p><strong><code>"spBayes"</code> fits but cannot predict.</strong> <code><a href="predict.edaphos_bhs.html">predict.edaphos_bhs()</a></code> refuses
-on that backend, so a fit made with it supports posterior inspection –
-<code>beta_draws</code>, <code>sigma2_draws</code>, <code>tau2_draws</code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, the spatial
-variance share – but not kriging at new sites. <code>bhs_fit()</code> warns about
-this before it starts sampling rather than after. Use <code>"gibbs"</code> or
-<code>"rcpp"</code> if you need predictions.</p></dd>
+<p>All three support <code><a href="predict.edaphos_bhs.html">predict.edaphos_bhs()</a></code>, <code><a href="as_edaphos_posterior.html">as_edaphos_posterior()</a></code> and
+<code><a href="al_query_bhs.html">al_query_bhs()</a></code>. They differ in how <code>phi</code> is handled: <code>"gibbs"</code> and
+<code>"rcpp"</code> fix it at the profile MLE (<code>phi_method = "profile-MLE"</code>), while
+<code>"spBayes"</code> samples it, reports its posterior median as <code>phi_hat</code>
+(<code>phi_method = "posterior median"</code>), and predicts through
+<code><a href="https://finleya.github.io/spBayes/reference/spPredict.html" class="external-link">spBayes::spPredict()</a></code> so that the uncertainty in <code>phi</code> reaches the
+predictive interval.</p></dd>
 
 
 <dt id="arg-nmcmc">nmcmc<a class="anchor" aria-label="anchor" href="#arg-nmcmc"></a></dt>
@@ -219,8 +220,10 @@ which happened.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>edaphos_bhs</code> S3 object. Among its fields, <code>phi_hat</code> is the
-profile-MLE of the rate, and <code>phi_railed</code> / <code>phi_rail_edge</code> record
-whether that MLE landed on an endpoint of <code>phi_range</code> and which one.
+profile-MLE of the rate (the posterior median for <code>backend = "spBayes"</code>; <code>phi_method</code> names which), and <code>phi_railed</code> /
+<code>phi_rail_edge</code> record whether that MLE landed on an endpoint of
+<code>phi_range</code> and which one (<code>NA</code> for <code>"spBayes"</code>, where phi is sampled
+and nothing is optimised).
 The warning alone is not enough: a downstream script that reads
 <code>phi_hat</code> or the spatial variance fraction needs to branch on whether
 the data or the bracket produced them. <code>spatial</code> carries

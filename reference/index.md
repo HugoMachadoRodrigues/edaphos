@@ -439,8 +439,8 @@ ZZFeatureMap, Quantum KRR, Qiskit VQE, organo-mineral Hamiltonians.
 
 ## Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)
 
-Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes;
-the spBayes backend fits but cannot predict).
+Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes,
+all three predicting).
 
 - [`bhs_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/bhs_fit.md)
   : Fit a Bayesian hierarchical spatial linear model (Pilar 7)

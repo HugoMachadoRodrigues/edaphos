@@ -2315,15 +2315,15 @@ bibliography (`vignettes/references.bib`).
 
 ## Testing and continuous integration
 
-- **2 244 passing expectations** across 608 `test_that` blocks in 95
-  test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.1.
-  One expectation is skipped here, because its optional dependency is
-  absent; every skip is an explicit `skip_if_not_installed()` gate.
+- **2 412 passing expectations** across 665 `test_that` blocks in 105
+  test files (`testthat`), measured on aarch64-apple-darwin23, R 4.6.2.
+  18 expectations are skipped here, because their optional dependencies
+  are absent; every skip is an explicit `skip_if_not_installed()` gate.
 - **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`,
-  `reticulate`, `terra`, `igraph`.
-- **`R CMD check --as-cran`:** `2 NOTEs` at commit `7b881c2`. The
-  per-item breakdown, including which items are package defects and
-  which are artefacts of the checking machine, is in
+  `reticulate`, `terra`, `geodata`, `igraph`.
+- **`R CMD check --as-cran`:** `OK` at commit `97c7a9a`. The per-item
+  breakdown, including which items are package defects and which are
+  artefacts of the checking machine, is in
   [`cran-comments.md`](https://hugomachadorodrigues.github.io/edaphos/cran-comments.md);
   the log itself is committed at
   [`tools/status/check.log`](https://hugomachadorodrigues.github.io/edaphos/tools/status/check.log).

@@ -48,14 +48,17 @@ bhs_fit(
   [`spBayes::spLM`](https://finleya.github.io/spBayes/reference/spLM.html)
   when available).
 
-  **`"spBayes"` fits but cannot predict.**
-  [`predict.edaphos_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/predict.edaphos_bhs.md)
-  refuses on that backend, so a fit made with it supports posterior
-  inspection – `beta_draws`, `sigma2_draws`, `tau2_draws`,
-  [`print()`](https://rdrr.io/r/base/print.html), the spatial variance
-  share – but not kriging at new sites. `bhs_fit()` warns about this
-  before it starts sampling rather than after. Use `"gibbs"` or `"rcpp"`
-  if you need predictions.
+  All three support
+  [`predict.edaphos_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/predict.edaphos_bhs.md),
+  [`as_edaphos_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/as_edaphos_posterior.md)
+  and
+  [`al_query_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_bhs.md).
+  They differ in how `phi` is handled: `"gibbs"` and `"rcpp"` fix it at
+  the profile MLE (`phi_method = "profile-MLE"`), while `"spBayes"`
+  samples it, reports its posterior median as `phi_hat`
+  (`phi_method = "posterior median"`), and predicts through
+  [`spBayes::spPredict()`](https://finleya.github.io/spBayes/reference/spPredict.html)
+  so that the uncertainty in `phi` reaches the predictive interval.
 
 - nmcmc:
 
@@ -109,16 +112,19 @@ bhs_fit(
 ## Value
 
 An `edaphos_bhs` S3 object. Among its fields, `phi_hat` is the
-profile-MLE of the rate, and `phi_railed` / `phi_rail_edge` record
-whether that MLE landed on an endpoint of `phi_range` and which one. The
-warning alone is not enough: a downstream script that reads `phi_hat` or
-the spatial variance fraction needs to branch on whether the data or the
-bracket produced them. `spatial` carries `spatial_share`, its complement
-`nugget_sill_ratio`, the practical range `3 / phi`, the
-nearest-neighbour `min_spacing`, and `range_below_spacing` – TRUE when
-the correlation has decayed to 0.05 inside the closest pair of
-observations, in which case the latent field and the nugget are the same
-white noise and the share is not interpretable.
+profile-MLE of the rate (the posterior median for `backend = "spBayes"`;
+`phi_method` names which), and `phi_railed` / `phi_rail_edge` record
+whether that MLE landed on an endpoint of `phi_range` and which one
+(`NA` for `"spBayes"`, where phi is sampled and nothing is optimised).
+The warning alone is not enough: a downstream script that reads
+`phi_hat` or the spatial variance fraction needs to branch on whether
+the data or the bracket produced them. `spatial` carries
+`spatial_share`, its complement `nugget_sill_ratio`, the practical range
+`3 / phi`, the nearest-neighbour `min_spacing`, and
+`range_below_spacing` – TRUE when the correlation has decayed to 0.05
+inside the closest pair of observations, in which case the latent field
+and the nugget are the same white noise and the share is not
+interpretable.
 
 ## References
 

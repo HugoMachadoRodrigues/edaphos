@@ -120,12 +120,19 @@ cor(q$posterior_var[order(q$pool_index)], d_nn,
     method = "spearman")                                       # 0.561
 #> [1] 0.5607671
 
-# Finally, the faster Pillar 7 backend is refused even though it
-# stores the same draws -- refit with backend = "gibbs" for AL.
+# The faster Pillar 7 backend stores the same draws, so it serves
+# active learning too.
 bhr <- bhs_fit(trn, soc ~ elev + twi + map_mm,
                coords = c("lon", "lat"), backend = "rcpp",
                nmcmc = 300L, burn = 150L, phi_range = c(0.1, 500),
                seed = 1L)
-try(al_query_bhs(bhr, pool))
-#> Error : al_query_bhs() currently supports backend = 'gibbs' only.
+head(al_query_bhs(bhr, pool, n_draws = 50L), 3)
+#> <edaphos_al_bhs_query>  (Pilar 7 x Pilar 5)
+#>   pool size : 3
+#>   n_draws   : 50   n_select: 5
+#>   top candidates by avg posterior variance:
+#>     pool_index posterior_var posterior_sd
+#> 276         31      28.93772     5.379379
+#> 549         63      28.93715     5.379326
+#> 15           3      28.91143     5.376935
 ```
