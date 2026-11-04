@@ -507,8 +507,11 @@ print.edaphos_causal_effect <- function(x, ...) {
            else "direct effect "
   cat(sprintf("  %s : %.4g   (%s: %.4g, %.4g)\n",
               elab, x$effect, ci_label, x$effect_ci[1], x$effect_ci[2]))
-  cat(sprintf("  naive effect   : %.4g   (un-adjusted, likely confounded)\n",
-              x$effect_naive))
+  # State the comparison, not a conclusion about it: "likely confounded" was
+  # printed unconditionally, including when adjustment moved the estimate by
+  # less than 1%.
+  cat(sprintf("  naive effect   : %.4g   (un-adjusted lm; adjusted - naive = %.4g)\n",
+              x$effect_naive, x$effect - x$effect_naive))
   if (est == "bart") {
     cat(sprintf("  delta (finite diff) : %.4g\n", x$delta))
   }

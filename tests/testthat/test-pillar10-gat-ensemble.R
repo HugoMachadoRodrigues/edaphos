@@ -31,6 +31,15 @@ test_that("members are gnn_fit() with seed = base + index, and the summary is th
   # the spread vanish and the "ensemble" one model repeated.
   expect_gt(mean(ens$member_sd), 0)
   expect_output(print(ens), "members = 3")
+  # Every member holds n_val labelled nodes out for early stopping, so none
+  # is fitted on all of them; the print used to say "trained on = 36".
+  n_val <- ens$members[[1]]$n_val
+  expect_gt(n_val, 0L)
+  out <- paste(utils::capture.output(print(ens)), collapse = "\n")
+  expect_match(out, sprintf("labelled = %d", s$g$n), fixed = TRUE)
+  expect_match(out, sprintf("each member fits %d of them (%d held out",
+                            s$g$n - n_val, n_val), fixed = TRUE)
+  expect_false(grepl("trained on", out, fixed = TRUE))
 })
 
 test_that("one member has zero spread, and a non-positive size is refused", {

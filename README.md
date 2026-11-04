@@ -537,10 +537,10 @@ fit <- causal_estimate_effect(
 )
 fit
 #> <edaphos_causal_effect>
-#>   ndvi -> soc
+#>   ndvi -> soc   (estimator: lm)
 #>   adjustment set : {map_mm, slope, twi}
 #>   direct effect  : 18.43   (95% CI: 14.61, 22.25)
-#>   naive effect   : 49.36   (un-adjusted, likely confounded)
+#>   naive effect   : 49.36   (un-adjusted lm; adjusted - naive = -30.93)
 ```
 
 The naive OLS over-reports NDVI's effect on SOC by ~2.7× because the

@@ -137,3 +137,12 @@ test_that("temporal_convlstm_mcdropout_predict() returns a draws array (dropout 
   d2 <- draws[2L, , , , ]
   expect_lt(max(abs(d1 - d2)), 1e-6)
 })
+
+test_that("print.edaphos_temporal_convlstm_ensemble does not round small losses to zero", {
+  x <- structure(list(K_ens = 3L, final_losses = c(1.2e-5, 3.4e-5, 5.6e-5),
+                      config = list(hidden_dims = c(8L, 4L))),
+                 class = "edaphos_temporal_convlstm_ensemble")
+  out <- paste(utils::capture.output(print(x)), collapse = "\n")
+  expect_false(grepl("0.0000", out, fixed = TRUE))
+  expect_match(out, "min=1.2e-05  median=3.4e-05  max=5.6e-05", fixed = TRUE)
+})

@@ -165,7 +165,9 @@ print.edaphos_temporal_convlstm_ensemble <- function(x, ...) {
   cat(sprintf("  K_ens         : %d\n", x$K_ens))
   cat(sprintf("  hidden_dims   : %s\n",
               paste(x$config$hidden_dims, collapse = "-")))
-  cat(sprintf("  final_losses  : min=%.4f  median=%.4f  max=%.4f\n",
+  # %.4g, not %.4f: losses on standardised data are routinely < 5e-5, and
+  # fixed-point formatting printed those as 0.0000.
+  cat(sprintf("  final_losses  : min=%.4g  median=%.4g  max=%.4g\n",
               min(x$final_losses), stats::median(x$final_losses),
               max(x$final_losses)))
   invisible(x)

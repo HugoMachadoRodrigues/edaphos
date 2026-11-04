@@ -541,9 +541,10 @@ gnn_build_graph <- function(profiles, k = 8L, feature_cols = NULL,
 #' round(c(masked = nse(predict(fit)[test]),
 #'         invented = nse(predict(fit_imp)[test])), 4)
 #'
-#' # `history` is the TRAINING loss and the printed "final MSE" is its
-#' # last entry.  Neither describes the parameters you got back, which
-#' # come from `best_epoch` on the validation split.
+#' # `history` is the TRAINING loss (MSE on standardised y plus the
+#' # ridge penalty), one entry per epoch run.  The parameters you got
+#' # back come from `best_epoch` on the validation split, and that is the
+#' # epoch print(fit) reports -- not the last one.
 #' round(c(train_at_best = fit$history[fit$best_epoch],
 #'         train_min     = min(fit$history),
 #'         train_at_end  = fit$history[length(fit$history)]), 4)
@@ -884,8 +885,23 @@ predict.edaphos_gnn_ensemble <- function(object, ...) object$prediction
 #' @export
 print.edaphos_gnn_ensemble <- function(x, ...) {
   cat("<edaphos_gnn_ensemble>\n")
-  cat(sprintf("  members = %d   nodes = %d   trained on = %d\n",
-              x$n_ensemble, length(x$prediction), sum(x$train_mask)))
+  # Each member holds `n_val` of the labelled nodes out to pick its stopping
+  # epoch, so the head of every member is fitted on fewer nodes than are
+  # labelled. "trained on = <labelled>" counted the held-out ones too.
+  n_lab <- sum(x$train_mask)
+  n_fit <- vapply(x$members, function(m)
+    as.integer(m$n_train - (m$n_val %||% 0L)), integer(1))
+  fit_txt <- if (length(unique(n_fit)) == 1L) sprintf("%d", n_fit[1L])
+             else sprintf("%d-%d", min(n_fit), max(n_fit))
+  cat(sprintf("  members = %d   nodes = %d   labelled = %d\n",
+              x$n_ensemble, length(x$prediction), n_lab))
+  n_out <- n_lab - n_fit
+  out_txt <- if (length(unique(n_out)) == 1L) sprintf("%d", n_out[1L])
+             else sprintf("%d-%d", min(n_out), max(n_out))
+  cat(sprintf("  each member fits %s of them%s\n", fit_txt,
+              if (all(n_out == 0L)) " (no early-stopping hold-out)"
+              else sprintf(" (%s held out to pick its stopping epoch)",
+                           out_txt)))
   cat(sprintf("  mean between-member sd = %.4g\n", mean(x$member_sd)))
   invisible(x)
 }
@@ -971,12 +987,62 @@ print.edaphos_gnn_gat <- function(x, ...) {
   cat(sprintf("  n_nodes  : %d   k-NN  : %d\n", x$graph$n, x$graph$k))
   cat(sprintf("  layers   : %d   heads : %d   hidden/head : %d\n",
                x$n_layers, x$n_heads, x$hidden))
-  cat(sprintf("  emb_dim  : %d\n", x$emb_dim))
-  if (length(x$history) > 0L)
-    cat(sprintf("  initial MSE = %.4g   final MSE = %.4g   (epochs = %d)\n",
-                 x$history[1L], x$history[length(x$history)],
-                 length(x$history)))
+  # Count the columns from what they are, not from `emb_dim`: the R backend
+  # stores the head-design width there (learned + skip) and the torch backend
+  # the learned width only, and printing either bare made this line disagree
+  # with print(qf_krr_on_gat_embeddings(fit, ...)) on the same fit.
+  .gat_print_columns(x, "  embedding: ")
+  n_val <- x$n_val %||% NA_integer_
+  if (!is.na(n_val))
+    cat(sprintf("  labelled : %d nodes (%d fitted, %d held out for early stopping)\n",
+                x$n_train, x$n_train - n_val, n_val))
+  n_run <- length(x$history)
+  if (n_run > 0L) {
+    be    <- x$best_epoch %||% NA_integer_
+    torch <- identical(x$backend, "torch")
+    crit  <- if (!is.na(n_val) && n_val > 0L) "lowest validation MSE"
+             else "lowest training loss; no validation split"
+    if (is.na(be)) {
+      cat(sprintf("  epochs   : %d run; weights are the last iterate (no epoch gave a finite selection loss)\n",
+                  n_run))
+    } else {
+      cat(sprintf("  epochs   : %d run, weights from epoch %d (%s)\n",
+                  n_run, be, crit))
+      # R backend: epoch e's loss is scored BEFORE that epoch's update, so
+      # epoch 1 is the random initialisation.
+      if (!torch && be == 1L)
+        cat("             epoch 1 = the initial, untrained attention weights\n")
+      # The R backend records each epoch's loss for the parameters it then
+      # keeps (closed-form ridge head on that epoch's embedding); torch records
+      # the training loss BEFORE that epoch's optimiser step, while the kept
+      # state is the one after it, so only the validation loss describes it.
+      vl <- x$val_history[be]
+      if (!torch) {
+        cat(sprintf("  epoch %d, standardised y: train %.4g (MSE + ridge)%s\n",
+                    be, x$history[be],
+                    if (is.finite(vl)) sprintf(", val MSE %.4g", vl) else ""))
+      } else if (is.finite(vl) && !is.na(n_val) && n_val > 0L) {
+        cat(sprintf("  epoch %d, standardised y: val MSE %.4g\n", be, vl))
+      } else {
+        cat(sprintf("  epoch %d, standardised y: train MSE %.4g (before its step)\n",
+                    be, x$history[be]))
+      }
+    }
+  }
   invisible(x)
+}
+
+# One line saying what the GAT embedding columns are: the learned embedding
+# (what gnn_embed() returns and the Pillar 6 x 10 bridge consumes) and, under
+# `readout_skip`, the raw node features the regression head also saw.
+.gat_print_columns <- function(fit, prefix) {
+  n_learned <- ncol(fit$emb)
+  n_skip    <- if (isTRUE(fit$readout_skip)) ncol(fit$graph$features) else 0L
+  if (n_skip > 0L)
+    cat(sprintf("%s%d learned + %d raw-feature skip = %d head columns\n",
+                prefix, n_learned, n_skip, n_learned + n_skip))
+  else
+    cat(sprintf("%s%d learned columns (no readout skip)\n", prefix, n_learned))
 }
 
 #' @export

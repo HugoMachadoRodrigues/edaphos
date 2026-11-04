@@ -59,3 +59,18 @@ test_that("al_query_temporal: errors without required Kalman fields", {
                      class = "edaphos_temporal_kalman")
   expect_error(al_query_temporal(bad))
 })
+
+test_that("print.edaphos_temporal_al_query: header counts the rows it prints", {
+  # n_select > 10: the body is capped at 10 rows, and the header used to
+  # announce "top-12" above them.
+  set.seed(1L)
+  ku <- structure(list(gain_row_norm = matrix(stats::runif(16), 4L, 4L),
+                       analysis_sd   = matrix(stats::runif(16), 4L, 4L)),
+                  class = "edaphos_temporal_kalman")
+  q <- al_query_temporal(ku, n_select = 12L, combine = "gain")
+  out <- utils::capture.output(print(q))
+  expect_true(any(grepl("first 10 of the 12 selected cells", out, fixed = TRUE)))
+  expect_false(any(grepl("top-12", out, fixed = TRUE)))
+  hdr <- grep("row col", out, fixed = TRUE)
+  expect_length(out, hdr + 10L)          # exactly 10 data rows follow
+})

@@ -7,7 +7,7 @@
         ndvi -> soc   (estimator: lm)
         adjustment set : {map_mm, slope, twi}
         direct effect  : 18.43   (95% CI: 14.61, 22.25)
-        naive effect   : 49.36   (un-adjusted, likely confounded)
+        naive effect   : 49.36   (un-adjusted lm; adjusted - naive = -30.93)
 
 ---
 
@@ -18,7 +18,7 @@
         soilgrids_clay -> soc_topsoil_gkg   (estimator: lm)
         adjustment set : {slope}
         total effect   : -0.07328   (95% CI: -0.217, 0.07044)
-        naive effect   : -0.07384   (un-adjusted, likely confounded)
+        naive effect   : -0.07384   (un-adjusted lm; adjusted - naive = 0.00056)
 
 # print.edaphos_causal_iv
 
@@ -52,14 +52,16 @@
       <edaphos_dag_test>
         120 profiles, 11 of the graph's 11 nodes have data
         implied conditional independencies : 66
-        rejected at 5% (pooled)         : 6 (9%)
-        largest violated partial correlation: 0.941
+        rejected, pooled, p < 0.05         : 6 (3.3 expected if all hold)
+        rejected, pooled, Holm FWER 5%     : 3
+        largest |partial r|, all tests     : 0.941
       
-        The graph is not compatible with the covariance structure of
-        these data. Any adjustment set derived from it is minimal and
-        sufficient only relative to a graph the data reject, so effects
-        estimated with it should be reported as adjusted associations
-        with sensitivity bounds, not as identified causal effects.
+        The pooled test rejects 3 implied independencies after a Holm
+        adjustment (family-wise 5%): the graph is not compatible with
+        the covariance structure of these data. Any adjustment set derived
+        from it is minimal and sufficient only relative to a graph the data
+        reject, so effects estimated with it should be reported as adjusted
+        associations with sensitivity bounds, not as identified causal effects.
 
 # print/summary.edaphos_causal_kg and print.edaphos_causal_kg_summary
 
@@ -143,7 +145,7 @@
         81 rows, 5 blocks, buffer 10 km
         test rows per fold : 15, 15, 16, 21, 14
         training rows kept : 35, 47, 46, 39, 49
-        discarded to buffer: 31, 19, 19, 21, 18 (26.7% of all rows)
+        discarded to buffer: 31, 19, 19, 21, 18 (33.3% of 324 candidate training rows)
         realised min train-test distance: 10.0 km
 
 ---
@@ -155,7 +157,7 @@
         81 rows, 5 blocks, buffer 0 km
         test rows per fold : 15, 15, 16, 21, 14
         training rows kept : 66, 66, 65, 60, 67
-        discarded to buffer: 0, 0, 0, 0, 0 (0.0% of all rows)
+        discarded to buffer: 0, 0, 0, 0, 0 (0.0% of 324 candidate training rows)
         realised min train-test distance: 3.8 km
         NOTE: buffer_km = 0 reproduces unbuffered blocking, which
               under-states generalisation error when the property is
@@ -310,8 +312,9 @@
       <edaphos_piml_bayes>
         method : laplace
         n draws : 2000
-        sigma (noise): 0.00969
-        posterior summary (natural scale):
+        family : lognormal (sigma = noise coefficient of variation, unitless)
+        sigma at the MAP (posterior mode, not a draw summary): 0.00969
+        posterior summary over the draws (log coordinates back-transformed):
        parameter mean sd q2.5 q50 q97.5
          lambda0 0.0374 0.0122 0.0189 0.0354 0.0668
               mu 0.0351 0.00551 0.0256 0.0347 0.0474
@@ -350,8 +353,9 @@
           - min bulk ESS 46 < 400
         Increase n_iter, or use method = "laplace" and report it as
         an approximation.
-        sigma (noise): 0.00969
-        posterior summary (natural scale):
+        family : lognormal (sigma = noise coefficient of variation, unitless)
+        sigma at the MAP (posterior mode, not a draw summary): 0.00969
+        posterior summary over the draws (log coordinates back-transformed):
        parameter mean sd q2.5 q50 q97.5 rhat ess
          lambda0 0.0428 0.00432 0.0356 0.0422 0.0561 1.29 67.6
               mu 0.0319 0.00208 0.0286 0.032 0.0354 1.53 59.3
@@ -409,8 +413,11 @@
       <edaphos_gnn_gat> (Pillar 10 -- Graph Attention Network)
         n_nodes : 24 k-NN : 4
         layers : 1 heads : 1 hidden/head : 4
-        emb_dim : 6
-        initial MSE = 0.0182 final MSE = 0.018 (epochs = 10)
+        embedding: 4 learned + 2 raw-feature skip = 6 head columns
+        labelled : 24 nodes (20 fitted, 4 held out for early stopping)
+        epochs : 10 run, weights from epoch 1 (lowest validation MSE)
+                   epoch 1 = the initial, untrained attention weights
+        epoch 1, standardised y: train 0.0182 (MSE + ridge), val MSE 0.0522
 
 ---
 
@@ -418,7 +425,8 @@
       print(ens)
     Output
       <edaphos_gnn_ensemble>
-        members = 2 nodes = 24 trained on = 24
+        members = 2 nodes = 24 labelled = 24
+        each member fits 20 of them (4 held out to pick its stopping epoch)
         mean between-member sd = 0.0415
 
 ---
@@ -427,7 +435,7 @@
       print(qk)
     Output
       <edaphos_qf_krr_gat>  (Pillar 6 x Pillar 10)
-        GAT emb_dim   : 4
+        GAT embedding : 4 learned columns (excludes the 2 raw-feature skip)
         qubits (PCs)  : 3
         reps          : 1   lambda = 0.5
         n_train       : 24
@@ -650,7 +658,7 @@
       <edaphos_temporal_convlstm_ensemble>
         K_ens         : 4
         hidden_dims   : 8-4
-        final_losses  : min=0.1000  median=0.1150  max=0.1500
+        final_losses  : min=0.1  median=0.115  max=0.15
 
 # print.edaphos_quantum_hamiltonian (fields: quantum_hamiltonian)
 

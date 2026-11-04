@@ -431,7 +431,14 @@ unclass_to_qf <- function(x) {
 #' @export
 print.edaphos_qf_krr_gat <- function(x, ...) {
   cat("<edaphos_qf_krr_gat>  (Pillar 6 x Pillar 10)\n")
-  cat(sprintf("  GAT emb_dim   : %d\n", ncol(x$gnn_fit$emb)))
+  # The KRR is fed gnn_embed(): the learned columns only. Say so, and say what
+  # it leaves out, so this line and print(gnn_fit) count the same thing.
+  g <- x$gnn_fit
+  n_skip <- if (isTRUE(g$readout_skip)) ncol(g$graph$features) else 0L
+  cat(sprintf("  GAT embedding : %d learned columns%s\n", ncol(g$emb),
+              if (n_skip > 0L)
+                sprintf(" (excludes the %d raw-feature skip)", n_skip)
+              else ""))
   cat(sprintf("  qubits (PCs)  : %d\n", x$n_pcs))
   cat(sprintf("  reps          : %d   lambda = %.3g\n",
                x$reps, x$lambda))

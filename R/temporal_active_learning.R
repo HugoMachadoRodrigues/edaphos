@@ -197,8 +197,15 @@ print.edaphos_temporal_al_query <- function(x, ...) {
                attr(x, "grid_dims")[1L], attr(x, "grid_dims")[2L]))
   cat(sprintf("  combine   : %s\n", attr(x, "combine")))
   cat(sprintf("  n_select  : %d\n", attr(x, "n_select")))
-  cat(sprintf("  top-%d cells (sorted by priority):\n",
-               min(attr(x, "n_select"), nrow(x))))
-  print(as.data.frame(utils::head(x, 10)))
+  # Header and body must describe the same rows: the body is capped at 10, so
+  # with n_select > 10 the header used to promise rows it did not print.
+  n_show <- min(nrow(x), 10L)
+  if (n_show < nrow(x)) {
+    cat(sprintf("  first %d of the %d selected cells (sorted by priority):\n",
+                n_show, nrow(x)))
+  } else {
+    cat(sprintf("  top-%d cells (sorted by priority):\n", n_show))
+  }
+  print(as.data.frame(utils::head(x, n_show)))
   invisible(x)
 }

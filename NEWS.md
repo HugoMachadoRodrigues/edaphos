@@ -58,6 +58,33 @@ scripts in `tools/status/`, not written by hand.
   relabelling gives back the original object exactly, and it records itself
   in each bundle's provenance with the previous producer kept in the chain.
 
+## Print methods that misstated what they printed
+
+Found by snapshot-testing every print and summary method; each fix has a
+test that fails on the old output.
+
+* `print(<edaphos_dag_test>)` declared a DAG "not compatible with the data"
+  when any single conditional-independence test rejected at 5%, with no
+  correction for the number of tests (6 of 66 rejected where 3.3 are
+  expected by chance). The verdict now uses Holm's correction, and the
+  print shows the unadjusted count beside the number expected by chance.
+  `causal_dag_test()` stores `n_rejected_holm`.
+* `print(<edaphos_gnn_gat>)` reported the last epoch's loss as "final MSE"
+  for a model whose returned weights came from the early-stopping epoch --
+  sometimes epoch 1, the untrained weights. It now names the epoch whose
+  weights were returned and labels the loss as what it is (standardised
+  scale, ridge penalty included).
+* `print(<edaphos_piml_bayes>)` headlined the MAP noise sigma, which can
+  lie outside the same print's 95% interval, under a "natural scale"
+  heading. It is now labelled as the posterior mode, with its meaning per
+  family (a coefficient of variation under the lognormal).
+* `print(<edaphos_causal_effect>)` said the naive effect was "likely
+  confounded" whatever the numbers; it now prints adjusted minus naive.
+* Smaller: the GAT and GAT-embedding prints counted embedding columns
+  differently; the GAT ensemble counted held-out nodes as trained on;
+  spatial-fold percentages had the wrong denominator; ConvLSTM-ensemble
+  losses below 5e-5 printed as 0.0000.
+
 ## Removed before first release
 
 * `foundation_tile_source_modis()` and `foundation_tile_source_era5()` are

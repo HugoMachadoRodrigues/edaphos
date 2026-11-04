@@ -121,6 +121,32 @@ test_that("print + summary methods dispatch on edaphos_piml_bayes", {
   expect_equal(nrow(s), 7L)
 })
 
+test_that("print labels sigma as the MAP, with its family's scale, outside the draw summary", {
+  # A short MCMC run: the MAP sigma sits outside the 95% interval of the
+  # sigma draws, which the old "sigma (noise)" line beside a "posterior
+  # summary (natural scale)" heading did not let a reader see.
+  mc <- suppressWarnings(piml_profile_fit_bayesian(
+    .depths_fixture, .values_fixture, method = "mcmc", n_iter = 600L,
+    n_burn = 200L, n_chains = 2L, seed = 1L))
+  out <- utils::capture.output(print(mc))
+  map_line <- grep(sprintf("%.4g", mc$sigma), out, value = TRUE, fixed = TRUE)
+  expect_length(map_line, 1L)
+  expect_match(map_line, "sigma at the MAP (posterior mode", fixed = TRUE)
+  expect_false(any(grepl("natural scale", out, fixed = TRUE)))
+  # default family is lognormal: sigma is a coefficient of variation
+  expect_identical(mc$family, "lognormal")
+  expect_true(any(grepl("lognormal (sigma = noise coefficient of variation",
+                        out, fixed = TRUE)))
+  # the MAP line comes before the summary heading, not inside the block
+  expect_lt(grep("sigma at the MAP", out, fixed = TRUE),
+            grep("posterior summary over the draws", out, fixed = TRUE))
+
+  ga <- piml_profile_fit_bayesian(.depths_fixture, .values_fixture,
+                                  family = "gaussian", seed = 1L)
+  expect_output(print(ga), "gaussian (sigma = noise SD, in the units of `values`)",
+                fixed = TRUE)
+})
+
 test_that("include_obs_noise widens the predictive interval", {
   fit <- piml_profile_fit_bayesian(.depths_fixture, .values_fixture,
                                     seed = 1L)

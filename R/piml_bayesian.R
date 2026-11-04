@@ -657,8 +657,9 @@ piml_bayes_converged <- function(fit, rhat_max = 1.01, ess_min = 400,
 #'     Runtime: a few seconds for the default 5000 iterations.}
 #' }
 #'
-#' The noise scale \eqn{\sigma} is estimated from the MAP residual RMSE
-#' and held fixed during MCMC (empirical Bayes). Weakly-informative,
+#' The noise scale \eqn{\sigma} is a parameter of the posterior: it is
+#' optimised jointly with the profile parameters for the MAP and sampled
+#' (as \eqn{\log\sigma}) by MCMC, not held fixed. Weakly-informative,
 #' data-driven priors are applied by default; pass a custom `prior`
 #' list to override them.
 #'
@@ -714,8 +715,10 @@ piml_bayes_converged <- function(fit, rhat_max = 1.01, ess_min = 400,
 #'   \item{map}{Named list with the MAP values of the natural
 #'     parameters `(lambda0, mu, y_inf, y0)`.}
 #'   \item{theta_map}{Unconstrained parameter vector at the MAP.}
-#'   \item{sigma}{Observation-noise standard deviation estimated at
-#'     the MAP.}
+#'   \item{sigma}{Observation-noise scale at the joint MAP (a posterior
+#'     mode, not a summary of `draws`): an SD in the units of `values` for
+#'     `family = "gaussian"`, a coefficient of variation otherwise. The
+#'     posterior of sigma is the `sigma` row of `summary`.}
 #'   \item{cov}{The \eqn{d \times d} posterior covariance matrix on
 #'     the unconstrained scale (Laplace), or the empirical sample
 #'     covariance of the MCMC chain.}
@@ -935,8 +938,18 @@ print.edaphos_piml_bayes <- function(x, ...) {
         for (r in verdict$caveats) cat("  note: ", r, "\n", sep = "")
     }
   }
-  cat(sprintf("  sigma (noise): %.4g\n", x$sigma))
-  cat("  posterior summary (natural scale):\n")
+  # `x$sigma` is the joint MAP (a mode), not a summary of the draws: on a short
+  # or skewed posterior it can sit outside the interval printed below, so it is
+  # labelled as such and kept off the summary block. What sigma MEASURES depends
+  # on the family -- an SD in the data's units for "gaussian", a coefficient of
+  # variation (unitless) for "lognormal" and "gamma".
+  fam <- x$family %||% "gaussian"
+  cat(sprintf("  family     : %s (sigma = %s)\n", fam,
+              if (identical(fam, "gaussian")) "noise SD, in the units of `values`"
+              else "noise coefficient of variation, unitless"))
+  cat(sprintf("  sigma at the MAP (posterior mode, not a draw summary): %.4g\n",
+              x$sigma))
+  cat("  posterior summary over the draws (log coordinates back-transformed):\n")
   print(format(x$summary, digits = 4L), row.names = FALSE)
   invisible(x)
 }

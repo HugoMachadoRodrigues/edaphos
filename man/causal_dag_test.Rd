@@ -14,7 +14,9 @@ Nodes without a column are dropped from the tested sub-graph and reported
 in \code{nodes_without_data}.}
 
 \item{alpha}{Significance level for calling an implied independence
-rejected.}
+rejected. Applied twice: per test (unadjusted counts) and as the
+family-wise level of a Holm adjustment over all implied independencies,
+which is what the printed verdict on the graph is based on.}
 
 \item{coords}{Optional length-2 character vector naming the coordinate
 columns in \code{data}. When supplied (and \code{mgcv} is installed), a second test
@@ -29,8 +31,17 @@ observations the smoother consumed.}
 \value{
 An \code{edaphos_dag_test} object: a list with \code{pooled} (the
 \code{dagitty::localTests} table), \code{spatial} (the same after residualising, or
-\code{NULL}), \code{n_tests}, \code{n_rejected}, \code{n_rejected_spatial}, \code{max_abs_r},
-\code{nodes_tested}, \code{nodes_without_data}, and \code{n}.
+\code{NULL}), \code{n_tests}, \code{n_rejected} and \code{n_rejected_spatial} (unadjusted
+p-value below \code{alpha}), \code{n_rejected_holm} and \code{n_rejected_spatial_holm}
+(Holm-adjusted p-value below \code{alpha}, via \code{\link[stats:p.adjust]{stats::p.adjust()}}),
+\code{max_abs_r} (largest absolute partial correlation over all tests,
+rejected or not), \code{nodes_tested}, \code{nodes_without_data}, and \code{n}.
+
+With \code{n_tests} implied independencies that all hold, about
+\code{alpha * n_tests} unadjusted rejections are expected by chance alone, so
+the unadjusted count is not by itself evidence against the graph. The
+print method reports it against that expectation and rests its verdict on
+the Holm count.
 }
 \description{
 Restricts a graph to the nodes for which \code{data} has columns, enumerates the
