@@ -352,34 +352,11 @@ ggplot(at, aes(x = method, y = adj_size, fill = method)) +
 
 # Síntese: por que usar os três em conjunto?
 
-```{r trio-diagram, fig.cap = "A arquitetura tripla do Pilar 1. Cada fonte codifica uma heurística diferente — conhecimento teórico (expert), conhecimento da literatura (LLM), estrutura estatística (data-driven). Suas disagreements são o sinal científico: cada desacordo aponta para uma aresta que merece discussão explícita no paper."}
-if (requireNamespace("DiagrammeR", quietly = TRUE)) {
-  DiagrammeR::grViz('
-  digraph trio {
-    graph [rankdir=LR, fontname="Helvetica", bgcolor="#FAFAFA"]
-    node  [shape=box, style="rounded,filled", fontname="Helvetica",
-           fontsize=11]
-
-    A [label="A) Expert DAG\\nPedológico teórico",
-       fillcolor="#D5E8D4", color="#27AE60"]
-    B [label="B) LLM-augmented\\nLiteratura via Gemma 4",
-       fillcolor="#FFF3CD", color="#E67E22"]
-    C [label="C) Data-driven\\nbnlearn hc / tabu / pc-stable",
-       fillcolor="#FCE4D6", color="#C0392B"]
-    SYN [label="DAG causal final\\n(+ sensibilidade)", shape=diamond,
-         fillcolor="#D6EAF8", color="#154360"]
-
-    A -> SYN [label="teoria"]
-    B -> SYN [label="evidência\\nde literatura"]
-    C -> SYN [label="evidência\\nestatística"]
-    A -> B   [style=dashed, label="base do LLM"]
-    C -> A   [style=dashed, label="questiona arestas\\nsem suporte"]
-    B -> A   [style=dashed, label="sugere arestas\\nnovas"]
-  }
-  ')
-} else {
-  cat("Instale `DiagrammeR` para visualizar o diagrama.\n")
-}
+```{r trio-diagram, echo = FALSE, out.width = "100%", fig.cap = "A arquitetura tripla do Pilar 1. Cada fonte codifica uma heurística diferente — conhecimento teórico (expert), conhecimento da literatura (LLM), estrutura estatística (data-driven). Suas disagreements são o sinal científico: cada desacordo aponta para uma aresta que merece discussão explícita no paper."}
+# A static SVG rendered from vignettes/diagrams/causal-discovery-trio.gv by
+# tools/render-vignette-diagrams.R. It was a DiagrammeR::grViz() widget,
+# which embedded 2.1 MB of JavaScript in this vignette for one diagram.
+knitr::include_graphics("figures/causal-discovery-trio.svg")
 ```
 
 ## Recomendações práticas

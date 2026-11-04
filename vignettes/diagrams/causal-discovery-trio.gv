@@ -1,0 +1,23 @@
+// Source of the causal-discovery trio diagram. Rendered to vignettes/figures/causal-discovery-trio.svg by
+// tools/render-vignette-diagrams.R; edit this file, then re-run that script.
+digraph trio {
+  graph [rankdir=LR, fontname="Helvetica", bgcolor="#FAFAFA"]
+  node  [shape=box, style="rounded,filled", fontname="Helvetica",
+         fontsize=11]
+
+  A [label="A) Expert DAG\npedological theory",
+     fillcolor="#D5E8D4", color="#27AE60"]
+  B [label="B) LLM-augmented\nliterature via Gemma 4",
+     fillcolor="#FFF3CD", color="#E67E22"]
+  C [label="C) Data-driven\nbnlearn hc / tabu / pc-stable",
+     fillcolor="#FCE4D6", color="#C0392B"]
+  SYN [label="Final causal DAG\n(+ sensitivity)", shape=diamond,
+       fillcolor="#D6EAF8", color="#154360"]
+
+  A -> SYN [label="theory"]
+  B -> SYN [label="literature\nevidence"]
+  C -> SYN [label="statistical\nevidence"]
+  A -> B   [style=dashed, label="LLM prior"]
+  C -> A   [style=dashed, label="questions\nunsupported edges"]
+  B -> A   [style=dashed, label="suggests\nnew edges"]
+}

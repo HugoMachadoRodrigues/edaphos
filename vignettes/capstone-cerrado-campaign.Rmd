@@ -128,80 +128,11 @@ observacionais:
 O diagrama abaixo mostra como os seis pilares se encadeiam nesta
 campanha.
 
-```{r flowchart, fig.height = 6, fig.cap = "Pipeline dos seis pilares do edaphos para a decisão de amostragem no Cerrado. Cada nó representa um pilar; as arestas mostram o fluxo de informação. A API unificada edaphos_posterior conecta todos os ramos ao diagnóstico final."}
-if (requireNamespace("DiagrammeR", quietly = TRUE)) {
-  DiagrammeR::grViz('
-  digraph pipeline {
-    graph [rankdir=TB, fontname="Helvetica", bgcolor="#FAFAFA",
-           label="Pipeline edaphos — Campanha Cerrado v1.7.0",
-           labelloc=t, fontsize=14]
-    node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11]
-
-    # Dados de entrada
-    D  [label="Dados de entrada\\n(WoSIS · MODIS NDVI\\nNASA POWER · Grade 10x10)",
-        fillcolor="#E8F4FD", color="#2980B9"]
-
-    # Seis pilares
-    P1 [label="Pilar 1 — Causal AI\\n(LLM KG + DAG + backdoor)",
-        fillcolor="#D5E8D4", color="#27AE60"]
-    P2 [label="Pilar 2 — PIML\\n(ODE pedogenética + Neural ODE)",
-        fillcolor="#D5E8D4", color="#27AE60"]
-    P3 [label="Pilar 3 — 4D Pedometria\\n(ConvLSTM + EnKF localizado)",
-        fillcolor="#FFF3CD", color="#E67E22"]
-    P4 [label="Pilar 4 — Foundation Model\\n(SimCLR/MoCo + ensemble)",
-        fillcolor="#FFF3CD", color="#E67E22"]
-    P5 [label="Pilar 5 — Active Learning\\n(cLHS + QRF + física)",
-        fillcolor="#FCE4D6", color="#C0392B"]
-    P6 [label="Pilar 6 — Quantum ML\\n(ZZFeatureMap + KRR GP)",
-        fillcolor="#EDE7F6", color="#6C3483"]
-
-    # API unificada
-    API [label="edaphos_posterior\\n(API unificada v1.6.0)",
-         fillcolor="#F9F9F9", color="#555555", shape=ellipse]
-
-    # Calibração
-    CAL [label="uncertainty_calibrate()\\nCRPS · PICP · MPIW",
-         fillcolor="#F0F0F0", color="#555555"]
-
-    # Decisão
-    DEC [label="Decisão: 8 localizações\\npara amostragem de campo",
-         fillcolor="#D6EAF8", color="#154360", shape=diamond,
-         style="filled,bold"]
-
-    # Arestas
-    D   -> P1 [label="perfis WoSIS\\n+ literatura"]
-    D   -> P2 [label="perfis WoSIS"]
-    D   -> P3 [label="NDVI+POWER\\ncubo 4D"]
-    D   -> P4 [label="patches\\nrastér"]
-    D   -> P5 [label="covariáveis\\nde candidatos"]
-    D   -> P6 [label="características\\nnormalizadas"]
-
-    P1  -> API [label="efeito causal\\nposterior"]
-    P2  -> API [label="perfil de\\nprofundidade"]
-    P3  -> API [label="dinâmica\\ntemporal"]
-    P4  -> API [label="previsão\\nde paisagem"]
-    P5  -> API [label="incerteza\\ndo QRF"]
-    P6  -> API [label="variância GP\\nquântica"]
-
-    API -> CAL
-    CAL -> DEC
-
-    # Ligações entre pilares
-    P1  -> P2  [style=dashed, color="#27AE60",
-                label="DAG restringe\\nparamêtros da ODE"]
-    P2  -> P5  [style=dashed, color="#E67E22",
-                label="gate físico:\\nrejeita candidatos\\nimplausíveis"]
-    P3  -> P5  [style=dashed, color="#E67E22",
-                label="dinâmica SOC:\\nprioridade para\\náreas de mudança"]
-  }
-  ')
-} else {
-  cat(
-    "Instale o pacote `DiagrammeR` para visualizar o fluxograma.\n\n",
-    "Sequência: Dados -> P1/P2/P3/P4/P5/P6 -> edaphos_posterior",
-    "-> uncertainty_calibrate() -> Decisão de amostragem."
-  )
-}
+```{r flowchart, echo = FALSE, out.width = "100%", fig.cap = "Pipeline dos seis pilares do edaphos para a decisão de amostragem no Cerrado. Cada nó representa um pilar; as arestas mostram o fluxo de informação. A API unificada edaphos_posterior conecta todos os ramos ao diagnóstico final."}
+# A static SVG rendered from vignettes/diagrams/capstone-pipeline.gv by
+# tools/render-vignette-diagrams.R. It was a DiagrammeR::grViz() widget,
+# which embedded 2.1 MB of JavaScript in this vignette for one diagram.
+knitr::include_graphics("figures/capstone-pipeline.svg")
 ```
 
 ---
