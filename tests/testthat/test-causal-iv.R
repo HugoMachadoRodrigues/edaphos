@@ -172,3 +172,72 @@ test_that("causal_iv_posterior: no identified replicate is an error, not a poste
   expect_error(causal_iv_posterior(df, "X", "Y", "Z", B = 20L, seed = 1L),
                "only 0 of 20 bootstrap replicates")
 })
+
+# ─────────────────────────────────────────────────────────────────────────────
+# causal_iv_fit_2sls: identification is checked, not assumed
+# ─────────────────────────────────────────────────────────────────────────────
+# Before this check, .safe_inverse()'s pseudo-inverse turned unidentified
+# designs into numbers: a constant instrument gave an effect of 0.0096, an
+# instrument equal to 3 x a covariate gave 0.57, an exposure equal to a
+# covariate gave 0.67 -- no error, no warning. And a duplicated covariate,
+# which does identify the effect, gave the right effect with se = NA.
+.iv_design_data <- function() {
+  set.seed(11L)
+  n  <- 120L
+  W1 <- stats::rnorm(n); Zc <- stats::rnorm(n); Z3 <- stats::rnorm(n)
+  X  <- 0.8 * Zc + 0.4 * Z3 + 0.5 * W1 + stats::rnorm(n)
+  Y  <- 1.5 * X + 0.7 * W1 + stats::rnorm(n)
+  data.frame(X = X, Y = Y, W1 = W1, W1b = W1, Zc = Zc, Z2 = 2 * Zc, Z3 = Z3,
+             Zk = 1, Zw = 3 * W1)
+}
+
+test_that("causal_iv_fit_2sls refuses designs that do not identify the effect", {
+  d <- .iv_design_data()
+  expect_error(causal_iv_fit_2sls(d, "X", "Y", "Zk"),
+               "not identified: the instrument carries no variation")
+  expect_error(causal_iv_fit_2sls(d, "X", "Y", "Zw", "W1"),
+               "not identified: the instrument carries no variation")
+  expect_error(causal_iv_fit_2sls(d, "X", "Y", c("Zk", "Zw"), "W1"),
+               "not identified: the instruments carry no variation")
+  d2 <- d; d2$X <- d2$W1
+  expect_error(causal_iv_fit_2sls(d2, "X", "Y", "Zc", "W1"),
+               "the exposure is a linear combination")
+  d3 <- d; d3$Zr <- stats::lm.fit(cbind(1, d$X), d$Zc)$residuals   # orthogonal to X
+  d3$X <- d3$X - mean(d3$X)
+  expect_error(causal_iv_fit_2sls(d3, "X", "Y", "Zr"),
+               "explain none of the exposure")
+})
+
+test_that("redundant columns are dropped with a warning, and the fit is the clean one", {
+  d <- .iv_design_data()
+  clean_w <- causal_iv_fit_2sls(d, "X", "Y", "Zc", "W1")
+  expect_warning(dup_w <- causal_iv_fit_2sls(d, "X", "Y", "Zc", c("W1", "W1b")),
+                 "covariate 'W1b' is a linear combination")
+  expect_equal(dup_w$effect, clean_w$effect, tolerance = 1e-10)
+  expect_equal(dup_w$se, clean_w$se, tolerance = 1e-10)   # was NA before
+  expect_identical(dup_w$covariates, "W1")
+  expect_identical(dup_w$dropped_covariates, "W1b")
+
+  clean_z <- causal_iv_fit_2sls(d, "X", "Y", "Zc")
+  expect_warning(dup_z <- causal_iv_fit_2sls(d, "X", "Y", c("Zc", "Z2")),
+                 "instrument 'Z2' is redundant")
+  expect_equal(dup_z$effect, clean_z$effect, tolerance = 1e-10)
+  # Zc and 2*Zc are one instrument: just identified, so no Sargan test --
+  # with both kept it reported an over-identification test on 1 df.
+  expect_true(is.na(dup_z$sargan_df))
+
+  two <- causal_iv_fit_2sls(d, "X", "Y", c("Zc", "Z3"), "W1")
+  expect_warning(with_flat <- causal_iv_fit_2sls(d, "X", "Y", c("Zc", "Zk", "Z3"), "W1"),
+                 "instrument 'Zk' is redundant")
+  expect_equal(with_flat$effect, two$effect, tolerance = 1e-10)
+  expect_identical(with_flat$sargan_df, two$sargan_df)
+})
+
+test_that("weak but identified instruments are reported, not refused", {
+  d <- .iv_design_data()
+  d$Zb <- c(1, rep(0, nrow(d) - 1L))
+  d$X  <- d$X + 3 * d$Zb
+  expect_no_error(f <- causal_iv_fit_2sls(d, "X", "Y", "Zb"))
+  expect_true(is.finite(f$effect) && is.finite(f$se) && is.finite(f$stage1_F))
+  expect_identical(f$dropped_instruments, character(0))
+})

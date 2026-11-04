@@ -77,8 +77,25 @@
 #'   column names included in both first and second stage.
 #'
 #' @return An `edaphos_causal_iv` object with components `effect`,
-#'   `se`, `ci`, `stage1_F`, `stage1_R2`, `sargan_p` (NULL if exactly
-#'   identified), `n`, plus auxiliary fits for inspection.
+#'   `se`, `ci_lo`, `ci_hi`, `stage1_F`, `stage1_R2`, `sargan_p` (`NA` if
+#'   exactly identified), `n`, plus auxiliary fits for inspection.
+#'   `instruments` and `covariates` hold the columns actually used;
+#'   `dropped_instruments` and `dropped_covariates` hold any removed as
+#'   redundant.
+#'
+#' @section Identification:
+#' The design is checked before it is fitted, by the rank condition after
+#' partialling out the intercept and covariates. A covariate that is a
+#' linear combination of the others, or an instrument that is constant or
+#' a combination of the other instruments and the covariates, carries no
+#' information: it is dropped with a warning, as [stats::lm()] aliases
+#' it. If what remains cannot identify the effect -- every instrument
+#' flat, the exposure itself a combination of the covariates, or the
+#' instruments explaining none of the exposure -- the function stops
+#' rather than return a number: on such a design the closed form has no
+#' unique solution, and the value a pseudo-inverse produces is not an
+#' estimate of anything. Weak but identified instruments are not refused;
+#' `stage1_F` and `weak_instruments` report them.
 #'
 #' @examples
 #' # A liming study confounded by management: unobserved agronomic
@@ -134,6 +151,13 @@ causal_iv_fit_2sls <- function(data, exposure, outcome, instruments,
   n  <- nrow(df)
   if (n < length(cols_needed) + 5L)
     stop("Too few complete rows for 2SLS.", call. = FALSE)
+
+  # Identification is checked, not assumed -- see .iv_design(). Redundant
+  # covariates and instruments are dropped with a warning, as lm() aliases
+  # them; a design that does not identify the effect is an error.
+  design <- .iv_design(df, exposure, instruments, covariates)
+  instruments <- design$instruments
+  covariates  <- design$covariates
 
   y <- df[[outcome]]
   X <- as.matrix(df[, exposure, drop = FALSE])
@@ -198,8 +222,102 @@ causal_iv_fit_2sls <- function(data, exposure, outcome, instruments,
     n           = n,
     coefs       = beta,
     vcov        = V_beta,
-    weak_instruments = fs$F < 10
+    weak_instruments = fs$F < 10,
+    dropped_covariates  = design$dropped_covariates,
+    dropped_instruments = design$dropped_instruments
   ), class = "edaphos_causal_iv")
+}
+
+# WHAT A 2SLS DESIGN NEEDS BEFORE IT IS FITTED, checked rather than assumed.
+#
+# causal_iv_fit_2sls() inverts Z'Z and X'P_Z X through .safe_inverse(),
+# whose pseudo-inverse fallback turns a singular design into a number
+# instead of an error. Measured on the code before this check: a constant
+# instrument returned an effect of 0.0096 with NA se and NA first-stage F;
+# an instrument equal to 3 x a covariate returned 0.57; an exposure equal
+# to a covariate returned 0.67 -- each a fabricated value, none with a
+# warning. And a merely duplicated covariate, a design that DOES identify
+# the effect, returned the right effect with an NA se, which made the
+# bootstrap discard every replicate.
+#
+# The rule is the rank condition, applied after partialling out the
+# intercept and covariates (Wooldridge 2010, chapter 5):
+#
+#   * the exposure must vary beyond the intercept and covariates;
+#   * the instruments must vary beyond them too, and must explain some of
+#     the exposure's remaining variation.
+#
+# Linearly dependent columns are not an error in themselves. A covariate
+# that is a combination of the others, or an instrument that duplicates
+# another, carries no information; it is dropped with a warning, as lm()
+# aliases it, so the remaining design is full rank and the standard error,
+# first-stage F and Sargan degrees of freedom are computed on what is
+# actually identified. Weak instruments pass: weakness is reported by the
+# first-stage F, not refused here.
+.iv_design <- function(df, exposure, instruments, covariates) {
+  n   <- nrow(df)
+  tol <- 1e-7
+  W   <- if (length(covariates))
+           as.matrix(df[, covariates, drop = FALSE])
+         else matrix(numeric(0), n, 0L)
+  A   <- cbind(1, W)
+  qa  <- qr(A, tol = tol)
+  keep_w <- covariates[setdiff(qa$pivot[seq_len(qa$rank)], 1L) - 1L]
+  keep_w <- covariates[covariates %in% keep_w]
+  drop_w <- setdiff(covariates, keep_w)
+  if (length(drop_w))
+    warning(sprintf(paste(
+      "covariate%s %s %s a linear combination of the intercept and the other",
+      "covariates and %s dropped."),
+      if (length(drop_w) > 1L) "s" else "",
+      paste(sQuote(drop_w, FALSE), collapse = ", "),
+      if (length(drop_w) > 1L) "are" else "is",
+      if (length(drop_w) > 1L) "were" else "was"), call. = FALSE)
+
+  x  <- df[[exposure]]
+  xt <- qr.resid(qa, x)
+  if (sum(xt^2) <= tol * max(sum((x - mean(x))^2), .Machine$double.eps))
+    stop(sprintf(paste(
+      "the effect of %s is not identified: the exposure is a linear",
+      "combination of the intercept and the covariates, so nothing is left",
+      "for the instruments to explain."), sQuote(exposure, FALSE)),
+      call. = FALSE)
+
+  # An instrument's residual must be compared with the instrument itself,
+  # not with its own norm: a constant instrument leaves a residual of
+  # rounding noise (~1e-15) that qr() would happily call rank 1.
+  Z0 <- as.matrix(df[, instruments, drop = FALSE])
+  Zt <- qr.resid(qa, Z0)
+  flat <- colSums(Zt^2) <= tol * pmax(colSums(Z0^2), .Machine$double.eps)
+  if (all(flat))
+    stop(sprintf(paste(
+      "the effect of %s is not identified: the instrument%s no variation",
+      "once the intercept and covariates are accounted for. A constant",
+      "instrument, or one that is a combination of the covariates, does this."),
+      sQuote(exposure, FALSE),
+      if (length(instruments) > 1L) "s carry" else " carries"), call. = FALSE)
+  qz <- qr(Zt[, !flat, drop = FALSE], tol = tol)
+  live <- instruments[!flat]
+  keep_z <- live[sort(qz$pivot[seq_len(qz$rank)])]
+  drop_z <- setdiff(instruments, keep_z)
+  if (length(drop_z))
+    warning(sprintf(paste(
+      "instrument%s %s %s redundant -- constant, or a linear combination of",
+      "the other instruments and the covariates -- and %s dropped."),
+      if (length(drop_z) > 1L) "s" else "",
+      paste(sQuote(drop_z, FALSE), collapse = ", "),
+      if (length(drop_z) > 1L) "are" else "is",
+      if (length(drop_z) > 1L) "were" else "was"), call. = FALSE)
+
+  xhat <- qr.fitted(qz, xt)
+  if (sum(xhat^2) <= tol * sum(xt^2))
+    stop(sprintf(paste(
+      "the effect of %s is not identified: the instruments explain none of",
+      "the exposure's variation beyond the covariates."),
+      sQuote(exposure, FALSE)), call. = FALSE)
+
+  list(instruments = keep_z, covariates = if (length(keep_w)) keep_w else NULL,
+       dropped_instruments = drop_z, dropped_covariates = drop_w)
 }
 
 #' @export
