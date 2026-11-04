@@ -22,8 +22,11 @@ column names included in both first and second stage.}
 }
 \value{
 An \code{edaphos_causal_iv} object with components \code{effect},
-\code{se}, \code{ci}, \code{stage1_F}, \code{stage1_R2}, \code{sargan_p} (NULL if exactly
-identified), \code{n}, plus auxiliary fits for inspection.
+\code{se}, \code{ci_lo}, \code{ci_hi}, \code{stage1_F}, \code{stage1_R2}, \code{sargan_p} (\code{NA} if
+exactly identified), \code{n}, plus auxiliary fits for inspection.
+\code{instruments} and \code{covariates} hold the columns actually used;
+\code{dropped_instruments} and \code{dropped_covariates} hold any removed as
+redundant.
 }
 \description{
 Estimates the causal effect of an endogenous exposure \code{exposure} on
@@ -64,6 +67,22 @@ unobserved confounder.
 }
 }
 }
+\section{Identification}{
+
+The design is checked before it is fitted, by the rank condition once
+the intercept and covariates have been projected out. A covariate that is a
+linear combination of the others, or an instrument that is constant or
+a combination of the other instruments and the covariates, carries no
+information: it is dropped with a warning, as \code{\link[stats:lm]{stats::lm()}} aliases
+it. If what remains cannot identify the effect -- every instrument
+flat, the exposure itself a combination of the covariates, or the
+instruments explaining none of the exposure -- the function stops
+rather than return a number: on such a design the closed form has no
+unique solution, and the value a pseudo-inverse produces is not an
+estimate of anything. Weak but identified instruments are not refused;
+\code{stage1_F} and \code{weak_instruments} report them.
+}
+
 \examples{
 # A liming study confounded by management: unobserved agronomic
 # intensity raises both soil pH and yield, so no regression of
