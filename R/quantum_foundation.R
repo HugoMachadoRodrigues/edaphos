@@ -1,5 +1,4 @@
-# Pillar 4 x Pillar 6 bridge -- Quantum kernel over foundation embeddings
-# (v2.0.0).
+# Pillar 4 x Pillar 6 bridge -- Quantum kernel over foundation embeddings.
 #
 # The idea: a MoCo v2 encoder (Pillar 4) compresses ~31-channel
 # landscape patches into D = 64-dim feature vectors.  A quantum-kernel
@@ -386,7 +385,7 @@ print.edaphos_qf_krr <- function(x, ...) {
 #'   3. Quantum Kernel Ridge Regression over the RAW covariates
 #'      (Pillar 6 original).
 #'   4. Quantum Kernel Ridge Regression over the foundation-embedding
-#'      PCs (the v2.0.0 contribution).
+#'      PCs (the Pillar 4 x Pillar 6 method under test).
 #'
 #' Returns the test-set RMSE, MAE and R^2 for each setup so the
 #' question "does the quantum lift on foundation embeddings beat
@@ -526,7 +525,7 @@ qf_krr_benchmark <- function(embeddings, covariates, y,
                          pred_raw, y_num[test_ix])
   }
 
-  # 4. Quantum KRR on foundation embedding PCs  (v2.0.0 star)
+  # 4. Quantum KRR on foundation embedding PCs  (the method under test)
   fit_qf <- qf_krr_fit(embeddings[train_ix, , drop = FALSE],
                          y_num[train_ix],
                          n_pcs = n_pcs, reps = reps, lambda = lambda)

@@ -104,6 +104,11 @@
       "unrecoverable",
       "pending"
     ),
+    # Whether the encoder exists. "planned" rows describe a deposit that has
+    # not happened: their url, sha256, doi and published_at are NA, and
+    # foundation_weights_list() leaves them out unless asked. Without this
+    # column the only signal was "NOT PUBLISHED" inside a free-text field.
+    status = c("published", "planned"),
     stringsAsFactors = FALSE
   )
 }
@@ -124,23 +129,33 @@
 #' `n_channels`, `feature_dim` and `proj_dim`. For registered
 #' encoders those three come from the columns below.
 #'
-#' @return A data frame; one row per registered encoder.
+#' @param include_planned Logical. `FALSE` (default) lists only encoders that
+#'   have been published and can be downloaded. `TRUE` also lists planned
+#'   ones, whose `url`, `sha256`, `doi` and `published_at` are `NA` and whose
+#'   accessors refuse with an explicit message.
+#' @return A data frame; one row per registered encoder, with a `status`
+#'   column (`"published"` or `"planned"`).
 #' @examples
 #' reg <- foundation_weights_list()
 #' print(reg[, c("name", "n_channels", "feature_dim", "proj_dim",
 #'               "norm_stats_status")])
 #'
-#' # Only rows with a non-NA `url` can actually be fetched; the rest
-#' # are placeholders for a future release and error on download.
-#' print(reg$name[!is.na(reg$url)])
+#' # Planned encoders are listed only on request; they cannot be fetched.
+#' all_reg <- foundation_weights_list(include_planned = TRUE)
+#' print(all_reg[, c("name", "status")])
 #'
 #' # `norm_stats_status` is not cosmetic. v1's per-channel training
 #' # mean / sd were never written down and are unrecoverable, so an
 #' # exact reproduction of its training-time inputs is not possible:
 #' # standardise over your own area of interest, and say that you did.
 #' @export
-foundation_weights_list <- function() {
-  .foundation_weights_registry()
+foundation_weights_list <- function(include_planned = FALSE) {
+  stopifnot(is.logical(include_planned), length(include_planned) == 1L,
+            !is.na(include_planned))
+  reg <- .foundation_weights_registry()
+  if (!include_planned) reg <- reg[reg$status == "published", , drop = FALSE]
+  rownames(reg) <- NULL
+  reg
 }
 
 # ---- cache directory -------------------------------------------------------

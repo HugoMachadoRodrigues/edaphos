@@ -1,4 +1,4 @@
-# edaphos 0.9.0 (development version — not yet released)
+# edaphos 2.0.0 (development version — not yet released)
 
 edaphos is a research package for digital soil mapping beyond regression-tree
 models, organised around ten methodological pillars: (1) causal inference —
@@ -22,12 +22,21 @@ not yet stable.
 
 ## Development status
 
-The package has never been released. Earlier `NEWS.md` carried 43+
-version-numbered sections (0.8.0 → 4.1.0) written within a single development
-sprint; those were internal labels, not releases — the git tags run only to
-`v1.6.0` and then jump to `v3.10.0` / `v4.0.0`, and nothing named edaphos is on
-CRAN. Those sections are preserved in the git history; `NEWS.md` is reset here to
-a single honest development entry. Live, measured status (test counts, check
+Versions 0.1.0 to 1.6.0 were published on 2026-04-21–23 as GitHub Releases,
+each archived on Zenodo with its own DOI under the concept DOI
+10.5281/zenodo.19683708; none went to CRAN. This development version was
+numbered 0.9.0 until November 2026, which collided with the published 0.9.0
+(DOI 10.5281/zenodo.19697669) -- a permanent record of a different package.
+The next release is therefore **2.0.0**, the major version above the last
+public release. (An earlier version of this paragraph said the package "has
+never been released"; the seventeen GitHub Releases and Zenodo deposits say
+otherwise.)
+
+Between 1.6.0 and this entry, `NEWS.md` carried 43+ version-numbered sections
+(up to 4.1.0) written within a single development sprint. Those were internal
+labels, not releases: none was tagged, released or deposited. They are
+preserved in the git history; `NEWS.md` is reset here to a single honest
+development entry. Live, measured status (test counts, check
 result, install size) is generated into `STATUS.md` and `cran-comments.md` by the
 scripts in `tools/status/`, not written by hand.
 

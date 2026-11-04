@@ -95,12 +95,12 @@ publication action tied to your ORCID).
     * Related identifiers: keep the v1 link as
       `isNewVersionOf 10.5281/zenodo.19701276`.
 5. Click **Save** -> **Publish**.  Zenodo mints a fresh DOI like
-   `10.5281/zenodo.20000001`.
+   `10.5281/zenodo.XXXXXXXX`.
 
 Capture three values from the published deposit:
 
-* **DOI**         e.g. `10.5281/zenodo.20000001`
-* **URL**         e.g. `https://zenodo.org/records/20000001/files/encoder_q.pt`
+* **DOI**         e.g. `10.5281/zenodo.XXXXXXXX`
+* **URL**         e.g. `https://zenodo.org/records/XXXXXXXX/files/encoder_q.pt`
 * **published_at** e.g. `2026-05-01T18:30:00Z`  (use `Z` for UTC)
 
 The SHA-256 is already on disk in
@@ -114,8 +114,8 @@ The SHA-256 is already on disk in
 SHA256=$(cat tools/pretrain/edaphos-cerrado-moco-v2/encoder_q.pt.sha256)
 
 Rscript tools/pretrain/wire_up_v2_doi.R \
-  10.5281/zenodo.20000001 \
-  https://zenodo.org/records/20000001/files/encoder_q.pt \
+  10.5281/zenodo.XXXXXXXX \
+  https://zenodo.org/records/XXXXXXXX/files/encoder_q.pt \
   $SHA256 \
   2026-05-01T18:30:00Z
 ```

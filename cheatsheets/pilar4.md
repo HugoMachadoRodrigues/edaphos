@@ -44,7 +44,7 @@ probe <- foundation_finetune(
 )
 ```
 
-## v2.0.0 bridge: `qf_krr_fit()` (Pilar 4 × Pilar 6)
+## Pilar 4 × Pilar 6 bridge: `qf_krr_fit()`
 
 PCA-reduce the foundation embedding to N qubits, encode via
 ZZFeatureMap, run quantum kernel ridge regression.

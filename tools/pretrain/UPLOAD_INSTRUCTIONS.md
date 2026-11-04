@@ -60,9 +60,9 @@ Related identifiers:
 Once the deposit is live, give me three things from the Zenodo
 landing page:
 
-- **DOI**          (e.g. `10.5281/zenodo.1234567`)
+- **DOI**          (e.g. `10.5281/zenodo.XXXXXXX` -- a placeholder, not a record)
 - **Direct URL** of `encoder_q.pt` (e.g.
-  `https://zenodo.org/records/1234567/files/encoder_q.pt?download=1`)
+  `https://zenodo.org/records/XXXXXXX/files/encoder_q.pt?download=1`)
 - **Publication timestamp** (ISO 8601; shown at the top of the
   deposit page)
 

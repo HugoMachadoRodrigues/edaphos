@@ -1,4 +1,4 @@
-# rOpenSci pre-submission inquiry — edaphos v0.9.0
+# rOpenSci pre-submission inquiry — edaphos 2.0.0
 
 Submission target: <https://github.com/ropensci/software-review>
 Issue body to paste into the rOpenSci pre-submission inquiry template
@@ -9,7 +9,7 @@ Issue body to paste into the rOpenSci pre-submission inquiry template
 ## Package name, one-line description, and URL
 
 - **Name**: `edaphos`
-- **Version**: 0.9.0
+- **Version**: 2.0.0 (the first release since 1.6.0; versions 0.1.0–1.6.0 were published as GitHub Releases with Zenodo DOIs, none on CRAN)
 - **Description**: Frontier algorithms for Digital Soil Mapping
   organised around **ten research pillars** -- Causal AI + LLM
   knowledge graphs (P1), Physics-Informed depth-profile ODE (P2),
@@ -98,9 +98,10 @@ emerging methodology lines.
       narrative, bundled datasets table, and roadmap.
 - [x] `INTRO.md` (v3.9.0) provides a high-density narrative
       complement to README.
-- [x] `cheatsheets/` (v3.9.0) one-page references per pillar.
-- [x] `NEWS.md` is current (0.9.0, development version — the 43-release
-      history it used to list was withdrawn as unreproducible).
+- [x] `cheatsheets/` one-page references per pillar.
+- [x] `NEWS.md` is current (2.0.0, development version — the 43 internal
+      version labels it used to list between 1.6.0 and now were never
+      released, and were withdrawn).
 - [x] Licence (MIT) declared in DESCRIPTION + `LICENSE.md`.
 - [ ] Package website deployed at
       <https://hugomachadorodrigues.github.io/edaphos>. The claim that

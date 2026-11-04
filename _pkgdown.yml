@@ -89,7 +89,7 @@ navbar:
     articles:
       text: Vignettes
       menu:
-      - text: "Capstone — the six pillars of v1.7.0, integrated"
+      - text: "Capstone — six pillars in one sampling campaign"
       - text: Cross-pillar campaign
         href: articles/capstone-cerrado-campaign.html
       - text: -------
@@ -175,29 +175,29 @@ reference:
   contents:
   - starts_with("quantum_")
 
-- title: "Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)"
+- title: "Pilar 7 — Bayesian Hierarchical Spatial"
   desc: "Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes; the spBayes backend fits but cannot predict)."
   contents:
   - starts_with("bhs_")
   - predict.edaphos_bhs
 
-- title: "Pilar 8 — Neural Operators (v2.4.0+)"
+- title: "Pilar 8 — Neural Operators"
   desc: "DeepONet + FNO over depth function space."
   contents:
   - starts_with("no_")
 
-- title: "Pilar 9 — Diffusion Models (v2.5.0+)"
+- title: "Pilar 9 — Diffusion Models"
   desc: "DDPM with cosine schedule + ancestral sampling."
   contents:
   - starts_with("dm_")
 
-- title: "Pilar 10 — Graph Attention Networks (v2.6.0+)"
-  desc: "k-NN co-location graphs + multi-head attention; v3.6.0 sparse."
+- title: "Pilar 10 — Graph Attention Networks"
+  desc: "k-NN co-location graphs + multi-head attention, with a sparse attention path."
   contents:
   - starts_with("gnn_")
 
-- title: "Cross-pillar bridges (v1.9.x + v2.0.0 + v3.0.0)"
-  desc: "Foundation embeddings as causal instruments; quantum kernels over foundation embeddings; six v3.0.0 bridges (P7/8/9 x P5 + P10 x P1 + P2 x P3 + P6 x P10)."
+- title: "Cross-pillar bridges"
+  desc: "Foundation embeddings as causal instruments; quantum kernels over foundation embeddings; six further bridges (P7/8/9 x P5 + P10 x P1 + P2 x P3 + P6 x P10)."
   contents:
   - starts_with("qf_")
   - starts_with("al_query_")
@@ -213,7 +213,7 @@ reference:
   - autoplot.edaphos_posterior
   - starts_with("edaphos_")
 
-- title: "Benchmark wrappers (v3.1.0)"
+- title: "Benchmark wrappers"
   desc: "Plug-and-play wrappers for the 6-pilar WoSIS Cerrado benchmark."
   contents:
   - starts_with("benchmark_fit_")
@@ -222,7 +222,7 @@ reference:
   # all while a checklist claimed "pkgdown builds cleanly locally".
   - spatial_block_folds
 
-- title: "LLM-KG production pipeline (v3.10.0)"
+- title: "LLM-KG production pipeline"
   desc: "Resumable 10k+ abstract orchestrator + Ollama pre-flight."
   contents:
   - starts_with("llm_kg_")
@@ -286,9 +286,6 @@ articles:
   - articles/pilar5-soilgrids-br
   - articles/llm-kg-benchmark
 
-news:
-  releases:
-  - text: "v2.0.0 — Quantum kernel × Foundation (Pilar 4 × Pilar 6)"
-  - text: "v1.9.x — Foundation embeddings as causal IVs + Sargan/Cinelli-Hazlett"
-  - text: "v1.8.x — LLM benchmark infrastructure + Shiny annotation tool"
-  - text: "v1.7.x — Capstone vignette + native-query calibration + causal discovery"
+# No hand-maintained `news: releases:` list. The one here named four internal
+# labels (v1.7.x .. v2.0.0) that were never released, with no links; pkgdown
+# renders NEWS.md in full instead, and the real releases are on GitHub.

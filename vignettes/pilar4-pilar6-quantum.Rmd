@@ -218,7 +218,7 @@ WorldClim / SRTM medidas.
 
 ## O que isso significa como contribuição científica
 
-O valor do v2.0.0 não é bater os baselines (tentamos e não
+O valor desta fusão não é bater os baselines (tentamos e não
 batemos).  É:
 
 1. **Construir a infraestrutura** que compõe Pilar 4 com Pilar 6 de
@@ -238,21 +238,24 @@ batemos).  É:
 
 # Roadmap
 
-- **v2.0.0 (atual)**: infraestrutura Pilar 4 × Pilar 6 completa;
-  kernel comparison; 4-way CV benchmark empata em ~14 g/kg RMSE
-  sobre 1 095 perfis com stack sintético.
-- **v2.0.1**: re-rodar com encoder v2 (200 k InfoNCE steps, em
-  treinamento).  Se Quantum-over-foundation superar *todos* os
-  baselines, a hipótese do @Havlicek2019 é confirmada no domínio
-  de MDS.
-- **v2.0.2**: re-rodar com raster stack real.  Se o ganho aparece aqui
-  mas não com o stack sintético, isso responde se a limitação está no
-  encoder ou no stack.  O caminho de stack real está por implementar:
-  o `EDAPHOS_IV_REAL_STACK=1` que esta lista anunciava não é lido em
-  lado nenhum do pacote.
-- **v2.0.3**: submissão ao CRAN + paper "Quantum kernels over
-  foundation-model embeddings for Digital Soil Mapping" (se
-  resultados confirmarem ganho).
+Os itens têm nomes e não números de versão: os números que esta lista
+usava (v2.0.0 a v2.0.3) eram rótulos internos que nunca foram lançados,
+e "v2.0.0" colide com a release 2.0.0 do pacote.
+
+- **Feito**: infraestrutura Pilar 4 × Pilar 6 completa, comparação de
+  kernels e benchmark de validação cruzada espacial em quatro vias.
+  Sobre o stack sintético é um controlo negativo: ver a secção acima.
+- **Por fazer — encoder v2**: re-rodar com o encoder de 200 k passos
+  InfoNCE. Se o kernel quântico sobre os embeddings superar *todos* os
+  baselines, a hipótese de @Havlicek2019 ganha suporte no domínio do MDS.
+- **Por fazer — stack real**: re-rodar com o raster stack real. Se o
+  ganho aparecer aqui mas não com o stack sintético, isso responde se a
+  limitação está no encoder ou no stack. O caminho de stack real está
+  por implementar: o `EDAPHOS_IV_REAL_STACK=1` não é lido em lado
+  nenhum do pacote.
+- **Depois disso**: um artigo "Quantum kernels over foundation-model
+  embeddings for Digital Soil Mapping", apenas se os resultados
+  confirmarem um ganho.
 
 ---
 

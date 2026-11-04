@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-0.9.0--dev-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0--dev-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases)
 [![Pillars](https://img.shields.io/badge/pillars-10%2F10%20shipped-success)](#the-ten-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-19-9cf)](#vignettes)
 [![Tests](https://img.shields.io/badge/tests-2244%20pass-brightgreen)](#testing-and-continuous-integration)
@@ -235,7 +235,7 @@ vignette("capstone-cerrado-campaign", package = "edaphos")
 16. [Bundled datasets](#bundled-datasets)
 17. [Vignettes](#vignettes)
 18. [Testing and CI](#testing-and-continuous-integration)
-19. [Roadmap](#roadmap)
+19. [Releases and roadmap](#releases-and-roadmap)
 20. [Citation](#citation)
 21. [Selected references](#selected-references)
 22. [License](#license)
@@ -1643,7 +1643,7 @@ PySCF:
 
 📖 Vignette: `vignette("pilar6-quantum")`.
 
-### v2.0.0 — Quantum kernel over foundation-model embeddings
+### Quantum kernel over foundation-model embeddings
 
 The **Pilar 4 × Pilar 6 fusion**. Foundation embeddings (64-dim MoCo
 v2 outputs) are compressed to `n_pcs` principal components rescaled
@@ -2204,7 +2204,7 @@ browseVignettes("edaphos")
 | `causal-discovery-trio`           | **v1.7.2**: expert vs. LLM-augmented vs. data-driven (bnlearn hc / tabu / pc-stable) DAGs on 1 095 WoSIS Cerrado — SHD matrix + sensitivity of the adjustment set. |
 | 🛠️ `llm-annotation-workflow`      | **v1.8.1+**: pre-annotation + Shiny review workflow (with DAG preview, dark mode and Zenodo export from v1.8.2) to scale gold-standard from 72 to 300+ claims. |
 | 🔗 `pilar1-pilar4-iv`             | **v1.9.0+**: 2SLS instrumental variables using foundation-model embeddings; v1.9.1 adds real-encoder extraction (`foundation_embed_at_coords`); the Sargan test passes for one exposure of three and is reported as partial; v1.9.2 adds Cinelli-Hazlett sensitivity analysis. |
-| 🌀 `pilar4-pilar6-quantum`        | **v2.0.0**: quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines. |
+| 🌀 `pilar4-pilar6-quantum`        | Quantum kernel over foundation-model embeddings — Pilar 4 × Pilar 6 fusion with 5-fold spatial-CV benchmark vs ranger / RBF / Q-KRR baselines. |
 | `case-cerrado-end-to-end`         | Real WoSIS benchmark: QRF vs. kriging vs. MoCo embedding (v1.3.1).                                      |
 
 Each vignette is written in the style of a short methods paper —
@@ -2225,48 +2225,57 @@ bibliography (`vignettes/references.bib`).
 
 ---
 
-## Roadmap
+## Releases and roadmap
 
-| Version | Theme                                                   | Status  |
-|:-------:|:--------------------------------------------------------|:-------:|
-| v1.4.0  | Causal on 1 095 WoSIS real profiles                    |   ✅    |
-| v1.5.0  | ConvLSTM + EnKF with Gaspari-Cohn on real Cerrado cube |   ✅    |
-| v1.6.0  | Unified `edaphos_posterior` + `uncertainty_calibrate()` |   ✅    |
-| v1.7.0  | Capstone vignette integrating the then-six pillars     |   ✅    |
-| v1.7.1  | Native-query calibration (honest per-pillar domain)    |   ✅    |
-| v1.7.2  | Causal-discovery trio: expert × LLM × data-driven      |   ✅    |
-| v1.8.0  | LLM extraction benchmark (Gemma 4 × GPT × Claude)      |   ✅    |
-| v1.8.1  | Annotation tool: pre-annotation + Shiny review UI      |   ✅    |
-| v1.8.2  | DAG preview + dark mode + OpenAlex fetcher + Zenodo export |  ✅  |
-| v1.9.0  | Foundation embeddings as causal IVs (2SLS + Sargan)    |   ✅    |
-| v1.9.1  | Real MoCo v2 patch extraction (`foundation_embed_at_coords`) — Sargan PARTIAL: 0.250 / 0.042 / 0.003 | ✅ |
-| v1.9.2  | Cinelli & Hazlett sensitivity analysis (`causal_sensitivity_*`) | ✅   |
-| v2.0.0  | **Quantum kernel over foundation embeddings** (Pilar 4 × Pilar 6) | ✅ |
-| v2.1.0  | Frente D polish: pkgdown + Docker + test suite + Zenodo release + 2 bridges  | ✅ |
-| v2.1.1  | Bridge P1 × P5 Causal AL — shipped (`al_query_causal`)  | ✅   |
-| v2.1.2  | Bridge P3 × P5 Temporal AL — shipped (`al_query_temporal`) | ✅ |
-| v2.1.3  | Rcpp port of `quantum_kernel()` (10-50× speedup, machine-precision) | ✅ |
-| v2.2.0  | Bridge P2 × P6 — Physics-informed quantum kernels       | ✅   |
-| v2.2.1  | Bridge P1 × P3 — Causal 4D (time-varying effects)       | ✅   |
-| v2.3.0  | **Pilar 7** — Bayesian hierarchical spatial (Gibbs + spBayes)   | ✅ |
-| v2.4.0  | **Pilar 8** — Neural operators (FNO + DeepONet) for pedogenetic PDEs | ✅ |
-| v2.5.0  | **Pilar 9** — Diffusion models for generative soil maps (DDPM)  | ✅ |
-| v2.8.0  | **Pilar 10** — Graph Attention Networks on WoSIS co-location network | ✅ |
-| v1.9.3  | Real geodata download path (EDAPHOS_IV_REAL_STACK) + refit    | 📝   |
-| v1.3.2  | Re-benchmark with MoCo v2 encoder (200 k steps)        | 🚧   |
-| v1.8.3  | Expand gold-standard to 300 real claims (via v1.8.2 tool) | 📝    |
-| v3.0.0  | CRAN + rOpenSci submission                              | 📝      |
+**Published releases.** Versions 0.1.0 to 1.6.0 were published on
+2026-04-21–23 as [GitHub Releases](https://github.com/HugoMachadoRodrigues/edaphos/releases),
+each archived on Zenodo with its own DOI under the concept DOI
+[10.5281/zenodo.19683708](https://doi.org/10.5281/zenodo.19683708), which
+always resolves to the latest version (today 1.6.0). None was submitted to
+CRAN.
+
+**The next release is 2.0.0.** It is not 0.9.0, the number the development
+version carried until November 2026: 0.9.0 already exists, as a public
+release with a permanent DOI ([10.5281/zenodo.19697669](https://doi.org/10.5281/zenodo.19697669)),
+and reusing it would put two different packages under one version. 2.0.0 is
+the major version above the last public release, as the breaking changes
+since 1.6.0 warrant. Between 1.6.0 and 2.0.0 the development history used
+internal labels from 1.7.0 to 4.1.0; none was ever tagged, released or
+deposited, and they are being removed from the documentation in favour of
+plain descriptions.
+
+**What 2.0.0 adds over 1.6.0** (all implemented, tested and in `main`):
+
+| Area | What |
+|:-----|:-----|
+| Pillars 7–10 | Bayesian hierarchical spatial models (Gibbs, RcppArmadillo and `spBayes` backends), neural operators (FNO, DeepONet), diffusion models (DDPM) and graph attention networks |
+| Pillar 2 | Closed-form pedogenetic ODE, rewritten in identified coordinates; validated in carbon stock; benchmarked against equal-area splines and depth-as-covariate random forests |
+| Pillar 1 | Causal-discovery trio (expert × LLM × data-driven); foundation embeddings as instruments (2SLS + Sargan); Cinelli & Hazlett sensitivity analysis |
+| Pillar 4 × 6 | Quantum kernel over foundation-model embeddings, with a 5-fold spatial-CV benchmark |
+| Cross-pillar | Native-query calibration of every pillar through the `edaphos_posterior` interface introduced in 1.6.0; active-learning bridges for causal, temporal, Bayesian-spatial and diffusion models |
+| Tooling | LLM annotation workflow with Shiny review; Zenodo export; pkgdown site; provenance records binding shipped result bundles to the scripts that produced them |
+
+**Open research items**, named rather than numbered so that none can be
+mistaken for a release:
+
+| Item | Status |
+|:-----|:------:|
+| Re-benchmark with a longer-trained MoCo v2 encoder (200 k steps) | 🚧 |
+| Real geodata download path for the IV refit (`EDAPHOS_IV_REAL_STACK` is not yet read anywhere) | 📝 |
+| Expand the LLM gold standard from 72 to 300 real claims | 📝 |
+| CRAN and rOpenSci submission of 2.0.0 | 📝 |
 
 ---
 
 ## Citation
 
-This package is a development version and has not been released. To cite
-the current development version:
+The code in `main` is the development version of 2.0.0, which has not been
+released yet. To cite it:
 
 > Rodrigues, H. (2026). *edaphos: Digital Soil Mapping with Causal,
-> Physics-Informed and Generative Methods* (version 0.9.0, development)
-> [Software]. <https://github.com/HugoMachadoRodrigues/edaphos>
+> Physics-Informed and Generative Methods* (version 2.0.0, development)
+> [Software]. <https://github.com/HugoMachadoRodrigues/edaphos>.
+> <https://doi.org/10.5281/zenodo.19683708>
 
 ```bibtex
 @software{Rodrigues_edaphos_2026,
@@ -2274,11 +2283,16 @@ the current development version:
   title     = {edaphos: Digital Soil Mapping with Causal, Physics-Informed
                and Generative Methods},
   year      = {2026},
-  version   = {0.9.0},
+  version   = {2.0.0},
   note      = {Development version; not yet released},
+  doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
 }
 ```
+
+The DOI is the Zenodo concept DOI, which covers all versions. To cite a
+published release instead, use its own version DOI from the
+[Zenodo record](https://doi.org/10.5281/zenodo.19683708).
 
 An auto-generated citation is also available in R:
 
@@ -2286,7 +2300,7 @@ An auto-generated citation is also available in R:
 citation("edaphos")
 ```
 
-If you use the v1.7.0 capstone specifically, please also cite the
+If you use the capstone vignette specifically, please also cite the
 paper that motivates its framework:
 
 ```bibtex

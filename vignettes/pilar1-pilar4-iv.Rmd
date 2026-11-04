@@ -541,18 +541,21 @@ que o framework de Pearl idealiza.
 
 # Roadmap
 
-- **v1.9.0**: estimador 2SLS completo + diagnósticos (F, Sargan)
+Os itens têm nomes e não números de versão: os números que esta lista
+usava (v1.9.0 a v2.0.0) eram rótulos internos que nunca foram lançados.
+
+- **Estimador 2SLS (feito)**: estimador 2SLS completo + diagnósticos (F, Sargan)
   + adaptador para `edaphos_posterior` + benchmark com *proxy
   embeddings* nos perfis reais + validação em DGP sintético.
   Sargan rejeitou (p < 10⁻⁹) — diagnóstico honesto.
-- **v1.9.1**: `foundation_embed_at_coords()` + um encoder MoCo-v2 real
+- **Encoder real como instrumento (feito)**: `foundation_embed_at_coords()` + um encoder MoCo-v2 real
   treinado sobre o stack do Cerrado (`data-raw/foundation_encoder_iv.R`).
   Resultado **negativo**: os embeddings reais são instrumentos fortes
   (Stage-1 F ≈ 4600) mas **rejeitam Sargan** (p < 10⁻¹⁵) — uma
   representação aprendida não produz um instrumento válido. (Uma versão
   anterior afirmou o contrário, p ≈ 0,28–0,42, a partir de um stack
   sintético de ruído; retirado.)
-- **v1.9.2**: análise de sensibilidade à la @CinelliHazlett2020 via
+- **Análise de sensibilidade (feito)**: análise de sensibilidade à la @CinelliHazlett2020 via
   `causal_sensitivity_*` — RV e RV_alpha por estimador, bias-contour
   grid.  Nos 3 077 perfis reais os efeitos *robustos e significativos*
   são MAP → COS (RV ≈ 16 %) e Clay → COS (RV ≈ 18 %); T e cobertura
@@ -560,9 +563,9 @@ que o framework de Pearl idealiza.
   + runner `data-raw/causal_sensitivity_run.R`.  Agenda para o
   encoder v2: lift do Stage-1 F (requer o caminho de stack real, ainda
   por implementar).
-- **v2.0.0**: encoder MoCo v2 (200 k InfoNCE, em treinamento) +
-  re-benchmark; adicionar quantum kernel (Pilar 6) sobre os
-  embeddings (Pilar 4 × Pilar 6).
+- **Encoder MoCo v2 de 200 k passos (por fazer)**: treino e
+  re-benchmark. O kernel quântico (Pilar 6) sobre os embeddings
+  (Pilar 4 × Pilar 6) já está feito; ver `vignette("pilar4-pilar6-quantum")`.
 
 ---
 

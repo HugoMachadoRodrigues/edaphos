@@ -40,7 +40,7 @@ plain-ML baseline from the v1.3 \code{case-cerrado-end-to-end}).
 \item Quantum Kernel Ridge Regression over the RAW covariates
 (Pillar 6 original).
 \item Quantum Kernel Ridge Regression over the foundation-embedding
-PCs (the v2.0.0 contribution).
+PCs (the Pillar 4 x Pillar 6 method under test).
 }
 }
 \details{

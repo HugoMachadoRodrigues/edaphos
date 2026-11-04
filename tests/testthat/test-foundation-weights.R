@@ -75,7 +75,7 @@ test_that("foundation_weights_download surfaces a clear 'no URL yet' error when 
   # Every row in the registry at release time may have NA urls (the
   # Zenodo upload happens once per release). Ensure we fail gracefully
   # instead of attempting an empty GET.
-  reg <- foundation_weights_list()
+  reg <- foundation_weights_list(include_planned = TRUE)
   any_missing <- any(is.na(reg$url) | !nzchar(as.character(reg$url)))
   if (!any_missing) skip("registry has no missing-URL entries")
   first_missing <- reg$name[which(
@@ -85,4 +85,23 @@ test_that("foundation_weights_download surfaces a clear 'no URL yet' error when 
     foundation_weights_download(first_missing),
     regexp = "no published URL yet"
   )
+})
+
+
+test_that("the default list offers only encoders that can be downloaded", {
+  # The v2 row describes a deposit that has not happened. It used to be
+  # listed beside v1 with NA url, doi and sha256, and only a free-text
+  # "NOT PUBLISHED" said so.
+  reg <- foundation_weights_list()
+  expect_true(all(reg$status == "published"))
+  expect_true(all(!is.na(reg$url) & !is.na(reg$doi) & !is.na(reg$sha256)))
+
+  all_reg <- foundation_weights_list(include_planned = TRUE)
+  expect_true(all(all_reg$status %in% c("published", "planned")))
+  planned <- all_reg[all_reg$status == "planned", , drop = FALSE]
+  expect_gte(nrow(planned), 1L)
+  # A planned row must not look published.
+  expect_true(all(is.na(planned$url) & is.na(planned$doi) &
+                    is.na(planned$published_at)))
+  expect_error(foundation_weights_list(include_planned = NA))
 })

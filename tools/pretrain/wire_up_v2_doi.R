@@ -10,8 +10,8 @@
 ##
 ## Example:
 ##   Rscript tools/pretrain/wire_up_v2_doi.R \
-##     10.5281/zenodo.20000001 \
-##     https://zenodo.org/records/20000001/files/encoder_q.pt \
+##     10.5281/zenodo.XXXXXXXX \
+##     https://zenodo.org/records/XXXXXXXX/files/encoder_q.pt \
 ##     a1b2c3...e8f9 \
 ##     2026-05-01T18:30:00Z
 
@@ -25,8 +25,11 @@ URL    <- args[[2L]]
 SHA256 <- args[[3L]]
 PUB_AT <- args[[4L]]
 
-stopifnot(grepl("^10\\.5281/zenodo\\.", DOI))
-stopifnot(grepl("^https://zenodo\\.org/", URL))
+# Digits required, so the XXXXXXXX placeholder in the hand-off docs cannot be
+# pasted through by mistake. (Their earlier examples, zenodo.20000001 and
+# zenodo.1234567, were real records belonging to other people.)
+stopifnot(grepl("^10\\.5281/zenodo\\.[0-9]+$", DOI))
+stopifnot(grepl("^https://zenodo\\.org/records/[0-9]+/", URL))
 stopifnot(nchar(SHA256) == 64L)
 stopifnot(grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}T", PUB_AT))
 

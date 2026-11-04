@@ -409,17 +409,20 @@ causal_kg_to_turtle(kg_voted, "cerrado_kg_v1.ttl")
 
 ---
 
-# Próximos passos (v1.8.x → v2.0.0)
+# Próximos passos
 
-- **v1.8.0 atual**: infra completa + gold-standard seed de 72 claims
-  + benchmark simulado reproduzível.
-- **v1.8.1**: expandir gold-standard para 300 claims anotadas por
-  pedólogo humano (escala para ter poder estatístico em subgrupos).
-- **v1.8.2**: rodar live no corpus OpenAlex de 10 000 abstracts;
-  depositar KG resultante no Zenodo com DOI próprio.
-- **v1.8.3**: migrar para `causal_llm_vote()` como default dos
-  pipelines, com agregação por confidence ponderada pelos κ
-  backend-vs-gold.
+Cada item tem um nome e não um número de versão: os números que esta
+lista usava (v1.8.x → v2.0.0) eram rótulos internos que nunca foram
+lançados, e um deles colide com a release 2.0.0.
+
+- **Feito:** infraestrutura completa, gold-standard semente de 72
+  claims e benchmark *simulado* reproduzível.
+- **Por fazer — gold-standard de 300 claims:** anotação por pedólogo
+  humano, para ter poder estatístico em subgrupos.
+- **Por fazer — corrida real no corpus OpenAlex:** 10 000 abstracts,
+  com o KG resultante depositado no Zenodo com DOI próprio.
+- **Por fazer — `causal_llm_vote()` por omissão:** agregação por
+  confiança ponderada pelos κ de cada backend contra o gold-standard.
 
 ---
 

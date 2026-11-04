@@ -335,7 +335,8 @@ temporal_piml_loss <- function(ode_fit, weight = 0.1) {
 # neighbourhood in a compact low-dim space.  The Pilar 6 ZZFeatureMap
 # lifts that space into a 2^n-dim Hilbert.  Composing them yields a
 # quantum kernel over graph-aware representations -- a strict
-# generalisation of the v2.0.0 quantum-foundation fusion, now with
+# generalisation of the Pillar 4 x Pillar 6 quantum-foundation fusion
+# (qf_krr_fit()), now with
 # network structure baked into the node representation.
 
 #' Quantum KRR over GAT node embeddings (Pilar 6 x Pilar 10)

@@ -31,8 +31,8 @@
 #
 # with K_phys a radial basis function on the fitted residuals.  The
 # mixture is PSD for any alpha in [0, 1] because a convex combination
-# of two PSD kernels is PSD.  Setting alpha = 1 recovers the v2.0.0
-# Quantum-only kernel; alpha = 0 recovers a pure physics-residual
+# of two PSD kernels is PSD.  Setting alpha = 1 recovers the plain
+# quantum kernel; alpha = 0 recovers a pure physics-residual
 # kernel.  alpha = 0.7 is a reasonable default when the ODE fit is
 # trustworthy.
 #

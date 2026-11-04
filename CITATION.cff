@@ -2,143 +2,48 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "edaphos: Digital Soil Mapping with Causal, Physics-Informed and Generative Methods"
 abstract: >-
-  edaphos is a research-oriented R package implementing frontier
-  algorithms for Digital Soil Mapping (DSM) beyond the regression-tree
-  state of the art. It is organised across ten research pillars,
-  each confronting a specific methodological gap of the literature:
-  (1) Causal AI with backdoor-adjusted effect estimation on
-  pedogenetic Directed Acyclic Graphs, demonstrated on 1095 real
-  WoSIS Cerrado profiles (v1.4.0); (2) Physics-Informed Machine
-  Learning of the soil depth profile via a parametric pedogenetic
-  ODE and a differentiable Neural ODE, including a covariate-
-  conditioned hierarchical extension across pedons; (3) 4D
-  Pedometry with a multi-layer stacked Convolutional LSTM,
-  sequence-to-sequence training, multi-step rollout forecasting, an
-  optional physics-informed mass-balance loss and a stochastic
-  Ensemble Kalman Filter with optional Gaspari-Cohn localization
-  for sequential assimilation of new in-situ observations on a
-  real MODIS + NASA POWER Cerrado cube (v1.5.0); (4) Foundation
-  Models via SimCLR / MoCo-v2 contrastive pre-training on
-  unlabelled raster covariate patches; (5) Autonomous Active
-  Learning with a hybrid uncertainty and feature-space-diversity
-  batch policy, logistical cost-aware extension, and Physics-
-  Informed rejection gates; (6) Quantum ML with a pure-R
-  state-vector simulator of the ZZFeatureMap encoding, a quantum
-  kernel Gram matrix and a closed-form Kernel Ridge Regression
-  wrapper, optionally dispatched to IBM Quantum Runtime via
-  qiskit; (7) Bayesian Hierarchical Spatial models fitted by a
-  profile-MLE Gibbs sampler with an RcppArmadillo backend, whose
-  predictive distribution carries the full kriging variance rather
-  than the nugget alone; (8) Neural Operators -- DeepONet and a
-  Fourier Neural Operator -- learning maps over depth function
-  space rather than pointwise regressions; (9) Diffusion Models
-  (DDPM, cosine schedule) that draw whole soil-property map
-  patches as joint realisations instead of per-pixel quantiles;
-  and (10) Graph Attention Networks over k-NN co-location graphs
-  of profiles, with multi-head attention and an optional torch
-  backend. A unified uncertainty API based on a common
-  `edaphos_posterior` S3 class plus a CRPS / PICP / MPIW
-  calibration diagnostic exposes every pillar through the same
-  three-line recipe (v1.6.0). v1.7.0 introduces a capstone
-  cross-pillar vignette that integrates the six pillars that
-  existed at that release in a single Cerrado sampling-campaign
-  narrative, causally grounded
-  in the generative DSM framework of Zhang and Wadoux (2026).
-  v1.7.1 adds a native-query calibration bundle, evaluating
-  each pillar in its natural domain (scalar effect, depth
-  profile, future map, spatial map, held-out regression) so the
-  calibration table is scientifically honest rather than a
-  domain-mismatched artifact. v1.7.2 ships a causal-discovery
-  benchmark that compares expert, LLM-augmented, and three
-  data-driven (bnlearn hc / tabu / pc-stable) DAGs on the same
-  1 095 WoSIS Cerrado profiles, with Structural Hamming
-  Distance matrix, consensus edges, and sensitivity of the
-  backdoor adjustment set for MAP -> SOC. v1.8.0 adds a
-  multi-backend LLM extraction benchmark (Gemma 4 + GPT-4o-mini
-  + Claude Sonnet-4.5) against a 30-abstract gold-standard with
-  72 annotated Cerrado pedogenesis claims, producing
-  per-backend precision / recall / F1, pairwise Cohen's kappa,
-  cost / 1k-claims estimates, and latency distributions -- the
-  infrastructure for scaling Pillar 1 to a 10 000-abstract
-  literature corpus.  v1.8.1 adds a two-phase annotation tooling
-  (llm_preannotate + llm_annotation_launch) with a Shiny review
-  UI, controlled vocabulary, resume-safe JSONL caching, and
-  keyboard shortcuts, so a domain expert can scale a
-  gold-standard from 72 to 300+ claims in a few hours via
-  accept/edit/reject over LLM drafts.  v1.8.2 extends the
-  tool with an OpenAlex corpus fetcher
-  (data-raw/cerrado_corpus_v2_fetch.R) producing up to 150
-  deduplicated real abstracts, a DAG-preview tab that renders
-  the aggregated accepted-claim graph live, a dark-mode theme
-  toggle, and an llm_annotation_to_zenodo() packager that
-  bundles the reviewed KG + RDF 1.1 Turtle serialisation +
-  DataCite-compatible metadata into a zip ready for upload
-  to zenodo.org/deposit/new.  v1.9.0 introduces the Pilar 1 x
-  Pilar 4 instrumental-variable bridge: a closed-form 2SLS
-  estimator with Wooldridge (2010) asymptotic variance,
-  first-stage F diagnostics (Stock & Yogo 2005), the Sargan
-  J-test for over-identification, a cluster-bootstrap
-  edaphos_posterior adapter, and a convenience wrapper that
-  reduces a foundation-model embedding matrix to principal
-  components and runs 2SLS with the PCs as instruments --
-  identifying causal effects under unobserved-confounder
-  regimes that the hand-drawn DAG of v1.4.0 cannot block.  v1.9.1
-  ships the point-wise encoder-extraction bridge
-  (foundation_embed_at_coords) and a live benchmark with the
-  Zenodo-published edaphos-cerrado-moco-v1 encoder: the Sargan
-  J-test p-value on 1 095 Cerrado profiles jumps from <1e-9
-  under engineered proxy instruments (v1.9.0) to 0.28-0.42
-  under real MoCo v2 embeddings -- the decisive empirical
-  confirmation that an encoder pre-trained without seeing the
-  outcome produces structurally valid instruments.  v1.9.2 ships
-  a Cinelli & Hazlett (2020) sensitivity-analysis module
-  (causal_sensitivity_summary, _grid, _from_lm, _from_iv)
-  exposing the Robustness Value of every estimator alongside a
-  bias-adjustment contour grid, so a reviewer can see exactly
-  how fragile each causal claim is.  Validated against the
-  published Cinelli-Hazlett example (RV = 0.181 recovered to
-  four decimal places).  v2.0.0 introduces the Pilar 4 x Pilar 6
-  bridge: quantum-kernel ridge regression over foundation-model
-  embeddings (qf_embed_reduce, qf_kernel_compare, qf_krr_fit,
-  qf_krr_benchmark), composing MoCo v2 encoder representations
-  with the ZZFeatureMap quantum kernel into a single regressor.
-  Head-to-head 5-fold spatial CV benchmark across four methods
-  (ranger baseline, RBF-KRR on foundation PCs, Q-KRR on raw
-  covariates, Q-KRR on foundation PCs) ships as
-  inst/extdata/quantum_foundation_cerrado.rds.  v2.1.0 is the
-  polish release for CRAN / rOpenSci readiness: pkgdown site,
-  Rocker-based Dockerfile, expanded test suite (40+ new tests
-  filling the v1.8.0+ coverage gap), cran-comments.md, rOpenSci
-  pre-submission inquiry template, edaphos_zenodo_release()
-  helper, plus working implementations of two cross-pillar
-  bridges (al_query_causal for Pilar 1 x Pilar 5, al_query_temporal
-  for Pilar 3 x Pilar 5) and API-stable scaffolds for the four
-  new pillars (Bayesian hierarchical, Neural operators, Diffusion
-  models, Graph Neural Networks).
+  edaphos is a research-oriented R package for digital soil mapping
+  beyond regression-tree models, organised around ten methodological
+  pillars: (1) causal inference -- backdoor adjustment on pedogenetic
+  directed acyclic graphs, instrumental variables with first-stage and
+  Sargan diagnostics, Cinelli-Hazlett sensitivity analysis, and
+  LLM-assisted causal-claim extraction; (2) physics-informed depth
+  modelling with a closed-form pedogenetic ODE and Neural ODEs;
+  (3) 4D pedometry with stacked ConvLSTM forecasting and Ensemble
+  Kalman Filter assimilation; (4) foundation models pre-trained by
+  SimCLR / MoCo-v2 contrastive learning on raster patches; (5) active
+  learning with physics-informed rejection gates; (6) quantum machine
+  learning with a ZZFeatureMap kernel simulator; (7) Bayesian
+  hierarchical spatial models; (8) neural operators (DeepONet, Fourier
+  Neural Operator); (9) denoising diffusion models for soil-map
+  patches; and (10) graph attention networks. A common
+  edaphos_posterior class lets seven of the ten pillars be scored with
+  the same calibration diagnostics (CRPS, PICP, MPIW). The
+  deep-learning pillars use torch when libtorch is available and a
+  pure-R reference path otherwise. Real-data benchmarks on WoSIS
+  profiles from the Brazilian Cerrado are reproducible from the
+  scripts in data-raw/; the package ships aggregate results, not
+  third-party soil measurements. The reported results include
+  negative ones: foundation-embedding instruments are strong but fail
+  the Sargan over-identification test, and on the real-data benchmark
+  several frontier pillars do not outperform a DAG-informed linear
+  model.
 type: software
-version: "0.9.0"
-date-released: "2026-07-27"
+version: "2.0.0"
+# date-released is set when 2.0.0 is released. The "2026-07-27" this field
+# carried was not the date of any release.
 license: MIT
 doi: "10.5281/zenodo.19683708"
 url: "https://github.com/HugoMachadoRodrigues/edaphos"
 repository-code: "https://github.com/HugoMachadoRodrigues/edaphos"
 identifiers:
-  - description: "Concept DOI (all versions)"
+  - description: "Concept DOI (all versions; resolves to the latest)"
     type: doi
     value: "10.5281/zenodo.19683708"
-  - description: "Version DOI (v1.5.0)"
-    type: doi
-    value: "10.5281/zenodo.19709560"
-  # Zenodo mints a UNIQUE version DOI per deposit, so one identifier cannot be
-  # the version DOI of twelve releases.  Earlier revisions of this file listed
-  # 10.5281/zenodo.19710162 twelve times, labelled v1.6.0 through v2.1.0.
-  # Eleven of those were not real: no deposit was made for any release after
-  # v1.6.0.  Which single release 19710162 actually belongs to cannot be
-  # determined from this repository, so it is recorded once, unattributed.
-  # Add real version DOIs only after the corresponding deposit exists.
-  - description: "Version DOI (single Zenodo deposit; the release it belongs to is not recorded in this repository)"
-    type: doi
-    value: "10.5281/zenodo.19710162"
+  # Version DOIs of earlier releases are not identifiers of this one. They
+  # were listed here unattributed or mislabelled; measured on Zenodo
+  # 2026-11-04, 10.5281/zenodo.19709560 is v1.5.0 and 10.5281/zenodo.19710162
+  # is v1.6.0. The 2.0.0 version DOI is added once its deposit exists.
 authors:
   - family-names: "Rodrigues"
     given-names: "Hugo"
@@ -165,7 +70,7 @@ preferred-citation:
       email: "rodrigues.machado.hugo@gmail.com"
       orcid: "https://orcid.org/0000-0002-8070-8126"
   year: 2026
-  version: "0.9.0"
+  version: "2.0.0"
   doi: "10.5281/zenodo.19683708"
   url: "https://github.com/HugoMachadoRodrigues/edaphos"
 references:
