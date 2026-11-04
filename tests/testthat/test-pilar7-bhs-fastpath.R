@@ -81,6 +81,9 @@ test_that("fast-path bhs_fit: faster than a (hypothetical) dense-inverse path", 
   # timing comparison flips for reasons unrelated to the code. It still runs
   # on every CI leg and in local test runs.
   skip_on_cran()
+  # Under covr the R code is instrumented line by line, so the time is
+  # the instrumentation's, not the code's.
+  skip_on_covr()
   # We can't easily run the v2.3.0 dense path in-line here, but we
   # DO contract that the fast path is reasonably fast on a modest
   # problem: 500 iterations at n = 150. The ceiling asserted below is
