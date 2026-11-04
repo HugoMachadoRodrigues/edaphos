@@ -136,4 +136,15 @@ if (requireNamespace("torch", quietly = TRUE) &&
                    tt$sequence[, 10:12, , , , drop = FALSE]),
                  error = function(e) conditionMessage(e)))
 }
+#> <edaphos_temporal_convlstm_ensemble>
+#>   K_ens         : 3
+#>   hidden_dims   : 4
+#>   final_losses  : min=0.0337  median=0.0476  max=0.0713
+#> [1] 0.0337 0.0713 0.0476
+#>     worst_member predict_the_mean 
+#>           0.0713           0.6628 
+#> [1] 1.76 2.56 2.09
+#> [1] 16.7 52.2
+#> [1] 0.6993 0.1495 0.0337
+#> [1] "isTRUE(object$return_sequence) is not TRUE"
 ```

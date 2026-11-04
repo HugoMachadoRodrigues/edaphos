@@ -472,6 +472,9 @@ back-propagates the squared-error loss through the whole trajectory:
 <span>  seed    <span class="op">=</span> <span class="fl">1L</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">nn_fit</span></span>
+<span><span class="co">#&gt; &lt;edaphos_piml_neural_ode&gt;</span></span>
+<span><span class="co">#&gt;   dy/dz = f_theta(z, y), MLP hidden = 16 -&gt; 16 </span></span>
+<span><span class="co">#&gt;   n obs = 8  rmse = 1.426  final loss = 0.02386</span></span>
 <span><span class="va">pred_nn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>depth <span class="op">=</span> <span class="va">grid_z</span>,</span>
 <span>                      soc   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">nn_fit</span>, <span class="va">grid_z</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -489,6 +492,7 @@ back-propagates the squared-error loss through the whole trajectory:
 <span>       y <span class="op">=</span> <span class="st">"Depth (cm)"</span>, colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>       title <span class="op">=</span> <span class="st">"Parametric vs. Neural ODE on the same real profile"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pilar2-piml-profile_files/figure-html/plot-neural-1.png"><!-- --></p>
 </div>
 <div class="section level2">
 <h2 id="pillar-2-pillar-5-the-physics-gate">7. Pillar 2 × Pillar 5 — the physics gate<a class="anchor" aria-label="anchor" href="#pillar-2-pillar-5-the-physics-gate"></a>
@@ -510,7 +514,8 @@ requires to be positive.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/al_physics_gate_piml.html">al_physics_gate_piml</a></span><span class="op">(</span><span class="va">fit_pedon</span>, safety_factor <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
 <span><span class="va">cand_dummy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>dummy <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="fu">gate</span><span class="op">(</span><span class="va">cand_dummy</span>, predicted_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">25</span>, <span class="fl">200</span>, <span class="op">-</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">gate</span><span class="op">(</span><span class="va">cand_dummy</span>, predicted_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">25</span>, <span class="fl">200</span>, <span class="op">-</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]  TRUE  TRUE FALSE FALSE</span></span></code></pre></div>
 <p>A hierarchical extension
 ([<code><a href="../reference/piml_hierarchical_fit.html">piml_hierarchical_fit()</a></code>][piml_hierarchical_fit]) jointly
 fits a covariate-conditioned Neural ODE across pedons, delivering a
@@ -629,7 +634,12 @@ variance approximate the Bayesian predictive posterior <span class="citation">(<
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/piml_neural_ode_fit_ensemble.html">piml_neural_ode_fit_ensemble</a></span><span class="op">(</span><span class="va">depths</span>, <span class="va">values</span>,</span>
 <span>                                       K <span class="op">=</span> <span class="fl">5L</span>, epochs <span class="op">=</span> <span class="fl">300L</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">ens</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>, interval <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">ens</span>, newdepths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">80</span><span class="op">)</span>, interval <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   depth      mean         sd     lower     upper lower_sim upper_sim</span></span>
+<span><span class="co">#&gt; 1    10 21.200158 0.07963331 21.102597 21.281575 21.102597 21.281575</span></span>
+<span><span class="co">#&gt; 2    20 16.308584 0.06012354 16.252340 16.382850 16.252340 16.382850</span></span>
+<span><span class="co">#&gt; 3    40  9.482652 0.09347463  9.368812  9.572736  9.368812  9.572736</span></span>
+<span><span class="co">#&gt; 4    80  7.153997 0.04868603  7.104254  7.206688  7.104254  7.206688</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="discussion-and-roadmap">9. Discussion and roadmap<a class="anchor" aria-label="anchor" href="#discussion-and-roadmap"></a>

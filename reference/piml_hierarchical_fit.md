@@ -164,4 +164,14 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(c(base = short_fit(pedons), deep_permuted = short_fit(perm),
           topsoil_changed = short_fit(top)))
 }
+#> <edaphos_piml_hierarchical>
+#>   n pedons   : 5 
+#>   covariates : twi, ndvi, map_mm 
+#>   final loss : 0.1024  (epochs = 20)
+#> global_mean     epoch_1       final 
+#>      0.9500      1.0139      0.1024 
+#> weights  values 
+#>     818      20 
+#>            base   deep_permuted topsoil_changed 
+#>       0.5999728       0.5999728       0.6432516 
 ```

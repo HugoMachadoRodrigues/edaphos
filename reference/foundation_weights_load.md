@@ -111,4 +111,8 @@ print(all.equal(foundation_moco_embed(moco, patches),
 print(tryCatch(foundation_weights_load(pt), error = conditionMessage))
 unlink(pt)
 }
+#>  n_channels feature_dim    proj_dim 
+#>           5          16           8 
+#> [1] TRUE
+#> [1] "Loading from a local path requires `n_channels`, `feature_dim` and `proj_dim` to be supplied explicitly."
 ```

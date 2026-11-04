@@ -162,6 +162,19 @@ print(length(run2$loss_history))
 print(identical(run2$loss_history[1:4], run1$loss_history))
 unlink(ck, recursive = TRUE)
 }
+#> <edaphos_foundation_moco>  (MoCo v2 -- Pillar 4)
+#>   in_channels = 5  feature_dim = 16  proj_dim = 8
+#>   queue_size = 32  momentum = 0.9990  tau = 0.07  batch = 8
+#>   epochs = 6  final InfoNCE loss = 4.119
+#>    queue    batch retained 
+#>       32        8       24 
+#> Error in dataset$sample(min(queue_size, batch_size * 4L)) : 
+#>   batch_size <= n_patches is not TRUE
+#> note: 'cuda' backend requested but not available; falling back to 'cpu'.
+#> [1] TRUE
+#> [1] "encoder_k.pt" "encoder_q.pt" "queue.pt"     "state.rds"   
+#> [1] 6
+#> [1] TRUE
 
 if (FALSE) { # \dontrun{
 # The real target: a multi-source mosaic that does not fit in RAM.

@@ -146,4 +146,19 @@ if (requireNamespace("torch", quietly = TRUE) &&
                                    batch_size = 6L, seed = 11L)
   print(identical(c1$loss_history, c2$loss_history))
 }
+#> noise_sd     elev      twi     ndvi 
+#>    0.100  109.380    2.862    0.084 
+#>   elev    twi   ndvi 
+#> 0.0009 0.0349 1.1871 
+#> [1] 12  3  8  8
+#> <edaphos_foundation_simclr> (experimental; Pillar 4 scaffold)
+#>   in_channels = 3  feature_dim = 32  proj_dim = 16
+#>   batch = 6  temperature = 0.2
+#>   epochs = 40  final loss = 1.081
+#>  first    min  final chance 
+#>  2.386  0.759  1.081  2.398 
+#> requested      used    chance 
+#>    64.000    12.000     3.135 
+#> [1] TRUE
+#> [1] FALSE
 ```

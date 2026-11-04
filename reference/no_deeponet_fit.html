@@ -177,6 +177,17 @@ readout — it does learn, but is not the full DeepONet.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>An <code>edaphos_no_deeponet</code> fit: a list carrying <code>backend</code>, the
+training <code>depths</code>, <code>targets</code> and <code>covariates</code>, the standardisation
+constants (<code>cov_std</code>, <code>tgt_std</code>, <code>depth_std</code>), the architecture
+(<code>branch_hidden</code>, <code>trunk_hidden</code>, <code>output_dim</code>), <code>n_obs</code>, <code>n_depths</code>
+and the per-epoch loss <code>history</code>. The trained network is stored as
+weight matrices (<code>W_b1</code> ... <code>b_t2</code>, <code>bias</code>) for <code>backend = "r"</code>, or
+as <code>torch_module</code> plus <code>device</code> for <code>backend = "torch"</code>. Predict with
+<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Lu, L., Jin, P., Pang, G., Zhang, Z. and Karniadakis, G. E. (2021).
 Learning nonlinear operators via DeepONet based on the universal
@@ -217,7 +228,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_no_deeponet&gt;  (Pilar 8 -- Deep Operator Network)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   branch 3x16 -&gt; trunk 1x16, output_dim = 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_train = 30   n_depths = 8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   initial MSE = 1.213  final MSE = 0.07538  (epochs = 300)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   initial MSE = 1.561  final MSE = 0.02808  (epochs = 300)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Targets are standardised per depth, so the mean-profile predictor</span></span></span>
 <span class="r-in"><span><span class="co"># scores 1.  Unlike the FNO in the same setting, this one has</span></span></span>
@@ -231,7 +242,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-in"><span>        nse_vs_mean_profile <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">pred</span> <span class="op">-</span> <span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span></span></span>
 <span class="r-in"><span>                                  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span> <span class="op">-</span> <span class="va">null_prof</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           train_mse        mean_profile           test_rmse nse_vs_mean_profile </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              0.0754              1.0000              0.5509              0.8918 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              0.0281              1.0000              0.3249              0.9624 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The trunk accepts depths that were never in the training grid --</span></span></span>
 <span class="r-in"><span><span class="co"># the property a pointwise regressor cannot have.  Score those</span></span></span>
@@ -245,7 +256,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rmse <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">off</span> <span class="op">-</span> <span class="va">truth</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        nse  <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">off</span> <span class="op">-</span> <span class="va">truth</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">truth</span> <span class="op">-</span> <span class="va">null_new</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   rmse    nse </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8070 0.7985 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.7783 0.8125 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Interpolating is not extrapolating.  Past the deepest training</span></span></span>
 <span class="r-in"><span><span class="co"># depth the per-depth un-standardisation constants are held FLAT</span></span></span>
@@ -258,7 +269,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-in"><span>        mean_truth_300 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">truth_deep</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        worst_site_err <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">deep</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">truth_deep</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  mean_pred_300 mean_truth_300 worst_site_err </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          9.945          9.888          1.427 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          9.837          9.888          1.359 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># backend = "r" trains the second layer of each subnet; the first</span></span></span>
 <span class="r-in"><span><span class="co"># hidden layers stay at their random initialisation.</span></span></span>
@@ -270,7 +281,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-in"><span>  trunk_hidden_frozen  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">don1</span><span class="op">$</span><span class="va">W_t1</span>, <span class="va">don</span><span class="op">$</span><span class="va">W_t1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  second_layer_trained <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">don1</span><span class="op">$</span><span class="va">W_b2</span>, <span class="va">don</span><span class="op">$</span><span class="va">W_b2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> branch_hidden_frozen  trunk_hidden_frozen second_layer_trained </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 TRUE                 TRUE                 TRUE </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 TRUE                 TRUE                FALSE </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

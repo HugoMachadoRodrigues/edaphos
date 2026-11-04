@@ -107,4 +107,21 @@ if (requireNamespace("torch", quietly = TRUE) &&
     piml_hierarchical_predict(fit, held[1, ], c(60, 100, 200)), 2))
   print(round(range(train$soc), 2))
 }
+#>    twi   ndvi map_mm 
+#>   TRUE   TRUE   TRUE 
+#> Warning: piml_hierarchical_predict(): 1 of 4 predicted values were negative (worst -2.56) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.
+#> [1] 1 4
+#>       [,1]  [,2] [,3] [,4]
+#> pred  7.77  5.78 2.50 0.00
+#> obs  14.66 11.24 8.78 7.03
+#> trained_on_this_pedon        held_out_pedon        depthwise_mean 
+#>                  1.92                  6.45                  1.29 
+#> Warning: piml_hierarchical_predict(): 1 of 4 predicted values were negative (worst -2.56) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.
+#> Warning: piml_hierarchical_predict(): 1 of 4 predicted values were negative (worst -2.56) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.
+#> [1] TRUE
+#> [1] 60
+#> Warning: piml_hierarchical_predict(): 3 of 3 predicted values were negative (worst -10.5) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.
+#>      [,1] [,2] [,3]
+#> [1,]    0    0    0
+#> [1]  5.83 22.75
 ```

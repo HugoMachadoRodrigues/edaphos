@@ -108,4 +108,26 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(tryCatch(as_edaphos_posterior(ens),
                  error = function(e) conditionMessage(e)))
 }
+#>   ensemble parametric  mean_only 
+#>     2.1506     0.1839     6.5228 
+#> <edaphos_posterior>
+#>   method      : ensemble
+#>   query_type  : sample
+#>   units       : g/kg
+#>   n_samples   : 3
+#>   query shape : 3
+#>   mean range  : [+10.7965, +20.4315]  mean = +15.5164
+#>   sd   range  : [+0.2588, +2.1916]  mean = +1.2823
+#> [1] 3 3
+#>        [,1]    [,2]    [,3]
+#> q05 20.1762 13.9436  8.6373
+#> min 20.1351 13.7170  8.2688
+#> q95 20.6062 16.2354 12.1454
+#> max 20.6128 16.2634 12.1667
+#> [1] 2.5407
+#>              [,1]   [,2]   [,3]
+#> mean_fn    0.2588 1.3963 2.1916
+#> plus_noise 4.5354 0.6114 1.2045
+#> [1] "feature"
+#> [1] "Supply `newdepths = ...` to adapt a Neural-ODE ensemble."
 ```

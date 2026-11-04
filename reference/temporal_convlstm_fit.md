@@ -202,4 +202,21 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # so training optimised the guard rather than the soil. That is why
   # the scaling constants are now required rather than optional.
 }
+#> <edaphos_temporal_convlstm>
+#>   input_dim = 2   hidden = [4]   kernel = 3
+#>   return_sequence = FALSE   epochs = 150   final loss = 0.00911
+#>    final baseline    ratio 
+#>   0.0091   0.5382   0.0169 
+#> [1] 7
+#> [1] 885
+#>    lambda phys_loss 
+#>        10         0 
+#> [1] -7.465918e-17
+#> [1] "try-error"
+#>   fit  phys ratio 
+#> 1.070 0.307 0.287 
+#> phys_first  phys_last 
+#>     0.3070     0.0151 
+#>   no_physics with_physics 
+#>      0.06453      0.06992 
 ```

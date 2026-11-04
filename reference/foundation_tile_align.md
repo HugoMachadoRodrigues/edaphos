@@ -52,6 +52,33 @@ A single
 [`terra::SpatRaster`](https://rspatial.github.io/terra/reference/SpatRaster-class.html)
 with one layer per input layer, aligned.
 
+## MODIS and ERA5
+
+Neither is wrapped by edaphos: both need an account and a client
+package. Download and pre-process them outside the package, read the
+result with
+[`terra::rast()`](https://rspatial.github.io/terra/reference/rast.html),
+and pass it in `sources` like any other raster – nothing downstream
+cares where a raster came from.
+
+- **MODIS** (NASA EarthData login): `MODIStsp`, `rgee` or the AppEEARS
+  service. MOD13Q1 stores NDVI as int16 with a 1e-4 scale factor and
+  -3000 as the fill value, and both survive
+  [`terra::rast()`](https://rspatial.github.io/terra/reference/rast.html)
+  untouched: set values below -2000 to `NA` and multiply by 1e-4 before
+  aligning, or the channel mixes index values with sentinels. A 16-day
+  composite is not a snapshot – neighbouring pixels can come from
+  different days.
+
+- **ERA5-Land** (Copernicus Climate Data Store key): the `ecmwfr`
+  package. The CDS bounding box is ordered north, west, south, east –
+  the reverse of the `c(xmin, xmax, ymin, ymax)` every
+  `foundation_tile_*` function expects. ERA5-Land is a 0.1 degree (about
+  9 km) reanalysis; projected onto a 250 m grid with bilinear resampling
+  it becomes a smooth channel with no information below 9 km, harmless
+  for a contrastive encoder and misleading in a covariate-importance
+  table.
+
 ## Examples
 
 ``` r

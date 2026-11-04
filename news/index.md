@@ -36,6 +36,19 @@ entry. Live, measured status (test counts, check result, install size)
 is generated into `STATUS.md` and `cran-comments.md` by the scripts in
 `tools/status/`, not written by hand.
 
+### Removed before first release
+
+- `foundation_tile_source_modis()` and `foundation_tile_source_era5()`
+  are removed. Both were exported stubs that could only throw an error:
+  MODIS and ERA5 need an account and a client package, and edaphos never
+  wrapped either. The guidance their error messages carried — which
+  client to use, the MOD13Q1 scale factor and fill value, the reversed
+  CDS bounding-box order, and the 9 km resolution of ERA5-Land — now
+  lives in the “MODIS and ERA5” section of
+  [`?foundation_tile_align`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_tile_align.md),
+  the function a pre-processed raster is passed to. `ecmwfr` is no
+  longer a suggested dependency.
+
 ### Pillar 2 reworked around the equation’s closed-form solution
 
 The depth-profile ODE `dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf)` is
@@ -66,9 +79,10 @@ manuscript.
   the 95% interval for the attainable deep value is \[0.95, 4.48\] g/kg,
   against \[−20.5, 3.2\] for the quantity previously reported as the
   asymptote: 6.7 times narrower and no longer reaching into impossible
-  values. [`summary()`](https://rdrr.io/r/base/summary.html) gains
-  `kappa` and `y_asym` rows, and the Bayesian priors are placed on the
-  identified coordinates rather than on `y_inf`.
+  values.
+  [`summary()`](https://rspatial.github.io/terra/reference/summary.html)
+  gains `kappa` and `y_asym` rows, and the Bayesian priors are placed on
+  the identified coordinates rather than on `y_inf`.
 - **[`al_physics_gate_piml()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_physics_gate_piml.md)
   no longer certifies negative carbon as plausible.** Its envelope was
   built from `y_inf`; it is now the range the solution actually spans,
@@ -295,10 +309,10 @@ contribute almost nothing.
   profile extrapolate its deepest horizon badly. (These figures were
   first measured on a subset selected by the leaking stratifier
   described below and have been remeasured without it.)
-- [`predict()`](https://rdrr.io/r/stats/predict.html) draws observation
-  noise from the family the model was fitted with. Adding Gaussian noise
-  to a positive fit would reintroduce the defect the argument exists to
-  remove.
+- [`predict()`](https://rspatial.github.io/terra/reference/predict.html)
+  draws observation noise from the family the model was fitted with.
+  Adding Gaussian noise to a positive fit would reintroduce the defect
+  the argument exists to remove.
 
 **This changed a published conclusion.** Under the Gaussian, the derived
 advection-reaction model appeared to beat the attenuating-rate ODE

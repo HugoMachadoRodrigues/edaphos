@@ -129,12 +129,11 @@ tr <- 1:30; te <- 31:50
 fno <- no_fno_fit(depths, soc[tr, ], cube(site[tr, ]),
                   n_modes = 4L, width = 8L, n_blocks = 1L,
                   epochs = 20L, lr = 0.05, seed = 1L)
-#> [no_fno_fit] backend = 'r' is a frozen-spectral random-feature reference and does NOT learn the operator; use backend = 'torch' (the default when libtorch is present) for the trained Fourier Neural Operator.
 fno
 #> <edaphos_no_fno>  (Pilar 8 -- Fourier Neural Operator)
 #>   n_depths = 8   n_modes = 4   width = 8   blocks = 1
 #>   n_train  = 30   C_in = 3
-#>   initial MSE = 0.9664  final MSE = 0.9598
+#>   initial MSE = 1.338  final MSE = 0.1523
 
 # Read that MSE against the only baseline that matters.  Targets are
 # standardised PER DEPTH, so predicting the mean profile scores
@@ -143,7 +142,7 @@ round(c(initial = fno$history[1L],
         final   = fno$history[length(fno$history)],
         mean_profile = 1), 4)
 #>      initial        final mean_profile 
-#>       0.9664       0.9598       1.0000 
+#>       1.3378       0.1523       1.0000 
 
 # Same story on held-out sites, and it vanishes if you score against
 # the GRAND mean: that null does not know the shape of an average
@@ -158,7 +157,7 @@ round(c(rmse_fno  = sqrt(mean((pred - soc[te, ])^2)),
         nse_vs_grand_mean   = 1 - sum((pred - soc[te, ])^2) /
                                   sum((soc[te, ] - mean(soc[tr, ]))^2)), 4)
 #>            rmse_fno           rmse_null nse_vs_mean_profile   nse_vs_grand_mean 
-#>              1.6693              1.6746              0.0063              0.8517 
+#>              0.8720              1.6746              0.7288              0.9595 
 
 # Why so weak: with backend = "r" the lift and the spectral
 # multipliers stay at their random initialisation, and of the
@@ -172,10 +171,10 @@ c(lift_frozen     = identical(fno1$W_in, fno$W_in),
   bias_frozen     = identical(fno1$b_out, fno$b_out),
   decoder_trained = !identical(fno1$W_out, fno$W_out))
 #>     lift_frozen spectral_frozen     bias_frozen decoder_trained 
-#>            TRUE            TRUE            TRUE            TRUE 
+#>            TRUE            TRUE            TRUE           FALSE 
 c(trained_weights = length(fno$W_out))
 #> trained_weights 
-#>               8 
+#>               0 
 
 # predict() takes no `newdepths`: an FNO fit is tied to its training
 # grid.  A cube with a different depth extent is silently RECYCLED

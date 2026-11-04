@@ -306,6 +306,23 @@ would cross the raster edge, are returned as a row of <code>NA</code>.</p>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">proj</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>          norm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">proj</span><span class="op">[</span><span class="va">ok</span>, <span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   train_mode    eval_mode </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.525879e-05 1.525879e-05 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "emb_001" "emb_002" "emb_003" "emb_004" "emb_005" "emb_006" "emb_007"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "emb_008"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    site usable</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 BR-01   TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 BR-02   TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 BR-03   TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 BR-04  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 BR-05  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  TRUE  TRUE  TRUE  TRUE FALSE FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID elev map_mm ndvi</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1   NA     NA   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ncol norm </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    4    1 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

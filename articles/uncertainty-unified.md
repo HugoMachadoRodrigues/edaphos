@@ -240,13 +240,16 @@ routine against the pillar’s natural ground truth (or
 pseudo-ground-truth where no true ground truth exists — typical for
 Pillar 1 where there is no observable “true” causal effect).
 
-|       | pillar         | method    |   n |    CRPS | <PICP@95> | <MPIW@95> |  pt_RMSE |
-|:------|:---------------|:----------|----:|--------:|----------:|----------:|---------:|
-| 0.95  | P1 causal      | bootstrap |   1 | 0.00632 |     1.000 |     0.111 | 0.000242 |
-| 0.951 | P5 AL / QRF    | ensemble  |  32 | 0.30000 |     0.969 |     2.140 | 0.588000 |
-| 0.952 | P6 quantum KRR | analytic  |  12 | 0.51600 |     0.917 |     3.210 | 0.905000 |
+|       | pillar             | method    |   n |    CRPS | <PICP@95> | <MPIW@95> |  pt_RMSE |
+|:------|:-------------------|:----------|----:|--------:|----------:|----------:|---------:|
+| 0.95  | P1 causal          | bootstrap |   1 | 0.00632 |     1.000 |     0.111 | 0.000242 |
+| 0.951 | P2 PIML neural-ODE | ensemble  |   5 | 0.42500 |     0.200 |     0.196 | 0.611000 |
+| 0.952 | P4 foundation fit  | ensemble  |  10 | 2.97000 |     1.000 |    13.700 | 0.000000 |
+| 0.953 | P5 AL / QRF        | ensemble  |  38 | 0.28800 |     0.947 |     2.510 | 0.469000 |
+| 0.954 | P6 quantum KRR     | analytic  |  12 | 0.33400 |     1.000 |     3.630 | 0.539000 |
 
-Unified calibration across the six pillars (v1.6.0). {.table}
+Unified calibration across the six pillars (v1.6.0). {.table
+style="width:100%;"}
 
 ``` r
 

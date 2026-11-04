@@ -191,7 +191,6 @@ targets   <- t(apply(tr[, cov_cols], 1L, function(r)
 no_fit <- no_deeponet_fit(depth_grid, targets,
                               as.matrix(tr[, cov_cols]),
                               epochs = 50L, seed = 1L)
-#> [no_deeponet_fit] backend = 'r' freezes the branch/trunk hidden layers and trains a random-feature readout; use backend = 'torch' (the default when libtorch is present) to train the full DeepONet.
 no_pred <- predict(no_fit, as.matrix(te[, cov_cols]))
 dim(no_pred)
 #> [1] 15  8
@@ -208,7 +207,6 @@ draws 4 posterior maps.
 patches <- array(rnorm(16L * 6L * 6L), dim = c(16L, 6L, 6L))
 dm <- dm_fit(patches, T = 8L, epochs = 10L,
                hidden = 8L, lr = 0.05, seed = 1L)
-#> [dm_fit] backend = 'r' is a reference sampler whose draws are over-dispersed and spatially incoherent (not calibrated to the field's spatial statistics); use backend = 'torch' (the default when libtorch is present) for coherent samples.
 samps <- dm_sample(dm, n_samples = 4L, seed = 1L)
 dim(samps)
 #> [1] 4 6 6

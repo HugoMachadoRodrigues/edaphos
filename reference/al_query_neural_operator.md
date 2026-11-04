@@ -89,7 +89,6 @@ tr <- 1:60; po <- 61:90
 no <- no_deeponet_fit(zz, prof[tr, ], Xc[tr, ], branch_hidden = 12L,
                       trunk_hidden = 12L, output_dim = 6L,
                       epochs = 300L, lr = 0.02, seed = 1L)
-#> [no_deeponet_fit] backend = 'r' freezes the branch/trunk hidden layers and trains a random-feature readout; use backend = 'torch' (the default when libtorch is present) to train the full DeepONet.
 # Worth checking before ranking anything by its disagreement: the
 # operator is ahead of the regional mean profile, but only by 21 %.
 c(deeponet = edaphos_rmse(prof[po, ], predict(no, Xc[po, ],
@@ -97,7 +96,7 @@ c(deeponet = edaphos_rmse(prof[po, ], predict(no, Xc[po, ],
   mean_profile = edaphos_rmse(prof[po, ],
     matrix(colMeans(prof[tr, ]), 30L, 5L, byrow = TRUE)))
 #>     deeponet mean_profile 
-#>     2.715338     3.424886 
+#>     5.710867     3.424886 
 # 2.72 vs 3.42 g/kg
 
 # Pillar 2 supplies the reference kinetics, fitted to the mean
@@ -110,12 +109,12 @@ q
 #>   pool size : 30
 #>   n_select  : 5
 #>   top candidates (NO vs ODE disagreement, normalised):
-#>      pool_index    score no_ode_disagreement no_uncertainty_sd
-#> 1265         10 51.81502            5.089076        0.09821623
-#> 1953          9 29.11624            4.921663        0.16903496
-#> 1949          6 24.06964            4.135874        0.17182951
-#> 1286         19 23.15280            4.229985        0.18269863
-#> 86            3 22.75024            3.499572        0.15382574
+#>    pool_index    score no_ode_disagreement no_uncertainty_sd
+#> 5           5 6.268740            2.240044         0.3573356
+#> 9           9 5.778171            7.833821         1.3557613
+#> 30         30 5.511177            8.518347         1.5456493
+#> 4           4 5.402066            8.199613         1.5178662
+#> 6           6 5.260019            7.725521         1.4687250
 
 # First trap: `n_select` never subsets.  The frame is the whole
 # pool and n_select is an attribute the print method reads.
@@ -138,7 +137,7 @@ c(sd_cv = sd(q$no_uncertainty_sd) / mean(q$no_uncertainty_sd),
   rank_agreement = cor(rank(q$score),
                        rank(q$no_ode_disagreement)))   # 0.231, 0.960
 #>          sd_cv rank_agreement 
-#>      0.2310694      0.9595106 
+#>      0.4806778      0.7090100 
 
 # It is also the only stochastic part and there is no default seed.
 # Here the top five survive a change of seed but individual scores
@@ -146,10 +145,10 @@ c(sd_cv = sd(q$no_uncertainty_sd) / mean(q$no_uncertainty_sd),
 q2 <- al_query_neural_operator(no, ode, Xc[po, ], pool_depths = zz,
                                n_pert = 20L, seed = 2L)
 identical(head(q$pool_index, 5L), head(q2$pool_index, 5L))   # TRUE
-#> [1] TRUE
+#> [1] FALSE
 max(abs(q$score[order(q$pool_index)] /
         q2$score[order(q2$pool_index)] - 1))                 # 0.506
-#> [1] 0.506226
+#> [1] 0.4218518
 
 # Trap for the other operator class: predict() for an FNO has no
 # `newdepths` argument at all, so `pool_depths` is swallowed by

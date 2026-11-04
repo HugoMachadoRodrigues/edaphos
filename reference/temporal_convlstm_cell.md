@@ -74,4 +74,11 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # "The size of tensor a (7) must match the size of tensor b (8) at
   #  non-singleton dimension 3"
 }
+#> [1] 12  5  3  3
+#> [1] "1 x 3 x 8 x 8" "1 x 3 x 8 x 8"
+#> [1] 1 2 8 8
+#> [1] 1 3 8 8
+#> h_absmax c_absmax 
+#>   0.1323   0.2638 
+#> [1] "The size of tensor a (7) must match the size of tensor b (8) at non-singleton dimension 3"
 ```

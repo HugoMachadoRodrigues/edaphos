@@ -77,4 +77,15 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(tryCatch(piml_neural_ode_predict(fit, c(0, -5)),
                  error = function(e) conditionMessage(e)))
 }
+#> [1] 0
+#>   alone  grid10   grid2 
+#> 14.0248 13.5046 13.5046 
+#>   alone  grid10 
+#> 12.0923 12.0241 
+#> [1] 2
+#>    asc1    asc2   desc1   desc2 
+#> 19.2220 12.0765 19.2220 12.0765 
+#>             z0 shallowest_obs 
+#>        20.2978        22.0000 
+#> [1] "all(newdepths >= 0) is not TRUE"
 ```

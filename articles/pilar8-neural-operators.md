@@ -53,10 +53,10 @@ Because the multiplier acts on frequencies rather than grid indices, the
 *learned weights* are independent of the discretisation — the property
 that makes FNO attractive in the PDE literature. Note that the `edaphos`
 implementation nonetheless evaluates on the training depth grid:
-[`predict()`](https://rdrr.io/r/stats/predict.html) for an
-`edaphos_no_fno` takes covariates only. Off-grid querying is available
-through the DeepONet fitter (§1.2, §6), whose trunk network accepts an
-arbitrary depth.
+[`predict()`](https://rspatial.github.io/terra/reference/predict.html)
+for an `edaphos_no_fno` takes covariates only. Off-grid querying is
+available through the DeepONet fitter (§1.2, §6), whose trunk network
+accepts an arbitrary depth.
 
 ### 1.2 DeepONet
 

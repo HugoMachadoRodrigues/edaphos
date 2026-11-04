@@ -131,4 +131,20 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # the default five depths take a few seconds -- gate a subset,
   # not a whole raster.
 }
+#>    pred    lo    hi  keep
+#> 1 23.65  7.81 18.75 FALSE
+#> 2 30.43  8.42 23.04 FALSE
+#> 3 21.65  9.29 21.61  TRUE
+#> 4 20.26  7.31 15.53  TRUE
+#> 5 12.71  3.54  7.55  TRUE
+#> 6 15.96  6.60 10.67  TRUE
+#> 7 16.90  6.90 13.97  TRUE
+#> 8 26.21 12.39 26.77  TRUE
+#> [1] 12.7 30.4
+#> [1]  5.0 38.4
+#> [1] 6 6 8 8
+#> [1] 5 4 8
+#> [1] 5 4 8
+#> [1] TRUE
+#> [1] 1
 ```

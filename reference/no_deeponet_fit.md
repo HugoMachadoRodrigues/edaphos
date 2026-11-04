@@ -65,6 +65,17 @@ no_deeponet_fit(
 
   `"cpu"`, `"mps"`, or `"cuda"` when `backend = "torch"`.
 
+## Value
+
+An `edaphos_no_deeponet` fit: a list carrying `backend`, the training
+`depths`, `targets` and `covariates`, the standardisation constants
+(`cov_std`, `tgt_std`, `depth_std`), the architecture (`branch_hidden`,
+`trunk_hidden`, `output_dim`), `n_obs`, `n_depths` and the per-epoch
+loss `history`. The trained network is stored as weight matrices (`W_b1`
+... `b_t2`, `bias`) for `backend = "r"`, or as `torch_module` plus
+`device` for `backend = "torch"`. Predict with
+[`predict()`](https://rdrr.io/r/stats/predict.html).
+
 ## References
 
 Lu, L., Jin, P., Pang, G., Zhang, Z. and Karniadakis, G. E. (2021).
@@ -109,7 +120,7 @@ don
 #> <edaphos_no_deeponet>  (Pilar 8 -- Deep Operator Network)
 #>   branch 3x16 -> trunk 1x16, output_dim = 8
 #>   n_train = 30   n_depths = 8
-#>   initial MSE = 1.213  final MSE = 0.07538  (epochs = 300)
+#>   initial MSE = 1.561  final MSE = 0.02808  (epochs = 300)
 
 # Targets are standardised per depth, so the mean-profile predictor
 # scores 1.  Unlike the FNO in the same setting, this one has
@@ -123,7 +134,7 @@ round(c(train_mse = don$history[length(don$history)],
         nse_vs_mean_profile = 1 - sum((pred - soc[te, ])^2) /
                                   sum((soc[te, ] - null_prof)^2)), 4)
 #>           train_mse        mean_profile           test_rmse nse_vs_mean_profile 
-#>              0.0754              1.0000              0.5509              0.8918 
+#>              0.0281              1.0000              0.3249              0.9624 
 
 # The trunk accepts depths that were never in the training grid --
 # the property a pointwise regressor cannot have.  Score those
@@ -137,7 +148,7 @@ null_new <- matrix(approx(depths, colMeans(soc[tr, ]), xout = z_new,
 round(c(rmse = sqrt(mean((off - truth)^2)),
         nse  = 1 - sum((off - truth)^2) / sum((truth - null_new)^2)), 4)
 #>   rmse    nse 
-#> 0.8070 0.7985 
+#> 0.7783 0.8125 
 
 # Interpolating is not extrapolating.  Past the deepest training
 # depth the per-depth un-standardisation constants are held FLAT
@@ -150,7 +161,7 @@ round(c(mean_pred_300  = mean(deep[, 2]),
         mean_truth_300 = mean(truth_deep[, 2]),
         worst_site_err = max(abs(deep[, 2] - truth_deep[, 2]))), 3)
 #>  mean_pred_300 mean_truth_300 worst_site_err 
-#>          9.945          9.888          1.427 
+#>          9.837          9.888          1.359 
 
 # backend = "r" trains the second layer of each subnet; the first
 # hidden layers stay at their random initialisation.
@@ -162,5 +173,5 @@ c(branch_hidden_frozen = identical(don1$W_b1, don$W_b1),
   trunk_hidden_frozen  = identical(don1$W_t1, don$W_t1),
   second_layer_trained = !identical(don1$W_b2, don$W_b2))
 #> branch_hidden_frozen  trunk_hidden_frozen second_layer_trained 
-#>                 TRUE                 TRUE                 TRUE 
+#>                 TRUE                 TRUE                FALSE 
 ```

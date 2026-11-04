@@ -193,4 +193,21 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(c(ncol = ncol(proj),
           norm = unique(round(sqrt(rowSums(proj[ok, ]^2)), 6))))
 }
+#>   train_mode    eval_mode 
+#> 1.525879e-05 1.525879e-05 
+#> [1] 5 8
+#> [1] "emb_001" "emb_002" "emb_003" "emb_004" "emb_005" "emb_006" "emb_007"
+#> [8] "emb_008"
+#>    site usable
+#> 1 BR-01   TRUE
+#> 2 BR-02   TRUE
+#> 3 BR-03   TRUE
+#> 4 BR-04  FALSE
+#> 5 BR-05  FALSE
+#> [1]  TRUE  TRUE  TRUE  TRUE FALSE FALSE
+#>   ID elev map_mm ndvi
+#> 1  1   NA     NA   NA
+#> [1] TRUE
+#> ncol norm 
+#>    4    1 
 ```

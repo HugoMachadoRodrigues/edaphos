@@ -139,4 +139,12 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # that width -- 15.52 there is all width and no miss penalty.
   print(round(stats::sd(cube$soc), 2))
 }
+#> [1] 20  1 12  8  8
+#> [1] 0
+#> character(0)
+#> [1] TRUE
+#>                    spread  rmse  bias picp90     IS
+#> month_09_in_sample  4.719 2.168 0.089  1.000 15.524
+#> month_12_forecast   4.429 8.455 8.013  0.438 45.328
+#> [1] 9.58
 ```

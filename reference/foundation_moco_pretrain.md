@@ -206,4 +206,17 @@ d <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
 print(c(other_R_seed = identical(a$loss_history, b$loss_history),
         same_R_seed  = identical(a$loss_history, d$loss_history)))
 }
+#> <edaphos_foundation_moco>  (MoCo v2 -- Pillar 4)
+#>   in_channels = 5  feature_dim = 16  proj_dim = 8
+#>   queue_size = 16  momentum = 0.9990  tau = 0.07  batch = 8
+#>   epochs = 8  final InfoNCE loss = 5.94
+#> requested    actual 
+#>      1024        16 
+#>    queue    batch retained 
+#>        8        8        0 
+#> [1] 3.481 6.945 5.476 7.761 5.958 5.376 5.758 5.940
+#>            final all_logits_equal 
+#>         5.939973         2.833213 
+#> other_R_seed  same_R_seed 
+#>        FALSE         TRUE 
 ```

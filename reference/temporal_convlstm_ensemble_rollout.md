@@ -126,4 +126,30 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(post)
   print(unlist(post$metadata))
 }
+#> [1] 3 3 8 8
+#>      spread   rmse   bias picp90 covered persistence_rmse
+#> [1,]  4.126  3.351  2.401  0.922      59            1.857
+#> [2,]  7.583  8.978  8.569  0.844      54            2.844
+#> [3,]  8.826 15.128 14.706  0.406      26            3.233
+#>        [,1] [,2] [,3]  [,4]  [,5]  [,6]  [,7]  [,8] [,9] [,10] [,11] [,12]
+#> precip 18.2 44.5 81.1 116.8 143.5 152.7 142.6 117.3 81.5  43.1  17.4   8.6
+#> soc    20.1 20.5 21.7  23.8  26.8  30.4  34.1  37.4 40.1  41.9  42.8  43.2
+#>       bias   resid_sd ens_spread 
+#>      14.71       3.57       8.83 
+#>             picp     IS
+#> as_is      0.406 66.897
+#> widened_3x 1.000 87.112
+#> debiased   1.000 29.037
+#> <edaphos_posterior>
+#>   method      : ensemble
+#>   query_type  : map
+#>   units       : SOC z-units
+#>   n_samples   : 3
+#>   query shape : 8 x 8
+#>   mean range  : [-1.1454, +0.5598]  mean = -0.3543
+#>   sd   range  : [+0.4339, +1.5385]  mean = +0.9218
+#>                                K_ens                            time_step 
+#>                                  "3"                                  "3" 
+#>                               source 
+#> "temporal_convlstm_ensemble_rollout" 
 ```

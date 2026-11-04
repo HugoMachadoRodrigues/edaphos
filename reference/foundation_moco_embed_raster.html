@@ -266,6 +266,24 @@ pretraining and inference.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>layers <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nlyr</a></span><span class="op">(</span><span class="va">embp</span><span class="op">)</span>, proj_dim <span class="op">=</span> <span class="va">moco</span><span class="op">$</span><span class="va">proj_dim</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">embp</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      layers feature_dim </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           8           8 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           xmin      xmax      ymin      ymax</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> covs -47.95398 -47.59602 -16.00341 -15.69659</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> emb  -47.95398 -47.63580 -15.96932 -15.69659</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    covered      input overshoots </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         48         45          1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elev  slope    twi map_mm   ndvi </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     64     64     64     64     64 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> na_in_output </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     blank_to_mean real_to_mean_mean  real_to_mean_max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             0.057             0.028             0.038 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   layers proj_dim </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        4        4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 1</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -264,6 +264,21 @@ contributes <code>2 * batch_size - 2</code> negatives per anchor.</p></dd>
 <span class="r-in"><span>                                   batch_size <span class="op">=</span> <span class="fl">6L</span>, seed <span class="op">=</span> <span class="fl">11L</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">c1</span><span class="op">$</span><span class="va">loss_history</span>, <span class="va">c2</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> noise_sd     elev      twi     ndvi </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.100  109.380    2.862    0.084 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elev    twi   ndvi </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0009 0.0349 1.1871 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 12  3  8  8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;edaphos_foundation_simclr&gt; (experimental; Pillar 4 scaffold)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   in_channels = 3  feature_dim = 32  proj_dim = 16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   batch = 6  temperature = 0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   epochs = 40  final loss = 1.081</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  first    min  final chance </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.386  0.759  1.081  2.398 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> requested      used    chance </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    64.000    12.000     3.135 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

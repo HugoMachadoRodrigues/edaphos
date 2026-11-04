@@ -330,6 +330,9 @@ nn_fit <- piml_neural_ode_fit(
   seed    = 1L, verbose = FALSE
 )
 nn_fit
+#> <edaphos_piml_neural_ode>
+#>   dy/dz = f_theta(z, y), MLP hidden = 16 -> 16 
+#>   n obs = 8  rmse = 1.426  final loss = 0.02386
 pred_nn <- data.frame(depth = grid_z,
                       soc   = predict(nn_fit, grid_z))
 ```
@@ -352,6 +355,8 @@ ggplot() +
   theme_minimal(base_size = 12)
 ```
 
+![](pilar2-piml-profile_files/figure-html/plot-neural-1.png)
+
 ## 7. Pillar 2 × Pillar 5 — the physics gate
 
 Given a PIML fit (parametric or neural), the helper
@@ -371,6 +376,7 @@ property the fit itself requires to be positive.
 gate <- al_physics_gate_piml(fit_pedon, safety_factor = 1.2)
 cand_dummy <- data.frame(dummy = 1:4)
 gate(cand_dummy, predicted_mean = c(10, 25, 200, -5))
+#> [1]  TRUE  TRUE FALSE FALSE
 ```
 
 A hierarchical extension
@@ -487,6 +493,11 @@ and Izmailov 2020](#ref-Wilson2020bayesian)).
 ens <- piml_neural_ode_fit_ensemble(depths, values,
                                        K = 5L, epochs = 300L, seed = 1L)
 predict(ens, newdepths = c(10, 20, 40, 80), interval = 0.9)
+#>   depth      mean         sd     lower     upper lower_sim upper_sim
+#> 1    10 21.200158 0.07963331 21.102597 21.281575 21.102597 21.281575
+#> 2    20 16.308584 0.06012354 16.252340 16.382850 16.252340 16.382850
+#> 3    40  9.482652 0.09347463  9.368812  9.572736  9.368812  9.572736
+#> 4    80  7.153997 0.04868603  7.104254  7.206688  7.104254  7.206688
 ```
 
 ## 9. Discussion and roadmap

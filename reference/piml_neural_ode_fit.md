@@ -118,4 +118,15 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # single final number.
   print(round(fit$loss_history[c(1, 20, 40, 60, 80)], 5))
 }
+#> <edaphos_piml_neural_ode>
+#>   dy/dz = f_theta(z, y), MLP hidden = 16 -> 16 
+#>   n obs = 5  rmse = 3.57  final loss = 0.5062
+#>     neural parametric  mean_only 
+#>     3.5703     2.4355     4.4989 
+#> [1] 21.8458 12.2512 12.2062 12.2062 12.2062
+#> [1] 0.045
+#> [1] 12.5
+#> [1] 18.4505 15.4342 13.4813 12.8103 12.4058
+#> [1] TRUE
+#> [1] 2.77732 0.85243 0.66257 0.56551 0.50617
 ```

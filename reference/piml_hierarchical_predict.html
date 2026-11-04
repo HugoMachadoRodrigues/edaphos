@@ -215,6 +215,23 @@ column per depth in <code>newdepths</code>.</p>
 <span class="r-in"><span>    <span class="fu">piml_hierarchical_predict</span><span class="op">(</span><span class="va">fit</span>, <span class="va">held</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">60</span>, <span class="fl">100</span>, <span class="fl">200</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">train</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    twi   ndvi map_mm </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TRUE   TRUE   TRUE </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>piml_hierarchical_predict(): 1 of 4 predicted values were negative (worst -2.56) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       [,1]  [,2] [,3] [,4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pred  7.77  5.78 2.50 0.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> obs  14.66 11.24 8.78 7.03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> trained_on_this_pedon        held_out_pedon        depthwise_mean </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  1.92                  6.45                  1.29 </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>piml_hierarchical_predict(): 1 of 4 predicted values were negative (worst -2.56) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>piml_hierarchical_predict(): 1 of 4 predicted values were negative (worst -2.56) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 60</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>piml_hierarchical_predict(): 3 of 3 predicted values were negative (worst -10.5) for a strictly positive training response, and have been clamped to 0. The model has no positivity constraint -- the state is integrated over an unconstrained network -- so this is a symptom, not a rounding issue. Inspect the fit before using these predictions; `clamp = FALSE` returns them unmodified.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  5.83 22.75</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

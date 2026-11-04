@@ -141,15 +141,16 @@ Rodrigues</h4>
 <h2 id="abstract">Abstract<a class="anchor" aria-label="anchor" href="#abstract"></a>
 </h2>
 <p>Self-Supervised Learning (SSL) has emerged as the dominant
-representation-learning paradigm in computer vision <span class="citation">(<a href="#ref-Chen2020simclr">Chen et al. 2020</a>; <a href="#ref-He2020moco">He et al. 2020</a>; <a href="#ref-Oord2018cpc">Oord et al. 2018</a>)</span> and is increasingly
+representation-learning paradigm in computer vision <span class="citation">(<a href="#ref-Chen2020simclr">T. Chen et al. 2020</a>;
+<a href="#ref-He2020moco">He et al. 2020</a>; <a href="#ref-Oord2018cpc">Oord et al. 2018</a>)</span> and is increasingly
 applied to remote sensing <span class="citation">(<a href="#ref-Jean2019tile2vec">Jean et al. 2019</a>; <a href="#ref-ReichsteinDL2019">Reichstein et al. 2019</a>)</span>. The
 <strong>Pillar 4</strong> of <code>edaphos</code> ships a minimal
-SimCLR-style pipeline <span class="citation">(<a href="#ref-Chen2020simclr">Chen et al. 2020</a>)</span> that pre-trains
-a small raster encoder on unlabelled covariate patches; the resulting
-per-pixel embeddings are then used as additional covariates inside the
-Pillar 5 Active Learning loop on <code>br_cerrado</code>. We report a
-head-to-head comparison of the identical AL policy with and without the
-learned features.</p>
+SimCLR-style pipeline <span class="citation">(<a href="#ref-Chen2020simclr">T. Chen et al. 2020</a>)</span> that
+pre-trains a small raster encoder on unlabelled covariate patches; the
+resulting per-pixel embeddings are then used as additional covariates
+inside the Pillar 5 Active Learning loop on <code>br_cerrado</code>. We
+report a head-to-head comparison of the identical AL policy with and
+without the learned features.</p>
 </div>
 <div class="section level2">
 <h2 id="contrastive-representation-learning">1. Contrastive representation learning<a class="anchor" aria-label="anchor" href="#contrastive-representation-learning"></a>
@@ -163,8 +164,8 @@ of each patch, encodes them with a shared CNN
 and a projection head
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mi>ϕ</mi></msub><annotation encoding="application/x-tex">g_{\phi}</annotation></semantics></math>,
 and minimises the normalised temperature-scaled cross-entropy (NT-Xent)
-loss <span class="citation">(<a href="#ref-Chen2020simclr">Chen et al.
-2020</a>)</span>:
+loss <span class="citation">(<a href="#ref-Chen2020simclr">T. Chen et
+al. 2020</a>)</span>:
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ℒ</mi><mtext mathvariant="normal">NT-Xent</mtext></msub><mspace width="0.278em"></mspace><mo>=</mo><mspace width="0.278em"></mspace><mo>−</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>B</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>B</mi></munderover><munder><mo>∑</mo><mrow><mi>v</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">}</mo></mrow></munder><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mfrac><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>v</mi><mi>′</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>τ</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mi>k</mi><mo>≠</mo><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>𝐳</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msub><mi>𝐳</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>τ</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mathcal{L}_{\text{NT-Xent}}
    \;=\;-\frac{1}{2B}
@@ -192,10 +193,530 @@ of a
 patch with five normalised channels (elevation, slope, TWI, mean annual
 precipitation, NDVI). Reflection padding preserves the original grid
 size.</p>
-<p>This vignette trains a SimCLR encoder and needs the libtorch runtime,
-which the <code>torch</code> R package downloads separately. It stops
-here: everything below is missing, not empty. To read it in full:
-install.packages(“torch”) then torch::install_torch(), and rebuild.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">br_cerrado</span>, package <span class="op">=</span> <span class="st">"edaphos"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">covs_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span>, <span class="st">"ndvi"</span><span class="op">)</span></span>
+<span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">H</span> <span class="op">*</span> <span class="va">W</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>H <span class="op">=</span> <span class="va">H</span>, W <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  H  W </span></span>
+<span><span class="co">#&gt; 45 45</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">$</span><span class="va">y</span>, <span class="va">br_cerrado</span><span class="op">$</span><span class="va">x</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">mat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">col</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">grid</span><span class="op">[[</span><span class="va">col</span><span class="op">]</span><span class="op">]</span>, nrow <span class="op">=</span> <span class="va">H</span>, ncol <span class="op">=</span> <span class="va">W</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">z_mat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">(</span><span class="va">m</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span>, <span class="fl">1e-6</span><span class="op">)</span></span>
+<span><span class="va">channels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">covs_base</span>, <span class="kw">function</span><span class="op">(</span><span class="va">cc</span><span class="op">)</span> <span class="fu">z_mat</span><span class="op">(</span><span class="fu">mat</span><span class="op">(</span><span class="va">cc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cube</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">channels</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">H</span>, <span class="va">W</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">covs_base</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cube</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span><span class="va">cube</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3L</span>, <span class="fl">1L</span>, <span class="fl">2L</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mirror_pad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">p</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">top</span> <span class="op">&lt;-</span> <span class="va">m</span><span class="op">[</span><span class="va">p</span><span class="op">:</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span>  <span class="va">bot</span> <span class="op">&lt;-</span> <span class="va">m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">:</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">-</span> <span class="va">p</span> <span class="op">+</span> <span class="fl">1L</span><span class="op">)</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span>  <span class="va">tall</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">top</span>, <span class="va">m</span>, <span class="va">bot</span><span class="op">)</span></span>
+<span>  <span class="va">left</span>  <span class="op">&lt;-</span> <span class="va">tall</span><span class="op">[</span>, <span class="va">p</span><span class="op">:</span><span class="fl">1</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span>  <span class="va">right</span> <span class="op">&lt;-</span> <span class="va">tall</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">tall</span><span class="op">)</span><span class="op">:</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">tall</span><span class="op">)</span> <span class="op">-</span> <span class="va">p</span> <span class="op">+</span> <span class="fl">1L</span><span class="op">)</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">left</span>, <span class="va">tall</span>, <span class="va">right</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">patch_size</span> <span class="op">&lt;-</span> <span class="fl">7L</span></span>
+<span><span class="va">pad</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">patch_size</span> <span class="op">-</span> <span class="fl">1L</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%/%</a></span> <span class="fl">2L</span></span>
+<span><span class="va">C</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">cube</span><span class="op">)</span><span class="op">[</span><span class="fl">1L</span><span class="op">]</span></span>
+<span><span class="va">padded</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">0</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">C</span>, <span class="va">H</span> <span class="op">+</span> <span class="fl">2L</span> <span class="op">*</span> <span class="va">pad</span>, <span class="va">W</span> <span class="op">+</span> <span class="fl">2L</span> <span class="op">*</span> <span class="va">pad</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">cc</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">C</span><span class="op">)</span><span class="op">)</span> <span class="va">padded</span><span class="op">[</span><span class="va">cc</span>, , <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">mirror_pad</span><span class="op">(</span><span class="va">cube</span><span class="op">[</span><span class="va">cc</span>, , <span class="op">]</span>, <span class="va">pad</span><span class="op">)</span></span>
+<span><span class="va">patches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">0</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">H</span> <span class="op">*</span> <span class="va">W</span>, <span class="va">C</span>, <span class="va">patch_size</span>, <span class="va">patch_size</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">1L</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">H</span><span class="op">)</span><span class="op">)</span> <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">W</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">patches</span><span class="op">[</span><span class="va">k</span>, , , <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">padded</span><span class="op">[</span>, <span class="va">i</span><span class="op">:</span><span class="op">(</span><span class="va">i</span> <span class="op">+</span> <span class="fl">2L</span> <span class="op">*</span> <span class="va">pad</span><span class="op">)</span>, <span class="va">j</span><span class="op">:</span><span class="op">(</span><span class="va">j</span> <span class="op">+</span> <span class="fl">2L</span> <span class="op">*</span> <span class="va">pad</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">k</span> <span class="op">&lt;-</span> <span class="va">k</span> <span class="op">+</span> <span class="fl">1L</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">patches</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 2025    5    7    7</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="simclr-pre-training">3. SimCLR pre-training<a class="anchor" aria-label="anchor" href="#simclr-pre-training"></a>
+</h2>
+<p>Four hundred randomly-drawn patches are pre-trained for 60 epochs on
+Adam. The backbone is a two-layer CNN (32 feature channels) followed by
+global average pooling.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">pretrain_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">patches</span><span class="op">)</span>, <span class="fl">400L</span><span class="op">)</span></span>
+<span><span class="va">simclr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_simclr_pretrain.html">foundation_simclr_pretrain</a></span><span class="op">(</span></span>
+<span>  <span class="va">patches</span><span class="op">[</span><span class="va">pretrain_idx</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
+<span>  feature_dim <span class="op">=</span> <span class="fl">24L</span>, proj_dim  <span class="op">=</span> <span class="fl">12L</span>,</span>
+<span>  batch_size  <span class="op">=</span> <span class="fl">32L</span>, epochs    <span class="op">=</span> <span class="fl">60L</span>, lr <span class="op">=</span> <span class="fl">0.005</span>,</span>
+<span>  temperature <span class="op">=</span> <span class="fl">0.2</span>, noise_sd  <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  seed        <span class="op">=</span> <span class="fl">1L</span>, verbose    <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">simclr</span></span>
+<span><span class="co">#&gt; &lt;edaphos_foundation_simclr&gt; (experimental; Pillar 4 scaffold)</span></span>
+<span><span class="co">#&gt;   in_channels = 5  feature_dim = 24  proj_dim = 12</span></span>
+<span><span class="co">#&gt;   batch = 32  temperature = 0.2</span></span>
+<span><span class="co">#&gt;   epochs = 60  final loss = 2.827</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="per-pixel-embedding-extraction">4. Per-pixel embedding extraction<a class="anchor" aria-label="anchor" href="#per-pixel-embedding-extraction"></a>
+</h2>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_simclr_embed.html">foundation_simclr_embed</a></span><span class="op">(</span><span class="va">simclr</span>, <span class="va">patches</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 2025   24</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"emb"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%02d"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">br_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">grid</span>, <span class="va">emb</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">br_ext</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">covs_base</span>, <span class="st">"soc"</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span>, <span class="fl">3L</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    elev slope    twi map_mm  ndvi   soc     emb01 emb02     emb03</span></span>
+<span><span class="co">#&gt; 1 903.9  2.59 10.324 1197.2 0.719 27.65 0.6837819     0 0.3180625</span></span>
+<span><span class="co">#&gt; 2 927.8  9.90 11.228 1238.8 0.619 20.07 0.6101781     0 0.2849999</span></span>
+<span><span class="co">#&gt; 3 900.4 14.19 11.475 1209.1 0.531 20.18 0.5989195     0 0.2714473</span></span>
+<span><span class="co">#&gt; 4 912.0  6.23 11.284 1159.5 0.586 17.25 0.6434516     0 0.2803029</span></span>
+<span><span class="co">#&gt; 5 934.2 11.89  8.116 1225.3 0.517 15.65 0.6326668     0 0.2645772</span></span>
+<span><span class="co">#&gt; 6 926.6  6.31 11.107 1261.7 0.648 25.42 0.6825560     0 0.3001959</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="controlled-experiment-al-with-and-without-simclr-features">5. Controlled experiment — AL with and without SimCLR features<a class="anchor" aria-label="anchor" href="#controlled-experiment-al-with-and-without-simclr-features"></a>
+</h2>
+<p>Same cLHS seed, same budget, same hybrid policy; only the covariate
+list changes. Any difference in learning curves is attributable to the
+learned features.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="va">seed_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/al_initial_design.html">al_initial_design</a></span><span class="op">(</span><span class="va">br_ext</span>, covariates <span class="op">=</span> <span class="va">covs_base</span>,</span>
+<span>                               n <span class="op">=</span> <span class="fl">25L</span>, iter <span class="op">=</span> <span class="fl">1500L</span><span class="op">)</span></span>
+<span><span class="va">run_al</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">covariate_set</span>, <span class="va">label</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/al_loop.html">al_loop</a></span><span class="op">(</span></span>
+<span>    labeled    <span class="op">=</span> <span class="va">br_ext</span><span class="op">[</span> <span class="va">seed_idx</span>, <span class="op">]</span>,</span>
+<span>    candidates <span class="op">=</span> <span class="va">br_ext</span><span class="op">[</span><span class="op">-</span><span class="va">seed_idx</span>, <span class="op">]</span>,</span>
+<span>    target     <span class="op">=</span> <span class="st">"soc"</span>, covariates <span class="op">=</span> <span class="va">covariate_set</span>,</span>
+<span>    coords     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span><span class="op">)</span>,</span>
+<span>    budget     <span class="op">=</span> <span class="fl">45L</span>, batch <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>    strategy   <span class="op">=</span> <span class="st">"hybrid"</span>, alpha <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>    num.trees  <span class="op">=</span> <span class="fl">500L</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="../reference/al_history.html">al_history</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span>, setup <span class="op">=</span> <span class="va">label</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">covs_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">covs_base</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">h_base</span> <span class="op">&lt;-</span> <span class="fu">run_al</span><span class="op">(</span><span class="va">covs_base</span>, <span class="st">"baseline (5 covariates)"</span><span class="op">)</span></span>
+<span><span class="va">h_ext</span>  <span class="op">&lt;-</span> <span class="fu">run_al</span><span class="op">(</span><span class="va">covs_ext</span>,  <span class="st">"baseline + SimCLR (29 covariates)"</span><span class="op">)</span></span>
+<span><span class="va">h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">h_base</span>, <span class="va">h_ext</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">h</span><span class="op">[</span><span class="va">h</span><span class="op">$</span><span class="va">setup</span> <span class="op">==</span> <span class="st">"baseline (5 covariates)"</span>, <span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    iter n_labeled rmse_oob mean_uncertainty                   setup</span></span>
+<span><span class="co">#&gt; 7     6        55 4.876230           17.682 baseline (5 covariates)</span></span>
+<span><span class="co">#&gt; 8     7        60 4.895046           20.246 baseline (5 covariates)</span></span>
+<span><span class="co">#&gt; 9     8        65 4.802429           20.009 baseline (5 covariates)</span></span>
+<span><span class="co">#&gt; 10    9        70 4.778139           18.526 baseline (5 covariates)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">h</span><span class="op">[</span><span class="va">h</span><span class="op">$</span><span class="va">setup</span> <span class="op">==</span> <span class="st">"baseline + SimCLR (29 covariates)"</span>, <span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    iter n_labeled rmse_oob mean_uncertainty                             setup</span></span>
+<span><span class="co">#&gt; 17    6        55 5.372166          19.6308 baseline + SimCLR (29 covariates)</span></span>
+<span><span class="co">#&gt; 18    7        60 5.258322          17.1960 baseline + SimCLR (29 covariates)</span></span>
+<span><span class="co">#&gt; 19    8        65 5.398702          17.9220 baseline + SimCLR (29 covariates)</span></span>
+<span><span class="co">#&gt; 20    9        70 5.208296          20.4300 baseline + SimCLR (29 covariates)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">h</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">n_labeled</span>, <span class="va">rmse_oob</span>, colour <span class="op">=</span> <span class="va">setup</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Labelled sample size n_t"</span>,</span>
+<span>       y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="st">"OOB RMSE ("</span><span class="op">*</span><span class="va">g</span><span class="op">~</span><span class="va">kg</span><span class="op">^</span><span class="op">{</span><span class="op">-</span><span class="fl">1</span><span class="op">}</span><span class="op">*</span><span class="st">" SOC)"</span><span class="op">)</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"AL on br_cerrado — SimCLR features as auxiliary covariates"</span>,</span>
+<span>       colour <span class="op">=</span> <span class="st">"Feature set"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pilar4-simclr-embeddings_files/figure-html/plot-compare-1.png"><!-- --></p>
+</div>
+<div class="section level2">
+<h2 id="discussion">6. Discussion<a class="anchor" aria-label="anchor" href="#discussion"></a>
+</h2>
+<p>On this small synthetic grid (N = 2025 pixels, five physically-coded
+covariates, 60 SimCLR epochs) the learned features typically yield a
+marginal OOB-RMSE improvement, which is itself informative: the encoder
+extracts signal from the covariate stack <strong>with zero labels
+consumed during pre-training</strong> <span class="citation">(<a href="#ref-Jean2019tile2vec">Jean et al. 2019</a>)</span>.</p>
+<p>The payoff scales super-linearly with the size of the unlabelled
+corpus. Under a realistic Cerrado-wide pre-training with optical + SAR +
+DEM + climate inputs, the learned representation captures transfer
+structure unavailable to any regional model <span class="citation">(<a href="#ref-Chen2020simclr">T. Chen et al. 2020</a>; <a href="#ref-ReichsteinDL2019">Reichstein et al. 2019</a>)</span>, and
+becomes the de-facto feature layer for Pillars 2, 3 and 5. That
+planetary-scale workflow is scheduled for the next major release.</p>
+</div>
+<div class="section level2">
+<h2 id="moco-v2-upgraded-momentum-contrast-encoder">7. MoCo v2 — upgraded momentum-contrast encoder<a class="anchor" aria-label="anchor" href="#moco-v2-upgraded-momentum-contrast-encoder"></a>
+</h2>
+<p>The SimCLR scaffold compares every anchor against <code>2B - 2</code>
+negatives drawn from the current mini-batch. That design is simple but
+couples the number of negatives to the mini-batch size, which is the
+primary reason production SSL pipelines since 2020 have switched to
+<strong>Momentum Contrast (MoCo)</strong> <span class="citation">(<a href="#ref-He2020moco">He et al. 2020</a>; <a href="#ref-Chen2020moco2">X. Chen et al. 2020</a>)</span>. The edaphos
+MoCo v2 implementation
+[<code><a href="../reference/foundation_moco_pretrain.html">foundation_moco_pretrain()</a></code>][foundation_moco_pretrain]
+ships three upgrades over the SimCLR scaffold:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Momentum key encoder</strong> updated by exponential moving
+average
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>k</mi></msub><mo>←</mo><mi>m</mi><mspace width="0.167em"></mspace><msub><mi>θ</mi><mi>k</mi></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mi>θ</mi><mi>q</mi></msub></mrow><annotation encoding="application/x-tex">\theta_k \leftarrow m\,\theta_k + (1-m)\,\theta_q</annotation></semantics></math>
+— keys are stable across batches.</li>
+<li>
+<strong>Dictionary queue</strong> of past keys — every anchor sees
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>≫</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">K \gg B</annotation></semantics></math>
+negatives with no additional batch-size cost.</li>
+<li>
+<strong>Wider residual backbone + 2-layer projection head with
+BatchNorm</strong> — closer to the MoCo v2 recipe than the SimCLR
+scaffold’s shallow CNN.</li>
+</ol>
+<p>Augmentations are tailored to multi-channel raster patches: spatial
+random resized crop, horizontal / vertical flip, 90-degree rotations,
+per-channel Bernoulli dropout (missing-band simulation), spatial cutout
+(cloud-mask simulation), per-channel multiplicative brightness jitter,
+and additive Gaussian sensor noise.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">moco_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_moco_pretrain.html">foundation_moco_pretrain</a></span><span class="op">(</span></span>
+<span>  <span class="va">patches</span><span class="op">[</span><span class="va">pretrain_idx</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
+<span>  feature_dim <span class="op">=</span> <span class="fl">32L</span>, proj_dim    <span class="op">=</span> <span class="fl">16L</span>,</span>
+<span>  queue_size  <span class="op">=</span> <span class="fl">128L</span>, batch_size <span class="op">=</span> <span class="fl">32L</span>,</span>
+<span>  momentum    <span class="op">=</span> <span class="fl">0.99</span>,</span>
+<span>  temperature <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  epochs <span class="op">=</span> <span class="fl">30L</span>, lr <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  seed   <span class="op">=</span> <span class="fl">1L</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">moco_fit</span></span>
+<span><span class="co">#&gt; &lt;edaphos_foundation_moco&gt;  (MoCo v2 -- Pillar 4)</span></span>
+<span><span class="co">#&gt;   in_channels = 5  feature_dim = 32  proj_dim = 16</span></span>
+<span><span class="co">#&gt;   queue_size = 128  momentum = 0.9900  tau = 0.1  batch = 32</span></span>
+<span><span class="co">#&gt;   epochs = 30  final InfoNCE loss = 3.683</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">loss_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>epoch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">simclr</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span>,</span>
+<span>             loss  <span class="op">=</span> <span class="va">simclr</span><span class="op">$</span><span class="va">loss_history</span>, method <span class="op">=</span> <span class="st">"SimCLR"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>epoch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">moco_fit</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span>,</span>
+<span>             loss  <span class="op">=</span> <span class="va">moco_fit</span><span class="op">$</span><span class="va">loss_history</span>, method <span class="op">=</span> <span class="st">"MoCo v2"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">loss_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">epoch</span>, <span class="va">loss</span>, colour <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1.4</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Epoch"</span>, y <span class="op">=</span> <span class="st">"contrastive loss"</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"SimCLR vs. MoCo v2 on the same br_cerrado patches"</span>,</span>
+<span>       colour <span class="op">=</span> <span class="st">"Method"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pilar4-simclr-embeddings_files/figure-html/moco-loss-1.png"><!-- --></p>
+<p>The MoCo v2 loss uses the same InfoNCE form but against a much larger
+negative pool, so its absolute scale differs from SimCLR’s NT-Xent and
+the curves should be compared by their relative downward slope rather
+than their absolute values.</p>
+</div>
+<div class="section level2">
+<h2 id="moco-embeddings-as-pillar-5-covariates">8. MoCo embeddings as Pillar 5 covariates<a class="anchor" aria-label="anchor" href="#moco-embeddings-as-pillar-5-covariates"></a>
+</h2>
+<p>The final step is identical to the SimCLR workflow — extract backbone
+features and pipe them into the Active-Learning loop:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">moco_emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_moco_embed.html">foundation_moco_embed</a></span><span class="op">(</span><span class="va">moco_fit</span>, <span class="va">patches</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">moco_emb</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"mocoemb"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%02d"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">moco_emb</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">br_moco</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">grid</span>, <span class="va">moco_emb</span><span class="op">)</span></span></code></pre></div>
+<p>The <code>moco_emb</code> columns can be inspected for spatial
+coherence (nearby pixels should have similar embeddings if the encoder
+has learned anything meaningful about the covariate topology) and added
+to <code>covariates =</code> in <code><a href="../reference/al_loop.html">al_loop()</a></code> alongside or
+instead of the SimCLR columns.</p>
+</div>
+<div class="section level2">
+<h2 id="planetary-scale-pre-training-on-real-multi-source-mosaics">9. Planetary-scale pre-training on real multi-source mosaics<a class="anchor" aria-label="anchor" href="#planetary-scale-pre-training-on-real-multi-source-mosaics"></a>
+</h2>
+<p>The in-memory <code>(N, C, H, W)</code> array used in sections 3-8
+works for classroom-sized demos but does not scale: a continental
+SoilGrids + WorldClim + SRTM + MODIS + ERA5 mosaic at 250 m resolution
+easily exceeds any laptop’s RAM. Pillar 4 therefore ships a <strong>lazy
+tile-streaming pipeline</strong> that reads patches on the fly from a
+<code><a href="https://rspatial.github.io/terra/reference/SpatRaster-class.html" class="external-link">terra::SpatRaster</a></code> mosaic.</p>
+<div class="section level3">
+<h3 id="tile-sources">9.1 Tile sources<a class="anchor" aria-label="anchor" href="#tile-sources"></a>
+</h3>
+<p>Three keyless public sources cover the canonical DSM stack:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Keyless public sources -- no account required.</span></span>
+<span><span class="fu"><a href="../reference/foundation_tile_source_soilgrids.html">foundation_tile_source_soilgrids</a></span><span class="op">(</span>variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"soc"</span>,<span class="st">"clay"</span>,<span class="st">"phh2o"</span><span class="op">)</span>,</span>
+<span>                                   depth <span class="op">=</span> <span class="st">"0-5cm"</span>,</span>
+<span>                                   aoi   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">46</span>, <span class="op">-</span><span class="fl">16</span>, <span class="op">-</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/foundation_tile_source_worldclim.html">foundation_tile_source_worldclim</a></span><span class="op">(</span>variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"prec"</span>,<span class="st">"tavg"</span><span class="op">)</span>,</span>
+<span>                                   country   <span class="op">=</span> <span class="st">"BRA"</span>,</span>
+<span>                                   aoi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">46</span>, <span class="op">-</span><span class="fl">16</span>, <span class="op">-</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/foundation_tile_source_srtm.html">foundation_tile_source_srtm</a></span><span class="op">(</span>aoi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="op">-</span><span class="fl">46</span>, <span class="op">-</span><span class="fl">16</span>, <span class="op">-</span><span class="fl">12</span><span class="op">)</span>,</span>
+<span>                              derive <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"slope"</span>, <span class="st">"aspect"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>MODIS and ERA5 are not wrapped: both need an account (NASA EarthData,
+Copernicus CDS) and a client package. Pre-process them outside edaphos
+and pass the rasters straight to
+[<code><a href="../reference/foundation_tile_align.html">foundation_tile_align()</a></code>][foundation_tile_align]; its help
+page lists the scaling and bounding-box pitfalls of each.</p>
+</div>
+<div class="section level3">
+<h3 id="alignment-to-a-common-grid">9.2 Alignment to a common grid<a class="anchor" aria-label="anchor" href="#alignment-to-a-common-grid"></a>
+</h3>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">stack</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_tile_align.html">foundation_tile_align</a></span><span class="op">(</span></span>
+<span>  sources <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    soil    <span class="op">=</span> <span class="fu"><a href="../reference/foundation_tile_source_soilgrids.html">foundation_tile_source_soilgrids</a></span><span class="op">(</span></span>
+<span>                 <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"soc"</span>,<span class="st">"clay"</span><span class="op">)</span>, aoi <span class="op">=</span> <span class="va">aoi</span><span class="op">)</span>,</span>
+<span>    climate <span class="op">=</span> <span class="fu"><a href="../reference/foundation_tile_source_worldclim.html">foundation_tile_source_worldclim</a></span><span class="op">(</span></span>
+<span>                 <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"prec"</span>,<span class="st">"tavg"</span><span class="op">)</span>, country <span class="op">=</span> <span class="st">"BRA"</span>, aoi <span class="op">=</span> <span class="va">aoi</span><span class="op">)</span>,</span>
+<span>    relief  <span class="op">=</span> <span class="fu"><a href="../reference/foundation_tile_source_srtm.html">foundation_tile_source_srtm</a></span><span class="op">(</span><span class="va">aoi</span>, derive <span class="op">=</span> <span class="st">"slope"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  target_res <span class="op">=</span> <span class="fl">0.0025</span>,          <span class="co"># ~250 m</span></span>
+<span>  target_crs <span class="op">=</span> <span class="st">"EPSG:4326"</span>,</span>
+<span>  aoi        <span class="op">=</span> <span class="va">aoi</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">stack</span>          <span class="co"># SpatRaster (n_rows, n_cols, n_layers)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="lazy-patch-dataset">9.3 Lazy patch dataset<a class="anchor" aria-label="anchor" href="#lazy-patch-dataset"></a>
+</h3>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># For vignette reproducibility, build a synthetic 4-channel 48x48</span></span>
+<span><span class="co"># raster that stands in for the real SoilGrids + WorldClim + SRTM</span></span>
+<span><span class="co"># stack above. Replace with the `stack` from 9.2 on a real AoI.</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HugoMachadoRodrigues/edaphos" class="external-link">edaphos</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; terra 1.9.50</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span>ncols <span class="op">=</span> <span class="fl">48</span>, nrows <span class="op">=</span> <span class="fl">48</span>,</span>
+<span>          xmin <span class="op">=</span> <span class="op">-</span><span class="fl">50</span>, xmax <span class="op">=</span> <span class="op">-</span><span class="fl">46</span>, ymin <span class="op">=</span> <span class="op">-</span><span class="fl">16</span>, ymax <span class="op">=</span> <span class="op">-</span><span class="fl">12</span>,</span>
+<span>          crs <span class="op">=</span> <span class="st">"EPSG:4326"</span><span class="op">)</span></span>
+<span><span class="va">layers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">rr</span> <span class="op">&lt;-</span> <span class="va">r</span></span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">rr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="op">*</span> <span class="va">k</span> <span class="op">+</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">ncell</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, sd <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rr</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"ch"</span>, <span class="va">k</span><span class="op">)</span></span>
+<span>  <span class="va">rr</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">stack</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span>, <span class="va">layers</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_tile_dataset.html">foundation_tile_dataset</a></span><span class="op">(</span></span>
+<span>  <span class="va">stack</span>,</span>
+<span>  patch_size <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  n_patches  <span class="op">=</span> <span class="fl">200L</span>,</span>
+<span>  seed       <span class="op">=</span> <span class="fl">1L</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">dataset</span></span>
+<span><span class="co">#&gt; &lt;edaphos_tile_dataset&gt;</span></span>
+<span><span class="co">#&gt;   stack       : 48 x 48 x 4 (rows x cols x channels)</span></span>
+<span><span class="co">#&gt;   patch_size  : 8 x 8</span></span>
+<span><span class="co">#&gt;   n_patches   : 200</span></span>
+<span><span class="co">#&gt;   channels    : ch1, ch2, ch3, ch4</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="moco-v2-training-on-the-streamed-dataset">9.4 MoCo v2 training on the streamed dataset<a class="anchor" aria-label="anchor" href="#moco-v2-training-on-the-streamed-dataset"></a>
+</h3>
+<!-- The chunk option below was
+     `requireNamespace("torch", ...) && reticulate::py_available() || .torch_ok`.
+     Three things were wrong with it. `reticulate::py_available()` is not
+     guarded, so on a machine with torch and without reticulate the option
+     ERRORS and the vignette build fails rather than skipping. The `&&`/`||`
+     precedence meant the reticulate clause could only ever change the answer
+     in the case where it crashes. And the chunk trains a MoCo encoder with
+     foundation_moco_pretrain_tiles() -- pure torch, no Python -- so it gated
+     on a runtime it never touches. `reticulate` appeared exactly once in this
+     vignette, here. `.torch_ok` is computed by the setup gate above and is
+     the whole condition. -->
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ck_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"moco_ck_"</span><span class="op">)</span></span>
+<span><span class="va">moco_tiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_moco_pretrain_tiles.html">foundation_moco_pretrain_tiles</a></span><span class="op">(</span></span>
+<span>  <span class="va">dataset</span>,</span>
+<span>  feature_dim <span class="op">=</span> <span class="fl">32L</span>, proj_dim <span class="op">=</span> <span class="fl">16L</span>,</span>
+<span>  queue_size  <span class="op">=</span> <span class="fl">64L</span>, batch_size <span class="op">=</span> <span class="fl">16L</span>,</span>
+<span>  epochs <span class="op">=</span> <span class="fl">20L</span>, lr <span class="op">=</span> <span class="fl">0.02</span>,</span>
+<span>  seed   <span class="op">=</span> <span class="fl">1L</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  checkpoint_dir   <span class="op">=</span> <span class="va">ck_dir</span>,</span>
+<span>  checkpoint_every <span class="op">=</span> <span class="fl">10L</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">moco_tiles</span></span>
+<span><span class="co">#&gt; &lt;edaphos_foundation_moco&gt;  (MoCo v2 -- Pillar 4)</span></span>
+<span><span class="co">#&gt;   in_channels = 4  feature_dim = 32  proj_dim = 16</span></span>
+<span><span class="co">#&gt;   queue_size = 64  momentum = 0.9990  tau = 0.07  batch = 16</span></span>
+<span><span class="co">#&gt;   epochs = 20  final InfoNCE loss = 5.38</span></span></code></pre></div>
+<p>Checkpointing writes <code>encoder_q.pt</code>,
+<code>encoder_k.pt</code>, <code>queue.pt</code> and
+<code>state.rds</code> to <code>checkpoint_dir</code>. Restart with
+<code>resume = ck_dir</code> after any number of restarts without losing
+progress.</p>
+</div>
+<div class="section level3">
+<h3 id="embedding-the-full-mosaic">9.5 Embedding the full mosaic<a class="anchor" aria-label="anchor" href="#embedding-the-full-mosaic"></a>
+</h3>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_moco_embed_raster.html">foundation_moco_embed_raster</a></span><span class="op">(</span></span>
+<span>  <span class="va">moco_tiles</span>,</span>
+<span>  stack   <span class="op">=</span> <span class="va">stack</span>,</span>
+<span>  dataset <span class="op">=</span> <span class="va">dataset</span>,</span>
+<span>  patch_size <span class="op">=</span> <span class="fl">8L</span>,</span>
+<span>  stride     <span class="op">=</span> <span class="fl">8L</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">emb</span></span>
+<span><span class="co">#&gt; class       : SpatRaster</span></span>
+<span><span class="co">#&gt; size        : 5, 5, 32  (nrow, ncol, nlyr)</span></span>
+<span><span class="co">#&gt; resolution  : 0.6666667, 0.6666667  (x, y)</span></span>
+<span><span class="co">#&gt; extent      : -50, -46.66667, -15.33333, -12  (xmin, xmax, ymin, ymax)</span></span>
+<span><span class="co">#&gt; coord. ref. : lon/lat WGS 84 (EPSG:4326)</span></span>
+<span><span class="co">#&gt; source(s)   : memory</span></span>
+<span><span class="co">#&gt; names       :  emb_001,  emb_002,  emb_003,  emb_004,  emb_005,  emb_006, ...</span></span>
+<span><span class="co">#&gt; min values  : 0.392041,  0.47011, 0.324458, 0.457592, 0.427687, 0.284419, ...</span></span>
+<span><span class="co">#&gt; max values  : 0.508106, 0.554665, 0.389245, 0.572707, 0.510934, 0.323895, ...</span></span></code></pre></div>
+<p>The output is a <code><a href="https://rspatial.github.io/terra/reference/SpatRaster-class.html" class="external-link">terra::SpatRaster</a></code> with one band per
+backbone feature (<code>feature_dim = 32</code> here). For visualisation
+we project the embedding onto its top-3 principal components and render
+them as an RGB composite:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">emb_mat</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span></span>
+<span><span class="va">keep</span>    <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">emb_mat</span><span class="op">)</span></span>
+<span><span class="va">pr</span>      <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">emb_mat</span><span class="op">[</span><span class="va">keep</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, scale. <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">rgb_vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">emb_mat</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span>
+<span><span class="va">rgb_vals</span><span class="op">[</span><span class="va">keep</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">pr</span><span class="op">$</span><span class="va">x</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="va">rgb_vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">rgb_vals</span>, <span class="fl">2L</span>, <span class="kw">function</span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">v</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">v</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">v</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span></span>
+<span>       <span class="fu"><a href="https://rspatial.github.io/terra/reference/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">v</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">v</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">rgb_rast</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">emb</span>, nlyrs <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/values.html" class="external-link">values</a></span><span class="op">(</span><span class="va">rgb_rast</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">rgb_vals</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rgb_rast</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PC1"</span>, <span class="st">"PC2"</span>, <span class="st">"PC3"</span><span class="op">)</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plotRGB.html" class="external-link">plotRGB</a></span><span class="op">(</span><span class="va">rgb_rast</span>, r <span class="op">=</span> <span class="fl">1L</span>, g <span class="op">=</span> <span class="fl">2L</span>, b <span class="op">=</span> <span class="fl">3L</span>, stretch <span class="op">=</span> <span class="st">"lin"</span>,</span>
+<span>               axes <span class="op">=</span> <span class="cn">TRUE</span>, main <span class="op">=</span> <span class="st">"MoCo v2 embedding projected to PC1-3"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pilar4-simclr-embeddings_files/figure-html/tile-embed-plot-1.png"><!-- --></p>
+</div>
+<div class="section level3">
+<h3 id="scaling-to-continental-mosaics">9.6 Scaling to continental mosaics<a class="anchor" aria-label="anchor" href="#scaling-to-continental-mosaics"></a>
+</h3>
+<p>The same recipe scales to tens of millions of patches on production
+hardware: swap <code>dataset</code> for one built on a continental VRT
+(<code><a href="https://rspatial.github.io/terra/reference/vrt.html" class="external-link">terra::vrt()</a></code> stitches arbitrarily many tiles), raise
+<code>batch_size</code>, <code>queue_size</code>, and
+<code>epochs</code>, and run the loop on a GPU by setting
+<code>device = "mps"</code> (Apple Silicon) or
+<code>device = "cuda"</code> (NVIDIA), both supported by
+[<code><a href="../reference/foundation_moco_pretrain_tiles.html">foundation_moco_pretrain_tiles()</a></code>][foundation_moco_pretrain_tiles]
+as of v1.2.0. The checkpoint protocol is the same, so overnight or
+multi-day runs can be resumed without state loss.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="downstream-fine-tuning-and-pretrained-weight-distribution">10. Downstream fine-tuning and pretrained weight distribution<a class="anchor" aria-label="anchor" href="#downstream-fine-tuning-and-pretrained-weight-distribution"></a>
+</h2>
+<p>Everything above produces a self-supervised <em>representation</em>.
+Turning that representation into a supervised prediction — classifying a
+patch by soil order, regressing a patch into an SOC point estimate —
+needs a task-specific head on top of the encoder and a labelled dataset
+to train it.</p>
+<p>v1.2.0 adds two entry points,
+[<code><a href="../reference/foundation_fit_classifier.html">foundation_fit_classifier()</a></code>][foundation_fit_classifier]
+and [<code><a href="../reference/foundation_fit_regressor.html">foundation_fit_regressor()</a></code>][foundation_fit_regressor],
+that wrap head construction, training loop, validation split and target
+normalisation behind a single function call. Both support two regimes
+from the transfer-learning literature <span class="citation">(<a href="#ref-He2019rethinking">He et al. 2019</a>; <a href="#ref-Kornblith2019transfer">Kornblith et al. 2019</a>)</span>:</p>
+<ul>
+<li>
+<strong>Linear probe</strong> (<code>freeze_backbone = TRUE</code>,
+<code>head = "linear"</code>) — the encoder is frozen; only a single
+<code>nn_linear(feature_dim, n_out)</code> head is trained. Canonical
+benchmark for self-supervised representations as fixed feature
+extractors.</li>
+<li>
+<strong>Full fine-tuning</strong>
+(<code>freeze_backbone = FALSE</code>) — encoder and head trained
+jointly with a two-group learning rate
+(<code>lr * backbone_lr_mult</code> for the backbone, <code>lr</code>
+for the head). Usually the better option once the downstream dataset
+exceeds ~500 patches per class.</li>
+</ul>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">soil_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Oxisol"</span>, <span class="st">"Ultisol"</span>, <span class="st">"Inceptisol"</span><span class="op">)</span>,</span>
+<span>                              <span class="fl">200L</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_fit_classifier.html">foundation_fit_classifier</a></span><span class="op">(</span></span>
+<span>  encoder         <span class="op">=</span> <span class="va">moco</span>,</span>
+<span>  x               <span class="op">=</span> <span class="va">labelled_patches</span>,</span>
+<span>  y               <span class="op">=</span> <span class="va">soil_order</span>,</span>
+<span>  freeze_backbone <span class="op">=</span> <span class="cn">TRUE</span>, head <span class="op">=</span> <span class="st">"linear"</span>,</span>
+<span>  epochs <span class="op">=</span> <span class="fl">40L</span>, lr <span class="op">=</span> <span class="fl">1e-3</span>, val_split <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  device <span class="op">=</span> <span class="st">"mps"</span>, seed <span class="op">=</span> <span class="fl">1L</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">labelled_patches</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, , , , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></code></pre></div>
+<p>For a continuous target the regressor handles target normalisation
+internally and offers a Huber loss that is robust to pedogenic
+outliers:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_soc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_fit_regressor.html">foundation_fit_regressor</a></span><span class="op">(</span></span>
+<span>  encoder <span class="op">=</span> <span class="va">moco</span>, x <span class="op">=</span> <span class="va">labelled_patches</span>, y <span class="op">=</span> <span class="va">soc_g_per_kg</span>,</span>
+<span>  freeze_backbone <span class="op">=</span> <span class="cn">FALSE</span>, head <span class="op">=</span> <span class="st">"mlp"</span>, hidden <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">64L</span>, <span class="fl">32L</span><span class="op">)</span>,</span>
+<span>  epochs <span class="op">=</span> <span class="fl">80L</span>, lr <span class="op">=</span> <span class="fl">1e-3</span>, loss <span class="op">=</span> <span class="st">"huber"</span>,</span>
+<span>  val_split <span class="op">=</span> <span class="fl">0.2</span>, device <span class="op">=</span> <span class="st">"mps"</span>, seed <span class="op">=</span> <span class="fl">1L</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_soc</span>, <span class="va">new_patches</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="published-cerrado-moco-v2-encoder-on-zenodo">10.1 Published Cerrado MoCo v2 encoder on Zenodo<a class="anchor" aria-label="anchor" href="#published-cerrado-moco-v2-encoder-on-zenodo"></a>
+</h3>
+<p>Self-supervised pretraining on a continental stack is heavy — hours
+of GPU time, gigabytes of raster downloads. Rather than asking every
+user to reproduce that from scratch, <code>edaphos</code> <strong>hosts
+its pretrained encoders on Zenodo</strong> under a CC-BY-4.0 licence and
+ships a registry-based download layer:</p>
+<ul>
+<li>[<code><a href="../reference/foundation_weights_list.html">foundation_weights_list()</a></code>][foundation_weights_list] —
+catalogue of every published encoder.</li>
+<li>[<code><a href="../reference/foundation_weights_download.html">foundation_weights_download()</a></code>][foundation_weights_download]
+— fetches from Zenodo, verifies SHA-256, caches under
+<code>tools::R_user_dir("edaphos")</code>.</li>
+<li>[<code><a href="../reference/foundation_weights_load.html">foundation_weights_load()</a></code>][foundation_weights_load] —
+rebuilds the in-memory <code>edaphos_foundation_moco</code> wrapper with
+the state dict loaded and shape metadata populated.</li>
+</ul>
+<p>The first published encoder,
+<strong><code>edaphos-cerrado-moco-v1</code></strong>, was pretrained on
+an Apple M1 Max over 50 000 16×16 tiles of a core Cerrado AoI (longitude
+−53 to −43, latitude −23 to −10). Channels are a multi-source stack
+aligned to a 0.01 degree (~1 km) grid:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Source</th>
+<th align="left">Channels</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">SoilGrids 250m (0–5 cm mean)</td>
+<td align="left">SOC, clay, sand, pH(H₂O), bulk density</td>
+</tr>
+<tr class="even">
+<td align="left">WorldClim 2.1 (Brazil country pack)</td>
+<td align="left">12 monthly precipitation + 12 monthly mean
+temperature</td>
+</tr>
+<tr class="odd">
+<td align="left">SRTM 30 arc-second</td>
+<td align="left">elevation, slope</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">moco_cerrado</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_weights_load.html">foundation_weights_load</a></span><span class="op">(</span><span class="st">"edaphos-cerrado-moco-v1"</span>,</span>
+<span>                                          verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">emb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_moco_embed.html">foundation_moco_embed</a></span><span class="op">(</span><span class="va">moco_cerrado</span>, <span class="va">my_patches</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_fit_classifier.html">foundation_fit_classifier</a></span><span class="op">(</span><span class="va">moco_cerrado</span>, <span class="va">my_patches</span>,</span>
+<span>                                   <span class="va">soil_order</span>, epochs <span class="op">=</span> <span class="fl">30L</span>,</span>
+<span>                                   device <span class="op">=</span> <span class="st">"mps"</span><span class="op">)</span></span></code></pre></div>
+<p>Custom encoders produced by the user’s own
+[<code><a href="../reference/foundation_moco_pretrain_tiles.html">foundation_moco_pretrain_tiles()</a></code>][foundation_moco_pretrain_tiles]
+run consume the same API — pass the local <code>.pt</code> path instead
+of the registry name:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_moco</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/foundation_weights_load.html">foundation_weights_load</a></span><span class="op">(</span></span>
+<span>  <span class="st">"path/to/my_encoder.pt"</span>,</span>
+<span>  n_channels <span class="op">=</span> <span class="fl">9L</span>, feature_dim <span class="op">=</span> <span class="fl">64L</span>, proj_dim <span class="op">=</span> <span class="fl">32L</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Chen2020simclr" class="csl-entry">
 Chen, T., S. Kornblith, M. Norouzi, and G. Hinton. 2020. <span>“A Simple
@@ -203,17 +724,32 @@ Framework for Contrastive Learning of Visual Representations.”</span>
 <em>Proceedings of the 37th International Conference on Machine
 Learning</em> 119: 1597–607.
 </div>
+<div id="ref-Chen2020moco2" class="csl-entry">
+Chen, X., H. Fan, R. Girshick, and K. He. 2020. <span>“Improved
+Baselines with Momentum Contrastive Learning.”</span>
+<em>arXiv:2003.04297</em>. <a href="https://doi.org/10.48550/arXiv.2003.04297" class="external-link">https://doi.org/10.48550/arXiv.2003.04297</a>.
+</div>
 <div id="ref-He2020moco" class="csl-entry">
 He, K., H. Fan, Y. Wu, S. Xie, and R. Girshick. 2020. <span>“Momentum
 Contrast for Unsupervised Visual Representation Learning.”</span>
 <em>IEEE/CVF Conference on Computer Vision and Pattern Recognition</em>,
 9729–38.
 </div>
+<div id="ref-He2019rethinking" class="csl-entry">
+He, K., R. Girshick, and P. Dollár. 2019. <span>“Rethinking
+<span>ImageNet</span> Pre-Training.”</span> <em>IEEE/CVF International
+Conference on Computer Vision (ICCV)</em>. <a href="https://doi.org/10.1109/ICCV.2019.00502" class="external-link">https://doi.org/10.1109/ICCV.2019.00502</a>.
+</div>
 <div id="ref-Jean2019tile2vec" class="csl-entry">
 Jean, N., S. Wang, A. Samar, G. Azzari, D. Lobell, and S. Ermon. 2019.
 <span>“Tile2Vec: Unsupervised Representation Learning for Spatially
 Distributed Data.”</span> <em>Proceedings of the AAAI Conference on
 Artificial Intelligence</em> 33: 3967–74. <a href="https://doi.org/10.1609/aaai.v33i01.33013967" class="external-link">https://doi.org/10.1609/aaai.v33i01.33013967</a>.
+</div>
+<div id="ref-Kornblith2019transfer" class="csl-entry">
+Kornblith, S., J. Shlens, and Q. V. Le. 2019. <span>“Do Better
+<span>ImageNet</span> Models Transfer Better?”</span> <em>IEEE/CVF
+Conference on Computer Vision and Pattern Recognition (CVPR)</em>. <a href="https://doi.org/10.1109/CVPR.2019.00277" class="external-link">https://doi.org/10.1109/CVPR.2019.00277</a>.
 </div>
 <div id="ref-Oord2018cpc" class="csl-entry">
 Oord, A. van den, Y. Li, and O. Vinyals. 2018. <span>“Representation

@@ -116,4 +116,16 @@ if (requireNamespace("torch", quietly = TRUE) &&
                  error = function(e) conditionMessage(e)))
   # "isTRUE(object$return_sequence) is not TRUE"
 }
+#> [1] 1 2 8 8
+#> [1] 2
+#> [1] 0
+#>                h1    h2
+#> convlstm    1.875 4.640
+#> persistence 3.094 6.822
+#> [1] 0.288
+#> in_sample        h1        h2 
+#>     0.177     2.447     5.706 
+#> drivers_above_train  target_above_train 
+#>               0.328               0.578 
+#> [1] "isTRUE(object$return_sequence) is not TRUE"
 ```

@@ -307,12 +307,6 @@ SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction.
   Build a lazy patch dataset over a
   [`terra::SpatRaster`](https://rspatial.github.io/terra/reference/SpatRaster-class.html)
 
-- [`foundation_tile_source_era5()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_tile_source_era5.md)
-  : ERA5 source stub (needs Copernicus CDS key)
-
-- [`foundation_tile_source_modis()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_tile_source_modis.md)
-  : MODIS source stub (needs NASA EarthData credentials)
-
 - [`foundation_tile_source_soilgrids()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_tile_source_soilgrids.md)
   : Fetch a SoilGrids soil-property stack over an AoI
 

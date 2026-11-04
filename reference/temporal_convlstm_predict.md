@@ -72,4 +72,10 @@ if (requireNamespace("torch", quietly = TRUE) &&
   #  rmse_gkg sd_month6
   #     0.410     3.189
 }
+#> [1] 1 8 8
+#> [1] 1 6 8 8
+#> [1] 0
+#> [1] 1.883 1.727 1.463 1.153 0.703 0.095
+#>  rmse_gkg sd_month6 
+#>     0.410     3.189 
 ```

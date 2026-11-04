@@ -115,4 +115,14 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # on twelve tiles for thirty epochs has memorised twelve tiles,
   # not learned a transferable covariate representation.
 }
+#>    feature projection 
+#>         32         16 
+#>   feat_min feat_norm1 feat_norm2 proj_norm1 proj_norm2 
+#>     0.0000     1.1743     8.2179     1.0000     1.0000 
+#> [1] TRUE
+#> [1]  2 32
+#>                noise       flip
+#> untrained 1.00000000 0.50000000
+#> trained   1.00000000 0.83333333
+#> chance    0.08333333 0.08333333
 ```

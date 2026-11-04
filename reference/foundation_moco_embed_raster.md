@@ -151,4 +151,22 @@ embp <- foundation_moco_embed_raster(moco, covs, ds, stride = 24L,
 print(c(layers = terra::nlyr(embp), proj_dim = moco$proj_dim))
 print(range(round(sqrt(rowSums(terra::values(embp)^2)), 6)))
 }
+#>      layers feature_dim 
+#>           8           8 
+#> [1] 8 8
+#> [1] 5
+#>           xmin      xmax      ymin      ymax
+#> covs -47.95398 -47.59602 -16.00341 -15.69659
+#> emb  -47.95398 -47.63580 -15.96932 -15.69659
+#>    covered      input overshoots 
+#>         48         45          1 
+#>   elev  slope    twi map_mm   ndvi 
+#>     64     64     64     64     64 
+#> na_in_output 
+#>            0 
+#>     blank_to_mean real_to_mean_mean  real_to_mean_max 
+#>             0.057             0.028             0.038 
+#>   layers proj_dim 
+#>        4        4 
+#> [1] 1 1
 ```
