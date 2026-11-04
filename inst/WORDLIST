@@ -9,6 +9,7 @@ Adjoint
 adjustmentSets
 advection
 Aer
+Aer's
 Agrisemantics
 agrovoc
 AGROVOC
@@ -536,6 +537,7 @@ NPP
 NRCS
 NSE
 NumPy
+numpy's
 ò
 obo
 OBO
@@ -766,6 +768,7 @@ Spirtes
 splined
 Springer
 SPSA
+SPSA's
 SRTM
 SSL
 stabilisation
