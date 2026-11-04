@@ -79,3 +79,56 @@ test_that("quantum_kernel rcpp provides measurable speedup", {
   # The documented claim: at least 2x. Measured at 7.5x on this problem.
   expect_gt(t_r / max(t_cpp, 1e-6), 2)
 })
+
+# ---------------------------------------------------------------------------
+# reps and memory are checked once, for both backends.
+#
+# reps = 0 used to return an all-ones kernel (every state left at |0...0>)
+# that quantum_krr_fit() fitted without complaint; reps = -1 split the
+# backends (R errored, C++ returned ones); reps = 2.5 was truncated to 2.
+# backend = "r" had no memory guard at all, only a "may be slow" warning.
+# ---------------------------------------------------------------------------
+test_that("quantum_kernel refuses a reps that is not a whole number >= 1", {
+  X <- matrix(c(0.1, 0.5, 0.9, 1.3, 0.2, 0.4), ncol = 2L)
+  for (b in c("rcpp", "r")) {
+    for (bad in list(0, -1, 2.5, NA_real_, c(1, 2), "2")) {
+      expect_error(quantum_kernel(X, reps = bad, backend = b),
+                   "`reps` must be a single whole number >= 1",
+                   info = paste(b, format(bad)))
+    }
+  }
+  expect_error(quantum_feature_map(c(0.1, 0.2), reps = 0),
+               "`reps` must be a single whole number >= 1")
+  # Valid input is untouched, and the two backends still agree.
+  expect_equal(quantum_kernel(X, reps = 2, backend = "rcpp"),
+               quantum_kernel(X, reps = 2L, backend = "r"), tolerance = 1e-10)
+})
+
+test_that("the C++ entry point refuses reps < 1 if called directly", {
+  X <- matrix(c(0.1, 0.5, 0.9, 1.3), ncol = 2L)
+  expect_error(edaphos:::quantum_kernel_rcpp(X, NULL, 0L), "reps must be >= 1")
+})
+
+test_that("the memory guard counts bytes correctly", {
+  # Pure arithmetic: 2 rows x 2^29 complex doubles x 16 bytes = 16 GB.
+  expect_error(edaphos:::.qk_check_memory(29L, 2L, 0L),
+               "would allocate 16.0 GB of state vectors")
+  expect_silent(edaphos:::.qk_check_memory(8L, 1000L, 1000L))   # ~7.8 MB
+})
+
+test_that("both backends pass through the memory guard before allocating", {
+  # Wired with the limit lowered to nothing and a tiny input, so this test
+  # never allocates anything large. Testing with a genuinely oversized input
+  # would be safe only while the guard exists: on a build without it, the
+  # test itself would try to allocate 16 GB -- which is what happened when
+  # this was first checked against the unguarded code.
+  real_guard <- edaphos:::.qk_check_memory
+  testthat::local_mocked_bindings(
+    .qk_check_memory = function(n, n_x, n_y, limit_gb = 8)
+      real_guard(n, n_x, n_y, limit_gb = 1e-12),
+    .package = "edaphos")
+  X <- matrix(0.1, nrow = 2L, ncol = 3L)
+  for (b in c("rcpp", "r"))
+    expect_error(quantum_kernel(X, backend = b),
+                 "would allocate .* GB of state vectors", info = b)
+})

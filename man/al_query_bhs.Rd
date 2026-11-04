@@ -91,11 +91,11 @@ d_nn <- apply(D[151:225, 1:150, drop = FALSE], 1L, min)
 cor(q$posterior_var[order(q$pool_index)], d_nn,
     method = "spearman")                                       # 0.561
 
-# Finally, the faster Pillar 7 backend is refused even though it
-# stores the same draws -- refit with backend = "gibbs" for AL.
+# The faster Pillar 7 backend stores the same draws, so it serves
+# active learning too.
 bhr <- bhs_fit(trn, soc ~ elev + twi + map_mm,
                coords = c("lon", "lat"), backend = "rcpp",
                nmcmc = 300L, burn = 150L, phi_range = c(0.1, 500),
                seed = 1L)
-try(al_query_bhs(bhr, pool))
+head(al_query_bhs(bhr, pool, n_draws = 50L), 3)
 }

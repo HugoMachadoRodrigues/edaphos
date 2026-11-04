@@ -11,7 +11,8 @@ foundation_embed_at_coords(
   dataset,
   patch_size = NULL,
   projection = FALSE,
-  batch_size = 32L
+  batch_size = 32L,
+  max_na_share = 0.5
 )
 }
 \arguments{
@@ -36,11 +37,22 @@ projection-head outputs instead of the backbone features.}
 \item{batch_size}{Integer; number of patches to forward through the
 encoder in a single call (trades memory for speed).  Defaults
 to \code{32L}.}
+
+\item{max_na_share}{Number in \verb{[0, 1]}; the largest share of missing
+(NoData) pixel values a patch may have and still be embedded. Missing
+values below this share are imputed with the channel mean, as before;
+a patch above it gets an \code{NA} row instead of an embedding that would
+mostly describe the imputation. Default \code{0.5}.}
 }
 \value{
 A numeric matrix with \code{nrow(coords)} rows and \code{D} columns,
-where \code{D} is \code{moco$feature_dim} or \code{moco$proj_dim}.  Rows that
-could not be extracted contain \code{NA}.
+where \code{D} is \code{moco$feature_dim} or \code{moco$proj_dim}. A row is \code{NA} when
+its coordinate falls within \code{patch_size / 2} of the raster edge or
+outside it, when the raster block could not be read, or when its patch
+has more than \code{max_na_share} missing values; the last two raise a
+warning with the count and, for read failures, the cause. Attribute
+\code{na_share} gives each row's share of imputed values (\code{NA} where no
+patch was read), so the imputation is visible downstream.
 }
 \description{
 For each row of \code{coords} (longitude, latitude) crops a

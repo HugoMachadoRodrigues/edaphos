@@ -64,10 +64,47 @@
 
 # ----- ZZFeatureMap (Havlicek et al. 2019) -----------------------------------
 
+# `reps` is the number of times the encoding circuit is stacked, so it is a
+# whole number >= 1, and both backends now check it in one place.
+#
+# Unchecked, reps = 0 applied the circuit zero times: every sample stayed at
+# |0...0>, every inner product was 1, and the kernel came back as an all-ones
+# matrix -- rank 1, carrying nothing about the data -- which quantum_krr_fit()
+# then fitted without complaint. reps = -1 split the backends (R errored in
+# seq_len(), C++ returned ones), and reps = 2.5 was truncated to 2 by
+# as.integer() without a word.
+.qk_check_reps <- function(reps) {
+  if (!is.numeric(reps) || length(reps) != 1L || !is.finite(reps) ||
+      reps < 1 || reps != round(reps))
+    stop(sprintf(paste(
+      "`reps` must be a single whole number >= 1 (the number of times the",
+      "encoding circuit is applied); got %s. reps = 0 would leave every",
+      "state at |0...0> and return an all-ones kernel."),
+      paste(format(reps), collapse = ", ")), call. = FALSE)
+  as.integer(reps)
+}
+
+# State vectors are 2^n complex doubles each, one per row. Shared by both
+# backends: the C++ side has carried this guard since it was keyed on bytes,
+# but backend = "r" allocated the same arrays with only a "may be slow"
+# warning above 12 qubits, and an R session that is OOM-killed gets no error
+# message at all.
+.qk_check_memory <- function(n, n_x, n_y, limit_gb = 8) {
+  gb <- (n_x + n_y) * 2^n * 16 / 1024^3
+  if (gb > limit_gb)
+    stop(sprintf(paste(
+      "quantum_kernel() would allocate %.1f GB of state vectors (%d + %d",
+      "rows at 2^%d complex doubles each). Reduce the number of features",
+      "(qubits) or rows: memory grows linearly in rows and doubles with",
+      "every qubit."), gb, n_x, n_y, n), call. = FALSE)
+  invisible(gb)
+}
+
 # Internal: build the quantum state |phi(x)> by applying the data-encoding
 # circuit U_phi(x) * H^{otimes n} to |0...0>. `reps` stacks the whole
 # encoding `reps` times, increasing kernel expressivity.
 .quantum_zz_feature_map <- function(x, reps = 2L) {
+  reps <- .qk_check_reps(reps)
   x <- as.numeric(x)
   n <- length(x)
   stopifnot(n >= 1L, is.finite(sum(x)))
@@ -175,7 +212,9 @@ quantum_kernel <- function(X, Y = NULL, reps = 2L,
     is.numeric(X), is.numeric(Y_mat),
     all(is.finite(X)), all(is.finite(Y_mat))
   )
+  reps <- .qk_check_reps(reps)
   n  <- ncol(X)
+  .qk_check_memory(n, nrow(X), if (same) 0L else nrow(Y_mat))
   dim_state <- 2L^n
   if (n > 12L && backend == "r") {
     warning("Pure-R state-vector simulation with n_qubits > 12 is slow. ",
