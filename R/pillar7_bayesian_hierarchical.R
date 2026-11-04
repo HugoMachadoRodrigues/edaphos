@@ -37,15 +37,17 @@
 # Alternative backends
 # --------------------
 #   backend = "gibbs"   : this pure-R Gibbs sampler (default).
+#   backend = "rcpp"    : the same sampler with an RcppArmadillo inner
+#                          loop; same draws, same fields.
 #   backend = "spBayes" : dispatches to `spBayes::spLM` when the
 #                          Suggests-only package is installed --
-#                          runs the full Bayesian spatial linear
-#                          model with phi MCMC.  FITS BUT DOES NOT
-#                          PREDICT: predict.edaphos_bhs() refuses on
-#                          this backend, so the object is good for
-#                          posterior inspection and not for kriging.
-#                          bhs_fit() warns before sampling.
-#   backend = "stan"    : not implemented.
+#                          the full Bayesian spatial linear model,
+#                          with phi sampled rather than fixed at its
+#                          profile MLE. predict() delegates to
+#                          spBayes::spPredict(), so phi uncertainty
+#                          reaches the predictive interval.
+# (An earlier version of this list offered backend = "stan"; match.arg()
+# never accepted it.)
 #
 # References
 # ----------
@@ -73,12 +75,13 @@
 #'   external deps), `"rcpp"` (the same sampler with an RcppArmadillo inner
 #'   loop), or `"spBayes"` (dispatches to `spBayes::spLM` when available).
 #'
-#'   **`"spBayes"` fits but cannot predict.** [predict.edaphos_bhs()] refuses
-#'   on that backend, so a fit made with it supports posterior inspection --
-#'   `beta_draws`, `sigma2_draws`, `tau2_draws`, `print()`, the spatial
-#'   variance share -- but not kriging at new sites. `bhs_fit()` warns about
-#'   this before it starts sampling rather than after. Use `"gibbs"` or
-#'   `"rcpp"` if you need predictions.
+#'   All three support [predict.edaphos_bhs()], [as_edaphos_posterior()] and
+#'   [al_query_bhs()]. They differ in how `phi` is handled: `"gibbs"` and
+#'   `"rcpp"` fix it at the profile MLE (`phi_method = "profile-MLE"`), while
+#'   `"spBayes"` samples it, reports its posterior median as `phi_hat`
+#'   (`phi_method = "posterior median"`), and predicts through
+#'   `spBayes::spPredict()` so that the uncertainty in `phi` reaches the
+#'   predictive interval.
 #' @param nmcmc Integer; number of MCMC iterations.  Default `2000L`.
 #' @param burn Integer; burn-in to discard.  Default `nmcmc %/% 2`.
 #' @param thin Integer; keep every `thin`-th post-burn draw.  Default `1L`.
@@ -106,8 +109,11 @@
 #' @param seed Optional RNG seed.
 #' @param verbose Logical.
 #' @return An `edaphos_bhs` S3 object. Among its fields, `phi_hat` is the
-#'   profile-MLE of the rate, and `phi_railed` / `phi_rail_edge` record
-#'   whether that MLE landed on an endpoint of `phi_range` and which one.
+#'   profile-MLE of the rate (the posterior median for `backend =
+#'   "spBayes"`; `phi_method` names which), and `phi_railed` /
+#'   `phi_rail_edge` record whether that MLE landed on an endpoint of
+#'   `phi_range` and which one (`NA` for `"spBayes"`, where phi is sampled
+#'   and nothing is optimised).
 #'   The warning alone is not enough: a downstream script that reads
 #'   `phi_hat` or the spatial variance fraction needs to branch on whether
 #'   the data or the bracket produced them. `spatial` carries
@@ -315,23 +321,6 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
   if (backend == "spBayes") {
     if (!requireNamespace("spBayes", quietly = TRUE))
       stop("Install `spBayes` to use backend = 'spBayes'.", call. = FALSE)
-    # SAY IT BEFORE THE SAMPLER, NOT AFTER.
-    #
-    # predict.edaphos_bhs() refuses on this backend. Until now the refusal
-    # arrived after spLM() had run nmcmc iterations (2000 by default) and
-    # spRecover() had reconstructed the latent field -- so a user asking for
-    # predictions paid the whole fit to be told it cannot serve them.
-    #
-    # The fit itself is NOT refused, because it is genuinely useful: this
-    # branch returns beta_draws, sigma2_draws and tau2_draws in a full
-    # edaphos_bhs object, which print(), the spatial-variance summary and any
-    # posterior inspection can use. Only prediction is missing, so only
-    # prediction is warned about.
-    warning("backend = 'spBayes' fits, but predict() is not implemented for ",
-            "it: the fit returns posterior draws you can inspect, and ",
-            "kriging at new sites needs backend = 'gibbs' or 'rcpp'. ",
-            "Warned before sampling rather than after.", call. = FALSE)
-
     # Dispatch to spBayes::spLM
     fit <- spBayes::spLM(
       formula = formula, data = data, coords = S,
@@ -348,18 +337,49 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
       n.samples = nmcmc, verbose = verbose
     )
     fit_sp <- spBayes::spRecover(fit, start = burn + 1L, verbose = FALSE)
-    beta_draws <- fit_sp$p.beta.recover.samples
-    theta_draws <- fit_sp$p.theta.recover.samples
-    out <- list(
-      backend    = "spBayes",
-      beta_draws = beta_draws,
-      sigma2_draws = theta_draws[, "sigma.sq"],
-      tau2_draws   = theta_draws[, "tau.sq"],
-      phi_draws    = theta_draws[, "phi"],
-      X = X, y = y, coords = S, formula = formula,
+    beta_draws  <- as.matrix(fit_sp$p.beta.recover.samples)
+    colnames(beta_draws) <- colnames(X)
+    theta_draws <- as.matrix(fit_sp$p.theta.recover.samples)
+    sigma2_d <- as.numeric(theta_draws[, "sigma.sq"])
+    tau2_d   <- as.numeric(theta_draws[, "tau.sq"])
+    phi_d    <- as.numeric(theta_draws[, "phi"])
+
+    # THE SAME FIELDS AS THE OTHER BACKENDS, SO THE SAME METHODS WORK.
+    #
+    # This branch used to return draws and nothing else: no w_post_mean, no
+    # phi_hat, no nmcmc/burn/thin. predict() refused it, al_query_bhs()
+    # refused it, and as_edaphos_posterior() crashed inside sweep() on a NULL
+    # w_post_mean with a message naming none of that -- while README, NEWS and
+    # ?bhs_fit presented spBayes as an equal peer. The draws needed were here
+    # all along: spRecover() returns the latent field per draw, and phi is
+    # sampled rather than fixed.
+    #
+    # phi_hat is the POSTERIOR MEDIAN of phi on this backend, not the profile
+    # MLE the gibbs and rcpp backends condition on, and phi_method says so.
+    # phi is sampled here, so "railed" against the bracket -- a property of an
+    # optimiser -- does not apply; phi_railed is NA rather than FALSE.
+    phi_hat <- stats::median(phi_d)
+    out <- structure(list(
+      backend      = "spBayes",
+      beta_draws   = beta_draws,
+      sigma2_draws = sigma2_d,
+      tau2_draws   = tau2_d,
+      phi_draws    = phi_d,
+      phi_hat      = phi_hat,
+      phi_method   = "posterior median",
+      spatial      = .bhs_spatial_summary(sigma2_d, tau2_d, phi_hat, S),
+      phi_range    = phi_range,
+      phi_range_source = phi_range_source,
+      phi_railed   = NA,
+      phi_rail_edge = NA_character_,
+      w_post_mean  = rowMeans(fit_sp$p.w.recover.samples),
+      X = X, y = y, coords = S,
+      formula = formula,
+      nmcmc = nmcmc, burn = burn, thin = 1L,
+      prior_var_beta = prior_var_beta,
+      prior_ig_a = prior_ig_a, prior_ig_b = prior_ig_b,
       raw = fit_sp
-    )
-    class(out) <- "edaphos_bhs"
+    ), class = "edaphos_bhs")
     return(out)
   }
 
@@ -463,6 +483,7 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
       sigma2_draws = as.numeric(out_rcpp$sigma2_draws),
       tau2_draws   = as.numeric(out_rcpp$tau2_draws),
       phi_hat      = phi_hat,
+      phi_method   = "profile-MLE",
       spatial      = .bhs_spatial_summary(out_rcpp$sigma2_draws,
                                           out_rcpp$tau2_draws, phi_hat, S),
       phi_range    = phi_range,
@@ -575,6 +596,7 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
     sigma2_draws = sigma2_draws[keep],
     tau2_draws   = tau2_draws[keep],
     phi_hat      = phi_hat,
+    phi_method   = "profile-MLE",
     spatial      = .bhs_spatial_summary(sigma2_draws[keep], tau2_draws[keep],
                                         phi_hat, S),
     phi_range    = phi_range,
@@ -705,9 +727,8 @@ bhs_fit <- function(data, formula, coords = c("lon", "lat"),
 #' @export
 predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975),
                                   n_draws = 500L, draws = FALSE, ...) {
-  if (object$backend == "spBayes")
-    stop("predict() for spBayes backend is not yet implemented; ",
-          "use the pure-R gibbs backend instead.", call. = FALSE)
+  if (identical(object$backend, "spBayes"))
+    return(.bhs_predict_spbayes(object, newdata, quantiles, n_draws, draws))
   # Strip the response side of the formula before building X_new
   # (newdata typically has no response column).
   rhs_terms <- stats::delete.response(stats::terms(object$formula))
@@ -808,12 +829,58 @@ predict.edaphos_bhs <- function(object, newdata, quantiles = c(0.025, 0.5, 0.975
   res
 }
 
+# predict() for backend = "spBayes", delegated to spBayes::spPredict().
+#
+# The gibbs and rcpp paths condition every draw on one phi (the profile
+# MLE). spBayes samples phi, so its own predictor is the exact one: each
+# predictive draw uses that iteration's (beta, sigma^2, tau^2, phi) jointly,
+# and phi uncertainty propagates into the interval. Measured on a 120-site
+# synthetic field: predictions correlate 1.000 with the gibbs backend's, RMSE
+# against the truth 0.561 vs 0.565. The return value has the same shape as
+# the other backends', including the draws attribute on request.
+.bhs_predict_spbayes <- function(object, newdata, quantiles, n_draws, draws) {
+  if (!requireNamespace("spBayes", quietly = TRUE))
+    stop("Install `spBayes` to predict from a backend = 'spBayes' fit.",
+         call. = FALSE)
+  if (is.null(object$raw))
+    stop("this spBayes fit carries no `raw` spLM object to predict from.",
+         call. = FALSE)
+  rhs_terms <- stats::delete.response(stats::terms(object$formula))
+  X_new <- stats::model.matrix(rhs_terms, data = newdata)
+  if (!all(colnames(object$X) %in% colnames(X_new)))
+    stop("newdata matrix does not match training columns.", call. = FALSE)
+  X_new <- X_new[, colnames(object$X), drop = FALSE]
+  S_new <- as.matrix(newdata[, colnames(object$coords), drop = FALSE])
+
+  n_avail <- nrow(object$beta_draws)
+  thin    <- max(1L, floor(n_avail / max(1L, n_draws)))
+  pr <- spBayes::spPredict(object$raw, pred.coords = S_new,
+                           pred.covars = X_new, start = 1, thin = thin,
+                           verbose = FALSE)
+  draws_mat <- t(pr$p.y.predictive.samples)        # draws x sites
+  res <- data.frame(mean = colMeans(draws_mat),
+                    sd   = apply(draws_mat, 2L, stats::sd))
+  qmat <- apply(draws_mat, 2L, stats::quantile, probs = quantiles,
+                names = FALSE)
+  qmat <- matrix(qmat, nrow = length(quantiles))
+  for (i in seq_along(quantiles)) {
+    qn <- sprintf("q%03.0f", round(quantiles[i] * 1000))
+    res[[qn]] <- qmat[i, ]
+  }
+  if (isTRUE(draws)) attr(res, "draws") <- draws_mat
+  res
+}
+
 #' @export
 as_edaphos_posterior.edaphos_bhs <- function(x, units = NULL, ...) {
   # Return a posterior over the prediction at an implicit grid:
   # we expose the MARGINAL posterior over the first fitted value
   # (useful for passing to uncertainty_calibrate).  For a full
   # grid posterior use `predict()` directly.
+  if (is.null(x$w_post_mean))
+    stop("this edaphos_bhs object carries no latent-field estimate ",
+         "(w_post_mean), so a posterior over fitted values cannot be built. ",
+         "Refit it with the current version of bhs_fit().", call. = FALSE)
   n_draws <- nrow(x$beta_draws)
   # Fitted values per draw
   fitted_mat <- x$beta_draws %*% t(x$X)
@@ -869,7 +936,8 @@ print.edaphos_bhs <- function(x, ...) {
   cat(sprintf("  p (covariates + intercept) : %d\n", ncol(x$X)))
   cat(sprintf("  MCMC draws kept : %d\n", nrow(x$beta_draws)))
   if (!is.null(x$phi_hat))
-    cat(sprintf("  phi (profile-MLE) : %.4f\n", x$phi_hat))
+    cat(sprintf("  phi (%s) : %.4f\n", x$phi_method %||% "profile-MLE",
+                x$phi_hat))
   # Posterior summaries
   beta_mean <- colMeans(x$beta_draws)
   beta_sd   <- apply(x$beta_draws, 2L, stats::sd)

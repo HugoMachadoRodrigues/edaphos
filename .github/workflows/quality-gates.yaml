@@ -94,19 +94,46 @@ jobs:
           extra-packages: any::urlchecker
 
       - name: URL check (advisory)
+        # fail = FALSE IS LOAD-BEARING. urlchecker 2.x defaults url_check() to
+        # fail = TRUE, which prints the problems and stops on the first call,
+        # so the classification below never ran: every slow host turned this
+        # job red. Four PRs in a row went red on timeouts alone -- NeurIPS,
+        # agrovoc.fao.org, zenodo.org -- each of which answered 200 from a
+        # laptop. A check that is red every time stops meaning anything.
+        #
+        # Now three kinds of problem are told apart, and only one fails:
+        #   * bot-blocked hosts (doi.org, researchgate, sciencedirect) refuse
+        #     programmatic requests -- listed, not failed;
+        #   * timeouts ("Timeout was reached", 5 s) are slow hosts or a slow
+        #     runner -- listed, not failed;
+        #   * everything else -- a 404, a 410, a refused connection -- is a
+        #     link that is actually broken, and fails the job.
         run: |
-          r <- urlchecker::url_check(".")
-          if (nrow(r)) {
-            print(r)
-            # Separate the hosts known to block bots from everything else, so
-            # a real 404 is not lost among them.
-            blocked <- grepl("doi[.]org|researchgate[.]net|sciencedirect",
-                             r$URL, ignore.case = TRUE)
-            if (any(!blocked)) {
-              cat("\n--- URLs failing for reasons other than bot-blocking ---\n")
-              print(r[!blocked, ])
-            }
-          } else {
+          r <- urlchecker::url_check(".", progress = FALSE, fail = FALSE)
+          if (!NROW(r)) {
             cat("every URL resolved\n")
+            quit(status = 0)
           }
+          tab <- data.frame(
+            URL     = r$URL,
+            Status  = r$Status,
+            Message = r$Message,
+            From    = vapply(r$From, paste, "", collapse = ", "),
+            stringsAsFactors = FALSE)
+          blocked <- grepl("doi[.]org|researchgate[.]net|sciencedirect",
+                           tab$URL, ignore.case = TRUE)
+          timeout <- !blocked & grepl("Timeout was reached", tab$Message,
+                                      fixed = TRUE)
+          broken  <- !blocked & !timeout
+          show <- function(title, i) if (any(i)) {
+            cat(sprintf("\n--- %s (%d) ---\n", title, sum(i)))
+            print(tab[i, ], row.names = FALSE, right = FALSE)
+          }
+          show("blocked by the host, not broken", blocked)
+          show("timed out -- slow host or runner, not counted as broken", timeout)
+          show("BROKEN", broken)
+          if (any(broken))
+            stop(sprintf("%d broken URL%s.", sum(broken),
+                         if (sum(broken) > 1) "s" else ""), call. = FALSE)
+          cat("\nno broken URLs\n")
         shell: Rscript {0}

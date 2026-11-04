@@ -1,7 +1,7 @@
 ## data-raw/capstone_campaign_run.R
 ##
 ## Pre-computes capstone_campaign_results.rds consumed by
-## vignettes/capstone-cerrado-campaign.Rmd  (edaphos v1.7.0).
+## vignettes/capstone-cerrado-campaign.Rmd.
 ##
 ## All six pillars are exercised on the Cerrado AoI (10x10 grid,
 ## 0.2 deg cells) + 1 095 WoSIS profiles from causal_cerrado_real.rds.

@@ -287,3 +287,83 @@ test_that("foundation_build_cerrado_stack() checks for digest before touching di
                "Install `digest`", fixed = TRUE)
   expect_false(dir.exists(cache))
 })
+
+
+# ---------------------------------------------------------------------------
+# Nothing that failed may look like an embedding.
+#
+# A failed block read and a patch over NoData used to be z-scored and filled
+# with 0 -- the channel mean -- and encoded like any other patch: a finite,
+# in-range vector, identical for every such site, that nothing downstream
+# could tell from data.
+# ---------------------------------------------------------------------------
+.embed_fixture <- function(C = 5L, patch = 8L) {
+  blk <- torch::nn_module(
+    initialize = function() self$lin <- torch::nn_linear(C * patch * patch, 4L),
+    forward = function(x) self$lin(torch::torch_flatten(x, start_dim = 2L)),
+    backbone_features = function(x) self$lin(torch::torch_flatten(x, start_dim = 2L))
+  )
+  moco <- structure(list(encoder_q = blk(), feature_dim = 4L, proj_dim = 4L,
+                         patch_size = patch, n_channels = C),
+                    class = "edaphos_foundation_moco")
+  set.seed(3L)
+  stk <- terra::rast(xmin = -50, xmax = -48, ymin = -16, ymax = -14,
+                     crs = "EPSG:4326", resolution = 0.05, nlyrs = C)
+  for (k in seq_len(C)) terra::values(stk[[k]]) <- stats::rnorm(terra::ncell(stk))
+  list(moco = moco, stk = stk,
+       ds = list(patch_size = patch, n_channels = C,
+                 means = rep(0, C), sds = rep(1, C)))
+}
+
+test_that("a patch over NoData is NA, not the embedding of a mean patch", {
+  .skip_if_no_torch()
+  skip_if_not_installed("terra")
+  f <- .embed_fixture()
+  # Blank every channel over the western half: a coordinate there reads a
+  # patch with nothing in it.
+  for (k in seq_len(terra::nlyr(f$stk))) {
+    v <- terra::values(f$stk[[k]])
+    v[terra::xFromCell(f$stk, seq_len(terra::ncell(f$stk))) < -49] <- NA
+    terra::values(f$stk[[k]]) <- v
+  }
+  xy <- data.frame(lon = c(-49.6, -48.5), lat = c(-15, -15))
+  expect_warning(
+    emb <- foundation_embed_at_coords(f$moco, xy, f$stk, f$ds, patch_size = 8L),
+    "1 of 2 patches had more than 50% missing values")
+  expect_true(all(is.na(emb[1, ])))
+  expect_true(all(is.finite(emb[2, ])))
+  expect_equal(attr(emb, "na_share"), c(1, 0))
+})
+
+test_that("a dead channel is imputed, embedded, and reported in na_share", {
+  .skip_if_no_torch()
+  skip_if_not_installed("terra")
+  f <- .embed_fixture()
+  terra::values(f$stk[[2]]) <- NA          # 1 of 5 channels: 20% of each patch
+  xy <- data.frame(lon = c(-49.5, -48.5), lat = c(-15, -14.6))
+  expect_no_warning(
+    emb <- foundation_embed_at_coords(f$moco, xy, f$stk, f$ds, patch_size = 8L))
+  expect_true(all(is.finite(emb)))
+  expect_equal(attr(emb, "na_share"), c(0.2, 0.2))
+  # The threshold is the caller's: at 0.1 the same patches are refused.
+  expect_warning(
+    strict <- foundation_embed_at_coords(f$moco, xy, f$stk, f$ds,
+                                         patch_size = 8L, max_na_share = 0.1),
+    "2 of 2 patches")
+  expect_true(all(is.na(strict)))
+})
+
+test_that("a failed block read is NA and its cause is reported", {
+  .skip_if_no_torch()
+  skip_if_not_installed("terra")
+  f <- .embed_fixture()
+  xy <- data.frame(lon = c(-49.5, -48.5), lat = c(-15, -14.6))
+  testthat::local_mocked_bindings(
+    values = function(x, ...) stop("simulated read failure"),
+    .package = "terra")
+  expect_warning(
+    emb <- foundation_embed_at_coords(f$moco, xy, f$stk, f$ds, patch_size = 8L),
+    "2 of 2 raster block reads failed.*simulated read failure")
+  expect_true(all(is.na(emb)))
+  expect_true(all(is.na(attr(emb, "na_share"))))
+})

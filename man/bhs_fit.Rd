@@ -33,12 +33,13 @@ the coordinate columns.}
 external deps), \code{"rcpp"} (the same sampler with an RcppArmadillo inner
 loop), or \code{"spBayes"} (dispatches to \code{spBayes::spLM} when available).
 
-\strong{\code{"spBayes"} fits but cannot predict.} \code{\link[=predict.edaphos_bhs]{predict.edaphos_bhs()}} refuses
-on that backend, so a fit made with it supports posterior inspection --
-\code{beta_draws}, \code{sigma2_draws}, \code{tau2_draws}, \code{print()}, the spatial
-variance share -- but not kriging at new sites. \code{bhs_fit()} warns about
-this before it starts sampling rather than after. Use \code{"gibbs"} or
-\code{"rcpp"} if you need predictions.}
+All three support \code{\link[=predict.edaphos_bhs]{predict.edaphos_bhs()}}, \code{\link[=as_edaphos_posterior]{as_edaphos_posterior()}} and
+\code{\link[=al_query_bhs]{al_query_bhs()}}. They differ in how \code{phi} is handled: \code{"gibbs"} and
+\code{"rcpp"} fix it at the profile MLE (\code{phi_method = "profile-MLE"}), while
+\code{"spBayes"} samples it, reports its posterior median as \code{phi_hat}
+(\code{phi_method = "posterior median"}), and predicts through
+\code{spBayes::spPredict()} so that the uncertainty in \code{phi} reaches the
+predictive interval.}
 
 \item{nmcmc}{Integer; number of MCMC iterations.  Default \code{2000L}.}
 
@@ -76,8 +77,10 @@ which happened.}
 }
 \value{
 An \code{edaphos_bhs} S3 object. Among its fields, \code{phi_hat} is the
-profile-MLE of the rate, and \code{phi_railed} / \code{phi_rail_edge} record
-whether that MLE landed on an endpoint of \code{phi_range} and which one.
+profile-MLE of the rate (the posterior median for \code{backend = "spBayes"}; \code{phi_method} names which), and \code{phi_railed} /
+\code{phi_rail_edge} record whether that MLE landed on an endpoint of
+\code{phi_range} and which one (\code{NA} for \code{"spBayes"}, where phi is sampled
+and nothing is optimised).
 The warning alone is not enough: a downstream script that reads
 \code{phi_hat} or the spatial variance fraction needs to branch on whether
 the data or the bracket produced them. \code{spatial} carries

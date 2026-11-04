@@ -193,15 +193,33 @@ test_that("al_query_bhs: returns posterior variance-ranked candidates", {
   expect_equal(q$posterior_sd, sqrt(q$posterior_var), tolerance = 1e-12)
 })
 
-test_that("al_query_bhs: errors when backend != 'gibbs'", {
+test_that("al_query_bhs: the rcpp backend is served, and ranks like gibbs", {
+  # The guard used to admit backend = "gibbs" only, although rcpp stores the
+  # same draws and fields. Both backends condition on the same profile-MLE
+  # phi, so the ranking -- driven by the kriging term -- must agree.
+  dat  <- .mk_spatial_bhs(n = 40L, seed = 2L)
+  pool <- data.frame(x = stats::rnorm(15L),
+                     lon = stats::runif(15L, -50, -48),
+                     lat = stats::runif(15L, -16, -14))
+  fg <- bhs_fit(dat, y ~ x, c("lon", "lat"), backend = "gibbs",
+                nmcmc = 300L, burn = 150L, seed = 2L)
+  fr <- bhs_fit(dat, y ~ x, c("lon", "lat"), backend = "rcpp",
+                nmcmc = 300L, burn = 150L, seed = 2L)
+  set.seed(1L); qg <- al_query_bhs(fg, pool, n_draws = 100L)
+  set.seed(1L); qr <- al_query_bhs(fr, pool, n_draws = 100L)
+  expect_equal(nrow(qr), 15L)
+  expect_true(all(qr$posterior_var > 0))
+  rk <- function(q) q$posterior_var[order(q$pool_index)]
+  expect_gt(stats::cor(rk(qg), rk(qr), method = "spearman"), 0.95)
+})
+
+test_that("al_query_bhs: a fit missing what it reads gets a readable error", {
   dat <- .mk_spatial_bhs(n = 30L, seed = 2L)
   fit <- bhs_fit(dat, y ~ x, c("lon", "lat"),
-                   nmcmc = 100L, burn = 50L, seed = 2L)
-  fit$backend <- "spBayes"  # simulate other backend for the guard
-  pool <- data.frame(
-    x = 0, lon = -49, lat = -15
-  )
-  expect_error(al_query_bhs(fit, pool), "backend = 'gibbs'")
+                 nmcmc = 100L, burn = 50L, seed = 2L)
+  fit$sigma2_draws <- NULL
+  pool <- data.frame(x = 0, lon = -49, lat = -15)
+  expect_error(al_query_bhs(fit, pool), "needs sigma2_draws from the fit")
 })
 
 test_that("al_query_bhs: prefers sites far from training coords", {

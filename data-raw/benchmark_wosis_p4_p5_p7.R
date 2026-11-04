@@ -1,11 +1,11 @@
-## data-raw/benchmark_wosis_p4_p5_p7.R  (v2.8.0)
+## data-raw/benchmark_wosis_p4_p5_p7.R
 ##
 ## Head-to-head benchmark of three pillars on the 1 095 real WoSIS
 ## Cerrado topsoil profiles:
 ##
 ##   P4 Foundation (MoCo v1 embeddings + RBF-KRR head)
 ##   P5 Active-Learning backbone (QRF quantile-regression forest)
-##   P7 Bayesian Hierarchical Spatial (Gibbs sampler, v2.3.0)
+##   P7 Bayesian Hierarchical Spatial (Gibbs sampler)
 ##
 ## Evaluation: 5-fold spatial CV (k-means on lon/lat).  For each fold
 ## each method produces either a quantile grid (P5, P4 RBF-KRR) or an
@@ -152,7 +152,7 @@ fit_p4_foundation <- function(train, test, cov_cols, moco, dataset_meta,
                       query_type = "map", units = "g/kg")
 }
 
-# P7 BHS: Bayesian hierarchical spatial (Gibbs v2.3.0)
+# P7 BHS: Bayesian hierarchical spatial (Gibbs)
 fit_p7_bhs <- function(train, test, cov_cols,
                          nmcmc = 400L, burn = 200L) {
   # Simple additive model with a spatial random effect
@@ -223,7 +223,7 @@ bbox <- c(min(profiles$lon) - 0.2, min(profiles$lat) - 0.2,
            max(profiles$lon) + 0.2, max(profiles$lat) + 0.2)
 library(terra)
 
-# Through v3.10.0 this benchmark ran the encoder over a raster of pure
+# Before 2.0.0 this benchmark ran the encoder over a raster of pure
 # stats::rnorm() noise and published the resulting row as part of the
 # "first honest cross-pillar comparison".  An encoder applied to noise
 # measures nothing about the encoder.  Build the real 31-channel
@@ -318,7 +318,7 @@ for (fd in 1:5) {
 
   # WHAT THE GAUSSIAN SUBSTITUTION COST, measured rather than argued.
   #
-  # Through v3.10.0 this benchmark scored P7 on rnorm(200, mean, sd) rebuilt
+  # Before 2.0.0 this benchmark scored P7 on rnorm(200, mean, sd) rebuilt
   # from the predictive summary instead of on the sampler's own draws. Simply
   # comparing this run's numbers against the committed ones cannot isolate
   # that: removing those rnorm() calls also shifts the RNG stream, so P4 and
@@ -398,8 +398,8 @@ for (fd in 1:5) {
                               null_prediction = mean(train$soc, na.rm = TRUE))
     data.frame(
       method    = name, fold = fd, n_test = n_te,
-      # training rows this method actually saw -- P7 was capped through
-      # v3.10.0, P4/P5 never were
+      # training rows this method actually saw -- P7 was capped before
+      # 2.0.0, P4/P5 never were
       n_train   = if (grepl("^P7", name)) p7_n_train else n_tr,
       train_capped = grepl("^P7", name) && p7_n_train < n_tr,
       # posterior draws behind the point prediction.  Read off the posterior

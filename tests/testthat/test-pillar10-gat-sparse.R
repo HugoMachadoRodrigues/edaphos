@@ -109,6 +109,9 @@ test_that(".gnn_gat_layer: sparse path is faster than per-node reference at n = 
   # timing comparison flips for reasons unrelated to the code. It still runs
   # on every CI leg and in local test runs.
   skip_on_cran()
+  # Under covr the R code is instrumented line by line, so the time is
+  # the instrumentation's, not the code's.
+  skip_on_covr()
   # Sparse-matrix construction has fixed-cost overhead so it only
   # PAYS at moderate-to-large graph sizes.  At n = 500 with k = 8
   # the sparse path is empirically 4-10x faster than the loop on

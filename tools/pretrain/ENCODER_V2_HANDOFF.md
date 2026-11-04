@@ -1,9 +1,9 @@
-# v1.3.2 hand-off: complete the MoCo v2 encoder + publish to Zenodo
+# Hand-off: complete the MoCo v2 encoder + publish to Zenodo
 
 This is your step-by-step.  The package is already prepared:
 
 * The training script `data-raw/pretrain_cerrado_train_v2.R` is
-  **resume-aware** as of v3.11.0 -- a re-run picks up at step
+  **resume-aware** -- a re-run picks up at step
   110 001 from the existing checkpoint.
 * The Zenodo packaging helper is at
   `tools/pretrain/package_v2_for_zenodo.R`.
@@ -142,7 +142,7 @@ What happens:
 
     Rscript -e 'devtools::document(); devtools::test()'
     git add R/foundation_weights.R
-    git commit -m "feat(v3.11.0): wire up edaphos-cerrado-moco-v2 DOI"
+    git commit -m "feat: wire up edaphos-cerrado-moco-v2 DOI"
     git push origin main
 
 ---
@@ -163,7 +163,7 @@ EDAPHOS_IV_REAL_STACK=1 Rscript data-raw/causal_iv_benchmark_real.R
 ```
 
 The clay -> SOC stage-1 F (currently 2.7 with v1) is the metric
-to watch -- the v1.3.2 hypothesis is that a fairly-trained
+to watch -- the hypothesis is that a fairly-trained
 encoder lifts F above the 10 weak-instrument threshold.  Whatever
 the result, it is the FAIR test the v1.3.0 NEWS asked for.
 
@@ -179,6 +179,6 @@ the result, it is the FAIR test the v1.3.0 NEWS asked for.
   --
   ~2 h 15 min + the time you choose to spend in the Zenodo UI
 
-After Step 4, the v1.3.2 roadmap line is closed and the README
+After Step 4, the roadmap item is closed and the README
 badge / catalog automatically picks up the v2 weights for any
 user who calls `foundation_weights_load("edaphos-cerrado-moco-v2")`.

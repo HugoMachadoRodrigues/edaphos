@@ -85,6 +85,29 @@ test that fails on the old output.
   spatial-fold percentages had the wrong denominator; ConvLSTM-ensemble
   losses below 5e-5 printed as 0.0000.
 
+## Results that were wrong without saying so
+
+* `bhs_fit(backend = "spBayes")` is a full peer of `"gibbs"` and `"rcpp"`.
+  It used to return draws and nothing else: `predict()` and `al_query_bhs()`
+  refused it and `as_edaphos_posterior()` crashed. It now carries the same
+  fields, and `predict()` delegates to `spBayes::spPredict()`, so the
+  uncertainty in the sampled `phi` reaches the predictive interval. New field
+  `phi_method` says whether `phi_hat` is a profile MLE or a posterior median.
+* `al_query_bhs()` serves `backend = "rcpp"` fits, which store the same draws
+  as `"gibbs"`; it gates on the fields it reads, not on the backend's name.
+* `foundation_embed_at_coords()` no longer turns a failed raster read, or a
+  patch over NoData, into an embedding. Both used to be filled with channel
+  means and encoded like data. Those rows are now `NA` with a warning; new
+  argument `max_na_share` (default 0.5) sets how much missing data a patch
+  may have; attribute `na_share` reports each row's imputed share.
+* `quantum_kernel()` refuses a `reps` that is not a whole number >= 1 (`reps
+  = 0` returned an all-ones kernel), and both backends stop before allocating
+  more than 8 GB of state vectors (`backend = "r"` had no guard at all).
+* `causal_iv_fit_2sls()` refuses designs that do not identify the effect and
+  drops redundant covariates and instruments with a warning; previously a
+  pseudo-inverse returned values with no meaning. `causal_iv_posterior()`
+  counts the replicates it drops and records them in its metadata.
+
 ## Removed before first release
 
 * `foundation_tile_source_modis()` and `foundation_tile_source_era5()` are
