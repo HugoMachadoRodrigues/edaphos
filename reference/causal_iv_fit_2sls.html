@@ -159,8 +159,11 @@ column names included in both first and second stage.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>edaphos_causal_iv</code> object with components <code>effect</code>,
-<code>se</code>, <code>ci</code>, <code>stage1_F</code>, <code>stage1_R2</code>, <code>sargan_p</code> (NULL if exactly
-identified), <code>n</code>, plus auxiliary fits for inspection.</p>
+<code>se</code>, <code>ci_lo</code>, <code>ci_hi</code>, <code>stage1_F</code>, <code>stage1_R2</code>, <code>sargan_p</code> (<code>NA</code> if
+exactly identified), <code>n</code>, plus auxiliary fits for inspection.
+<code>instruments</code> and <code>covariates</code> hold the columns actually used;
+<code>dropped_instruments</code> and <code>dropped_covariates</code> hold any removed as
+redundant.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -186,6 +189,23 @@ F-statistic should exceed 10 (Stock &amp; Yogo 2005).</p></li>
 unobserved confounder.</p></li>
 </ul></div>
 
+    </div>
+    <div class="section level2">
+    <h2 id="identification">Identification<a class="anchor" aria-label="anchor" href="#identification"></a></h2>
+
+
+<p>The design is checked before it is fitted, by the rank condition once
+the intercept and covariates have been projected out. A covariate that is a
+linear combination of the others, or an instrument that is constant or
+a combination of the other instruments and the covariates, carries no
+information: it is dropped with a warning, as <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">stats::lm()</a></code> aliases
+it. If what remains cannot identify the effect – every instrument
+flat, the exposure itself a combination of the covariates, or the
+instruments explaining none of the exposure – the function stops
+rather than return a number: on such a design the closed form has no
+unique solution, and the value a pseudo-inverse produces is not an
+estimate of anything. Weak but identified instruments are not refused;
+<code>stage1_F</code> and <code>weak_instruments</code> report them.</p>
     </div>
 
     <div class="section level2">

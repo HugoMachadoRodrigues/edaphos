@@ -173,17 +173,17 @@ if (requireNamespace("torch", quietly = TRUE) &&
     interval_score = edaphos_interval_score(y[test], mu - 1.96 * s,
                                             mu + 1.96 * s)), 3))
 }
-#> [1] 7.772 3.906 5.423 4.332 2.749
+#> [1] 7.772 3.906 5.423 4.332 2.750
 #>    final_infonce all_logits_equal      patch_draws 
-#>            2.749            2.833           40.000 
+#>            2.750            2.833           40.000 
 #> [1] 20 12
 #>      seeded_same unseeded_differs 
 #>             TRUE             TRUE 
 #>    predict_1    mc_mean_1 mean_abs_gap 
-#>       19.861       19.671        0.076 
+#>       19.899       19.709        0.078 
 #> [1] 0
 #> median_sd_seed301 median_sd_seed302 
-#>             0.626             0.335 
+#>             0.634             0.413 
 #>            picp mean_half_width            rmse  interval_score 
-#>           0.583           1.517           1.327          10.805 
+#>           0.583           1.505           1.296          10.937 
 ```

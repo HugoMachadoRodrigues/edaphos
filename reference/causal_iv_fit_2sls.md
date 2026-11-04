@@ -41,9 +41,11 @@ causal_iv_fit_2sls(data, exposure, outcome, instruments, covariates = NULL)
 
 ## Value
 
-An `edaphos_causal_iv` object with components `effect`, `se`, `ci`,
-`stage1_F`, `stage1_R2`, `sargan_p` (NULL if exactly identified), `n`,
-plus auxiliary fits for inspection.
+An `edaphos_causal_iv` object with components `effect`, `se`, `ci_lo`,
+`ci_hi`, `stage1_F`, `stage1_R2`, `sargan_p` (`NA` if exactly
+identified), `n`, plus auxiliary fits for inspection. `instruments` and
+`covariates` hold the columns actually used; `dropped_instruments` and
+`dropped_covariates` hold any removed as redundant.
 
 ## Details
 
@@ -81,6 +83,22 @@ Identification conditions (Wooldridge 2010, section 5.1):
 
 - Unconfoundedness: \\Z \perp U\\ where \\U\\ is any unobserved
   confounder.
+
+## Identification
+
+The design is checked before it is fitted, by the rank condition once
+the intercept and covariates have been projected out. A covariate that
+is a linear combination of the others, or an instrument that is constant
+or a combination of the other instruments and the covariates, carries no
+information: it is dropped with a warning, as
+[`stats::lm()`](https://rdrr.io/r/stats/lm.html) aliases it. If what
+remains cannot identify the effect – every instrument flat, the exposure
+itself a combination of the covariates, or the instruments explaining
+none of the exposure – the function stops rather than return a number:
+on such a design the closed form has no unique solution, and the value a
+pseudo-inverse produces is not an estimate of anything. Weak but
+identified instruments are not refused; `stage1_F` and
+`weak_instruments` report them.
 
 ## Examples
 
