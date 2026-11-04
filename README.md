@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19683708.svg)](https://doi.org/10.5281/zenodo.19683708)
 [![GitHub release](https://img.shields.io/github/v/release/HugoMachadoRodrigues/edaphos?color=blue)](https://github.com/HugoMachadoRodrigues/edaphos/releases/latest)
-[![Version](https://img.shields.io/badge/version-2.0.0--dev-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-informational)](https://github.com/HugoMachadoRodrigues/edaphos/releases)
 [![Pillars](https://img.shields.io/badge/pillars-10%2F10%20shipped-success)](#the-ten-pillars-at-a-glance)
 [![Vignettes](https://img.shields.io/badge/vignettes-19-9cf)](#vignettes)
 [![Tests](https://img.shields.io/badge/tests-2412%20pass-brightgreen)](#testing-and-continuous-integration)
@@ -2217,20 +2217,19 @@ bibliography (`vignettes/references.bib`).
 2026-04-21–23 as [GitHub Releases](https://github.com/HugoMachadoRodrigues/edaphos/releases),
 each archived on Zenodo with its own DOI under the concept DOI
 [10.5281/zenodo.19683708](https://doi.org/10.5281/zenodo.19683708), which
-always resolves to the latest version (today 1.6.0). None was submitted to
+always resolves to the latest version. None was submitted to
 CRAN.
 
-**The next release is 2.0.0.** It is not 0.9.0, the number the development
-version carried until November 2026: 0.9.0 already exists, as a public
-release with a permanent DOI ([10.5281/zenodo.19697669](https://doi.org/10.5281/zenodo.19697669)),
+**The current release is 2.0.0** (2026-11-04). It is not 0.9.0, the number
+the code carried during development until November 2026: 0.9.0 already
+exists, as a public release with a permanent DOI ([10.5281/zenodo.19697669](https://doi.org/10.5281/zenodo.19697669)),
 and reusing it would put two different packages under one version. 2.0.0 is
 the major version above the last public release, as the breaking changes
 since 1.6.0 warrant. Between 1.6.0 and 2.0.0 the development history used
 internal labels from 1.7.0 to 4.1.0; none was ever tagged, released or
-deposited, and they are being removed from the documentation in favour of
-plain descriptions.
+deposited, and the documentation no longer uses them.
 
-**What 2.0.0 adds over 1.6.0** (all implemented, tested and in `main`):
+**What 2.0.0 adds over 1.6.0** (all implemented and tested):
 
 | Area | What |
 |:-----|:-----|
@@ -2255,11 +2254,10 @@ mistaken for a release:
 
 ## Citation
 
-The code in `main` is the development version of 2.0.0, which has not been
-released yet. To cite it:
+The current release is 2.0.0. To cite it:
 
 > Rodrigues, H. (2026). *edaphos: Digital Soil Mapping with Causal,
-> Physics-Informed and Generative Methods* (version 2.0.0, development)
+> Physics-Informed and Generative Methods* (version 2.0.0)
 > [Software]. <https://github.com/HugoMachadoRodrigues/edaphos>.
 > <https://doi.org/10.5281/zenodo.19683708>
 
@@ -2270,7 +2268,6 @@ released yet. To cite it:
                and Generative Methods},
   year      = {2026},
   version   = {2.0.0},
-  note      = {Development version; not yet released},
   doi       = {10.5281/zenodo.19683708},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
 }

@@ -47,8 +47,14 @@ backend (e.g. \code{"ibm_brisbane"}, \code{"ibm_sherbrooke"}) when
 \code{backend = "ibmq"}. If \code{NULL}, the least-busy operational
 backend available to the account is selected automatically.}
 
-\item{seed}{Optional integer — seeds NumPy / Qiskit RNGs for
-reproducible runs.}
+\item{seed}{Optional integer. Seeds NumPy, the qiskit-algorithms
+generator (random initial point, SPSA perturbations) and, on
+\code{"aer_shots"}, the simulator's shot noise, so a run repeats exactly.
+On \code{"aer_shots"} Aer re-seeds that noise at every energy evaluation,
+so a seeded run adds the same noise draw each time -- a fixed offset
+of size about \code{1 / sqrt(shots)} -- rather than fresh noise; leave
+\code{seed = NULL} to study the optimiser under varying shot noise. Real
+hardware (\code{"ibmq"}) cannot be seeded.}
 
 \item{initial_point}{Optional numeric vector — custom starting
 ansatz parameters. Defaults to Qiskit's random initial point.}

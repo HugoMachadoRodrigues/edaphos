@@ -82,16 +82,13 @@ if (quantum_ibmq_available()) {
   c(hardware = fq$gap, exact_sim = fit$gap)
 }
 
-# Caveat for all three: `seed` does NOT make quantum_vqe_fit()
-# reproducible -- it seeds numpy's legacy global RNG, not the
-# generator qiskit-algorithms draws the initial point from, so
-# five runs at seed = 1L gave gaps from 5e-10 to 1e-4.  Pass an
-# explicit `initial_point` (12 angles for 2 qubits at reps = 2)
-# and `$energy` repeats to the last bit across sessions; `$gap`
-# still wobbles at 1e-15 because `exact` does.
-p0 <- rep(0.1, 12)
-a <- quantum_vqe_fit(h2, initial_point = p0)$energy
-b <- quantum_vqe_fit(h2, initial_point = p0)$energy
-identical(a, b)             # TRUE, both -1.857131658135603
+# Reproducibility: `seed` seeds the generator qiskit-algorithms draws
+# the initial point and SPSA's perturbations from and, on "aer_shots",
+# the simulator's shot noise, so `$energy` repeats to the last bit.
+# (`$gap` wobbles at 1e-15 because `exact` does.) On "ibmq" hardware
+# noise is not seedable. An explicit `initial_point` also fixes the start.
+a <- quantum_vqe_fit(h2, seed = 1L)$energy
+b <- quantum_vqe_fit(h2, seed = 1L)$energy
+identical(a, b)             # TRUE
 }
 }

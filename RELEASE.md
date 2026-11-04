@@ -13,7 +13,7 @@ cannot tell which is authoritative.
 **This file carries no version number on purpose.**  Both predecessors
 were headed with one (v2.9.1 and v3.10.0) and both went stale the moment
 the version moved; the version this applies to is whatever
-`DESCRIPTION` says, currently 2.0.0 and not yet released.
+`DESCRIPTION` says, currently 2.0.0.
 
 ## The version is 2.0.0, and why
 
@@ -108,7 +108,7 @@ This produces **two deliverables**:
 
 The workflow `.github/workflows/pkgdown.yaml` is already wired; it
 deploys to the `gh-pages` branch on every push to `main`, using
-`JamesIves/github-pages-deploy-action@v4.5.0` (`:61`).
+`JamesIves/github-pages-deploy-action`, pinned to the commit of v4.5.0.
 
 Before enabling the site, note that the pkgdown build was **broken**
 until the correctness campaign fixed it: the reference index aborted on

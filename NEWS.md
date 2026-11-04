@@ -1,4 +1,4 @@
-# edaphos 2.0.0 (development version — not yet released)
+# edaphos 2.0.0
 
 edaphos is a research package for digital soil mapping beyond regression-tree
 models, organised around ten methodological pillars: (1) causal inference —
@@ -17,18 +17,18 @@ ten pillars be scored with the same calibration diagnostics; Pillars 8, 9 and
 to `backend = "auto"` — the trained torch model when a working libtorch is
 present, otherwise a pure-R reference path.
 
-This is the first development version being prepared for submission; the API is
-not yet stable.
+This is the first release since 1.6.0 and the first prepared for CRAN
+submission. The API may still change before that submission.
 
-## Development status
+## Release status
 
 Versions 0.1.0 to 1.6.0 were published on 2026-04-21–23 as GitHub Releases,
 each archived on Zenodo with its own DOI under the concept DOI
-10.5281/zenodo.19683708; none went to CRAN. This development version was
-numbered 0.9.0 until November 2026, which collided with the published 0.9.0
+10.5281/zenodo.19683708; none went to CRAN. The code released here was numbered 0.9.0 while it was
+being developed, until November 2026, which collided with the published 0.9.0
 (DOI 10.5281/zenodo.19697669) -- a permanent record of a different package.
-The next release is therefore **2.0.0**, the major version above the last
-public release. (An earlier version of this paragraph said the package "has
+This release is therefore **2.0.0**, the major version above the last public
+release. (An earlier version of this paragraph said the package "has
 never been released"; the seventeen GitHub Releases and Zenodo deposits say
 otherwise.)
 
@@ -103,6 +103,13 @@ test that fails on the old output.
 * `quantum_kernel()` refuses a `reps` that is not a whole number >= 1 (`reps
   = 0` returned an all-ones kernel), and both backends stop before allocating
   more than 8 GB of state vectors (`backend = "r"` had no guard at all).
+* `quantum_vqe_fit(seed =)` did not make a run reproducible, though its
+  documentation said so: it seeded numpy's global generator, while
+  qiskit-algorithms draws the initial point and SPSA's perturbations from its
+  own, and Aer samples shot noise from a third. It now seeds all three; a
+  seeded run repeats to the last bit. On `"aer_shots"` this means the same
+  noise draw at every evaluation (Aer's semantics), which the help page
+  states.
 * `causal_iv_fit_2sls()` refuses designs that do not identify the effect and
   drops redundant covariates and instruments with a warning; previously a
   pseudo-inverse returned values with no meaning. `causal_iv_posterior()`

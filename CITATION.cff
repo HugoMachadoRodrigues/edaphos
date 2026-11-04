@@ -30,8 +30,7 @@ abstract: >-
   model.
 type: software
 version: "2.0.0"
-# date-released is set when 2.0.0 is released. The "2026-07-27" this field
-# carried was not the date of any release.
+date-released: "2026-11-04"
 license: MIT
 doi: "10.5281/zenodo.19683708"
 url: "https://github.com/HugoMachadoRodrigues/edaphos"

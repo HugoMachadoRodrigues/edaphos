@@ -99,7 +99,7 @@ emerging methodology lines.
 - [x] `INTRO.md` provides a high-density narrative
       complement to README.
 - [x] `cheatsheets/` one-page references per pillar.
-- [x] `NEWS.md` is current (2.0.0, development version — the 43 internal
+- [x] `NEWS.md` is current (2.0.0 — the 43 internal
       version labels it used to list between 1.6.0 and now were never
       released, and were withdrawn).
 - [x] Licence (MIT) declared in DESCRIPTION + `LICENSE.md`.
