@@ -388,6 +388,12 @@ test_that("no shipped source claims a version that was never released", {
   skip_if(length(src) == 0L, "sources not reachable")
   phantom <- unlist(lapply(src, function(f) {
     ln <- readLines(f, warn = FALSE)
+    # A version of R is not a version of edaphos. "R 4.4.0" or
+    # "R (>= 4.4.0)" names the interpreter, and flagging it as a phantom
+    # release is a false positive -- this test fired on exactly that
+    # (core_utils.R, on when base R gained `%||%`), and nobody saw it for
+    # months because the block is skip_on_cran() and CI cannot reach NEWS.
+    ln <- gsub("\\bR \\(?(>= ?)?[0-9]+\\.[0-9]+\\.[0-9]+\\)?", "", ln, perl = TRUE)
     v  <- unlist(regmatches(ln, gregexpr(
       "(?<![0-9.])[0-9]+\\.[0-9]+\\.[0-9]+(?![0-9.])", ln, perl = TRUE)))
     bad <- setdiff(v, known)

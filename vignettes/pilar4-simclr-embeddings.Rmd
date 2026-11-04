@@ -304,7 +304,7 @@ tile-streaming pipeline** that reads patches on the fly from a
 
 ### 9.1 Tile sources
 
-Five public entry points cover the canonical DSM stack:
+Three keyless public sources cover the canonical DSM stack:
 
 ```{r tile-sources-doc, eval = FALSE}
 # Keyless public sources -- no account required.
@@ -316,16 +316,13 @@ foundation_tile_source_worldclim(variables = c("prec","tavg"),
                                    aoi = c(-50, -46, -16, -12))
 foundation_tile_source_srtm(aoi = c(-50, -46, -16, -12),
                               derive = c("slope", "aspect"))
-
-# Credential-gated sources (documented stubs).
-foundation_tile_source_modis(...)   # NASA EarthData login
-foundation_tile_source_era5(...)    # Copernicus CDS API key
 ```
 
-The MODIS and ERA5 stubs fail with a precise install / authentication
-hint so users can plug their own pre-processed mosaics straight into
-[`foundation_tile_align()`][foundation_tile_align] without modifying
-the downstream code.
+MODIS and ERA5 are not wrapped: both need an account (NASA EarthData,
+Copernicus CDS) and a client package. Pre-process them outside edaphos
+and pass the rasters straight to
+[`foundation_tile_align()`][foundation_tile_align]; its help page lists
+the scaling and bounding-box pitfalls of each.
 
 ### 9.2 Alignment to a common grid
 

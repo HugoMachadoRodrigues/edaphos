@@ -560,6 +560,15 @@ print.edaphos_no_fno <- function(x, ...) {
 #' @param device `"cpu"`, `"mps"`, or `"cuda"` when
 #'   `backend = "torch"`.
 #'
+#' @return An `edaphos_no_deeponet` fit: a list carrying `backend`, the
+#'   training `depths`, `targets` and `covariates`, the standardisation
+#'   constants (`cov_std`, `tgt_std`, `depth_std`), the architecture
+#'   (`branch_hidden`, `trunk_hidden`, `output_dim`), `n_obs`, `n_depths`
+#'   and the per-epoch loss `history`. The trained network is stored as
+#'   weight matrices (`W_b1` ... `b_t2`, `bias`) for `backend = "r"`, or
+#'   as `torch_module` plus `device` for `backend = "torch"`. Predict with
+#'   `predict()`.
+#'
 #' @references
 #' Lu, L., Jin, P., Pang, G., Zhang, Z. and Karniadakis, G. E. (2021).
 #' Learning nonlinear operators via DeepONet based on the universal

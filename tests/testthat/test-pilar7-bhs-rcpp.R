@@ -81,6 +81,11 @@ test_that("backend = 'rcpp': as_edaphos_posterior wraps cleanly", {
 })
 
 test_that("backend = 'rcpp': performance ceiling -- under R fast path on n = 200", {
+  # Wall-clock assertion: skipped on CRAN, whose builders are shared, some
+  # single-core, some under valgrind, so an absolute ceiling or an A < B
+  # timing comparison flips for reasons unrelated to the code. It still runs
+  # on every CI leg and in local test runs.
+  skip_on_cran()
   dat <- .mk_spatial_data(n = 200L, seed = 5L)
   t_r <- system.time(
     bhs_fit(dat, y ~ x, c("lon", "lat"),

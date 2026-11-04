@@ -1,7 +1,7 @@
 # Internal utilities shared across pillars.
 # Not exported.
 
-# Base R gained `%||%` in 4.4.0, and DESCRIPTION declares R (>= 4.0), so the
+# Base R gained `%||%` in R 4.4.0, and DESCRIPTION declares R (>= 4.0), so the
 # package still has to carry its own for 4.0-4.3. One definition, here.
 #
 # There were seven, byte-identical, in seven files. That is harmless until

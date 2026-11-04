@@ -7,14 +7,19 @@
 #   * SoilGrids 250 m (clay, SOC, pH, CEC, ...)
 #   * WorldClim 2.1 (mean annual precipitation, temperature, aridity, ...)
 #   * SRTM elevation (+ derived slope, aspect, TWI)
-#   * MODIS MOD13Q1 (NDVI, EVI -- optional, needs NASA EarthData)
-#   * ERA5-Land (radiation, wind, ET -- optional, needs Copernicus CDS)
+#
+# MODIS and ERA5 are NOT wrapped: both need an account (NASA EarthData,
+# Copernicus CDS) and a client package. Pre-process them outside edaphos
+# and pass the rasters to foundation_tile_align(); its help page says how.
+# Two exported stubs that only threw an error used to stand in for them --
+# removed, because an exported function that cannot do anything is API
+# surface without a feature behind it.
 #
 # ... fused into a common grid, sampled as (C, H, W) patches, and fed
 # to the momentum-contrast training loop without loading the whole
 # mosaic into RAM.
 #
-# All heavy dependencies (`terra`, `geodata`, `sf`, `ecmwfr`) are
+# All heavy dependencies (`terra`, `geodata`, `sf`) are
 # Suggests. Every public function fails gracefully with a clear
 # install / authentication hint when they are not available.
 
@@ -299,117 +304,6 @@ foundation_tile_source_srtm <- function(aoi, derive = c("slope"),
   do.call(c, c(list(elev), extras))
 }
 
-#' MODIS source stub (needs NASA EarthData credentials)
-#'
-#' Returns a documented error pointing the user to `MODIStsp`, `rgee`
-#' or a manual pre-processing step. Provided so that downstream code
-#' can reference a canonical MODIS entry point; the implementation
-#' will be filled in once the package takes a harder dependency on a
-#' MODIS client.
-#'
-#' Users who already have a MODIS mosaic on disk can skip this
-#' function entirely and pass their raster straight to
-#' [foundation_tile_align()].
-#'
-#' @param ... Ignored.
-#' @return Nothing; always stops with an install-hint message.
-#' @examples
-#' \dontrun{
-#' # The stub always errors, whatever you pass it. It exists so that
-#' # downstream code has one canonical MODIS entry point to name.
-#' foundation_tile_source_modis()
-#'
-#' # The supported route is to pre-process outside edaphos -- MODIStsp,
-#' # rgee or the AppEEARS service all work -- write a GeoTIFF mosaic,
-#' # and read it back with terra. Nothing downstream cares where a
-#' # raster came from.
-#' ndvi <- terra::rast("modis/MOD13Q1_NDVI_2020_cerrado.tif")
-#'
-#' # MOD13Q1 stores NDVI as int16 with a 1e-4 scale factor and -3000 as
-#' # the fill value, and both survive terra::rast() untouched. Drop the
-#' # fill and rescale before stacking, otherwise the "ndvi" channel is a
-#' # mixture of index values and sentinels.
-#' ndvi[ndvi < -2000] <- NA
-#' ndvi <- ndvi * 1e-4
-#' names(ndvi) <- "ndvi"
-#'
-#' aoi  <- c(-50, -48, -16, -14)
-#' soil <- foundation_tile_source_soilgrids(variables = "soc", aoi = aoi)
-#' stack <- foundation_tile_align(list(soil = soil, modis = ndvi),
-#'                                  target_res = 0.0025, aoi = aoi)
-#' ds <- foundation_tile_dataset(stack, patch_size = 32L,
-#'                                 n_patches = 5000L, seed = 1L)
-#'
-#' # A 16-day composite is not a snapshot: neighbouring pixels of
-#' # MOD13Q1 can come from different days. Treat it as one channel of a
-#' # pretraining stack, not as a same-date observation of the soil.
-#' }
-#' @export
-foundation_tile_source_modis <- function(...) {
-  stop(
-    "MODIS ingestion requires NASA EarthData credentials and a MODIS ",
-    "client. Install `MODIStsp` or use `rgee` via `reticulate`, ",
-    "pre-process your tiles into a GeoTIFF mosaic, and then pass the ",
-    "resulting `terra::SpatRaster` straight to ",
-    "`foundation_tile_align()`.", call. = FALSE
-  )
-}
-
-#' ERA5 source stub (needs Copernicus CDS key)
-#'
-#' Returns a documented error pointing users to `ecmwfr`. As with
-#' MODIS, once a CDS key is configured the downloaded NetCDF can be
-#' converted to a `terra::SpatRaster` and fed directly into
-#' [foundation_tile_align()].
-#'
-#' @param ... Ignored.
-#' @examples
-#' \dontrun{
-#' # The stub always errors; it is a signpost, not an implementation.
-#' foundation_tile_source_era5()
-#'
-#' # Supported route: register at the Copernicus Climate Data Store,
-#' # store the key once, request the NetCDF, then convert.
-#' ecmwfr::wf_set_key(key = "your-cds-personal-access-token")
-#' req <- list(
-#'   dataset_short_name = "reanalysis-era5-land-monthly-means",
-#'   product_type       = "monthly_averaged_reanalysis",
-#'   variable = c("2m_temperature", "total_evaporation"),
-#'   year = "2020", month = sprintf("%02d", 1:12), time = "00:00",
-#'   # The CDS bounding box is north, west, south, east -- the reverse
-#'   # convention to the c(xmin, xmax, ymin, ymax) that every
-#'   # foundation_tile_* function in this package expects.
-#'   area = c(-14, -50, -16, -48),
-#'   format = "netcdf",
-#'   target = "era5_land_cerrado_2020.nc"
-#' )
-#' ecmwfr::wf_request(req, path = tempdir())
-#' era5 <- terra::rast(file.path(tempdir(), "era5_land_cerrado_2020.nc"))
-#'
-#' aoi  <- c(-50, -48, -16, -14)
-#' soil <- foundation_tile_source_soilgrids(variables = "soc", aoi = aoi)
-#' stack <- foundation_tile_align(list(soil = soil, era5 = era5),
-#'                                  target_res = 0.0025, aoi = aoi)
-#'
-#' # ERA5-Land is a 0.1 degree (roughly 9 km) reanalysis -- confirm on
-#' # the object you actually downloaded rather than taking it on trust:
-#' terra::res(era5)
-#' # Projected onto a 250 m grid with the default bilinear method it
-#' # becomes a smooth channel carrying no information below 9 km. That
-#' # is harmless for a contrastive encoder and misleading in a
-#' # covariate-importance table.
-#' }
-#' @export
-foundation_tile_source_era5 <- function(...) {
-  stop(
-    "ERA5 ingestion requires a Copernicus Climate Data Store API key. ",
-    "Install `ecmwfr`, authenticate with `ecmwfr::wf_set_key()`, ",
-    "download the NetCDFs via `ecmwfr::wf_request()`, then convert to ",
-    "a `terra::SpatRaster` and pass it to `foundation_tile_align()`.",
-    call. = FALSE
-  )
-}
-
 # ---- Internal helpers -------------------------------------------------------
 
 .tiles_coerce_ext <- function(aoi) {
@@ -443,6 +337,27 @@ foundation_tile_source_era5 <- function(...) {
 #'   [foundation_tile_source_soilgrids()]).
 #' @param method Resampling method for `terra::project()`. Defaults
 #'   to `"bilinear"` (good for continuous covariates).
+#'
+#' @section MODIS and ERA5:
+#' Neither is wrapped by edaphos: both need an account and a client
+#' package. Download and pre-process them outside the package, read the
+#' result with `terra::rast()`, and pass it in `sources` like any other
+#' raster -- nothing downstream cares where a raster came from.
+#'
+#' * **MODIS** (NASA EarthData login): `MODIStsp`, `rgee` or the AppEEARS
+#'   service. MOD13Q1 stores NDVI as int16 with a 1e-4 scale factor and
+#'   -3000 as the fill value, and both survive `terra::rast()` untouched:
+#'   set values below -2000 to `NA` and multiply by 1e-4 before aligning,
+#'   or the channel mixes index values with sentinels. A 16-day composite
+#'   is not a snapshot -- neighbouring pixels can come from different days.
+#' * **ERA5-Land** (Copernicus Climate Data Store key): the `ecmwfr`
+#'   package. The CDS bounding box is ordered north, west, south, east --
+#'   the reverse of the `c(xmin, xmax, ymin, ymax)` every
+#'   `foundation_tile_*` function expects. ERA5-Land is a 0.1 degree
+#'   (about 9 km) reanalysis; projected onto a 250 m grid with bilinear
+#'   resampling it becomes a smooth channel with no information below
+#'   9 km, harmless for a contrastive encoder and misleading in a
+#'   covariate-importance table.
 #'
 #' @return A single `terra::SpatRaster` with one layer per input
 #'   layer, aligned.
