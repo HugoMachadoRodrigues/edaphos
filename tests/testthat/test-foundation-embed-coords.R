@@ -250,3 +250,40 @@ test_that("a truncated or mislabelled cache entry is rejected", {
   # must not satisfy it either.
   expect_false(isTRUE(edaphos:::.cached_stack_ok(good, "minimal")))
 })
+
+
+test_that("foundation_build_cerrado_stack() checks for digest before touching disk", {
+  # digest is a Suggests and names the cache file. Without it the function
+  # used to pass the terra/geodata install hints, create the cache directory,
+  # and only then fail with base R's "there is no package called 'digest'".
+  skip_if_not_installed("terra")
+  skip_if_not_installed("geodata")
+
+  #
+  # dir.create() is mocked to fail loudly. Hiding digest from
+  # requireNamespace() does not stop digest::digest() working when digest is
+  # in fact installed, so without the guard this call would sail past the
+  # cache naming and start downloading ~440 MB of rasters. Failing at the
+  # first disk write keeps a regression fast, offline and unambiguous.
+  # The temp dir is made BEFORE the mocks: withr::local_tempdir() itself
+  # calls dir.create().
+  cache <- file.path(withr::local_tempdir(), "never_created")
+  real_require <- base::requireNamespace
+  real_dir_create <- base::dir.create
+  testthat::local_mocked_bindings(
+    requireNamespace = function(package, ...) {
+      if (identical(package, "digest")) return(FALSE)
+      real_require(package, ...)
+    },
+    # Only the cache directory trips the alarm: testthat itself calls
+    # dir.create() internally, so every other path is passed through.
+    dir.create = function(path, ...) {
+      if (identical(path, cache)) stop("reached the disk before the digest check")
+      real_dir_create(path, ...)
+    },
+    .package = "base"
+  )
+  expect_error(foundation_build_cerrado_stack(cache_dir = cache),
+               "Install `digest`", fixed = TRUE)
+  expect_false(dir.exists(cache))
+})

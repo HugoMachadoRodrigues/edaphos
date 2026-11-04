@@ -449,7 +449,11 @@ causal_iv_sargan_test <- function(data, exposure, outcome,
 #' @param seed Optional RNG seed.
 #' @param units Optional units string.
 #' @return An `edaphos_posterior` with `query_type = "effect"` and
-#'   `method = "bootstrap"`.
+#'   `method = "bootstrap"`. Its `metadata` records `B_requested`,
+#'   `B_effective` (the draws actually used) and `n_failed`. A replicate
+#'   fails when its resample does not identify the effect -- typically an
+#'   instrument left without variation -- and failures raise a warning
+#'   naming both counts. Fewer than two identified replicates is an error.
 #'
 #' @examples
 #' # Geology is a landscape attribute, so the instruments are constant
@@ -492,9 +496,9 @@ causal_iv_sargan_test <- function(data, exposure, outcome,
 #' iv_farms
 #' c(rows = iv_rows$mean, farms = iv_farms$mean)
 #'
-#' # Resamples that fail to fit are dropped silently, so check how
-#' # many draws actually survived before quoting an interval.
-#' iv_farms$metadata$B
+#' # Resamples that do not identify the effect are dropped with a
+#' # warning; the metadata records how many were asked for and used.
+#' iv_farms$metadata[c("B_requested", "B_effective", "n_failed")]
 #' @export
 causal_iv_posterior <- function(data, exposure, outcome, instruments,
                                   covariates = NULL,
@@ -511,23 +515,41 @@ causal_iv_posterior <- function(data, exposure, outcome, instruments,
       ix <- unlist(lapply(resampled,
                            function(k) which(clusters_all == k)),
                     use.names = FALSE)
-      fit <- tryCatch(
-        causal_iv_fit_2sls(data[ix, , drop = FALSE], exposure, outcome,
-                           instruments, covariates),
-        error = function(e) NULL)
-      draws[b] <- if (!is.null(fit)) fit$effect else NA_real_
+      draws[b] <- .iv_replicate_effect(data[ix, , drop = FALSE], exposure,
+                                       outcome, instruments, covariates)
     }
   } else {
     for (b in seq_len(B)) {
       ix  <- sample(nrow(data), replace = TRUE)
-      fit <- tryCatch(
-        causal_iv_fit_2sls(data[ix, , drop = FALSE], exposure, outcome,
-                           instruments, covariates),
-        error = function(e) NULL)
-      draws[b] <- if (!is.null(fit)) fit$effect else NA_real_
+      draws[b] <- .iv_replicate_effect(data[ix, , drop = FALSE], exposure,
+                                       outcome, instruments, covariates)
     }
   }
-  draws <- draws[!is.na(draws)]
+  # FAILED REPLICATES ARE COUNTED AND REPORTED, NOT ABSORBED. This used to
+  # drop them and then store B = length(draws), overwriting the B the caller
+  # asked for: 900 failures out of 1000 came back as a well-formed posterior
+  # from 100 draws with metadata$B = 100 and no trace of what happened. The
+  # dropped resamples are not random, either -- they are the ones in which
+  # an instrument lost its variation -- so the survivors give an interval
+  # conditional on that, and the caller has to be told.
+  B_requested <- as.integer(B)
+  ok          <- !is.na(draws)
+  n_failed    <- B_requested - sum(ok)
+  draws       <- draws[ok]
+  if (length(draws) < 2L)
+    stop(sprintf(paste(
+      "only %d of %d bootstrap replicates gave an identified 2SLS fit, too",
+      "few to form a posterior. The instruments probably lack variation",
+      "within resamples (check them, or resample by `cluster` only if the",
+      "instruments vary between clusters)."), length(draws), B_requested),
+      call. = FALSE)
+  if (n_failed > 0L)
+    warning(sprintf(paste(
+      "%d of %d bootstrap replicates did not give an identified 2SLS fit and",
+      "were dropped; the posterior uses %d draws. The dropped resamples are",
+      "the ones in which an instrument lost its variation, so the interval",
+      "is conditional on that and may be too narrow."),
+      n_failed, B_requested, length(draws)), call. = FALSE)
 
   edaphos_posterior(
     samples    = matrix(draws, ncol = 1L),
@@ -537,10 +559,33 @@ causal_iv_posterior <- function(data, exposure, outcome, instruments,
     metadata   = list(
       exposure    = exposure, outcome = outcome,
       instruments = instruments, covariates = covariates,
-      estimator   = "2SLS", B = length(draws),
+      estimator   = "2SLS",
+      B_requested = B_requested, B_effective = length(draws),
+      n_failed    = n_failed,
       cluster     = cluster
     )
   )
+}
+
+# One bootstrap replicate: the 2SLS effect if the resample identifies it,
+# NA otherwise. "Identified" is checked, not assumed. causal_iv_fit_2sls()
+# inverts through .safe_inverse(), which falls back to a pseudo-inverse on a
+# singular design, so a resample in which an instrument is constant does not
+# error -- it returns an effect near zero with a NA standard error and a NA
+# first-stage F. Taking that number as a draw would put fabricated values
+# into the posterior. A replicate counts only if the fit succeeds and the
+# effect, its standard error and the first-stage F are all finite; a weak
+# but identified instrument still passes.
+.iv_replicate_effect <- function(data, exposure, outcome, instruments,
+                                 covariates) {
+  fit <- tryCatch(
+    suppressWarnings(causal_iv_fit_2sls(data, exposure, outcome,
+                                        instruments, covariates)),
+    error = function(e) NULL)
+  if (is.null(fit)) return(NA_real_)
+  if (!is.finite(fit$effect) || !is.finite(fit$se) ||
+      !is.finite(fit$stage1_F)) return(NA_real_)
+  fit$effect
 }
 
 # ---------------------------------------------------------------------------

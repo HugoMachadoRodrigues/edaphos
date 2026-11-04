@@ -117,3 +117,58 @@ test_that("causal_iv_posterior: returns a valid edaphos_posterior", {
   # Posterior mean close to truth under weak assumptions
   expect_lt(abs(mean(post$samples) - 1.2), 0.25)
 })
+
+# ─────────────────────────────────────────────────────────────────────────────
+# causal_iv_posterior: failed replicates are counted, reported, not absorbed
+# ─────────────────────────────────────────────────────────────────────────────
+# A rare binary instrument: 1 of 60 rows carries Z = 1, so a row resample
+# misses it -- leaving Z constant -- with probability (59/60)^60 = 0.365.
+# Such a resample does not identify the effect. causal_iv_fit_2sls() does
+# not error on it -- the pseudo-inverse returns an effect near zero with NA
+# se and NA first-stage F -- and the bootstrap used to take that number as
+# a draw.
+.rare_iv_data <- function(n = 60L, seed = 3L) {
+  set.seed(seed)
+  Z <- c(rep(0, n - 1L), 1)
+  X <- 2 * Z + stats::rnorm(n)
+  data.frame(X = X, Y = 1.5 * X + stats::rnorm(n), Z = Z)
+}
+
+test_that("causal_iv_posterior: a clean bootstrap reports every replicate used", {
+  set.seed(1L)
+  n <- 200L
+  Z1 <- stats::rnorm(n); X <- 0.8 * Z1 + stats::rnorm(n)
+  df <- data.frame(X = X, Y = 1.2 * X + stats::rnorm(n), Z1 = Z1)
+  expect_no_warning(post <- causal_iv_posterior(df, "X", "Y", "Z1",
+                                                B = 40L, seed = 1L))
+  m <- post$metadata
+  expect_identical(m$B_requested, 40L)
+  expect_identical(m$B_effective, 40L)
+  expect_identical(m$n_failed, 0L)
+  expect_null(m$B)
+})
+
+test_that("causal_iv_posterior: unidentified resamples are dropped with a warning", {
+  df <- .rare_iv_data()
+  expect_warning(
+    post <- causal_iv_posterior(df, "X", "Y", "Z", B = 200L, seed = 1L),
+    "bootstrap replicates did not give an identified 2SLS fit")
+  m <- post$metadata
+  expect_identical(m$B_requested, 200L)
+  expect_identical(m$B_effective + m$n_failed, 200L)
+  # The failures are exactly the resamples that miss the single Z = 1 row:
+  # expected 200 * 0.365 = 73, binomial sd 6.8. Measured 71 at this seed.
+  # A criterion that also dropped weak-but-identified fits, or that missed
+  # some unidentified ones, would land far from 73.
+  expect_lt(abs(m$n_failed - 200 * (59 / 60)^60), 5 * sqrt(200 * 0.365 * 0.635))
+  expect_identical(nrow(post$samples), m$B_effective)
+  # No fabricated near-zero draws: every surviving draw came from a
+  # resample in which Z varied, and none sits at the pseudo-inverse value.
+  expect_false(any(abs(post$samples) < 1e-2))
+})
+
+test_that("causal_iv_posterior: no identified replicate is an error, not a posterior", {
+  df <- .rare_iv_data(); df$Z <- 0
+  expect_error(causal_iv_posterior(df, "X", "Y", "Z", B = 20L, seed = 1L),
+               "only 0 of 20 bootstrap replicates")
+})

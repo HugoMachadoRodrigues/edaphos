@@ -41,7 +41,11 @@ block (e.g. \code{"kmeans_cluster"} for spatial resampling).}
 }
 \value{
 An \code{edaphos_posterior} with \code{query_type = "effect"} and
-\code{method = "bootstrap"}.
+\code{method = "bootstrap"}. Its \code{metadata} records \code{B_requested},
+\code{B_effective} (the draws actually used) and \code{n_failed}. A replicate
+fails when its resample does not identify the effect -- typically an
+instrument left without variation -- and failures raise a warning
+naming both counts. Fewer than two identified replicates is an error.
 }
 \description{
 Wraps \code{\link[=causal_iv_fit_2sls]{causal_iv_fit_2sls()}} in a nonparametric bootstrap over
@@ -91,7 +95,7 @@ c(analytic = fit$se, boot_rows = iv_rows$sd, boot_farms = iv_farms$sd)
 iv_farms
 c(rows = iv_rows$mean, farms = iv_farms$mean)
 
-# Resamples that fail to fit are dropped silently, so check how
-# many draws actually survived before quoting an interval.
-iv_farms$metadata$B
+# Resamples that do not identify the effect are dropped with a
+# warning; the metadata records how many were asked for and used.
+iv_farms$metadata[c("B_requested", "B_effective", "n_failed")]
 }

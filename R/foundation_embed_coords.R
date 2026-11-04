@@ -508,6 +508,15 @@ foundation_build_cerrado_stack <- function(
   if (!requireNamespace("geodata", quietly = TRUE))
     stop("Install `geodata` to download SoilGrids / WorldClim / SRTM.",
           call. = FALSE)
+  # digest names the cache file. It is a Suggests, and this call used to be
+  # unguarded: on a machine with terra and geodata but not digest the
+  # function passed both install hints above, created the cache directory,
+  # and then died with "there is no package called 'digest'". Guarded here,
+  # with the others and before anything touches the disk. The hash itself is
+  # kept rather than swapped for a base-R key, so stacks already in a user's
+  # cache stay valid instead of being orphaned and re-downloaded.
+  if (!requireNamespace("digest", quietly = TRUE))
+    stop("Install `digest` to name the cached stack.", call. = FALSE)
   schema <- match.arg(schema)
 
   if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
