@@ -1,6 +1,6 @@
 ---
 title: "Quantum kernel over foundation-model embeddings"
-subtitle: "Pilar 4 × Pilar 6 — a não-linearidade máxima classicamente simulável sobre a representação de paisagem mais expressiva do pacote"
+subtitle: "Pillar 4 × Pillar 6 — the strongest classically simulable non-linearity over the package's most expressive landscape representation"
 author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
@@ -32,20 +32,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-> **Hipótese.**  Os embeddings do MoCo v2 (Pilar 4) são o melhor
-> resumo da paisagem que o pacote produz — 64 dimensões onde
-> ~40 000 parâmetros treinados por contraste capturaram estrutura
-> que nenhuma feature engenheirada consegue.  O ZZFeatureMap do
-> Pilar 6 é o kernel mais expressivo classicamente simulável (8
-> qubits → dim 2⁸ = 256 de Hilbert).  Se a fusão não superar
-> nem ranger sobre covariáveis brutas, nem RBF sobre os próprios
-> embeddings, nem Q-KRR sobre covariáveis brutas, então *o lift
-> quântico sobre representação-foundation é cosmético* para esta
-> tarefa — e isso também é um resultado científico.
+> **Hypothesis.** The MoCo v2 embeddings (Pillar 4) are the best summary
+> of the landscape the package produces -- 64 dimensions in which about
+> 40,000 contrastively trained parameters captured structure that no
+> engineered feature can. The ZZFeatureMap of Pillar 6 is the most
+> expressive classically simulable kernel (8 qubits → a Hilbert space of
+> dimension 2⁸ = 256). If the fusion beats neither ranger on raw
+> covariates, nor RBF on the embeddings themselves, nor Q-KRR on raw
+> covariates, then *the quantum lift over a foundation representation is
+> cosmetic* for this task -- and that, too, is a scientific result.
 
 ---
 
-# Arquitetura da fusão
+# Architecture of the fusion
 
 ```
 raw covariates (31 layers)
@@ -67,27 +66,27 @@ raw covariates (31 layers)
                                Kernel Ridge Regression
 ```
 
-- `qf_embed_reduce(embeddings, n_pcs = 8L)` faz PCA + re-escala para
-  `[-pi, pi]` (domínio natural do ZZFeatureMap).
-- `qf_kernel_compare(X_q, reps = 2L)` compara a matriz Gram
-  quântica, RBF e linear sobre o mesmo `X_q` — Frobenius distance
-  + effective rank.
-- `qf_krr_fit(embeddings, y, n_pcs, reps, lambda)` compõe tudo
-  numa única função.
-- `qf_krr_benchmark(embeddings, covariates, y, ...)` roda as quatro
-  regressões lado a lado.
+- `qf_embed_reduce(embeddings, n_pcs = 8L)` runs a PCA and rescales to
+  `[-pi, pi]`, the ZZFeatureMap's natural domain.
+- `qf_kernel_compare(X_q, reps = 2L)` compares the quantum, RBF and
+  linear Gram matrices on the same `X_q` -- Frobenius distance and
+  effective rank.
+- `qf_krr_fit(embeddings, y, n_pcs, reps, lambda)` composes everything
+  in a single function.
+- `qf_krr_benchmark(embeddings, covariates, y, ...)` runs the four
+  regressions side by side.
 
 ---
 
-# Usar a API: um exemplo que corre
+# Using the API: an example that runs
 
-A secção seguinte lê resultados publicados; esta **chama as funções**.
-Até esta versão a vinheta descrevia as assinaturas em prosa e nunca
-demonstrava uma invocação, de modo que um leitor ficava a saber o que as
-funções são sem ficar a saber usá-las.
+The next section reads published results; this one **calls the
+functions**. Until this version the vignette described the signatures in
+prose and never showed a call, so a reader learned what the functions
+are without learning how to use them.
 
-Corre sobre o `br_cerrado` que acompanha o pacote — sem rede, sem torch,
-sem qiskit, em cerca de um décimo de segundo.
+It runs on the `br_cerrado` dataset that ships with the package -- no
+network, no torch, no qiskit, in about a tenth of a second.
 
 ```{r api-worked, eval = TRUE}
 # The setup chunk sets eval = FALSE globally, so any chunk that would have
@@ -102,35 +101,36 @@ i <- sample(nrow(br_cerrado), 60)
 X <- as.matrix(br_cerrado[i, c("elev", "slope", "twi", "map_mm", "ndvi")])
 y <- br_cerrado$soc[i]
 
-# 1. PCA + re-escala para o domínio do ZZFeatureMap.
+# 1. PCA + rescaling to the ZZFeatureMap domain.
 red <- qf_embed_reduce(X, n_pcs = 4L)
 c(dim = dim(red$X_q), min = min(red$X_q), max = max(red$X_q))
 
-# 2. As matrizes de Gram são materialmente diferentes?
+# 2. Are the Gram matrices materially different?
 qf_kernel_compare(red$X_q, reps = 1L)$diagnostics
 
-# 3. Ajuste e previsão.
+# 3. Fit and predict.
 fit <- qf_krr_fit(X, y, n_pcs = 4L, reps = 1L, lambda = 0.5)
 fit
 predict(fit, X[1:5, , drop = FALSE])
 ```
 
-O intervalo de `X_q` é $[-\pi, \pi]$ por construção: é o domínio em que o
-ZZFeatureMap está definido, e a re-escala é o que o garante.
+The range of `X_q` is $[-\pi, \pi]$ by construction: it is the domain on
+which the ZZFeatureMap is defined, and the rescaling is what guarantees
+it.
 
-**Estas cinco covariáveis não são embeddings de fundação.** O exemplo
-demonstra a interface, não o resultado científico — para esse, a secção
-do benchmark abaixo, que é um controlo negativo e diz porquê.
+**These five covariates are not foundation embeddings.** The example
+demonstrates the interface, not the scientific result -- for that, see
+the benchmark section below, which is a negative control and says why.
 
 ---
 
-# Diagnóstico de kernel: quão diferente é o quantum do RBF?
+# Kernel diagnostics: how different is the quantum kernel from RBF?
 
-Usando 300 perfis WoSIS e os embeddings reais do encoder v1:
+Using 300 WoSIS profiles and the real embeddings of the v1 encoder.
 
-O bloco corre: ler o `.rds` publicado não precisa de torch nem de rede,
-ao contrário do resto desta vinheta, cujo chunk de setup desliga a
-avaliação globalmente.
+This chunk runs: reading the published `.rds` needs neither torch nor a
+network, unlike the rest of this vignette, whose setup chunk turns
+evaluation off globally.
 
 ```{r kernel-comparison, eval = TRUE}
 bundle <- readRDS(system.file("extdata", "quantum_foundation_cerrado.rds",
@@ -138,29 +138,28 @@ bundle <- readRDS(system.file("extdata", "quantum_foundation_cerrado.rds",
 bundle$kernel_comparison
 ```
 
-A questão central aqui é *se os kernels são materialmente
-diferentes*.  Frobenius distance entre `K_quantum` e `K_rbf`
-próxima de zero sugere que o lift quântico não adiciona nada; valores
-maiores sinalizam estrutura capturada exclusivamente pelo quantum.
+The central question here is *whether the kernels are materially
+different*. A Frobenius distance between `K_quantum` and `K_rbf` close
+to zero suggests the quantum lift adds nothing; larger values signal
+structure captured only by the quantum kernel.
 
 ---
 
-# 5-fold spatial CV: o benchmark head-to-head
+# 5-fold spatial CV: the head-to-head benchmark
 
-Produzido por `data-raw/quantum_foundation_benchmark.R`.
+Produced by `data-raw/quantum_foundation_benchmark.R`.
 
-O bloco abaixo **lê o artefacto publicado** em vez de reproduzir uma
-saída digitada à mão.  Esta secção mostrava, até esta versão, um bloco
-`#>` escrito manualmente dentro de um chunk `eval = FALSE`: era
-indistinguível de saída real do knitr para quem lê, e continuou a
-publicar números censurados durante meses depois de o código que os
-produziu ter sido corrigido.  Um chunk que não corre não pode
-desactualizar-se com aviso — só em silêncio.
+The chunk below **reads the published artefact** instead of reproducing
+hand-typed output. Until this version this section showed a hand-written
+`#>` block inside an `eval = FALSE` chunk: it was indistinguishable from
+real knitr output to a reader, and it kept publishing censored numbers
+for months after the code that produced them had been fixed. A chunk
+that does not run cannot go stale with a warning -- only silently.
 
-O `eval = TRUE` abaixo é deliberado e é a única excepção nesta vinheta,
-cujo chunk de setup desliga a avaliação globalmente: ler o `.rds`
-publicado não custa nada e não precisa de torch nem de rede, ao
-contrário do resto do documento.
+The `eval = TRUE` below is deliberate and is the only exception in this
+vignette, whose setup chunk turns evaluation off globally: reading the
+published `.rds` costs nothing and needs neither torch nor a network,
+unlike the rest of the document.
 
 ```{r benchmark-table, eval = TRUE}
 f <- system.file("extdata", "quantum_foundation_cerrado.rds",
@@ -173,92 +172,91 @@ if (nzchar(f)) {
 }
 ```
 
-## Leitura honesta
+## An honest reading
 
-**Este benchmark é um controlo negativo.**  O stack que o encoder vê é
-ruído branco — `stats::rnorm()` em cada célula de cada canal — portanto
-os "embeddings de fundação" descrevem uma paisagem sem sinal, por
-construção.  Três dos quatro métodos prevêem a partir de variáveis que
-*não podem* conter informação sobre o COS.
+**This benchmark is a negative control.** The stack the encoder sees is
+white noise -- `stats::rnorm()` in every cell of every channel -- so the
+"foundation embeddings" describe a landscape with no signal, by
+construction. Three of the four methods predict from variables that
+*cannot* carry information about SOC.
 
-**Os quatro métodos são piores do que prever a média.**  Todos os $R^2$
-agrupados são negativos, incluindo o do `ranger` sobre covariáveis
-reais.  Os quatro ficam próximos uns dos outros e a diferença entre
-eles não merece leitura.
+**All four methods are worse than predicting the mean.** Every pooled
+$R^2$ is negative, including `ranger`'s on real covariates. The four lie
+close to one another, and the differences between them do not deserve a
+reading.
 
-**O que esta secção dizia antes, e porquê.**  Dizia que apenas o
-`ranger` atingia $R^2 > 0$ e que as três regressões por kernel
-"degeneram para R² = 0 — o mínimo aplicável", prevendo "essencialmente
-a média".  Nada disso era medido.  O $R^2$ não tem mínimo aplicável: é
-a eficiência de Nash–Sutcliffe e vai a $-\infty$.  A função calculava
-`max(0, 1 - SS_res/SS_tot)`, de modo que todo o valor negativo — 17 dos
-20 pares método×fold — era achatado para exactamente zero.  Isso
-converte *"pior do que a média"* em *"não explica variância nenhuma"*,
-que são coisas diferentes, e a versão lisonjeira foi a publicada.
+**What this section used to say, and why.** It said that only `ranger`
+reached $R^2 > 0$ and that the three kernel regressions "degenerate to
+R² = 0 -- the applicable minimum", predicting "essentially the mean".
+None of that was measured. $R^2$ has no applicable minimum: it is the
+Nash–Sutcliffe efficiency and goes to $-\infty$. The function computed
+`max(0, 1 - SS_res/SS_tot)`, so every negative value -- 17 of the 20
+method × fold pairs -- was flattened to exactly zero. That turns *"worse
+than the mean"* into *"explains no variance"*, which are different
+things, and the flattering version was the one published.
 
-**Duas colunas de $R^2$, porque uma delas é instável.**  `edaphos_r2()`
-é Nash–Sutcliffe contra a média do *próprio* fold de teste; um fold cujos
-perfis calham homogéneos tem denominador pequeno e $R^2$ volátil.  O
-fold 2 desta partição tem sd(COS) = 5,9 g/kg contra 11–21 nos outros
-quatro, e o `ranger` marca −4,28 lá — sozinho, esse fold arrasta a média
-dele para −0,80 e fá-lo parecer o pior dos quatro.  Agrupado sobre os
-folds, o `ranger` é −0,075, no meio do lote.  A coluna agrupada é a que
-se lê.
+**Two $R^2$ columns, because one of them is unstable.** `edaphos_r2()`
+is Nash–Sutcliffe against the mean of the test fold *itself*; a fold
+whose profiles happen to be homogeneous has a small denominator and a
+volatile $R^2$. Fold 2 of this partition has sd(SOC) = 5.9 g/kg against
+11–21 in the other four, and `ranger` scores −4.28 there -- on its own,
+that fold drags its mean to −0.80 and makes it look the worst of the
+four. Pooled over folds, `ranger` is −0.075, in the middle of the pack.
+The pooled column is the one to read.
 
-**Por que o resultado é este?**  A explicação está no desenho, não numa
-hipótese por testar: o stack é ruído.  Versões anteriores desta secção
-listavam três "hipóteses falseáveis" — stack sintético, encoder
-sub-treinado, poucos qubits — como se fossem razões para esperar outra
-resposta mais tarde.  Não são: cada uma é razão para a corrida ser
-*não informativa*, e nenhuma é indício de que uma corrida corrigida
-favoreceria o kernel quântico.  Duas foram entretanto corridas e ambas
-responderam contra ele; ver a tabela de seis métodos em
-`inst/extdata/benchmark_wosis_6pilar.rds`, sobre covariáveis SoilGrids /
-WorldClim / SRTM medidas.
+**Why is the result what it is?** The explanation lies in the design,
+not in a hypothesis still to be tested: the stack is noise. Earlier
+versions of this section listed three "falsifiable hypotheses" --
+synthetic stack, under-trained encoder, too few qubits -- as if they were
+reasons to expect a different answer later. They are not: each is a
+reason for the run to be *uninformative*, and none is evidence that a
+corrected run would favour the quantum kernel. Two of them have since
+been run, and both answered against it; see the six-method table in
+`inst/extdata/benchmark_wosis_6pilar.rds`, on measured SoilGrids /
+WorldClim / SRTM covariates.
 
-## O que isso significa como contribuição científica
+## What this means as a scientific contribution
 
-O valor desta fusão não é bater os baselines (tentamos e não
-batemos).  É:
+The value of this fusion is not beating the baselines (we tried, and it
+did not). It is:
 
-1. **Construir a infraestrutura** que compõe Pilar 4 com Pilar 6 de
-   modo completo e reproduzível — `qf_embed_reduce()`,
-   `qf_kernel_compare()`, `qf_krr_fit()`, `qf_krr_benchmark()`,
-   todas exportadas e testadas.
-2. **Formalizar a hipótese** — a fusão quantum-foundation é um
-   candidato natural no arcabouço generativo de @Zhang2026causal e
-   de [@Schuld2019qml], mas requer ou um encoder mais rico ou
-   um stack mais real.
-3. **Deixar o teste decisivo pronto** — quando o encoder v2 e os
-   dados reais de geodata estiverem disponíveis, basta re-rodar
-   `data-raw/quantum_foundation_benchmark.R` para obter uma
-   comparação equitativa.
+1. **Building the infrastructure** that composes Pillar 4 with Pillar 6
+   completely and reproducibly -- `qf_embed_reduce()`,
+   `qf_kernel_compare()`, `qf_krr_fit()`, `qf_krr_benchmark()`, all
+   exported and tested.
+2. **Formalising the hypothesis** -- the quantum-foundation fusion is a
+   natural candidate in the generative framework of @Zhang2026causal
+   and of [@Schuld2019qml], but it needs either a richer encoder or a
+   more realistic stack.
+3. **Leaving the decisive test ready** -- once the v2 encoder and real
+   geodata are available, re-running
+   `data-raw/quantum_foundation_benchmark.R` gives a fair comparison.
 
 ---
 
 # Roadmap
 
-Os itens têm nomes e não números de versão: os números que esta lista
-usava (v2.0.0 a v2.0.3) eram rótulos internos que nunca foram lançados,
-e "v2.0.0" colide com a release 2.0.0 do pacote.
+The items have names, not version numbers: the numbers this list used to
+carry (v2.0.0 to v2.0.3) were internal labels that were never released,
+and "v2.0.0" collides with the package's 2.0.0 release.
 
-- **Feito**: infraestrutura Pilar 4 × Pilar 6 completa, comparação de
-  kernels e benchmark de validação cruzada espacial em quatro vias.
-  Sobre o stack sintético é um controlo negativo: ver a secção acima.
-- **Por fazer — encoder v2**: re-rodar com o encoder de 200 k passos
-  InfoNCE. Se o kernel quântico sobre os embeddings superar *todos* os
-  baselines, a hipótese de @Havlicek2019 ganha suporte no domínio do MDS.
-- **Por fazer — stack real**: re-rodar com o raster stack real. Se o
-  ganho aparecer aqui mas não com o stack sintético, isso responde se a
-  limitação está no encoder ou no stack. O caminho de stack real está
-  por implementar: o `EDAPHOS_IV_REAL_STACK=1` não é lido em lado
-  nenhum do pacote.
-- **Depois disso**: um artigo "Quantum kernels over foundation-model
-  embeddings for Digital Soil Mapping", apenas se os resultados
-  confirmarem um ganho.
+- **Done**: the full Pillar 4 × Pillar 6 infrastructure, the kernel
+  comparison and the four-way spatial cross-validation benchmark. On the
+  synthetic stack it is a negative control: see the section above.
+- **To do -- v2 encoder**: re-run with the 200 k-step InfoNCE encoder.
+  If the quantum kernel over the embeddings beats *all* the baselines,
+  the hypothesis of @Havlicek2019 gains support in the DSM domain.
+- **To do -- real stack**: re-run with the real raster stack. If the
+  gain appears here but not with the synthetic stack, that answers
+  whether the limitation lies in the encoder or in the stack. The
+  real-stack path is not implemented yet: `EDAPHOS_IV_REAL_STACK=1` is
+  read nowhere in the package.
+- **After that**: a paper, "Quantum kernels over foundation-model
+  embeddings for Digital Soil Mapping", only if the results confirm a
+  gain.
 
 ---
 
-# Referências
+# References
 
 <div id="refs"></div>

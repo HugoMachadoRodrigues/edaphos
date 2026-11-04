@@ -1,6 +1,6 @@
 ---
 title: "Foundation-model embeddings as causal instrumental variables"
-subtitle: "Pilar 1 × Pilar 4 — identificando efeitos causais com confundidores latentes"
+subtitle: "Pillar 1 × Pillar 4 — identifying causal effects under latent confounding"
 author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
@@ -37,15 +37,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-> **Pergunta central.** O ajuste *backdoor* do Pilar 1 identifica
-> efeitos causais **apenas** sob a suposição de **suficiência causal**:
-> todos os confundidores comuns de exposição e resposta precisam estar
-> no conjunto de ajuste. Quando confundidores latentes $U$ permanecem
-> não observados, `lm(soc ~ map + adjustments)` volta a ser enviesado.
-> **Podem os embeddings do Pillar 4 — aprendidos por contraste em
-> *patches* de paisagem sem nunca ver o COS — servir como
-> *instrumental variables* e identificar o efeito mesmo na presença de
-> $U$?**
+> **Central question.** Pillar 1's *backdoor* adjustment identifies
+> causal effects **only** under **causal sufficiency**: every common
+> confounder of exposure and outcome must be in the adjustment set. When
+> latent confounders $U$ remain unobserved, `lm(soc ~ map + adjustments)`
+> is biased again. **Can Pillar 4's embeddings -- learned contrastively
+> on landscape *patches* without ever seeing SOC -- act as *instrumental
+> variables* and identify the effect even when $U$ is present?**
 
 ---
 
@@ -63,123 +61,142 @@ stopifnot(nzchar(res_path), file.exists(res_path))
 B <- readRDS(res_path)
 ```
 
+```{r numbers, include = FALSE}
+# Every number quoted in the prose below is read here, from the bundle the
+# vignette loads. An earlier version typed them by hand; they had drifted
+# from the bundle -- several by a sign -- and quoted Sargan p-values from a
+# different analysis.
+bt  <- B$benchmark_table
+num <- function(exp, est, col) bt[[col]][bt$exposure == exp & bt$estimator == est]
+f3  <- function(x) formatC(signif(x, 3), format = "fg", flag = "#")
+ex  <- function(x) formatC(x, format = "e", digits = 1)
+iv  <- "2SLS (real MoCo v2)"
+F_rng <- range(bt$stage1_F, na.rm = TRUE)
+S_rng <- range(bt$sargan_p, na.rm = TRUE)
+```
+
 ---
 
-# Motivação: as três condições de @Zhang2026causal e o papel do IV
+# Motivation: the three conditions of @Zhang2026causal and the role of IV
 
-@Zhang2026causal articulam três condições para inferência causal a
-partir de dados observacionais:
+@Zhang2026causal set out three conditions for causal inference from
+observational data:
 
-1. **Modelo causal explícito** — um DAG.
-2. **Suficiência causal** — todos os confundidores observados.
-3. **Fidelidade** — independências dos dados batem com o DAG.
+1. **An explicit causal model** -- a DAG.
+2. **Causal sufficiency** -- every confounder observed.
+3. **Faithfulness** -- the independences in the data match the DAG.
 
-O ajuste *backdoor* de Pearl [@Pearl2009] satisfaz (1) e (3) mas
-**requer (2)**. Em MDS real, (2) é a condição **mais frágil**: o
-pedólogo codifica no DAG expert os confundidores que **conhece** —
-mas sempre há padrões de paisagem (microtopografia, conectividade
-hidrológica, história de uso residual) que afetam tanto covariáveis
-quanto COS e que nenhum rasterizador do SoilGrids captura.
+Pearl's *backdoor* adjustment [@Pearl2009] satisfies (1) and (3) but
+**requires (2)**. In real DSM, (2) is the **most fragile** condition: the
+pedologist encodes in the expert DAG the confounders they **know** --
+but there are always landscape patterns (micro-topography, hydrological
+connectivity, residual land-use history) that affect both covariates and
+SOC and that no SoilGrids raster captures.
 
-Quando a suficiência falha, o estimador *backdoor* volta a ser
-enviesado:
+When sufficiency fails, the *backdoor* estimator is biased again:
 
-$$\hat{\beta}_{\text{backdoor}} = \beta_{\text{verdadeiro}}
-  + \underbrace{\text{Cov}(X, U \mid Z) / \text{Var}(X \mid Z)}_{\text{viés de confundimento latente}}$$
+$$\hat{\beta}_{\text{backdoor}} = \beta_{\text{true}}
+  + \underbrace{\text{Cov}(X, U \mid Z) / \text{Var}(X \mid Z)}_{\text{latent-confounding bias}}$$
 
-## Instrumental variables: uma saída sob condições distintas
+## Instrumental variables: a way out under different conditions
 
-Um *instrumento* $Z$ satisfaz três condições **diferentes** das de
-Pearl:
+An *instrument* $Z$ satisfies three conditions **different** from
+Pearl's:
 
-- **(IV.1) Relevância**: $\text{Cov}(Z, X) \neq 0$. $Z$ precisa
-  efetivamente predizer $X$.
-- **(IV.2) Exclusão**: $Z$ afeta $Y$ **apenas** através de $X$.
-  Nenhum caminho $Z \to Y$ direto; nenhum confundidor $Z - Y$.
-- **(IV.3) Unconfoundedness**: $Z \perp U$. $Z$ é independente dos
-  confundidores latentes.
+- **(IV.1) Relevance**: $\text{Cov}(Z, X) \neq 0$. $Z$ must actually
+  predict $X$.
+- **(IV.2) Exclusion**: $Z$ affects $Y$ **only** through $X$. No direct
+  $Z \to Y$ path; no $Z - Y$ confounder.
+- **(IV.3) Unconfoundedness**: $Z \perp U$. $Z$ is independent of the
+  latent confounders.
 
-Sob (IV.1–3), o estimador **Two-Stage Least Squares** (2SLS)
-identifica o efeito causal mesmo quando $U$ não é observado
+Under (IV.1–3), the **Two-Stage Least Squares** (2SLS) estimator
+identifies the causal effect even when $U$ is not observed
 [@Wooldridge2010]:
 
 $$\hat{\beta}_{\text{2SLS}} = (X^\top P_Z X)^{-1} X^\top P_Z Y,
   \quad P_Z = Z(Z^\top Z)^{-1} Z^\top$$
 
-## A hipótese `edaphos`
+## The `edaphos` hypothesis
 
-Os embeddings do Pillar 4 — aprendidos por **contrastive
-self-supervision** em *patches* de paisagem sem jamais ver o rótulo
-$Y = \text{COS}$ — são um candidato promissor:
+Pillar 4's embeddings -- learned by **contrastive self-supervision** on
+landscape *patches* without ever seeing the label $Y = \text{SOC}$ -- are
+a promising candidate:
 
-- **Relevância**: os *patches* contêm covariáveis climáticas e
-  topográficas que predizem fortemente exposições como MAP e cobertura
-  arbórea. Stage-1 F tipicamente enorme.
-- **Exclusão**: esta é a hipótese substantiva. O encoder nunca viu
-  COS; se ele aprendeu **apenas** padrões de paisagem, então a
-  informação nos embeddings afeta COS **só via** MAP/tree
-  cover/clay/etc. Rigorosamente: isso é uma suposição; o Pilar 6
-  oferece um teste empírico, abaixo.
-- **Unconfoundedness**: como o encoder é treinado em *patches*
-  espalhados por todo o Cerrado (milhares, diversos), é plausível que
-  sua representação seja insensível a variáveis latentes pontuais.
+- **Relevance**: the *patches* contain climatic and topographic
+  covariates that strongly predict exposures such as MAP and tree cover.
+  A large first-stage F is expected.
+- **Exclusion**: this is the substantive hypothesis. The encoder never
+  saw SOC; if it learned **only** landscape patterns, then the
+  information in the embeddings affects SOC **only through** MAP / tree
+  cover / clay / etc. Strictly, this is an assumption; the Sargan test
+  below checks it empirically.
+- **Unconfoundedness**: because the encoder is trained on *patches*
+  spread across the whole Cerrado (thousands of them, diverse), it is
+  plausible that its representation is insensitive to point-level
+  latent variables.
 
 ---
 
-# O estimador 2SLS do `edaphos`
+# The `edaphos` 2SLS estimator
 
 ```{r eval = FALSE}
 causal_iv_fit_2sls(data, exposure, outcome, instruments,
                    covariates = NULL)
 ```
 
-Implementa a forma fechada de @Wooldridge2010, §5.2:
+It implements the closed form of @Wooldridge2010, §5.2:
 
 $$\hat{\beta} = (X_{\text{all}}^\top P X_{\text{all}})^{-1}
                    X_{\text{all}}^\top P Y$$
 
-com $X_{\text{all}} = [\mathbf{1}, W, X]$, $P = Z_{\text{all}}(Z_{\text{all}}^\top Z_{\text{all}})^{-1} Z_{\text{all}}^\top$,
-e a **variância correta** (usando os **resíduos com X original**, não
-com $\hat{X}$ da primeira etapa — um erro comum ao aplicar `lm()`
-ingenuamente):
+with $X_{\text{all}} = [\mathbf{1}, W, X]$, $P = Z_{\text{all}}(Z_{\text{all}}^\top Z_{\text{all}})^{-1} Z_{\text{all}}^\top$,
+and the **correct variance** (using the **residuals with the original
+X**, not with the first-stage $\hat{X}$ -- a common mistake when `lm()`
+is applied naively):
 
 $$\widehat{\text{Var}}(\hat{\beta}) = \hat{\sigma}^2 (X_{\text{all}}^\top P X_{\text{all}})^{-1},
 \quad \hat{\sigma}^2 = \tfrac{1}{n-k} (Y - X_{\text{all}}\hat{\beta})^\top(Y - X_{\text{all}}\hat{\beta})$$
 
-## Diagnósticos obrigatórios
+Before fitting, the design is checked for identification: an instrument
+with no variation beyond the covariates, or an exposure that is a
+combination of them, is an error rather than a number.
 
-1. **Stage-1 F-statistic** para (IV.1): $F < 10$ sinaliza
-   *instrumentos fracos* [@StockYogo2005].
-2. **Sargan J-test** para (IV.2) (quando há mais instrumentos do que
-   exposições): $p < 0.05$ rejeita validade.
-3. **R² parcial dos instrumentos sobre controles**: a fração da
-   variância de $X$ explicada pelos instrumentos **além** do que os
-   controles já explicam.
+## Required diagnostics
+
+1. **First-stage F-statistic** for (IV.1): $F < 10$ flags *weak
+   instruments* [@StockYogo2005].
+2. **Sargan J-test** for (IV.2) (when there are more instruments than
+   exposures): $p < 0.05$ rejects validity.
+3. **Partial R² of the instruments over the controls**: the share of
+   the variance of $X$ explained by the instruments **beyond** what the
+   controls already explain.
 
 ---
 
-# Validação: DGP sintético onde a verdade é conhecida
+# Validation: a synthetic DGP where the truth is known
 
-Antes de aplicar aos dados reais, é indispensável validar que a
-implementação recupera o efeito verdadeiro em um DGP controlado.
+Before applying it to real data, the implementation has to be shown to
+recover the true effect in a controlled DGP.
 
 ```{r syn-table}
 knitr::kable(
   B$syn_summary,
   digits = 3,
-  col.names = c("Estimador", "β̂", "SE", "IC 2,5%", "IC 97,5%"),
+  col.names = c("Estimator", "β̂", "SE", "CI 2.5%", "CI 97.5%"),
   caption = paste0(
-    "DGP sintético: Y = 1,5·X + 0,8·U + ε, onde X depende de 3 ",
-    "instrumentos Z e do confundidor latente U. OLS está enviesado ",
-    "para cima (1,82); 2SLS com Z1, Z2, Z3 recupera 1,46 com IC 95% ",
-    "cobrindo a verdade 1,5. Stage-1 F = ",
+    "Synthetic DGP: Y = 1.5·X + 0.8·U + ε, where X depends on 3 ",
+    "instruments Z and on the latent confounder U. OLS is biased ",
+    "upwards (", round(B$syn_summary$beta[1], 2), "); 2SLS with Z1, Z2, ",
+    "Z3 recovers ", round(B$syn_summary$beta[2], 2), " with a 95% CI ",
+    "covering the true 1.5. First-stage F = ",
     round(B$syn_diagnostics$stage1_F, 1),
     "; Sargan p = ", round(B$syn_diagnostics$sargan_p, 3), "."
   )
 )
 ```
 
-```{r syn-plot, fig.cap = "DGP sintético: posterior bootstrap do efeito 2SLS (azul) concentra-se em torno da verdade β=1,5 (linha tracejada); o estimador OLS fica deslocado para cima (viés de U)."}
+```{r syn-plot, fig.cap = "Synthetic DGP: the bootstrap posterior of the 2SLS effect (blue) centres on the truth β = 1.5 (dashed line); the OLS estimator is shifted upwards (bias from U)."}
 samps_iv <- as.numeric(B$syn_posterior$samples)
 df_plot <- data.frame(
   method = c(rep("2SLS (IV)", length(samps_iv)),
@@ -196,53 +213,51 @@ ggplot(df_plot, aes(x = draw, fill = method)) +
                      name = NULL) +
   annotate("text", x = 1.5, y = 8, label = "true β = 1.5",
             vjust = -0.3, size = 3.6) +
-  labs(x = "β̂", y = "Densidade",
-       title = "DGP sintético: OLS vs. 2SLS",
-       subtitle = "Apenas 2SLS cobre a verdade")
+  labs(x = "β̂", y = "Density",
+       title = "Synthetic DGP: OLS vs. 2SLS",
+       subtitle = "Only 2SLS covers the truth")
 ```
 
 ---
 
-# Aplicação: perfis reais do Cerrado
+# Application: real Cerrado profiles
 
 ## Setup
 
-Usamos os `r B$n_profiles` perfis WoSIS reais do Cerrado embarcados em
-`causal_cerrado_real_v2.rds` (`data-raw/causal_cerrado_real_rebuild.R`),
-com o mesmo DAG expert
-(11 nós, 22 arestas). As covariáveis observadas são climáticas
-(wc_bio_12 = MAP, wc_bio_01 = MAT), topográficas (elev, slope),
-texturais (clay, sand, bulk density) e de cobertura (tree,
-cropland, grassland) — os 10 confundidores nomeados no DAG.
+The benchmark uses `r B$n_profiles` real WoSIS profiles from the
+Cerrado (`data-raw/causal_iv_cerrado_rebuild.R`), with the expert DAG
+(11 nodes, 22 edges). The observed covariates are climatic (wc_bio_12 =
+MAP, wc_bio_01 = MAT), topographic (elev, slope), textural (clay, sand,
+bulk density) and land cover (tree, cropland, grassland) -- the
+confounders named in the DAG.
 
-## Embeddings reais do MoCo v2
+## Real MoCo v2 embeddings
 
-Os instrumentos vêm de um encoder MoCo-v2 **real**, treinado por
-auto-supervisão contrastiva sobre *patches* do stack de covariáveis do
-Cerrado — **sem jamais ver o COS** — e reproduzido por
+The instruments come from a **real** MoCo-v2 encoder, trained by
+contrastive self-supervision on *patches* of the Cerrado covariate
+stack -- **without ever seeing SOC** -- and reproduced by
 `data-raw/foundation_encoder_iv.R`:
 
 ```{r encoder-config}
 enc <- B$encoder
 data.frame(
-  parâmetro = c("canais do stack", "tiles (24×24)", "épocas",
-                "dispositivo", "InfoNCE final"),
-  valor = c(enc$channels, enc$tiles, enc$epochs, enc$device,
+  parameter = c("stack channels", "tiles (24×24)", "epochs",
+                "device", "final InfoNCE"),
+  value = c(enc$channels, enc$tiles, enc$epochs, enc$device,
             round(enc$min_loss, 2)))
 ```
 
-`foundation_embed_at_coords()` extrai um embedding de
-`r B$embedding_dim` dimensões para a paisagem de cada perfil.
+`foundation_embed_at_coords()` extracts a `r B$embedding_dim`-dimensional
+embedding of each profile's landscape.
 
-**Redução dimensional**: PCA centrada + escalada nos embeddings,
-retendo as **5 componentes principais** de maior variância — um modelo
-4-sobre-identificado (5 instrumentos − 1 exposição) sobre o qual o teste
-de Sargan é aplicável.
+**Dimension reduction**: a centred and scaled PCA of the embeddings,
+keeping the **`r B$n_pcs_default` principal components** of largest
+variance -- an over-identified model (`r B$n_pcs_default` instruments, 1
+exposure) on which the Sargan test applies.
 
-## Resultado central: os três estimadores lado a lado
+## Central result: the three estimators side by side
 
 ```{r benchmark-table}
-bt <- B$benchmark_table
 bt_disp <- bt
 bt_disp$beta   <- round(bt$beta, 4)
 bt_disp$se     <- round(bt$se,   4)
@@ -256,112 +271,117 @@ bt_disp$sargan_p <- ifelse(is.na(bt$sargan_p), "",
 knitr::kable(
   bt_disp[, c("exposure", "estimator", "beta", "se",
                "ci_lo", "ci_hi", "stage1_F", "sargan_p")],
-  col.names = c("Exposição", "Estimador", "β̂", "SE",
-                "IC 2,5%", "IC 97,5%", "Stage-1 F", "Sargan p"),
+  col.names = c("Exposure", "Estimator", "β̂", "SE",
+                "CI 2.5%", "CI 97.5%", "First-stage F", "Sargan p"),
   caption = paste0(
-    "Comparação tripla OLS naïve / Backdoor OLS (ajustado) / 2SLS ",
-    "(proxy embeddings). Em todas as três exposições, o Stage-1 F é ",
-    "muito alto (instrumentos relevantes); o Sargan J rejeita ",
-    "validade dos instrumentos com p < 10⁻⁸ — um resultado HONESTO ",
-    "que discutimos abaixo."
+    "Naive OLS / backdoor OLS (adjusted) / 2SLS with real MoCo v2 ",
+    "embeddings as instruments. For every exposure the first-stage F is ",
+    "large (", round(F_rng[1]), " to ", round(F_rng[2]), "; relevant ",
+    "instruments), and the Sargan J-test rejects the instruments' ",
+    "validity (p from ", ex(S_rng[1]), " to ", ex(S_rng[2]), "), a ",
+    "result discussed below."
   )
 )
 ```
 
-```{r benchmark-plot, fig.height = 5.4, fig.cap = "Três estimadores × três exposições. Barras de erro são IC 95%. Comparar as três colunas mostra se o ajuste backdoor captura o efeito direto (da OLS naïve para backdoor) e se o IV 2SLS concorda com ou diverge do backdoor — se divergir, é sinal de confundimento latente NÃO capturado pelos covariates nomeados."}
-bt$estimator <- factor(
-  bt$estimator,
-  levels = c("OLS (naive)", "Backdoor OLS (adjusted)", "2SLS (proxy embeddings)")
-)
-ggplot(bt, aes(x = estimator, y = beta, color = estimator)) +
+```{r benchmark-plot, fig.height = 5.4, fig.cap = "Three estimators × three exposures; error bars are 95% CIs. Comparing the columns shows whether the backdoor adjustment changes the naive estimate, and whether 2SLS agrees with or departs from the backdoor estimate. A departure is what latent confounding would produce -- and also what invalid instruments produce, which the Sargan test cannot rule out here."}
+# The levels are the estimator labels the bundle actually uses. An earlier
+# version listed "OLS (naive)", "Backdoor OLS (adjusted)" and "2SLS (proxy
+# embeddings)", none of which occurs in the bundle, so every point became NA
+# and the figure was drawn empty.
+bt_plot <- bt
+bt_plot$estimator <- factor(bt_plot$estimator,
+                            levels = c("OLS naive", "Backdoor OLS", iv))
+ggplot(bt_plot, aes(x = estimator, y = beta, color = estimator)) +
   geom_point(size = 3.5) +
   geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi), width = 0.2,
                   linewidth = 0.8) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
   facet_wrap(~exposure, scales = "free_y") +
-  scale_color_manual(values = c("OLS (naive)"                = "#7F8C8D",
-                                  "Backdoor OLS (adjusted)"    = "#27AE60",
-                                  "2SLS (proxy embeddings)"    = "#2980B9"),
+  scale_color_manual(values = setNames(c("#7F8C8D", "#27AE60", "#2980B9"),
+                                       c("OLS naive", "Backdoor OLS", iv)),
                       guide = "none") +
-  labs(x = NULL, y = "β̂ (g/kg por unidade da exposição)",
-       title = "Efeitos causais: três estimadores",
-       subtitle = sprintf("n = %d perfis WoSIS Cerrado", B$n_profiles)) +
+  labs(x = NULL, y = "β̂ (g/kg per unit of exposure)",
+       title = "Causal effects: three estimators",
+       subtitle = sprintf("n = %d Cerrado WoSIS profiles", B$n_profiles)) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ```
 
-**Leitura honesta das três linhas por exposição:**
+**Reading the three rows per exposure:**
 
-1. **MAP → SOC**. Os três estimadores concordam em ~0,0072-0,0081
-   g/kg por mm. Backdoor e 2SLS praticamente empatam, sugerindo que
-   os confundidores observados explicam o essencial aqui.
-2. **Tree cover → SOC**. Grande diferença entre OLS naïve (0,90, não
-   significativo) e backdoor (6,54). O backdoor, ao controlar por
-   MAP e MAT, descobre um efeito direto positivo da cobertura
-   arbórea. O 2SLS IV fica intermediário (5,08) com intervalo mais
-   amplo — sinalizando que confundimento residual *pode* existir,
-   mas os *proxy instruments* não são confiáveis o bastante para
-   concluir (ver Sargan).
-3. **Clay → SOC**. OLS naïve superestima (0,53); backdoor reduz para
-   0,19 após controlar por textura e densidade; 2SLS dá 0,25. Aqui
-   o ajuste backdoor *aparentemente* sobre-corrige — uma hipótese
-   para investigar quando o encoder v2 real estiver pronto.
+1. **MAP → SOC.** Naive OLS gives `r f3(num("map", "OLS naive", "beta"))`
+   and backdoor OLS `r f3(num("map", "Backdoor OLS", "beta"))` g/kg per
+   mm; 2SLS gives `r f3(num("map", iv, "beta"))`. All three are positive,
+   and the 2SLS interval overlaps the others.
+2. **Tree cover → SOC.** Naive OLS is
+   `r f3(num("trees", "OLS naive", "beta"))`; adjusting for MAP and MAT
+   shrinks it to `r f3(num("trees", "Backdoor OLS", "beta"))`, with an
+   interval that includes zero. 2SLS reverses the sign,
+   `r f3(num("trees", iv, "beta"))`.
+3. **Clay → SOC.** Naive and backdoor OLS agree
+   (`r f3(num("clay", "OLS naive", "beta"))` and
+   `r f3(num("clay", "Backdoor OLS", "beta"))`); 2SLS again reverses the
+   sign, `r f3(num("clay", iv, "beta"))`.
 
-## O teste de Sargan rejeita: por que isso importa
+A 2SLS estimate that flips sign against two agreeing OLS estimates is
+not, on its own, evidence of confounding the backdoor set missed: it is
+also exactly what invalid instruments produce. The Sargan test decides
+between the two readings.
 
-**Todos os três estimadores 2SLS têm Sargan p ≈ 10⁻⁹**. O framework
-IV **corretamente** nos diz que os *proxy embeddings* **não**
-satisfazem a condição de exclusão — eles levam a efeitos enviesados
-em uma direção desconhecida.
+## The Sargan test rejects: why it matters
 
-Por que isso acontece? As 27 features proxy são **funções não-lineares
-das covariáveis observadas** (e.g., `map * trees / 100`). Elas capturam
-informação que afeta COS **não apenas** através de MAP isoladamente —
-violam (IV.2). É exatamente o comportamento esperado.
+**Every 2SLS estimate fails the Sargan test** (p from
+`r ex(S_rng[1])` to `r ex(S_rng[2])`). The IV framework **correctly**
+tells us that the embeddings **do not** satisfy the exclusion
+restriction, so the 2SLS estimates above are biased in an unknown
+direction -- including the two sign reversals.
 
-**A implicação científica**: instrumentos válidos para MDS causal
-precisam vir de uma fonte que capture estrutura de paisagem
-**independente** dos controles nomeados. O **MoCo v2**, treinado por
-perda contrastiva em *patches* **sem** ver COS (nem mesmo indiretamente
-via features derivadas de COS), é exatamente tal fonte — e por isso é
-a direção crítica da v1.3.2 / v1.9.1.
+Why does this happen? The embedding encodes climate, relief, soil and
+vegetation jointly. It therefore reaches SOC through several paths, not
+only through the one exposure being instrumented, and violates (IV.2).
 
-## Sensibilidade ao número de componentes
+**The scientific implication**: valid instruments for causal DSM have to
+come from a source that captures landscape structure **independent** of
+the named controls. A contrastive encoder trained on the same covariate
+stack is not such a source, because it learns those covariates.
 
-```{r sens-plot, fig.cap = "Efeito 2SLS para MAP → COS variando o número de componentes principais retidas como instrumentos. O ponto azul é o estimador pontual; a barra é IC 95%. A estimativa é notavelmente estável (β ≈ 0,008) através de k = 3, 5, 7, 10 — mas o Sargan p permanece baixo em todos os casos."}
+## Sensitivity to the number of components
+
+```{r sens-plot, fig.cap = "2SLS effect for MAP → SOC as the number of principal components kept as instruments varies. The point is the estimate; the bar is the 95% CI. The Sargan p-value stays near zero at every k (next figure), so this stability is not evidence of validity."}
 st <- B$sensitivity_table
 ggplot(st, aes(x = factor(n_pcs), y = beta_iv)) +
   geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi),
                   width = 0.15, linewidth = 0.8, color = "#2980B9") +
   geom_point(size = 3.5, color = "#2980B9") +
-  labs(x = "n_pcs (nº de componentes usadas como instrumentos)",
-       y = "β̂ 2SLS (g/kg por mm MAP)",
-       title = "Sensibilidade: estimador é estável; validade não")
+  labs(x = "n_pcs (number of components used as instruments)",
+       y = "2SLS β̂ (g/kg per mm of MAP)",
+       title = "Sensitivity to the number of instruments")
 ```
 
-```{r sargan-vs-k, fig.cap = "Como esperado, mais componentes aumentam a stage-1 F (relevância), mas NÃO resolvem o problema de exclusão: Sargan p permanece ≈ 0 para todos os k. Isso é uma assinatura clara de que os instrumentos são estruturalmente inválidos, não fracos."}
+```{r sargan-vs-k, fig.cap = "More components do not resolve the exclusion problem: the first-stage F stays large and the Sargan p stays near zero for every k. That is the signature of instruments that are structurally invalid, not weak."}
 st_long <- tidyr::pivot_longer(
-  st, c(stage1_F, sargan_p), names_to = "métrica", values_to = "valor"
+  st, c(stage1_F, sargan_p), names_to = "metric", values_to = "value"
 )
-st_long$métrica <- factor(st_long$métrica,
-                           levels = c("stage1_F", "sargan_p"),
-                           labels = c("Stage-1 F (relevance)",
-                                        "Sargan p (exclusion)"))
-ggplot(st_long, aes(x = factor(n_pcs), y = valor, group = 1)) +
+st_long$metric <- factor(st_long$metric,
+                          levels = c("stage1_F", "sargan_p"),
+                          labels = c("First-stage F (relevance)",
+                                     "Sargan p (exclusion)"))
+ggplot(st_long, aes(x = factor(n_pcs), y = value, group = 1)) +
   geom_point(size = 3, color = "#C0392B") +
   geom_line(color = "#C0392B", linewidth = 0.8) +
-  facet_wrap(~métrica, scales = "free_y") +
+  facet_wrap(~metric, scales = "free_y") +
   labs(x = "n_pcs", y = NULL,
-       title = "Diagnósticos IV × sensibilidade",
-       subtitle = "Instrumentos muito relevantes, mas estruturalmente inválidos")
+       title = "IV diagnostics vs. number of instruments",
+       subtitle = "Highly relevant instruments, structurally invalid")
 ```
 
 ---
 
-# Integração com a API unificada v1.6.0
+# Integration with the unified API
 
-O estimador 2SLS retorna um `edaphos_causal_iv` que passa direto
-para `as_edaphos_posterior()` via atalho Gaussiano (média + SE), e
-para `causal_iv_posterior()` que faz bootstrap em cluster:
+The 2SLS estimator returns an `edaphos_causal_iv`, which passes straight
+to `as_edaphos_posterior()` through a Gaussian shortcut (mean + SE), and
+to `causal_iv_posterior()`, which runs a cluster bootstrap:
 
 ```{r posterior-demo, eval = FALSE}
 post <- causal_iv_posterior(
@@ -375,61 +395,62 @@ uncertainty_calibrate(post, truth = ...)   # same API as all pillars
 autoplot(post)
 ```
 
+Bootstrap replicates whose resample does not identify the effect are
+dropped with a warning, and the posterior's metadata records how many
+were requested, used and dropped.
+
 ---
 
-# Instrumentos aprendidos: um resultado negativo
+# Learned instruments: a negative result
 
-A pergunta natural é se um *encoder aprendido* — treinado por
-auto-supervisão contrastiva **sem jamais ver o COS** — produziria
-instrumentos válidos onde features engenheiradas falham. Um encoder
-MoCo-v2 real (7 canais WorldClim/SoilGrids/tree-cover sobre o Cerrado,
-12 000 tiles, 3 000 épocas em GPU Metal; ver
-`data-raw/foundation_encoder_iv.R`) embute a paisagem de cada perfil, e
-as componentes principais desse embedding entram como instrumentos.
-O resultado está embarcado em `causal_cerrado_real_v2.rds` e é lido
-diretamente aqui:
+The natural question is whether a *learned encoder* -- trained by
+contrastive self-supervision **without ever seeing SOC** -- would produce
+valid instruments where engineered features fail. The benchmark above
+answers it for MAP:
 
 ```{r real-embed-results}
-mb <- B$benchmark_table[B$benchmark_table$exposure == "map", ]
-tsls <- mb[mb$estimator == "2SLS (real MoCo v2)", ]
 data.frame(
-  quantidade = c("n perfis", "instrumentos (PCs)", "OLS naïve (MAP→COS)",
-                 "Backdoor OLS", "2SLS (embeddings reais)",
-                 "Stage-1 F", "Sargan p"),
-  valor = c(B$n_profiles, B$n_pcs_default,
-            signif(mb$beta[mb$estimator == "OLS naive"], 3),
-            signif(mb$beta[mb$estimator == "Backdoor OLS"], 3),
-            signif(tsls$beta, 3), round(tsls$stage1_F),
-            formatC(tsls$sargan_p, format = "e", digits = 1)))
+  quantity = c("n profiles", "instruments (PCs)", "naive OLS (MAP → SOC)",
+               "backdoor OLS", "2SLS (real embeddings)",
+               "first-stage F", "Sargan p"),
+  value = c(B$n_profiles, B$n_pcs_default,
+            signif(num("map", "OLS naive", "beta"), 3),
+            signif(num("map", "Backdoor OLS", "beta"), 3),
+            signif(num("map", iv, "beta"), 3),
+            round(num("map", iv, "stage1_F")),
+            ex(num("map", iv, "sargan_p"))))
 ```
 
-**O resultado é negativo, e é esse o ponto.** Os instrumentos derivados
-do encoder são *extremamente* relevantes — Stage-1 F na casa dos
-milhares — mas **rejeitam decisivamente o teste de Sargan** (p abaixo de
-10⁻¹⁵). Uma representação aprendida **não** fabrica um instrumento
-válido: o embedding codifica clima, relevo, solo e vegetação de forma
-conjunta, alcança o COS por múltiplos caminhos e por isso viola a
-restrição de exclusão. Isto é a face empírica do argumento de
-@Zhang2026causal — a suficiência causal, e aqui a validade do
-instrumento, raramente é atingível em MDS a partir de dados
-observacionais. O IV não resgata a identificação; o relatório honesto é
-o teste que falha, não um efeito de manchete.
+**The result is negative, and that is the point.** The encoder-derived
+instruments are *highly* relevant -- first-stage F of
+`r round(num("map", iv, "stage1_F"))` for MAP -- but they **decisively
+fail the Sargan test** (p = `r ex(num("map", iv, "sargan_p"))`). A
+learned representation **does not** manufacture a valid instrument: the
+embedding encodes climate, relief, soil and vegetation jointly, reaches
+SOC through several paths, and so violates the exclusion restriction.
+This is the empirical face of the argument of @Zhang2026causal: causal
+sufficiency -- and here instrument validity -- is rarely attainable in
+DSM from observational data. IV does not rescue identification; the
+honest report is the test that fails, not a headline effect.
 
-Versões anteriores desta vignette afirmavam o contrário — que os
-embeddings reais *passariam* no Sargan (p ≈ 0,28–0,42) — com base em uma
-execução em modo *synthetic-stack* cujos covariáveis eram ruído. Aquele
-número foi retirado; o valor acima é medido sobre o encoder real e os
-perfis reais.
+The paper's main IV analysis (`causal_cerrado_real_v2.rds`, the same
+3,020 profiles without the covariate adjustment) reaches the same
+conclusion even more sharply: first-stage F ≈ 4,630 and Sargan p ≈ 0.
 
-# Sensibilidade v1.9.2 — Cinelli & Hazlett (2020)
+Earlier versions of this vignette claimed the opposite -- that the real
+embeddings *pass* Sargan (p ≈ 0.28–0.42) -- from a *synthetic-stack* run
+whose covariates were noise. That number was withdrawn; the values above
+are measured on the real encoder and the real profiles.
 
-Sargan testa a **validade** dos instrumentos, mas assume que eles
-satisfazem as condições IV.  Cinelli & Hazlett (2020) oferecem uma
-pergunta complementar em linguagem de **robustness**: *quão forte
-precisaria ser um confundidor latente $U$ — em termos de
-$R^2$ parcial com $X$ e $Y$ — para zerar o efeito estimado?*
+# Sensitivity analysis -- Cinelli & Hazlett (2020)
 
-A fórmula-chave:
+Sargan tests the instruments' **validity**, but assumes the IV
+conditions otherwise hold. @CinelliHazlett2020 pose a complementary
+question in the language of **robustness**: *how strong would a latent
+confounder $U$ have to be -- in terms of partial $R^2$ with $X$ and $Y$
+-- to drive the estimated effect to zero?*
+
+The key formula:
 
 $$
 |\mathrm{bias}|_{\max} = \mathrm{SE}(\hat\beta) \cdot
@@ -437,60 +458,64 @@ $$
   \cdot \sqrt{\mathrm{df}}
 $$
 
-O **Robustness Value (RV)** é o $R^2_{U} = R^2_{Y\sim U} = R^2_{X\sim U}$
-que, assumindo *equal confounding* na ambas as pontas, zeraria o
-efeito.  **RV baixo = efeito frágil**.
+The **Robustness Value (RV)** is the $R^2_{U} = R^2_{Y\sim U} = R^2_{X\sim U}$
+that, assuming *equal confounding* at both ends, would cancel the
+effect. **Low RV = fragile effect**.
 
-```{r sens-load, eval = FALSE}
-res_path <- system.file("extdata", "causal_sensitivity_cerrado.rds",
-                         package = "edaphos")
-S <- readRDS(res_path)
+## Sensitivity table by estimator
+
+This table is read from `causal_sensitivity_cerrado.rds`, produced by
+`data-raw/causal_sensitivity_run.R`. **It belongs to an earlier analysis
+on 1,095 profiles**, with an engineered-proxy IV alongside the real
+encoder, and not to the 3,020-profile benchmark above; its estimates
+differ accordingly.
+
+```{r sens-table}
+S <- readRDS(system.file("extdata", "causal_sensitivity_cerrado.rds",
+                         package = "edaphos"))
+sens <- S$sensitivity_table
+# The bundle labels two estimators with internal version tags that were
+# never releases; they are dropped for display.
+sens$estimator <- sub(" \\(v[0-9.]+\\)$", "", sens$estimator)
+knitr::kable(
+  data.frame(exposure  = sens$exposure,
+             estimator = sens$estimator,
+             effect    = signif(sens$effect, 3),
+             RV        = sprintf("%.1f%%", 100 * sens$rv),
+             RV_alpha  = sprintf("%.1f%%", 100 * sens$rv_alpha)),
+  caption = "Robustness values by exposure and estimator (1,095-profile analysis).")
 ```
 
-## Tabela de sensibilidade por estimador
+## Scientific reading
 
-Running `data-raw/causal_sensitivity_run.R` on all four estimators
-for the three Cerrado exposures:
+1. **Clay → SOC under naive OLS is the only robust effect here** (RV ≈
+   24%) -- a latent confounder would have to explain a quarter of the
+   residual variance of both clay and SOC to cancel it. That is
+   consistent with the literature: clay is the most direct predictor of
+   SOC and little confounded.
+2. **MAP → SOC has RV ≈ 8-9% under OLS, backdoor and proxy IV** --
+   robust to moderate confounding, vulnerable to any latent variable
+   explaining more than about 9% of the residual variance at both ends.
+3. **The real-encoder IV estimates have small RVs (0.9-3.9%)** because
+   their SE is several times the backdoor's. A run on real covariates
+   might raise the first-stage F and lower the SE. Note that
+   `EDAPHOS_IV_REAL_STACK` is read nowhere in the package -- this text
+   once announced it as a switch, and it is not. The real-stack path is
+   not implemented yet.
 
-```
- Exposure        Estimator               effect      RV     RV_alpha
- MAP (mm/a)      Naive OLS               0.00720   9.2 %   3.7 %
- MAP (mm/a)      Backdoor OLS            0.00769   8.3 %   2.6 %
- MAP (mm/a)      Proxy IV (v1.9.0)       0.00809   8.6 %   3.0 %
- MAP (mm/a)      Real MoCo IV (v1.9.1)   0.01694   3.9 %   0.0 %
- Tree cover (%)  Backdoor OLS            6.54      6.3 %   0.5 %
- Tree cover (%)  Proxy IV (v1.9.0)       5.08      4.9 %   0.0 %
- Tree cover (%)  Real MoCo IV (v1.9.1)   4.98      0.9 %   0.0 %
- Clay (%)        Naive OLS               0.526    24.4 %  19.8 %
- Clay (%)        Backdoor OLS            0.192     5.0 %   0.0 %
- Clay (%)        Real MoCo IV (v1.9.1)   0.858     3.9 %   0.0 %
-```
+On the 3,077-profile analysis in `causal_cerrado_real_v2.rds`, the
+effects that are both robust and significant are MAP → SOC (RV ≈ 16%)
+and clay → SOC (RV ≈ 18%); temperature and tree cover do not survive
+the adjustment.
 
-## Leitura científica
+## Bias contour: MAP → SOC under backdoor
 
-1. **Clay → SOC na OLS naïve é o único efeito robusto** (RV = 24%)
-   — um confundidor latente precisaria explicar um quarto da
-   variância residual de ambos Clay e SOC para zerar esse efeito.
-   Consistente com a literatura: clay é o preditor mais direto de SOC
-   e pouco confundido.
-2. **MAP → SOC tem RV ≈ 8-9% sob OLS/Backdoor/Proxy-IV** — robusto a
-   confundimentos moderados, vulnerável a qualquer variável latente
-   explicando mais de ~9% da variância residual em ambas as pontas.
-3. **Os IV estimates (real MoCo v1.9.1) têm RVs pequenos (0.9-3.9%)**
-   porque a SE é cerca de 5× maior que a do backdoor (instrumentos
-   fracos no modo CI-stack).  Uma corrida sobre covariáveis reais
-   deveria subir a F-stage-1 e baixar a SE, reestabilizando o RV.
-   Atenção: `EDAPHOS_IV_REAL_STACK` não é lido em lado nenhum do
-   pacote — este texto já o anunciou como se fosse um interruptor, e
-   não é.  O caminho de stack real está por implementar.
-
-## Bias contour: o MAP → SOC sob backdoor
-
-O bloco abaixo produz o plot clássico de @CinelliHazlett2020 — um
-grid 2-D com $R^2_{X\sim U | Z}$ no eixo-x, $R^2_{Y\sim U | X, Z}$
-no eixo-y, e contornos do efeito ajustado pelo viés:
+The chunk below draws the classic plot of @CinelliHazlett2020 -- a 2-D
+grid with $R^2_{X\sim U | Z}$ on the x-axis, $R^2_{Y\sim U | X, Z}$ on
+the y-axis, and contours of the bias-adjusted effect:
 
 ```{r sens-contour, eval = FALSE}
+# effect, se and df are the "Backdoor OLS" row for MAP in the table above.
 grid <- causal_sensitivity_grid(
   effect = 0.00769, se = 0.00271, df = 1084,
   grid_size = 61L, r2_max = 0.30
@@ -508,67 +533,61 @@ ggplot(grid, aes(x = r2_xu_z, y = r2_yu_xz,
         subtitle = "Red contour = β adjusted to zero")
 ```
 
-O contorno vermelho marca o conjunto de $(R^2_{X\sim U}, R^2_{Y\sim U})$
-para os quais o efeito ajustado é zero.  Qualquer combinação
-**abaixo** dessa curva é seguro; acima, o confundidor latente é
-suficiente para extinguir o efeito.
+The red contour marks the set of $(R^2_{X\sim U}, R^2_{Y\sim U})$ for
+which the adjusted effect is zero. Any combination **below** that curve
+is safe; above it, the latent confounder is strong enough to extinguish
+the effect.
 
 ---
 
-# Implicações para a visão generativa de @Zhang2026causal
+# Implications for the generative view of @Zhang2026causal
 
-O IV é um complemento, não um substituto, do ajuste *backdoor*:
+IV complements *backdoor* adjustment; it does not replace it:
 
-- **Backdoor** identifica efeitos sob **suficiência**. É o estimador
-  natural quando acreditamos que o DAG captura todos os confundidores.
-- **2SLS** identifica efeitos sob **IV.1 + IV.2 + IV.3**. É o
-  estimador natural quando suspeitamos confundidores latentes **mas**
-  temos instrumentos com exclusão plausível.
-- **Triangulação**: quando os dois concordam, nossa confiança no
-  efeito sobe. Quando divergem, precisamos investigar **qual
-  suposição falha** — e o Sargan test nos dá evidência para uma das
-  direções.
+- **Backdoor** identifies effects under **sufficiency**. It is the
+  natural estimator when we believe the DAG captures every confounder.
+- **2SLS** identifies effects under **IV.1 + IV.2 + IV.3**. It is the
+  natural estimator when we suspect latent confounders **but** have
+  instruments with a plausible exclusion restriction.
+- **Triangulation**: when the two agree, confidence in the effect rises.
+  When they diverge, we have to find out **which assumption fails** --
+  and the Sargan test gives evidence on one side of that question.
 
-Na visão generativa de @Zhang2026causal, um encoder contrastivo
-treinado em *covariate patches* é a candidatura natural a
-instrumento: ele **vive** no lado dos "fatores pedogenéticos" do
-diagrama $(\text{soil-forming factors} \to \text{processes} \to
-\text{soil})$ e codifica relações que o modelador **não precisou
-nomear** no DAG expert. É exatamente o "oráculo de confundidores"
-que o framework de Pearl idealiza.
+In the generative view of @Zhang2026causal, a contrastive encoder
+trained on *covariate patches* looked like a natural instrument: it
+**lives** on the "soil-forming factors" side of the diagram
+$(\text{soil-forming factors} \to \text{processes} \to \text{soil})$
+and encodes relations the modeller **did not have to name** in the
+expert DAG. The results above show why that intuition fails: living on
+the factors' side is exactly what lets it reach SOC through all of them.
 
 ---
 
 # Roadmap
 
-Os itens têm nomes e não números de versão: os números que esta lista
-usava (v1.9.0 a v2.0.0) eram rótulos internos que nunca foram lançados.
+The items have names, not version numbers: the numbers this list used to
+carry (v1.9.0 to v2.0.0) were internal labels that were never released.
 
-- **Estimador 2SLS (feito)**: estimador 2SLS completo + diagnósticos (F, Sargan)
-  + adaptador para `edaphos_posterior` + benchmark com *proxy
-  embeddings* nos perfis reais + validação em DGP sintético.
-  Sargan rejeitou (p < 10⁻⁹) — diagnóstico honesto.
-- **Encoder real como instrumento (feito)**: `foundation_embed_at_coords()` + um encoder MoCo-v2 real
-  treinado sobre o stack do Cerrado (`data-raw/foundation_encoder_iv.R`).
-  Resultado **negativo**: os embeddings reais são instrumentos fortes
-  (Stage-1 F ≈ 4600) mas **rejeitam Sargan** (p < 10⁻¹⁵) — uma
-  representação aprendida não produz um instrumento válido. (Uma versão
-  anterior afirmou o contrário, p ≈ 0,28–0,42, a partir de um stack
-  sintético de ruído; retirado.)
-- **Análise de sensibilidade (feito)**: análise de sensibilidade à la @CinelliHazlett2020 via
-  `causal_sensitivity_*` — RV e RV_alpha por estimador, bias-contour
-  grid.  Nos 3 077 perfis reais os efeitos *robustos e significativos*
-  são MAP → COS (RV ≈ 16 %) e Clay → COS (RV ≈ 18 %); T e cobertura
-  arbórea não sobrevivem ao ajuste (ver `causal_cerrado_real_v2.rds`).
-  + runner `data-raw/causal_sensitivity_run.R`.  Agenda para o
-  encoder v2: lift do Stage-1 F (requer o caminho de stack real, ainda
-  por implementar).
-- **Encoder MoCo v2 de 200 k passos (por fazer)**: treino e
-  re-benchmark. O kernel quântico (Pilar 6) sobre os embeddings
-  (Pilar 4 × Pilar 6) já está feito; ver `vignette("pilar4-pilar6-quantum")`.
+- **2SLS estimator (done)**: the full 2SLS estimator + diagnostics (F,
+  Sargan) + an `edaphos_posterior` adapter + a benchmark with *proxy
+  embeddings* on the real profiles + validation on a synthetic DGP.
+  Sargan rejected -- an honest diagnosis.
+- **Real encoder as instrument (done)**: `foundation_embed_at_coords()`
+  + a real MoCo-v2 encoder trained on the Cerrado stack
+  (`data-raw/foundation_encoder_iv.R`). A **negative** result: the real
+  embeddings are strong instruments but **fail Sargan** -- a learned
+  representation does not produce a valid instrument.
+- **Sensitivity analysis (done)**: Cinelli-Hazlett sensitivity analysis
+  through `causal_sensitivity_*` -- RV and RV_alpha per estimator, a
+  bias-contour grid, and the runner `data-raw/causal_sensitivity_run.R`.
+  For the v2 encoder: lifting the first-stage F needs the real-stack
+  path, not implemented yet.
+- **200 k-step MoCo v2 encoder (to do)**: training and re-benchmark. The
+  quantum kernel (Pillar 6) over the embeddings (Pillar 4 × Pillar 6) is
+  already done; see `vignette("pilar4-pilar6-quantum")`.
 
 ---
 
-# Referências
+# References
 
 <div id="refs"></div>
