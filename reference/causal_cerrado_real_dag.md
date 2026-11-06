@@ -108,10 +108,10 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
 #>   soilgrids_clay -> soc_topsoil_gkg   (estimator: lm)
 #>   adjustment set : {slope}
 #>   total effect   : -0.07328   (95% CI: -0.217, 0.07044)
-#>   naive effect   : -0.07384   (un-adjusted, likely confounded)
+#>   naive effect   : -0.07384   (un-adjusted lm; adjusted - naive = 0.00056)
 #> <edaphos_causal_effect>
 #>   soilgrids_clay -> soc_topsoil_gkg   (estimator: lm)
 #>   adjustment set : {slope, soilgrids_bdod, soilgrids_sand}
 #>   direct effect  : 0.1316   (95% CI: -0.1086, 0.3717)
-#>   naive effect   : -0.07384   (un-adjusted, likely confounded)
+#>   naive effect   : -0.07384   (un-adjusted lm; adjusted - naive = 0.2054)
 ```

@@ -27,6 +27,9 @@ causal_dag_test(dag, data, alpha = 0.05, coords = NULL, k = 100L)
 - alpha:
 
   Significance level for calling an implied independence rejected.
+  Applied twice: per test (unadjusted counts) and as the family-wise
+  level of a Holm adjustment over all implied independencies, which is
+  what the printed verdict on the graph is based on.
 
 - coords:
 
@@ -47,8 +50,18 @@ causal_dag_test(dag, data, alpha = 0.05, coords = NULL, k = 100L)
 An `edaphos_dag_test` object: a list with `pooled` (the
 [`dagitty::localTests`](https://rdrr.io/pkg/dagitty/man/localTests.html)
 table), `spatial` (the same after residualising, or `NULL`), `n_tests`,
-`n_rejected`, `n_rejected_spatial`, `max_abs_r`, `nodes_tested`,
-`nodes_without_data`, and `n`.
+`n_rejected` and `n_rejected_spatial` (unadjusted p-value below
+`alpha`), `n_rejected_holm` and `n_rejected_spatial_holm` (Holm-adjusted
+p-value below `alpha`, via
+[`stats::p.adjust()`](https://rdrr.io/r/stats/p.adjust.html)),
+`max_abs_r` (largest absolute partial correlation over all tests,
+rejected or not), `nodes_tested`, `nodes_without_data`, and `n`.
+
+With `n_tests` implied independencies that all hold, about
+`alpha * n_tests` unadjusted rejections are expected by chance alone, so
+the unadjusted count is not by itself evidence against the graph. The
+print method reports it against that expectation and rests its verdict
+on the Holm count.
 
 ## References
 

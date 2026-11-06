@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>LLM-driven causal-claim extraction for DSM: a multi-backend benchmark • edaphos</title>
+<title>LLM-driven causal-claim extraction for DSM: a multi-backend benchmark harness • edaphos</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="LLM-driven causal-claim extraction for DSM: a multi-backend benchmark">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="LLM-driven causal-claim extraction for DSM: a multi-backend benchmark harness">
 <!-- SUBRESOURCE INTEGRITY, and a version that cannot move under it.
      This read `mermaid@11` with no integrity attribute: a floating major
      tag, so the bytes the CDN serves change whenever upstream publishes,
@@ -51,7 +51,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">edaphos</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,50 +64,40 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><h6 class="dropdown-header" data-toc-skip>Capstone — the six pillars of v1.7.0, integrated</h6></li>
+<li><h6 class="dropdown-header" data-toc-skip>Capstone — six pillars in one sampling campaign</h6></li>
     <li><a class="dropdown-item" href="../articles/capstone-cerrado-campaign.html">Cross-pillar campaign</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Pilar 1 — Causal AI</h6></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-causal.html">Causal backdoor on br_cerrado</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Pillar 1 — Causal AI</h6></li>
+    <li><a class="dropdown-item" href="../articles/pillar1-causal.html">Causal backdoor on br_cerrado</a></li>
     <li><a class="dropdown-item" href="../articles/causal-discovery-trio.html">Causal-discovery trio (expert × LLM × data-driven)</a></li>
     <li><a class="dropdown-item" href="../articles/llm-annotation-workflow.html">Annotation workflow (pre-annotation + Shiny review)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Pilar 2 — Physics-Informed ML</h6></li>
-    <li><a class="dropdown-item" href="../articles/pilar2-piml-profile.html">Parametric ODE + Neural ODE</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Pillar 2 — Physics-Informed ML</h6></li>
+    <li><a class="dropdown-item" href="../articles/pillar2-piml-profile.html">Parametric ODE + Neural ODE</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Pilar 3 — 4D Pedometry</h6></li>
-    <li><a class="dropdown-item" href="../articles/pilar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Pillar 3 — 4D Pedometry</h6></li>
+    <li><a class="dropdown-item" href="../articles/pillar3-4d-soc.html">ConvLSTM on synthetic cube</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Pilar 4 — Foundation Models</h6></li>
-    <li><a class="dropdown-item" href="../articles/pilar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Pillar 4 — Foundation Models</h6></li>
+    <li><a class="dropdown-item" href="../articles/pillar4-simclr-embeddings.html">SimCLR / MoCo embeddings</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Pilar 5 — Active Learning</h6></li>
-    <li><a class="dropdown-item" href="../articles/pilar5-active-learning.html">Hybrid policy + physics gate</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Pillar 5 — Active Learning</h6></li>
+    <li><a class="dropdown-item" href="../articles/pillar5-active-learning.html">Hybrid policy + physics gate</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Pilar 6 — Quantum ML</h6></li>
-    <li><a class="dropdown-item" href="../articles/pilar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Pillar 6 — Quantum ML</h6></li>
+    <li><a class="dropdown-item" href="../articles/pillar6-quantum.html">ZZFeatureMap + Q-KRR</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Cross-pillar bridges</h6></li>
-    <li><a class="dropdown-item" href="../articles/pilar1-pilar4-iv.html">Pilar 1 × Pilar 4 — Foundation IVs</a></li>
-    <li><a class="dropdown-item" href="../articles/pilar4-pilar6-quantum.html">Pilar 4 × Pilar 6 — Quantum-foundation kernel</a></li>
+    <li><a class="dropdown-item" href="../articles/pillar1-pillar4-iv.html">Pillar 1 × Pillar 4 — Foundation IVs</a></li>
+    <li><a class="dropdown-item" href="../articles/pillar4-pillar6-quantum.html">Pillar 4 × Pillar 6 — Quantum-foundation kernel</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Unified infrastructure</h6></li>
     <li><a class="dropdown-item" href="../articles/uncertainty-unified.html">Unified uncertainty API</a></li>
     <li><a class="dropdown-item" href="../articles/case-cerrado-end-to-end.html">Case — end-to-end Cerrado benchmark</a></li>
   </ul>
 </li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-news">
-<li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>v2.0.0 — Quantum kernel × Foundation (Pilar 4 × Pilar 6)</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>v1.9.x — Foundation embeddings as causal IVs + Sargan/Cinelli-Hazlett</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>v1.8.x — LLM benchmark infrastructure + Shiny annotation tool</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>v1.7.x — Capstone vignette + native-query calibration + causal discovery</h6></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/HugoMachadoRodrigues/edaphos/tree/main/cheatsheets">Cheatsheets</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -126,9 +116,10 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>LLM-driven causal-claim extraction for DSM: a multi-backend benchmark</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>LLM-driven causal-claim extraction for DSM: a multi-backend benchmark harness</h1>
             <h3 data-toc-skip class="subtitle">Gemma 4 vs. GPT-4o-mini
-vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts</h3>
+vs. Claude Sonnet-4.5 profiles on 30 gold-standard Cerrado abstracts –
+simulated run</h3>
                         <h4 data-toc-skip class="author">Hugo
 Rodrigues</h4>
             
@@ -140,17 +131,20 @@ Rodrigues</h4>
     
     
 <blockquote>
-<p><strong>TL;DR.</strong> Três Large Language Models (Gemma 4 local,
-GPT-4o-mini, Claude Sonnet-4.5) foram avaliados em uma tarefa de
-extração automática de claims causais a partir de resumos pedológicos do
-Cerrado brasileiro. O gold-standard contém 30 abstracts × ~2,4
-claims/abstract, anotados por pedólogo. O protocolo produz F1 de
-0,70-0,82 por backend; <strong>Claude tem o melhor F1</strong>,
-<strong>GPT é o mais rápido</strong>, <strong>Gemma 4 é o único
-gratuito</strong>. A relação custo-performance em um corpus de 10 000
-abstracts varia em até <strong>22×</strong> entre os backends
-comerciais. O KG resultante é publicado como artefato Zenodo com DOI
-independente.</p>
+<p><strong>Read this first: every result below is simulated.</strong>
+The shipped results
+(<code>inst/extdata/llm_benchmark_results.rds</code>) record
+<code>mode = "simulated"</code>. They come from
+<code><a href="../reference/llm_benchmark_simulate.html">llm_benchmark_simulate()</a></code>, which draws extractions from
+noise profiles assigned to each backend; they are not measurements of
+Gemma 4, GPT-4o-mini or Claude Sonnet-4.5. What this article
+demonstrates is the <strong>harness</strong> – the gold standard, the
+matching function, and the precision / recall / F1, Cohen’s κ, cost and
+latency computations – which runs offline and reproducibly in CI. No
+statement here ranks the vendors. An earlier version of this article
+opened with “Claude has the best F1, GPT is the fastest”, which restated
+the simulator’s own inputs as findings. A real comparison needs the
+real-API mode described below.</p>
 </blockquote>
 <hr>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -165,41 +159,44 @@ independente.</p>
 <span><span class="va">B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">res_path</span><span class="op">)</span></span></code></pre></div>
 <hr>
 <div class="section level2">
-<h2 id="motivação">Motivação<a class="anchor" aria-label="anchor" href="#motiva%C3%A7%C3%A3o"></a>
+<h2 id="motivation">Motivation<a class="anchor" aria-label="anchor" href="#motivation"></a>
 </h2>
-<p>A condição 1 de <span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span> (“um modelo causal
-explícito — um DAG”) é a mais trabalhosa de satisfazer no mundo real:
-desenhar DAGs à mão é subjetivo, caro, e raramente reproduzível entre
-grupos. O Pilar 1 do <code>edaphos</code> propõe automatizar parte desse
-trabalho lendo a <strong>literatura peer-reviewed como fonte de
-dados</strong>: um Large Language Model (LLM) extrai claims causais de
-abstracts e essas claims são fundidas num Knowledge Graph (KG) que
-aumenta o DAG expert. A ferramenta foi demonstrada qualitativamente
-desde a v1.0.0; esta vignette fornece a <strong>validação
-quantitativa</strong> que faltava.</p>
-<p><strong>Três perguntas operacionais</strong> que um pedômetra precisa
-responder antes de produzir um paper com esse pipeline:</p>
+<p>Condition 1 of <span class="citation">Zhang and Wadoux (<a href="#ref-Zhang2026causal">2026</a>)</span> (“an explicit causal model
+– a DAG”) is the hardest to satisfy in practice: drawing DAGs by hand is
+subjective, expensive, and rarely reproducible across groups. Pillar 1
+of <code>edaphos</code> proposes automating part of that work by reading
+the <strong>peer-reviewed literature as a data source</strong>: a Large
+Language Model (LLM) extracts causal claims from abstracts, and those
+claims are merged into a Knowledge Graph (KG) that augments the expert
+DAG. This article provides the machinery for the quantitative validation
+that the qualitative demonstrations lacked.</p>
+<p><strong>Three operational questions</strong> a pedometrician has to
+answer before producing a paper with this pipeline:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>Qual backend escolher?</strong> Gemma 4 (local,
-open-weights) tem o custo zero mas precisão menor? Ou Claude, que custa
-caro mas entrega melhor qualidade, justifica o investimento?</li>
+<strong>Which backend to choose?</strong> Gemma 4 (local, open
+weights) costs nothing, but is it less precise? Does a paid API justify
+its price?</li>
 <li>
-<strong>Quão confiáveis são essas extrações?</strong> O Cohen’s κ
-com o pedólogo humano está acima de 0,40 (substancial)?</li>
+<strong>How reliable are the extractions?</strong> Is Cohen’s κ
+against a human pedologist above 0.40?</li>
 <li>
-<strong>Custo e latência de escalar para 10 000 abstracts?</strong>
-Posso processar um corpus de revisão sistemática em uma noite?</li>
+<strong>What does it cost, and how long does it take, to scale to
+10,000 abstracts?</strong> Can a systematic-review corpus be processed
+overnight?</li>
 </ol>
+<p>The harness below answers them once it is run in real-API mode. In
+the shipped simulated run it answers none of them about the actual
+models.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="gold-standard-como-foi-construído">Gold standard: como foi construído<a class="anchor" aria-label="anchor" href="#gold-standard-como-foi-constru%C3%ADdo"></a>
+<h2 id="gold-standard-how-it-was-built">Gold standard: how it was built<a class="anchor" aria-label="anchor" href="#gold-standard-how-it-was-built"></a>
 </h2>
 <div class="section level3">
-<h3 id="schema-de-anotação">Schema de anotação<a class="anchor" aria-label="anchor" href="#schema-de-anota%C3%A7%C3%A3o"></a>
+<h3 id="annotation-schema">Annotation schema<a class="anchor" aria-label="anchor" href="#annotation-schema"></a>
 </h3>
-<p>Cada entrada do gold-standard segue o mesmo schema JSON
+<p>Every gold-standard entry follows the same JSON schema
 (<code>inst/extdata/cerrado_gold_standard_v1.jsonl</code>):</p>
 <pre><code>{
   "abstract_id": "CER_01",
@@ -214,7 +211,7 @@ Posso processar um corpus de revisão sistemática em uma noite?</li>
     ...
   ]
 }</code></pre>
-<p>O vocabulário canônico (<code>precipitation</code>,
+<p>The canonical vocabulary (<code>precipitation</code>,
 <code>temperature</code>, <code>clay</code>, <code>sand</code>,
 <code>soc</code>, <code>ndvi</code>, <code>ph</code>, <code>cec</code>,
 <code>bulk_density</code>, <code>vegetation</code>,
@@ -222,13 +219,17 @@ Posso processar um corpus de revisão sistemática em uma noite?</li>
 <code>erosion</code>, <code>weathering</code>, <code>elevation</code>,
 <code>slope</code>, <code>twi</code>, <code>aspect</code>,
 <code>mean_annual_precipitation</code>,
-<code>mean_annual_temperature</code>, <code>fire_frequency</code>) é
-<strong>o mesmo</strong> do prompt de extração
-(<code>R/causal_llm.R</code>) — isso é essencial para o matching ser
+<code>mean_annual_temperature</code>, <code>fire_frequency</code>) is
+<strong>the same</strong> as the extraction prompt’s
+(<code>R/causal_llm.R</code>) – essential for the matching to be
 fair.</p>
+<p>The 30 abstracts in the gold standard are themselves simulated,
+written to resemble Cerrado pedology papers (the README’s data inventory
+lists the file as “30 simulated abstracts x 72 annotated causal
+claims”).</p>
 </div>
 <div class="section level3">
-<h3 id="estatísticas-descritivas">Estatísticas descritivas<a class="anchor" aria-label="anchor" href="#estat%C3%ADsticas-descritivas"></a>
+<h3 id="descriptive-statistics">Descriptive statistics<a class="anchor" aria-label="anchor" href="#descriptive-statistics"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">topics_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">B</span><span class="op">$</span><span class="va">gold_records</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="op">{</span></span>
@@ -251,14 +252,13 @@ fair.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span>, width <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set2"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Abstracts"</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Cobertura temática do gold-standard Cerrado v1"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>       title <span class="op">=</span> <span class="st">"Topic coverage of the Cerrado gold standard"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">25</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="llm-kg-benchmark_files/figure-html/gold-topic-bar-1.png" class="r-plt" alt="Distribuição do gold-standard por tópico pedogenético. Cinco domínios dominam: drivers climáticos, textura, manejo do uso do solo, topografia e perturbações (fogo / erosão). Esta cobertura reflete a literatura reviewed do Cerrado (2018-2024)." width="96%"><p class="caption">
-Distribuição do gold-standard por tópico pedogenético. Cinco domínios
-dominam: drivers climáticos, textura, manejo do uso do solo, topografia
-e perturbações (fogo / erosão). Esta cobertura reflete a literatura
-reviewed do Cerrado (2018-2024).
+<img src="llm-kg-benchmark_files/figure-html/gold-topic-bar-1.png" class="r-plt" alt="Distribution of the gold standard by pedogenetic topic. Five domains dominate: climatic drivers, texture, land-use management, topography and disturbance (fire / erosion)." width="96%"><p class="caption">
+Distribution of the gold standard by pedogenetic topic. Five domains
+dominate: climatic drivers, texture, land-use management, topography and
+disturbance (fire / erosion).
 </p>
 </div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -270,43 +270,44 @@ reviewed do Cerrado (2018-2024).
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"#2ECC71"</span>, width <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">n</span><span class="op">)</span>, hjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.3</span>, size <span class="op">=</span> <span class="fl">3.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Ocorrências no gold-standard"</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Arestas mais frequentes"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Occurrences in the gold standard"</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"Most frequent edges"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">gold_edges</span><span class="op">$</span><span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.15</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="llm-kg-benchmark_files/figure-html/gold-edge-hist-1.png" class="r-plt" alt="Frequência das arestas (cause → effect) mais comuns no gold-standard. 'vegetation → soc' e 'land_use → soc' são as arestas mais recorrentes — são os mecanismos pedogenéticos mais estudados no Cerrado." width="96%"><p class="caption">
-Frequência das arestas (cause → effect) mais comuns no gold-standard.
-‘vegetation → soc’ e ‘land_use → soc’ são as arestas mais recorrentes —
-são os mecanismos pedogenéticos mais estudados no Cerrado.
+<img src="llm-kg-benchmark_files/figure-html/gold-edge-hist-1.png" class="r-plt" alt="Frequency of the most common edges (cause → effect) in the gold standard. 'vegetation → soc' and 'land_use → soc' recur most often." width="96%"><p class="caption">
+Frequency of the most common edges (cause → effect) in the gold
+standard. ‘vegetation → soc’ and ‘land_use → soc’ recur most often.
 </p>
 </div>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="protocolo-de-benchmark">Protocolo de benchmark<a class="anchor" aria-label="anchor" href="#protocolo-de-benchmark"></a>
+<h2 id="benchmark-protocol">Benchmark protocol<a class="anchor" aria-label="anchor" href="#benchmark-protocol"></a>
 </h2>
 <div class="section level3">
-<h3 id="os-três-backends">Os três backends<a class="anchor" aria-label="anchor" href="#os-tr%C3%AAs-backends"></a>
+<h3 id="the-three-backends">The three backends<a class="anchor" aria-label="anchor" href="#the-three-backends"></a>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">backend_desc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  Backend   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gemma 4 (local)"</span>, <span class="st">"GPT-4o-mini"</span>, <span class="st">"Claude Sonnet-4.5"</span><span class="op">)</span>,</span>
-<span>  Provedor  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Google DeepMind (via Ollama)"</span>,</span>
-<span>                 <span class="st">"OpenAI"</span>, <span class="st">"Anthropic"</span><span class="op">)</span>,</span>
-<span>  Tipo      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Open-weights, CPU/MPS local"</span>,</span>
-<span>                 <span class="st">"API hospedada"</span>, <span class="st">"API hospedada"</span><span class="op">)</span>,</span>
-<span>  Preço_entrada <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"$0"</span>,  <span class="st">"$0,15/1M tokens"</span>, <span class="st">"$3,00/1M tokens"</span><span class="op">)</span>,</span>
-<span>  Preço_saída   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"$0"</span>,  <span class="st">"$0,60/1M tokens"</span>, <span class="st">"$15,00/1M tokens"</span><span class="op">)</span>,</span>
-<span>  Perfil    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Recall médio · Precisão alta · Lento"</span>,</span>
-<span>                 <span class="st">"Recall alto · Precisão média · Rápido"</span>,</span>
-<span>                 <span class="st">"Recall alto · Precisão alta · Médio"</span><span class="op">)</span>,</span>
+<span>  Backend      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gemma 4 (local)"</span>, <span class="st">"GPT-4o-mini"</span>, <span class="st">"Claude Sonnet-4.5"</span><span class="op">)</span>,</span>
+<span>  Provider     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Google DeepMind (via Ollama)"</span>,</span>
+<span>                    <span class="st">"OpenAI"</span>, <span class="st">"Anthropic"</span><span class="op">)</span>,</span>
+<span>  Type         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Open weights, local CPU/MPS"</span>,</span>
+<span>                    <span class="st">"Hosted API"</span>, <span class="st">"Hosted API"</span><span class="op">)</span>,</span>
+<span>  Input_price  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"$0"</span>,  <span class="st">"$0.15/1M tokens"</span>, <span class="st">"$3.00/1M tokens"</span><span class="op">)</span>,</span>
+<span>  Output_price <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"$0"</span>,  <span class="st">"$0.60/1M tokens"</span>, <span class="st">"$15.00/1M tokens"</span><span class="op">)</span>,</span>
+<span>  Simulated_profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Mid recall · high precision · slow"</span>,</span>
+<span>                        <span class="st">"High recall · mid precision · fast"</span>,</span>
+<span>                        <span class="st">"High recall · high precision · medium"</span><span class="op">)</span>,</span>
 <span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">backend_desc</span>,</span>
-<span>              caption <span class="op">=</span> <span class="st">"Os três backends comparados neste benchmark."</span><span class="op">)</span></span></code></pre></div>
+<span>              caption <span class="op">=</span> <span class="st">"The three backends. The last column is the noise profile the simulator assigns to each, not a measured property of the model."</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
-<caption>Os três backends comparados neste benchmark.</caption>
+<caption>The three backends. The last column is the noise profile the
+simulator assigns to each, not a measured property of the
+model.</caption>
 <colgroup>
 <col width="12%">
 <col width="19%">
@@ -317,58 +318,59 @@ são os mecanismos pedogenéticos mais estudados no Cerrado.
 </colgroup>
 <thead><tr class="header">
 <th align="left">Backend</th>
-<th align="left">Provedor</th>
-<th align="left">Tipo</th>
-<th align="left">Preço_entrada</th>
-<th align="left">Preço_saída</th>
-<th align="left">Perfil</th>
+<th align="left">Provider</th>
+<th align="left">Type</th>
+<th align="left">Input_price</th>
+<th align="left">Output_price</th>
+<th align="left">Simulated_profile</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">Gemma 4 (local)</td>
 <td align="left">Google DeepMind (via Ollama)</td>
-<td align="left">Open-weights, CPU/MPS local</td>
+<td align="left">Open weights, local CPU/MPS</td>
 <td align="left">$0</td>
 <td align="left">$0</td>
-<td align="left">Recall médio · Precisão alta · Lento</td>
+<td align="left">Mid recall · high precision · slow</td>
 </tr>
 <tr class="even">
 <td align="left">GPT-4o-mini</td>
 <td align="left">OpenAI</td>
-<td align="left">API hospedada</td>
-<td align="left">$0,15/1M tokens</td>
-<td align="left">$0,60/1M tokens</td>
-<td align="left">Recall alto · Precisão média · Rápido</td>
+<td align="left">Hosted API</td>
+<td align="left">$0.15/1M tokens</td>
+<td align="left">$0.60/1M tokens</td>
+<td align="left">High recall · mid precision · fast</td>
 </tr>
 <tr class="odd">
 <td align="left">Claude Sonnet-4.5</td>
 <td align="left">Anthropic</td>
-<td align="left">API hospedada</td>
-<td align="left">$3,00/1M tokens</td>
-<td align="left">$15,00/1M tokens</td>
-<td align="left">Recall alto · Precisão alta · Médio</td>
+<td align="left">Hosted API</td>
+<td align="left">$3.00/1M tokens</td>
+<td align="left">$15.00/1M tokens</td>
+<td align="left">High recall · high precision · medium</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section level3">
-<h3 id="prompt-de-extração">Prompt de extração<a class="anchor" aria-label="anchor" href="#prompt-de-extra%C3%A7%C3%A3o"></a>
+<h3 id="extraction-prompt">Extraction prompt<a class="anchor" aria-label="anchor" href="#extraction-prompt"></a>
 </h3>
-<p>Prompt idêntico nos três backends (<code>R/causal_llm.R</code>).
-Extração forçada via <code>format="json"</code> no Ollama (para output
-determinístico) ou JSON mode / function calling nas APIs hospedadas.</p>
+<p>The prompt is identical across the three backends
+(<code>R/causal_llm.R</code>). Extraction is forced with
+<code>format = "json"</code> in Ollama (for deterministic output) or
+with JSON mode / function calling on the hosted APIs.</p>
 </div>
 <div class="section level3">
-<h3 id="função-de-matching">Função de matching<a class="anchor" aria-label="anchor" href="#fun%C3%A7%C3%A3o-de-matching"></a>
+<h3 id="matching-function">Matching function<a class="anchor" aria-label="anchor" href="#matching-function"></a>
 </h3>
-<p>Uma claim extraída é <strong>true positive (TP)</strong> se o par
-(cause, effect) — após canonicalização — coincide com uma claim do
-gold-standard para o mesmo abstract. O matching é <em>fuzzy</em>: uma
-distância de Levenshtein total (cause + effect) ≤ 2 caracteres é aceita
-para absorver variantes ortográficas (“precipitation” vs.
-“precipitations”).</p>
+<p>An extracted claim is a <strong>true positive (TP)</strong> if its
+(cause, effect) pair – after canonicalisation – matches a gold-standard
+claim for the same abstract. The matching is <em>fuzzy</em>: a total
+Levenshtein distance (cause + effect) of at most 2 characters is
+accepted, to absorb spelling variants (“precipitation”
+vs. “precipitations”).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Exemplo mínimo do matching</span></span>
+<code class="sourceCode R"><span><span class="co"># Minimal example of the matching</span></span>
 <span><span class="va">example_predicted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  abstract_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CER_01"</span>, <span class="st">"CER_01"</span>, <span class="st">"CER_01"</span><span class="op">)</span>,</span>
 <span>  cause       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean_annual_precipitation"</span>, <span class="st">"soil_moisture"</span>, <span class="st">"temperature"</span><span class="op">)</span>,</span>
@@ -382,10 +384,9 @@ para absorver variantes ortográficas (“precipitation” vs.
 <span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/llm_benchmark_match.html">llm_benchmark_match</a></span><span class="op">(</span><span class="va">example_predicted</span>, <span class="va">example_gold</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">m</span>, caption <span class="op">=</span> <span class="st">"Saída do matcher em um caso didático: 1 TP, 1 FP, 1 FN."</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">m</span>, caption <span class="op">=</span> <span class="st">"Matcher output on a teaching case: 1 TP, 1 FP, 1 FN."</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
-<caption>Saída do matcher em um caso didático: 1 TP, 1 FP, 1
-FN.</caption>
+<caption>Matcher output on a teaching case: 1 TP, 1 FP, 1 FN.</caption>
 <colgroup>
 <col width="15%">
 <col width="16%">
@@ -439,58 +440,61 @@ FN.</caption>
 </table>
 </div>
 <div class="section level3">
-<h3 id="reprodutibilidade-e-modo-de-execução">Reprodutibilidade e modo de execução<a class="anchor" aria-label="anchor" href="#reprodutibilidade-e-modo-de-execu%C3%A7%C3%A3o"></a>
+<h3 id="reproducibility-and-run-mode">Reproducibility and run mode<a class="anchor" aria-label="anchor" href="#reproducibility-and-run-mode"></a>
 </h3>
-<p>O runner <code>data-raw/llm_benchmark_run.R</code> opera em dois
-modos:</p>
+<p>The runner <code>data-raw/llm_benchmark_run.R</code> has two
+modes:</p>
 <ul>
 <li>
-<strong><code>EDAPHOS_USE_REAL_LLM=1</code></strong>: chama os 3
-APIs reais (requer Ollama rodando + <code>OPENAI_API_KEY</code> +
-<code>ANTHROPIC_API_KEY</code>). ~20-40 min, ~$0,20 de custo total para
-30 abstracts.</li>
+<strong><code>EDAPHOS_USE_REAL_LLM=1</code></strong>: calls the
+three real APIs (needs Ollama running + <code>OPENAI_API_KEY</code> +
+<code>ANTHROPIC_API_KEY</code>). About 20-40 min and about $0.20 in
+total for 30 abstracts. <strong>This is the mode that would compare the
+models</strong>, and it has not been run for the shipped results.</li>
 <li>
-<strong>Modo padrão (simulado)</strong>: usa
-<code><a href="../reference/llm_benchmark_simulate.html">llm_benchmark_simulate()</a></code> com perfis de ruído calibrados às
-literaturas publicadas para cada backend. Determinístico por semente;
-<strong>reproduz em CI sem dependência externa</strong>.</li>
+<strong>Default mode (simulated)</strong>: uses
+<code><a href="../reference/llm_benchmark_simulate.html">llm_benchmark_simulate()</a></code> with per-backend noise profiles.
+Deterministic given a seed; <strong>reproduces in CI with no external
+dependency</strong>.</li>
 </ul>
-<p>Os números nesta vignette foram gerados no <strong>modo
-simulado</strong> para garantir build offline. Os perfis de simulação
-por backend são:</p>
+<p>Every number in this article comes from the <strong>simulated
+mode</strong>. The simulation profiles are:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="left">Backend</th>
-<th align="right">Recall alvo</th>
-<th align="right">Precisão alvo</th>
-<th align="right">Latência média (s)</th>
+<th align="right">Target recall</th>
+<th align="right">Target precision</th>
+<th align="right">Mean latency (s)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">Gemma 4</td>
-<td align="right">0,80</td>
-<td align="right">0,85</td>
-<td align="right">15,2</td>
+<td align="right">0.80</td>
+<td align="right">0.85</td>
+<td align="right">15.2</td>
 </tr>
 <tr class="even">
 <td align="left">GPT-4o-mini</td>
-<td align="right">0,88</td>
-<td align="right">0,80</td>
-<td align="right">3,1</td>
+<td align="right">0.88</td>
+<td align="right">0.80</td>
+<td align="right">3.1</td>
 </tr>
 <tr class="odd">
 <td align="left">Claude Sonnet-4.5</td>
-<td align="right">0,84</td>
-<td align="right">0,90</td>
-<td align="right">5,7</td>
+<td align="right">0.84</td>
+<td align="right">0.90</td>
+<td align="right">5.7</td>
 </tr>
 </tbody>
 </table>
+<p>So any ordering of the backends in the results below follows from
+these inputs. The results check that the harness recovers what was put
+in; they say nothing about the models themselves.</p>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="resultados">Resultados<a class="anchor" aria-label="anchor" href="#resultados"></a>
+<h2 id="results-of-the-simulated-run">Results of the simulated run<a class="anchor" aria-label="anchor" href="#results-of-the-simulated-run"></a>
 </h2>
 <div class="section level3">
 <h3 id="precision-recall-f1">Precision / Recall / F1<a class="anchor" aria-label="anchor" href="#precision-recall-f1"></a>
@@ -507,17 +511,15 @@ por backend são:</p>
 <span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Backend"</span>, <span class="st">"n_claims"</span>, <span class="st">"TP"</span>, <span class="st">"FP"</span>, <span class="st">"FN"</span>,</span>
 <span>                <span class="st">"Precision"</span>, <span class="st">"Recall"</span>, <span class="st">"F1"</span><span class="op">)</span>,</span>
 <span>  caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Desempenho dos três backends contra o gold-standard "</span>,</span>
-<span>    <span class="st">"(30 abstracts, 72 claims). Claude Sonnet-4.5 atinge o melhor "</span>,</span>
-<span>    <span class="st">"F1 (0,82); GPT-4o-mini tem recall ligeiramente maior mas "</span>,</span>
-<span>    <span class="st">"precisão menor; Gemma 4 fica no meio mas é gratuito."</span></span>
+<span>    <span class="st">"Scores of the three simulated profiles against the gold standard "</span>,</span>
+<span>    <span class="st">"(30 abstracts, 72 claims). The ordering reflects the simulation "</span>,</span>
+<span>    <span class="st">"profiles above, not the models."</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <table class="table">
-<caption>Desempenho dos três backends contra o gold-standard (30
-abstracts, 72 claims). Claude Sonnet-4.5 atinge o melhor F1 (0,82);
-GPT-4o-mini tem recall ligeiramente maior mas precisão menor; Gemma 4
-fica no meio mas é gratuito.</caption>
+<caption>Scores of the three simulated profiles against the gold
+standard (30 abstracts, 72 claims). The ordering reflects the simulation
+profiles above, not the models.</caption>
 <thead><tr class="header">
 <th align="left">Backend</th>
 <th align="right">n_claims</th>
@@ -573,18 +575,17 @@ fica no meio mas é gratuito.</caption>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size_continuous</a></span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">12</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"F1"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Recall"</span>, y <span class="op">=</span> <span class="st">"Precision"</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Precision × Recall por backend"</span><span class="op">)</span></span></code></pre></div>
+<span>       title <span class="op">=</span> <span class="st">"Precision × recall by simulated profile"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="llm-kg-benchmark_files/figure-html/prf1-plot-1.png" class="r-plt" alt="Precision × Recall plot com tamanho proporcional a F1. A diagonal tracejada marca precision = recall. Claude Sonnet-4.5 está no canto superior-direito (ambos altos); GPT-4o-mini privilegia recall sobre precisão; Gemma 4 é ligeiramente mais conservador." width="96%"><p class="caption">
-Precision × Recall plot com tamanho proporcional a F1. A diagonal
-tracejada marca precision = recall. Claude Sonnet-4.5 está no canto
-superior-direito (ambos altos); GPT-4o-mini privilegia recall sobre
-precisão; Gemma 4 é ligeiramente mais conservador.
+<img src="llm-kg-benchmark_files/figure-html/prf1-plot-1.png" class="r-plt" alt="Precision × recall, with point size proportional to F1, for the three simulated profiles. The dashed diagonal marks precision = recall. Positions follow from each profile's target recall and precision." width="96%"><p class="caption">
+Precision × recall, with point size proportional to F1, for the three
+simulated profiles. The dashed diagonal marks precision = recall.
+Positions follow from each profile’s target recall and precision.
 </p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="cohens-κ-pairwise">Cohen’s κ pairwise<a class="anchor" aria-label="anchor" href="#cohens-%CE%BA-pairwise"></a>
+<h3 id="pairwise-cohens-κ">Pairwise Cohen’s κ<a class="anchor" aria-label="anchor" href="#pairwise-cohens-%CE%BA"></a>
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">km</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op">$</span><span class="va">kappa_matrix</span></span>
@@ -597,28 +598,29 @@ precisão; Gemma 4 é ligeiramente mais conservador.
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_distiller</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"RdYlBu"</span>, direction <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>                        limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"κ"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Cohen's κ pairwise"</span>,</span>
-<span>       caption <span class="op">=</span> <span class="st">"Gold = pedólogo humano. Landis-Koch: &gt;0.60 = substancial."</span><span class="op">)</span> <span class="op">+</span></span>
+<span>       title <span class="op">=</span> <span class="st">"Pairwise Cohen's κ (simulated run)"</span>,</span>
+<span>       caption <span class="op">=</span> <span class="st">"Gold = human pedologist. Landis-Koch: &gt; 0.60 = substantial."</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">20</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        panel.grid  <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="llm-kg-benchmark_files/figure-html/kappa-heatmap-1.png" class="r-plt" alt="Matriz pairwise de Cohen's κ entre os três backends e o gold-standard. A diagonal é 1 por construção. O κ com o gold-standard — última coluna/linha — é a métrica mais relevante: Claude (0,57) atinge agreement 'substancial' (Landis &amp; Koch 1977: &gt;0,6); Gemma (0,34) e GPT (0,26) ficam no 'fair' (0,21-0,40). Os backends discordam fortemente entre si — um motivo para combinar via causal_llm_vote()." width="96%"><p class="caption">
-Matriz pairwise de Cohen’s κ entre os três backends e o gold-standard. A
-diagonal é 1 por construção. O κ com o gold-standard — última
-coluna/linha — é a métrica mais relevante: Claude (0,57) atinge
-agreement ‘substancial’ (Landis &amp; Koch 1977: &gt;0,6); Gemma (0,34)
-e GPT (0,26) ficam no ‘fair’ (0,21-0,40). Os backends discordam
-fortemente entre si — um motivo para combinar via causal_llm_vote().
+<img src="llm-kg-benchmark_files/figure-html/kappa-heatmap-1.png" class="r-plt" alt="Pairwise Cohen's κ between the three simulated profiles and the gold standard. The diagonal is 1 by construction. Agreement with the gold standard (last row/column) is the metric of interest in a real run; here it measures the simulator. The profiles disagree strongly with one another because each draws its errors independently." width="96%"><p class="caption">
+Pairwise Cohen’s κ between the three simulated profiles and the gold
+standard. The diagonal is 1 by construction. Agreement with the gold
+standard (last row/column) is the metric of interest in a real run; here
+it measures the simulator. The profiles disagree strongly with one
+another because each draws its errors independently.
 </p>
 </div>
-<p><strong>Leitura operacional.</strong> O κ dos backends <em>entre
-si</em> é baixo (-0,08 a 0,12), o que significa que <strong>eles erram
-em lugares diferentes</strong>. Essa diversidade é exatamente o que
-<code><a href="../reference/causal_llm_vote.html">causal_llm_vote()</a></code> aproveita: combinar os três por majority
-voting captura o TP de cada um sem herdar os FPs individuais.</p>
+<p><strong>Operational reading.</strong> In the simulation the profiles’
+κ <em>with one another</em> is low, because each draws its errors
+independently – so they <strong>err in different places</strong>. If
+real models behave the same way, that diversity is what
+<code><a href="../reference/causal_llm_vote.html">causal_llm_vote()</a></code> exploits: majority voting keeps each
+one’s true positives without inheriting its individual false positives.
+Whether they do is a question for the real-API run.</p>
 </div>
 <div class="section level3">
-<h3 id="custo-de-escalar-para-10-000-abstracts">Custo de escalar para 10 000 abstracts<a class="anchor" aria-label="anchor" href="#custo-de-escalar-para-10-000-abstracts"></a>
+<h3 id="cost-of-scaling-to-10000-abstracts">Cost of scaling to 10,000 abstracts<a class="anchor" aria-label="anchor" href="#cost-of-scaling-to-10000-abstracts"></a>
 </h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ct</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op">$</span><span class="va">cost_table</span></span>
@@ -630,16 +632,16 @@ voting captura o TP de cada um sem herdar os FPs individuais.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"$%.2f"</span>, <span class="va">cost_10k_abstracts_usd</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>             vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"USD para 10 000 abstracts"</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Custo de escalar o benchmark"</span>,</span>
-<span>       subtitle <span class="op">=</span> <span class="st">"Assumindo ~700 tokens input + ~110 output por call"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"USD for 10,000 abstracts"</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"Cost of scaling the benchmark"</span>,</span>
+<span>       subtitle <span class="op">=</span> <span class="st">"Assuming ~700 input + ~110 output tokens per call"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">ylim</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ct</span><span class="op">$</span><span class="va">cost_10k_abstracts_usd</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.15</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="llm-kg-benchmark_files/figure-html/cost-bar-1.png" class="r-plt" alt="Custo total estimado (USD) para processar um corpus de 10 000 abstracts — a escala de uma revisão sistemática real do Cerrado. Gemma 4 é gratuito; GPT-4o-mini custa ~$2; Claude custa ~$38, o que é uma diferença de cerca de 22× entre os dois backends comerciais." width="96%"><p class="caption">
-Custo total estimado (USD) para processar um corpus de 10 000 abstracts
-— a escala de uma revisão sistemática real do Cerrado. Gemma 4 é
-gratuito; GPT-4o-mini custa ~$2; Claude custa ~$38, o que é uma
-diferença de cerca de 22× entre os dois backends comerciais.
+<img src="llm-kg-benchmark_files/figure-html/cost-bar-1.png" class="r-plt" alt="Estimated total cost (USD) to process a 10,000-abstract corpus -- the scale of a real systematic review of the Cerrado -- at list prices and assumed token counts. Unlike the accuracy figures, this projection follows from published prices rather than from the simulator." width="96%"><p class="caption">
+Estimated total cost (USD) to process a 10,000-abstract corpus – the
+scale of a real systematic review of the Cerrado – at list prices and
+assumed token counts. Unlike the accuracy figures, this projection
+follows from published prices rather than from the simulator.
 </p>
 </div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -651,36 +653,34 @@ diferença de cerca de 22× entre os dois backends comerciais.
 <span>  <span class="va">ct_disp</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"backend"</span>, <span class="st">"model"</span>, <span class="st">"n_abstracts"</span>, <span class="st">"n_claims"</span>,</span>
 <span>               <span class="st">"cost_total_usd"</span>, <span class="st">"cost_per_1k_claims_usd"</span>,</span>
 <span>               <span class="st">"cost_10k_abstracts_usd"</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Backend"</span>, <span class="st">"Modelo"</span>, <span class="st">"n abs."</span>, <span class="st">"n claims"</span>,</span>
-<span>                <span class="st">"Custo 30 abs. (USD)"</span>, <span class="st">"Custo/1k claims (USD)"</span>,</span>
-<span>                <span class="st">"Projeção 10k abs. (USD)"</span><span class="op">)</span>,</span>
+<span>  col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Backend"</span>, <span class="st">"Model"</span>, <span class="st">"n abs."</span>, <span class="st">"n claims"</span>,</span>
+<span>                <span class="st">"Cost, 30 abs. (USD)"</span>, <span class="st">"Cost/1k claims (USD)"</span>,</span>
+<span>                <span class="st">"Projection, 10k abs. (USD)"</span><span class="op">)</span>,</span>
 <span>  caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Custos computados a preços de lista (2026-04). "</span>,</span>
-<span>    <span class="st">"Gemma 4 local tem custo de inferência zero, a preço de "</span>,</span>
-<span>    <span class="st">"latência ~5× maior (15 s vs. 3 s)."</span></span>
+<span>    <span class="st">"Costs computed at list prices (2026-04). Local Gemma 4 has zero "</span>,</span>
+<span>    <span class="st">"inference cost."</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
-<caption>Custos computados a preços de lista (2026-04). Gemma 4 local
-tem custo de inferência zero, a preço de latência ~5× maior (15 s vs. 3
-s).</caption>
+<table class="table">
+<caption>Costs computed at list prices (2026-04). Local Gemma 4 has zero
+inference cost.</caption>
 <colgroup>
-<col width="9%">
+<col width="8%">
 <col width="16%">
 <col width="6%">
 <col width="8%">
+<col width="17%">
 <col width="18%">
-<col width="20%">
-<col width="21%">
+<col width="24%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Backend</th>
-<th align="left">Modelo</th>
+<th align="left">Model</th>
 <th align="right">n abs.</th>
 <th align="right">n claims</th>
-<th align="right">Custo 30 abs. (USD)</th>
-<th align="right">Custo/1k claims (USD)</th>
-<th align="right">Projeção 10k abs. (USD)</th>
+<th align="right">Cost, 30 abs. (USD)</th>
+<th align="right">Cost/1k claims (USD)</th>
+<th align="right">Projection, 10k abs. (USD)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -714,7 +714,7 @@ s).</caption>
 </table>
 </div>
 <div class="section level3">
-<h3 id="latência">Latência<a class="anchor" aria-label="anchor" href="#lat%C3%AAncia"></a>
+<h3 id="latency">Latency<a class="anchor" aria-label="anchor" href="#latency"></a>
 </h3>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lat_df</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op">$</span><span class="va">latency_df</span></span>
@@ -722,80 +722,80 @@ s).</caption>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span>outlier.size <span class="op">=</span> <span class="fl">0.8</span>, alpha <span class="op">=</span> <span class="fl">0.8</span>, width <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>                show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Latência por abstract (s)"</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Latência por backend"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Latency per abstract (s)"</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"Latency by simulated profile"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">15</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="llm-kg-benchmark_files/figure-html/latency-boxplot-1.png" class="r-plt" alt="Distribuição de latência (segundos por abstract) por backend. GPT-4o-mini é o mais rápido (mediana 2,8 s); Claude é intermediário (5,4 s); Gemma 4 roda localmente e tem latência ~5× maior (16 s), o que é coerente com inferência em CPU/MPS vs. GPU de data center." width="96%"><p class="caption">
-Distribuição de latência (segundos por abstract) por backend.
-GPT-4o-mini é o mais rápido (mediana 2,8 s); Claude é intermediário (5,4
-s); Gemma 4 roda localmente e tem latência ~5× maior (16 s), o que é
-coerente com inferência em CPU/MPS vs. GPU de data center.
+<img src="llm-kg-benchmark_files/figure-html/latency-boxplot-1.png" class="r-plt" alt="Latency distribution (seconds per abstract) by simulated profile. The values are drawn around each profile's assumed mean latency, not timed." width="96%"><p class="caption">
+Latency distribution (seconds per abstract) by simulated profile. The
+values are drawn around each profile’s assumed mean latency, not timed.
 </p>
 </div>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="recomendações-operacionais">Recomendações operacionais<a class="anchor" aria-label="anchor" href="#recomenda%C3%A7%C3%B5es-operacionais"></a>
+<h2 id="operational-recommendations">Operational recommendations<a class="anchor" aria-label="anchor" href="#operational-recommendations"></a>
 </h2>
 <div class="section level3">
-<h3 id="quando-usar-cada-backend">Quando usar cada backend<a class="anchor" aria-label="anchor" href="#quando-usar-cada-backend"></a>
+<h3 id="which-backend-for-which-scenario">Which backend for which scenario<a class="anchor" aria-label="anchor" href="#which-backend-for-which-scenario"></a>
 </h3>
+<p>These follow from cost, privacy and reproducibility, not from the
+simulated accuracy figures.</p>
 <table class="table">
-<caption>Matriz de decisão por cenário operacional.</caption>
+<caption>Decision matrix by operational scenario.</caption>
 <colgroup>
-<col width="53%">
-<col width="46%">
+<col width="48%">
+<col width="51%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Cenário</th>
-<th align="left">Recomendação</th>
+<th align="left">Scenario</th>
+<th align="left">Recommendation</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">Corpus grande (&gt;5 000 abs.) com budget limitado</td>
-<td align="left">Gemma 4 local (zero custo, 24h runtime)</td>
+<td align="left">Large corpus (&gt;5,000 abs.) on a limited budget</td>
+<td align="left">Local Gemma 4 (zero cost, ~24 h runtime)</td>
 </tr>
 <tr class="even">
-<td align="left">Corpus pequeno (&lt;500 abs.) com alta qualidade</td>
-<td align="left">Claude Sonnet-4.5 (melhor F1)</td>
+<td align="left">Small corpus (&lt;500 abs.), quality first</td>
+<td align="left">A hosted model, chosen after a real-API benchmark</td>
 </tr>
 <tr class="odd">
-<td align="left">Corpus grande com orçamento</td>
-<td align="left">causal_llm_vote(Gemma, Claude) (consenso)</td>
+<td align="left">Large corpus with a budget</td>
+<td align="left">causal_llm_vote(Gemma, hosted model) (consensus)</td>
 </tr>
 <tr class="even">
-<td align="left">Pipeline reproduzível em CI</td>
+<td align="left">Reproducible pipeline in CI</td>
 <td align="left">Gemma 4 + simulator fallback</td>
 </tr>
 <tr class="odd">
-<td align="left">Decisões de alto impacto (paper final)</td>
-<td align="left">causal_llm_vote() 3-way majority</td>
+<td align="left">High-stakes decisions (final paper)</td>
+<td align="left">causal_llm_vote() three-way majority</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section level3">
-<h3 id="zenodo-o-kg-como-artefato-publicável">Zenodo: o KG como artefato publicável<a class="anchor" aria-label="anchor" href="#zenodo-o-kg-como-artefato-public%C3%A1vel"></a>
+<h3 id="zenodo-the-kg-as-a-publishable-artefact">Zenodo: the KG as a publishable artefact<a class="anchor" aria-label="anchor" href="#zenodo-the-kg-as-a-publishable-artefact"></a>
 </h3>
-<p>A extração de um corpus de 10 000 abstracts produz ~20 000 a 50 000
-claims. Esse grafo deve ser publicado como artefato independente para
-satisfazer princípios FAIR. O fluxo recomendado:</p>
+<p>Extracting a 10,000-abstract corpus produces about 20,000 to 50,000
+claims. That graph should be published as an independent artefact to
+satisfy the FAIR principles. The recommended flow:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 1. Extrair corpus completo</span></span>
+<code class="sourceCode R"><span><span class="co"># 1. Fetch the full corpus</span></span>
 <span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_corpus_openalex.html">causal_corpus_openalex</a></span><span class="op">(</span></span>
 <span>  query <span class="op">=</span> <span class="st">"cerrado AND (pedogenesis OR soil organic carbon)"</span>,</span>
 <span>  max_results <span class="op">=</span> <span class="fl">10000L</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 2. Extrair com Gemma 4 (baseline gratuito)</span></span>
+<span><span class="co"># 2. Extract with Gemma 4 (free baseline)</span></span>
 <span><span class="va">kg_gemma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/causal_llm_ingest_corpus.html">causal_llm_ingest_corpus</a></span><span class="op">(</span></span>
 <span>  <span class="va">corpus</span>, backend <span class="op">=</span> <span class="st">"ollama"</span>, model <span class="op">=</span> <span class="st">"gemma4:latest"</span>,</span>
 <span>  cache_dir <span class="op">=</span> <span class="st">"~/.cache/edaphos_cerrado_10k"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 3. (Opcional) voting com Claude nos 500 mais citados</span></span>
+<span><span class="co"># 3. (Optional) voting with Claude on the 500 most-cited abstracts</span></span>
 <span><span class="va">kg_voted</span> <span class="op">&lt;-</span> <span class="fu">causal_llm_ingest_corpus_voted</span><span class="op">(</span></span>
 <span>  <span class="va">corpus_top500</span>, backends <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>backend <span class="op">=</span> <span class="st">"ollama"</span>,    model <span class="op">=</span> <span class="st">"gemma4:latest"</span><span class="op">)</span>,</span>
@@ -803,40 +803,44 @@ satisfazer princípios FAIR. O fluxo recomendado:</p>
 <span>  <span class="op">)</span>, voting <span class="op">=</span> <span class="st">"majority"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 4. Exportar para Turtle RDF + publicar no Zenodo</span></span>
+<span><span class="co"># 4. Export to Turtle RDF + publish on Zenodo</span></span>
 <span><span class="fu"><a href="../reference/causal_kg_to_turtle.html">causal_kg_to_turtle</a></span><span class="op">(</span><span class="va">kg_voted</span>, <span class="st">"cerrado_kg_v1.ttl"</span><span class="op">)</span></span>
-<span><span class="co"># Upload manual: https://zenodo.org/deposit/new</span></span>
+<span><span class="co"># Manual upload: https://zenodo.org/deposit/new</span></span>
 <span><span class="co">#   → concept DOI: 10.5281/zenodo.XXXXXXX</span></span></code></pre></div>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="próximos-passos-v1-8-x-v2-0-0">Próximos passos (v1.8.x → v2.0.0)<a class="anchor" aria-label="anchor" href="#pr%C3%B3ximos-passos-v1-8-x-v2-0-0"></a>
+<h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h2>
+<p>Each item has a name rather than a version number: the numbers this
+list used to carry (v1.8.x → v2.0.0) were internal labels that were
+never released, and one of them collides with the 2.0.0 release.</p>
 <ul>
 <li>
-<strong>v1.8.0 atual</strong>: infra completa + gold-standard seed
-de 72 claims
-<ul>
-<li>benchmark simulado reproduzível.</li>
-</ul>
-</li>
+<strong>Done:</strong> the full harness, a 72-claim seed gold
+standard, and a reproducible <em>simulated</em> benchmark.</li>
 <li>
-<strong>v1.8.1</strong>: expandir gold-standard para 300 claims
-anotadas por pedólogo humano (escala para ter poder estatístico em
-subgrupos).</li>
+<strong>To do – real-API run:</strong> run
+<code>data-raw/llm_benchmark_run.R</code> with
+<code>EDAPHOS_USE_REAL_LLM=1</code>, so that the backends are actually
+compared.</li>
 <li>
-<strong>v1.8.2</strong>: rodar live no corpus OpenAlex de 10 000
-abstracts; depositar KG resultante no Zenodo com DOI próprio.</li>
+<strong>To do – 300-claim gold standard:</strong> annotation by a
+human pedologist, for statistical power in subgroups.</li>
 <li>
-<strong>v1.8.3</strong>: migrar para <code><a href="../reference/causal_llm_vote.html">causal_llm_vote()</a></code>
-como default dos pipelines, com agregação por confidence ponderada pelos
-κ backend-vs-gold.</li>
+<strong>To do – real run on the OpenAlex corpus:</strong> 10,000
+abstracts, with the resulting KG deposited on Zenodo under its own
+DOI.</li>
+<li>
+<strong>To do – <code><a href="../reference/causal_llm_vote.html">causal_llm_vote()</a></code> by default:</strong>
+aggregation by confidence weighted by each backend’s κ against the gold
+standard.</li>
 </ul>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="referências">Referências<a class="anchor" aria-label="anchor" href="#refer%C3%AAncias"></a>
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Zhang2026causal" class="csl-entry">

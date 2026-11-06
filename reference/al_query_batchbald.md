@@ -132,19 +132,20 @@ pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ]
 
 # `al_fit()` requires `covariates`; `seed` is forwarded to ranger, so
 # the forest -- and hence the batch selected below -- is reproducible.
-fit <- al_fit(lab, target = "soc", covariates = covs, seed = 42)
+fit <- al_fit(lab, target = "soc", covariates = covs, num.trees = 200L,
+              seed = 42)
 
 batch <- al_query_batchbald(fit, pool, n = 8L)
 batch                       # row indices into `pool`, in greedy order
-#> [1] 1196 1542 1905 1462 1951 1105  745 1770
+#> [1]  172 1542 1238 1462  793  352 1856 1685
 head(pool[batch, covs])
 #>        elev slope    twi map_mm
-#> 1215  982.8 20.00 12.328 1818.6
+#> 176   833.0 20.00 13.141 1768.3
 #> 1567  989.5 15.87  6.870 1815.1
-#> 1934  828.0 16.34 12.276 1795.2
+#> 1257  958.6 16.25 10.833 1801.6
 #> 1485  929.5  3.15  7.968 1848.4
-#> 1980  876.7 20.00  8.662 1859.9
-#> 1123 1022.6 19.22  7.346 1790.2
+#> 805  1012.6 20.00  8.439 1783.5
+#> 359   817.1 16.86 12.674 1872.7
 
 # What BatchBALD buys over a plain uncertainty sort: the top-n
 # strategy will happily return near-duplicate neighbours, while the
@@ -155,7 +156,7 @@ Z <- scale(pool[, covs])
 closest_pair <- function(rows) min(stats::dist(Z[rows, , drop = FALSE]))
 c(batchbald = closest_pair(batch), uncertainty = closest_pair(greedy))
 #>   batchbald uncertainty 
-#>  0.54237715  0.07703957 
+#>  0.82834109  0.03897504 
 
 # This 30-point fit is a runnable demonstration, not a usable model:
 # its out-of-bag RMSE beats simply predicting the mean of the 30
@@ -165,5 +166,5 @@ c(batchbald = closest_pair(batch), uncertainty = closest_pair(greedy))
 c(oob_rmse  = fit$history[[1]]$rmse_oob,
   mean_only = sqrt(mean((lab$soc - mean(lab$soc))^2)))
 #>  oob_rmse mean_only 
-#>  5.159085  6.687530 
+#>  5.204848  6.687530 
 ```

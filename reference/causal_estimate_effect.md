@@ -151,22 +151,22 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
 #>   ndvi -> soc   (estimator: lm)
 #>   adjustment set : {map_mm, slope, twi}
 #>   direct effect  : 18.43   (95% CI: 14.61, 22.25)
-#>   naive effect   : 49.36   (un-adjusted, likely confounded)
+#>   naive effect   : 49.36   (un-adjusted lm; adjusted - naive = -30.93)
 #> <edaphos_causal_effect>
 #>   elev -> soc   (estimator: lm)
 #>   adjustment set : {map_mm, slope, twi}
 #>   direct effect  : 0.01482   (95% CI: 0.01048, 0.01916)
-#>   naive effect   : -0.02389   (un-adjusted, likely confounded)
+#>   naive effect   : -0.02389   (un-adjusted lm; adjusted - naive = 0.03872)
 #> character(0)
 #> <edaphos_causal_effect>
 #>   elev -> soc   (estimator: lm)
 #>   adjustment set : {(empty)}
 #>   total effect   : -0.02389   (95% CI: -0.02627, -0.02152)
-#>   naive effect   : -0.02389   (un-adjusted, likely confounded)
+#>   naive effect   : -0.02389   (un-adjusted lm; adjusted - naive = 0)
 #> <edaphos_causal_effect>
 #>   elev -> soc   (estimator: bart)
 #>   adjustment set : {map_mm, slope, twi}
 #>   direct effect  : 0.01007   (95% credible: 0.004576, 0.01475)
-#>   naive effect   : -0.02389   (un-adjusted, likely confounded)
+#>   naive effect   : -0.02389   (un-adjusted lm; adjusted - naive = 0.03396)
 #>   delta (finite diff) : 76.4
 ```

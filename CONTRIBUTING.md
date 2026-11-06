@@ -19,7 +19,7 @@ Conduct](https://hugomachadorodrigues.github.io/edaphos/CODE_OF_CONDUCT.md).
 - **Feature request**: open
   <https://github.com/HugoMachadoRodrigues/edaphos/issues/new?template=feature_request.md>
   and motivate the feature against one of the 10 research pillars
-  (`cheatsheets/pilarN.md`).
+  (`cheatsheets/pillarN.md`).
 - **Security disclosure**: see
   [SECURITY.md](https://hugomachadorodrigues.github.io/edaphos/SECURITY.md)
   – do NOT file public issues.
@@ -32,7 +32,7 @@ Conduct](https://hugomachadorodrigues.github.io/edaphos/CODE_OF_CONDUCT.md).
     public-API-breaking). Open an issue and tag it `discussion`.
 
 3.  **Code style**: 2-space indent, no tabs, ~80 char lines. Use the
-    existing pillar’s idiom (look at any `R/pilar*` file).
+    existing pillar’s idiom (look at any `R/pillar*` file).
 
 4.  **Tests**: add `testthat` tests covering the new behaviour. See
     `tests/testthat/helper-torch.R` for the torch-skip pattern.
@@ -101,7 +101,7 @@ Conduct](https://hugomachadorodrigues.github.io/edaphos/CODE_OF_CONDUCT.md).
 
 ## Architectural conventions
 
-- Every “pillar” (1-10) lives in `R/pilarN_*.R`. Cross-pillar bridges
+- Every “pillar” (1-10) lives in `R/pillarN_*.R`. Cross-pillar bridges
   live in `R/bridges_*.R`.
 - Heavy optional dependencies (`torch`, `terra`, `geodata`, `dagitty`,
   …) go in **Suggests**, NOT Imports. Code that uses them MUST be
@@ -114,8 +114,8 @@ Conduct](https://hugomachadorodrigues.github.io/edaphos/CODE_OF_CONDUCT.md).
   `tests/testthat/test-*-rcpp.R` validating numerical equivalence with
   the pure-R reference.
 - Vignettes follow a “methods paper” structure: abstract, derivation,
-  code, results, references. See `vignettes/pilar2-piml-profile.Rmd` for
-  the canonical template.
+  code, results, references. See `vignettes/pillar2-piml-profile.Rmd`
+  for the canonical template.
 
 ## Branch / release flow
 
@@ -136,7 +136,7 @@ data-raw/.R -\> inst/extdata/.rds
 
 A re-run is a one-liner:
 
-Rscript data-raw/benchmark_wosis_6pilar.R
+Rscript data-raw/benchmark_wosis_6pillar.R
 
 Some scripts require a network (OpenAlex, SoilGrids, MoCo download from
 Zenodo) and explicit env vars (e.g. `EDAPHOS_IV_REAL_STACK=1`,

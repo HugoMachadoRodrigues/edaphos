@@ -1,11 +1,11 @@
-# Benchmark wrapper: Pilar 1 – DAG-adjusted OLS + parametric bootstrap
+# Benchmark wrapper: Pillar 1 – DAG-adjusted OLS + parametric bootstrap
 
 Restricts OLS to covariates that appear in the supplied DAG as direct
 parents of the outcome (falling back to the full covariate set when the
 DAG has no matching variables) and generates a parametric-bootstrap
-predictive posterior. Intended for the v3.1.0 WoSIS head-to-head; the
-exported API is stable enough for use on any regional subset that
-follows the same schema.
+predictive posterior. Intended for the WoSIS head-to-head; the exported
+API is stable enough for use on any regional subset that follows the
+same schema.
 
 ## Usage
 
@@ -50,7 +50,7 @@ benchmark_fit_p1_causal(
   residual standard deviation is added as iid Gaussian noise to every
   posterior sample so the predictive posterior carries BOTH epistemic
   (bootstrap-spread) AND aleatoric (residual) uncertainty. Set to
-  `FALSE` to reproduce the v3.1.0 epistemic-only behaviour.
+  `FALSE` to reproduce the original epistemic-only behaviour.
 
 ## Value
 
@@ -67,7 +67,7 @@ data(br_cerrado)
 # bootstrap is a plain row resample. So the split below is RANDOM, not
 # spatial, and the interval it produces does not account for spatial
 # dependence between train and test. For a spatially blocked
-# comparison see `data-raw/benchmark_wosis_6pilar.R`, which is what
+# comparison see `data-raw/benchmark_wosis_6pillar.R`, which is what
 # the published six-pillar figures use.
 set.seed(1)
 sub <- br_cerrado[sample(nrow(br_cerrado), 300L), ]
@@ -93,7 +93,7 @@ round(c(rmse = cal$point_rmse,
 raw <- benchmark_fit_p1_causal(train, test, covs, n_boot = 300L,
                                seed = 1L, calibrate = FALSE)
 max(abs(colMeans(post$samples) - colMeans(raw$samples)))
-#> [1] 0
+#> [1] 3.552714e-15
 
 # Read that next to the coverage, which is the whole point of the term.
 # Bootstrap spread alone is the uncertainty of the FITTED MEAN, not of a

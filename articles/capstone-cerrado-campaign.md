@@ -1,14 +1,14 @@
-# Capstone — Uma decisão de amostragem sob incerteza no Cerrado
+# Capstone: a sampling decision under uncertainty in the Cerrado
 
-> **Cenário.** Uma equipe de pedometria está planejando uma campanha de
-> campo no Cerrado brasileiro para validar um mapa de Carbono Orgânico
-> do Solo (COS) de alta resolução. O orçamento cobre exatamente **oito**
-> furos adicionais. A decisão central é: *quais oito localizações
-> entregam a maior redução esperada de incerteza — e por quê?*
+> **Scenario.** A pedometrics team is planning a field campaign in the
+> Brazilian Cerrado to validate a high-resolution map of soil organic
+> carbon (SOC). The budget covers exactly **eight** additional cores.
+> The central decision is: *which eight locations give the largest
+> expected reduction in uncertainty, and why?*
 >
-> Esta vignette demonstra como os seis pilares do `edaphos` cooperam
-> para responder essa pergunta de forma rigorosa, causalmente
-> fundamentada e computacionalmente eficiente.
+> This vignette walks through how six of the `edaphos` pillars feed into
+> that decision, and marks the places where the evidence they provide is
+> weak or where the bundle holds a stand-in rather than a real result.
 
 ------------------------------------------------------------------------
 
@@ -24,169 +24,110 @@ set.seed(20260423L)
 
 ``` r
 
-# Resultados pré-computados por data-raw/capstone_campaign_run.R.
-# Carregamos o bundle para evitar tempos longos de treinamento ao
-# construir os vignettes.
+# Results pre-computed by data-raw/capstone_campaign_run.R.
+# We load the bundle to avoid long training times when building the
+# vignettes.
 res_path <- system.file("extdata", "capstone_campaign_results.rds",
                         package = "edaphos")
 stopifnot(nzchar(res_path), file.exists(res_path))
 R <- readRDS(res_path)
 
-# v1.7.1 hotfix — calibração nativa (uma avaliação por pilar no seu
-# domínio natural, não forçada a uma query universal de mapa).
+# Native calibration: each pillar evaluated in its own domain, not forced
+# onto one shared map query.
 nat_path <- system.file("extdata", "capstone_native_calibration.rds",
                         package = "edaphos")
 N <- if (nzchar(nat_path) && file.exists(nat_path))
        readRDS(nat_path) else NULL
+
+# Metadata of the Pillar 3 run (months, grid, ensemble size), quoted in the
+# Pillar 3 section.
+t3_path <- system.file("extdata", "temporal_cerrado_results.rds",
+                       package = "edaphos")
+stopifnot(nzchar(t3_path), file.exists(t3_path))
+T3 <- readRDS(t3_path)
 ```
 
 ------------------------------------------------------------------------
 
-## Motivação científica: pode o mapeamento digital de solos ser causal?
+## Scientific motivation: can digital soil mapping be causal?
 
-Zhang and Wadoux ([2026](#ref-Zhang2026causal)) propõem uma questão
-fundamental para a pedometria moderna: os modelos de mapeamento digital
-de solos (MDS) podem suportar interpretação causal? A prática dominante
-em estudos de MDS é interpretar a importância relativa de covariáveis
-como proxies de processos pedogenéticos — o que carrega implicitamente
-uma premissa causal rara vez declarada e ainda mais raramente
-justificada.
+Zhang and Wadoux ([2026](#ref-Zhang2026causal)) raise a basic question
+for modern pedometrics: can digital soil mapping (DSM) models support
+causal interpretation? The dominant practice in DSM studies is to read
+the relative importance of covariates as a proxy for pedogenetic
+processes, which carries an implicit causal premise that is seldom
+stated and even more seldom justified.
 
-Os autores distinguem duas visões de causalidade:
+The authors distinguish two views of causality:
 
-| Visão | Lógica central | Limitação em MDS |
+| View | Core logic | Limitation in DSM |
 |:---|:---|:---|
-| **Sucessionist** | Regularidades e associações repetem-se → inferimos uma causa | Associações espúrias, paradoxo de Simpson, ausência de sequência temporal |
-| **Generativa** | Fatores pedogenéticos atuam por **processos explícitos** → geram propriedades do solo | Requer especificação dos mecanismos (mas abre a porta para inferência causal formal) |
+| **Successionist** | Regularities and associations recur → we infer a cause | Spurious associations, Simpson’s paradox, no temporal sequence |
+| **Generative** | Pedogenetic factors act through **explicit processes** → they generate soil properties | Requires the mechanisms to be specified (but opens the door to formal causal inference) |
 
-A visão generativa — resumida na equação conceptual de Zhang and Wadoux
-([2026](#ref-Zhang2026causal)) —
+The generative view, summarised in the conceptual equation of Zhang and
+Wadoux ([2026](#ref-Zhang2026causal)),
 
-\$\$\text{fatores pedogenéticos} \xrightarrow{\text{processos}}
-\text{solo} \tag{1}\$\$
+\$\$\text{pedogenetic factors} \xrightarrow{\text{processes}}
+\text{soil} \tag{1}\$\$
 
-estende o modelo clássico de McBratney et al.
-([2003](#ref-McBratney2003)) e alinha-se naturalmente com o **Pilar 2**
-do `edaphos`, em que uma ODE pedogenética explícita representa os
-mecanismos de acumulação e decomposição da matéria orgânica.
+extends the classic model of McBratney et al.
+([2003](#ref-McBratney2003)) and fits **Pillar 2** of `edaphos`, where
+an explicit pedogenetic ODE represents how organic matter changes with
+depth.
 
-Zhang and Wadoux ([2026](#ref-Zhang2026causal)) enunciam três condições
-para inferência causal com dados observacionais:
+Zhang and Wadoux ([2026](#ref-Zhang2026causal)) state three conditions
+for causal inference from observational data:
 
-1.  **Modelo causal explícito** (DAG) — satisfeito pelo Pilar 1 via KG +
-    LLM.
-2.  **Suficiência causal** (sem confundidores latentes) — mitigado pela
-    extração de arestas da literatura via Gemma 4 (Pilar 1) e pelos
-    processos físicos explícitos (Pilar 2).
-3.  **Compatibilidade / fidelidade** entre o modelo estrutural e os
-    dados — garantida pelas restrições da ODE que filtram associações
-    biologicamente implausíveis.
+1.  **An explicit causal model** (DAG): built in Pillar 1 from expert
+    knowledge, with a knowledge graph extracted by an LLM from the
+    literature as a cross-check.
+2.  **Causal sufficiency** (no latent confounders): addressed only in
+    part. LLM extraction from the literature (Pillar 1) can surface
+    omitted variables, and the explicit processes of Pillar 2 constrain
+    the model, but neither rules out latent confounders, which is why
+    the Pillar 1 table reports robustness values.
+3.  **Compatibility / faithfulness** between the structural model and
+    the data: the pedogenetic ODE restricts the profile shapes that
+    count as physically plausible.
 
-> **Conclusão estratégica.** O `edaphos` é construído exatamente sobre
-> essa arquitetura generativa: cada pilar contribui com um componente
-> que, individualmente, não satisfaz as três condições — mas juntos,
-> formam o pipeline mais completo para inferência causal *e* predição
-> com quantificação de incerteza no MDS hoje disponível em R.
-
-------------------------------------------------------------------------
-
-## Mapa conceitual: os seis pilares como um pipeline integrado
-
-O diagrama abaixo mostra como os seis pilares se encadeiam nesta
-campanha.
-
-``` r
-
-if (requireNamespace("DiagrammeR", quietly = TRUE)) {
-  DiagrammeR::grViz('
-  digraph pipeline {
-    graph [rankdir=TB, fontname="Helvetica", bgcolor="#FAFAFA",
-           label="Pipeline edaphos — Campanha Cerrado v1.7.0",
-           labelloc=t, fontsize=14]
-    node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11]
-
-    # Dados de entrada
-    D  [label="Dados de entrada\\n(WoSIS · MODIS NDVI\\nNASA POWER · Grade 10x10)",
-        fillcolor="#E8F4FD", color="#2980B9"]
-
-    # Seis pilares
-    P1 [label="Pilar 1 — Causal AI\\n(LLM KG + DAG + backdoor)",
-        fillcolor="#D5E8D4", color="#27AE60"]
-    P2 [label="Pilar 2 — PIML\\n(ODE pedogenética + Neural ODE)",
-        fillcolor="#D5E8D4", color="#27AE60"]
-    P3 [label="Pilar 3 — 4D Pedometria\\n(ConvLSTM + EnKF localizado)",
-        fillcolor="#FFF3CD", color="#E67E22"]
-    P4 [label="Pilar 4 — Foundation Model\\n(SimCLR/MoCo + ensemble)",
-        fillcolor="#FFF3CD", color="#E67E22"]
-    P5 [label="Pilar 5 — Active Learning\\n(cLHS + QRF + física)",
-        fillcolor="#FCE4D6", color="#C0392B"]
-    P6 [label="Pilar 6 — Quantum ML\\n(ZZFeatureMap + KRR GP)",
-        fillcolor="#EDE7F6", color="#6C3483"]
-
-    # API unificada
-    API [label="edaphos_posterior\\n(API unificada v1.6.0)",
-         fillcolor="#F9F9F9", color="#555555", shape=ellipse]
-
-    # Calibração
-    CAL [label="uncertainty_calibrate()\\nCRPS · PICP · MPIW",
-         fillcolor="#F0F0F0", color="#555555"]
-
-    # Decisão
-    DEC [label="Decisão: 8 localizações\\npara amostragem de campo",
-         fillcolor="#D6EAF8", color="#154360", shape=diamond,
-         style="filled,bold"]
-
-    # Arestas
-    D   -> P1 [label="perfis WoSIS\\n+ literatura"]
-    D   -> P2 [label="perfis WoSIS"]
-    D   -> P3 [label="NDVI+POWER\\ncubo 4D"]
-    D   -> P4 [label="patches\\nrastér"]
-    D   -> P5 [label="covariáveis\\nde candidatos"]
-    D   -> P6 [label="características\\nnormalizadas"]
-
-    P1  -> API [label="efeito causal\\nposterior"]
-    P2  -> API [label="perfil de\\nprofundidade"]
-    P3  -> API [label="dinâmica\\ntemporal"]
-    P4  -> API [label="previsão\\nde paisagem"]
-    P5  -> API [label="incerteza\\ndo QRF"]
-    P6  -> API [label="variância GP\\nquântica"]
-
-    API -> CAL
-    CAL -> DEC
-
-    # Ligações entre pilares
-    P1  -> P2  [style=dashed, color="#27AE60",
-                label="DAG restringe\\nparamêtros da ODE"]
-    P2  -> P5  [style=dashed, color="#E67E22",
-                label="gate físico:\\nrejeita candidatos\\nimplausíveis"]
-    P3  -> P5  [style=dashed, color="#E67E22",
-                label="dinâmica SOC:\\nprioridade para\\náreas de mudança"]
-  }
-  ')
-} else {
-  cat(
-    "Instale o pacote `DiagrammeR` para visualizar o fluxograma.\n\n",
-    "Sequência: Dados -> P1/P2/P3/P4/P5/P6 -> edaphos_posterior",
-    "-> uncertainty_calibrate() -> Decisão de amostragem."
-  )
-}
-```
-
-Pipeline dos seis pilares do edaphos para a decisão de amostragem no
-Cerrado. Cada nó representa um pilar; as arestas mostram o fluxo de
-informação. A API unificada edaphos_posterior conecta todos os ramos ao
-diagnóstico final.
+> **The design.** `edaphos` is built around this generative
+> architecture: each pillar contributes one component, none of which
+> satisfies the three conditions on its own. The sections below show
+> what each one contributes to this campaign.
 
 ------------------------------------------------------------------------
 
-## Área de estudo e dados
+## Conceptual map: the six pillars as one pipeline
 
-### Área de interesse no Cerrado
+The diagram below shows how the six pillars connect in this campaign.
 
-Utilizamos uma grade de 10 × 10 células de 0,2° centrada em −15° S, −48°
-W — a mesma empregada em `vignette("pilar3-4d-real")`. Cada célula
-representa aproximadamente 22 km², cobrindo fitofisionomias típicas do
-Cerrado: campo limpo, campo sujo, cerrado sensu stricto e cerradão.
+![Pipeline of the six edaphos pillars for the Cerrado sampling decision.
+Each node is a pillar; the edges show the flow of information. The
+unified edaphos_posterior API connects every branch to the final
+diagnostic.](figures/capstone-pipeline.svg)
+
+Pipeline of the six edaphos pillars for the Cerrado sampling decision.
+Each node is a pillar; the edges show the flow of information. The
+unified edaphos_posterior API connects every branch to the final
+diagnostic.
+
+------------------------------------------------------------------------
+
+## Study area and data
+
+### Candidate grid in the Cerrado
+
+The candidate grid has 10 × 10 points spaced 0.222° apart, spanning -50°
+to -48° longitude and -16° to -14° latitude.
+
+**The grid’s covariates are simulated.**
+`data-raw/capstone_campaign_run.R` draws MAP, T2M, NDVI and SOC for each
+cell at random, and the clay, sand and slope of the candidates as well.
+Everything computed *on the grid* (the Pillar 4 map, the Pillar 5
+scores, the Pillar 6 uncertainty) therefore illustrates the workflow,
+not the Cerrado. The profile-level analyses (the Pillar 1 associations,
+the Pillar 2 pedon, the native calibration) use real WoSIS profiles.
 
 ``` r
 
@@ -194,65 +135,73 @@ aoi <- R$aoi
 knitr::kable(
   head(aoi, 8),
   digits  = 3,
-  caption = "Primeiras 8 células da grade de 10 × 10 (lon/lat em graus decimais).",
-  col.names = c("Lon", "Lat", "MAP (mm/a)", "T2M (°C)", "NDVI médio", "COS obs.")
+  caption = paste0("First 8 cells of the 10 × 10 grid (lon/lat in decimal ",
+                   "degrees). All other columns are simulated values, not ",
+                   "observations."),
+  col.names = c("Lon", "Lat", "MAP (mm/yr)", "T2M (°C)", "Mean NDVI",
+                "SOC (g/kg, simulated)")
 )
 ```
 
-|     Lon | Lat | MAP (mm/a) | T2M (°C) | NDVI médio | COS obs. |
-|--------:|----:|-----------:|---------:|-----------:|---------:|
-| -50.000 | -16 |   1158.555 |   25.434 |      0.516 |   16.091 |
-| -49.778 | -16 |   1353.273 |   23.969 |      0.358 |   16.107 |
-| -49.556 | -16 |   1605.812 |   22.934 |      0.825 |   23.306 |
-| -49.333 | -16 |   1116.532 |   22.151 |      0.506 |    6.687 |
-| -49.111 | -16 |   1305.555 |   21.948 |      0.364 |   22.393 |
-| -48.889 | -16 |   1343.836 |   27.186 |      0.526 |   22.743 |
-| -48.667 | -16 |   1447.432 |   25.192 |      0.465 |   19.169 |
-| -48.444 | -16 |   1276.854 |   27.116 |      0.438 |   23.527 |
+|     Lon | Lat | MAP (mm/yr) | T2M (°C) | Mean NDVI | SOC (g/kg, simulated) |
+|--------:|----:|------------:|---------:|----------:|----------------------:|
+| -50.000 | -16 |    1158.555 |   25.434 |     0.516 |                16.091 |
+| -49.778 | -16 |    1353.273 |   23.969 |     0.358 |                16.107 |
+| -49.556 | -16 |    1605.812 |   22.934 |     0.825 |                23.306 |
+| -49.333 | -16 |    1116.532 |   22.151 |     0.506 |                 6.687 |
+| -49.111 | -16 |    1305.555 |   21.948 |     0.364 |                22.393 |
+| -48.889 | -16 |    1343.836 |   27.186 |     0.526 |                22.743 |
+| -48.667 | -16 |    1447.432 |   25.192 |     0.465 |                19.169 |
+| -48.444 | -16 |    1276.854 |   27.116 |     0.438 |                23.527 |
 
-Primeiras 8 células da grade de 10 × 10 (lon/lat em graus decimais).
-{.table}
+First 8 cells of the 10 × 10 grid (lon/lat in decimal degrees). All
+other columns are simulated values, not observations. {.table}
 
-### Perfis WoSIS
+### WoSIS profiles
 
 ``` r
 
-# Os perfis WoSIS reais nao acompanham mais o pacote: eram medicoes de
-# terceiros com coordenadas. Busque-os voce mesmo se quiser este resumo.
-cat("Os perfis WoSIS do AoI nao sao distribuidos com o pacote.\n")
-#> Os perfis WoSIS do AoI nao sao distribuidos com o pacote.
+# The real WoSIS profiles no longer ship with the package: they were
+# third-party measurements with coordinates. Fetch them yourself if you
+# want this summary.
+cat("The WoSIS profiles of the AoI are not distributed with the package.\n")
+#> The WoSIS profiles of the AoI are not distributed with the package.
 ```
 
-> **O histograma de COS dos perfis WoSIS nao e reproduzido aqui.** Ele
-> resumia medicoes de terceiros que este pacote deixou de distribuir.
+> **The SOC histogram of the WoSIS profiles is not reproduced here.** It
+> summarised third-party measurements that this package no longer
+> distributes.
 
 ------------------------------------------------------------------------
 
-## Pilar 1 — Estrutura causal via DAG e LLM
+## Pillar 1 — Causal structure from a DAG and an LLM
 
-### Por que precisamos de um DAG?
+### Why do we need a DAG?
 
-Zhang and Wadoux ([2026](#ref-Zhang2026causal)) mostram que a prática
-comum de interpretar importância de variáveis em modelos de MDS como
-evidência causal é vulnerável ao **paradoxo de Simpson**: a relação
-temperatura–COS pode inverter de sinal quando estratificamos por
-vegetação (Figura 1 do artigo). Essa inversão ocorre porque vegetação é
-um confundidor — influencia tanto a temperatura local quanto o aporte de
-material orgânico. Controlando por vegetação via *backdoor adjustment*
-([Pearl 2009](#ref-Pearl2009)), recuperamos o efeito direto da
-precipitação sobre o COS.
+Zhang and Wadoux ([2026](#ref-Zhang2026causal)) show that the common
+practice of reading variable importance in DSM models as causal evidence
+is vulnerable to **Simpson’s paradox**: the temperature–SOC relationship
+can reverse sign when we stratify by vegetation (Figure 1 of their
+article). The reversal occurs because vegetation is a confounder: it
+influences both local temperature and the input of organic material.
+*Backdoor adjustment* ([Pearl 2009](#ref-Pearl2009)), conditioning on a
+set of covariates that blocks every non-causal path, is the standard
+remedy.
 
-O Pilar 1 do `edaphos` atende à **condição 1** de Zhang and Wadoux
-([2026](#ref-Zhang2026causal)) (modelo causal explícito): o DAG é
-construído a partir do conhecimento pedológico acumulado na literatura,
-aumentado por extração automática de arestas com o Gemma 4 via Ollama.
+Pillar 1 of `edaphos` addresses **condition 1** of Zhang and Wadoux
+([2026](#ref-Zhang2026causal)) (an explicit causal model): the DAG is
+built from the pedological knowledge accumulated in the literature, and
+an LLM served through Ollama (llama3.1:8b for this bundle) extracts
+causal claims from abstracts to compare against it.
 
-### Extração de arestas com Gemma 4 (LLM KG)
+### Edge extraction with an LLM (LLM KG)
 
 ``` r
 
-# Passo executado offline (requer Ollama com gemma4:latest).
-# O resultado está armazenado em R$llm_claims.
+# Run offline (requires Ollama with the model pulled). This is an
+# illustrative call on one hand-written passage. The claims stored in
+# R$llm_claims were extracted from the abstracts in cerrado_abstracts.jsonl,
+# with the model recorded in R$llm_provenance$model.
 abstract_txt <- paste(
   "Mean annual precipitation in the Cerrado drives litter inputs and",
   "microbial activity, which directly control topsoil organic carbon stocks.",
@@ -271,24 +220,24 @@ claims <- causal_llm_extract(
 claims <- R$llm_claims
 prov   <- R$llm_provenance
 if (is.null(claims)) {
-  cat("A extração não foi executada nesta compilação: ",
-      prov$reason, ". A tabela é omitida em vez de substituída por linhas ",
-      "digitadas à mão — uma tabela fabricada com aparência de extração é ",
-      "exatamente o defeito que esta seção corrige.\n", sep = "")
+  cat("The extraction was not run in this build: ",
+      prov$reason, ". The table is omitted rather than replaced by ",
+      "hand-typed rows: a fabricated table that looks like an extraction is ",
+      "exactly the defect this section corrects.\n", sep = "")
 } else {
   .cf <- sort(unique(claims$confidence))
   knitr::kable(
     utils::head(claims[, c("cause", "effect", "confidence")], 12),
     digits  = 2,
     caption = paste0(
-      "Amostra das ", nrow(claims), " arestas causais extraídas dos ",
-      prov$n_abstracts, " abstracts reais do Cerrado embarcados em ",
+      "A sample of the ", nrow(claims), " causal edges extracted from the ",
+      prov$n_abstracts, " real Cerrado abstracts shipped in ",
       "`cerrado_abstracts.jsonl`, via `causal_llm_extract(backend = \"ollama\", ",
-      "model = \"", prov$model, "\")`. O modelo usa apenas ",
-      length(.cf), " valores distintos de confiança (",
-      paste(format(.cf, digits = 2), collapse = ", "), ") nas ",
-      nrow(claims), " arestas, portanto a confiança ordena grosseiramente e ",
-      "não discrimina arestas individuais."
+      "model = \"", prov$model, "\")`. The model uses only ",
+      length(.cf), " distinct confidence values (",
+      paste(format(.cf, digits = 2), collapse = ", "), ") across the ",
+      nrow(claims), " edges, so the confidence gives a coarse ordering and ",
+      "does not discriminate between individual edges."
     )
   )
 }
@@ -309,25 +258,29 @@ if (is.null(claims)) {
 | twi | bulk_density | 0.8 |
 | twi | soc_retention | 0.7 |
 
-Amostra das 35 arestas causais extraídas dos 10 abstracts reais do
-Cerrado embarcados em `cerrado_abstracts.jsonl`, via
-`causal_llm_extract(backend = "ollama", model = "llama3.1:8b")`. O
-modelo usa apenas 4 valores distintos de confiança (0.5, 0.7, 0.8, 0.9)
-nas 35 arestas, portanto a confiança ordena grosseiramente e não
-discrimina arestas individuais. {.table}
+A sample of the 35 causal edges extracted from the 10 real Cerrado
+abstracts shipped in `cerrado_abstracts.jsonl`, via
+`causal_llm_extract(backend = "ollama", model = "llama3.1:8b")`. The
+model uses only 4 distinct confidence values (0.5, 0.7, 0.8, 0.9) across
+the 35 edges, so the confidence gives a coarse ordering and does not
+discriminate between individual edges. {.table}
 
-De todas as 35 arestas extraídas, apenas **2** têm ambos os extremos
-expressáveis entre as 11 covariáveis do DAG (wc_landcover_trees -\>
-soc_topsoil_gkg, soilgrids_clay -\> soc_topsoil_gkg), e essa já é uma
-aresta do DAG expert. As demais nomeiam processos — decomposição,
-dissolução de minerais primários, capacidade de troca catiônica, umidade
-superficial — que **não têm contrapartida no conjunto de covariáveis**.
-O gargalo não é o extrator; é o conjunto de covariáveis observadas. Este
-é o mesmo achado, aqui reproduzido sobre saída real do LLM: o KG do
-Gemma 4 amplia o *vocabulário causal* muito além do que 10 covariáveis
-conseguem identificar.
+Many of the 35 extracted claims name processes, such as decomposition,
+primary-mineral dissolution, effective cation exchange capacity or
+surface soil moisture, that **have no counterpart among the 11 nodes of
+the DAG**, so they cannot enter the adjustment-set computation. The
+bottleneck is not the extractor; it is the set of observed covariates.
+The LLM’s knowledge graph widens the *causal vocabulary* well beyond
+what 10 covariates can identify.
 
-### DAG aumentado pelo Gemma 4
+The bundle’s `llm_edges` field labels 2 edges as LLM-added
+(wc_landcover_trees -\> soc_topsoil_gkg, soilgrids_clay -\>
+soc_topsoil_gkg). These are written into
+`data-raw/capstone_campaign_run.R` by hand, not derived from the
+extracted claims, and every one of them is already an edge of the expert
+DAG. The extraction therefore did not change the DAG used below.
+
+### The causal DAG
 
 ``` r
 
@@ -335,81 +288,79 @@ dag <- R$dag
 
 if (requireNamespace("ggdag", quietly = TRUE) &&
     requireNamespace("dagitty", quietly = TRUE)) {
-  # Classificar arestas por origem (base vs LLM)
+  # Edges by origin (base vs LLM), kept for reference
   base_edges <- R$dag_info$base_edges
   llm_edges  <- R$dag_info$llm_edges
   ggdag::ggdag(dag, layout = "sugiyama", text_size = 2.6,
                node_size = 8) +
     ggdag::theme_dag_blank() +
-    labs(title = "DAG causal do Cerrado (base + LLM KG via Gemma 4)",
-         caption = paste0("Nós: ", R$dag_info$n_nodes,
-                          "  |  Arestas: ", R$dag_info$n_edges,
-                          "  |  Arestas LLM: ", length(llm_edges)))
+    labs(title = "Cerrado causal DAG",
+         caption = paste0("Nodes: ", R$dag_info$n_nodes,
+                          "  |  Edges: ", R$dag_info$n_edges))
 } else {
   edges_df <- R$dag_info$edges_df
-  cat("Instale `ggdag` para visualizar o DAG.\n\n")
-  cat("Arestas do DAG:\n")
+  cat("Install `ggdag` to draw the DAG.\n\n")
+  cat("DAG edges:\n")
   cat(paste(edges_df$from, "->", edges_df$to, collapse = "\n"), "\n")
 }
 ```
 
-![DAG causal do Cerrado aumentado pelo Gemma 4. Setas verdes representam
-arestas do DAG base; setas laranja são arestas adicionadas pelo LLM.
-Conjunto de ajuste backdoor para MAP→COS destacado em
-azul.](capstone-cerrado-campaign_files/figure-html/dag-plot-1.png)
+![The Cerrado causal DAG used for the backdoor adjustments below (11
+nodes, 22 edges). Edges are not coloured by
+origin.](capstone-cerrado-campaign_files/figure-html/dag-plot-1.png)
 
-DAG causal do Cerrado aumentado pelo Gemma 4. Setas verdes representam
-arestas do DAG base; setas laranja são arestas adicionadas pelo LLM.
-Conjunto de ajuste backdoor para MAP→COS destacado em azul.
+The Cerrado causal DAG used for the backdoor adjustments below (11
+nodes, 22 edges). Edges are not coloured by origin.
 
-### Efeitos causais identificados (backdoor adjustment)
+### Adjusted associations (backdoor adjustment)
 
-Para cada exposição de interesse (MAP, T2M, NDVI), calculamos o conjunto
-de ajuste mínimo pelo critério de backdoor e ajustamos um estimador
-linear com bootstrap espacial em blocos (k-means sobre lon/lat).
+For each exposure of interest (MAP (mm/yr), Tree cover (%), Clay (%)),
+we compute the minimal adjustment set by the backdoor criterion and fit
+a linear estimator with a spatial block bootstrap (k-means on lon/lat).
 
 ``` r
 
 eff <- R$causal_effects
+eff$exposure <- to_en(eff$exposure)
 knitr::kable(
   eff[, c("exposure", "estimate", "ci_lo", "ci_hi", "RV", "adjustment")],
   digits  = 3,
-  col.names = c("Exposição", "Associação ajustada", "IC 2,5%", "IC 97,5%",
-                "RV", "Ajuste backdoor"),
+  col.names = c("Exposure", "Adjusted association", "CI 2.5%", "CI 97.5%",
+                "RV", "Backdoor adjustment set"),
   caption = paste0(
-    "Associações ajustadas por backdoor no DAG do Cerrado (estimador LM, ",
-    "bootstrap espacial em blocos B = 500 sobre ",
-    R$causal_provenance$n_profiles, " perfis WoSIS reais). Seguindo ",
-    "Zhang & Wadoux (2026), reportamos associações ajustadas — não efeitos ",
-    "causais identificados — cada uma com o valor de robustez de ",
-    "Cinelli–Hazlett (RV): a fração da variância residual que um confundidor ",
-    "não observado precisaria explicar em ambos para zerar a estimativa."
+    "Backdoor-adjusted associations in the Cerrado DAG (LM estimator, ",
+    "spatial block bootstrap with B = ", paste(B_boot, collapse = "/"),
+    " on real WoSIS profiles). Following ",
+    "Zhang & Wadoux (2026), we report adjusted associations, not identified ",
+    "causal effects, each with the Cinelli–Hazlett robustness value (RV): ",
+    "the fraction of residual variance that an unobserved confounder would ",
+    "have to explain in both exposure and outcome to bring the estimate to zero."
   )
 )
 ```
 
-| Exposição | Associação ajustada | IC 2,5% | IC 97,5% | RV | Ajuste backdoor |
+| Exposure | Adjusted association | CI 2.5% | CI 97.5% | RV | Backdoor adjustment set |
 |:---|---:|---:|---:|---:|:---|
-| MAP (mm/a) | 0.002 | -0.008 | 0.014 | 0.019 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
-| Cobertura arbórea (%) | 2.975 | -2.019 | 12.174 | 0.048 | wc_bio_01, wc_bio_12 |
-| Argila (%) | -0.097 | -0.858 | 0.394 | 0.019 | slope, soilgrids_bdod, soilgrids_sand |
+| MAP (mm/yr) | 0.002 | -0.008 | 0.014 | 0.019 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
+| Tree cover (%) | 2.975 | -2.019 | 12.174 | 0.048 | wc_bio_01, wc_bio_12 |
+| Clay (%) | -0.097 | -0.858 | 0.394 | 0.019 | slope, soilgrids_bdod, soilgrids_sand |
 
-Associações ajustadas por backdoor no DAG do Cerrado (estimador LM,
-bootstrap espacial em blocos B = 500 sobre perfis WoSIS reais). Seguindo
-Zhang & Wadoux (2026), reportamos associações ajustadas — não efeitos
-causais identificados — cada uma com o valor de robustez de
-Cinelli–Hazlett (RV): a fração da variância residual que um confundidor
-não observado precisaria explicar em ambos para zerar a estimativa.
+Backdoor-adjusted associations in the Cerrado DAG (LM estimator, spatial
+block bootstrap with B = 300 on real WoSIS profiles). Following Zhang &
+Wadoux (2026), we report adjusted associations, not identified causal
+effects, each with the Cinelli–Hazlett robustness value (RV): the
+fraction of residual variance that an unobserved confounder would have
+to explain in both exposure and outcome to bring the estimate to zero.
 {.table}
 
 ``` r
 
 post_list <- R$causal_posteriors
 
-# Montar data.frame de amostras para ggplot
+# Build a data.frame of draws for ggplot
 draws_df <- bind_rows(lapply(names(post_list), function(nm) {
   s <- as.numeric(post_list[[nm]]$samples)
-  data.frame(exposure = nm, draw = s, stringsAsFactors = FALSE)
+  data.frame(exposure = to_en(nm), draw = s, stringsAsFactors = FALSE)
 }))
 
 eff_pts <- setNames(eff$estimate, eff$exposure)
@@ -426,75 +377,71 @@ ggplot(draws_df, aes(x = draw, fill = exposure)) +
   scale_fill_brewer(palette = "Set2", guide = "none") +
   scale_color_brewer(palette = "Set2", guide = "none") +
   labs(
-    x     = "Efeito direto (g/kg por unidade da exposição)",
-    y     = "Densidade",
-    title = "Pilar 1 — Posteriors de efeito causal (bootstrap em blocos)"
+    x     = "Adjusted association (g/kg per unit of the exposure)",
+    y     = "Density",
+    title = "Pillar 1 — bootstrap distributions of the adjusted associations"
   )
 ```
 
-![Distribuições a posteriori (bootstrap em blocos) dos efeitos causais
-diretos. Linhas verticais: estimativa pontual. Faixa sombreada: IC 95%.
-A linha tracejada em zero serve de
-referência.](capstone-cerrado-campaign_files/figure-html/causal-posterior-plot-1.png)
+![Block-bootstrap distributions (B = 300) of the adjusted associations.
+Solid vertical line: point estimate. Dashed line:
+zero.](capstone-cerrado-campaign_files/figure-html/causal-posterior-plot-1.png)
 
-Distribuições a posteriori (bootstrap em blocos) dos efeitos causais
-diretos. Linhas verticais: estimativa pontual. Faixa sombreada: IC 95%.
-A linha tracejada em zero serve de referência.
+Block-bootstrap distributions (B = 300) of the adjusted associations.
+Solid vertical line: point estimate. Dashed line: zero.
 
-**Interpretação à luz de Zhang and Wadoux
-([2026](#ref-Zhang2026causal)).** Estas são *associações ajustadas*, não
-efeitos causais identificados — e a tabela é lida pela robustez, não
-pelo sinal isolado. Duas sobrevivem como associações robustas e
-mecanicamente coerentes: **precipitação** (MAP) e **argila** elevam o
-COS (RV 0,16 e 0,18 — um confundidor precisaria explicar ~16–18 % da
-variância residual em ambos para zerá-las), consistentes com maior
-aporte de matéria orgânica sob mais chuva e com a estabilização
-organo-mineral pela argila. O efeito da **temperatura** tem o sinal
-esperado (decomposição) mas não se distingue de zero. A **cobertura
-arbórea** é a demonstração de confundimento: sua associação bruta (2,86)
-praticamente desaparece após o ajuste por clima (0,35, IC cruzando zero,
-RV 0,01) — o sinal cru era ancestralidade climática compartilhada, não
-efeito. A alegação causal *generativa* propriamente dita não vem daqui;
-vem do Pilar 2, cuja ODE pedogenética modela explicitamente os processos
-— é a essa altura que Zhang and Wadoux ([2026](#ref-Zhang2026causal))
-situam a inferência causal em MDS.
+**Reading the table in the light of Zhang and Wadoux
+([2026](#ref-Zhang2026causal)).** These are *adjusted associations*, not
+identified causal effects, and the table is read through its robustness
+values as much as through its signs. In this bundle, all 3 95 %
+intervals contain zero, and the robustness values run from 0.019 to
+0.048: a confounder explaining 4.8 % of the residual variance of both
+exposure and outcome would be enough to bring even the most robust
+estimate to zero. None of the three associations can carry a causal
+reading on its own. The *generative* causal claim proper does not come
+from here; it comes from Pillar 2, whose pedogenetic ODE models the
+processes explicitly, and that is where Zhang and Wadoux
+([2026](#ref-Zhang2026causal)) place causal inference in DSM.
 
 ------------------------------------------------------------------------
 
-## Pilar 2 — Pedogênese física: o modelo generativo
+## Pillar 2 — Physical pedogenesis: the generative model
 
-### ODE pedogenética
+### Pedogenetic ODE
 
-O Pilar 2 implementa literalmente a visão *generativa* de Zhang and
-Wadoux ([2026](#ref-Zhang2026causal)): a acumulação de COS no perfil é
-governada por uma ODE que modela explicitamente os processos de produção
-e decomposição:
+Pillar 2 implements the *generative* view of Zhang and Wadoux
+([2026](#ref-Zhang2026causal)) directly: the SOC content along the
+profile is governed by an ODE whose decay rate weakens with depth,
 
 ``` math
-\frac{d[\text{COS}]}{dz} = -k_1 \cdot [\text{COS}] + k_2 \cdot \text{MAP} \cdot \text{NDVI}
-\quad \text{com} \quad [\text{COS}](0) = \text{COS}_{\text{superfície}} \tag{2}
+\frac{dy}{dz} = -\lambda_0\, e^{-\mu z}\,\bigl(y - y_\infty\bigr)
+\quad \text{with} \quad y(0) = y_0 \tag{2}
 ```
 
-onde $`z`$ é a profundidade (cm), $`k_1`$ é a taxa de decomposição e
-$`k_2`$ a taxa de incorporação dependente de produtividade. Ao
-especificar esse mecanismo, satisfazemos a condição de Zhang and Wadoux
-([2026](#ref-Zhang2026causal)): *“os processos são ‘plenamente
-determinados’ pela especificação do modelador, oferecendo um meio
-estruturado de controlar o confundimento”*.
+where $`y`$ is SOC (g/kg), $`z`$ is depth (cm), $`\lambda_0`$ is the
+decay rate at the surface and $`\mu`$ is the depth attenuation of that
+rate. Because the rate decays with depth, the profile closes only the
+fraction $`1 - e^{-\kappa}`$, with $`\kappa = \lambda_0/\mu`$, of the
+gap between $`y_0`$ and $`y_\infty`$, and levels off at
+$`y_\text{asym}`$ (see the table below). In the framing of Zhang and
+Wadoux ([2026](#ref-Zhang2026causal)), specifying the mechanism this way
+fixes the processes by the modeller’s design, which gives a structured
+means of controlling confounding.
 
-O ajuste bayesiano (`piml_profile_fit_bayesian`, método MCMC de quatro
-cadeias) propaga a incerteza dos parâmetros para o perfil predito. O
-caminho reportado deixou de ser a aproximação de Laplace: neste pedon
-ela subestima cinco dos sete intervalos, o do ruído de observação por um
-fator de 1,8, porque é gaussiana nas coordenadas logarítmicas e portanto
-tem caudas leves demais.
+The Bayesian fit (`piml_profile_fit_bayesian`, four-chain MCMC)
+propagates parameter uncertainty to the predicted profile. The reported
+path is no longer the Laplace approximation: on this pedon the Laplace
+intervals are more than 10 % narrower than the MCMC ones for 5 of the 7
+parameters, the observation-noise interval by a factor of 1.81, because
+the approximation is Gaussian in log coordinates and so has tails that
+are too light.
 
 ``` r
 
-# Dados do perfil e posterior Bayesiano (pré-computado)
-# As observacoes do pedon real foram removidas do pacote; o posterior
-# pre-computado permanece, entao a curva e as faixas continuam corretas --
-# apenas os pontos observados nao sao mais desenhados.
+# Profile data and Bayesian posterior (pre-computed).
+# The real pedon's observations were removed from the package; the
+# pre-computed posterior remains, so the curve and the bands are still
+# correct -- only the observed points are no longer drawn.
 prof_post <- R$piml_profile_posterior  # edaphos_posterior
 
 # The depth grid comes from the bundle, not from an assumption about it: the
@@ -520,11 +467,11 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
   geom_ribbon(aes(xmin = q25, xmax = q75), fill = "#27AE60", alpha = 0.35) +
   geom_line(color = "#1A5C35", linewidth = 1.1) +
   labs(
-    x     = "COS (g/kg)",
-    y     = "Profundidade (cm)",
-    title = "Pilar 2 — Posterior bayesiano da ODE pedogenética",
+    x     = "SOC (g/kg)",
+    y     = "Depth (cm)",
+    title = "Pillar 2 — Bayesian posterior of the pedogenetic ODE",
     caption = paste0(
-      "Parâmetros posteriores: lambda0 = ", signif(R$piml_params$lambda0, 3),
+      "Posterior parameters: lambda0 = ", signif(R$piml_params$lambda0, 3),
       "  mu = ", signif(R$piml_params$mu, 3),
       "  y0 = ", signif(R$piml_params$y0, 3),
       "  y(inf) = ", signif(R$piml_params$y_asym, 3)
@@ -534,51 +481,51 @@ ggplot(pred_df, aes(x = q50, y = -depth)) +
                      labels = pretty(c(0, max(depths_seq)), 5))
 ```
 
-![Perfil preditivo bayesiano da ODE pedogenética para um pedon
-representativo do Cerrado. Linha sólida: média posterior. Faixa escura:
-IC 50%. Faixa clara: IC 95%. As observações WoSIS que ajustaram este
-posterior não acompanham o pacote e por isso não são
-desenhadas.](capstone-cerrado-campaign_files/figure-html/piml-posterior-1.png)
+![Bayesian predictive profile of the pedogenetic ODE for one Cerrado
+pedon. Solid line: posterior median. Dark band: 50% interval. Light
+band: 90% interval. The WoSIS observations that fitted this posterior
+are not shipped with the package and so are not
+drawn.](capstone-cerrado-campaign_files/figure-html/piml-posterior-1.png)
 
-Perfil preditivo bayesiano da ODE pedogenética para um pedon
-representativo do Cerrado. Linha sólida: média posterior. Faixa escura:
-IC 50%. Faixa clara: IC 95%. As observações WoSIS que ajustaram este
-posterior não acompanham o pacote e por isso não são desenhadas.
+Bayesian predictive profile of the pedogenetic ODE for one Cerrado
+pedon. Solid line: posterior median. Dark band: 50% interval. Light
+band: 90% interval. The WoSIS observations that fitted this posterior
+are not shipped with the package and so are not drawn.
 
-### Parâmetros pedogenéticos aprendidos
+### Learned pedogenetic parameters
 
 ``` r
 
-# Colunas seleccionadas por NOME, não por posição: a tabela ganhou as
-# colunas de diagnóstico `rhat` e `ess` quando o caminho reportado passou a
-# MCMC, e um `col.names` de comprimento fixo quebrou silenciosamente a
-# vinheta até o build a apanhar.
+# Columns selected by NAME, not by position: the table gained the
+# diagnostic columns `rhat` and `ess` when the reported path moved to
+# MCMC, and a fixed-length `col.names` silently broke the vignette until
+# the build caught it.
 .pt <- R$piml_params_table
 .cols <- c("param", "meaning", "mean", "sd", "ci_lo", "ci_hi", "rhat", "ess")
 .cols <- .cols[.cols %in% names(.pt)]
-.lab <- c(param = "Parâmetro", meaning = "Significado físico",
-          mean = "Média posterior", sd = "DP posterior",
-          ci_lo = "IC 2,5%", ci_hi = "IC 97,5%",
-          rhat = "R-chapéu", ess = "TAE")
+.lab <- c(param = "Parameter", meaning = "Physical meaning",
+          mean = "Posterior mean", sd = "Posterior SD",
+          ci_lo = "CI 2.5%", ci_hi = "CI 97.5%",
+          rhat = "R-hat", ess = "ESS")
 knitr::kable(
   .pt[, .cols, drop = FALSE],
   digits  = 4,
   col.names = unname(.lab[.cols]),
   caption = paste0(
-    "Parâmetros da ODE pedogenética dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf), ",
-    "estimados por MCMC de quatro cadeias sobre os horizontes do pedon. Os ",
-    "intervalos são quantis reais da posterior; R-chapéu e o tamanho amostral ",
-    "efectivo (TAE) são os diagnósticos de convergência do próprio ajuste. ",
-    "y_inf NÃO é a assíntota: como ",
-    "a taxa decai com a profundidade, o perfil percorre apenas 1-exp(-kappa) ",
-    "do intervalo y0 -> y_inf e estaciona em y_asym. y_inf é negativo e ",
-    "não identificado, enquanto y_asym, o valor ",
-    "que o perfil de fato alcança, é positivo e identificado."
+    "Parameters of the pedogenetic ODE dy/dz = -lambda0 * exp(-mu*z) * (y - y_inf), ",
+    "estimated by four-chain MCMC on the pedon's horizons. The ",
+    "intervals are true posterior quantiles; R-hat and the effective sample ",
+    "size (ESS) are the convergence diagnostics of the fit itself. ",
+    "y_inf is NOT the asymptote: because ",
+    "the rate decays with depth, the profile covers only 1-exp(-kappa) ",
+    "of the interval y0 -> y_inf and levels off at y_asym. y_inf is negative and ",
+    "not identified, whereas y_asym, the value ",
+    "the profile actually reaches, is positive and identified."
   )
 )
 ```
 
-| Parâmetro | Significado físico | Média posterior | DP posterior | IC 2,5% | IC 97,5% | R-chapéu | TAE |
+| Parameter | Physical meaning | Posterior mean | Posterior SD | CI 2.5% | CI 97.5% | R-hat | ESS |
 |:---|:---|---:|---:|---:|---:|---:|---:|
 | lambda0 | Surface decay rate of the pedogenetic ODE (cm^-1) | 0.0087 | 0.0042 | 0.0020 | 0.0190 | 1.0066 | 760.3409 |
 | mu | Depth attenuation of that rate (cm^-1) | 0.0039 | 0.0026 | 0.0004 | 0.0100 | 1.0050 | 894.1020 |
@@ -588,42 +535,45 @@ knitr::kable(
 | y_asym | Attainable deep soil organic carbon, y(Inf) (g/kg) | 2.0481 | 0.9523 | 0.4168 | 3.9900 | 1.0037 | 1308.8497 |
 | sigma | NA | 0.2297 | 0.0745 | 0.1309 | 0.4144 | 1.0025 | 1039.2173 |
 
-Parâmetros da ODE pedogenética dy/dz = -lambda0 \* exp(-mu*z)* (y -
-y_inf), estimados por MCMC de quatro cadeias sobre os horizontes do
-pedon. Os intervalos são quantis reais da posterior; R-chapéu e o
-tamanho amostral efectivo (TAE) são os diagnósticos de convergência do
-próprio ajuste. y_inf NÃO é a assíntota: como a taxa decai com a
-profundidade, o perfil percorre apenas 1-exp(-kappa) do intervalo y0 -\>
-y_inf e estaciona em y_asym. y_inf é negativo e não identificado,
-enquanto y_asym, o valor que o perfil de fato alcança, é positivo e
-identificado. {.table style="width:100%;"}
+Parameters of the pedogenetic ODE dy/dz = -lambda0 \* exp(-mu*z)* (y -
+y_inf), estimated by four-chain MCMC on the pedon’s horizons. The
+intervals are true posterior quantiles; R-hat and the effective sample
+size (ESS) are the convergence diagnostics of the fit itself. y_inf is
+NOT the asymptote: because the rate decays with depth, the profile
+covers only 1-exp(-kappa) of the interval y0 -\> y_inf and levels off at
+y_asym. y_inf is negative and not identified, whereas y_asym, the value
+the profile actually reaches, is positive and identified. {.table}
 
-**Ligação entre Pilares 1 e 2.** O DAG do Pilar 1 restringe o espaço de
-parâmetros plausíveis: a aresta MAP → COS implica $`k_2 > 0`$, e a
-aresta T2M → COS implica que $`k_1`$ cresce com temperatura. Essas
-restrições funcionam como um **gate físico** ao Pilar 5: candidatos de
-amostragem em que a ODE prediz COS \< 0 são automaticamente excluídos.
+**Link between Pillars 1 and 2.** The fitted ODE above is not what
+screens the sampling candidates in Pillar 5. That gate is a fixed
+closed-form expression for topsoil SOC in MAP and tree cover, written
+into `data-raw/capstone_campaign_run.R`; it does not use this posterior
+or the Pillar 1 DAG.
 
 ------------------------------------------------------------------------
 
-## Pilar 3 — Dinâmica espaço-temporal (ConvLSTM + EnKF)
+## Pillar 3 — Spatio-temporal dynamics (ConvLSTM + EnKF)
 
-### O cubo 4D do Cerrado
+### The Cerrado 4D cube
 
-O Pilar 3 opera sobre um cubo 4D de 14 anos de séries mensais de NDVI
-(MOD13Q1, 250 m) e variáveis climáticas (NASA POWER: PRECTOTCORR e T2M)
-para a grade de 10 × 10 células, totalizando 168 meses (2003–2016).
+Pillar 3 works on a 4D cube of 168 monthly fields (January 2010 to
+December 2023) of NDVI (MOD13Q1, 250 m) and climate variables (NASA
+POWER precipitation and T2M) on its own 10 × 10 grid. That grid is not
+the candidate grid of this campaign.
 
-Zhang and Wadoux ([2026](#ref-Zhang2026causal)) apontam que o MDS
-convencional captura *snapshots* sem sequenciamento temporal claro —
-impossibilitando inferir qual variável antecede a outra. O Pilar 3
-responde a essa crítica: o ConvLSTM aprende a dinâmica espaço-temporal
-do NDVI, e o EnKF assimila observações *in situ* de COS atualizando a
-previsão prospectiva.
+Zhang and Wadoux ([2026](#ref-Zhang2026causal)) point out that
+conventional DSM captures *snapshots* with no clear temporal sequence,
+which makes it impossible to infer which variable precedes which. Pillar
+3 responds to that criticism: the ConvLSTM learns the spatio-temporal
+dynamics of NDVI, and the EnKF assimilates point observations into the
+forecast. In this run the forecast is for December 2023, and the 8
+assimilated observations are synthetic: the observed NDVI at randomly
+chosen cells plus Gaussian noise (`data-raw/temporal_cerrado_run.R`).
+The field is NDVI in z-units, not SOC.
 
 ``` r
 
-# Resultados do temporal Cerrado pré-computados
+# Pre-computed temporal Cerrado results
 temp_res <- R$temporal_results
 ```
 
@@ -645,31 +595,31 @@ plot_df <- data.frame(
   analysis = as.numeric(analysis_field)
 ) |>
   tidyr::pivot_longer(c(prior, analysis),
-                      names_to  = "campo",
-                      values_to = "COS_norm")
+                      names_to  = "field",
+                      values_to = "ndvi_z")
 
-plot_df$campo <- factor(plot_df$campo,
+plot_df$field <- factor(plot_df$field,
                         levels = c("prior", "analysis"),
-                        labels = c("Priori (ConvLSTM)",
-                                   "Análise (EnKF)"))
+                        labels = c("Prior (ConvLSTM)",
+                                   "Analysis (EnKF)"))
 
-ggplot(plot_df, aes(x = lon, y = lat, fill = COS_norm)) +
+ggplot(plot_df, aes(x = lon, y = lat, fill = ndvi_z)) +
   geom_tile() +
   geom_point(
     data = obs_locs,
     aes(x = lon, y = lat, fill = NULL),
     color = "white", shape = 4, size = 3, stroke = 1.2
   ) +
-  facet_wrap(~campo) +
-  scale_fill_viridis_c(option = "D", name = "COS\n(norm.)") +
+  facet_wrap(~field) +
+  scale_fill_viridis_c(option = "D", name = "NDVI\n(z)") +
   labs(
     x       = "Longitude",
     y       = "Latitude",
-    title   = "Pilar 3 — Assimilação EnKF (Gaspari-Cohn, raio = 2 células)",
+    title   = "Pillar 3 — EnKF assimilation (Gaspari-Cohn, radius = 2 cells)",
     caption = paste0(
-      "RMSE priori: ", round(temp_res$prior_rmse, 3),
-      "  |  RMSE análise: ", round(temp_res$analysis_rmse, 3),
-      "  |  Redução: ",
+      "Prior RMSE: ", round(temp_res$prior_rmse, 3),
+      "  |  Analysis RMSE: ", round(temp_res$analysis_rmse, 3),
+      "  |  Reduction: ",
       round((1 - temp_res$analysis_rmse / temp_res$prior_rmse) * 100, 1),
       "%"
     )
@@ -677,89 +627,99 @@ ggplot(plot_df, aes(x = lon, y = lat, fill = COS_norm)) +
   theme(legend.position = "right")
 ```
 
-![Comparação entre a previsão a priori (ConvLSTM, K=10 ensemble) e a
-análise posterior ao EnKF localizado (Gaspari-Cohn, raio=2 células) para
-o campo médio de COS normalizado. A assimilação reduz o RMSE em
-~3%.](capstone-cerrado-campaign_files/figure-html/temporal-prior-vs-analysis-1.png)
+![Prior forecast (ConvLSTM, K = 10 ensemble members) and analysis after
+the localised EnKF (Gaspari-Cohn, radius = 2 cells) for the mean NDVI
+field (z-units) at the target month. Assimilation lowers the RMSE by
+3.2%. The tiles are drawn on the campaign grid's coordinates because the
+cube's own coordinates are not shipped; the observation markers use the
+cube's coordinates, so they do not line up with the
+tiles.](capstone-cerrado-campaign_files/figure-html/temporal-prior-vs-analysis-1.png)
 
-Comparação entre a previsão a priori (ConvLSTM, K=10 ensemble) e a
-análise posterior ao EnKF localizado (Gaspari-Cohn, raio=2 células) para
-o campo médio de COS normalizado. A assimilação reduz o RMSE em ~3%.
+Prior forecast (ConvLSTM, K = 10 ensemble members) and analysis after
+the localised EnKF (Gaspari-Cohn, radius = 2 cells) for the mean NDVI
+field (z-units) at the target month. Assimilation lowers the RMSE by
+3.2%. The tiles are drawn on the campaign grid’s coordinates because the
+cube’s own coordinates are not shipped; the observation markers use the
+cube’s coordinates, so they do not line up with the tiles.
 
 ``` r
 
 # `mean_gain` is one value per assimilated observation, not per grid
 # cell -- bind it to `obs_locs` directly to keep the data.frame
-# rectangular (v3.10.0 fix).
+# rectangular.
 gain_df <- cbind(obs_locs,
                    gain = as.numeric(temp_res$mean_gain))
 
 ggplot(gain_df, aes(x = lon, y = lat, color = gain)) +
   geom_point(size = 5, shape = 19) +
-  scale_color_viridis_c(option = "C", name = "Ganho\nKalman") +
+  scale_color_viridis_c(option = "C", name = "Kalman\ngain") +
   coord_fixed() +
   labs(
     x     = "Longitude",
     y     = "Latitude",
-    title = "Pilar 3 — Ganho de Kalman (localização Gaspari-Cohn)"
+    title = "Pillar 3 — Kalman gain (Gaspari-Cohn localisation)"
   )
 ```
 
-![Ganho de Kalman médio em cada uma das oito observações assimiladas.
-Pontos com ganho mais alto recebem a maior correção — essas são as
-regiões onde novas observações teriam mais
-impacto.](capstone-cerrado-campaign_files/figure-html/kalman-gain-1.png)
+![Mean Kalman gain at each of the 8 assimilated observations (cube
+coordinates). A higher gain means the analysis moved further toward that
+observation.](capstone-cerrado-campaign_files/figure-html/kalman-gain-1.png)
 
-Ganho de Kalman médio em cada uma das oito observações assimiladas.
-Pontos com ganho mais alto recebem a maior correção — essas são as
-regiões onde novas observações teriam mais impacto.
+Mean Kalman gain at each of the 8 assimilated observations (cube
+coordinates). A higher gain means the analysis moved further toward that
+observation.
 
-**Interpretação operacional.** Células com alto ganho de Kalman são as
-mais sensíveis a novas observações. Elas formam o primeiro critério de
-priorização para a campanha de campo (Pilar 5 herda esse mapa como
-cobertura de incerteza temporal).
+**Operational reading.** Observations with a high Kalman gain are the
+ones that correct the forecast most. The decision matrix at the end of
+this vignette carries these eight gains in a column, but they belong to
+the cube’s observation cells, not to the candidate sites (see the
+caption of that table).
 
 ------------------------------------------------------------------------
 
-## Pilar 4 — Representação de paisagem (Foundation Model)
+## Pillar 4 — Landscape representation (foundation model)
 
-### Encoder SimCLR/MoCo sobre patches do Cerrado
+### SimCLR/MoCo encoder on Cerrado patches
 
-O Foundation Model pré-treinado por aprendizado contrastivo
-(SimCLR/MoCo) codifica cada patch de 64 × 64 pixels em um vetor de
-representação de 128 dimensões. Esse encoder, publicado no Zenodo (DOI
-da série: `10.5281/zenodo.19683708`), captura padrões de fitofisionomia
-e textura do solo visíveis em imagens de satélite que seriam difíceis de
-engenheirar manualmente.
+Pillar 4 pre-trains an encoder by contrastive learning (SimCLR/MoCo)
+that maps satellite-image patches to embedding vectors, and fine-tunes
+an ensemble of prediction heads on those embeddings; the spread between
+heads gives an epistemic uncertainty.
+
+**The map in this bundle does not come from that encoder.**
+`data-raw/capstone_campaign_run.R` generates it as a stand-in: the mean
+is a linear function of the grid’s simulated covariates plus Gaussian
+noise, and the SD is drawn at random. The two figures below show that
+stand-in to illustrate the interface; they carry no information about
+the Cerrado. The native calibration section evaluates an ensemble of
+heads on real WoSIS profiles.
 
 ``` r
 
-found_df <- R$foundation_pred_df  # colunas: lon, lat, mean_pred, sd_pred
+found_df <- R$foundation_pred_df  # columns: lon, lat, mean_pred, sd_pred
 
 ggplot(found_df, aes(x = lon, y = lat)) +
   geom_tile(aes(fill = mean_pred)) +
-  scale_fill_viridis_c(option = "B", name = "COS pred.\n(g/kg)") +
+  scale_fill_viridis_c(option = "B", name = "Pred. SOC\n(g/kg)") +
   scale_color_distiller(
     palette = "YlOrRd", direction = 1,
-    name = "COS obs.\n(g/kg)"
+    name = "Obs. SOC\n(g/kg)"
   ) +
   labs(
     x     = "Longitude",
     y     = "Latitude",
-    title = "Pilar 4 — Ensemble Foundation Model (K = 5 heads)"
+    title = "Pillar 4 — foundation-model ensemble (synthetic stand-in)"
   )
 ```
 
-![Mapa de COS predito pelo ensemble de heads (K=5) fine-tuned sobre o
-Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do
-ensemble. Os perfis WoSIS observados não são distribuídos com o pacote e
-por isso não
-aparecem.](capstone-cerrado-campaign_files/figure-html/foundation-predictions-1.png)
+![Pillar 4 stand-in map of predicted SOC (synthetic; see the text). The
+observed WoSIS profiles are not distributed with the package and so do
+not
+appear.](capstone-cerrado-campaign_files/figure-html/foundation-predictions-1.png)
 
-Mapa de COS predito pelo ensemble de heads (K=5) fine-tuned sobre o
-Foundation encoder. Barra de erro = ±1 desvio-padrão entre membros do
-ensemble. Os perfis WoSIS observados não são distribuídos com o pacote e
-por isso não aparecem.
+Pillar 4 stand-in map of predicted SOC (synthetic; see the text). The
+observed WoSIS profiles are not distributed with the package and so do
+not appear.
 
 ``` r
 
@@ -770,58 +730,59 @@ ggplot(found_df, aes(x = lon, y = lat, fill = sd_pred)) +
   labs(
     x     = "Longitude",
     y     = "Latitude",
-    title = "Pilar 4 — Incerteza epistêmica (SD entre membros)"
+    title = "Pillar 4 — epistemic uncertainty (synthetic stand-in)"
   )
 ```
 
-![Incerteza epistêmica (desvio-padrão entre membros do ensemble) do
-Foundation Model. Regiões de alta incerteza coincidem com áreas de
-transição fitofisionômica — exatamente onde mais amostras são
-necessárias.](capstone-cerrado-campaign_files/figure-html/foundation-uncertainty-map-1.png)
+![Pillar 4 stand-in epistemic uncertainty (between-member SD). In this
+bundle the SD is drawn at random, so its spatial pattern carries no
+information.](capstone-cerrado-campaign_files/figure-html/foundation-uncertainty-map-1.png)
 
-Incerteza epistêmica (desvio-padrão entre membros do ensemble) do
-Foundation Model. Regiões de alta incerteza coincidem com áreas de
-transição fitofisionômica — exatamente onde mais amostras são
-necessárias.
+Pillar 4 stand-in epistemic uncertainty (between-member SD). In this
+bundle the SD is drawn at random, so its spatial pattern carries no
+information.
 
 ------------------------------------------------------------------------
 
-## Pilar 5 — Amostragem ativa: onde ir?
+## Pillar 5 — Active sampling: where to go?
 
-### Política híbrida: incerteza + diversidade + gate físico
+### Hybrid policy: uncertainty + diversity + physical gate
 
-O Pilar 5 implementa a política de amostragem ativa que integra:
+Pillar 5 implements an active-sampling policy that combines:
 
-1.  **Incerteza QRF** — largura do intervalo de predição (quantis
-    10–90%).
-2.  **Diversidade no espaço de covariáveis** — distância mínima dos
-    perfis existentes e dos candidatos já selecionados no lote atual.
-3.  **Gate físico** — candidatos cuja previsão da ODE pedogenética
-    (Pilar 2) implica COS \< 0 ou \> 120 g/kg são automaticamente
-    excluídos como fisicamente implausíveis.
+1.  **QRF uncertainty**: the width of the prediction interval (10–90 %
+    quantiles).
+2.  **Diversity in covariate space**: the minimum distance to the
+    existing profiles and to the candidates already selected in the
+    current batch.
+3.  **A physical gate**: candidates whose screening value of topsoil SOC
+    falls outside a plausible range are excluded. In this campaign the
+    screening value is the fixed closed-form expression described under
+    Pillar 2, and the accepted range is 1.5 to 100 g/kg
+    (`data-raw/capstone_campaign_run.R`).
 
-A função de score é:
+The score function is:
 
 ``` math
 \text{score}(x) = \alpha \cdot \widehat{u}(x) + (1-\alpha) \cdot \widehat{d}(x) \tag{3}
 ```
 
-onde $`\widehat{u}`$ é a incerteza normalizada e $`\widehat{d}`$ é a
-diversidade normalizada, com $`\alpha = 0{,}7`$ por padrão.
+where $`\widehat{u}`$ is the normalised uncertainty and $`\widehat{d}`$
+the normalised diversity, with $`\alpha = 0.7`$ by default.
 
 ``` r
 
 query_res <- R$al_query_results
 cat(sprintf(
-  "Candidatos avaliados: %d  |  Rejeitados pelo gate físico: %d  |",
+  "Candidates evaluated: %d  |  Rejected by the physical gate: %d  |",
   query_res$n_candidates, query_res$n_rejected
 ), "\n")
-#> Candidatos avaliados: 100  |  Rejeitados pelo gate físico: 0  |
+#> Candidates evaluated: 100  |  Rejected by the physical gate: 0  |
 cat(sprintf(
-  "Selecionados (lote): %d  |  Score máximo: %.3f\n",
+  "Selected (batch): %d  |  Maximum score: %.3f\n",
   query_res$n_selected, query_res$max_score
 ))
-#> Selecionados (lote): 8  |  Score máximo: 0.910
+#> Selected (batch): 8  |  Maximum score: 0.910
 ```
 
 ``` r
@@ -832,7 +793,7 @@ rej_df     <- cand_df[cand_df$rejected_by_gate, ]
 
 ggplot(cand_df, aes(x = lon, y = lat)) +
   geom_tile(aes(fill = score)) +
-  scale_fill_viridis_c(option = "A", name = "Score AL",
+  scale_fill_viridis_c(option = "A", name = "AL score",
                        direction = -1, alpha = 0.8) +
   geom_point(data = rej_df, aes(x = lon, y = lat),
              color = "black", size = 2, shape = 4, stroke = 1) +
@@ -841,64 +802,76 @@ ggplot(cand_df, aes(x = lon, y = lat)) +
   labs(
     x     = "Longitude",
     y     = "Latitude",
-    title = "Pilar 5 — Active Learning: 8 locais selecionados para campo",
+    title = paste0("Pillar 5 — active learning: ", query_res$n_selected,
+                   " sites selected for the field"),
     caption = paste0(
-      "★ = selecionados  ✕ = rejeitados pelo gate físico (ODE)"
+      "★ = selected  ✕ = rejected by the physical gate"
     )
   )
 ```
 
-![Localizações selecionadas pela política de amostragem ativa (estrelas
-vermelhas). A cor de fundo é o score combinado de incerteza +
-diversidade. As cruzes pretas são candidatos rejeitados pelo gate físico
-da ODE. Os perfis WoSIS existentes não são distribuídos com o
-pacote.](capstone-cerrado-campaign_files/figure-html/al-map-1.png)
+![Locations selected by the active-sampling policy (red stars). The
+background colour is the combined uncertainty + diversity score. Black
+crosses mark candidates rejected by the physical gate; in this run it
+rejected 0 of 100. The existing WoSIS profiles are not distributed with
+the package.](capstone-cerrado-campaign_files/figure-html/al-map-1.png)
 
-Localizações selecionadas pela política de amostragem ativa (estrelas
-vermelhas). A cor de fundo é o score combinado de incerteza +
-diversidade. As cruzes pretas são candidatos rejeitados pelo gate físico
-da ODE. Os perfis WoSIS existentes não são distribuídos com o pacote.
+Locations selected by the active-sampling policy (red stars). The
+background colour is the combined uncertainty + diversity score. Black
+crosses mark candidates rejected by the physical gate; in this run it
+rejected 0 of 100. The existing WoSIS profiles are not distributed with
+the package.
 
 ``` r
 
+# The bundle's `pred_sd` column is not shown: data-raw/capstone_campaign_run.R
+# fills it with random draws, so it is not a model output.
 knitr::kable(
   sel_df[, c("lon", "lat", "score", "uncertainty_score",
-             "diversity_score", "pred_mean", "pred_sd")],
+             "diversity_score", "pred_mean")],
   digits  = 3,
-  col.names = c("Lon", "Lat", "Score total", "Incerteza",
-                "Diversidade", "COS pred. (g/kg)", "SD pred."),
+  col.names = c("Lon", "Lat", "Total score", "Uncertainty",
+                "Diversity", "Gate screening SOC (g/kg)"),
   caption = paste0(
-    "As oito localizações recomendadas para coleta de campo, ",
-    "ordenadas por score decrescente. COS pred. e SD pred. são ",
-    "do modelo QRF."
+    "The ", nrow(sel_df), " locations recommended for field sampling, in ",
+    "grid order. Uncertainty and diversity are the normalised components ",
+    "of the score; the last column is the value of the gate's screening ",
+    "expression, not a model prediction."
   )
 )
 ```
 
-|     |     Lon |     Lat | Score total | Incerteza | Diversidade | COS pred. (g/kg) | SD pred. |
-|:----|--------:|--------:|------------:|----------:|------------:|-----------------:|---------:|
-| 9   | -48.222 | -16.000 |       0.672 |     0.960 |       0.623 |           13.427 |    2.832 |
-| 13  | -49.556 | -15.778 |       0.910 |     0.951 |       0.812 |           13.362 |    4.290 |
-| 37  | -48.667 | -15.333 |       0.700 |     1.000 |       0.478 |           12.845 |    4.725 |
-| 49  | -48.222 | -15.111 |       0.668 |     0.954 |       0.575 |           12.992 |    3.834 |
-| 64  | -49.333 | -14.667 |       0.552 |     0.788 |       0.387 |           12.756 |    3.017 |
-| 88  | -48.444 | -14.222 |       0.684 |     0.977 |       0.655 |           13.067 |    4.343 |
-| 94  | -49.333 | -14.000 |       0.671 |     0.959 |       0.512 |           12.925 |    3.157 |
-| 100 | -48.000 | -14.000 |       0.552 |     0.789 |       0.516 |           12.921 |    3.960 |
+|  | Lon | Lat | Total score | Uncertainty | Diversity | Gate screening SOC (g/kg) |
+|:---|---:|---:|---:|---:|---:|---:|
+| 9 | -48.222 | -16.000 | 0.672 | 0.960 | 0.623 | 13.427 |
+| 13 | -49.556 | -15.778 | 0.910 | 0.951 | 0.812 | 13.362 |
+| 37 | -48.667 | -15.333 | 0.700 | 1.000 | 0.478 | 12.845 |
+| 49 | -48.222 | -15.111 | 0.668 | 0.954 | 0.575 | 12.992 |
+| 64 | -49.333 | -14.667 | 0.552 | 0.788 | 0.387 | 12.756 |
+| 88 | -48.444 | -14.222 | 0.684 | 0.977 | 0.655 | 13.067 |
+| 94 | -49.333 | -14.000 | 0.671 | 0.959 | 0.512 | 12.925 |
+| 100 | -48.000 | -14.000 | 0.552 | 0.789 | 0.516 | 12.921 |
 
-As oito localizações recomendadas para coleta de campo, ordenadas por
-score decrescente. COS pred. e SD pred. são do modelo QRF. {.table}
+The 8 locations recommended for field sampling, in grid order.
+Uncertainty and diversity are the normalised components of the score;
+the last column is the value of the gate’s screening expression, not a
+model prediction. {.table}
 
 ``` r
 
-al_posts <- R$al_posteriors  # lista de edaphos_posterior por candidato
+al_posts <- R$al_posteriors  # list of edaphos_posterior, one per candidate
+
+# The posteriors are stored in the order the batch selection picked the
+# sites, which is the order of R$final_selection (and of the "Site" numbers
+# in the decision matrix), not the grid order of `sel_df`.
+site_xy <- R$final_selection
 
 posts_df <- bind_rows(lapply(seq_along(al_posts), function(i) {
   s <- as.numeric(al_posts[[i]]$samples)
   data.frame(
     site = paste0("Site ", i, "\n(",
-                  round(sel_df$lon[i], 2), ",",
-                  round(sel_df$lat[i], 2), ")"),
+                  round(site_xy$lon[i], 2), ",",
+                  round(site_xy$lat[i], 2), ")"),
     draw = s,
     stringsAsFactors = FALSE
   )
@@ -911,37 +884,35 @@ ggplot(posts_df, aes(x = draw, y = site, fill = site)) +
   ) +
   scale_fill_viridis_d(guide = "none") +
   labs(
-    x     = "COS previsto (g/kg)",
+    x     = "Predicted SOC (g/kg)",
     y     = NULL,
-    title = "Pilar 5 — Posteriors QRF nos 8 candidatos selecionados",
-    caption = "Linhas: quantis 10%, 50%, 90%."
+    title = "Pillar 5 — QRF posteriors at the 8 selected candidates",
+    caption = "Lines: 10%, 50% and 90% quantiles."
   )
 ```
 
-![Distribuições a posteriori (QRF quantile grid, n_quantiles = 99) de
-COS nos 8 candidatos selecionados. A largura das distribuições reflete a
-incerteza aleatória + epistêmica do
-QRF.](capstone-cerrado-campaign_files/figure-html/al-posterior-plot-1.png)
+![Posterior distributions (QRF quantile grid, n_quantiles = 99) of SOC
+at the 8 selected candidates, numbered as in the decision matrix. The
+width shows the spread of the QRF conditional
+distribution.](capstone-cerrado-campaign_files/figure-html/al-posterior-plot-1.png)
 
-Distribuições a posteriori (QRF quantile grid, n_quantiles = 99) de COS
-nos 8 candidatos selecionados. A largura das distribuições reflete a
-incerteza aleatória + epistêmica do QRF.
+Posterior distributions (QRF quantile grid, n_quantiles = 99) of SOC at
+the 8 selected candidates, numbered as in the decision matrix. The width
+shows the spread of the QRF conditional distribution.
 
 ------------------------------------------------------------------------
 
-## Pilar 6 — Quantum Kernel Ridge Regression para triagem rápida
+## Pillar 6 — Quantum kernel ridge regression for screening
 
-### Lógica de uso neste pipeline
+### Its role in this pipeline
 
-O Pilar 6 fornece uma **segunda opinião ultra-rápida** sobre o nível de
-incerteza dos candidatos de amostragem usando o Quantum Kernel Ridge
-Regression (Q-KRR). A equivalência GP do Q-KRR permite derivar uma
-variância preditiva analítica a partir da mesma matriz de Gram $`K`$
-usada para a predição pontual — sem Monte Carlo adicional.
-
-O Q-KRR é especialmente útil para **triagem inicial** de uma grade densa
-de candidatos (centenas de pontos) antes de aplicar a política de
-amostragem ativa mais custosa do Pilar 5.
+Pillar 6 gives a second, independent estimate of candidate uncertainty
+using quantum kernel ridge regression (Q-KRR). Because Q-KRR is
+equivalent to a Gaussian process, its predictive variance follows
+analytically from the same Gram matrix $`K`$ used for the point
+prediction, with no extra Monte Carlo. Here the model is fitted to a
+subset of the WoSIS profiles and evaluated on the simulated candidate
+grid.
 
 ``` r
 
@@ -950,38 +921,42 @@ qkrr_df <- R$qkrr_df  # lon, lat, mean_pred, epistemic_sd, aleatoric_sd, total_s
 qkrr_long <- tidyr::pivot_longer(
   qkrr_df,
   cols = c(epistemic_sd, aleatoric_sd),
-  names_to  = "componente",
+  names_to  = "component",
   values_to = "sd"
 )
-qkrr_long$componente <- ifelse(
-  qkrr_long$componente == "epistemic_sd", "Epistêmica", "Aleatória"
+qkrr_long$component <- ifelse(
+  qkrr_long$component == "epistemic_sd", "Epistemic", "Aleatoric"
 )
 
 ggplot(qkrr_long, aes(x = lon, y = lat, fill = sd)) +
   geom_tile() +
-  facet_wrap(~componente) +
+  facet_wrap(~component) +
   scale_fill_viridis_c(option = "E", name = "SD (g/kg)") +
   geom_point(data = sel_df, aes(x = lon, y = lat, fill = NULL),
              color = "white", size = 3, shape = 8, stroke = 1.5) +
   labs(
     x     = "Longitude",
     y     = "Latitude",
-    title = "Pilar 6 — Decomposição de incerteza Q-KRR"
+    title = "Pillar 6 — Q-KRR uncertainty decomposition"
   )
 ```
 
-![Incerteza quântica (variância preditiva GP-equivalente do Q-KRR) nos
-candidatos de amostragem. Decomposição epistêmica (incerteza do modelo)
-vs. aleatória (ruído dos dados estimado por LOO). Alta incerteza
-epistêmica sinaliza regiões onde o kernel quântico interpola mal —
-candidatos
-prioritários.](capstone-cerrado-campaign_files/figure-html/quantum-posterior-1.png)
+![Q-KRR uncertainty (GP-equivalent predictive SD) at the sampling
+candidates, split into epistemic (model uncertainty) and aleatoric (data
+noise, estimated by LOO) components. White stars: the selected sites.
+High epistemic SD marks candidates far from the training data in the
+quantum feature
+space.](capstone-cerrado-campaign_files/figure-html/quantum-posterior-1.png)
 
-Incerteza quântica (variância preditiva GP-equivalente do Q-KRR) nos
-candidatos de amostragem. Decomposição epistêmica (incerteza do modelo)
-vs. aleatória (ruído dos dados estimado por LOO). Alta incerteza
-epistêmica sinaliza regiões onde o kernel quântico interpola mal —
-candidatos prioritários.
+Q-KRR uncertainty (GP-equivalent predictive SD) at the sampling
+candidates, split into epistemic (model uncertainty) and aleatoric (data
+noise, estimated by LOO) components. White stars: the selected sites.
+High epistemic SD marks candidates far from the training data in the
+quantum feature space.
+
+In this run the aleatoric SD (21.38 g/kg at every candidate) is far
+larger than the epistemic SD (0.75 to 0.95 g/kg), so on the shared
+colour scale the epistemic panel shows little contrast.
 
 ``` r
 
@@ -993,66 +968,69 @@ ggplot(compare_df, aes(x = al_uncertainty, y = qkrr_epistemic)) +
               fill = "grey85", linewidth = 0.8) +
   scale_color_manual(
     values = c("FALSE" = "#BDC3C7", "TRUE" = "#E74C3C"),
-    labels = c("Não selecionado", "Selecionado"),
+    labels = c("Not selected", "Selected"),
     name   = NULL
   ) +
   labs(
-    x     = "Score de incerteza AL (Pilar 5)",
-    y     = "Variância epistêmica Q-KRR (Pilar 6)",
-    title = "Concordância entre Pilares 5 e 6",
+    x     = "AL uncertainty score (Pillar 5)",
+    y     = "Q-KRR epistemic SD, scaled (Pillar 6)",
+    title = "Agreement between Pillars 5 and 6",
     subtitle = sprintf("R² = %.2f", R$qkrr_al_r2)
   ) +
   theme(legend.position = "bottom")
 ```
 
-![Concordância entre o score de incerteza do Active Learning (Pilar 5) e
-a variância epistêmica do Q-KRR (Pilar 6) nos candidatos não rejeitados.
-Alta concordância (R² ≈ 0,80) valida ambos os
-métodos.](capstone-cerrado-campaign_files/figure-html/quantum-vs-al-1.png)
+![Uncertainty score of active learning (Pillar 5) against the Q-KRR
+epistemic SD (Pillar 6, scaled by its maximum) at the candidates that
+were not rejected. R² = 0.005: on this grid one measure says little
+about the
+other.](capstone-cerrado-campaign_files/figure-html/quantum-vs-al-1.png)
 
-Concordância entre o score de incerteza do Active Learning (Pilar 5) e a
-variância epistêmica do Q-KRR (Pilar 6) nos candidatos não rejeitados.
-Alta concordância (R² ≈ 0,80) valida ambos os métodos.
+Uncertainty score of active learning (Pillar 5) against the Q-KRR
+epistemic SD (Pillar 6, scaled by its maximum) at the candidates that
+were not rejected. R² = 0.005: on this grid one measure says little
+about the other.
 
 ------------------------------------------------------------------------
 
-## API unificada de incerteza: calibração cruzada dos seis pilares
+## Unified uncertainty API: cross-calibrating the six pillars
 
-### `edaphos_posterior` e `uncertainty_calibrate()`
+### `edaphos_posterior` and `uncertainty_calibrate()`
 
-Todos os seis pilares retornam um objeto `edaphos_posterior`. Esse S3
-class comum permite aplicar
+All six pillars return an `edaphos_posterior` object. This common S3
+class lets
 [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md)
-de forma idêntica em todos eles, produzindo:
+be applied identically to all of them, producing:
 
-- **CRPS** (Continuous Ranked Probability Score) — escores de previsão
-  probabilística; menor é melhor.
-- **PICP** (Prediction Interval Coverage Probability) — proporção de
-  observações cobertas pelo intervalo nominal; para 90%, esperamos ≈
-  0,90.
-- **MPIW** (Mean Prediction Interval Width) — largura média do
-  intervalo; indica a resolução da previsão.
-- **RMSE** — erro quadrático médio do ponto central.
+- **CRPS** (continuous ranked probability score): a score for
+  probabilistic forecasts; lower is better.
+- **PICP** (prediction interval coverage probability): the proportion of
+  observations covered by the nominal interval; for 90 % we expect ≈
+  0.90.
+- **MPIW** (mean prediction interval width): the mean width of the
+  interval; it indicates the sharpness of the forecast.
+- **RMSE**: the root mean squared error of the central prediction.
 
-### Calibração num único domínio (query forçada de mapa) — uma leitura ingênua
+### Calibration in a single domain (forced map query): a naive reading
 
-A primeira tentativa de usar
+The first attempt to use
 [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md)
-de forma “unificada” é forçar todos os pilares a uma **mesma query**:
-prever o COS em pontos WoSIS. Isso é didaticamente útil para demonstrar
-a interface comum, mas é **cientificamente enganoso** porque viola o
-domínio natural de três pilares:
+in a “unified” way is to force every pillar onto the **same query**:
+predicting SOC at WoSIS points. This is useful to demonstrate the common
+interface, but it is **scientifically misleading** because it violates
+the natural domain of three pillars:
 
-- O Pilar 1 retorna uma distribuição sobre um **efeito causal escalar**,
-  não um mapa de COS.
-- O Pilar 2 retorna uma distribuição sobre um **perfil de
-  profundidade**, não um ponto espacial.
-- O Pilar 3 retorna uma distribuição sobre um **campo futuro** (dinâmica
-  temporal), não o valor estático no pixel.
+- Pillar 1 returns a distribution over a **scalar causal effect**, not
+  an SOC map.
+- Pillar 2 returns a distribution over a **depth profile**, not a
+  spatial point.
+- Pillar 3 returns a distribution over a **future field** (temporal
+  dynamics), not the static value at a pixel.
 
-Forçar esses três pilares a competir na métrica “COS em ponto WoSIS”
-produz os números do bloco abaixo — com PICP próximo de zero para P1–P3
-— que refletem mismatch de domínio, **não** calibração ruim.
+Forcing these three pillars to compete on the “SOC at a WoSIS point”
+metric produces the numbers in the block below, with low PICP for P1–P3
+(0.000, 0.308 and 0.032), which reflects a domain mismatch, **not** poor
+calibration.
 
 ``` r
 
@@ -1063,19 +1041,19 @@ cal_disp$picp <- round(cal_tbl$picp, 3)
 cal_disp$mpiw <- round(cal_tbl$mpiw, 2)
 cal_disp$rmse <- round(cal_tbl$rmse, 3)
 knitr::kable(
-  cal_disp[, c("pilar", "method", "crps", "picp", "mpiw", "rmse")],
-  col.names = c("Pilar", "Método", "CRPS", "PICP (90%)",
+  cal_disp[, c("pillar", "method", "crps", "picp", "mpiw", "rmse")],
+  col.names = c("Pillar", "Method", "CRPS", "PICP (90%)",
                 "MPIW (90%)", "RMSE"),
   caption = paste0(
-    "Leitura *ingênua*: os seis pilares forçados à mesma query de mapa ",
-    "de COS. P1–P3 têm PICP próximo de zero porque a query viola seu ",
-    "domínio nativo — o posterior não é sobre essa quantidade. Não é ",
-    "falha de calibração; é falha de avaliação."
+    "*Naive* reading: the six pillars forced onto the same SOC-map ",
+    "query. P1–P3 have low PICP because the query violates their ",
+    "native domain: the posterior is not about this quantity. This is not ",
+    "a calibration failure; it is an evaluation failure."
   )
 )
 ```
 
-| Pilar     | Método    |   CRPS | PICP (90%) | MPIW (90%) |   RMSE |
+| Pillar    | Method    |   CRPS | PICP (90%) | MPIW (90%) |   RMSE |
 |:----------|:----------|-------:|-----------:|-----------:|-------:|
 | P1 Causal | bootstrap | 16.558 |      0.000 |       1.63 | 23.372 |
 | P2 PIML   | bayesian  | 10.519 |      0.308 |      14.67 | 17.599 |
@@ -1084,24 +1062,24 @@ knitr::kable(
 | P5 AL     | loo_cv    |  7.333 |      0.532 |      12.84 | 16.619 |
 | P6 Q-KRR  | analytic  | 13.194 |      0.920 |      69.57 | 25.668 |
 
-Leitura *ingênua*: os seis pilares forçados à mesma query de mapa de
-COS. P1–P3 têm PICP próximo de zero porque a query viola seu domínio
-nativo — o posterior não é sobre essa quantidade. Não é falha de
-calibração; é falha de avaliação. {.table}
+*Naive* reading: the six pillars forced onto the same SOC-map query.
+P1–P3 have low PICP because the query violates their native domain: the
+posterior is not about this quantity. This is not a calibration failure;
+it is an evaluation failure. {.table}
 
-### Calibração nativa por pilar — a leitura correta (v1.7.1)
+### Native calibration per pillar: the correct reading
 
-A versão **v1.7.1** introduz `capstone_native_calibration.rds`, que
-avalia cada pilar **no seu domínio natural**:
+The bundle `capstone_native_calibration.rds` evaluates each pillar **in
+its natural domain**:
 
-| Pilar | Query nativa | Protocolo de validação |
+| Pillar | Native query | Validation protocol |
 |:---|:---|:---|
-| P1 Causal | efeito escalar $`\beta_{x\to y}^{\text{do}}`$ | 20 *split-samples* aleatórios: 40 pares (posterior, pseudo-truth) |
-| P2 PIML | perfil de profundidade $`y(z)`$ | *Leave-one-horizon-out* em 7 horizontes de um pedon do Cerrado |
-| P3 4D | mapa futuro $`\mathbf{Y}(t_\star)`$ | *Leave-one-month-out* no cubo 2° Cerrado (truth = NDVI observado) |
-| P4 Foundation | mapa espacial $`\mathbf{Y}(\text{site})`$ | 5-fold **spatial CV** no WoSIS; ensemble com 8 heads bagged |
-| P5 AL | mapa espacial $`\mathbf{Y}(\text{site})`$ | *Hold-out* 30% WoSIS; curva de aprendizado vs. baseline aleatório |
-| P6 Q-KRR | regressão $`y(\mathbf{x})`$ | *Hold-out* 70/30 WoSIS com 4 features quânticas |
+| P1 Causal | scalar effect $`\beta_{x\to y}^{\text{do}}`$ | 20 random split-samples: 40 (posterior, pseudo-truth) pairs |
+| P2 PIML | depth profile $`y(z)`$ | *Leave-one-horizon-out* over the 9 horizons of one Cerrado pedon |
+| P3 4D | future map $`\mathbf{Y}(t_\star)`$ | Ensemble forecast for the final month of the cube against the observed NDVI (100 cells) |
+| P4 Foundation | spatial map $`\mathbf{Y}(\text{site})`$ | 5-fold **spatial CV** on WoSIS (250 profiles); 8 bagged random-forest heads on covariates stand in for the encoder heads |
+| P5 AL | spatial map $`\mathbf{Y}(\text{site})`$ | 30 % WoSIS *hold-out* (71 profiles); learning curve against a random baseline |
+| P6 Q-KRR | regression $`y(\mathbf{x})`$ | 70/30 WoSIS *hold-out* (75 test profiles) with 4 quantum features |
 
 ``` r
 
@@ -1113,15 +1091,15 @@ if (!is.null(N)) {
   nat_disp$mpiw <- round(nat_tbl$mpiw, 3)
   nat_disp$rmse <- round(nat_tbl$rmse, 3)
   knitr::kable(
-    nat_disp[, c("pilar", "query", "n_truth",
+    nat_disp[, c("pillar", "query", "n_truth",
                   "crps", "picp", "mpiw", "rmse")],
-    col.names = c("Pilar", "Query nativa", "n", "CRPS",
+    col.names = c("Pillar", "Native query", "n", "CRPS",
                   "PICP (90%)", "MPIW (90%)", "RMSE"),
     caption = paste0(
-      "Leitura **nativa** (v1.7.1): cada pilar avaliado no seu domínio ",
-      "natural. PICP próximo de 0,90 é ideal; CRPS e RMSE dependem da ",
-      "escala da query (g/kg para P2/P4/P5/P6; NDVI z-units para P3; ",
-      "g/kg por mm para P1)."
+      "**Native** reading: each pillar evaluated in its natural ",
+      "domain. A PICP close to 0.90 is ideal; CRPS and RMSE depend on the ",
+      "scale of the query (g/kg for P2/P4/P5/P6; NDVI z-units for P3; ",
+      "g/kg per mm for P1)."
     )
   )
 } else {
@@ -1130,7 +1108,7 @@ if (!is.null(N)) {
 }
 ```
 
-| Pilar     | Query nativa        |   n |   CRPS | PICP (90%) | MPIW (90%) |   RMSE |
+| Pillar    | Native query        |   n |   CRPS | PICP (90%) | MPIW (90%) |   RMSE |
 |:----------|:--------------------|----:|-------:|-----------:|-----------:|-------:|
 | P1 Causal | effect              |  40 |  0.004 |      0.775 |      0.020 |  0.007 |
 | P2 PIML   | depth_profile       |   9 |  1.971 |      0.778 |      6.608 |  4.096 |
@@ -1139,35 +1117,34 @@ if (!is.null(N)) {
 | P5 AL     | held_out_map        |  71 |  6.394 |      0.901 |     38.015 | 12.938 |
 | P6 Q-KRR  | held_out_regression |  75 | 12.821 |      0.613 |     32.875 | 23.112 |
 
-Leitura **nativa** (v1.7.1): cada pilar avaliado no seu domínio natural.
-PICP próximo de 0,90 é ideal; CRPS e RMSE dependem da escala da query
-(g/kg para P2/P4/P5/P6; NDVI z-units para P3; g/kg por mm para P1).
+**Native** reading: each pillar evaluated in its natural domain. A PICP
+close to 0.90 is ideal; CRPS and RMSE depend on the scale of the query
+(g/kg for P2/P4/P5/P6; NDVI z-units for P3; g/kg per mm for P1).
 {.table}
 
-#### Como ler a tabela nativa
+#### How to read the native table
 
-- **P1 Causal (efeito MAP→COS)**: PICP=0,78 com 40 pontos de verdade de
-  cross-split é **bem calibrado** dada a escala. O efeito médio
-  recuperado (~0,009 g/kg por mm de MAP) concorda com a literatura do
-  Cerrado.
-- **P2 PIML (perfil de profundidade)**: PICP=0,71 em 7 horizontes é
-  realista para um modelo generativo de 3 parâmetros — a ODE
-  pedogenética extrapola bem além dos horizontes observados.
-- **P3 4D (mapa futuro NDVI)**: PICP=0,70 no mês target é coerente com o
-  RMSE=0,637 z-units reportado em `pilar3-4d-real`.
-- **P4 Foundation (mapa espacial)**: PICP=0,27 revela **subestimação
-  sistemática de incerteza epistêmica**: um ensemble ingênuo de heads
-  `ranger` com mesmos hiperparâmetros colapsa porque `ranger` já
-  marginaliza sobre árvores internamente. Mesmo com bagging explícito
-  por sub-amostra + mtry variado, o SD entre membros permanece baixo.
-  Este é um *failure mode* honestamente reportado — não um bug.
-- **P5 AL (mapa espacial hold-out)**: PICP=0,93 é **o melhor desempenho
-  entre os seis pilares** no domínio espacial, confirmando que a QRF com
-  intervalos quantílicos nativos é a política de escolha para decisões
-  de campo.
-- **P6 Q-KRR (regressão)**: PICP=0,84 com apenas 50 amostras de
-  treinamento mostra que a posterior GP-equivalente do kernel quântico
-  captura honestamente a incerteza mesmo em regime de dados escassos.
+- **P1 Causal (MAP→SOC effect)**: PICP = 0.775 over 40 cross-split truth
+  points, below the nominal 0.90: the split-half intervals are somewhat
+  too narrow. The mean recovered effect is 0.0086 g/kg per mm of MAP.
+- **P2 PIML (depth profile)**: PICP = 0.778 over 9 held-out horizons,
+  also below nominal; with so few horizons each one moves the coverage
+  by more than 0.1.
+- **P3 4D (future NDVI map)**: PICP = 0.700 at the target month, with
+  RMSE = 0.637 z-units, the same forecast as the prior in the Pillar 3
+  section above.
+- **P4 Foundation (spatial map)**: PICP = 0.248 reveals a **systematic
+  underestimate of epistemic uncertainty**. A likely cause is that the
+  heads are `ranger` forests, which already average over trees
+  internally, so their predictions differ little; even with explicit
+  bagging by sub-sample and varied `mtry`, the SD between members stays
+  low. This failure mode is reported as it is, not hidden.
+- **P5 AL (spatial hold-out map)**: PICP = 0.901 over 71 held-out
+  profiles, from the native quantile intervals of the QRF. Of the six
+  pillars, P5 AL is the closest to the nominal 0.90.
+- **P6 Q-KRR (regression)**: PICP = 0.613 over 75 held-out profiles,
+  with a training set capped at 50 profiles: the GP-equivalent posterior
+  of the quantum kernel under-covers in this data-scarce regime.
 
 ``` r
 
@@ -1177,45 +1154,48 @@ if (!is.null(N) && length(N$reliability_list) > 0L) {
     if (is.null(d)) return(NULL)
     cov_col <- if ("coverage"  %in% names(d)) d$coverage else
                if ("empirical" %in% names(d)) d$empirical else d[[2]]
-    data.frame(pilar = nm, nominal = d$nominal, coverage = cov_col,
+    data.frame(pillar = nm, nominal = d$nominal, coverage = cov_col,
                stringsAsFactors = FALSE)
   }))
 
-  ggplot(rel_df_nat, aes(x = nominal, y = coverage, color = pilar)) +
+  ggplot(rel_df_nat, aes(x = nominal, y = coverage, color = pillar)) +
     geom_abline(slope = 1, intercept = 0,
                 linetype = "dashed", color = "grey50") +
     geom_line(linewidth = 1) +
     geom_point(size = 2) +
-    scale_color_brewer(palette = "Dark2", name = "Pilar") +
+    scale_color_brewer(palette = "Dark2", name = "Pillar") +
     scale_x_continuous(labels = scales::percent) +
     scale_y_continuous(labels = scales::percent) +
     labs(
-      x     = "Cobertura nominal",
-      y     = "Cobertura empírica",
-      title = "Calibração nativa por pilar (v1.7.1)",
-      subtitle = "Cada pilar avaliado no seu domínio — P5 e P6 perto da diagonal; P4 subestima"
+      x     = "Nominal coverage",
+      y     = "Empirical coverage",
+      title = "Native calibration per pillar",
+      subtitle = paste0("Closest to the diagonal: ",
+                        names(which.min(rel_gap)),
+                        "; farthest: ", names(which.max(rel_gap)))
     ) +
     theme(legend.position = "right")
 }
 ```
 
-![Curvas de confiabilidade para a calibração \*\*nativa\*\* (cada pilar
-no seu domínio). A diagonal representa calibração perfeita. P1, P2, P3,
-P5 e P6 estão próximos da diagonal; P4 fica abaixo (subcobertura) —
-consistente com o problema de ensemble collapse documentado no
-texto.](capstone-cerrado-campaign_files/figure-html/reliability-plot-native-1.png)
+![Reliability curves for the \*\*native\*\* calibration (each pillar in
+its own domain). The diagonal is perfect calibration. Largest gap from
+the diagonal per pillar: P1 Causal = 0.13; P2 PIML = 0.23; P3 4D = 0.23;
+P4 Found. = 0.66; P5 AL = 0.09; P6 Q-KRR =
+0.29.](capstone-cerrado-campaign_files/figure-html/reliability-plot-native-1.png)
 
-Curvas de confiabilidade para a calibração **nativa** (cada pilar no seu
-domínio). A diagonal representa calibração perfeita. P1, P2, P3, P5 e P6
-estão próximos da diagonal; P4 fica abaixo (subcobertura) — consistente
-com o problema de ensemble collapse documentado no texto.
+Reliability curves for the **native** calibration (each pillar in its
+own domain). The diagonal is perfect calibration. Largest gap from the
+diagonal per pillar: P1 Causal = 0.13; P2 PIML = 0.23; P3 4D = 0.23; P4
+Found. = 0.66; P5 AL = 0.09; P6 Q-KRR = 0.29.
 
-#### Curva de aprendizado do Pilar 5: AL vs. amostragem aleatória
+#### Pillar 5 learning curve: AL vs. random sampling
 
-O Pilar 5 se valida não só pelo CRPS final, mas pela **trajetória** do
-CRPS conforme novos pontos são adquiridos. Abaixo comparamos a política
-AL ($`\alpha=0{,}7`$, híbrida incerteza + diversidade) contra amostragem
-puramente aleatória, ambas partindo do mesmo conjunto semente.
+Pillar 5 is validated not only by its final CRPS but by the
+**trajectory** of the CRPS as new points are acquired. Below we compare
+the AL policy used in the native calibration (greedy by the width of the
+QRF 10–90 % interval, without the diversity term) with purely random
+sampling; both start from the same seed set.
 
 ``` r
 
@@ -1223,48 +1203,49 @@ if (!is.null(N) && !is.null(N$p5$learning_curve)) {
   lc <- N$p5$learning_curve
   rc <- N$p5$random_curve
   both <- rbind(
-    cbind(lc, policy = "AL hybrid"),
+    cbind(lc, policy = "AL (QRF width)"),
     cbind(rc, policy = "Random")
   )
   ggplot(both, aes(x = n_labelled, y = crps, color = policy,
                     shape = policy)) +
     geom_line(linewidth = 1) +
     geom_point(size = 3.5) +
-    scale_color_manual(values = c("AL hybrid" = "#C0392B",
+    scale_color_manual(values = c("AL (QRF width)" = "#C0392B",
                                     "Random" = "#7F8C8D"),
                         name = NULL) +
-    scale_shape_manual(values = c("AL hybrid" = 8, "Random" = 16),
+    scale_shape_manual(values = c("AL (QRF width)" = 8, "Random" = 16),
                         name = NULL) +
     labs(
-      x     = "Amostras rotuladas",
+      x     = "Labelled samples",
       y     = "CRPS (g/kg)",
-      title = "Pilar 5 — curva de aprendizado"
+      title = "Pillar 5 — learning curve"
     ) +
     theme(legend.position = "bottom")
 }
 ```
 
-![Curva de aprendizado CRPS: política AL (vermelho) vs. baseline
-aleatório (cinza). Ambas partem de n=20 amostras rotuladas; cada
-iteração adiciona 10 amostras. A linha AL converge mais rápido nas
-primeiras 3 iterações mas ambos alcançam patamar similar — coerente com
-literatura que mostra benefício de AL maior em regime inicial (n
-pequeno) do que
-terminal.](capstone-cerrado-campaign_files/figure-html/al-learning-curve-plot-1.png)
+![CRPS learning curve: AL policy (red) vs. random baseline (grey). Both
+start from the same 20 labelled profiles and add 10 per iteration. AL
+has the lower CRPS at n = 20, 30, 40, 50; random sampling at n = 60, 70.
+Final CRPS at n = 70: AL 6.39, random 6.34. The curves already differ at
+the first point, where the labelled sets are identical, which gives a
+sense of the run-to-run noise of the
+forest.](capstone-cerrado-campaign_files/figure-html/al-learning-curve-plot-1.png)
 
-Curva de aprendizado CRPS: política AL (vermelho) vs. baseline aleatório
-(cinza). Ambas partem de n=20 amostras rotuladas; cada iteração adiciona
-10 amostras. A linha AL converge mais rápido nas primeiras 3 iterações
-mas ambos alcançam patamar similar — coerente com literatura que mostra
-benefício de AL maior em regime inicial (n pequeno) do que terminal.
+CRPS learning curve: AL policy (red) vs. random baseline (grey). Both
+start from the same 20 labelled profiles and add 10 per iteration. AL
+has the lower CRPS at n = 20, 30, 40, 50; random sampling at n = 60, 70.
+Final CRPS at n = 70: AL 6.39, random 6.34. The curves already differ at
+the first point, where the labelled sets are identical, which gives a
+sense of the run-to-run noise of the forest.
 
 ------------------------------------------------------------------------
 
-## A decisão final: as oito localizações recomendadas
+## The final decision: the eight recommended locations
 
-### Síntese integrada
+### Integrated synthesis
 
-Consolidamos a informação dos seis pilares numa matriz de evidências:
+We collect the information from the six pillars in an evidence matrix:
 
 ``` r
 
@@ -1273,19 +1254,26 @@ knitr::kable(
   dec_mat,
   digits  = 3,
   col.names = c("Site", "Lon", "Lat",
-                "Score P5", "Incert. Q-KRR", "Ganho EnKF",
-                "Incert. Found.", "Efeito MAP (P1)",
-                "COS pred. ODE (P2)", "Score final"),
+                "Pillar 5 score", "Q-KRR epistemic SD", "EnKF gain",
+                "Pillar 4 SD (stand-in)", "MAP association (P1)",
+                "Gate screening SOC (g/kg)", "Final score"),
   caption = paste0(
-    "Matriz de decisão integrada: os oito locais selecionados pelo Active ",
-    "Learning, anotados com informação dos seis pilares. Score final = ",
-    "média ponderada dos scores normalizados (pesos: P5 = 0,35, EnKF = 0,25, ",
-    "Found. = 0,20, Q-KRR = 0,10, P1-P2 = 0,10)."
+    "Integrated decision matrix: the ", nrow(dec_mat), " sites selected by ",
+    "active learning, numbered in the order the batch selection picked them ",
+    "and sorted by final score. Final score = weighted sum of min-max ",
+    "normalised columns, with weights 0.35 (Pillar 5 score), 0.25 (EnKF ",
+    "gain), 0.20 (Pillar 4 SD), 0.10 (Q-KRR epistemic SD) and 0.10 (gate ",
+    "screening SOC), as set in data-raw/capstone_campaign_run.R. Three ",
+    "columns need care: the EnKF gain repeats the eight per-observation ",
+    "gains of the Pillar 3 run in their stored order, which were measured ",
+    "at the cube's observation cells, not at these sites; the Pillar 4 SD ",
+    "comes from the synthetic stand-in map; and the MAP association is the ",
+    "single Pillar 1 estimate repeated, which does not enter the score."
   )
 )
 ```
 
-|  | Site | Lon | Lat | Score P5 | Incert. Q-KRR | Ganho EnKF | Incert. Found. | Efeito MAP (P1) | COS pred. ODE (P2) | Score final |
+|  | Site | Lon | Lat | Pillar 5 score | Q-KRR epistemic SD | EnKF gain | Pillar 4 SD (stand-in) | MAP association (P1) | Gate screening SOC (g/kg) | Final score |
 |:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1 | Site 1 | -49.556 | -15.778 | 0.910 | 0.867 | 0.481 | 5.065 | 0.002 | 13.362 | 0.606 |
 | 3 | Site 3 | -48.444 | -14.222 | 0.684 | 0.892 | 1.103 | 4.641 | 0.002 | 13.067 | 0.569 |
@@ -1296,10 +1284,17 @@ knitr::kable(
 | 4 | Site 4 | -48.222 | -16.000 | 0.672 | 0.896 | 0.712 | 3.101 | 0.002 | 13.427 | 0.388 |
 | 8 | Site 8 | -49.333 | -14.667 | 0.552 | 0.860 | 0.707 | 2.772 | 0.002 | 12.756 | 0.086 |
 
-Matriz de decisão integrada: os oito locais selecionados pelo Active
-Learning, anotados com informação dos seis pilares. Score final = média
-ponderada dos scores normalizados (pesos: P5 = 0,35, EnKF = 0,25, Found.
-= 0,20, Q-KRR = 0,10, P1-P2 = 0,10). {.table}
+Integrated decision matrix: the 8 sites selected by active learning,
+numbered in the order the batch selection picked them and sorted by
+final score. Final score = weighted sum of min-max normalised columns,
+with weights 0.35 (Pillar 5 score), 0.25 (EnKF gain), 0.20 (Pillar 4
+SD), 0.10 (Q-KRR epistemic SD) and 0.10 (gate screening SOC), as set in
+data-raw/capstone_campaign_run.R. Three columns need care: the EnKF gain
+repeats the eight per-observation gains of the Pillar 3 run in their
+stored order, which were measured at the cube’s observation cells, not
+at these sites; the Pillar 4 SD comes from the synthetic stand-in map;
+and the MAP association is the single Pillar 1 estimate repeated, which
+does not enter the score. {.table}
 
 ``` r
 
@@ -1309,7 +1304,7 @@ ggplot() +
   geom_tile(data = found_df,
             aes(x = lon, y = lat, fill = mean_pred),
             alpha = 0.7) +
-  scale_fill_viridis_c(option = "B", name = "COS pred.\n(g/kg)") +
+  scale_fill_viridis_c(option = "B", name = "Pred. SOC\n(g/kg)") +
   ggnewscale::new_scale_fill() +
   geom_point(
     data = final_sel,
@@ -1318,7 +1313,7 @@ ggplot() +
   ) +
   scale_fill_distiller(
     palette = "Blues", direction = 1,
-    name = "Score\nfinal"
+    name = "Final\nscore"
   ) +
   geom_text(
     data = final_sel,
@@ -1328,75 +1323,66 @@ ggplot() +
   labs(
     x     = "Longitude",
     y     = "Latitude",
-    title = "Campanha de campo — 8 localizações recomendadas",
+    title = paste0("Field campaign — ", nrow(final_sel),
+                   " recommended locations"),
     caption = paste0(
-      "Fundo: COS predito pelo Foundation Model (g/kg). ",
-      "Losangos: locais selecionados, numerados por prioridade. ",
-      "Pontos cinza: perfis WoSIS existentes."
+      "Background: Pillar 4 stand-in map (g/kg). ",
+      "Diamonds: numbered as in the decision matrix."
     )
   )
 ```
 
-![Mapa final da campanha. As oito estrelas representam os locais
-recomendados, coloridas pelo score final integrado (azul = maior
-prioridade). O mapa de fundo é a previsão do Foundation
-Model.](capstone-cerrado-campaign_files/figure-html/decision-map-final-1.png)
+![Final campaign map. The diamonds are the recommended sites, numbered
+as in the decision matrix and coloured by the integrated final score
+(darker blue = higher score). The background is the synthetic Pillar 4
+stand-in
+map.](capstone-cerrado-campaign_files/figure-html/decision-map-final-1.png)
 
-Mapa final da campanha. As oito estrelas representam os locais
-recomendados, coloridas pelo score final integrado (azul = maior
-prioridade). O mapa de fundo é a previsão do Foundation Model.
+Final campaign map. The diamonds are the recommended sites, numbered as
+in the decision matrix and coloured by the integrated final score
+(darker blue = higher score). The background is the synthetic Pillar 4
+stand-in map.
 
-### Justificativa causal à luz de Zhang and Wadoux ([2026](#ref-Zhang2026causal))
+### What the matrix supports, in the light of Zhang and Wadoux ([2026](#ref-Zhang2026causal))
 
-Cada uma das oito localizações pode ser justificada de forma causal, não
-apenas associativa:
+Zhang and Wadoux ([2026](#ref-Zhang2026causal)) ask that a sampling
+decision be justified causally, not only by association. This bundle
+supports a narrower statement:
 
-1.  **Site 1 (maior prioridade)** — alto ganho de Kalman (Pilar 3)
-    indica que a dinâmica temporal do COS está mudando mais rápido aqui;
-    alta incerteza epistêmica do Foundation Model (Pilar 4) confirma que
-    o espaço de representação está sub-amostrado. Segundo a ODE (Pilar
-    2), os parâmetros de decomposição ($`k_1`$) nessa célula apresentam
-    incerteza 2× maior que a média — amostras aqui reduzem diretamente a
-    incerteza sobre o processo de decomposição.
+1.  **Much of the final score rests on columns that do not describe the
+    sites.** The highest final score belongs to Site 1. Of the five
+    columns in the score, only the Pillar 5 score (weight 0.35) and the
+    Q-KRR epistemic SD (0.10) come from a fitted model evaluated at the
+    sites, and both are evaluated on simulated covariates. The EnKF gain
+    (0.25) and the Pillar 4 SD (0.20) are not properties of the sites,
+    and the gate screening value (0.10) is a fixed formula.
 
-2.  **Sites 2–4** — localizam-se em ecótonos campo-cerrado, onde o
-    confundidor “vegetação” (NDVI) apresenta alta variância espacial. O
-    backdoor adjustment do Pilar 1 mostra que o efeito de MAP sobre COS
-    *muda de sinal* nessas células quando não controlamos pela vegetação
-    — exatamente o tipo de paradoxo de Simpson identificado por Zhang
-    and Wadoux ([2026](#ref-Zhang2026causal)). Novos perfis aqui
-    refinarão o conjunto de ajuste backdoor.
+2.  **No site-level causal justification is available.** The Pillar 1
+    associations are not distinguishable from zero, and the candidate
+    covariates are simulated, so the bundle cannot say why any
+    particular site should reduce uncertainty about a causal process.
 
-3.  **Sites 5–8** — selecionados por diversidade no espaço de
-    covariáveis (Pilar 5). A política cLHS garante que o novo lote,
-    combinado com os perfis existentes, cubra melhor a distribuição
-    marginal conjunta de MAP × T2M × argila — as três covariáveis com
-    maiores efeitos causais no DAG.
-
-O gate físico da ODE (Pilar 2) **excluiu 0 candidatos** que o QRF
-classificava como incertos mas que as equações de processo indicavam
-como implausíveis (p. ex., solos muito arenosos em clima seco onde a ODE
-prediz COS \< 2 g/kg com certeza quase total).
+3.  **The physical gate excluded 0 of 100 candidates** in this run.
 
 ------------------------------------------------------------------------
 
-## Alinhamento com Zhang & Wadoux (2026): checklist
+## Alignment with Zhang & Wadoux (2026): checklist
 
-| Condição / Elemento | Pilar responsável | Função(ões) do edaphos |
+| Condition / element | Responsible pillar | edaphos function(s) |
 |:---|:---|:---|
-| 1\. Modelo causal explícito (DAG) | P1 (LLM KG + dagitty) | [`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md) + [`causal_augment_dag()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_augment_dag.md) |
-| 2\. Suficiência causal (sem confundidores não observados) | P1 (LLM KG: variáveis latentes na literatura) | Gemma 4 extrai variáveis latentes da literatura |
-| 3\. Fidelidade estrutura ↔︎ dados | P2 (ODE restringe associações plausíveis) | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md) gate em [`al_query()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query.md) |
-| Visão generativa: processos explícitos | P2 (ODE pedogenética, Neural ODE) | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md) + [`piml_neural_ode_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_neural_ode_fit_ensemble.md) |
-| Crítica de snapshot temporal respondida | P3 (ConvLSTM + EnKF — 14 anos de série temporal) | [`temporal_convlstm_ensemble_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_convlstm_ensemble_fit.md) + [`temporal_kalman_update()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_kalman_update.md) |
-| Predição + compreensão (objetivos duplos do MDS) | P4 + P5 + P6 (previsão com incerteza quantificada) | [`foundation_finetune_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_finetune_ensemble.md) + [`active_learning_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/active_learning_posterior.md) |
+| 1\. Explicit causal model (DAG) | P1 (LLM KG + dagitty) | [`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md) + [`causal_augment_dag()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_augment_dag.md) |
+| 2\. Causal sufficiency (no unobserved confounders) | P1 (LLM KG: latent variables named in the literature) | An LLM extracts latent variables from the literature |
+| 3\. Faithfulness between structure and data | P2 (ODE restricts which associations are plausible) | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md); gate in [`al_query()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query.md) |
+| Generative view: explicit processes | P2 (pedogenetic ODE, neural ODE) | [`piml_profile_fit_bayesian()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit_bayesian.md) + [`piml_neural_ode_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_neural_ode_fit_ensemble.md) |
+| Criticism of temporal snapshots addressed | P3 (ConvLSTM + EnKF over 168 months of time series) | [`temporal_convlstm_ensemble_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_convlstm_ensemble_fit.md) + [`temporal_kalman_update()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_kalman_update.md) |
+| Prediction + understanding (the two goals of DSM) | P4 + P5 + P6 (prediction with quantified uncertainty) | [`foundation_finetune_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_finetune_ensemble.md) + [`active_learning_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/active_learning_posterior.md) |
 
-Alinhamento entre os elementos do framework de Zhang and Wadoux
-([2026](#ref-Zhang2026causal)) e os pilares do edaphos v1.7.0. {.table}
+Alignment between the elements of the framework of Zhang and Wadoux
+([2026](#ref-Zhang2026causal)) and the pillars of edaphos. {.table}
 
 ------------------------------------------------------------------------
 
-## Referências
+## References
 
 McBratney, A. B., M. L. Mendonça Santos, and B. Minasny. 2003. “On
 Digital Soil Mapping.” *Geoderma* 117 (1-2): 3–52.
@@ -1411,4 +1397,4 @@ Mapping Be Causal?” *European Journal of Soil Science* 77: e70284.
 
 ------------------------------------------------------------------------
 
-*Construído com* **edaphos** 0.9.0 · R version 4.6.2 (2026-10-29)
+*Built with* **edaphos** 2.0.0 · R version 4.6.2 (2026-10-29)

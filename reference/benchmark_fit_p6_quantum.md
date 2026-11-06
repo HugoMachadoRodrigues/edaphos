@@ -1,4 +1,4 @@
-# Benchmark wrapper: Pilar 6 – bootstrap-ensembled quantum KRR
+# Benchmark wrapper: Pillar 6 – bootstrap-ensembled quantum KRR
 
 PCA-reduces the covariate matrix to `n_pcs` components rescaled to
 `[-pi, pi]`, then trains `n_boot` quantum-kernel ridge regressors on
@@ -54,7 +54,7 @@ benchmark_fit_p6_quantum(
 - calibrate:
 
   Logical (default `TRUE`). When `TRUE`, residual noise from a full-data
-  quantum-KRR fit is injected into every posterior sample (see Pilar-1
+  quantum-KRR fit is injected into every posterior sample (see Pillar-1
   wrapper for the rationale).
 
 ## Value

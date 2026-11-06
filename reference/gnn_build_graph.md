@@ -54,8 +54,8 @@ gnn_build_graph(
   contributes the one thing it genuinely carries – spatial structure.
 
   Nested cross-validation on the Cerrado benchmark
-  (`data-raw/pilar10_gat_tuning.R`, bundle
-  `inst/extdata/pilar10_gat_tuning.rds`) selected `"spatial"` in 3 of 5
+  (`data-raw/pillar10_gat_tuning.R`, bundle
+  `inst/extdata/pillar10_gat_tuning.rds`) selected `"spatial"` in 3 of 5
   outer folds and `"hybrid"` in the other 2, never `"feature"` – and the
   selection never saw the evaluated folds. Hence `"spatial"` is the
   default. Treat the choice as a hyperparameter and tune it: none of the

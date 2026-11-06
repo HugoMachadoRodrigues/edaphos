@@ -1,4 +1,4 @@
-# Bayesian Hierarchical Active Learning (Pilar 7 x Pilar 5)
+# Bayesian Hierarchical Active Learning (Pillar 7 x Pillar 5)
 
 Ranks candidate sites by their predictive variance averaged over the BHS
 posterior MCMC draws – Thompson-sampling-style AL in the language of
@@ -58,7 +58,7 @@ bh <- bhs_fit(trn, soc ~ elev + twi + map_mm, coords = c("lon", "lat"),
 set.seed(7)
 q <- al_query_bhs(bh, pool, n_select = 5L, n_draws = 50L)
 q
-#> <edaphos_al_bhs_query>  (Pilar 7 x Pilar 5)
+#> <edaphos_al_bhs_query>  (Pillar 7 x Pillar 5)
 #>   pool size : 75
 #>   n_draws   : 50   n_select: 5
 #>   top candidates by avg posterior variance:
@@ -127,7 +127,7 @@ bhr <- bhs_fit(trn, soc ~ elev + twi + map_mm,
                nmcmc = 300L, burn = 150L, phi_range = c(0.1, 500),
                seed = 1L)
 head(al_query_bhs(bhr, pool, n_draws = 50L), 3)
-#> <edaphos_al_bhs_query>  (Pilar 7 x Pilar 5)
+#> <edaphos_al_bhs_query>  (Pillar 7 x Pillar 5)
 #>   pool size : 3
 #>   n_draws   : 50   n_select: 5
 #>   top candidates by avg posterior variance:

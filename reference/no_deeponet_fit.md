@@ -97,7 +97,7 @@ set.seed(11)
 depths <- seq(5, 150, length.out = 8L)
 
 # The same known operator used in the no_fno_fit() example: the
-# Pilar 2 pedogenetic ODE solution, driven by site covariates.
+# Pillar 2 pedogenetic ODE solution, driven by site covariates.
 site <- cbind(clay   = runif(50L, 0.10, 0.60),
               map    = runif(50L, 0.80, 1.60),
               relief = runif(50L, 0.00, 1.00))
@@ -117,7 +117,7 @@ don <- no_deeponet_fit(depths, soc[tr, ], site[tr, ],
                        output_dim = 8L, epochs = 300L, lr = 0.02,
                        seed = 1L)
 don
-#> <edaphos_no_deeponet>  (Pilar 8 -- Deep Operator Network)
+#> <edaphos_no_deeponet>  (Pillar 8 -- Deep Operator Network)
 #>   branch 3x16 -> trunk 1x16, output_dim = 8
 #>   n_train = 30   n_depths = 8
 #>   initial MSE = 1.561  final MSE = 0.02808  (epochs = 300)

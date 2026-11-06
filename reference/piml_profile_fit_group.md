@@ -104,7 +104,7 @@ two <- rbind(pedons[pedons$pedon %in% c("P1", "P2"),
                     c("pedon", "depth", "soc")],
              data.frame(pedon = "P99", depth = 5, soc = 21))
 f2 <- piml_profile_fit_group(two, "pedon", "depth", "soc")
-#> Warning: Pedon 'P99' failed: length(depths) >= 2L is not TRUE
+#> Warning: Pedon 'P99' failed: [piml_profile_fit] a profile needs at least 2 horizons; got 1.
 vapply(f2, is.null, TRUE)
 #>    P1    P2   P99 
 #> FALSE FALSE  TRUE 

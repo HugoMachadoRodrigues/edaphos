@@ -71,7 +71,14 @@ quantum_vqe_fit(
 
 - seed:
 
-  Optional integer — seeds NumPy / Qiskit RNGs for reproducible runs.
+  Optional integer. Seeds NumPy, the qiskit-algorithms generator (random
+  initial point, SPSA perturbations) and, on `"aer_shots"`, the
+  simulator's shot noise, so a run repeats exactly. On `"aer_shots"` Aer
+  re-seeds that noise at every energy evaluation, so a seeded run adds
+  the same noise draw each time – a fixed offset of size about
+  `1 / sqrt(shots)` – rather than fresh noise; leave `seed = NULL` to
+  study the optimiser under varying shot noise. Real hardware (`"ibmq"`)
+  cannot be seeded.
 
 - initial_point:
 

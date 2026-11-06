@@ -1,6 +1,6 @@
 # Package index
 
-## Pilar 1 — Causal AI
+## Pillar 1 — Causal AI
 
 Backdoor adjustment, LLM-driven Knowledge Graphs, causal discovery,
 effect posteriors.
@@ -187,7 +187,7 @@ effect posteriors.
 - [`summary(`*`<edaphos_causal_kg>`*`)`](https://hugomachadorodrigues.github.io/edaphos/reference/summary.edaphos_causal_kg.md)
   : One-line summary of a Knowledge Graph
 
-## Pilar 2 — Physics-Informed ML
+## Pillar 2 — Physics-Informed ML
 
 Pedogenetic ODE, Bayesian posterior, Neural ODE + ensemble.
 
@@ -229,7 +229,7 @@ Pedogenetic ODE, Bayesian posterior, Neural ODE + ensemble.
 - [`predict(`*`<edaphos_piml_neural_ode_ensemble>`*`)`](https://hugomachadorodrigues.github.io/edaphos/reference/predict.edaphos_piml_neural_ode_ensemble.md)
   : Predictive posterior from a Neural-ODE deep ensemble
 
-## Pilar 3 — 4D Pedometry
+## Pillar 3 — 4D Pedometry
 
 ConvLSTM, rollout, mass-balance physics loss, stochastic EnKF.
 
@@ -253,11 +253,11 @@ ConvLSTM, rollout, mass-balance physics loss, stochastic EnKF.
   : Ensemble Kalman update of a Pillar 3 forecast by new point
   observations
 - [`temporal_piml_loss()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_piml_loss.md)
-  : Physics-informed ConvLSTM mass-balance loss (Pilar 2 x Pilar 3)
+  : Physics-informed ConvLSTM mass-balance loss (Pillar 2 x Pillar 3)
 - [`temporal_synth_soc_cube()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_synth_soc_cube.md)
   : Generate a synthetic 4D soil-dynamics cube (Pillar 3 helper)
 
-## Pilar 4 — Foundation Models
+## Pillar 4 — Foundation Models
 
 SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction.
 
@@ -336,7 +336,7 @@ SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction.
 - [`predict(`*`<edaphos_foundation_ensemble>`*`)`](https://hugomachadorodrigues.github.io/edaphos/reference/predict.edaphos_foundation_ensemble.md)
   : Predict with an edaphos_foundation_ensemble
 
-## Pilar 5 — Active Learning
+## Pillar 5 — Active Learning
 
 Hybrid policy, BatchBALD, physics gate, posterior calibration.
 
@@ -357,14 +357,14 @@ Hybrid policy, BatchBALD, physics gate, posterior calibration.
 - [`al_query_batchbald()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_batchbald.md)
   : BatchBALD information-theoretic batch acquisition
 - [`al_query_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_bhs.md)
-  : Bayesian Hierarchical Active Learning (Pilar 7 x Pilar 5)
+  : Bayesian Hierarchical Active Learning (Pillar 7 x Pillar 5)
 - [`al_query_causal()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_causal.md)
   : Causal Active Learning: query the next sample(s) that most reduce
   the uncertainty of a targeted causal effect
 - [`al_query_diffusion()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_diffusion.md)
-  : Diffusion-posterior-driven AL (Pilar 9 x Pilar 5)
+  : Diffusion-posterior-driven AL (Pillar 9 x Pillar 5)
 - [`al_query_neural_operator()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_neural_operator.md)
-  : Causal-driven AL via Neural Operator disagreement (Pilar 8 x Pilar
+  : Causal-driven AL via Neural Operator disagreement (Pillar 8 x Pillar
   5)
 - [`al_query_temporal()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_temporal.md)
   : Temporal Active Learning: rank candidate cells by their Kalman gain
@@ -374,7 +374,7 @@ Hybrid policy, BatchBALD, physics gate, posterior calibration.
 - [`active_learning_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/active_learning_posterior.md)
   : Posterior predictive distribution of an edaphos Active-Learning fit
 
-## Pilar 6 — Quantum ML
+## Pillar 6 — Quantum ML
 
 ZZFeatureMap, Quantum KRR, Qiskit VQE, organo-mineral Hamiltonians.
 
@@ -437,18 +437,18 @@ ZZFeatureMap, Quantum KRR, Qiskit VQE, organo-mineral Hamiltonians.
 - [`quantum_vqe_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/quantum_vqe_fit.md)
   : Variational Quantum Eigensolver (Pillar 6 main entry point)
 
-## Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)
+## Pillar 7 — Bayesian Hierarchical Spatial
 
 Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes,
 all three predicting).
 
 - [`bhs_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/bhs_fit.md)
-  : Fit a Bayesian hierarchical spatial linear model (Pilar 7)
+  : Fit a Bayesian hierarchical spatial linear model (Pillar 7)
 - [`predict(`*`<edaphos_bhs>`*`)`](https://hugomachadorodrigues.github.io/edaphos/reference/predict.edaphos_bhs.md)
   : Predict at new sites from a fitted Bayesian hierarchical spatial
   model
 
-## Pilar 8 — Neural Operators (v2.4.0+)
+## Pillar 8 — Neural Operators
 
 DeepONet + FNO over depth function space.
 
@@ -457,7 +457,7 @@ DeepONet + FNO over depth function space.
 - [`no_fno_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/no_fno_fit.md)
   : Fit a 1-D Fourier Neural Operator for depth-profile operators
 
-## Pilar 9 — Diffusion Models (v2.5.0+)
+## Pillar 9 — Diffusion Models
 
 DDPM with cosine schedule + ancestral sampling.
 
@@ -468,14 +468,15 @@ DDPM with cosine schedule + ancestral sampling.
 - [`dm_sample()`](https://hugomachadorodrigues.github.io/edaphos/reference/dm_sample.md)
   : Sample new soil-map patches from a trained DDPM
 
-## Pilar 10 — Graph Attention Networks (v2.6.0+)
+## Pillar 10 — Graph Attention Networks
 
-k-NN co-location graphs + multi-head attention; v3.6.0 sparse.
+k-NN co-location graphs + multi-head attention, with a sparse attention
+path.
 
 - [`gnn_build_graph()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_build_graph.md)
   : Build a k-NN co-location graph from a profile frame
 - [`gnn_causal_discovery()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_causal_discovery.md)
-  : Graph-based causal discovery (Pilar 10 x Pilar 1)
+  : Graph-based causal discovery (Pillar 10 x Pillar 1)
 - [`gnn_embed()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_embed.md)
   : Node-level embeddings from a fitted GAT
 - [`gnn_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit.md)
@@ -483,11 +484,11 @@ k-NN co-location graphs + multi-head attention; v3.6.0 sparse.
 - [`gnn_fit_ensemble()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_fit_ensemble.md)
   : Seed ensemble of GAT fits
 
-## Cross-pillar bridges (v1.9.x + v2.0.0 + v3.0.0)
+## Cross-pillar bridges
 
 Foundation embeddings as causal instruments; quantum kernels over
-foundation embeddings; six v3.0.0 bridges (P7/8/9 x P5 + P10 x P1 + P2 x
-P3 + P6 x P10).
+foundation embeddings; six further bridges (P7/8/9 x P5 + P10 x P1 + P2
+x P3 + P6 x P10).
 
 - [`qf_embed_reduce()`](https://hugomachadorodrigues.github.io/edaphos/reference/qf_embed_reduce.md)
   : Reduce foundation-model embeddings to PCs and scale to quantum range
@@ -498,26 +499,26 @@ P3 + P6 x P10).
 - [`qf_krr_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/qf_krr_fit.md)
   : Quantum Kernel Ridge Regression on foundation embeddings
 - [`qf_krr_on_gat_embeddings()`](https://hugomachadorodrigues.github.io/edaphos/reference/qf_krr_on_gat_embeddings.md)
-  : Quantum KRR over GAT node embeddings (Pilar 6 x Pilar 10)
+  : Quantum KRR over GAT node embeddings (Pillar 6 x Pillar 10)
 - [`al_query_batchbald()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_batchbald.md)
   : BatchBALD information-theoretic batch acquisition
 - [`al_query_bhs()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_bhs.md)
-  : Bayesian Hierarchical Active Learning (Pilar 7 x Pilar 5)
+  : Bayesian Hierarchical Active Learning (Pillar 7 x Pillar 5)
 - [`al_query_causal()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_causal.md)
   : Causal Active Learning: query the next sample(s) that most reduce
   the uncertainty of a targeted causal effect
 - [`al_query_diffusion()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_diffusion.md)
-  : Diffusion-posterior-driven AL (Pilar 9 x Pilar 5)
+  : Diffusion-posterior-driven AL (Pillar 9 x Pillar 5)
 - [`al_query_neural_operator()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_neural_operator.md)
-  : Causal-driven AL via Neural Operator disagreement (Pilar 8 x Pilar
+  : Causal-driven AL via Neural Operator disagreement (Pillar 8 x Pillar
   5)
 - [`al_query_temporal()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_temporal.md)
   : Temporal Active Learning: rank candidate cells by their Kalman gain
   norm after the latest EnKF assimilation
 - [`gnn_causal_discovery()`](https://hugomachadorodrigues.github.io/edaphos/reference/gnn_causal_discovery.md)
-  : Graph-based causal discovery (Pilar 10 x Pilar 1)
+  : Graph-based causal discovery (Pillar 10 x Pillar 1)
 - [`temporal_piml_loss()`](https://hugomachadorodrigues.github.io/edaphos/reference/temporal_piml_loss.md)
-  : Physics-informed ConvLSTM mass-balance loss (Pilar 2 x Pilar 3)
+  : Physics-informed ConvLSTM mass-balance loss (Pillar 2 x Pillar 3)
 
 ## Unified uncertainty API (v1.6.0)
 
@@ -584,27 +585,29 @@ Common edaphos_posterior class + single calibration diagnostic.
 - [`edaphos_zenodo_release()`](https://hugomachadorodrigues.github.io/edaphos/reference/edaphos_zenodo_release.md)
   : Build a Zenodo-ready release bundle for the edaphos package
 
-## Benchmark wrappers (v3.1.0)
+## Benchmark wrappers
 
-Plug-and-play wrappers for the 6-pilar WoSIS Cerrado benchmark.
+Wrappers that put Pillars 1, 6 and 10 into the WoSIS Cerrado benchmark;
+the other methods are scored by the data-raw benchmark scripts.
 
 - [`benchmark_fit_p10_gat()`](https://hugomachadorodrigues.github.io/edaphos/reference/benchmark_fit_p10_gat.md)
-  : Benchmark wrapper: Pilar 10 – GAT seed-ensemble on k-NN graph
+  : Benchmark wrapper: Pillar 10 – GAT seed-ensemble on k-NN graph
 - [`benchmark_fit_p1_causal()`](https://hugomachadorodrigues.github.io/edaphos/reference/benchmark_fit_p1_causal.md)
-  : Benchmark wrapper: Pilar 1 – DAG-adjusted OLS + parametric bootstrap
+  : Benchmark wrapper: Pillar 1 – DAG-adjusted OLS + parametric
+  bootstrap
 - [`benchmark_fit_p6_quantum()`](https://hugomachadorodrigues.github.io/edaphos/reference/benchmark_fit_p6_quantum.md)
-  : Benchmark wrapper: Pilar 6 – bootstrap-ensembled quantum KRR
+  : Benchmark wrapper: Pillar 6 – bootstrap-ensembled quantum KRR
 - [`spatial_block_folds()`](https://hugomachadorodrigues.github.io/edaphos/reference/spatial_block_folds.md)
   : Spatially blocked cross-validation folds with a buffer
 
-## LLM-KG production pipeline (v3.10.0)
+## LLM-KG production pipeline
 
 Resumable 10k+ abstract orchestrator + Ollama pre-flight.
 
 - [`llm_kg_ollama_check()`](https://hugomachadorodrigues.github.io/edaphos/reference/llm_kg_ollama_check.md)
   : Check whether a local Ollama server is reachable
 - [`llm_kg_pipeline_run()`](https://hugomachadorodrigues.github.io/edaphos/reference/llm_kg_pipeline_run.md)
-  : Run the Pilar 1 LLM-KG pipeline on a (potentially large) corpus
+  : Run the Pillar 1 LLM-KG pipeline on a (potentially large) corpus
 
 ## Bundled datasets
 

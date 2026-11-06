@@ -48,5 +48,5 @@ names(p)
 #> [1] "script"          "script_sha256"   "hash_algo"       "package_version"
 #> [5] "r_version"       "built_at"        "n_profiles"     
 p$package_version
-#> [1] "0.9.0"
+#> [1] "2.0.0"
 ```

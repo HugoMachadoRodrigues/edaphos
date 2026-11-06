@@ -186,9 +186,10 @@ round(c(masked = nse(predict(fit)[test]),
 #>   masked invented 
 #>   0.6259   0.4186 
 
-# `history` is the TRAINING loss and the printed "final MSE" is its
-# last entry.  Neither describes the parameters you got back, which
-# come from `best_epoch` on the validation split.
+# `history` is the TRAINING loss (MSE on standardised y plus the
+# ridge penalty), one entry per epoch run.  The parameters you got
+# back come from `best_epoch` on the validation split, and that is the
+# epoch print(fit) reports -- not the last one.
 round(c(train_at_best = fit$history[fit$best_epoch],
         train_min     = min(fit$history),
         train_at_end  = fit$history[length(fit$history)]), 4)

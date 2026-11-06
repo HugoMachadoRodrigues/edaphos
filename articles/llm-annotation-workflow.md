@@ -1,27 +1,28 @@
-# Escalando o gold-standard de 72 para 300+ claims
+# Scaling the gold standard from 72 to 300+ claims
 
-## Por que escalar o gold-standard
+## Why scale the gold standard
 
-O benchmark de v1.8.0 (`vignette("llm-kg-benchmark")`) roda em 30
-abstracts sintéticos × 72 claims — suficiente para validar a
-infraestrutura, mas não para um paper. Com 300 claims anotadas em
-abstracts **reais** do OpenAlex / SciELO:
+The extraction benchmark (`vignette("llm-kg-benchmark")`) runs on 30
+synthetic abstracts × 72 claims – enough to validate the infrastructure,
+not enough for a paper. With 300 claims annotated on **real** abstracts
+from OpenAlex / SciELO:
 
-- O intervalo de confiança de Wilson 95% sobre o F1 passa de
-  `[0,69, 0,88]` para `[0,75, 0,84]` — estreito o suficiente para
-  declarar diferenças entre backends.
-- Com subgrupos por tópico (manejo, clima, textura, …) cada célula tem ≥
-  30 claims, o mínimo estatístico para análise por subgrupos.
-- Claims em abstracts reais expõem as idiosincrasias de cada LLM no
-  jargão pedológico real (Latim para espécies de gramíneas, siglas de
-  WRB, etc.).
+- The 95% Wilson confidence interval on F1 narrows from `[0.69, 0.88]`
+  to `[0.75, 0.84]` – narrow enough to declare differences between
+  backends.
+- With subgroups by topic (management, climate, texture, …) each cell
+  holds at least 30 claims, the statistical minimum for subgroup
+  analysis.
+- Claims in real abstracts expose each LLM’s idiosyncrasies with real
+  pedological jargon (Latin names of grass species, WRB acronyms, etc.).
 
-Anotar 300 claims do zero levaria ~2 dias de pedólogo. A **Ferramenta
-2** reduz para ~3 horas via pre-annotation + revisão.
+Annotating 300 claims from scratch would take a pedologist about two
+days. This tool cuts that to about three hours through pre-annotation
+plus review.
 
 ------------------------------------------------------------------------
 
-## O workflow em três passos
+## The three-step workflow
 
     ┌────────────────────────┐
     │  corpus.jsonl          │   (fetched from OpenAlex/SciELO)
@@ -45,16 +46,16 @@ Anotar 300 claims do zero levaria ~2 dias de pedólogo. A **Ferramenta
 
 ------------------------------------------------------------------------
 
-## Passo 1 — Construir o corpus
+## Step 1 – Build the corpus
 
-Opção A (produção): buscar 100-300 abstracts reais sobre pedogênese
-Cerrado no OpenAlex:
+Option A (production): fetch 100-300 real abstracts on Cerrado
+pedogenesis from OpenAlex:
 
 ``` r
 
 library(edaphos)
 
-# OpenAlex — queries ortogonais para cobrir o domínio
+# OpenAlex -- orthogonal queries to cover the domain
 queries <- c(
   "cerrado AND (pedogenesis OR soil formation)",
   "cerrado AND soil organic carbon",
@@ -68,7 +69,7 @@ corpus <- do.call(rbind, corpus_list)
 corpus <- causal_corpus_deduplicate(corpus)   # drop DOI duplicates
 nrow(corpus)  # ~180-200 unique abstracts
 
-# Converter para o schema esperado pelo pre-annotator
+# Convert to the schema the pre-annotator expects
 corpus_records <- lapply(seq_len(nrow(corpus)), function(i) {
   list(
     abstract_id   = paste0("OA_", sprintf("%04d", i)),
@@ -78,35 +79,35 @@ corpus_records <- lapply(seq_len(nrow(corpus)), function(i) {
     doi           = corpus$doi[i]
   )
 })
-# Grava JSONL
+# Write JSONL
 con <- file("cerrado_corpus_openalex_2026.jsonl", "w")
 for (r in corpus_records) writeLines(
   jsonlite::toJSON(r, auto_unbox = TRUE), con)
 close(con)
 ```
 
-Opção B (demo): usar os 30 abstracts sintéticos já disponíveis:
+Option B (demo): use the 30 synthetic abstracts already shipped:
 
 ``` r
 
-# Produz inst/extdata/cerrado_gold_standard_v1_draft.jsonl
+# Produces inst/extdata/cerrado_gold_standard_v1_draft.jsonl
 source("data-raw/annotation_tool_demo.R")
 ```
 
 ------------------------------------------------------------------------
 
-## Passo 2 — Pre-annotation com Gemma 4
+## Step 2 – Pre-annotation with Gemma 4
 
-A função
 [`llm_preannotate()`](https://hugomachadorodrigues.github.io/edaphos/reference/llm_preannotate.md)
-lê o corpus e produz um draft em que cada claim tem `status = "draft"`
-(para o reviewer saber que veio do LLM e não do humano):
+reads the corpus and writes a draft in which every claim has
+`status = "draft"`, so the reviewer knows it came from the LLM and not
+from a person:
 
 ``` r
 
 llm_preannotate(
   corpus      = "cerrado_corpus_openalex_2026.jsonl",
-  backend     = "ollama",          # local, gratuito
+  backend     = "ollama",          # local, free
   model       = "gemma4:latest",
   output_path = "draft_gold_v2.jsonl",
   cache_dir   = "~/.cache/edaphos_annotation",
@@ -114,11 +115,11 @@ llm_preannotate(
 )
 ```
 
-Com Ollama rodando + `gemma4:latest` pulled, 100 abstracts são
-processados em ~25 minutos. O `cache_dir` torna a execução resume-safe —
-se o processo morrer, basta re-rodar e ele pula os hits do cache.
+With Ollama running and `gemma4:latest` pulled, 100 abstracts take about
+25 minutes. `cache_dir` makes the run resume-safe – if the process dies,
+re-run it and it skips the cache hits.
 
-**Sem Ollama?** Use o fallback determinístico:
+**No Ollama?** Use the deterministic fallback:
 
 ``` r
 
@@ -126,15 +127,15 @@ llm_preannotate(corpus, backend = "simulator",
                  output_path = "draft_gold_v2.jsonl")
 ```
 
-O simulator não entende os abstracts — apenas amostra pares
-vocabulário-a-vocabulário — mas produz um draft em schema válido, útil
-para testar a ferramenta de revisão.
+The simulator does not understand the abstracts – it only samples
+vocabulary-to-vocabulary pairs – but it produces a draft in a valid
+schema, useful for testing the review tool.
 
 ------------------------------------------------------------------------
 
-## Passo 3 — Revisão humana (Shiny)
+## Step 3 – Human review (Shiny)
 
-Essa é a parte de 3 horas. Abra o reviewer:
+This is the three-hour part. Open the reviewer:
 
 ``` r
 
@@ -145,60 +146,59 @@ llm_annotation_launch(
 )
 ```
 
-O app abre no seu navegador padrão. A interface tem três abas:
+The app opens in your default browser. The interface has three tabs.
 
-### Aba 1 — Review
+### Tab 1 – Review
 
-- **Cabeçalho**: abstract ID + título + metadados + texto completo do
-  resumo numa caixa destacada.
-- **Tabela de claims**: cada claim ocupa uma linha com dropdowns
-  editáveis para `cause` / `effect` (restritos ao vocabulário canônico),
-  radio para `polarity`, slider para `confidence`, campo de texto para
-  `rationale`, e dois botões: ✓ Accept ✗ Reject.
-- **Botões de navegação**: “+ Add missed claim” (adiciona linha nova com
+- **Header**: abstract ID + title + metadata + the full abstract text in
+  a highlighted box.
+- **Claims table**: each claim takes one row, with editable dropdowns
+  for `cause` / `effect` (restricted to the canonical vocabulary), a
+  radio button for `polarity`, a slider for `confidence`, a text field
+  for `rationale`, and two buttons: ✓ Accept ✗ Reject.
+- **Navigation buttons**: “+ Add missed claim” (adds a new row with
   `status = "added"`), “← Previous”, “Accept all →”, “Save & Next →”.
-- **Sidebar**: contadores de progresso + lembrete dos atalhos.
+- **Sidebar**: progress counters + a reminder of the shortcuts.
 
-### Atalhos de teclado (modo rápido)
+### Keyboard shortcuts (fast mode)
 
-|  Tecla  | Ação                       |
+|   Key   | Action                     |
 |:-------:|:---------------------------|
 |   `n`   | Save & Next                |
 |   `p`   | Previous                   |
-|   `a`   | Accept all visíveis        |
+|   `a`   | Accept all visible         |
 |   `+`   | Add missed claim           |
-| `1`–`9` | Toggle Accept no claim *n* |
+| `1`–`9` | Toggle Accept on claim *n* |
 
-Com atalhos você consegue ~2 abstracts por minuto em claims que Gemma 4
-acertou (simples `a` + `n`). Claims complexas levam 30 s para editar
-pause.
+With shortcuts you can review about 2 abstracts per minute when Gemma 4
+got the claims right (just `a` + `n`). Complex claims take about 30 s to
+edit.
 
-### Aba 2 — Stats
+### Tab 2 – Stats
 
-- Tabela por abstract: n_draft · n_accepted · n_edited · n_added ·
+- Table per abstract: n_draft · n_accepted · n_edited · n_added ·
   n_rejected.
-- Barplot de cobertura do vocabulário canônico nos claims aceitos — útil
-  para perceber se o corpus está cobrindo todos os 22 conceitos ou se há
-  lacunas.
+- Bar plot of canonical-vocabulary coverage across accepted claims –
+  useful to see whether the corpus covers all 22 concepts or has gaps.
 
-### Aba 3 — Export
+### Tab 3 – Export
 
-Clicar “**Validate & export**” aciona a lógica de
+Clicking “**Validate & export**” runs the logic of
 [`llm_annotation_export()`](https://hugomachadorodrigues.github.io/edaphos/reference/llm_annotation_export.md):
 
-1.  Drops todos os claims `rejected`.
-2.  Drops claims ainda com `status = "draft"` (o humano não os tocou —
-    conservadoramente excluímos).
-3.  Remove o campo `status` interno.
-4.  Valida vocabulary + polarity + confidence.
-5.  Escreve `reviewed_gold_v2_final.jsonl`.
+1.  Drops every `rejected` claim.
+2.  Drops claims still at `status = "draft"` (the reviewer did not touch
+    them – we exclude them conservatively).
+3.  Removes the internal `status` field.
+4.  Validates vocabulary + polarity + confidence.
+5.  Writes `reviewed_gold_v2_final.jsonl`.
 
 ------------------------------------------------------------------------
 
-## Passo 4 — Re-rodar o benchmark
+## Step 4 – Re-run the benchmark
 
-Com o gold-standard expandido, basta apontar o runner do v1.8.0 para o
-arquivo novo:
+With the expanded gold standard, point the benchmark runner at the new
+file:
 
 ``` r
 
@@ -208,74 +208,76 @@ arquivo novo:
 source("data-raw/llm_benchmark_run.R")
 ```
 
-Os números de P/R/F1/κ agora são publication-grade.
+The P/R/F1/κ figures are then publication-grade.
 
 ------------------------------------------------------------------------
 
-## Boas práticas de anotação
+## Annotation good practice
 
-Sugestões de critério de anotação (internal consistency dentro do seu
-gold-standard):
+Suggested annotation criteria (for internal consistency within your gold
+standard):
 
-1.  **Seja conservador com confidence.** `0,90+` só quando o texto cita
-    estudo controlado ou magnitude quantificada; `0,70` para claims bem
-    suportadas pelo mecanismo mas sem número; `0,50` para sugestivo.
-2.  **Canonical vocabulary first.** Se o texto menciona “tree cover”,
-    use `vegetation`. Se menciona “annual rainfall”, use
-    `mean_annual_precipitation`. Consistência importa mais que
-    fidelidade literal.
-3.  **Polaridade é um sinal, não magnitude.** “Reduz SOC” → `-`.
-    “Aumenta”, “eleva”, “acelera” → `+`. Claims condicionais (“reduz se
-    \> 2 AU/ha”) ainda são `-` no gold-standard; a confidence pode cair.
-4.  **Uma claim por mecanismo direto.** Se o texto diz “rainfall → NPP →
-    SOC”, registre duas claims (`precip → vegetation`,
-    `vegetation → soc`), não uma claim indireta.
-5.  **Rationale = 1 linha.** Um fragmento do texto que suporta a claim.
-    Útil para auditorias posteriores e para treinar a próxima iteração
-    do prompt.
+1.  **Be conservative with confidence.** `0.90+` only when the text
+    cites a controlled study or a quantified magnitude; `0.70` for
+    claims well supported by mechanism but without a number; `0.50` for
+    suggestive ones.
+2.  **Canonical vocabulary first.** If the text mentions “tree cover”,
+    use `vegetation`. If it mentions “annual rainfall”, use
+    `mean_annual_precipitation`. Consistency matters more than literal
+    fidelity.
+3.  **Polarity is a sign, not a magnitude.** “Reduces SOC” → `-`.
+    “Increases”, “raises”, “accelerates” → `+`. Conditional claims
+    (“reduces if \> 2 AU/ha”) are still `-` in the gold standard; the
+    confidence may drop.
+4.  **One claim per direct mechanism.** If the text says “rainfall → NPP
+    → SOC”, record two claims (`precip → vegetation`,
+    `vegetation → soc`), not one indirect claim.
+5.  **Rationale = one line.** A fragment of the text that supports the
+    claim. Useful for later audits and for training the next iteration
+    of the prompt.
 
 ------------------------------------------------------------------------
 
-## v1.8.2 upgrades
+## Further features
 
-### Corpus fetcher em produção
+### Production corpus fetcher
 
 ``` r
 
-# Exige rede. Gratuito. ~40s para 6 queries × 60 results.
+# Needs the network. Free. About 40 s for 6 queries x 60 results.
 Sys.setenv(EDAPHOS_CORPUS_MAILTO = "rodrigues.machado.hugo@gmail.com")
 source("data-raw/cerrado_corpus_v2_fetch.R")
 # -> inst/extdata/cerrado_corpus_openalex_v2.jsonl  (~150 abstracts)
 ```
 
-### DAG preview ao vivo
+### Live DAG preview
 
-No app, a aba **DAG** renderiza um
+In the app, the **DAG** tab renders a
 [`DiagrammeR::grViz()`](https://rich-iannone.github.io/DiagrammeR/reference/grViz.html)
-do grafo agregado de todas as claims com `status` = *accepted \| edited
-\| added*:
+of the graph aggregated from every claim whose `status` is *accepted \|
+edited \| added*:
 
-- Slider **min_support** filtra arestas por número de ocorrências (útil
-  quando o corpus é grande e você quer só as arestas confirmadas por
-  múltiplos abstracts).
-- Cores de aresta: **verde** = +, **vermelha** = −.
-- Largura de aresta ∝ confidence médio.
-- Toggle de labels para visualizar estrutura sem nomes (útil para
-  figuras de paper).
+- A **min_support** slider filters edges by number of occurrences
+  (useful when the corpus is large and you want only edges confirmed by
+  several abstracts).
+- Edge colours: **green** = +, **red** = −.
+- Edge width ∝ mean confidence.
+- A label toggle shows the structure without names (useful for paper
+  figures).
 
 ### Dark mode
 
-Toggle no sidebar (usa
+A toggle in the sidebar (uses
 [`bslib::input_dark_mode()`](https://rstudio.github.io/bslib/reference/input_dark_mode.html)).
-Respeita a preferência do sistema operacional.
+It follows the operating system’s preference.
 
-### Publicação no Zenodo
+### Publishing on Zenodo
 
-A aba **Publish** empacota tudo num diretório Zenodo-ready:
+The **Publish** tab packages everything into a Zenodo-ready directory:
 
 ``` r
 
-# Mesma coisa programaticamente
+# The same, programmatically
 edaphos::llm_annotation_to_zenodo(
   reviewed_path = "reviewed_gold_v2_final.jsonl",
   output_dir    = "~/Desktop/zenodo_cerrado_kg",
@@ -283,7 +285,7 @@ edaphos::llm_annotation_to_zenodo(
   authors       = data.frame(
     family_name = "Rodrigues", given_name = "Hugo",
     orcid       = "0000-0002-8070-8126",
-    affiliation = "University of São Paulo"
+    affiliation = "Your institution"
   ),
   keywords      = c("Cerrado", "pedometrics", "soil organic carbon",
                      "knowledge graph", "causal inference"),
@@ -292,31 +294,34 @@ edaphos::llm_annotation_to_zenodo(
 )
 ```
 
-Conteúdo do bundle:
+Contents of the bundle:
 
-| Arquivo | Papel |
+| File | Role |
 |:---|:---|
-| `gold_standard.jsonl` | Gold-standard limpo (draft/rejected removidos) |
-| `kg.ttl` | Grafo serializado em RDF 1.1 Turtle (cada claim vira um `rdf:Statement` reificado com predicados `eda:polarity`, `eda:confidence`, `dct:source`) |
-| `metadata.json` | DataCite-compatible; pronto para a Zenodo REST API |
-| `README.md` | Descrição, contagens, provenance, citação |
+| `gold_standard.jsonl` | Clean gold standard (draft/rejected removed) |
+| `kg.ttl` | Graph serialised as RDF 1.1 Turtle (each claim becomes a reified `rdf:Statement` with predicates `eda:polarity`, `eda:confidence`, `dct:source`) |
+| `metadata.json` | DataCite-compatible; ready for the Zenodo REST API |
+| `README.md` | Description, counts, provenance, citation |
 
-Upload manual em <https://zenodo.org/deposit/new>, cola os campos do
-`metadata.json` no formulário, publica, registra o DOI mintado no
-`CITATION.cff` do seu paper.
+Upload by hand at <https://zenodo.org/deposit/new>, paste the fields of
+`metadata.json` into the form, publish, and record the minted DOI in
+your paper’s `CITATION.cff`.
 
-## Próximas sessões (v1.8.3 → v1.8.4)
+## Next steps
 
-- **v1.8.3**: production run completo — fetcher → Gemma 4 → anotação
-  humana → Zenodo deposit com DOI real. ~3 horas do pedólogo + ~40 min
-  de máquina.
-- **v1.8.4**: integrar voting ponderado (Gemma + Claude) como default de
+These are open items, named rather than numbered.
+
+- **Full production run**: fetcher → Gemma 4 → human annotation → Zenodo
+  deposit with a real DOI. About three hours of a pedologist’s time plus
+  about 40 minutes of machine time.
+- **Weighted voting by default**: make weighted voting (Gemma + Claude)
+  the default of
   [`causal_llm_ingest_abstract_voted()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_ingest_abstract_voted.md),
-  calibrado pelo κ backend-vs-gold derivado do benchmark.
+  calibrated by the backend-vs-gold κ derived from the benchmark.
 
 ------------------------------------------------------------------------
 
-## Referências
+## References
 
 - Landis, J. R. & Koch, G. G. (1977). “The measurement of observer
   agreement for categorical data.” *Biometrics* 33, 159-174.

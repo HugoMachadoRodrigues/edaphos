@@ -100,7 +100,7 @@ round(c(at_observed = mean(ku$gain_row_norm[cbind(obs_row, obs_col)]),
 # sampled as the top three. Gain is highest where an observation
 # sits, so ranking on it alone re-visits your own boreholes.
 al_query_temporal(ku, n_select = 5L, combine = "gain")
-#> <edaphos_temporal_al_query>  (Pilar 3 x Pilar 5 bridge)
+#> <edaphos_temporal_al_query>  (Pillar 3 x Pillar 5 bridge)
 #>   grid dims : 12 x 12
 #>   combine   : gain
 #>   n_select  : 5

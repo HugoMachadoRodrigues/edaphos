@@ -157,7 +157,7 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
 }
 #>   Estimate Std. Error    t value 
 #>    0.00230    0.00291    0.79033 
-#> <edaphos_causal_al_query>  (Pilar 1 x Pilar 5 bridge)
+#> <edaphos_causal_al_query>  (Pillar 1 x Pillar 5 bridge)
 #>   target effect : map_mm -> soc
 #>   adjustment    : elev, ndvi
 #>   strategy      : leverage

@@ -345,40 +345,37 @@ organise the functions.
 
   Package-level utilities: metrics, provenance, release helpers.
 
-## On "pilar" and "pillar"
+## Names and language
 
-Both spellings appear, and the split is deliberate rather than
-accidental. English prose says **pillar**; identifiers say **pilar**,
-which is the Portuguese word. So
-[`vignette("pilar6-quantum")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar6-quantum.md)
-documents Pillar 6, and `inst/extdata/pilar10_gat_tuning.rds` holds
-Pillar 10's tuning run. `DESCRIPTION` declares `Language: en-US, pt-BR`
-for the same reason: five of the vignettes are written in Portuguese.
-
-No exported function carries either spelling, so the distinction never
-reaches code a user writes. It survives in file names, which are a
-contract – renaming a vignette breaks every
-[`vignette()`](https://rdrr.io/r/utils/vignette.html) call and bookmark
-pointing at it – and the package is not willing to break that for an
-orthographic preference.
+The package is written in English throughout. Up to 2.0.0 its
+identifiers used "pilar", the Portuguese word for pillar – vignettes
+such as `pilar6-quantum`, files such as
+`R/pilar7_bayesian_hierarchical.R`, bundles such as
+`pilar10_gat_tuning.rds` – and five vignettes were in Portuguese. 2.0.0
+renamed them all to "pillar" and translated the vignettes, so the
+vignette once named `pilar6-quantum` is now
+[`vignette("pillar6-quantum")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar6-quantum.md).
+On the pkgdown site the old article addresses redirect to the new ones.
+No exported function carried either spelling, so no code calling the
+package changes.
 
 ## Vignettes
 
 Each pillar ships a mathematically-derived vignette with examples on
 real or reproducible synthetic data. Entry points:
-[`vignette("pilar1-causal", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal.md),
-[`vignette("pilar2-piml-profile", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar2-piml-profile.md),
-[`vignette("pilar3-4d-soc", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-soc.md),
-[`vignette("pilar4-simclr-embeddings", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-simclr-embeddings.md),
-[`vignette("pilar5-active-learning", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-active-learning.md),
-[`vignette("pilar6-quantum", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar6-quantum.md),
-[`vignette("pilar7-bayesian-hierarchical", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar7-bayesian-hierarchical.md),
-[`vignette("pilar8-neural-operators", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar8-neural-operators.md),
-[`vignette("pilar9-diffusion-models", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar9-diffusion-models.md),
-[`vignette("pilar10-graph-attention", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar10-graph-attention.md).
+[`vignette("pillar1-causal", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar1-causal.md),
+[`vignette("pillar2-piml-profile", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar2-piml-profile.md),
+[`vignette("pillar3-4d-soc", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar3-4d-soc.md),
+[`vignette("pillar4-simclr-embeddings", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar4-simclr-embeddings.md),
+[`vignette("pillar5-active-learning", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar5-active-learning.md),
+[`vignette("pillar6-quantum", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar6-quantum.md),
+[`vignette("pillar7-bayesian-hierarchical", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar7-bayesian-hierarchical.md),
+[`vignette("pillar8-neural-operators", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar8-neural-operators.md),
+[`vignette("pillar9-diffusion-models", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar9-diffusion-models.md),
+[`vignette("pillar10-graph-attention", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar10-graph-attention.md).
 Cross-pillar bridges have their own:
-[`vignette("pilar1-pilar4-iv", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-pilar4-iv.md),
-[`vignette("pilar4-pilar6-quantum", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-pilar6-quantum.md),
+[`vignette("pillar1-pillar4-iv", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar1-pillar4-iv.md),
+[`vignette("pillar4-pillar6-quantum", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar4-pillar6-quantum.md),
 [`vignette("uncertainty-unified", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/uncertainty-unified.md),
 [`vignette("causal-discovery-trio", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/causal-discovery-trio.md),
 [`vignette("llm-annotation-workflow", package = "edaphos")`](https://hugomachadorodrigues.github.io/edaphos/articles/llm-annotation-workflow.md).

@@ -1,8 +1,8 @@
 # Physics-informed quantum kernel via ODE-residual fusion
 
-Builds a physics-informed Gram matrix by combining the Pilar 6
+Builds a physics-informed Gram matrix by combining the Pillar 6
 ZZFeatureMap kernel over raw features with an RBF similarity over the
-depth-profile residuals of a fitted Pilar 2 ODE:
+depth-profile residuals of a fitted Pillar 2 ODE:
 
 ## Usage
 

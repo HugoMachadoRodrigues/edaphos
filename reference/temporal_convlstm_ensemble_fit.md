@@ -139,7 +139,7 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> <edaphos_temporal_convlstm_ensemble>
 #>   K_ens         : 3
 #>   hidden_dims   : 4
-#>   final_losses  : min=0.0337  median=0.0476  max=0.0713
+#>   final_losses  : min=0.03375  median=0.04765  max=0.07133
 #> [1] 0.0337 0.0713 0.0476
 #>     worst_member predict_the_mean 
 #>           0.0713           0.6628 

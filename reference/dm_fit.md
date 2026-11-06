@@ -129,7 +129,7 @@ for (i in seq_len(nrow(cells)))
 fit <- dm_fit(stack, T = 50L, epochs = 150L, hidden = 32L,
               lr = 0.02, seed = 1L, backend = "r")
 fit
-#> <edaphos_dm_fit>  (Pilar 9 -- Denoising Diffusion Probabilistic Model)
+#> <edaphos_dm_fit>  (Pillar 9 -- Denoising Diffusion Probabilistic Model)
 #>   patch shape : 8 x 8
 #>   n_train     : 64   cond_dim = 0
 #>   T (steps)   : 50   hidden = 32

@@ -1,6 +1,6 @@
 # Time-varying causal effect beta(t) over a sliding window
 
-Closes the Pilar 1 x Pilar 3 loop: the v1.4.0 backdoor-adjusted
+Closes the Pillar 1 x Pillar 3 loop: the v1.4.0 backdoor-adjusted
 estimator is applied within non-overlapping (or overlapping) windows of
 the temporal frame, producing a beta_hat(t) trajectory with bootstrap
 CIs. Mann-Kendall tests for a significant trend.
@@ -93,7 +93,7 @@ bt <- causal_effect_time_varying(panel, dag = NULL,
                                  window = 12L, step = 3L,
                                  adjustment = "elev", B = 0L)
 bt
-#> <edaphos_causal_4d>  (Pilar 1 x Pilar 3 bridge)
+#> <edaphos_causal_4d>  (Pillar 1 x Pillar 3 bridge)
 #>   target effect : map_anom -> soc
 #>   adjustment    : elev
 #>   window / step : 12 / 3

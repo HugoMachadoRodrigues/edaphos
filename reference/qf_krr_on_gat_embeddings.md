@@ -1,4 +1,4 @@
-# Quantum KRR over GAT node embeddings (Pilar 6 x Pilar 10)
+# Quantum KRR over GAT node embeddings (Pillar 6 x Pillar 10)
 
 Thin composition: take the GAT embedding matrix, PCA-reduce to `n_pcs`,
 feed to
@@ -68,8 +68,8 @@ c(gat        = edaphos_rmse(sub$soc[te], predict(gat)[te]),
 qk <- qf_krr_on_gat_embeddings(gat, sub$soc, n_pcs = 5L, reps = 1L,
                                lambda = 0.5)
 qk
-#> <edaphos_qf_krr_gat>  (Pilar 6 x Pilar 10)
-#>   GAT emb_dim   : 8
+#> <edaphos_qf_krr_gat>  (Pillar 6 x Pillar 10)
+#>   GAT embedding : 8 learned columns (excludes the 5 raw-feature skip)
 #>   qubits (PCs)  : 5
 #>   reps          : 1   lambda = 0.5
 #>   n_train       : 150

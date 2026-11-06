@@ -1,4 +1,4 @@
-# Benchmark wrapper: Pilar 10 – GAT seed-ensemble on k-NN graph
+# Benchmark wrapper: Pillar 10 – GAT seed-ensemble on k-NN graph
 
 Builds a joint k-NN co-location graph on `rbind(train, test)` using
 (lon, lat) for adjacency and `cov_cols` as node features, then fits
@@ -60,7 +60,7 @@ benchmark_fit_p10_gat(
 
   Logical (default `TRUE`). When `TRUE`, residual noise from a
   representative full-data GAT fit is injected on every posterior sample
-  (see Pilar-1 wrapper for the rationale).
+  (see Pillar-1 wrapper for the rationale).
 
 ## Value
 

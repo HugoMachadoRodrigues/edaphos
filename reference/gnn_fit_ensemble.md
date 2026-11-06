@@ -87,7 +87,8 @@ ens <- gnn_fit_ensemble(g, y_obs, n_ensemble = 4L, seed = 1L,
                         epochs = 60L)
 ens
 #> <edaphos_gnn_ensemble>
-#>   members = 4   nodes = 150   trained on = 100
+#>   members = 4   nodes = 150   labelled = 100
+#>   each member fits 80 of them (20 held out to pick its stopping epoch)
 #>   mean between-member sd = 0.6984
 
 # Members differ only in their seed.  That alone moves the held-out

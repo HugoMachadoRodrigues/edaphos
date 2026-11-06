@@ -1,9 +1,8 @@
-# Fit a Bayesian hierarchical spatial linear model (Pilar 7)
+# Fit a Bayesian hierarchical spatial linear model (Pillar 7)
 
-The v2.3.0 activation of the Pilar 7 scaffold. Fits a Bayesian spatial
-linear model `y_i = x_i' beta + w_i + eps_i` with a latent
-exponential-correlation Gaussian process on the residual field and
-returns full posterior draws.
+Fits a Bayesian spatial linear model `y_i = x_i' beta + w_i + eps_i`
+with a latent exponential-correlation Gaussian process on the residual
+field and returns full posterior draws.
 
 ## Usage
 
@@ -174,7 +173,7 @@ fit_huge  <- bhs_fit(blk, soc ~ elev + slope, nmcmc = 600L, seed = 1L,
                      phi_range = c(0.1, 1e5))
 #> Warning: bhs_fit(): the profile-MLE of phi (1e+05) is at the upper end of phi_range = c(0.1, 1e+05), supplied. Widen phi_range and refit; the spatial variance fraction is not trustworthy until phi is interior. phi is a rate (1/distance) in the units of `coords`.
 fit_auto
-#> <edaphos_bhs>  (Pilar 7 -- Bayesian Hierarchical Spatial)
+#> <edaphos_bhs>  (Pillar 7 -- Bayesian Hierarchical Spatial)
 #>   backend : gibbs
 #>   n_obs   : 169
 #>   p (covariates + intercept) : 3

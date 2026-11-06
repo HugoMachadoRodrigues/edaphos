@@ -11,7 +11,7 @@ Runs four regressors on the same train/test split:
     original).
 
 4.  Quantum Kernel Ridge Regression over the foundation-embedding PCs
-    (the v2.0.0 contribution).
+    (the Pillar 4 x Pillar 6 method under test).
 
 ## Usage
 

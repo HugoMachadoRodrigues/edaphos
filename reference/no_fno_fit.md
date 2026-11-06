@@ -105,7 +105,7 @@ Learning Research* **24**, 1-97.
 set.seed(11)
 depths <- seq(5, 150, length.out = 8L)
 
-# A profile bank whose operator is KNOWN: the Pilar 2 pedogenetic
+# A profile bank whose operator is KNOWN: the Pillar 2 pedogenetic
 # ODE solution, with its four parameters driven by site covariates.
 site <- cbind(clay   = runif(50L, 0.10, 0.60),
               map    = runif(50L, 0.80, 1.60),
@@ -130,7 +130,7 @@ fno <- no_fno_fit(depths, soc[tr, ], cube(site[tr, ]),
                   n_modes = 4L, width = 8L, n_blocks = 1L,
                   epochs = 20L, lr = 0.05, seed = 1L)
 fno
-#> <edaphos_no_fno>  (Pilar 8 -- Fourier Neural Operator)
+#> <edaphos_no_fno>  (Pillar 8 -- Fourier Neural Operator)
 #>   n_depths = 8   n_modes = 4   width = 8   blocks = 1
 #>   n_train  = 30   C_in = 3
 #>   initial MSE = 1.338  final MSE = 0.1523

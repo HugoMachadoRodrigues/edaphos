@@ -1,4 +1,4 @@
-# Graph-based causal discovery (Pilar 10 x Pilar 1)
+# Graph-based causal discovery (Pillar 10 x Pillar 1)
 
 Runs
 [`causal_structure_learn()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_structure_learn.md)

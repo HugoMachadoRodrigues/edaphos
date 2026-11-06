@@ -124,7 +124,7 @@ explicit soil organic matter model. *Ecological Modelling*
 
 [`piml_profile_fit()`](https://hugomachadorodrigues.github.io/edaphos/reference/piml_profile_fit.md)
 for the attenuating-rate form, and
-[`vignette("pilar2-piml-profile")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar2-piml-profile.md)
+[`vignette("pillar2-piml-profile")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar2-piml-profile.md)
 for the comparison.
 
 ## Examples

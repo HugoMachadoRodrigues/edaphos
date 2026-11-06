@@ -70,7 +70,7 @@ ref <- piml_profile_fit(zh, mean_prof)
 qk <- piml_qkrr_fit(Xa[tr, ], soc[tr], z[tr], ref, alpha = 0.7,
                     lambda = 0.1)
 qk
-#> <edaphos_piml_qkrr>  (Pilar 2 x Pilar 6 bridge)
+#> <edaphos_piml_qkrr>  (Pillar 2 x Pillar 6 bridge)
 #>   n_qubits = 4   reps = 2   lambda = 0.1
 #>   alpha    = 0.70  (quantum weight; 1-alpha on physics)
 #>   sigma    = 1.75  (residual RBF bandwidth)

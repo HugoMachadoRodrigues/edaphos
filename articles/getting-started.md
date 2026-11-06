@@ -57,7 +57,7 @@ te    <- dat[-tr_ix, ]
 cov_cols <- c("map", "mat", "clay", "sand", "trees")
 ```
 
-## Pilar 1 – Causal AI with backdoor adjustment
+## Pillar 1 – Causal AI with backdoor adjustment
 
 A pedogenetic DAG gives the minimally sufficient set of adjustment
 variables;
@@ -73,7 +73,7 @@ uncertainty_calibrate(post_p1, truth = te$soc)$crps
 #> [1] 1.273975
 ```
 
-## Pilar 2 – Physics-Informed profile ODE
+## Pillar 2 – Physics-Informed profile ODE
 
 The pedogenetic ODE `dy/dz = -lambda0 exp(-mu z) (y - y_inf)` is fit to
 a single pedon’s SOC profile with
@@ -110,23 +110,23 @@ ode_fit$params
 #>   5.962483
 ```
 
-## Pilar 3 – Temporal 4D cube (ConvLSTM)
+## Pillar 3 – Temporal 4D cube (ConvLSTM)
 
 ``` r
 
 # Skipped in the getting-started tour -- ConvLSTM training needs
-# a temporal raster stack, covered in `pilar3-4d-soc.Rmd`.
+# a temporal raster stack, covered in `pillar3-4d-soc.Rmd`.
 ```
 
-## Pilar 4 – Foundation models (SimCLR / MoCo)
+## Pillar 4 – Foundation models (SimCLR / MoCo)
 
 ``` r
 
 # Pre-trained MoCo weights live on Zenodo and are pulled by
-# `foundation_weights_load()`; see `pilar4-simclr-embeddings.Rmd`.
+# `foundation_weights_load()`; see `pillar4-simclr-embeddings.Rmd`.
 ```
 
-## Pilar 5 – Active Learning
+## Pillar 5 – Active Learning
 
 A hybrid uncertainty + diversity acquisition function selects the next 3
 profiles to sample from a pool of candidates.
@@ -144,7 +144,7 @@ picks
 #> [1]  9  6 10
 ```
 
-## Pilar 6 – Quantum KRR
+## Pillar 6 – Quantum KRR
 
 A 6-qubit ZZFeatureMap kernel ridge regression trained on the PCA of the
 covariates, with a bootstrap-ensemble posterior.
@@ -158,7 +158,7 @@ uncertainty_calibrate(post_p6, truth = te$soc)$crps
 #> [1] 3.096894
 ```
 
-## Pilar 7 – Bayesian Hierarchical Spatial
+## Pillar 7 – Bayesian Hierarchical Spatial
 
 ``` r
 
@@ -181,7 +181,7 @@ head(pr7[, c("mean", "sd")])
 #> 6 31.68502 2.007524
 ```
 
-## Pilar 8 – Neural operators
+## Pillar 8 – Neural operators
 
 ``` r
 
@@ -196,7 +196,7 @@ dim(no_pred)
 #> [1] 15  8
 ```
 
-## Pilar 9 – Diffusion models
+## Pillar 9 – Diffusion models
 
 A conditional DDPM trained on synthetic 6x6 patches;
 [`dm_sample()`](https://hugomachadorodrigues.github.io/edaphos/reference/dm_sample.md)
@@ -212,7 +212,7 @@ dim(samps)
 #> [1] 4 6 6
 ```
 
-## Pilar 10 – Graph Attention Network
+## Pillar 10 – Graph Attention Network
 
 A k-NN co-location graph on (lon, lat) with covariates as node features,
 fit via
@@ -228,7 +228,7 @@ gat$history[c(1, 30)]
 #> [1] 0.1830076 0.1183967
 ```
 
-## Cross-pillar bridges (v3.0.0)
+## Cross-pillar bridges
 
 The **bridges** compose two pillars into a single API. Here we show a
 representative pair per cluster.
@@ -253,14 +253,14 @@ Posterior-sampling active learning over the BHS fit.
 pool_df <- dat[1:8, c(cov_cols, "lon", "lat")]
 q <- al_query_bhs(fit7, pool_df, n_select = 3L, n_draws = 50L)
 q
-#> <edaphos_al_bhs_query>  (Pilar 7 x Pilar 5)
+#> <edaphos_al_bhs_query>  (Pillar 7 x Pillar 5)
 #>   pool size : 8
 #>   n_draws   : 50   n_select: 3
 #>   top candidates by avg posterior variance:
 #>   pool_index posterior_var posterior_sd
 #> 7          7      3.810010     1.951925
 #> 3          3      3.730268     1.931390
-#> 2          2      3.224361     1.795651
+#> 1          1      3.224361     1.795651
 ```
 
 ## Head-to-head: unified uncertainty scoring
@@ -282,8 +282,8 @@ crps
 
 For the full 1 095-profile WoSIS Cerrado benchmark comparing all six
 “static point regression” methods, load
-`inst/extdata/benchmark_wosis_6pilar.rds` and inspect `cv_aggregate`
-(v3.1.0 vignette: `case-cerrado-end-to-end.Rmd`).
+`inst/extdata/benchmark_wosis_6pillar.rds` and inspect `cv_aggregate`
+(vignette: `case-cerrado-end-to-end.Rmd`).
 
 ## Next steps
 
@@ -299,5 +299,5 @@ For the full 1 095-profile WoSIS Cerrado benchmark comparing all six
 Please cite edaphos as:
 
 > Rodrigues, H. (2026). *edaphos: Disruptive algorithms for digital soil
-> mapping.* R package version 0.9.0.
+> mapping.* R package version 2.0.0.
 > <https://github.com/HugoMachadoRodrigues/edaphos>

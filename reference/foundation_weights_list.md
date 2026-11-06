@@ -9,12 +9,22 @@ artefact.
 ## Usage
 
 ``` r
-foundation_weights_list()
+foundation_weights_list(include_planned = FALSE)
 ```
+
+## Arguments
+
+- include_planned:
+
+  Logical. `FALSE` (default) lists only encoders that have been
+  published and can be downloaded. `TRUE` also lists planned ones, whose
+  `url`, `sha256`, `doi` and `published_at` are `NA` and whose accessors
+  refuse with an explicit message.
 
 ## Value
 
-A data frame; one row per registered encoder.
+A data frame; one row per registered encoder, with a `status` column
+(`"published"` or `"planned"`).
 
 ## Details
 
@@ -35,12 +45,13 @@ print(reg[, c("name", "n_channels", "feature_dim", "proj_dim",
               "norm_stats_status")])
 #>                      name n_channels feature_dim proj_dim norm_stats_status
 #> 1 edaphos-cerrado-moco-v1         31          64       32     unrecoverable
-#> 2 edaphos-cerrado-moco-v2         31          64       32           pending
 
-# Only rows with a non-NA `url` can actually be fetched; the rest
-# are placeholders for a future release and error on download.
-print(reg$name[!is.na(reg$url)])
-#> [1] "edaphos-cerrado-moco-v1"
+# Planned encoders are listed only on request; they cannot be fetched.
+all_reg <- foundation_weights_list(include_planned = TRUE)
+print(all_reg[, c("name", "status")])
+#>                      name    status
+#> 1 edaphos-cerrado-moco-v1 published
+#> 2 edaphos-cerrado-moco-v2   planned
 
 # `norm_stats_status` is not cosmetic. v1's per-channel training
 # mean / sd were never written down and are unrecoverable, so an

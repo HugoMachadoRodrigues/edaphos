@@ -134,7 +134,7 @@ and the reason, for example:
 
 - `piml_coverage` — `$coverage` (150 rows): `$truth` was verbatim
   upstream laboratory SOC keyed to a real profile identifier
-- `pilar8_real_pedons` — `$cv` (5,458 rows): measured SOC at 7 depth
+- `pillar8_real_pedons` — `$cv` (5,458 rows): measured SOC at 7 depth
   nodes for 1,022 real pedons
 - `capstone_campaign_results` — `$wosis_profiles` (250),
   `$piml_profile_obs` (9): real coordinates and measured SOC

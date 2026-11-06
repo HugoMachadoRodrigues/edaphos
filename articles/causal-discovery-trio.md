@@ -1,10 +1,10 @@
-# Causal discovery no Cerrado: expert vs. LLM vs. data-driven
+# Causal discovery in the Cerrado: expert vs. LLM vs. data-driven
 
-> **Pergunta central.** Podem três formas distintas de construir um DAG
-> pedogenético — conhecimento de especialista, extração via LLM da
-> literatura, e aprendizado direto dos dados — concordar sobre os mesmos
-> 1 095 perfis WoSIS do Cerrado? Se não, **qual é a cola científica**
-> entre elas?
+> **Central question.** Can three different ways of building a
+> pedogenetic DAG – expert knowledge, LLM extraction from the
+> literature, and learning directly from data – agree on the same 1,095
+> WoSIS profiles from the Cerrado? If not, **what is the scientific
+> glue** between them?
 
 ``` r
 
@@ -24,137 +24,136 @@ R <- readRDS(res_path)
 
 ------------------------------------------------------------------------
 
-## Motivação
+## Motivation
 
-O Pilar 1 do `edaphos` oferece **três caminhos** para a mesma coisa — um
-DAG causal — mas a literatura pedométrica quase sempre usa apenas um
-deles. Zhang and Wadoux ([2026](#ref-Zhang2026causal)) apontam que **“a
-especificação de um modelo causal explícito”** é a primeira das três
-condições para inferência causal em MDS; o *como* essa especificação é
-feita, porém, tem sido tratado como detalhe. Esta vignette demonstra
-que:
+Pillar 1 of `edaphos` offers **three routes** to the same object – a
+causal DAG – yet the pedometric literature almost always uses only one
+of them. Zhang and Wadoux ([2026](#ref-Zhang2026causal)) point out that
+**“the specification of an explicit causal model”** is the first of
+three conditions for causal inference in DSM; *how* that specification
+is made, however, has been treated as a detail. This vignette shows
+that:
 
-1.  As três estratégias **produzem DAGs muito diferentes** para o mesmo
-    conjunto de covariáveis.
-2.  As diferenças **se traduzem em conjuntos de ajuste backdoor
-    radicalmente distintos**, e portanto em **efeitos causais
-    identificados diferentes**.
-3.  Elas **são complementares**, não substituíveis — o caminho honesto é
-    usar as três e reportar a sensibilidade.
+1.  The three strategies **produce very different DAGs** for the same
+    set of covariates.
+2.  The differences **translate into radically different backdoor
+    adjustment sets**, and therefore into **different identified causal
+    effects**.
+3.  They **are complementary**, not interchangeable – the honest route
+    is to use all three and report the sensitivity.
 
 ------------------------------------------------------------------------
 
-## Os três métodos
+## The three methods
 
 ``` r
 
 methods_df <- data.frame(
-  método       = c("A) Expert",
+  method        = c("A) Expert",
                     "B) LLM-augmented (Gemma 4)",
                     "C1) bnlearn hc",
                     "C2) bnlearn tabu",
                     "C3) bnlearn pc-stable"),
-  fonte         = c("Conhecimento pedológico publicado",
-                     "Extração automática + base expert",
-                     "Hill-climbing em BIC-g",
-                     "Tabu search em BIC-g",
-                     "PC-stable com alpha=0,05"),
-  usa_dados     = c("Não",
-                     "Não (KG da literatura)",
-                     "Sim (1095 perfis WoSIS)",
-                     "Sim (1095 perfis WoSIS)",
-                     "Sim (1095 perfis WoSIS)"),
-  usa_priors    = c("Implícitos (expert)",
-                     "Expert + confidence ≥ 0,70",
-                     "Whitelist + blacklist pedológicos",
-                     "Whitelist + blacklist pedológicos",
-                     "Whitelist + blacklist pedológicos"),
+  source        = c("Published pedological knowledge",
+                    "Automatic extraction + expert base",
+                    "Hill-climbing on BIC-g",
+                    "Tabu search on BIC-g",
+                    "PC-stable with alpha = 0.05"),
+  uses_data     = c("No",
+                    "No (literature KG)",
+                    "Yes (1,095 WoSIS profiles)",
+                    "Yes (1,095 WoSIS profiles)",
+                    "Yes (1,095 WoSIS profiles)"),
+  uses_priors   = c("Implicit (expert)",
+                    "Expert + confidence >= 0.70",
+                    "Pedological whitelist + blacklist",
+                    "Pedological whitelist + blacklist",
+                    "Pedological whitelist + blacklist"),
   stringsAsFactors = FALSE
 )
 knitr::kable(
   methods_df,
-  col.names = c("Método", "Fonte estrutural",
-                "Usa dados observacionais?", "Usa priors pedológicos?"),
-  caption = "Os cinco métodos de construção do DAG comparados neste vignette."
+  col.names = c("Method", "Structural source",
+                "Uses observational data?", "Uses pedological priors?"),
+  caption = "The five DAG-construction methods compared in this vignette."
 )
 ```
 
-| Método | Fonte estrutural | Usa dados observacionais? | Usa priors pedológicos? |
+| Method | Structural source | Uses observational data? | Uses pedological priors? |
 |:---|:---|:---|:---|
-| A\) Expert | Conhecimento pedológico publicado | Não | Implícitos (expert) |
-| B\) LLM-augmented (Gemma 4) | Extração automática + base expert | Não (KG da literatura) | Expert + confidence ≥ 0,70 |
-| C1) bnlearn hc | Hill-climbing em BIC-g | Sim (1095 perfis WoSIS) | Whitelist + blacklist pedológicos |
-| C2) bnlearn tabu | Tabu search em BIC-g | Sim (1095 perfis WoSIS) | Whitelist + blacklist pedológicos |
-| C3) bnlearn pc-stable | PC-stable com alpha=0,05 | Sim (1095 perfis WoSIS) | Whitelist + blacklist pedológicos |
+| A\) Expert | Published pedological knowledge | No | Implicit (expert) |
+| B\) LLM-augmented (Gemma 4) | Automatic extraction + expert base | No (literature KG) | Expert + confidence \>= 0.70 |
+| C1) bnlearn hc | Hill-climbing on BIC-g | Yes (1,095 WoSIS profiles) | Pedological whitelist + blacklist |
+| C2) bnlearn tabu | Tabu search on BIC-g | Yes (1,095 WoSIS profiles) | Pedological whitelist + blacklist |
+| C3) bnlearn pc-stable | PC-stable with alpha = 0.05 | Yes (1,095 WoSIS profiles) | Pedological whitelist + blacklist |
 
-Os cinco métodos de construção do DAG comparados neste vignette.
-{.table}
+The five DAG-construction methods compared in this vignette. {.table}
 
-### Priors pedológicos (aplicados a todos os métodos data-driven)
+### Pedological priors (applied to every data-driven method)
 
 ``` r
 
 knitr::kable(
   R$whitelist,
-  col.names = c("De", "Para"),
+  col.names = c("From", "To"),
   caption = paste0(
-    "**Whitelist** — orientações fisicamente indisputáveis impostas ",
-    "aos algoritmos de descoberta. Clima e topografia precedem solo; ",
-    "elevação precede declividade."
+    "**Whitelist** -- physically indisputable orientations imposed ",
+    "on the discovery algorithms. Climate and topography precede soil; ",
+    "elevation precedes slope."
   )
 )
 ```
 
-| De        | Para            |
+| From      | To              |
 |:----------|:----------------|
 | elev      | slope           |
 | elev      | wc_bio_12       |
 | wc_bio_12 | soc_topsoil_gkg |
 | wc_bio_01 | soc_topsoil_gkg |
 
-**Whitelist** — orientações fisicamente indisputáveis impostas aos
-algoritmos de descoberta. Clima e topografia precedem solo; elevação
-precede declividade. {.table}
+**Whitelist** – physically indisputable orientations imposed on the
+discovery algorithms. Climate and topography precede soil; elevation
+precedes slope. {.table}
 
 ``` r
 
 knitr::kable(
   R$blacklist,
-  col.names = c("De", "Para"),
+  col.names = c("From", "To"),
   caption = paste0(
-    "**Blacklist** — reversões proibidas. COS não causa precipitação ",
-    "nem temperatura; vegetação não causa clima; declividade não ",
-    "causa elevação."
+    "**Blacklist** -- forbidden reversals. SOC does not cause precipitation ",
+    "or temperature; vegetation does not cause climate; slope does not ",
+    "cause elevation."
   )
 )
 ```
 
-| De                 | Para      |
+| From               | To        |
 |:-------------------|:----------|
 | soc_topsoil_gkg    | wc_bio_12 |
 | soc_topsoil_gkg    | wc_bio_01 |
 | wc_landcover_trees | wc_bio_12 |
 | slope              | elev      |
 
-**Blacklist** — reversões proibidas. COS não causa precipitação nem
-temperatura; vegetação não causa clima; declividade não causa elevação.
-{.table}
+**Blacklist** – forbidden reversals. SOC does not cause precipitation or
+temperature; vegetation does not cause climate; slope does not cause
+elevation. {.table}
 
 ------------------------------------------------------------------------
 
-## Quantos arestas cada método produziu?
+## How many edges did each method produce?
 
 ``` r
 
 counts <- data.frame(
-  método = c(
+  method = c(
     "Expert",
     "LLM-augmented",
     "bnlearn hc",
     "bnlearn tabu",
     "bnlearn pc-stable"
   ),
-  n_arestas = c(
+  n_edges = c(
     nrow(R$edges_expert),
     nrow(R$edges_llm_aug),
     nrow(R$edges_bnlearn[["hc"]]),
@@ -163,123 +162,121 @@ counts <- data.frame(
   ),
   stringsAsFactors = FALSE
 )
-ggplot(counts, aes(x = reorder(método, n_arestas), y = n_arestas,
-                    fill = método)) +
+ggplot(counts, aes(x = reorder(method, n_edges), y = n_edges,
+                    fill = method)) +
   geom_col(show.legend = FALSE, width = 0.72) +
-  geom_text(aes(label = n_arestas), hjust = -0.3, size = 4) +
+  geom_text(aes(label = n_edges), hjust = -0.3, size = 4) +
   coord_flip() +
   scale_fill_brewer(palette = "Set2") +
   labs(
     x     = NULL,
-    y     = "Número de arestas",
-    title = "Cardinalidade do DAG por método",
-    subtitle = sprintf("Sobre %d perfis WoSIS Cerrado · 11 nós fixos",
+    y     = "Number of edges",
+    title = "DAG cardinality by method",
+    subtitle = sprintf("Over %d Cerrado WoSIS profiles · 11 fixed nodes",
                         R$n_profiles_used)
   ) +
-  ylim(0, max(counts$n_arestas) * 1.15)
+  ylim(0, max(counts$n_edges) * 1.15)
 ```
 
 ![](causal-discovery-trio_files/figure-html/edge-counts-1.png)
 
 ------------------------------------------------------------------------
 
-## Matriz de Structural Hamming Distance
+## Structural Hamming Distance matrix
 
-A **Structural Hamming Distance (SHD)** conta o número mínimo de
-adições, remoções e inversões de aresta necessárias para transformar um
-DAG em outro ([Tsamardinos et al. 2006](#ref-Tsamardinos2006mmhc)).
-`SHD(A, A) = 0` (o DAG é idêntico a si mesmo); `SHD(A, B) = n` significa
-que B difere de A em n operações.
+The **Structural Hamming Distance (SHD)** counts the minimum number of
+edge additions, deletions and reversals needed to turn one DAG into
+another ([Tsamardinos et al. 2006](#ref-Tsamardinos2006mmhc)).
+`SHD(A, A) = 0` (a DAG is identical to itself); `SHD(A, B) = n` means B
+differs from A by n operations.
 
 ``` r
 
 shd <- R$shd_matrix
 shd_df <- expand.grid(
-  método_i = rownames(shd),
-  método_j = colnames(shd),
+  method_i = rownames(shd),
+  method_j = colnames(shd),
   stringsAsFactors = FALSE
 )
 shd_df$SHD <- as.vector(shd)
 
-ggplot(shd_df, aes(x = método_j, y = método_i, fill = SHD)) +
+ggplot(shd_df, aes(x = method_j, y = method_i, fill = SHD)) +
   geom_tile(color = "white") +
   geom_text(aes(label = SHD), size = 4) +
   scale_fill_distiller(palette = "Reds", direction = 1, limits = c(0, NA)) +
   labs(
     x     = NULL,
     y     = NULL,
-    title = "SHD entre métodos de construção do DAG",
-    caption = "Diagonal = 0 por construção. hc e tabu coincidem (SHD=0)."
+    title = "SHD between DAG-construction methods",
+    caption = "Diagonal = 0 by construction. hc and tabu coincide (SHD = 0)."
   ) +
   theme(axis.text.x = element_text(angle = 20, hjust = 1),
         panel.grid  = element_blank())
 ```
 
-![Matriz de Structural Hamming Distance (SHD) entre os cinco métodos.
-Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu
-(concordância total) e tambem SHD=0 entre Expert e LLM-augmented: as
-claims extraidas nao acrescentam nenhuma aresta representavel neste
-conjunto de
-covariaveis.](causal-discovery-trio_files/figure-html/shd-heatmap-1.png)
+![Structural Hamming Distance (SHD) between the five methods. Low values
+mean similar DAGs. Note SHD = 0 between hc and tabu (full agreement),
+and also SHD = 0 between Expert and LLM-augmented: the extracted claims
+add no edge that this covariate set can
+represent.](causal-discovery-trio_files/figure-html/shd-heatmap-1.png)
 
-Matriz de Structural Hamming Distance (SHD) entre os cinco métodos.
-Valores baixos indicam DAGs similares. Note a SHD=0 entre hc e tabu
-(concordância total) e tambem SHD=0 entre Expert e LLM-augmented: as
-claims extraidas nao acrescentam nenhuma aresta representavel neste
-conjunto de covariaveis.
+Structural Hamming Distance (SHD) between the five methods. Low values
+mean similar DAGs. Note SHD = 0 between hc and tabu (full agreement),
+and also SHD = 0 between Expert and LLM-augmented: the extracted claims
+add no edge that this covariate set can represent.
 
-**Leitura.**
+**Reading.**
 
-- `SHD(Expert, LLM-augmented) = 0`: as claims extraídas **não
-  acrescentam nenhuma aresta** ao DAG expert. Das 30 claims em
-  `inst/extdata/cerrado_claims.jsonl`, apenas 3 têm ambos os extremos
-  representáveis no conjunto de 10 covariáveis WoSIS, e as 3 já
-  constavam do DAG expert. O gargalo aqui **não é o extrator**: 32
-  conceitos distintos aparecem nas claims — `decomposition`,
-  `primary_mineral_dissolution`, `argillic_horizon`, `root_input`,
-  `effective_cation_exchange_capacity`, `twi`, entre outros — e nenhum
-  deles tem contrapartida entre as covariáveis disponíveis. A extração
-  produz afirmações pedologicamente sensatas que este conjunto de
-  covariáveis simplesmente não consegue expressar.
+- `SHD(Expert, LLM-augmented) = 0`: the extracted claims **add no edge**
+  to the expert DAG. Of the 30 claims in
+  `inst/extdata/cerrado_claims.jsonl`, only 3 have both endpoints
+  representable in the set of 10 WoSIS covariates, and those 3 were
+  already in the expert DAG. The bottleneck here is **not the
+  extractor**: 32 distinct concepts appear in the claims –
+  `decomposition`, `primary_mineral_dissolution`, `argillic_horizon`,
+  `root_input`, `effective_cation_exchange_capacity`, `twi`, among
+  others – and none of them has a counterpart among the available
+  covariates. The extraction produces pedologically sensible statements
+  that this covariate set simply cannot express.
 
-  Versões anteriores desta vignette reportavam `SHD = 2` e concluíam que
-  “o Gemma 4 é conservador”. Aquele número vinha de seis arestas
-  digitadas à mão em `data-raw/causal_discovery_benchmark.R`, com
-  confidences (0,90 / 0,82 / 0,78 / 0,75 / 0,72 / 0,71) que não existem
-  em nenhum arquivo do pacote — todas as claims embarcadas têm
-  confidence 0,9. Essas arestas foram retiradas; o benchmark agora
-  deriva o conjunto do arquivo de claims por um mapeamento conceito →
-  coluna explícito e validado contra as colunas que de fato existem.
+  Earlier versions of this vignette reported `SHD = 2` and concluded
+  that “Gemma 4 is conservative”. That number came from six edges typed
+  by hand into `data-raw/causal_discovery_benchmark.R`, with confidences
+  (0.90 / 0.82 / 0.78 / 0.75 / 0.72 / 0.71) that exist in no file of the
+  package – every shipped claim has confidence 0.9. Those edges were
+  withdrawn; the benchmark now derives the set from the claims file
+  through an explicit concept-to-column mapping, validated against the
+  columns that actually exist.
 
-- `SHD(hc, tabu) = 0`: os dois algoritmos score-based convergem para o
-  mesmo DAG na superfície BIC-g, porque o 1 095-perfil é grande
-  suficiente para tornar o máximo único.
+- `SHD(hc, tabu) = 0`: the two score-based algorithms converge on the
+  same DAG on the BIC-g surface, because the 1,095-profile sample is
+  large enough to make the maximum unique.
 
-- `SHD(pc-stable, hc) = 12`: métodos constraint-based e score-based
-  discordam moderadamente — esperado, já que o PC-stable preserva mais
-  arestas ambíguas como não-orientadas.
+- `SHD(pc-stable, hc) = 12`: constraint-based and score-based methods
+  disagree moderately – expected, since PC-stable keeps more ambiguous
+  edges undirected.
 
-- `SHD(Expert, hc) = 29`: **a maior discordância**. Os algoritmos
-  data-driven rejeitam 11 arestas do expert e adicionam 18 novas.
+- `SHD(Expert, hc) = 29`: **the largest disagreement**. The data-driven
+  algorithms reject 11 expert edges and add 18 new ones.
 
 ------------------------------------------------------------------------
 
-## Quais arestas são únicas a cada método?
+## Which edges are unique to each method?
 
 ``` r
 
 pm <- R$presence_matrix
-consenso <- rowSums(pm) / ncol(pm)
+consensus <- rowSums(pm) / ncol(pm)
 edges_consensus <- data.frame(
   edge     = rownames(pm),
   n_method = rowSums(pm),
-  pct      = consenso,
+  pct      = consensus,
   stringsAsFactors = FALSE
 )
 edges_consensus <- edges_consensus[order(-edges_consensus$n_method), ]
 ```
 
-### Arestas de consenso (em ≥ 4 dos 5 métodos)
+### Consensus edges (in at least 4 of the 5 methods)
 
 ``` r
 
@@ -288,16 +285,15 @@ top_consensus <- edges_consensus |>
   head(15L)
 knitr::kable(
   top_consensus[, c("edge", "n_method")],
-  col.names = c("Aresta", "Nº de métodos que a contêm"),
+  col.names = c("Edge", "Number of methods containing it"),
   caption = paste0(
-    "Arestas identificadas pela maioria dos métodos — são as mais ",
-    "confiáveis para interpretação causal. Aparecem em pelo menos 4 ",
-    "dos 5 DAGs."
+    "Edges identified by most methods -- the most reliable ones for ",
+    "causal interpretation. They appear in at least 4 of the 5 DAGs."
   )
 )
 ```
 
-|  | Aresta | Nº de métodos que a contêm |
+|  | Edge | Number of methods containing it |
 |:---|:---|---:|
 | elev -\> slope | elev -\> slope | 5 |
 | elev -\> wc_bio_01 | elev -\> wc_bio_01 | 5 |
@@ -311,31 +307,31 @@ knitr::kable(
 | wc_bio_01 -\> wc_landcover_trees | wc_bio_01 -\> wc_landcover_trees | 4 |
 | wc_bio_12 -\> wc_landcover_trees | wc_bio_12 -\> wc_landcover_trees | 4 |
 
-Arestas identificadas pela maioria dos métodos — são as mais confiáveis
-para interpretação causal. Aparecem em pelo menos 4 dos 5 DAGs. {.table}
+Edges identified by most methods – the most reliable ones for causal
+interpretation. They appear in at least 4 of the 5 DAGs. {.table}
 
-### Arestas descobertas apenas pelos dados (missed by expert)
+### Edges discovered by the data only (missed by the expert)
 
 ``` r
 
 novel <- R$novel_edges_data
 if (length(novel) > 0L) {
-  novel_df <- data.frame(aresta = novel, stringsAsFactors = FALSE)
+  novel_df <- data.frame(edge = novel, stringsAsFactors = FALSE)
   knitr::kable(
     head(novel_df, 15L),
-    col.names = "Aresta descoberta pelos dados",
+    col.names = "Edge discovered by the data",
     caption = paste0(
-      "Arestas suportadas por ≥ 2 algoritmos data-driven mas **ausentes** ",
-      "do DAG expert. Candidatas a revisão do DAG — o que os dados ",
-      "estão 'vendo' que a literatura ainda não codificou?"
+      "Edges supported by at least 2 data-driven algorithms but **absent** ",
+      "from the expert DAG. Candidates for revising the DAG -- what are the ",
+      "data 'seeing' that the literature has not yet encoded?"
     )
   )
 } else {
-  cat("_Nenhuma aresta nova descoberta pelos dados._\n")
+  cat("_No new edge discovered by the data._\n")
 }
 ```
 
-| Aresta descoberta pelos dados                |
+| Edge discovered by the data                  |
 |:---------------------------------------------|
 | elev -\> soilgrids_bdod                      |
 | elev -\> soilgrids_clay                      |
@@ -353,31 +349,31 @@ if (length(novel) > 0L) {
 | wc_landcover_cropland -\> soilgrids_sand     |
 | wc_landcover_cropland -\> wc_landcover_trees |
 
-Arestas suportadas por ≥ 2 algoritmos data-driven mas **ausentes** do
-DAG expert. Candidatas a revisão do DAG — o que os dados estão ‘vendo’
-que a literatura ainda não codificou? {.table}
+Edges supported by at least 2 data-driven algorithms but **absent** from
+the expert DAG. Candidates for revising the DAG – what are the data
+‘seeing’ that the literature has not yet encoded? {.table}
 
-### Arestas expert rejeitadas pelos dados
+### Expert edges rejected by the data
 
 ``` r
 
 rejected <- R$expert_only_edges
 if (length(rejected) > 0L) {
-  rej_df <- data.frame(aresta = rejected, stringsAsFactors = FALSE)
+  rej_df <- data.frame(edge = rejected, stringsAsFactors = FALSE)
   knitr::kable(
     rej_df,
-    col.names = "Aresta expert sem suporte de dados",
+    col.names = "Expert edge without data support",
     caption = paste0(
-      "Arestas do DAG expert **ausentes** de todos os três algoritmos ",
-      "data-driven. Possíveis crenças pedológicas sem assinatura ",
-      "estatística no WoSIS Cerrado — dignas de re-examinação ou de ",
-      "discussão sobre *faithfulness* (@Zhang2026causal, condição 3)."
+      "Edges of the expert DAG **absent** from all three data-driven ",
+      "algorithms. Possible pedological beliefs without a statistical ",
+      "signature in the Cerrado WoSIS data -- worth re-examining, or ",
+      "discussing in terms of *faithfulness* (@Zhang2026causal, condition 3)."
     )
   )
 }
 ```
 
-| Aresta expert sem suporte de dados         |
+| Expert edge without data support           |
 |:-------------------------------------------|
 | slope -\> soc_topsoil_gkg                  |
 | slope -\> soilgrids_clay                   |
@@ -391,37 +387,37 @@ if (length(rejected) > 0L) {
 | wc_landcover_grassland -\> soc_topsoil_gkg |
 | wc_landcover_trees -\> soc_topsoil_gkg     |
 
-Arestas do DAG expert **ausentes** de todos os três algoritmos
-data-driven. Possíveis crenças pedológicas sem assinatura estatística no
-WoSIS Cerrado — dignas de re-examinação ou de discussão sobre
-*faithfulness* (Zhang and Wadoux ([2026](#ref-Zhang2026causal)),
-condição 3). {.table}
+Edges of the expert DAG **absent** from all three data-driven
+algorithms. Possible pedological beliefs without a statistical signature
+in the Cerrado WoSIS data – worth re-examining, or discussing in terms
+of *faithfulness* (Zhang and Wadoux ([2026](#ref-Zhang2026causal)),
+condition 3). {.table}
 
 ------------------------------------------------------------------------
 
-## Consequência prática: o efeito causal muda de valor
+## Practical consequence: the causal effect changes value
 
-A pergunta final é pragmática. Para o efeito **MAP → COS** no Cerrado,
-qual é o conjunto mínimo de ajuste backdoor segundo cada método? E como
-isso afeta a estimativa do efeito?
+The final question is pragmatic. For the effect **MAP -\> SOC** in the
+Cerrado, what is the minimal backdoor adjustment set under each method?
+And how does that change the estimate of the effect?
 
 ``` r
 
 at <- R$adjustment_table
 knitr::kable(
   at,
-  col.names = c("Método", "Tamanho do conjunto", "Conjunto de ajuste"),
+  col.names = c("Method", "Set size", "Adjustment set"),
   caption = paste0(
-    "Conjuntos mínimos de ajuste backdoor para **MAP (wc_bio_12) → ",
-    "COS**. Note como o tamanho varia de 0 (bnlearn mmhc, efeito ",
-    "nu) a 6 (LLM-augmentado). O estimador backdoor aplicado sobre ",
-    "esses conjuntos distintos produz **efeitos causais distintos** — ",
-    "é a escolha do DAG, não do estimador, que domina o resultado."
+    "Minimal backdoor adjustment sets for **MAP (wc_bio_12) -> ",
+    "SOC**. Note how the size ranges from 0 (bnlearn mmhc, bare ",
+    "effect) to 6 (LLM-augmented). The backdoor estimator applied to ",
+    "these different sets produces **different causal effects** -- ",
+    "it is the choice of DAG, not of estimator, that dominates the result."
   )
 )
 ```
 
-|  | Método | Tamanho do conjunto | Conjunto de ajuste |
+|  | Method | Set size | Adjustment set |
 |:---|:---|---:|:---|
 | Expert | Expert | 5 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
 | LLM-augmented | LLM-augmented | 5 | slope, wc_bio_01, wc_landcover_cropland, wc_landcover_grassland, wc_landcover_trees |
@@ -429,11 +425,11 @@ knitr::kable(
 | bnlearn tabu | bnlearn tabu | 2 | soilgrids_sand, wc_bio_01 |
 | bnlearn pc-stable | bnlearn pc-stable | 1 | wc_bio_01 |
 
-Conjuntos mínimos de ajuste backdoor para **MAP (wc_bio_12) → COS**.
-Note como o tamanho varia de 0 (bnlearn mmhc, efeito nu) a 6
-(LLM-augmentado). O estimador backdoor aplicado sobre esses conjuntos
-distintos produz **efeitos causais distintos** — é a escolha do DAG, não
-do estimador, que domina o resultado. {.table}
+Minimal backdoor adjustment sets for **MAP (wc_bio_12) -\> SOC**. Note
+how the size ranges from 0 (bnlearn mmhc, bare effect) to 6
+(LLM-augmented). The backdoor estimator applied to these different sets
+produces **different causal effects** – it is the choice of DAG, not of
+estimator, that dominates the result. {.table}
 
 ``` r
 
@@ -444,89 +440,67 @@ ggplot(at, aes(x = method, y = adj_size, fill = method)) +
   scale_fill_brewer(palette = "Set2") +
   labs(
     x     = NULL,
-    y     = "Tamanho do conjunto de ajuste",
-    title = "Conjunto de ajuste backdoor para MAP → COS",
-    subtitle = "Expert/LLM conservam mais covariáveis; dados descobrem independências"
+    y     = "Adjustment set size",
+    title = "Backdoor adjustment set for MAP -> SOC",
+    subtitle = "Expert/LLM keep more covariates; the data find independences"
   ) +
   theme(axis.text.x = element_text(angle = 20, hjust = 1)) +
   ylim(0, max(at$adj_size) * 1.2)
 ```
 
-![Tamanho do conjunto de ajuste backdoor para MAP → COS por método. Cada
-barra equivale a 'quantos confundidores o método acredita existir entre
-MAP e COS'. O Expert+LLM assumem 5-6 confundidores; métodos data-driven
-encontram apenas 0-2. Essa é uma diferença de \*\*ordem de magnitude\*\*
-em como o efeito é
-estimado.](causal-discovery-trio_files/figure-html/adjustment-size-plot-1.png)
+![Size of the backdoor adjustment set for MAP -\> SOC by method. Each
+bar is 'how many confounders the method believes lie between MAP and
+SOC'. Expert and LLM assume 5-6 confounders; the data-driven methods
+find only 0-2. That is an \*\*order-of-magnitude\*\* difference in how
+the effect is
+estimated.](causal-discovery-trio_files/figure-html/adjustment-size-plot-1.png)
 
-Tamanho do conjunto de ajuste backdoor para MAP → COS por método. Cada
-barra equivale a ‘quantos confundidores o método acredita existir entre
-MAP e COS’. O Expert+LLM assumem 5-6 confundidores; métodos data-driven
-encontram apenas 0-2. Essa é uma diferença de **ordem de magnitude** em
-como o efeito é estimado.
+Size of the backdoor adjustment set for MAP -\> SOC by method. Each bar
+is ‘how many confounders the method believes lie between MAP and SOC’.
+Expert and LLM assume 5-6 confounders; the data-driven methods find only
+0-2. That is an **order-of-magnitude** difference in how the effect is
+estimated.
 
 ------------------------------------------------------------------------
 
-## Síntese: por que usar os três em conjunto?
+## Synthesis: why use the three together?
 
-``` r
+![The three-way architecture of Pillar 1. Each source encodes a
+different heuristic -- theoretical knowledge (expert), literature
+knowledge (LLM), statistical structure (data-driven). Their
+disagreements are the scientific signal: each one points to an edge that
+deserves explicit discussion in a
+paper.](figures/causal-discovery-trio.svg)
 
-if (requireNamespace("DiagrammeR", quietly = TRUE)) {
-  DiagrammeR::grViz('
-  digraph trio {
-    graph [rankdir=LR, fontname="Helvetica", bgcolor="#FAFAFA"]
-    node  [shape=box, style="rounded,filled", fontname="Helvetica",
-           fontsize=11]
+The three-way architecture of Pillar 1. Each source encodes a different
+heuristic – theoretical knowledge (expert), literature knowledge (LLM),
+statistical structure (data-driven). Their disagreements are the
+scientific signal: each one points to an edge that deserves explicit
+discussion in a paper.
 
-    A [label="A) Expert DAG\\nPedológico teórico",
-       fillcolor="#D5E8D4", color="#27AE60"]
-    B [label="B) LLM-augmented\\nLiteratura via Gemma 4",
-       fillcolor="#FFF3CD", color="#E67E22"]
-    C [label="C) Data-driven\\nbnlearn hc / tabu / pc-stable",
-       fillcolor="#FCE4D6", color="#C0392B"]
-    SYN [label="DAG causal final\\n(+ sensibilidade)", shape=diamond,
-         fillcolor="#D6EAF8", color="#154360"]
+### Practical recommendations
 
-    A -> SYN [label="teoria"]
-    B -> SYN [label="evidência\\nde literatura"]
-    C -> SYN [label="evidência\\nestatística"]
-    A -> B   [style=dashed, label="base do LLM"]
-    C -> A   [style=dashed, label="questiona arestas\\nsem suporte"]
-    B -> A   [style=dashed, label="sugere arestas\\nnovas"]
-  }
-  ')
-} else {
-  cat("Instale `DiagrammeR` para visualizar o diagrama.\n")
-}
-```
-
-A arquitetura tripla do Pilar 1. Cada fonte codifica uma heurística
-diferente — conhecimento teórico (expert), conhecimento da literatura
-(LLM), estrutura estatística (data-driven). Suas disagreements são o
-sinal científico: cada desacordo aponta para uma aresta que merece
-discussão explícita no paper.
-
-### Recomendações práticas
-
-1.  **Comece com o DAG expert.** Codifica a teoria pedogenética; não tem
-    mais viés estatístico porque não depende da amostra.
-2.  **Augmente com LLM.** Use
+1.  **Start with the expert DAG.** It encodes pedogenetic theory, and it
+    carries no statistical bias because it does not depend on the
+    sample.
+2.  **Augment it with an LLM.** Use
     [`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md) +
     [`causal_llm_vote()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_vote.md)
-    sobre o corpus de literatura relevante (ver
-    [`vignette("pilar1-causal")`](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal.md)
-    para o pipeline completo). Edges de confidence ≥ 0.70 costumam ser
-    boas adições.
-3.  **Valide com bnlearn.** Rode hc, tabu **e** pc-stable com whitelist
-    - blacklist pedológicos. Se as três concordam, a estrutura é
-      robusta. Se não, investigue por que.
-4.  **Reporte sensibilidade.** Calcule o efeito causal em **cada** DAG e
-    apresente a amplitude como incerteza estrutural. É o análogo causal
-    do que fazemos em Pilar 3 com a EnKF para incerteza observacional.
+    over the relevant literature corpus (see
+    [`vignette("pillar1-causal")`](https://hugomachadorodrigues.github.io/edaphos/articles/pillar1-causal.md)
+    for the full pipeline). Edges with confidence of at least 0.70 tend
+    to be good additions.
+3.  **Validate with bnlearn.** Run hc, tabu **and** pc-stable with the
+    pedological whitelist + blacklist. If all three agree, the structure
+    is robust. If not, find out why.
+4.  **Report sensitivity.** Compute the causal effect under **each** DAG
+    and present the range as structural uncertainty. It is the causal
+    analogue of what Pillar 3 does with the EnKF for observational
+    uncertainty.
 
 ------------------------------------------------------------------------
 
-## Referências
+## References
 
 Tsamardinos, I., L. E. Brown, and C. F. Aliferis. 2006. “The Max-Min
 Hill-Climbing Bayesian Network Structure Learning Algorithm.” *Machine

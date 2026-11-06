@@ -1,4 +1,4 @@
-# Diffusion-posterior-driven AL (Pilar 9 x Pilar 5)
+# Diffusion-posterior-driven AL (Pillar 9 x Pillar 5)
 
 Ranks candidate cells by the standard deviation of DDPM posterior
 samples. High-SD cells are the most uncertain map locations; labelling
@@ -86,7 +86,7 @@ c(first_epoch = dm$history[1L], last_epoch = dm$history[200L])
 
 q <- al_query_diffusion(dm, n_samples = 16L, n_select = 8L, seed = 1L)
 q
-#> <edaphos_al_diffusion_query>  (Pilar 9 x Pilar 5)
+#> <edaphos_al_diffusion_query>  (Pillar 9 x Pillar 5)
 #>   pool size : 81
 #>   combine   : sd
 #>   top-8 cells:

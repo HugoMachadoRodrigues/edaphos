@@ -133,7 +133,10 @@ An `edaphos_piml_bayes` object with:
 
 - sigma:
 
-  Observation-noise standard deviation estimated at the MAP.
+  Observation-noise scale at the joint MAP (a posterior mode, not a
+  summary of `draws`): an SD in the units of `values` for
+  `family = "gaussian"`, a coefficient of variation otherwise. The
+  posterior of sigma is the `sigma` row of `summary`.
 
 - cov:
 
@@ -174,8 +177,9 @@ An `edaphos_piml_bayes` object with:
   posteriors are captured faithfully. Runtime: a few seconds for the
   default 5000 iterations.
 
-The noise scale \\\sigma\\ is estimated from the MAP residual RMSE and
-held fixed during MCMC (empirical Bayes). Weakly-informative,
+The noise scale \\\sigma\\ is a parameter of the posterior: it is
+optimised jointly with the profile parameters for the MAP and sampled
+(as \\\log\sigma\\) by MCMC, not held fixed. Weakly-informative,
 data-driven priors are applied by default; pass a custom `prior` list to
 override them.
 
@@ -208,8 +212,9 @@ fit_bayes
 #> <edaphos_piml_bayes>
 #>   method     : laplace
 #>   n draws    : 2000
-#>   sigma (noise): 0.009692
-#>   posterior summary (natural scale):
+#>   family     : lognormal (sigma = noise coefficient of variation, unitless)
+#>   sigma at the MAP (posterior mode, not a draw summary): 0.009692
+#>   posterior summary over the draws (log coordinates back-transformed):
 #>  parameter      mean        sd       q2.5       q50    q97.5
 #>    lambda0   0.03740  0.012180   0.018942  0.035352  0.06675
 #>         mu   0.03509  0.005514   0.025552  0.034733  0.04736

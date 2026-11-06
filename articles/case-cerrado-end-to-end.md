@@ -53,9 +53,9 @@ every downstream user.
 - **B1** `ranger` quantile regression forest ([Meinshausen
   2006](#ref-Meinshausen2006qrf)) on the expanded covariate stack
   (SoilGrids + WorldClim monthly + SRTM + WorldCover + bio), target =
-  SOC em g/kg, **sem transformacao** (o texto dizia
-  $`\log(1 + \text{SOC})`$, o que contradizia a propria seccao 2(a)
-  deste documento e o artefacto publicado).
+  SOC in g/kg, **untransformed** (this text used to say
+  $`\log(1 + \text{SOC})`$, which contradicted section 2(a) of this
+  document and the published bundle).
 - **B2** B1 **plus** residual kriging via `gstat` ([Pebesma
   2004](#ref-Pebesma2004gstat)) — the full Hengl-style classical DSM
   recipe ([Hengl et al. 2017](#ref-Hengl2017soilgrids)).

@@ -4,50 +4,50 @@
 
 - [Getting started with
   edaphos](https://hugomachadorodrigues.github.io/edaphos/articles/getting-started.md):
-- [Capstone — Uma decisão de amostragem sob incerteza no
+- [Capstone: a sampling decision under uncertainty in the
   Cerrado](https://hugomachadorodrigues.github.io/edaphos/articles/capstone-cerrado-campaign.md):
 - [Unified uncertainty across the six
   pillars](https://hugomachadorodrigues.github.io/edaphos/articles/uncertainty-unified.md):
 
-### Pilar 1 — Causal AI
+### Pillar 1 — Causal AI
 
-- [Pilar 1 — Causal AI: Backdoor Adjustment in Pedogenetic
-  DAGs](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal.md):
-- [Causal discovery no Cerrado: expert vs. LLM vs.
+- [Pillar 1 — Causal AI: Backdoor Adjustment in Pedogenetic
+  DAGs](https://hugomachadorodrigues.github.io/edaphos/articles/pillar1-causal.md):
+- [Causal discovery in the Cerrado: expert vs. LLM vs.
   data-driven](https://hugomachadorodrigues.github.io/edaphos/articles/causal-discovery-trio.md):
-- [Escalando o gold-standard de 72 para 300+
+- [Scaling the gold standard from 72 to 300+
   claims](https://hugomachadorodrigues.github.io/edaphos/articles/llm-annotation-workflow.md):
 
-### Pilares 2–6
+### Pillars 2–6
 
-- [Pilar 2 — Physics-Informed ML for Soil Depth
-  Profiles](https://hugomachadorodrigues.github.io/edaphos/articles/pilar2-piml-profile.md):
-- [Pilar 3 — 4D Pedometry: Stacked ConvLSTM Forecasts of
-  SOC](https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-soc.md):
-- [Pilar 4 — Contrastive Raster Embeddings as Active-Learning
-  Covariates](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-simclr-embeddings.md):
-- [Pilar 5 — Autonomous Active Learning for Soil
-  Mapping](https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-active-learning.md):
-- [Pilar 6 — Quantum Kernel Methods for High-Dimensional Soil
-  Covariates](https://hugomachadorodrigues.github.io/edaphos/articles/pilar6-quantum.md):
+- [Pillar 2 — Physics-Informed ML for Soil Depth
+  Profiles](https://hugomachadorodrigues.github.io/edaphos/articles/pillar2-piml-profile.md):
+- [Pillar 3 — 4D Pedometry: Stacked ConvLSTM Forecasts of
+  SOC](https://hugomachadorodrigues.github.io/edaphos/articles/pillar3-4d-soc.md):
+- [Pillar 4 — Contrastive Raster Embeddings as Active-Learning
+  Covariates](https://hugomachadorodrigues.github.io/edaphos/articles/pillar4-simclr-embeddings.md):
+- [Pillar 5 — Autonomous Active Learning for Soil
+  Mapping](https://hugomachadorodrigues.github.io/edaphos/articles/pillar5-active-learning.md):
+- [Pillar 6 — Quantum Kernel Methods for High-Dimensional Soil
+  Covariates](https://hugomachadorodrigues.github.io/edaphos/articles/pillar6-quantum.md):
 
 ### Cross-pillar bridges
 
 - [Foundation-model embeddings as causal instrumental
-  variables](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-pilar4-iv.md):
+  variables](https://hugomachadorodrigues.github.io/edaphos/articles/pillar1-pillar4-iv.md):
 - [Quantum kernel over foundation-model
-  embeddings](https://hugomachadorodrigues.github.io/edaphos/articles/pilar4-pilar6-quantum.md):
+  embeddings](https://hugomachadorodrigues.github.io/edaphos/articles/pillar4-pillar6-quantum.md):
 
-### Pilares 7-10
+### Pillars 7-10
 
-- [Pilar 7 — Bayesian Hierarchical Spatial
-  Models](https://hugomachadorodrigues.github.io/edaphos/articles/pilar7-bayesian-hierarchical.md):
-- [Pilar 8 — Neural Operators over Depth-Function
-  Space](https://hugomachadorodrigues.github.io/edaphos/articles/pilar8-neural-operators.md):
-- [Pilar 9 — Diffusion Models for Soil-Map
-  Patches](https://hugomachadorodrigues.github.io/edaphos/articles/pilar9-diffusion-models.md):
-- [Pilar 10 — Graph Attention Networks on Co-location
-  Graphs](https://hugomachadorodrigues.github.io/edaphos/articles/pilar10-graph-attention.md):
+- [Pillar 7 — Bayesian Hierarchical Spatial
+  Models](https://hugomachadorodrigues.github.io/edaphos/articles/pillar7-bayesian-hierarchical.md):
+- [Pillar 8 — Neural Operators over Depth-Function
+  Space](https://hugomachadorodrigues.github.io/edaphos/articles/pillar8-neural-operators.md):
+- [Pillar 9 — Diffusion Models for Soil-Map
+  Patches](https://hugomachadorodrigues.github.io/edaphos/articles/pillar9-diffusion-models.md):
+- [Pillar 10 — Graph Attention Networks on Co-location
+  Graphs](https://hugomachadorodrigues.github.io/edaphos/articles/pillar10-graph-attention.md):
 
 ### End-to-end
 
@@ -62,11 +62,11 @@
 Longer real-data walkthroughs. They live under vignettes/articles/, so
 the site renders them and the source tarball does not carry them.
 
-- [Pilar 1 on real data — identified causal effects on Cerrado
-  SOC](https://hugomachadorodrigues.github.io/edaphos/articles/pilar1-causal-real.md):
-- [Pilar 3 on real data — 4D NDVI forecasting with sequential Bayesian
-  assimilation](https://hugomachadorodrigues.github.io/edaphos/articles/pilar3-4d-real.md):
-- [Pilar 5 — Active Learning on a Brazilian Cerrado
-  Transect](https://hugomachadorodrigues.github.io/edaphos/articles/pilar5-soilgrids-br.md):
-- [LLM-driven causal-claim extraction for DSM: a multi-backend
-  benchmark](https://hugomachadorodrigues.github.io/edaphos/articles/llm-kg-benchmark.md):
+- [Pillar 1 on real data — identified causal effects on Cerrado
+  SOC](https://hugomachadorodrigues.github.io/edaphos/articles/pillar1-causal-real.md):
+- [Pillar 3 on real data — 4D NDVI forecasting with sequential Bayesian
+  assimilation](https://hugomachadorodrigues.github.io/edaphos/articles/pillar3-4d-real.md):
+- [Pillar 5 — Active Learning on a Brazilian Cerrado
+  Transect](https://hugomachadorodrigues.github.io/edaphos/articles/pillar5-soilgrids-br.md):
+- [LLM-driven causal-claim extraction for DSM: a multi-backend benchmark
+  harness](https://hugomachadorodrigues.github.io/edaphos/articles/llm-kg-benchmark.md):

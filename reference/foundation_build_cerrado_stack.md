@@ -1,8 +1,8 @@
 # Build the Cerrado raster stack for IV / quantum-foundation benchmarks
 
 Downloads / assembles the covariate raster stack that the
-`edaphos-cerrado-moco-v1` encoder was pretrained on. As of v4.0.0 the
-stack matches the v1 encoder's 31-channel input schema:
+`edaphos-cerrado-moco-v1` encoder was pretrained on. The stack matches
+the v1 encoder's 31-channel input schema:
 
 ## Usage
 
@@ -42,8 +42,8 @@ foundation_build_cerrado_stack(
 - schema:
 
   One of `"v1_encoder"` (default; 31-channel encoder- compatible stack)
-  or `"minimal"` (10-channel legacy stack used pre-v4.0.0). Pass
-  `"minimal"` to reproduce the older bundles.
+  or `"minimal"` (10-channel legacy stack used by the older bundles).
+  Pass `"minimal"` to reproduce them.
 
 ## Value
 
@@ -81,7 +81,7 @@ does not restore detail the sources never had.
 
 Earlier versions assembled only a 10-channel subset, which forced the IV
 benchmark (`data-raw/causal_iv_benchmark_real.R`) to fall back to a
-synthetic 31-channel stack – the v4.0.0 rewrite closes that gap.
+synthetic 31-channel stack – the 31-channel rewrite closes that gap.
 
 **Heavy download.** Not because of the file it writes: the default 2-deg
 x 2-deg AoI at 0.01 deg is 200 x 200 cells x 31 `FLT4S` layers,
@@ -155,7 +155,7 @@ stk_tmp <- foundation_build_cerrado_stack(
 # no monthly climate at all.  The published v1 encoder's input layer
 # is fixed at 31 channels -- `foundation_weights_list()` reports
 # `n_channels` -- so a minimal stack cannot feed it.  It exists to
-# reproduce the pre-v4.0.0 bundles.
+# reproduce the older, 10-channel bundles.
 legacy <- foundation_build_cerrado_stack(schema = "minimal")
 terra::nlyr(legacy)          # 10
 

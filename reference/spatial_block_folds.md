@@ -82,6 +82,6 @@ f1
 #>   102 rows, 5 blocks, buffer 10 km
 #>   test rows per fold : 16, 19, 23, 25, 19
 #>   training rows kept : 62, 58, 52, 49, 42
-#>   discarded to buffer: 24, 25, 27, 28, 41 (28.4% of all rows)
+#>   discarded to buffer: 24, 25, 27, 28, 41 (35.5% of 408 candidate training rows)
 #>   realised min train-test distance: 10.7 km
 ```

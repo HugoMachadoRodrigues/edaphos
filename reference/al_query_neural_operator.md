@@ -1,7 +1,7 @@
-# Causal-driven AL via Neural Operator disagreement (Pilar 8 x Pilar 5)
+# Causal-driven AL via Neural Operator disagreement (Pillar 8 x Pillar 5)
 
 Ranks candidate sites by the disagreement between a Neural Operator's
-predicted depth profile and a classical Pilar 2 pedogenetic ODE's
+predicted depth profile and a classical Pillar 2 pedogenetic ODE's
 predicted profile, normalised by the NO's perturbation-spread
 uncertainty.
 
@@ -105,7 +105,7 @@ ode <- piml_profile_fit(zz, colMeans(prof[tr, ]))
 q <- al_query_neural_operator(no, ode, Xc[po, ], pool_depths = zz,
                               n_select = 5L, n_pert = 20L, seed = 1L)
 q
-#> <edaphos_al_neural_operator_query>  (Pilar 8 x Pilar 5)
+#> <edaphos_al_neural_operator_query>  (Pillar 8 x Pillar 5)
 #>   pool size : 30
 #>   n_select  : 5
 #>   top candidates (NO vs ODE disagreement, normalised):

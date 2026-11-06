@@ -1,11 +1,12 @@
-# Run the Pilar 1 LLM-KG pipeline on a (potentially large) corpus
+# Run the Pillar 1 LLM-KG pipeline on a (potentially large) corpus
 
 Drives
 [`causal_llm_extract()`](https://hugomachadorodrigues.github.io/edaphos/reference/causal_llm_extract.md)
 over a JSONL corpus of abstracts (one JSON object with `source` +
 `abstract` per line) with resumable JSONL checkpointing and throttle /
-retry. The function is engineered for 10 000+ abstract runs that can
-take several hours to a day on a local Ollama instance.
+retry, so a run that takes hours on a local Ollama instance can be
+stopped and resumed. The largest run made with it is the ~100-abstract
+corpus of `data-raw/run_large_corpus.R`; nothing larger has been run.
 
 ## Usage
 
@@ -192,7 +193,7 @@ if (requireNamespace("igraph", quietly = TRUE) &&
   # `max_retries = 0L` is what makes that instant.  At the default
   # 3L the very same missing key costs the full back-off ladder,
   # 1 + 2 + 4 = 7 s, per abstract before it is written off -- so on
-  # the 10 000-abstract corpus this function exists for, about 20 h
+  # a 10 000-abstract corpus, about 20 h
   # of sleeping and not one claim.  Check credentials yourself
   # before the run; the pipeline will not do it for you.
   unlink(c(corpus, paste0(out, ".errors")))
