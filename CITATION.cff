@@ -30,7 +30,7 @@ abstract: >-
   model.
 type: software
 version: "2.0.0"
-date-released: "2026-11-04"
+date-released: "2026-11-06"
 license: MIT
 doi: "10.5281/zenodo.19683708"
 url: "https://github.com/HugoMachadoRodrigues/edaphos"
@@ -39,10 +39,13 @@ identifiers:
   - description: "Concept DOI (all versions; resolves to the latest)"
     type: doi
     value: "10.5281/zenodo.19683708"
+  - description: "Version DOI of this release, 2.0.0 (Zenodo record 24017391)"
+    type: doi
+    value: "10.5281/zenodo.24017391"
   # Version DOIs of earlier releases are not identifiers of this one. They
   # were listed here unattributed or mislabelled; measured on Zenodo
   # 2026-11-04, 10.5281/zenodo.19709560 is v1.5.0 and 10.5281/zenodo.19710162
-  # is v1.6.0. The 2.0.0 version DOI is added once its deposit exists.
+  # is v1.6.0.
 authors:
   - family-names: "Rodrigues"
     given-names: "Hugo"
