@@ -60,7 +60,7 @@ jobs:
       # rather than one per run.
       - name: Cache libtorch
         if: matrix.config.torch
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/torch
           key: libtorch-${{ runner.os }}-${{ hashFiles('DESCRIPTION') }}
