@@ -206,26 +206,26 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # a standard error near 0.1: a smoke test that the plumbing runs,
   # not a calibration result for this or any encoder.
 }
-#> [1] 7.772 3.906 5.423 4.332 2.749
+#> [1] 7.772 3.906 5.423 4.332 2.750
 #>    final_infonce all_logits_equal      patch_draws 
-#>            2.749            2.833           40.000 
+#>            2.750            2.833           40.000 
 #> monotone 
 #>    FALSE 
 #> <edaphos_foundation_ensemble>
 #>   task    : regression
 #>   K_ens   : 3
-#>   final losses : min=0.5407  median=0.829  max=0.9189
-#> [1] 0.829 0.541 0.919
+#>   final losses : min=0.5308  median=0.8053  max=0.9157
+#> [1] 0.805 0.531 0.916
 #> [1]  3 12
 #>       [,1]  [,2]  [,3]  [,4]
-#> mean 20.98 20.31 22.95 21.01
-#> sd    1.50  1.35  2.10  1.34
+#> mean 21.13 20.42 23.16 21.12
+#> sd    1.42  1.29  1.98  1.27
 #>        member1        member2        member3  ensemble_mean average_member 
-#>          1.935          2.333          4.163          1.540          2.810 
+#>          1.680          2.238          4.170          1.513          2.696 
 #>     train_mean 
 #>          5.216 
 #>   member1_enc_5ep same_head_enc_1ep     member_spread 
-#>             1.935             1.911             2.228 
+#>             1.680             1.889             2.490 
 #>           picp     mean_width interval_score 
-#>          0.917          5.288          8.696 
+#>          0.917          5.112          8.574 
 ```

@@ -99,7 +99,7 @@ perturbation-spread uncertainty."><meta property="og:image" content="https://hug
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Causal-driven AL via Neural Operator disagreement (Pillar 8 x Pillar 5)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/HugoMachadoRodrigues/edaphos/blob/v2.0.0/R/bridges_active_learning_v3.R" class="external-link"><code>R/bridges_active_learning_v3.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/HugoMachadoRodrigues/edaphos/blob/main/R/bridges_active_learning_v3.R" class="external-link"><code>R/bridges_active_learning_v3.R</code></a></small>
       <div class="d-none name"><code>al_query_neural_operator.Rd</code></div>
     </div>
 
@@ -197,7 +197,7 @@ sorted by descending score.</p>
 <span class="r-in"><span>  mean_profile <span class="op">=</span> <span class="fu"><a href="edaphos_rmse.html">edaphos_rmse</a></span><span class="op">(</span><span class="va">prof</span><span class="op">[</span><span class="va">po</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">prof</span><span class="op">[</span><span class="va">tr</span>, <span class="op">]</span><span class="op">)</span>, <span class="fl">30L</span>, <span class="fl">5L</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     deeponet mean_profile </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5.737922     3.424886 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5.710867     3.424886 </span>
 <span class="r-in"><span><span class="co"># 2.72 vs 3.42 g/kg</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Pillar 2 supplies the reference kinetics, fitted to the mean</span></span></span>
@@ -211,11 +211,11 @@ sorted by descending score.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_select  : 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   top candidates (NO vs ODE disagreement, normalised):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    pool_index    score no_ode_disagreement no_uncertainty_sd</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5           5 5.856529            2.089174         0.3567256</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9           9 5.786232            7.837013         1.3544242</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4           4 5.455869            8.251261         1.5123644</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30         30 5.419815            8.422052         1.5539371</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6           6 5.216944            7.687975         1.4736548</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5           5 6.268740            2.240044         0.3573356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9           9 5.778171            7.833821         1.3557613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30         30 5.511177            8.518347         1.5456493</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4           4 5.402066            8.199613         1.5178662</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6           6 5.260019            7.725521         1.4687250</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># First trap: `n_select` never subsets.  The frame is the whole</span></span></span>
 <span class="r-in"><span><span class="co"># pool and n_select is an attribute the print method reads.</span></span></span>
@@ -238,7 +238,7 @@ sorted by descending score.</p>
 <span class="r-in"><span>  rank_agreement <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">score</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                       <span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">no_ode_disagreement</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>   <span class="co"># 0.231, 0.960</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          sd_cv rank_agreement </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4803004      0.6943270 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4806778      0.7090100 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># It is also the only stochastic part and there is no default seed.</span></span></span>
 <span class="r-in"><span><span class="co"># Here the top five survive a change of seed but individual scores</span></span></span>
@@ -249,7 +249,7 @@ sorted by descending score.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">q</span><span class="op">$</span><span class="va">pool_index</span><span class="op">)</span><span class="op">]</span> <span class="op">/</span></span></span>
 <span class="r-in"><span>        <span class="va">q2</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">q2</span><span class="op">$</span><span class="va">pool_index</span><span class="op">)</span><span class="op">]</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>                 <span class="co"># 0.506</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4192618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4218518</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Trap for the other operator class: predict() for an FNO has no</span></span></span>
 <span class="r-in"><span><span class="co"># `newdepths` argument at all, so `pool_depths` is swallowed by</span></span></span>

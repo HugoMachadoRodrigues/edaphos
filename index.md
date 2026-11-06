@@ -2350,9 +2350,11 @@ each archived on Zenodo with its own DOI under the concept DOI
 [10.5281/zenodo.19683708](https://doi.org/10.5281/zenodo.19683708),
 which always resolves to the latest version. None was submitted to CRAN.
 
-**The current release is 2.0.0** (2026-11-04). It is not 0.9.0, the
-number the code carried during development until November 2026: 0.9.0
-already exists, as a public release with a permanent DOI
+**The current release is 2.0.0** (2026-11-06,
+[10.5281/zenodo.24017391](https://doi.org/10.5281/zenodo.24017391)). It
+is not 0.9.0, the number the code carried during development until
+November 2026: 0.9.0 already exists, as a public release with a
+permanent DOI
 ([10.5281/zenodo.19697669](https://doi.org/10.5281/zenodo.19697669)),
 and reusing it would put two different packages under one version. 2.0.0
 is the major version above the last public release, as the breaking
@@ -2390,7 +2392,7 @@ The current release is 2.0.0. To cite it:
 > Rodrigues, H. (2026). *edaphos: Digital Soil Mapping with Causal,
 > Physics-Informed and Generative Methods* (version 2.0.0) \[Software\].
 > <https://github.com/HugoMachadoRodrigues/edaphos>.
-> <https://doi.org/10.5281/zenodo.19683708>
+> <https://doi.org/10.5281/zenodo.24017391>
 
 ``` bibtex
 @software{Rodrigues_edaphos_2026,
@@ -2399,14 +2401,15 @@ The current release is 2.0.0. To cite it:
                and Generative Methods},
   year      = {2026},
   version   = {2.0.0},
-  doi       = {10.5281/zenodo.19683708},
+  doi       = {10.5281/zenodo.24017391},
   url       = {https://github.com/HugoMachadoRodrigues/edaphos}
 }
 ```
 
-The DOI is the Zenodo concept DOI, which covers all versions. To cite a
-published release instead, use its own version DOI from the [Zenodo
-record](https://doi.org/10.5281/zenodo.19683708).
+The DOI above is the version DOI of 2.0.0. The concept DOI,
+[10.5281/zenodo.19683708](https://doi.org/10.5281/zenodo.19683708),
+covers every version and always resolves to the latest; cite it when the
+version does not matter.
 
 An auto-generated citation is also available in R:
 

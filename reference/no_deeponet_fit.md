@@ -134,7 +134,7 @@ round(c(train_mse = don$history[length(don$history)],
         nse_vs_mean_profile = 1 - sum((pred - soc[te, ])^2) /
                                   sum((soc[te, ] - null_prof)^2)), 4)
 #>           train_mse        mean_profile           test_rmse nse_vs_mean_profile 
-#>              0.0281              1.0000              0.3245              0.9625 
+#>              0.0281              1.0000              0.3249              0.9624 
 
 # The trunk accepts depths that were never in the training grid --
 # the property a pointwise regressor cannot have.  Score those
@@ -148,7 +148,7 @@ null_new <- matrix(approx(depths, colMeans(soc[tr, ]), xout = z_new,
 round(c(rmse = sqrt(mean((off - truth)^2)),
         nse  = 1 - sum((off - truth)^2) / sum((truth - null_new)^2)), 4)
 #>   rmse    nse 
-#> 0.7778 0.8128 
+#> 0.7783 0.8125 
 
 # Interpolating is not extrapolating.  Past the deepest training
 # depth the per-depth un-standardisation constants are held FLAT
@@ -161,7 +161,7 @@ round(c(mean_pred_300  = mean(deep[, 2]),
         mean_truth_300 = mean(truth_deep[, 2]),
         worst_site_err = max(abs(deep[, 2] - truth_deep[, 2]))), 3)
 #>  mean_pred_300 mean_truth_300 worst_site_err 
-#>          9.836          9.888          1.352 
+#>          9.837          9.888          1.359 
 
 # backend = "r" trains the second layer of each subnet; the first
 # hidden layers stay at their random initialisation.

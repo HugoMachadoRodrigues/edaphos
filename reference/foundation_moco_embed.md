@@ -96,7 +96,7 @@ print(c(chunked  = isTRUE(all.equal(chunk, emb[1:3, , drop = FALSE],
 }
 #> [1] 24 16
 #> backbone_cols     proj_cols  backbone_min      proj_min 
-#>    16.0000000     8.0000000     0.0000000    -0.8079856 
+#>    16.0000000     8.0000000     0.0000000    -0.8057999 
 #> [1] 1 1
 #>  chunked repeated 
 #>     TRUE     TRUE 
