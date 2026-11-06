@@ -1,0 +1,11 @@
+# Keeps the GitHub Actions used by the workflows current. The two third-party
+# actions are pinned to a commit SHA, not a tag -- the pages deploy runs with
+# `contents: write`, and a tag can be moved to different code -- so without
+# this file the pins would never be updated. Dependabot opens a PR that bumps
+# the SHA and the version comment beside it.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"

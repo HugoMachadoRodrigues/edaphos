@@ -5,7 +5,7 @@
 # This replaces the earlier causal_cerrado_real.rds, whose covariates were
 # rnorm() stand-ins and whose input bundle was .gitignore'd (finding F884A23).
 # Everything here is fetched from a public endpoint and every headline number
-# the pilar1-causal / capstone vignettes report is produced by this script.
+# the pillar1-causal / capstone vignettes report is produced by this script.
 #
 # Reproducibility: needs network + the `sf`, `terra`, `geodata`, `httr2`
 # packages and (for the IV step) `torch` with a working libtorch. It downloads

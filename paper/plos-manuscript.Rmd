@@ -17,7 +17,7 @@ suppressMessages(pkgload::load_all("..", quiet = TRUE))
 ex  <- function(f) readRDS(system.file("extdata", f, package = "edaphos"))
 fmt <- function(x, d = 3) formatC(x, format = "f", digits = d)
 CAU <- ex("causal_cerrado_real_v2.rds")
-B6  <- ex("benchmark_wosis_6pilar.rds")
+B6  <- ex("benchmark_wosis_6pillar.rds")
 EXTRA <- ex("interval_width_vs_extrapolation.rds")
 # The abstract reads these too. It used to hard-code them, and after the
 # Pillar-7 bracket change it carried 0.74 / 0.72 while the bundle said
@@ -31,12 +31,12 @@ PS <- ex("piml_prior_sensitivity.rds")
 SV <- ex("piml_stock_validation.rds")
 CVG <- ex("piml_coverage.rds")
 SC <- ex("piml_stock_at_scale.rds")
-P8 <- ex("pilar8_real_pedons.rds")
+P8 <- ex("pillar8_real_pedons.rds")
 AL <- ex("al_policy_benchmark.rds")
 sw <- PS$budget_sweep
 pt <- PS$table
 BUFEF <- ex("buffer_effect.rds")
-GAT <- ex("pilar10_gat_tuning.rds")
+GAT <- ex("pillar10_gat_tuning.rds")
 ```
 
 Hugo Machado Rodrigues^1^\*

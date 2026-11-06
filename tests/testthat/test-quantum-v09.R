@@ -47,17 +47,16 @@ test_that("aer_shots VQE on H2 lands within shot-noise tolerance", {
   expect_s3_class(fit, "edaphos_quantum_vqe")
   expect_equal(fit$backend, "aer_shots")
   expect_equal(fit$shots, 4096L)
-  # Shot-based VQE with 4096 shots and 40 SPSA iterations is stochastic by
-  # design; the canonical 1/sqrt(shots) ~16 mHa floor climbs several-fold under
-  # memory pressure or when another torch/GPU process competes -- which happens
-  # in a full-suite run right after a build (this test failed intermittently
-  # only under test_local, never under a fresh test_dir or R CMD check). The
-  # seed does not reach the Python aer sampler's shot RNG, so the bound must
-  # absorb that environmental variance. 0.30 Hartree still verifies the VQE
-  # lands in the bound-state region -- strictly below the ~0.8 Hartree H2
-  # binding energy -- without asserting a shot-noise floor the environment
-  # cannot guarantee.
-  expect_lt(fit$gap, 0.30)
+  # `seed` now reaches every RNG in the run -- qiskit-algorithms' generator
+  # (initial point, SPSA perturbations) and the simulator's shot noise -- so
+  # this is one fixed run, not a draw. It used to seed only numpy's global
+  # RNG, the run varied, and this assertion failed intermittently (a gap of
+  # 0.49 in one R CMD check). At seed = 1 the gap is 0.0087 Hartree.
+  expect_lt(fit$gap, 0.05)
+  again <- quantum_vqe_fit(ham, backend = "aer_shots",
+                           shots = 4096L, optimizer = "SPSA",
+                           max_iter = 40L, seed = 1L)
+  expect_identical(again$energy, fit$energy)
   # History is populated by the VQE callback.
   expect_gt(length(fit$history), 0L)
 })

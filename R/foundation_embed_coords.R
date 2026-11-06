@@ -1,18 +1,18 @@
-# Pillar 4 - point-specific embedding extraction (v1.9.1).
+# Pillar 4 - point-specific embedding extraction.
 #
 # `foundation_embed_at_coords()` extracts a MoCo-v2 embedding at each
 # row of a (lon, lat) coordinate frame by cutting a patch_size x
 # patch_size window out of a terra::SpatRaster stack, normalising with
 # the dataset's training means / sds, and running the encoder forward.
 #
-# Rationale.  The v1.9.0 IV benchmark builds proxy "foundation-like"
+# Rationale.  The IV benchmark originally built proxy "foundation-like"
 # features from the WoSIS covariates themselves -- these fail the
 # Sargan test because they are nonlinear functions of the exposures.
 # Real MoCo-v2 embeddings are extracted from raster patches centred
 # on each WoSIS profile; because the encoder was trained by
 # contrastive self-supervision on UNLABELLED rasters (never saw the
 # SOC target), they are the structurally principled instruments that
-# the v1.9.0 vignette argues for.
+# the IV vignette argues for.
 #
 # This function closes that gap: it is the exact analogue of
 # `foundation_moco_embed_raster()` but for scattered query points
@@ -21,7 +21,7 @@
 # Exports
 #   foundation_embed_at_coords()  : point-wise encoder extraction
 #   foundation_build_cerrado_stack(): minimal raster-stack helper
-#                                       for the v1.9.1 benchmark
+#                                       for the IV benchmark
 
 # ---------------------------------------------------------------------------
 # Point-specific encoder extraction
@@ -188,8 +188,7 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
                                          projection = FALSE,
                                          batch_size = 32L,
                                          max_na_share = 0.5) {
-  if (!requireNamespace("torch", quietly = TRUE))
-    stop("Install `torch` to run the encoder.", call. = FALSE)
+  .require_torch("foundation_embed_at_coords()")
   if (!requireNamespace("terra", quietly = TRUE))
     stop("Install `terra` to read raster patches.", call. = FALSE)
   stopifnot(
@@ -393,8 +392,8 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #' Build the Cerrado raster stack for IV / quantum-foundation benchmarks
 #'
 #' Downloads / assembles the covariate raster stack that the
-#' `edaphos-cerrado-moco-v1` encoder was pretrained on.  As of v4.0.0
-#' the stack matches the v1 encoder's 31-channel input schema:
+#' `edaphos-cerrado-moco-v1` encoder was pretrained on.  The stack matches
+#' the v1 encoder's 31-channel input schema:
 #'
 #' \itemize{
 #'   \item 5 SoilGrids layers for the 0-5 cm interval
@@ -421,8 +420,8 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #'
 #' Earlier versions assembled only a 10-channel subset, which forced
 #' the IV benchmark (`data-raw/causal_iv_benchmark_real.R`) to fall
-#' back to a synthetic 31-channel stack -- the v4.0.0 rewrite closes
-#' that gap.
+#' back to a synthetic 31-channel stack -- the 31-channel rewrite
+#' closes that gap.
 #'
 #' **Heavy download.**  Not because of the file it writes: the default
 #' 2-deg x 2-deg AoI at 0.01 deg is 200 x 200 cells x 31 `FLT4S`
@@ -444,7 +443,7 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #' @param force Logical; re-download even if a cached stack exists.
 #' @param schema One of `"v1_encoder"` (default; 31-channel encoder-
 #'   compatible stack) or `"minimal"` (10-channel legacy stack used
-#'   pre-v4.0.0).  Pass `"minimal"` to reproduce the older bundles.
+#'   by the older bundles).  Pass `"minimal"` to reproduce them.
 #' @return A `terra::SpatRaster` with the requested number of aligned
 #'   layers.
 #' @examples
@@ -509,7 +508,7 @@ foundation_embed_at_coords <- function(moco, coords, stack, dataset,
 #' # no monthly climate at all.  The published v1 encoder's input layer
 #' # is fixed at 31 channels -- `foundation_weights_list()` reports
 #' # `n_channels` -- so a minimal stack cannot feed it.  It exists to
-#' # reproduce the pre-v4.0.0 bundles.
+#' # reproduce the older, 10-channel bundles.
 #' legacy <- foundation_build_cerrado_stack(schema = "minimal")
 #' terra::nlyr(legacy)          # 10
 #'

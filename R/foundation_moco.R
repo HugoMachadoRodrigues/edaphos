@@ -26,11 +26,7 @@
 # soil-covariate stacks rather than natural photographs.
 
 .moco_require_torch <- function() {
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("Install the `torch` package to use foundation_moco_*().",
-         call. = FALSE)
-  }
-  invisible(TRUE)
+  .require_torch("foundation_moco_*()")
 }
 
 # ---- Backbone + projection head ---------------------------------------------

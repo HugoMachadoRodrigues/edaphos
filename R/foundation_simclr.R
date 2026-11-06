@@ -16,11 +16,7 @@
 # 0.1.0+.
 
 .foundation_require_torch <- function() {
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("Install the `torch` package to use foundation_simclr_*().",
-         call. = FALSE)
-  }
-  invisible(TRUE)
+  .require_torch("foundation_simclr_*()")
 }
 
 .foundation_build_encoder <- function() {

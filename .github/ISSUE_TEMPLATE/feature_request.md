@@ -9,8 +9,8 @@ assignees: []
 ## Motivation
 
 <!-- Which scientific gap or pedometric workflow does this address?
-If it relates to one of the 10 pillars, mention which (Pilar 1
-Causal AI, Pilar 7 BHS, Pilar 10 GAT, ...). -->
+If it relates to one of the 10 pillars, mention which (Pillar 1
+Causal AI, Pillar 7 BHS, Pillar 10 GAT, ...). -->
 
 ## Proposed API
 
@@ -23,7 +23,7 @@ my_new_function(arg1, arg2, ..., backend = c("r", "torch"))
 ## Why an existing function does not cover this
 
 <!-- e.g. "bhs_fit() handles spatial GP but not spatio-temporal
-GP", or "the v3.0.0 al_query_diffusion bridge is for raster
+GP", or "the al_query_diffusion bridge is for raster
 patches; we need a P9×P1 bridge for KG-conditioned diffusion". -->
 
 ## Reference / prior art

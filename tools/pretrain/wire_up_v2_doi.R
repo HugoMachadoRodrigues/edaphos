@@ -10,8 +10,8 @@
 ##
 ## Example:
 ##   Rscript tools/pretrain/wire_up_v2_doi.R \
-##     10.5281/zenodo.20000001 \
-##     https://zenodo.org/records/20000001/files/encoder_q.pt \
+##     10.5281/zenodo.XXXXXXXX \
+##     https://zenodo.org/records/XXXXXXXX/files/encoder_q.pt \
 ##     a1b2c3...e8f9 \
 ##     2026-05-01T18:30:00Z
 
@@ -25,10 +25,20 @@ URL    <- args[[2L]]
 SHA256 <- args[[3L]]
 PUB_AT <- args[[4L]]
 
-stopifnot(grepl("^10\\.5281/zenodo\\.", DOI))
-stopifnot(grepl("^https://zenodo\\.org/", URL))
+# Digits required, so the XXXXXXXX placeholder in the hand-off docs cannot be
+# pasted through by mistake. (Their earlier examples, zenodo.20000001 and
+# zenodo.1234567, were real records belonging to other people.)
+stopifnot(grepl("^10\\.5281/zenodo\\.[0-9]+$", DOI))
+stopifnot(grepl("^https://zenodo\\.org/records/[0-9]+/", URL))
 stopifnot(nchar(SHA256) == 64L)
 stopifnot(grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}T", PUB_AT))
+
+# The registry must not point at an undertrained encoder: the same 200k-step
+# check package_v2_for_zenodo.R makes before it packages the weights.
+state <- "tools/pretrain/edaphos-cerrado-moco-v2/checkpoints/state.rds"
+if (!file.exists(state) || readRDS(state)$next_epoch <= 200000L)
+  stop("the v2 encoder has not reached 200000 steps (", state, "); finish ",
+       "training and package it before wiring up a DOI", call. = FALSE)
 
 src <- "R/foundation_weights.R"
 txt <- readLines(src, warn = FALSE)
@@ -110,5 +120,5 @@ message("Now run:")
 message("  Rscript -e 'devtools::document(); devtools::test()'")
 message("  # then commit + push:")
 message("  git add R/foundation_weights.R")
-message("  git commit -m \"feat(v3.11.0): wire up edaphos-cerrado-moco-v2 DOI\"")
+message("  git commit -m \"feat: wire up edaphos-cerrado-moco-v2 DOI\"")
 message("  git push origin main")

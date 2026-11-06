@@ -64,8 +64,8 @@ test_that("a fully unobserved row or column is refused, not silently fitted", {
 })
 
 test_that("on measured pedons the operator loses to the depth-node mean", {
-  p <- system.file("extdata", "pilar8_real_pedons.rds", package = "edaphos")
-  if (!nzchar(p)) p <- file.path("inst", "extdata", "pilar8_real_pedons.rds")
+  p <- system.file("extdata", "pillar8_real_pedons.rds", package = "edaphos")
+  if (!nzchar(p)) p <- file.path("inst", "extdata", "pillar8_real_pedons.rds")
   skip_if_not(file.exists(p), "Pillar 8 real-pedon bundle not built")
   R8 <- readRDS(p)
   t8 <- R8$table

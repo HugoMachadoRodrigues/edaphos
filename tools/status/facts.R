@@ -242,8 +242,8 @@ code_facts <- safe({
     n_exports      = length(exports),
     exports        = exports,
     n_s3_methods   = length(grep("^S3method\\(", ns)),
-    # naming schism: ordinal- vs domain-named modules, pilar vs pillar
-    ordinal_named_r_files = basename(grep("R/pilar[0-9]", r_files, value = TRUE)),
+    # naming schism: ordinal- vs domain-named modules, pillar vs pillar
+    ordinal_named_r_files = basename(grep("R/pillar[0-9]", r_files, value = TRUE)),
     files_saying_pillar   = basename(r_files)[vapply(r_files, function(f)
       any(grepl("pillar", readLines(f, warn = FALSE), ignore.case = FALSE)), logical(1))],
     raw_stop_calls    = grep_count("\\bstop\\(", r_files),

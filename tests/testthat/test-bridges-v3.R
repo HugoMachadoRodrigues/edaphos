@@ -1,4 +1,4 @@
-## Tests for the six v3.0.0 cross-pilar bridges.
+## Tests for the six cross-pillar bridges.
 ##
 ##   al_query_neural_operator()   (P8 x P5)
 ##   al_query_diffusion()         (P9 x P5)
@@ -125,7 +125,7 @@ test_that("al_query_neural_operator: print emits a header", {
                                    n_select = 2L, n_pert = 2L, seed = 1L)
   out <- utils::capture.output(print(q))
   expect_true(any(grepl("edaphos_al_neural_operator_query", out)))
-  expect_true(any(grepl("Pilar 8 x Pilar 5", out)))
+  expect_true(any(grepl("Pillar 8 x Pillar 5", out)))
 })
 
 # ---------------------------------------------------------------------------
@@ -394,5 +394,5 @@ test_that("qf_krr_on_gat_embeddings: print method emits bridge tag", {
                                     reps = 1L, lambda = 0.5)
   out <- utils::capture.output(print(qk))
   expect_true(any(grepl("edaphos_qf_krr_gat", out)))
-  expect_true(any(grepl("Pilar 6 x Pilar 10", out)))
+  expect_true(any(grepl("Pillar 6 x Pillar 10", out)))
 })

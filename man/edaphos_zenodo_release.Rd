@@ -74,7 +74,7 @@ setdiff(list.files(out, recursive = TRUE), man$path)
 
 # The checksums are real, though: recompute one and compare.
 if (requireNamespace("digest", quietly = TRUE)) {
-  i <- match("bundles/pilar10_gat_tuning.rds", man$path)
+  i <- match("bundles/pillar10_gat_tuning.rds", man$path)
   print(identical(man$sha256[i],
                   digest::digest(file = file.path(out, man$path[i]),
                                  algo = "sha256")))

@@ -441,10 +441,19 @@ piml_profile_fit <- function(depths, values, y_surface = NULL,
                              start = NULL, reg = 1e-3,
                              control = list(maxit = 2000)) {
   family <- match.arg(family)
-  stopifnot(length(depths) == length(values),
-            length(depths) >= 2L,
-            all(is.finite(depths)), all(is.finite(values)),
-            all(depths >= 0))
+  .assert_type(is.numeric(depths), "depths", "numeric", class(depths)[1L])
+  .assert_type(is.numeric(values), "values", "numeric", class(values)[1L])
+  if (length(depths) != length(values))
+    .stopf("`depths` has %d values but `values` has %d.",
+           length(depths), length(values))
+  if (length(depths) < 2L)
+    .stopf("a profile needs at least 2 horizons; got %d.", length(depths))
+  if (!all(is.finite(depths)) || !all(is.finite(values)))
+    .stopf("`depths` and `values` must be finite; found NA, NaN or Inf.",
+           hint = "drop horizons with a missing measurement")
+  if (any(depths < 0))
+    .stopf("depths must be >= 0 (cm below the surface); got %s.",
+           format(min(depths)))
   if (!is.null(top) || !is.null(bottom)) {
     stopifnot(!is.null(top), !is.null(bottom),
               length(top) == length(values), length(bottom) == length(values),

@@ -32,7 +32,7 @@ suppressMessages(pkgload::load_all(".", quiet = TRUE))
 suppressMessages(library(dplyr))
 set.seed(20260501L)
 
-B   <- readRDS("inst/extdata/benchmark_wosis_6pilar.rds")
+B   <- readRDS("inst/extdata/benchmark_wosis_6pillar.rds")
 v28 <- readRDS("data-raw/build/benchmark_wosis_p4_p5_p7.rds")
 
 # Rebuild the benchmark's own profile table and folds so this diagnostic is

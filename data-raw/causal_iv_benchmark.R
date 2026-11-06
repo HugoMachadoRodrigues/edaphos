@@ -1,26 +1,23 @@
-## data-raw/causal_iv_benchmark.R (v1.9.0)
+## data-raw/causal_iv_benchmark.R
 ##
-## Benchmarks the new 2SLS IV estimator on the 1 095 real WoSIS
-## Cerrado profiles, using both a **synthetic-DGP sanity check** and
-## two production setups:
+## STEP 1 OF 2. Run data-raw/causal_iv_cerrado_rebuild.R afterwards. This
+## script writes the synthetic-DGP validation (syn_*: a known truth beta = 1.5
+## that 2SLS must recover) and a first real-data benchmark on 1,095 WoSIS
+## Cerrado profiles whose instruments are ENGINEERED proxy features -- the
+## encoder did not exist when it was written. The rebuild keeps the syn_*
+## slots and recomputes every real-data slot from the real MoCo-v2 encoder on
+## 3,020 profiles; that is the shipped bundle. Running this script alone
+## reverts the bundle to the proxy analysis.
 ##
-##   (A) Proxy-embedding IV: construct an engineered feature matrix
-##       that plausibly approximates what a foundation-model encoder
-##       would learn (interactions, ratios, nonlinear transforms,
-##       spatial basis), reduce to top-5 principal components, use
-##       those as instruments.  This is the PROVISIONAL analysis while
-##       the MoCo v2 encoder (Zenodo, in training) is finalised.
+## The proxy setup: an engineered feature matrix meant to approximate what an
+## encoder would learn (interactions, ratios, nonlinear transforms, spatial
+## basis), reduced to its top 5 principal components, used as instruments.
 ##
-##   (B) When EDAPHOS_USE_MOCO_V2=1 and the encoder is locally
-##       cached, the script replaces the engineered features with
-##       real MoCo v2 embeddings extracted at each WoSIS profile
-##       location (requires SoilGrids/WorldClim/SRTM raster stacks
-##       and the encoder weights).  Otherwise falls back to (A).
+## (A branch that was meant to swap in real MoCo embeddings here, gated on
+## EDAPHOS_USE_MOCO_V2=1, only ever raised "not yet implemented" and fell back
+## to the proxies. It is removed: the rebuild script is that path.)
 ##
-## The comparison table answers the central v1.9.0 question: do
-## foundation-style embeddings carry signal about unobserved
-## confounders that changes the causal effect recovered by the
-## backdoor estimator of v1.4.0?  Output:
+## Output:
 ##   inst/extdata/causal_iv_cerrado.rds
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
@@ -29,7 +26,6 @@ suppressMessages(library(dplyr))
 set.seed(20260425L)
 
 OUT_PATH <- file.path("inst", "extdata", "causal_iv_cerrado.rds")
-USE_MOCO <- identical(Sys.getenv("EDAPHOS_USE_MOCO_V2", ""), "1")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 0. Synthetic DGP sanity check (recovers true beta under known IV setup)
@@ -154,29 +150,11 @@ message(sprintf("  embedding matrix: %d x %d",
 proxy_features <- colnames(emb_proxy)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 2b. OPTIONAL: load MoCo v2 real embeddings if available
+# 2b. Instruments: the proxy embeddings (real ones: causal_iv_cerrado_rebuild.R)
 # ─────────────────────────────────────────────────────────────────────────────
-moco_embeddings <- NULL
-if (USE_MOCO) {
-  message("  [EDAPHOS_USE_MOCO_V2=1] Attempting to load MoCo v2 ...")
-  moco_embeddings <- tryCatch({
-    moco <- foundation_weights_load("edaphos-cerrado-moco-v1",
-                                      verbose = FALSE)
-    # Extract embedding at each profile location — would require
-    # raster stacks; deferred to v1.9.1 when the v2 encoder is published.
-    stop("MoCo v2 patch extraction not yet implemented; see v1.9.1 roadmap.")
-  }, error = function(e) {
-    message(sprintf("  [warn] MoCo fallback: %s", conditionMessage(e)))
-    NULL
-  })
-}
-if (is.null(moco_embeddings)) {
-  message("  Using PROXY embeddings (engineered features + PCA).")
-} else {
-  message("  Using MoCo v2 REAL embeddings.")
-}
+message("  Using PROXY embeddings (engineered features + PCA).")
 
-emb_used <- if (!is.null(moco_embeddings)) moco_embeddings else emb_proxy
+emb_used <- emb_proxy
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Per-exposure benchmark: OLS vs backdoor vs 2SLS(IV)
@@ -355,7 +333,7 @@ R_out <- list(
   iv_fits            = fit_list,
   iv_posteriors      = posterior_list,
   dag_adjustment_sets = adj_sets,
-  used_moco          = !is.null(moco_embeddings)
+  used_moco          = FALSE
 )
 
 saveRDS(R_out, OUT_PATH, compress = "xz")

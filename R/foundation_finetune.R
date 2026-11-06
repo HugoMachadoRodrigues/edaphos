@@ -38,11 +38,7 @@
 # --- device / module utilities ----------------------------------------------
 
 .ft_require_torch <- function() {
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("Install the `torch` package (and its MPS / CUDA backend) to use ",
-         "the fine-tuning API.", call. = FALSE)
-  }
-  invisible(TRUE)
+  .require_torch("The fine-tuning API")
 }
 
 .ft_resolve_device <- function(device = c("cpu", "mps", "cuda")) {

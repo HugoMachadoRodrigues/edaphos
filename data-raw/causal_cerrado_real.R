@@ -9,7 +9,7 @@
 # contrast the naive OLS association against the identified direct
 # effect for three exposures of practical interest.
 #
-# Output is a self-contained RDS that the `pilar1-causal` vignette
+# Output is a self-contained RDS that the `pillar1-causal` vignette
 # consumes so the vignette builds on any installation.
 
 suppressPackageStartupMessages({

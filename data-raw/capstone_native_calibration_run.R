@@ -1,8 +1,8 @@
 ## data-raw/capstone_native_calibration_run.R
 ##
-## v1.7.1 HOTFIX — Native-query calibration for each pillar.
+## Native-query calibration for each pillar.
 ##
-## Rationale.  The capstone vignette (v1.7.0) reported a calibration
+## Rationale.  The capstone vignette originally reported a calibration
 ## table in which every pillar was forced into a "predict SOC at WoSIS
 ## point" query.  That is the WRONG query for P1 (which natively
 ## predicts a SCALAR EFFECT, not a map) and the wrong query for P2
@@ -63,7 +63,7 @@ dag <- causal_rds$dag
 profiles_full$fold10 <- kmeans(profiles_full[, c("lon", "lat")],
                                 centers = 10L, nstart = 5L)$cluster
 
-# 250-profile working subset for fast build (matches v1.7.0 runner)
+# 250-profile working subset for fast build (matches data-raw/capstone_campaign_run.R)
 set.seed(1L)
 wosis <- profiles_full |>
   group_by(fold10) |>
@@ -91,7 +91,7 @@ safe_cal <- function(post, truth, label, method, query_type) {
               cal$mpiw[length(cal$mpiw) %/% 2]
     list(
       row = data.frame(
-        pilar      = label,
+        pillar      = label,
         method     = method,
         query      = query_type,
         n_truth    = length(truth),
@@ -105,7 +105,7 @@ safe_cal <- function(post, truth, label, method, query_type) {
     )
   }, error = function(e) {
     message("    [cal warn] ", label, ": ", conditionMessage(e))
-    list(row = data.frame(pilar = label, method = method, query = query_type,
+    list(row = data.frame(pillar = label, method = method, query = query_type,
                            n_truth = NA, crps = NA, picp = NA, mpiw = NA,
                            rmse = NA, stringsAsFactors = FALSE),
          reliability = NULL)

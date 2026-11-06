@@ -1,4 +1,4 @@
-# edaphos 0.9.0 (development version — not yet released)
+# edaphos 2.0.0
 
 edaphos is a research package for digital soil mapping beyond regression-tree
 models, organised around ten methodological pillars: (1) causal inference —
@@ -17,19 +17,73 @@ ten pillars be scored with the same calibration diagnostics; Pillars 8, 9 and
 to `backend = "auto"` — the trained torch model when a working libtorch is
 present, otherwise a pure-R reference path.
 
-This is the first development version being prepared for submission; the API is
-not yet stable.
+This is the first release since 1.6.0 and the first prepared for CRAN
+submission. The API may still change before that submission.
 
-## Development status
+## Release status
 
-The package has never been released. Earlier `NEWS.md` carried 43+
-version-numbered sections (0.8.0 → 4.1.0) written within a single development
-sprint; those were internal labels, not releases — the git tags run only to
-`v1.6.0` and then jump to `v3.10.0` / `v4.0.0`, and nothing named edaphos is on
-CRAN. Those sections are preserved in the git history; `NEWS.md` is reset here to
-a single honest development entry. Live, measured status (test counts, check
+Versions 0.1.0 to 1.6.0 were published on 2026-04-21–23 as GitHub Releases,
+each archived on Zenodo with its own DOI under the concept DOI
+10.5281/zenodo.19683708; none went to CRAN. The code released here was numbered 0.9.0 while it was
+being developed, until November 2026, which collided with the published 0.9.0
+(DOI 10.5281/zenodo.19697669) -- a permanent record of a different package.
+This release is therefore **2.0.0**, the major version above the last public
+release. (An earlier version of this paragraph said the package "has
+never been released"; the seventeen GitHub Releases and Zenodo deposits say
+otherwise.)
+
+Between 1.6.0 and this entry, `NEWS.md` carried 43+ version-numbered sections
+(up to 4.1.0) written within a single development sprint. Those were internal
+labels, not releases: none was tagged, released or deposited. They are
+preserved in the git history; `NEWS.md` is reset here to a single honest
+development entry. Live, measured status (test counts, check
 result, install size) is generated into `STATUS.md` and `cran-comments.md` by the
 scripts in `tools/status/`, not written by hand.
+
+## English throughout; "pilar" renamed to "pillar"
+
+* Every vignette, figure, comment and label is now in English. Five
+  vignettes were in Portuguese and have been translated; `DESCRIPTION`
+  declares `Language: en-US`.
+* Identifiers used "pilar", the Portuguese word. They now say "pillar":
+  `vignette("pilar6-quantum")` is `vignette("pillar6-quantum")`, and so on
+  for all fifteen pillar vignettes and articles. On the pkgdown site the old
+  article addresses redirect to the new ones. No exported function carried
+  either spelling.
+* Three bundles are renamed — `pillar8_real_pedons.rds`,
+  `benchmark_wosis_6pillar.rds`, `pillar10_gat_tuning.rds` — and the two
+  capstone bundles' labels are translated ("Tree cover (%)", "Clay (%)",
+  "SOC (g/kg)", column `pillar`). No value changed: the script that did it,
+  `data-raw/rename_bundles_to_english.R`, checks that reversing the
+  relabelling gives back the original object exactly, and it records itself
+  in each bundle's provenance with the previous producer kept in the chain.
+
+## Print methods that misstated what they printed
+
+Found by snapshot-testing every print and summary method; each fix has a
+test that fails on the old output.
+
+* `print(<edaphos_dag_test>)` declared a DAG "not compatible with the data"
+  when any single conditional-independence test rejected at 5%, with no
+  correction for the number of tests (6 of 66 rejected where 3.3 are
+  expected by chance). The verdict now uses Holm's correction, and the
+  print shows the unadjusted count beside the number expected by chance.
+  `causal_dag_test()` stores `n_rejected_holm`.
+* `print(<edaphos_gnn_gat>)` reported the last epoch's loss as "final MSE"
+  for a model whose returned weights came from the early-stopping epoch --
+  sometimes epoch 1, the untrained weights. It now names the epoch whose
+  weights were returned and labels the loss as what it is (standardised
+  scale, ridge penalty included).
+* `print(<edaphos_piml_bayes>)` headlined the MAP noise sigma, which can
+  lie outside the same print's 95% interval, under a "natural scale"
+  heading. It is now labelled as the posterior mode, with its meaning per
+  family (a coefficient of variation under the lognormal).
+* `print(<edaphos_causal_effect>)` said the naive effect was "likely
+  confounded" whatever the numbers; it now prints adjusted minus naive.
+* Smaller: the GAT and GAT-embedding prints counted embedding columns
+  differently; the GAT ensemble counted held-out nodes as trained on;
+  spatial-fold percentages had the wrong denominator; ConvLSTM-ensemble
+  losses below 5e-5 printed as 0.0000.
 
 ## Results that were wrong without saying so
 
@@ -49,6 +103,13 @@ scripts in `tools/status/`, not written by hand.
 * `quantum_kernel()` refuses a `reps` that is not a whole number >= 1 (`reps
   = 0` returned an all-ones kernel), and both backends stop before allocating
   more than 8 GB of state vectors (`backend = "r"` had no guard at all).
+* `quantum_vqe_fit(seed =)` did not make a run reproducible, though its
+  documentation said so: it seeded numpy's global generator, while
+  qiskit-algorithms draws the initial point and SPSA's perturbations from its
+  own, and Aer samples shot noise from a third. It now seeds all three; a
+  seeded run repeats to the last bit. On `"aer_shots"` this means the same
+  noise draw at every evaluation (Aer's semantics), which the help page
+  states.
 * `causal_iv_fit_2sls()` refuses designs that do not identify the effect and
   drops redundant covariates and instruments with a warning; previously a
   pseudo-inverse returned values with no meaning. `causal_iv_posterior()`
@@ -371,7 +432,7 @@ They are corrected here rather than merely deleted:
   MoCo-v2 encoder on real WoSIS Cerrado profiles, the embedding-PC instruments
   are strong (stage-1 F ≈ 1955) but **fail** the Sargan over-identification test
   (p ≈ 3×10⁻¹³): a learned representation does not manufacture a valid
-  instrument. The README and the `pilar1-pilar4-iv` vignette now report this
+  instrument. The README and the `pillar1-pillar4-iv` vignette now report this
   negative result, and `tests/testthat/test-causal-real-bundle.R` binds the
   figures to the shipped bundle so they cannot drift again.
 - **Multi-backend LLM benchmark** (Gemma 4 / GPT-4o-mini / Claude). The shipped

@@ -1,4 +1,4 @@
-## Tests for the v2.1.3 Rcpp port of quantum_kernel().
+## Tests for the Rcpp port of quantum_kernel().
 ##
 ## Validates numerical agreement with the pure-R reference AND the
 ## promised speed-up.

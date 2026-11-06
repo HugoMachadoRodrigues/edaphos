@@ -1,0 +1,65 @@
+// Source of the capstone pipeline diagram. Rendered to vignettes/figures/capstone-pipeline.svg by
+// tools/render-vignette-diagrams.R; edit this file, then re-run that script.
+digraph pipeline {
+  graph [rankdir=TB, fontname="Helvetica", bgcolor="#FAFAFA",
+         label="edaphos pipeline — Cerrado sampling campaign",
+         labelloc=t, fontsize=14]
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11]
+
+  # Input data
+  D  [label="Input data\n(WoSIS · MODIS NDVI\nNASA POWER · 10x10 grid)",
+      fillcolor="#E8F4FD", color="#2980B9"]
+
+  # Six pillars
+  P1 [label="Pillar 1 — Causal AI\n(LLM KG + DAG + backdoor)",
+      fillcolor="#D5E8D4", color="#27AE60"]
+  P2 [label="Pillar 2 — PIML\n(pedogenetic ODE + Neural ODE)",
+      fillcolor="#D5E8D4", color="#27AE60"]
+  P3 [label="Pillar 3 — 4D pedometry\n(ConvLSTM + localised EnKF)",
+      fillcolor="#FFF3CD", color="#E67E22"]
+  P4 [label="Pillar 4 — Foundation model\n(SimCLR/MoCo + ensemble)",
+      fillcolor="#FFF3CD", color="#E67E22"]
+  P5 [label="Pillar 5 — Active learning\n(cLHS + QRF + physics)",
+      fillcolor="#FCE4D6", color="#C0392B"]
+  P6 [label="Pillar 6 — Quantum ML\n(ZZFeatureMap + KRR GP)",
+      fillcolor="#EDE7F6", color="#6C3483"]
+
+  # Unified API
+  API [label="edaphos_posterior\n(unified API)",
+       fillcolor="#F9F9F9", color="#555555", shape=ellipse]
+
+  # Calibration
+  CAL [label="uncertainty_calibrate()\nCRPS · PICP · MPIW",
+       fillcolor="#F0F0F0", color="#555555"]
+
+  # Decision
+  DEC [label="Decision: 8 locations\nfor field sampling",
+       fillcolor="#D6EAF8", color="#154360", shape=diamond,
+       style="filled,bold"]
+
+  # Edges
+  D   -> P1 [label="WoSIS profiles\n+ literature"]
+  D   -> P2 [label="WoSIS profiles"]
+  D   -> P3 [label="NDVI+POWER\n4D cube"]
+  D   -> P4 [label="raster\npatches"]
+  D   -> P5 [label="candidate\ncovariates"]
+  D   -> P6 [label="normalised\nfeatures"]
+
+  P1  -> API [label="causal effect\nposterior"]
+  P2  -> API [label="depth\nprofile"]
+  P3  -> API [label="temporal\ndynamics"]
+  P4  -> API [label="landscape\nprediction"]
+  P5  -> API [label="QRF\nuncertainty"]
+  P6  -> API [label="quantum GP\nvariance"]
+
+  API -> CAL
+  CAL -> DEC
+
+  # Links between pillars
+  P1  -> P2  [style=dashed, color="#27AE60",
+              label="DAG constrains\nODE parameters"]
+  P2  -> P5  [style=dashed, color="#E67E22",
+              label="physics gate:\nrejects implausible\ncandidates"]
+  P3  -> P5  [style=dashed, color="#E67E22",
+              label="SOC dynamics:\nprioritise areas\nof change"]
+}

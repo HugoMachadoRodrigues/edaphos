@@ -221,7 +221,7 @@ quantum_kernel <- function(X, Y = NULL, reps = 2L,
             "Consider reducing the feature count.", call. = FALSE)
   }
 
-  # v2.1.3 fast path: Rcpp state-vector simulator (10-50x speedup).
+  # Fast path: Rcpp state-vector simulator (10-50x speedup).
   if (backend == "rcpp") {
     return(quantum_kernel_rcpp(
       X    = X,
@@ -376,8 +376,18 @@ quantum_scale <- function(X, lower = 0, upper = pi) {
 #' }
 quantum_krr_fit <- function(X, y, reps = 2L, lambda = 0.1) {
   X <- as.matrix(X)
+  .assert_type(is.numeric(X), "X", "a numeric matrix or data frame",
+               paste("a", typeof(X), "matrix"),
+               hint = "drop or encode non-numeric columns first")
+  .assert_type(is.numeric(y), "y", "numeric", class(y)[1L])
   y <- as.numeric(y)
-  stopifnot(nrow(X) == length(y), lambda > 0)
+  if (nrow(X) != length(y))
+    .stopf("`X` has %d rows but `y` has %d values.", nrow(X), length(y))
+  if (!all(is.finite(X)) || !all(is.finite(y)))
+    .stopf("`X` and `y` must be finite; found NA, NaN or Inf.",
+           hint = "impute or drop incomplete rows before fitting")
+  .assert_type(is.numeric(lambda) && length(lambda) == 1L && lambda > 0,
+               "lambda", "a single positive number", format(lambda))
   K <- quantum_kernel(X, reps = reps)
   # Centre the response and carry the offset as an explicit intercept.
   #

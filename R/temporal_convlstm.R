@@ -6,15 +6,11 @@
 # forecasting pattern when future drivers are known, e.g. from weather
 # forecasts).
 #
-# All torch code is guarded by `requireNamespace("torch")` so the
-# package loads cleanly without libtorch.
+# All torch code is guarded by .require_torch() so the package loads
+# cleanly without libtorch.
 
 .temporal_require_torch <- function() {
-  if (!requireNamespace("torch", quietly = TRUE)) {
-    stop("Install the `torch` package to use temporal_convlstm_*().",
-         call. = FALSE)
-  }
-  invisible(TRUE)
+  .require_torch("temporal_convlstm_*()")
 }
 
 .temporal_build_cell <- function() {
@@ -339,7 +335,9 @@ temporal_convlstm_fit <- function(sequence, target,
   if (!inherits(target, "torch_tensor")) {
     target <- torch::torch_tensor(target)$to(dtype = torch::torch_float())
   }
-  stopifnot(sequence$dim() == 5L)
+  if (sequence$dim() != 5L)
+    .stopf("`sequence` must have 5 dimensions (batch, time, channel, height, width); got %d.",
+           sequence$dim(), hint = "temporal_cube_to_tensor() builds this layout")
   if (return_sequence) {
     stopifnot(target$dim() == 4L)
   } else {
@@ -597,7 +595,9 @@ temporal_convlstm_predict <- function(object, sequence,
 #'   print(round(sd_ * rmse(ins, past_y), 3))          # 0.288
 #'
 #'   # Training longer widens that gap rather than closing it: the fit
-#'   # keeps improving while the forecast decays.
+#'   # keeps improving while the forecast decays. (Not run on CRAN: a
+#'   # second, 300-epoch fit puts this example over the time limit.)
+#'   \donttest{
 #'   more <- temporal_convlstm_fit(past, past_y, hidden_dims = 8L,
 #'                                 return_sequence = TRUE,
 #'                                 epochs = 300L, lr = 0.05, seed = 1L)
@@ -608,6 +608,7 @@ temporal_convlstm_predict <- function(object, sequence,
 #'     h2 = sd_ * rmse(fc2[1, 2, , ], fut_y[1, 2, , ])), 3))
 #'   # in_sample        h1        h2
 #'   #     0.176     2.451     5.685
+#'   }
 #'
 #'   # The cause is not compounding feedback -- there is none -- it is
 #'   # extrapolation. A third of the forecast window is wetter than

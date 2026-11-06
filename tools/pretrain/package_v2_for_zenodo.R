@@ -13,28 +13,30 @@
 ## Usage:
 ##   Rscript tools/pretrain/package_v2_for_zenodo.R
 
-suppressPackageStartupMessages({
-  if (!requireNamespace("digest",   quietly = TRUE)) install.packages("digest")
-  if (!requireNamespace("jsonlite", quietly = TRUE)) install.packages("jsonlite")
-})
+for (pkg in c("digest", "jsonlite"))
+  if (!requireNamespace(pkg, quietly = TRUE))
+    stop("package '", pkg, "' is required: install.packages(\"", pkg, "\")")
 
 V2_DIR <- "tools/pretrain/edaphos-cerrado-moco-v2"
 OUT    <- "tools/pretrain/zenodo-upload"
 ZIP    <- "tools/pretrain/zenodo-upload.zip"
+RESUME <- "Rscript data-raw/pretrain_cerrado_train_v2.R"
 
-stopifnot(file.exists(file.path(V2_DIR, "encoder_q.pt")))
-stopifnot(file.exists(file.path(V2_DIR, "metadata.json")))
-stopifnot(file.exists(file.path(V2_DIR, "loss_history.rds")))
+# Pre-flight first: an undertrained encoder is the likely failure, and it
+# deserves a message that says how to fix it, not a bare stopifnot() on a
+# missing file.
+state <- file.path(V2_DIR, "checkpoints", "state.rds")
+if (!file.exists(state))
+  stop("No training checkpoint at ", state, ". Start training with:\n  ", RESUME)
+ck <- readRDS(state)
+if (ck$next_epoch <= 200000L)
+  stop(sprintf("Encoder still at step %d / 200000. Resume training first:\n  %s",
+               ck$next_epoch - 1L, RESUME))
 
-# Pre-flight: confirm we hit 200k steps
-ck <- readRDS(file.path(V2_DIR, "checkpoints", "state.rds"))
-if (ck$next_epoch <= 200000L) {
-  stop(sprintf(
-    "Encoder still at step %d / 200000.  Resume training first via\n",
-    ck$next_epoch - 1L,
-    "  Rscript data-raw/pretrain_cerrado_train_v2.R"
-  ))
-}
+for (f in c("encoder_q.pt", "metadata.json", "loss_history.rds"))
+  if (!file.exists(file.path(V2_DIR, f)))
+    stop("Training reached 200000 steps but ", file.path(V2_DIR, f),
+         " is missing; re-run ", RESUME, " to write the final artefacts.")
 message(sprintf("[zenodo-pkg] v2 confirmed at step %d (loss %.4f).",
                  ck$next_epoch - 1L, tail(ck$loss_history, 1L)))
 

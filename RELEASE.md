@@ -13,34 +13,28 @@ cannot tell which is authoritative.
 **This file carries no version number on purpose.**  Both predecessors
 were headed with one (v2.9.1 and v3.10.0) and both went stale the moment
 the version moved; the version this applies to is whatever
-`DESCRIPTION` says, currently 0.9.0 and not yet released.
+`DESCRIPTION` says, currently 2.0.0.
 
-## Before any of this: the tag name is taken
+## The version is 2.0.0, and why
 
-`v3.10.0` and `v4.0.0` — tags for the inflated versions `NEWS.md`
-withdrew as unreproducible — **have been deleted**, locally and on the
-remote. The commits they marked are still in `main`'s history; only the
-version labels are gone.
+`v3.10.0` and `v4.0.0` -- tags for inflated versions `NEWS.md` withdrew as
+unreproducible -- were deleted, locally and on the remote. The commits they
+marked are still in `main`'s history; only the labels are gone.
 
-`v0.9.0` was **not** deleted, and an earlier draft of this file was wrong
-to group it with them. It is not a withdrawn tag: it belongs to the
-original `v0.1.0`→`v1.6.0` run and marks a genuine 0.9.0 released on
-2026-04-22 (`a394911`), whose `DESCRIPTION` reads `Version: 0.9.0`. The
-collision exists because the version number was **reset** to 0.9.0, so
-today's 0.9.0 is a different package wearing a used number.
+`v0.1.0` to `v1.6.0` were **not** deleted, and are not withdrawn: each is a
+public GitHub Release, and each is archived on Zenodo with its own DOI under
+the concept DOI `10.5281/zenodo.19683708` (measured 2026-11-04: seventeen
+versions, v0.9.0 = `10.5281/zenodo.19697669`, v1.6.0 =
+`10.5281/zenodo.19710162`). A Zenodo DOI cannot be deleted. The development
+version was numbered 0.9.0 until November 2026, which made it a different
+package wearing a used number; deleting the `v0.9.0` tag would not have freed
+the number, because the DOI would remain.
 
-That leaves a real choice, and it is the maintainer's:
-
-1. **Delete `v0.9.0` too**, accepting that a legitimate historical marker
-   is destroyed to make a number reusable, and that anyone who fetched it
-   keeps a stale reference pointing at unrelated code; or
-2. **Release under a version the earlier run did not consume** — anything
-   past `1.6.0` — which leaves history intact and costs only the appeal
-   of a low version number.
-
-Option 2 is the one that destroys nothing. Until either is taken,
-`git tag v0.9.0` fails and `.github/workflows/release-tag.yaml` refuses,
-naming which of its three checks did so. It defaults to a dry run.
+**Decided by the maintainer on 2026-11-04: the first release is 2.0.0**, the
+major version above the last public release, which also signals the
+breaking changes since 1.6.0. Nothing is deleted. `release-tag.yaml` checks
+that `v2.0.0` is free, that `NEWS.md` has its heading, and that NEWS no
+longer says "development version"; it defaults to a dry run.
 
 ---
 
@@ -58,10 +52,20 @@ The automated machinery assumes you are the package maintainer with
 
 ---
 
-## 1. Update the Zenodo concept DOI for v2.9.0+
+## 1. Deposit 2.0.0 on Zenodo
 
-The badge in README currently resolves to **v0.2.0** because the
-concept DOI was minted early.  To bring it up to date:
+The README badge is the concept DOI, which always resolves to the latest
+deposited version -- today 1.6.0, not 0.2.0 as an earlier version of this
+file said. Once 2.0.0 is deposited the same badge resolves to it.
+
+The GitHub-Zenodo integration appears to be active: each of the seventeen
+GitHub Releases from 0.1.0 to 1.6.0 has a Zenodo deposit dated the same day.
+If it still is, **publishing the GitHub Release `v2.0.0` deposits it
+automatically**, using the metadata in `.zenodo.json` -- so check that file
+first: version 2.0.0, a description of what ships. Confirm on the Zenodo
+record that the deposit appeared under the concept DOI.
+
+If the integration is off, deposit by hand:
 
 ```r
 # From the package root, in an R session:
@@ -104,7 +108,7 @@ This produces **two deliverables**:
 
 The workflow `.github/workflows/pkgdown.yaml` is already wired; it
 deploys to the `gh-pages` branch on every push to `main`, using
-`JamesIves/github-pages-deploy-action@v4.5.0` (`:61`).
+`JamesIves/github-pages-deploy-action`, pinned to the commit of v4.5.0.
 
 Before enabling the site, note that the pkgdown build was **broken**
 until the correctness campaign fixed it: the reference index aborted on
@@ -186,12 +190,13 @@ The package qualifies for rOpenSci's "Statistical software" category
 
 Once all four steps are executed:
 
-* Update the README badge row:
-  - Replace the v0.2.0-era Zenodo DOI badge with the new
-    version-specific DOI.
-  - Add CRAN status and pkgdown-site badges.
-* Close the roadmap items `v3.0.0: CRAN + rOpenSci submission` in
-  the README roadmap table.
+* Record the 2.0.0 version DOI: add it to `CITATION.cff` under
+  `identifiers:`, set `date-released`, and add it beside the concept-DOI
+  badge in the README. Keep the concept-DOI badge: it resolves to the
+  latest version by design.
+* Add CRAN status and pkgdown-site badges.
+* Mark "CRAN and rOpenSci submission of 2.0.0" done in the README's
+  "Releases and roadmap" section.
 * Post a brief announcement on the Pedometrics community lists
   (AG-Pedo, linkedin/pedometrics.org, X) pointing at the Zenodo DOI.
 

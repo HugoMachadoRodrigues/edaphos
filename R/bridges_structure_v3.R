@@ -1,8 +1,8 @@
-# Structural bridges between pilares (edaphos v3.0.0).
+# Structural bridges between pillars.
 #
-#   gnn_causal_discovery()           (Pilar 10 x Pilar 1)
-#   temporal_piml_loss()             (Pilar 2 x Pilar 3)
-#   qf_krr_on_gat_embeddings()       (Pilar 6 x Pilar 10)
+#   gnn_causal_discovery()           (Pillar 10 x Pillar 1)
+#   temporal_piml_loss()             (Pillar 2 x Pillar 3)
+#   qf_krr_on_gat_embeddings()       (Pillar 6 x Pillar 10)
 
 # ---------------------------------------------------------------------------
 # P10 x P1 -- Graph-based causal discovery
@@ -10,10 +10,10 @@
 #
 # Hypothesis
 # ----------
-# Node-level embeddings learned by a GAT (Pilar 10) encode the
+# Node-level embeddings learned by a GAT (Pillar 10) encode the
 # conditional-correlation structure of each profile's covariates
 # given its k-NN neighbourhood.  If we run `causal_structure_learn`
-# (Pilar 1) on the *embedding-augmented* feature frame -- covariates
+# (Pillar 1) on the *embedding-augmented* feature frame -- covariates
 # + GAT embeddings -- bnlearn can recover a DAG that respects both
 # the direct feature dependencies AND the spatial-neighbourhood
 # conditioning the GAT has already absorbed.
@@ -22,7 +22,7 @@
 # (unlike a raw spatial DAG) has interpretable node identities
 # because we restrict the whitelist to feature names.
 
-#' Graph-based causal discovery (Pilar 10 x Pilar 1)
+#' Graph-based causal discovery (Pillar 10 x Pillar 1)
 #'
 #' Runs `causal_structure_learn()` on a feature frame augmented with
 #' GAT node embeddings, which act as nuisance conditioners absorbing
@@ -170,10 +170,10 @@ gnn_causal_discovery <- function(gnn_fit, feature_frame,
 #
 # Hypothesis
 # ----------
-# The v1.5.0 ConvLSTM (Pilar 3) optionally includes a mass-balance
+# The v1.5.0 ConvLSTM (Pillar 3) optionally includes a mass-balance
 # physics loss that penalises pixel-wise SOC dynamics inconsistent
 # with a soil-carbon accounting.  But the accounting rate is a
-# hard-coded scalar.  The Pilar 2 pedogenetic ODE gives us a
+# hard-coded scalar.  The Pillar 2 pedogenetic ODE gives us a
 # principled site-specific rate: the `lambda0` parameter of the
 # `piml_profile_fit()` result.
 #
@@ -181,11 +181,11 @@ gnn_causal_discovery <- function(gnn_fit, feature_frame,
 # in the ConvLSTM training loop that CONSUMES an ODE fit and
 # computes the appropriate physics residual per pixel.
 
-#' Physics-informed ConvLSTM mass-balance loss (Pilar 2 x Pilar 3)
+#' Physics-informed ConvLSTM mass-balance loss (Pillar 2 x Pillar 3)
 #'
 #' Factory that returns a `function(y_pred, y_true, driver)` closure
 #' penalising SOC-dynamics predictions that violate the local-rate
-#' kinetics inferred from the Pilar 2 ODE fit.
+#' kinetics inferred from the Pillar 2 ODE fit.
 #'
 #' [`temporal_convlstm_fit()`] has no argument that takes this
 #' closure: its physics term is the built-in mass-balance
@@ -331,14 +331,15 @@ temporal_piml_loss <- function(ode_fit, weight = 0.1) {
 #
 # Hypothesis
 # ----------
-# GAT node embeddings (Pilar 10) summarise each profile's local
-# neighbourhood in a compact low-dim space.  The Pilar 6 ZZFeatureMap
+# GAT node embeddings (Pillar 10) summarise each profile's local
+# neighbourhood in a compact low-dim space.  The Pillar 6 ZZFeatureMap
 # lifts that space into a 2^n-dim Hilbert.  Composing them yields a
 # quantum kernel over graph-aware representations -- a strict
-# generalisation of the v2.0.0 quantum-foundation fusion, now with
+# generalisation of the Pillar 4 x Pillar 6 quantum-foundation fusion
+# (qf_krr_fit()), now with
 # network structure baked into the node representation.
 
-#' Quantum KRR over GAT node embeddings (Pilar 6 x Pilar 10)
+#' Quantum KRR over GAT node embeddings (Pillar 6 x Pillar 10)
 #'
 #' Thin composition: take the GAT embedding matrix, PCA-reduce to
 #' `n_pcs`, feed to [`quantum_krr_fit()`].  Returns a combined fit
@@ -429,8 +430,15 @@ unclass_to_qf <- function(x) {
 
 #' @export
 print.edaphos_qf_krr_gat <- function(x, ...) {
-  cat("<edaphos_qf_krr_gat>  (Pilar 6 x Pilar 10)\n")
-  cat(sprintf("  GAT emb_dim   : %d\n", ncol(x$gnn_fit$emb)))
+  cat("<edaphos_qf_krr_gat>  (Pillar 6 x Pillar 10)\n")
+  # The KRR is fed gnn_embed(): the learned columns only. Say so, and say what
+  # it leaves out, so this line and print(gnn_fit) count the same thing.
+  g <- x$gnn_fit
+  n_skip <- if (isTRUE(g$readout_skip)) ncol(g$graph$features) else 0L
+  cat(sprintf("  GAT embedding : %d learned columns%s\n", ncol(g$emb),
+              if (n_skip > 0L)
+                sprintf(" (excludes the %d raw-feature skip)", n_skip)
+              else ""))
   cat(sprintf("  qubits (PCs)  : %d\n", x$n_pcs))
   cat(sprintf("  reps          : %d   lambda = %.3g\n",
                x$reps, x$lambda))

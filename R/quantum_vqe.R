@@ -464,17 +464,14 @@ print.edaphos_quantum_hamiltonian <- function(x, ...) {
 #'   c(hardware = fq$gap, exact_sim = fit$gap)
 #' }
 #'
-#' # Caveat for all three: `seed` does NOT make quantum_vqe_fit()
-#' # reproducible -- it seeds numpy's legacy global RNG, not the
-#' # generator qiskit-algorithms draws the initial point from, so
-#' # five runs at seed = 1L gave gaps from 5e-10 to 1e-4.  Pass an
-#' # explicit `initial_point` (12 angles for 2 qubits at reps = 2)
-#' # and `$energy` repeats to the last bit across sessions; `$gap`
-#' # still wobbles at 1e-15 because `exact` does.
-#' p0 <- rep(0.1, 12)
-#' a <- quantum_vqe_fit(h2, initial_point = p0)$energy
-#' b <- quantum_vqe_fit(h2, initial_point = p0)$energy
-#' identical(a, b)             # TRUE, both -1.857131658135603
+#' # Reproducibility: `seed` seeds the generator qiskit-algorithms draws
+#' # the initial point and SPSA's perturbations from and, on "aer_shots",
+#' # the simulator's shot noise, so `$energy` repeats to the last bit.
+#' # (`$gap` wobbles at 1e-15 because `exact` does.) On "ibmq" hardware
+#' # noise is not seedable. An explicit `initial_point` also fixes the start.
+#' a <- quantum_vqe_fit(h2, seed = 1L)$energy
+#' b <- quantum_vqe_fit(h2, seed = 1L)$energy
+#' identical(a, b)             # TRUE
 #' }
 #' @export
 quantum_vqe_exact <- function(hamiltonian) {
@@ -517,7 +514,8 @@ quantum_vqe_exact <- function(hamiltonian) {
 #              Consulted only when `backend = "ibmq"`.
 .qk_estimator <- function(backend, shots = NULL,
                             mitigation = "none",
-                            ibmq_backend = NULL) {
+                            ibmq_backend = NULL,
+                            seed = NULL) {
   backend <- tolower(backend)
   if (backend == "aer_statevector") {
     return(.qk_env$qp$StatevectorEstimator())
@@ -527,6 +525,11 @@ quantum_vqe_exact <- function(hamiltonian) {
     shots <- if (is.null(shots)) 4096L else as.integer(shots)
     precision <- 1 / sqrt(as.numeric(shots))
     opts <- reticulate::dict(default_precision = precision)
+    # The estimator draws its shot noise from a generator seeded by
+    # run_options$seed_simulator; without it every run differs whatever
+    # `seed` the caller passed.
+    if (!is.null(seed))
+      opts["run_options"] <- reticulate::dict(seed_simulator = as.integer(seed))
     if (!identical(mitigation, "none")) {
       message("note: `mitigation` is a no-op on backend 'aer_shots' ",
               "(qiskit-aer's primitive has no hardware mitigation). ",
@@ -620,8 +623,14 @@ quantum_vqe_exact <- function(hamiltonian) {
 #'   backend (e.g. `"ibm_brisbane"`, `"ibm_sherbrooke"`) when
 #'   `backend = "ibmq"`. If `NULL`, the least-busy operational
 #'   backend available to the account is selected automatically.
-#' @param seed Optional integer — seeds NumPy / Qiskit RNGs for
-#'   reproducible runs.
+#' @param seed Optional integer. Seeds NumPy, the qiskit-algorithms
+#'   generator (random initial point, SPSA perturbations) and, on
+#'   `"aer_shots"`, the simulator's shot noise, so a run repeats exactly.
+#'   On `"aer_shots"` Aer re-seeds that noise at every energy evaluation,
+#'   so a seeded run adds the same noise draw each time -- a fixed offset
+#'   of size about `1 / sqrt(shots)` -- rather than fresh noise; leave
+#'   `seed = NULL` to study the optimiser under varying shot noise. Real
+#'   hardware (`"ibmq"`) cannot be seeded.
 #' @param initial_point Optional numeric vector — custom starting
 #'   ansatz parameters. Defaults to Qiskit's random initial point.
 #'
@@ -697,6 +706,11 @@ quantum_vqe_fit <- function(hamiltonian,
   if (!is.null(seed)) {
     np <- reticulate::import("numpy", delay_load = FALSE)
     np$random$seed(as.integer(seed))
+    # qiskit-algorithms draws VQE's random initial point and SPSA's
+    # perturbations from its own generator, not numpy's global one; seeding
+    # only numpy left both unseeded.
+    ag <- reticulate::import("qiskit_algorithms.utils", delay_load = FALSE)
+    ag$algorithm_globals$random_seed <- as.integer(seed)
   }
 
   # Hardware-efficient ansatz. We use the function form introduced in
@@ -713,7 +727,8 @@ quantum_vqe_fit <- function(hamiltonian,
   estimator <- .qk_estimator(backend,
                               shots        = shots,
                               mitigation   = mitigation,
-                              ibmq_backend = ibmq_backend)
+                              ibmq_backend = ibmq_backend,
+                              seed         = seed)
   opt <- .qk_optimizer(optimizer, max_iter)
 
   # Capture the optimisation trajectory via the VQE callback.

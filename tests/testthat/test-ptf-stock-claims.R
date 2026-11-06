@@ -75,6 +75,10 @@ test_that("the at-scale table is not presented as a validated stock", {
   # If a future change ever joins a measured density here, this test should
   # fail and the caption's careful wording revisited rather than kept.
   A <- S$at_scale
+  # The record-level table was removed with the third-party records
+  # (data-raw/strip_third_party_records.R). Without this skip the three
+  # assertions below ran on NULL and passed without checking anything.
+  skip_if(is.null(A), "piml_stock_at_scale.rds no longer ships $at_scale")
   expect_true(all(is.finite(A$bd)))
   expect_equal(A$stock_obs, A$stock_obs, tolerance = 0)
   # the modelled density has the narrow range that made it biased

@@ -194,7 +194,7 @@
 #' and it is not testable from a single profile.
 #'
 #' @seealso [piml_profile_fit()] for the attenuating-rate form, and
-#'   `vignette("pilar2-piml-profile")` for the comparison.
+#'   `vignette("pillar2-piml-profile")` for the comparison.
 #' @export
 #' @examples
 #' # A simulated Cerrado-shaped profile. This package ships no real soil

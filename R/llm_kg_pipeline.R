@@ -1,7 +1,7 @@
-# Pilar 1 -- 10k LLM-KG pipeline (edaphos v3.10.0).
+# Pillar 1 -- LLM-KG pipeline for large corpora.
 #
 # Production-grade orchestrator for running `causal_llm_extract()`
-# over a large abstract corpus (10 000+ abstracts), with:
+# over a large abstract corpus, with:
 #
 #   * Pre-flight checks of the LLM backend (Ollama HTTP endpoint and
 #     model availability, OpenAI / Anthropic API keys for the hosted
@@ -135,13 +135,14 @@ llm_kg_ollama_check <- function(host = "http://localhost:11434",
   nrow(claims)
 }
 
-#' Run the Pilar 1 LLM-KG pipeline on a (potentially large) corpus
+#' Run the Pillar 1 LLM-KG pipeline on a (potentially large) corpus
 #'
 #' Drives `causal_llm_extract()` over a JSONL corpus of abstracts
 #' (one JSON object with `source` + `abstract` per line) with
-#' resumable JSONL checkpointing and throttle / retry.  The function
-#' is engineered for 10 000+ abstract runs that can take several
-#' hours to a day on a local Ollama instance.
+#' resumable JSONL checkpointing and throttle / retry, so a run that takes
+#' hours on a local Ollama instance can be stopped and resumed. The largest
+#' run made with it is the ~100-abstract corpus of
+#' `data-raw/run_large_corpus.R`; nothing larger has been run.
 #'
 #' @section Resumability:
 #'
@@ -266,7 +267,7 @@ llm_kg_ollama_check <- function(host = "http://localhost:11434",
 #'   # `max_retries = 0L` is what makes that instant.  At the default
 #'   # 3L the very same missing key costs the full back-off ladder,
 #'   # 1 + 2 + 4 = 7 s, per abstract before it is written off -- so on
-#'   # the 10 000-abstract corpus this function exists for, about 20 h
+#'   # a 10 000-abstract corpus, about 20 h
 #'   # of sleeping and not one claim.  Check credentials yourself
 #'   # before the run; the pipeline will not do it for you.
 #'   unlink(c(corpus, paste0(out, ".errors")))

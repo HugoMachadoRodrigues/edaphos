@@ -89,8 +89,10 @@ An \code{edaphos_piml_bayes} object with:
 \item{map}{Named list with the MAP values of the natural
 parameters \verb{(lambda0, mu, y_inf, y0)}.}
 \item{theta_map}{Unconstrained parameter vector at the MAP.}
-\item{sigma}{Observation-noise standard deviation estimated at
-the MAP.}
+\item{sigma}{Observation-noise scale at the joint MAP (a posterior
+mode, not a summary of \code{draws}): an SD in the units of \code{values} for
+\code{family = "gaussian"}, a coefficient of variation otherwise. The
+posterior of sigma is the \code{sigma} row of \code{summary}.}
 \item{cov}{The \eqn{d \times d} posterior covariance matrix on
 the unconstrained scale (Laplace), or the empirical sample
 covariance of the MCMC chain.}
@@ -126,8 +128,9 @@ so non-Gaussian / multimodal posteriors are captured faithfully.
 Runtime: a few seconds for the default 5000 iterations.}
 }
 
-The noise scale \eqn{\sigma} is estimated from the MAP residual RMSE
-and held fixed during MCMC (empirical Bayes). Weakly-informative,
+The noise scale \eqn{\sigma} is a parameter of the posterior: it is
+optimised jointly with the profile parameters for the MAP and sampled
+(as \eqn{\log\sigma}) by MCMC, not held fixed. Weakly-informative,
 data-driven priors are applied by default; pass a custom \code{prior}
 list to override them.
 }

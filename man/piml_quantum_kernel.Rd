@@ -48,9 +48,9 @@ default.}
 A PSD matrix of shape \verb{(n, n)}.
 }
 \description{
-Builds a physics-informed Gram matrix by combining the Pilar 6
+Builds a physics-informed Gram matrix by combining the Pillar 6
 ZZFeatureMap kernel over raw features with an RBF similarity over
-the depth-profile residuals of a fitted Pilar 2 ODE:
+the depth-profile residuals of a fitted Pillar 2 ODE:
 }
 \details{
 \deqn{K_{PI}(x_i, x_j) = \alpha\, K_{quantum}(x_i, x_j) + (1 - \alpha)\,

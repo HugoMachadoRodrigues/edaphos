@@ -131,9 +131,13 @@ print.edaphos_spatial_folds <- function(x, ...) {
               paste(vapply(x$test, length, 0L), collapse = ", ")))
   cat(sprintf("  training rows kept : %s\n",
               paste(vapply(x$train, length, 0L), collapse = ", ")))
-  cat(sprintf("  discarded to buffer: %s (%.1f%% of all rows)\n",
+  # A row is a candidate training row in every fold but its own, so the
+  # denominator is sum(n - n_test) = (k - 1) * n, not n * k (which counted each
+  # fold's test rows as if they could have been discarded).
+  n_cand <- sum(x$n - vapply(x$test, length, 0L))
+  cat(sprintf("  discarded to buffer: %s (%.1f%% of %d candidate training rows)\n",
               paste(x$n_buffered, collapse = ", "),
-              100 * sum(x$n_buffered) / (x$n * x$k)))
+              100 * sum(x$n_buffered) / n_cand, n_cand))
   cat(sprintf("  realised min train-test distance: %.1f km\n",
               min(x$min_dist_km, na.rm = TRUE)))
   if (x$buffer_km == 0) {

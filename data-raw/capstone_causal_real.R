@@ -40,10 +40,10 @@ claims <- claims[!duplicated(paste(tolower(claims$cause), tolower(claims$effect)
 
 ## ---- real backdoor effects (mapped to the capstone's display columns) ------
 lbl <- c(wc_bio_12 = "MAP (mm/a)", wc_bio_01 = "MAT (°C)",
-         wc_landcover_trees = "Cobertura arbórea (0–1)", soilgrids_clay = "Argila (%)")
+         wc_landcover_trees = "Tree cover (0–1)", soilgrids_clay = "Clay (%)")
 eff <- v2$effects
 causal_effects <- data.frame(
-  exposure = unname(lbl[eff$exposure]), outcome = "COS (g/kg)",
+  exposure = unname(lbl[eff$exposure]), outcome = "SOC (g/kg)",
   estimate = eff$beta_adj, ci_lo = eff$ci_lo, ci_hi = eff$ci_hi,
   RV = eff$RV, adjustment = eff$adjustment, stringsAsFactors = FALSE)
 

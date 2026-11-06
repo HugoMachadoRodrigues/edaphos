@@ -24,7 +24,7 @@ suppressMessages(pkgload::load_all(".", quiet = TRUE))
 suppressMessages(library(dplyr))
 set.seed(20260501L)
 
-BUF <- readRDS("inst/extdata/benchmark_wosis_6pilar.rds")
+BUF <- readRDS("inst/extdata/benchmark_wosis_6pillar.rds")
 v28 <- readRDS("data-raw/build/benchmark_wosis_p4_p5_p7.rds")
 
 P <- readRDS("inst/extdata/causal_cerrado_real.rds")$profiles |>
@@ -120,7 +120,7 @@ for (fd in seq_len(K)) {
 }
 
 # P4 needs the MoCo encoder and the covariate stack; it is scored in the
-# v2.8.0 harness rather than here. Reported as absent rather than omitted.
+# P4/P5/P7 harness (data-raw/benchmark_wosis_p4_p5_p7.R) rather than here. Reported as absent rather than omitted.
 UNB <- do.call(rbind, rows)
 agg <- UNB |>
   group_by(method) |>
@@ -147,7 +147,7 @@ cat(sprintf("\nlargest movement: %s (%+.3f)\n",
             cmp$method[which.max(abs(cmp$d_rmse))], max(abs(cmp$d_rmse))))
 others <- cmp$d_rmse[-which.max(abs(cmp$d_rmse))]
 cat(sprintf("every other method moved by at most %.3f\n", max(abs(others))))
-cat("\nNOTE: P4 (foundation embeddings) is scored in the v2.8.0 harness and is\n")
+cat("\nNOTE: P4 (foundation embeddings) is scored in benchmark_wosis_p4_p5_p7.R and is\n")
 cat("      not re-run here, so it is absent from this comparison.\n")
 
 saveRDS(list(fold_table = UNB, aggregate = agg, comparison = cmp,

@@ -82,9 +82,9 @@ cerrado-moco-v2")` supersedes v1 for every downstream user.
 
 * **B1** `ranger` quantile regression forest [@Meinshausen2006qrf]
   on the expanded covariate stack (SoilGrids + WorldClim monthly +
-  SRTM + WorldCover + bio), target = SOC em g/kg, **sem transformacao**
-(o texto dizia $\log(1 + \text{SOC})$, o que contradizia a propria
-seccao 2(a) deste documento e o artefacto publicado).
+  SRTM + WorldCover + bio), target = SOC in g/kg, **untransformed**
+  (this text used to say $\log(1 + \text{SOC})$, which contradicted
+  section 2(a) of this document and the published bundle).
 * **B2** B1 **plus** residual kriging via `gstat`
   [@Pebesma2004gstat] — the full Hengl-style classical DSM recipe
   [@Hengl2017soilgrids].

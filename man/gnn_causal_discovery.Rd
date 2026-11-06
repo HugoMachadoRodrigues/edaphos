@@ -2,7 +2,7 @@
 % Please edit documentation in R/bridges_structure_v3.R
 \name{gnn_causal_discovery}
 \alias{gnn_causal_discovery}
-\title{Graph-based causal discovery (Pilar 10 x Pilar 1)}
+\title{Graph-based causal discovery (Pillar 10 x Pillar 1)}
 \usage{
 gnn_causal_discovery(
   gnn_fit,

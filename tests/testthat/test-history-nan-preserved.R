@@ -8,7 +8,7 @@
 # diverged (NaN: the loss went to 0/0 or Inf-Inf) or was never run (NA).
 #
 # The torch paths already guarded this with `| is.na(history)`; the two
-# pure-R paths in R/pilar8_neural_operators.R did not. Measured over 20,000
+# pure-R paths in R/pillar8_neural_operators.R did not. Measured over 20,000
 # random histories, the two forms differ in 43% of cases, and every
 # difference is a NaN turned into an NA.
 # ---------------------------------------------------------------------------

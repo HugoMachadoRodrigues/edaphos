@@ -1,4 +1,4 @@
-## Tests for the Pilar 1 x Pilar 5 Causal AL bridge (v2.1.1).
+## Tests for the Pillar 1 x Pillar 5 Causal AL bridge.
 
 test_that("al_query_causal: returns leverage-ranked candidates", {
   skip_if_not_installed("dagitty")

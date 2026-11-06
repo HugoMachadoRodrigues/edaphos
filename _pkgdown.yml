@@ -77,55 +77,61 @@ authors:
 
 navbar:
   structure:
-    left:  [intro, reference, articles, news]
+    left:  [intro, reference, articles, cheatsheets, news]
     right: [search, github]
   components:
+    # The cheatsheets are Markdown in the repository, outside the tarball
+    # (.Rbuildignore) and outside what pkgdown renders. This entry links to
+    # them on GitHub, which is where cheatsheets/README.md says they live.
+    cheatsheets:
+      text: Cheatsheets
+      href: https://github.com/HugoMachadoRodrigues/edaphos/tree/main/cheatsheets
     # Four entries were removed here in the correctness campaign: they
-    # pointed at articles/pilar1-causal-real.html, articles/llm-kg-benchmark.html,
-    # articles/pilar3-4d-real.html and articles/pilar5-soilgrids-br.html.
+    # pointed at articles/pillar1-causal-real.html, articles/llm-kg-benchmark.html,
+    # articles/pillar3-4d-real.html and articles/pillar5-soilgrids-br.html.
     # Their sources live in a top-level articles/ directory, which pkgdown
     # does not render (it renders vignettes/ and vignettes/articles/), so all
     # four were 404s on the published site.
     articles:
       text: Vignettes
       menu:
-      - text: "Capstone — the six pillars of v1.7.0, integrated"
+      - text: "Capstone — six pillars in one sampling campaign"
       - text: Cross-pillar campaign
         href: articles/capstone-cerrado-campaign.html
       - text: -------
-      - text: "Pilar 1 — Causal AI"
+      - text: "Pillar 1 — Causal AI"
       - text: Causal backdoor on br_cerrado
-        href: articles/pilar1-causal.html
+        href: articles/pillar1-causal.html
       - text: Causal-discovery trio (expert × LLM × data-driven)
         href: articles/causal-discovery-trio.html
       - text: Annotation workflow (pre-annotation + Shiny review)
         href: articles/llm-annotation-workflow.html
       - text: -------
-      - text: "Pilar 2 — Physics-Informed ML"
+      - text: "Pillar 2 — Physics-Informed ML"
       - text: Parametric ODE + Neural ODE
-        href: articles/pilar2-piml-profile.html
+        href: articles/pillar2-piml-profile.html
       - text: -------
-      - text: "Pilar 3 — 4D Pedometry"
+      - text: "Pillar 3 — 4D Pedometry"
       - text: ConvLSTM on synthetic cube
-        href: articles/pilar3-4d-soc.html
+        href: articles/pillar3-4d-soc.html
       - text: -------
-      - text: "Pilar 4 — Foundation Models"
+      - text: "Pillar 4 — Foundation Models"
       - text: SimCLR / MoCo embeddings
-        href: articles/pilar4-simclr-embeddings.html
+        href: articles/pillar4-simclr-embeddings.html
       - text: -------
-      - text: "Pilar 5 — Active Learning"
+      - text: "Pillar 5 — Active Learning"
       - text: Hybrid policy + physics gate
-        href: articles/pilar5-active-learning.html
+        href: articles/pillar5-active-learning.html
       - text: -------
-      - text: "Pilar 6 — Quantum ML"
+      - text: "Pillar 6 — Quantum ML"
       - text: ZZFeatureMap + Q-KRR
-        href: articles/pilar6-quantum.html
+        href: articles/pillar6-quantum.html
       - text: -------
       - text: "Cross-pillar bridges"
-      - text: Pilar 1 × Pilar 4 — Foundation IVs
-        href: articles/pilar1-pilar4-iv.html
-      - text: Pilar 4 × Pilar 6 — Quantum-foundation kernel
-        href: articles/pilar4-pilar6-quantum.html
+      - text: Pillar 1 × Pillar 4 — Foundation IVs
+        href: articles/pillar1-pillar4-iv.html
+      - text: Pillar 4 × Pillar 6 — Quantum-foundation kernel
+        href: articles/pillar4-pillar6-quantum.html
       - text: -------
       - text: "Unified infrastructure"
       - text: Unified uncertainty API
@@ -134,29 +140,29 @@ navbar:
         href: articles/case-cerrado-end-to-end.html
 
 reference:
-- title: "Pilar 1 — Causal AI"
+- title: "Pillar 1 — Causal AI"
   desc: "Backdoor adjustment, LLM-driven Knowledge Graphs, causal discovery, effect posteriors."
   contents:
-  - has_concept("pilar1")
+  - has_concept("pillar1")
   - starts_with("causal_")
   - starts_with("llm_annotation_")
   - starts_with("llm_benchmark_")
   - starts_with("llm_preannotate")
   - summary.edaphos_causal_kg
 
-- title: "Pilar 2 — Physics-Informed ML"
+- title: "Pillar 2 — Physics-Informed ML"
   desc: "Pedogenetic ODE, Bayesian posterior, Neural ODE + ensemble."
   contents:
   - starts_with("piml_")
   - predict.edaphos_piml_bayes
   - predict.edaphos_piml_neural_ode_ensemble
 
-- title: "Pilar 3 — 4D Pedometry"
+- title: "Pillar 3 — 4D Pedometry"
   desc: "ConvLSTM, rollout, mass-balance physics loss, stochastic EnKF."
   contents:
   - starts_with("temporal_")
 
-- title: "Pilar 4 — Foundation Models"
+- title: "Pillar 4 — Foundation Models"
   desc: "SimCLR + MoCo v2 pretraining, Zenodo-hosted weights, raster extraction."
   contents:
   - starts_with("foundation_")
@@ -164,40 +170,40 @@ reference:
   - predict.edaphos_foundation_regressor
   - predict.edaphos_foundation_ensemble
 
-- title: "Pilar 5 — Active Learning"
+- title: "Pillar 5 — Active Learning"
   desc: "Hybrid policy, BatchBALD, physics gate, posterior calibration."
   contents:
   - starts_with("al_")
   - starts_with("active_")
 
-- title: "Pilar 6 — Quantum ML"
+- title: "Pillar 6 — Quantum ML"
   desc: "ZZFeatureMap, Quantum KRR, Qiskit VQE, organo-mineral Hamiltonians."
   contents:
   - starts_with("quantum_")
 
-- title: "Pilar 7 — Bayesian Hierarchical Spatial (v2.3.0+)"
+- title: "Pillar 7 — Bayesian Hierarchical Spatial"
   desc: "Gaussian process + Gibbs sampler (R fast-path / RcppArmadillo / spBayes, all three predicting)."
   contents:
   - starts_with("bhs_")
   - predict.edaphos_bhs
 
-- title: "Pilar 8 — Neural Operators (v2.4.0+)"
+- title: "Pillar 8 — Neural Operators"
   desc: "DeepONet + FNO over depth function space."
   contents:
   - starts_with("no_")
 
-- title: "Pilar 9 — Diffusion Models (v2.5.0+)"
+- title: "Pillar 9 — Diffusion Models"
   desc: "DDPM with cosine schedule + ancestral sampling."
   contents:
   - starts_with("dm_")
 
-- title: "Pilar 10 — Graph Attention Networks (v2.6.0+)"
-  desc: "k-NN co-location graphs + multi-head attention; v3.6.0 sparse."
+- title: "Pillar 10 — Graph Attention Networks"
+  desc: "k-NN co-location graphs + multi-head attention, with a sparse attention path."
   contents:
   - starts_with("gnn_")
 
-- title: "Cross-pillar bridges (v1.9.x + v2.0.0 + v3.0.0)"
-  desc: "Foundation embeddings as causal instruments; quantum kernels over foundation embeddings; six v3.0.0 bridges (P7/8/9 x P5 + P10 x P1 + P2 x P3 + P6 x P10)."
+- title: "Cross-pillar bridges"
+  desc: "Foundation embeddings as causal instruments; quantum kernels over foundation embeddings; six further bridges (P7/8/9 x P5 + P10 x P1 + P2 x P3 + P6 x P10)."
   contents:
   - starts_with("qf_")
   - starts_with("al_query_")
@@ -213,8 +219,8 @@ reference:
   - autoplot.edaphos_posterior
   - starts_with("edaphos_")
 
-- title: "Benchmark wrappers (v3.1.0)"
-  desc: "Plug-and-play wrappers for the 6-pilar WoSIS Cerrado benchmark."
+- title: "Benchmark wrappers"
+  desc: "Wrappers that put Pillars 1, 6 and 10 into the WoSIS Cerrado benchmark; the other methods are scored by the data-raw benchmark scripts."
   contents:
   - starts_with("benchmark_fit_")
   # spatial_block_folds was exported without being indexed, which aborts
@@ -222,7 +228,7 @@ reference:
   # all while a checklist claimed "pkgdown builds cleanly locally".
   - spatial_block_folds
 
-- title: "LLM-KG production pipeline (v3.10.0)"
+- title: "LLM-KG production pipeline"
   desc: "Resumable 10k+ abstract orchestrator + Ollama pre-flight."
   contents:
   - starts_with("llm_kg_")
@@ -245,31 +251,31 @@ articles:
   - capstone-cerrado-campaign
   - uncertainty-unified
 
-- title: "Pilar 1 — Causal AI"
+- title: "Pillar 1 — Causal AI"
   contents:
-  - pilar1-causal
+  - pillar1-causal
   - causal-discovery-trio
   - llm-annotation-workflow
 
-- title: "Pilares 2–6"
+- title: "Pillars 2–6"
   contents:
-  - pilar2-piml-profile
-  - pilar3-4d-soc
-  - pilar4-simclr-embeddings
-  - pilar5-active-learning
-  - pilar6-quantum
+  - pillar2-piml-profile
+  - pillar3-4d-soc
+  - pillar4-simclr-embeddings
+  - pillar5-active-learning
+  - pillar6-quantum
 
 - title: "Cross-pillar bridges"
   contents:
-  - pilar1-pilar4-iv
-  - pilar4-pilar6-quantum
+  - pillar1-pillar4-iv
+  - pillar4-pillar6-quantum
 
-- title: "Pilares 7-10"
+- title: "Pillars 7-10"
   contents:
-  - pilar7-bayesian-hierarchical
-  - pilar8-neural-operators
-  - pilar9-diffusion-models
-  - pilar10-graph-attention
+  - pillar7-bayesian-hierarchical
+  - pillar8-neural-operators
+  - pillar9-diffusion-models
+  - pillar10-graph-attention
 
 - title: "End-to-end"
   contents:
@@ -281,14 +287,30 @@ articles:
     Longer real-data walkthroughs. They live under vignettes/articles/, so
     the site renders them and the source tarball does not carry them.
   contents:
-  - articles/pilar1-causal-real
-  - articles/pilar3-4d-real
-  - articles/pilar5-soilgrids-br
+  - articles/pillar1-causal-real
+  - articles/pillar3-4d-real
+  - articles/pillar5-soilgrids-br
   - articles/llm-kg-benchmark
 
-news:
-  releases:
-  - text: "v2.0.0 — Quantum kernel × Foundation (Pilar 4 × Pilar 6)"
-  - text: "v1.9.x — Foundation embeddings as causal IVs + Sargan/Cinelli-Hazlett"
-  - text: "v1.8.x — LLM benchmark infrastructure + Shiny annotation tool"
-  - text: "v1.7.x — Capstone vignette + native-query calibration + causal discovery"
+# No hand-maintained `news: releases:` list. The one here named four internal
+# labels (v1.7.x .. v2.0.0) that were never released, with no links; pkgdown
+# renders NEWS.md in full instead, and the real releases are on GitHub.
+
+# Up to 2.0.0 the articles were named "pilar*", the Portuguese word. These
+# keep the old addresses working on the published site.
+redirects:
+  - ["articles/pilar1-causal-real.html", "articles/pillar1-causal-real.html"]
+  - ["articles/pilar3-4d-real.html", "articles/pillar3-4d-real.html"]
+  - ["articles/pilar5-soilgrids-br.html", "articles/pillar5-soilgrids-br.html"]
+  - ["articles/pilar1-causal.html", "articles/pillar1-causal.html"]
+  - ["articles/pilar1-pilar4-iv.html", "articles/pillar1-pillar4-iv.html"]
+  - ["articles/pilar10-graph-attention.html", "articles/pillar10-graph-attention.html"]
+  - ["articles/pilar2-piml-profile.html", "articles/pillar2-piml-profile.html"]
+  - ["articles/pilar3-4d-soc.html", "articles/pillar3-4d-soc.html"]
+  - ["articles/pilar4-pilar6-quantum.html", "articles/pillar4-pillar6-quantum.html"]
+  - ["articles/pilar4-simclr-embeddings.html", "articles/pillar4-simclr-embeddings.html"]
+  - ["articles/pilar5-active-learning.html", "articles/pillar5-active-learning.html"]
+  - ["articles/pilar6-quantum.html", "articles/pillar6-quantum.html"]
+  - ["articles/pilar7-bayesian-hierarchical.html", "articles/pillar7-bayesian-hierarchical.html"]
+  - ["articles/pilar8-neural-operators.html", "articles/pillar8-neural-operators.html"]
+  - ["articles/pilar9-diffusion-models.html", "articles/pillar9-diffusion-models.html"]

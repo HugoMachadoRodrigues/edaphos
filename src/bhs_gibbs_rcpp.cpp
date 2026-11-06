@@ -1,6 +1,6 @@
-// Pilar 7 -- RcppArmadillo port of the BHS Gibbs sampler (edaphos v3.5.0).
+// Pillar 7 -- RcppArmadillo port of the BHS Gibbs sampler.
 //
-// Mathematical contract (matches R/pilar7_bayesian_hierarchical.R):
+// Mathematical contract (matches R/pillar7_bayesian_hierarchical.R):
 //
 //   y    = X beta + w + epsilon              (n x 1)
 //   w    ~ N(0, sigma^2 * R(phi))            (latent GP)
@@ -11,11 +11,11 @@
 // phi is held fixed at the profile-MLE supplied by R; this routine
 // performs ONLY the conditional Gibbs sweep over (w, beta, sigma2,
 // tau2).  Full MVN sampling uses the same triangular-solve trick as
-// the v3.2.0 R fast path (chol of precision -> backsolve), so the
+// the R triangular-solve fast path (chol of precision -> backsolve), so the
 // posterior chain is statistically equivalent up to RNG-draw order.
 //
 // On a Cerrado-like benchmark (n = 300, nmcmc = 500) this delivers
-// ~10-15x over the R fast path, hitting the v3.5.0 release goal.
+// ~10-15x over the R fast path.
 //
 // Numerical hygiene
 // -----------------

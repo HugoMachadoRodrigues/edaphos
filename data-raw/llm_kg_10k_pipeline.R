@@ -1,6 +1,6 @@
-## data-raw/llm_kg_10k_pipeline.R  (edaphos v3.10.0)
+## data-raw/llm_kg_10k_pipeline.R
 ##
-## End-to-end orchestrator for the Pilar 1 LLM Knowledge-Graph
+## End-to-end orchestrator for the Pillar 1 LLM Knowledge-Graph
 ## pipeline at scale (10 000+ abstracts).
 ##
 ## Usage:

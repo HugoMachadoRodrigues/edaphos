@@ -34,8 +34,8 @@ library(edaphos)
 
 ## Affected pillar / function
 
-<!-- e.g. "Pilar 7 (`bhs_fit`)", "Pilar 10 (`gnn_build_graph`)",
-the v3.0.0 cross-bridge `gnn_causal_discovery`, etc. -->
+<!-- e.g. "Pillar 7 (`bhs_fit`)", "Pillar 10 (`gnn_build_graph`)",
+the cross-bridge `gnn_causal_discovery`, etc. -->
 
 ## Additional context
 

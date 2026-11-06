@@ -1,4 +1,4 @@
-# Pillar 1 — LLM extraction benchmark (v1.8.0).
+# Pillar 1 — LLM extraction benchmark.
 #
 # Functions in this file form a self-contained evaluation pipeline for
 # multi-backend LLM causal-claim extraction.  The pipeline has four

@@ -1,4 +1,4 @@
-## Tests for foundation_embed_at_coords (v1.9.1).
+## Tests for foundation_embed_at_coords.
 
 test_that("foundation_embed_at_coords: patch extraction + encoder forward", {
   .skip_if_no_torch()

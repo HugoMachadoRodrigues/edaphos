@@ -1,4 +1,4 @@
-## The Pillar-1 real-data causal claims in the README and the pilar1-causal /
+## The Pillar-1 real-data causal claims in the README and the pillar1-causal /
 ## capstone vignettes must be DERIVABLE from the shipped bundle, not typed by
 ## hand. This test re-fits the backdoor models from the bundle's own profiles
 ## and checks the shipped effect table matches -- so a drifted or fabricated

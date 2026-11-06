@@ -4,10 +4,17 @@
 \alias{foundation_weights_list}
 \title{Catalogue of pretrained Pillar 4 encoders}
 \usage{
-foundation_weights_list()
+foundation_weights_list(include_planned = FALSE)
+}
+\arguments{
+\item{include_planned}{Logical. \code{FALSE} (default) lists only encoders that
+have been published and can be downloaded. \code{TRUE} also lists planned
+ones, whose \code{url}, \code{sha256}, \code{doi} and \code{published_at} are \code{NA} and whose
+accessors refuse with an explicit message.}
 }
 \value{
-A data frame; one row per registered encoder.
+A data frame; one row per registered encoder, with a \code{status}
+column (\code{"published"} or \code{"planned"}).
 }
 \description{
 Returns a data frame describing every pretrained encoder published
@@ -30,9 +37,9 @@ reg <- foundation_weights_list()
 print(reg[, c("name", "n_channels", "feature_dim", "proj_dim",
               "norm_stats_status")])
 
-# Only rows with a non-NA `url` can actually be fetched; the rest
-# are placeholders for a future release and error on download.
-print(reg$name[!is.na(reg$url)])
+# Planned encoders are listed only on request; they cannot be fetched.
+all_reg <- foundation_weights_list(include_planned = TRUE)
+print(all_reg[, c("name", "status")])
 
 # `norm_stats_status` is not cosmetic. v1's per-channel training
 # mean / sd were never written down and are unrecoverable, so an

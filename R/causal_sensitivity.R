@@ -1,4 +1,4 @@
-# Pillar 1 -- Cinelli & Hazlett (2020) sensitivity analysis (v1.9.2).
+# Pillar 1 -- Cinelli & Hazlett (2020) sensitivity analysis.
 #
 # Given a backdoor-adjusted (or IV) causal effect and standard error,
 # this module quantifies how strong an unobserved confounder U would

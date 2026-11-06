@@ -132,11 +132,13 @@ test_that("the check distinguishes stale from unbindable", {
 
 # Bundles that predate edaphos_provenance() and have not been re-run since.
 # Remove an entry when its script is re-run with a provenance block; never add.
+# (pillar10_gat_tuning.rds was pilar10_gat_tuning.rds until 2.0.0: renamed,
+# not added -- see data-raw/rename_bundles_to_english.R.)
 LEGACY_UNPROVENANCED <- c(
   "al_policy_benchmark.rds", "buffer_effect.rds",
   "causal_discovery_results.rds", "causal_iv_cerrado.rds",
   "causal_iv_cerrado_real.rds", "causal_sensitivity_cerrado.rds",
-  "llm_benchmark_results.rds", "pilar10_gat_tuning.rds"
+  "llm_benchmark_results.rds", "pillar10_gat_tuning.rds"
 )
 
 test_that("no bundle outside the legacy list ships without provenance", {

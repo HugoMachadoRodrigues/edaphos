@@ -34,7 +34,9 @@
 #'   Nodes without a column are dropped from the tested sub-graph and reported
 #'   in `nodes_without_data`.
 #' @param alpha Significance level for calling an implied independence
-#'   rejected.
+#'   rejected. Applied twice: per test (unadjusted counts) and as the
+#'   family-wise level of a Holm adjustment over all implied independencies,
+#'   which is what the printed verdict on the graph is based on.
 #' @param coords Optional length-2 character vector naming the coordinate
 #'   columns in `data`. When supplied (and `mgcv` is installed), a second test
 #'   is run on variables residualised on a thin-plate spline of position, which
@@ -46,8 +48,17 @@
 #'
 #' @return An `edaphos_dag_test` object: a list with `pooled` (the
 #'   `dagitty::localTests` table), `spatial` (the same after residualising, or
-#'   `NULL`), `n_tests`, `n_rejected`, `n_rejected_spatial`, `max_abs_r`,
-#'   `nodes_tested`, `nodes_without_data`, and `n`.
+#'   `NULL`), `n_tests`, `n_rejected` and `n_rejected_spatial` (unadjusted
+#'   p-value below `alpha`), `n_rejected_holm` and `n_rejected_spatial_holm`
+#'   (Holm-adjusted p-value below `alpha`, via [stats::p.adjust()]),
+#'   `max_abs_r` (largest absolute partial correlation over all tests,
+#'   rejected or not), `nodes_tested`, `nodes_without_data`, and `n`.
+#'
+#'   With `n_tests` implied independencies that all hold, about
+#'   `alpha * n_tests` unadjusted rejections are expected by chance alone, so
+#'   the unadjusted count is not by itself evidence against the graph. The
+#'   print method reports it against that expectation and rests its verdict on
+#'   the Holm count.
 #'
 #' @references
 #' Zhang Y, Wadoux AMJ-C (2026). Can digital soil mapping be causal?
@@ -134,11 +145,20 @@ causal_dag_test <- function(dag, data, alpha = 0.05, coords = NULL, k = 100L) {
     n_rejected         = sum(pooled$p.value < alpha),
     n_rejected_spatial = if (is.null(spatial)) NA_integer_
                          else sum(spatial$p.value < alpha),
+    n_rejected_holm    = .dag_n_holm(pooled$p.value, alpha),
+    n_rejected_spatial_holm = if (is.null(spatial)) NA_integer_
+                              else .dag_n_holm(spatial$p.value, alpha),
     max_abs_r          = max(abs(pooled$estimate)),
     alpha              = alpha,
     nodes_tested       = have,
     nodes_without_data = setdiff(allnodes, have)
   ), class = "edaphos_dag_test")
+}
+
+# Number of implied independencies rejected at family-wise level `alpha`
+# after a Holm adjustment over all of them.
+.dag_n_holm <- function(p, alpha) {
+  as.integer(sum(stats::p.adjust(p, method = "holm") < alpha, na.rm = TRUE))
 }
 
 #' @export
@@ -151,22 +171,40 @@ print.edaphos_dag_test <- function(x, ...) {
     cat("  no column for: ", paste(x$nodes_without_data, collapse = ", "),
         "\n", sep = "")
   }
-  cat(sprintf("  implied conditional independencies : %d\n", x$n_tests))
-  cat(sprintf("  rejected at %.0f%% (pooled)         : %d (%.0f%%)\n",
-              100 * x$alpha, x$n_rejected, 100 * x$n_rejected / x$n_tests))
+  # Recomputed from the p-values, so objects built before the Holm fields
+  # existed print the same verdict.
+  holm    <- .dag_n_holm(x$pooled$p.value, x$alpha)
+  holm_sp <- if (is.null(x$spatial)) NA_integer_
+             else .dag_n_holm(x$spatial$p.value, x$alpha)
+  pct <- 100 * x$alpha
+  row <- function(label, value)
+    cat(sprintf("  %-34s : %s\n", label, value))
+  row("implied conditional independencies", x$n_tests)
+  row(sprintf("rejected, pooled, p < %g", x$alpha),
+      sprintf("%d (%.1f expected if all hold)", x$n_rejected,
+              x$alpha * x$n_tests))
+  row(sprintf("rejected, pooled, Holm FWER %g%%", pct), holm)
   if (!is.na(x$n_rejected_spatial)) {
-    cat(sprintf("  rejected, spatially residualised   : %d (%.0f%%)\n",
-                x$n_rejected_spatial,
-                100 * x$n_rejected_spatial / x$n_tests))
+    row(sprintf("rejected, residualised, p < %g", x$alpha),
+        x$n_rejected_spatial)
+    row(sprintf("rejected, residualised, Holm %g%%", pct), holm_sp)
   }
-  cat(sprintf("  largest violated partial correlation: %.3f\n", x$max_abs_r))
-  if (x$n_rejected > 0) {
-    cat("\n  The graph is not compatible with the covariance structure of\n",
-        "  these data. Any adjustment set derived from it is minimal and\n",
-        "  sufficient only relative to a graph the data reject, so effects\n",
-        "  estimated with it should be reported as adjusted associations\n",
-        "  with sensitivity bounds, not as identified causal effects.\n",
+  row("largest |partial r|, all tests", sprintf("%.3f", x$max_abs_r))
+  # The verdict rests on the multiplicity-adjusted count. One unadjusted
+  # rejection among dozens of tests is what a TRUE graph produces at this
+  # alpha, so "any p < alpha" called nearly every graph incompatible.
+  if (holm > 0L) {
+    cat(sprintf("\n  The pooled test rejects %d implied independenc%s after a Holm\n",
+                holm, if (holm == 1L) "y" else "ies"),
+        sprintf("  adjustment (family-wise %g%%): the graph is not compatible with\n", pct),
+        "  the covariance structure of these data. Any adjustment set derived\n",
+        "  from it is minimal and sufficient only relative to a graph the data\n",
+        "  reject, so effects estimated with it should be reported as adjusted\n",
+        "  associations with sensitivity bounds, not as identified causal effects.\n",
         sep = "")
+  } else if (x$n_rejected > 0L) {
+    cat(sprintf("\n  No implied independence is rejected after a Holm adjustment\n  (family-wise %g%%). The unadjusted rejections are within what chance\n  produces; this does not show the graph is correct.\n",
+                pct))
   }
   invisible(x)
 }

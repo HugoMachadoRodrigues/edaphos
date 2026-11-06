@@ -32,7 +32,7 @@ test_that("piml_profile_fit handles a fixed y_surface", {
 })
 
 test_that("piml_profile_fit requires >= 2 observations", {
-  expect_error(piml_profile_fit(5, 25), "length")
+  expect_error(piml_profile_fit(5, 25), "at least 2 horizons")
 })
 
 test_that("piml_profile_fit_group fits multiple pedons", {

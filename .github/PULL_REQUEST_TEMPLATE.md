@@ -15,7 +15,7 @@
 
 ## Affected pillar(s)
 
-<!-- e.g. Pilar 1 Causal, Pilar 7 BHS, v3.0.0 P10×P1 bridge, ... -->
+<!-- e.g. Pillar 1 Causal, Pillar 7 BHS, P10×P1 bridge, ... -->
 
 ## Test plan
 

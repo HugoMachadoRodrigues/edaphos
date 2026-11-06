@@ -2,7 +2,7 @@
 % Please edit documentation in R/llm_kg_pipeline.R
 \name{llm_kg_pipeline_run}
 \alias{llm_kg_pipeline_run}
-\title{Run the Pilar 1 LLM-KG pipeline on a (potentially large) corpus}
+\title{Run the Pillar 1 LLM-KG pipeline on a (potentially large) corpus}
 \usage{
 llm_kg_pipeline_run(
   corpus_path,
@@ -52,9 +52,10 @@ Invisibly, a list with \code{n_processed}, \code{n_skipped},
 \description{
 Drives \code{causal_llm_extract()} over a JSONL corpus of abstracts
 (one JSON object with \code{source} + \code{abstract} per line) with
-resumable JSONL checkpointing and throttle / retry.  The function
-is engineered for 10 000+ abstract runs that can take several
-hours to a day on a local Ollama instance.
+resumable JSONL checkpointing and throttle / retry, so a run that takes
+hours on a local Ollama instance can be stopped and resumed. The largest
+run made with it is the ~100-abstract corpus of
+\code{data-raw/run_large_corpus.R}; nothing larger has been run.
 }
 \section{Resumability}{
 
@@ -165,7 +166,7 @@ if (requireNamespace("igraph", quietly = TRUE) &&
   # `max_retries = 0L` is what makes that instant.  At the default
   # 3L the very same missing key costs the full back-off ladder,
   # 1 + 2 + 4 = 7 s, per abstract before it is written off -- so on
-  # the 10 000-abstract corpus this function exists for, about 20 h
+  # a 10 000-abstract corpus, about 20 h
   # of sleeping and not one claim.  Check credentials yourself
   # before the run; the pipeline will not do it for you.
   unlink(c(corpus, paste0(out, ".errors")))

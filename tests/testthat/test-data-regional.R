@@ -1,4 +1,4 @@
-## Smoke tests for the v3.7.0 regional synthetic datasets.
+## Smoke tests for the regional synthetic datasets.
 ## Contract:
 ##   1. `br_amazon` and `br_pantanal` load with the same column schema as
 ##      `br_cerrado`, so any pillar / vignette runs unchanged.

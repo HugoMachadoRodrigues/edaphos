@@ -1,16 +1,15 @@
-# Pilar 2 x Pilar 6 bridge -- Physics-informed quantum kernels
-# (edaphos v2.2.0).
+# Pillar 2 x Pillar 6 bridge -- Physics-informed quantum kernels.
 #
 # Mathematical setup
 # ------------------
-# The ZZFeatureMap of Pilar 6 is physics-agnostic: it maps the raw
+# The ZZFeatureMap of Pillar 6 is physics-agnostic: it maps the raw
 # feature vector x into the 2^n-dim Hilbert space with no knowledge
 # of the pedogenetic process that generated x.  For pedology we have
 # strong prior information: soil depth profiles follow
 #
 #     dy/dz = -lambda_0 * exp(-mu z) * (y - y_inf)
 #
-# (Pilar 2, Bishop et al. 1999 depth-harmonisation generalised; see
+# (Pillar 2, Bishop et al. 1999 depth-harmonisation generalised; see
 # `piml_profile_fit()`).  Given an ODE fit `f_theta` trained on a
 # representative set of pedons, the *physics residual* for a new
 # observation is
@@ -31,8 +30,8 @@
 #
 # with K_phys a radial basis function on the fitted residuals.  The
 # mixture is PSD for any alpha in [0, 1] because a convex combination
-# of two PSD kernels is PSD.  Setting alpha = 1 recovers the v2.0.0
-# Quantum-only kernel; alpha = 0 recovers a pure physics-residual
+# of two PSD kernels is PSD.  Setting alpha = 1 recovers the plain
+# quantum kernel; alpha = 0 recovers a pure physics-residual
 # kernel.  alpha = 0.7 is a reasonable default when the ODE fit is
 # trustworthy.
 #
@@ -44,9 +43,9 @@
 
 #' Physics-informed quantum kernel via ODE-residual fusion
 #'
-#' Builds a physics-informed Gram matrix by combining the Pilar 6
+#' Builds a physics-informed Gram matrix by combining the Pillar 6
 #' ZZFeatureMap kernel over raw features with an RBF similarity over
-#' the depth-profile residuals of a fitted Pilar 2 ODE:
+#' the depth-profile residuals of a fitted Pillar 2 ODE:
 #'
 #' \deqn{K_{PI}(x_i, x_j) = \alpha\, K_{quantum}(x_i, x_j) + (1 - \alpha)\,
 #'       \exp\!\Bigl(-\frac{(e_i - e_j)^2}{2\,\sigma^2}\Bigr)}
@@ -154,7 +153,6 @@ piml_quantum_kernel <- function(X, y, depths, ode_fit,
              alpha >= 0, alpha <= 1)
 
   # Physics residuals
-  pred_fn <- tryCatch(stats::predict, error = function(e) NULL)
   y_hat <- tryCatch(
     as.numeric(stats::predict(ode_fit, newdepths = depths)),
     error = function(e) {
@@ -360,7 +358,7 @@ predict.edaphos_piml_qkrr <- function(object, newdata,
 
 #' @export
 print.edaphos_piml_qkrr <- function(x, ...) {
-  cat("<edaphos_piml_qkrr>  (Pilar 2 x Pilar 6 bridge)\n")
+  cat("<edaphos_piml_qkrr>  (Pillar 2 x Pillar 6 bridge)\n")
   cat(sprintf("  n_qubits = %d   reps = %d   lambda = %.3g\n",
                x$n_qubits, x$reps, x$lambda))
   cat(sprintf("  alpha    = %.2f  (quantum weight; 1-alpha on physics)\n",

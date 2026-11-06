@@ -1,7 +1,7 @@
 ## data-raw/capstone_campaign_run.R
 ##
 ## Pre-computes capstone_campaign_results.rds consumed by
-## vignettes/capstone-cerrado-campaign.Rmd  (edaphos v1.7.0).
+## vignettes/capstone-cerrado-campaign.Rmd.
 ##
 ## All six pillars are exercised on the Cerrado AoI (10x10 grid,
 ## 0.2 deg cells) + 1 095 WoSIS profiles from causal_cerrado_real.rds.
@@ -159,13 +159,13 @@ dag_info <- list(
 exposures_list <- list(
   list(col   = "wc_bio_12",
        label = "MAP (mm/a)",
-       units = "g/kg per 100 mm"),
+       units = "g/kg per mm"),
   list(col   = "wc_landcover_trees",
-       label = "Cobertura arbórea (%)",
-       units = "g/kg por %"),
+       label = "Tree cover (%)",
+       units = "g/kg per %"),
   list(col   = "soilgrids_clay",
-       label = "Argila (%)",
-       units = "g/kg por %")
+       label = "Clay (%)",
+       units = "g/kg per %")
 )
 
 causal_effects_list    <- list()
@@ -237,7 +237,7 @@ for (ex in exposures_list) {
 
   causal_effects_list[[col]] <- data.frame(
     exposure   = label,
-    outcome    = "COS (g/kg)",
+    outcome    = "SOC (g/kg)",
     estimate   = mean(samps),
     ci_lo      = as.numeric(ci[1]),
     ci_hi      = as.numeric(ci[2]),
@@ -781,7 +781,7 @@ safe_cal <- function(post, truth, label, method) {
     mpiw_90 <- if ("0.90" %in% names(cal$mpiw)) cal$mpiw[["0.90"]] else
                   if ("0.9" %in% names(cal$mpiw)) cal$mpiw[["0.9"]] else
                   cal$mpiw[length(cal$mpiw) %/% 2]
-    data.frame(pilar = label, method = method,
+    data.frame(pillar = label, method = method,
                crps  = cal$crps,
                picp  = picp_90,
                mpiw  = mpiw_90,
@@ -789,7 +789,7 @@ safe_cal <- function(post, truth, label, method) {
                stringsAsFactors = FALSE)
   }, error = function(e) {
     message("    [cal warn] ", label, ": ", conditionMessage(e))
-    data.frame(pilar = label, method = method,
+    data.frame(pillar = label, method = method,
                crps = NA_real_, picp = NA_real_,
                mpiw = NA_real_, rmse = NA_real_,
                stringsAsFactors = FALSE)

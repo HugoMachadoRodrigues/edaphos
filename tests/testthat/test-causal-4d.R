@@ -1,4 +1,4 @@
-## Tests for Pilar 1 x Pilar 3 Causal 4D bridge (v2.2.1).
+## Tests for Pillar 1 x Pillar 3 Causal 4D bridge.
 
 .mk_4d_frame <- function(n_t = 60L, n_cell = 25L,
                           beta_fn = function(t) 0.008 * exp(0.01 * t)) {

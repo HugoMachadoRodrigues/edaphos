@@ -1,6 +1,6 @@
 ---
-title: "LLM-driven causal-claim extraction for DSM: a multi-backend benchmark"
-subtitle: "Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 on 30 gold-standard Cerrado abstracts"
+title: "LLM-driven causal-claim extraction for DSM: a multi-backend benchmark harness"
+subtitle: "Gemma 4 vs. GPT-4o-mini vs. Claude Sonnet-4.5 profiles on 30 gold-standard Cerrado abstracts -- simulated run"
 author: "Hugo Rodrigues"
 output:
   rmarkdown::html_vignette:
@@ -10,7 +10,7 @@ output:
 bibliography: ../references.bib
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{LLM-driven causal-claim extraction for DSM: a multi-backend benchmark}
+  %\VignetteIndexEntry{LLM-driven causal-claim extraction for DSM: a multi-backend benchmark harness}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,16 +29,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-> **TL;DR.** Três Large Language Models (Gemma 4 local, GPT-4o-mini,
-> Claude Sonnet-4.5) foram avaliados em uma tarefa de extração
-> automática de claims causais a partir de resumos pedológicos do
-> Cerrado brasileiro. O gold-standard contém 30 abstracts × ~2,4
-> claims/abstract, anotados por pedólogo. O protocolo produz F1 de
-> 0,70-0,82 por backend; **Claude tem o melhor F1**, **GPT é o mais
-> rápido**, **Gemma 4 é o único gratuito**. A relação custo-performance
-> em um corpus de 10 000 abstracts varia em até **22×** entre os
-> backends comerciais. O KG resultante é publicado como artefato
-> Zenodo com DOI independente.
+> **Read this first: every result below is simulated.** The shipped
+> results (`inst/extdata/llm_benchmark_results.rds`) record
+> `mode = "simulated"`. They come from `llm_benchmark_simulate()`, which
+> draws extractions from noise profiles assigned to each backend; they
+> are not measurements of Gemma 4, GPT-4o-mini or Claude Sonnet-4.5.
+> What this article demonstrates is the **harness** -- the gold
+> standard, the matching function, and the precision / recall / F1,
+> Cohen's κ, cost and latency computations -- which runs offline and
+> reproducibly in CI. No statement here ranks the vendors. An earlier
+> version of this article opened with "Claude has the best F1, GPT is
+> the fastest", which restated the simulator's own inputs as findings.
+> A real comparison needs the real-API mode described below.
 
 ---
 
@@ -58,36 +60,38 @@ B <- readRDS(res_path)
 
 ---
 
-# Motivação
+# Motivation
 
-A condição 1 de @Zhang2026causal ("um modelo causal explícito —
-um DAG") é a mais trabalhosa de satisfazer no mundo real: desenhar
-DAGs à mão é subjetivo, caro, e raramente reproduzível entre grupos.
-O Pilar 1 do `edaphos` propõe automatizar parte desse trabalho lendo
-a **literatura peer-reviewed como fonte de dados**: um Large Language
-Model (LLM) extrai claims causais de abstracts e essas claims são
-fundidas num Knowledge Graph (KG) que aumenta o DAG expert. A
-ferramenta foi demonstrada qualitativamente desde a v1.0.0; esta
-vignette fornece a **validação quantitativa** que faltava.
+Condition 1 of @Zhang2026causal ("an explicit causal model -- a DAG") is
+the hardest to satisfy in practice: drawing DAGs by hand is subjective,
+expensive, and rarely reproducible across groups. Pillar 1 of `edaphos`
+proposes automating part of that work by reading the **peer-reviewed
+literature as a data source**: a Large Language Model (LLM) extracts
+causal claims from abstracts, and those claims are merged into a
+Knowledge Graph (KG) that augments the expert DAG. This article provides
+the machinery for the quantitative validation that the qualitative
+demonstrations lacked.
 
-**Três perguntas operacionais** que um pedômetra precisa responder
-antes de produzir um paper com esse pipeline:
+**Three operational questions** a pedometrician has to answer before
+producing a paper with this pipeline:
 
-1. **Qual backend escolher?** Gemma 4 (local, open-weights) tem
-   o custo zero mas precisão menor? Ou Claude, que custa caro mas
-   entrega melhor qualidade, justifica o investimento?
-2. **Quão confiáveis são essas extrações?** O Cohen's κ com o
-   pedólogo humano está acima de 0,40 (substancial)?
-3. **Custo e latência de escalar para 10 000 abstracts?** Posso
-   processar um corpus de revisão sistemática em uma noite?
+1. **Which backend to choose?** Gemma 4 (local, open weights) costs
+   nothing, but is it less precise? Does a paid API justify its price?
+2. **How reliable are the extractions?** Is Cohen's κ against a human
+   pedologist above 0.40?
+3. **What does it cost, and how long does it take, to scale to 10,000
+   abstracts?** Can a systematic-review corpus be processed overnight?
+
+The harness below answers them once it is run in real-API mode. In the
+shipped simulated run it answers none of them about the actual models.
 
 ---
 
-# Gold standard: como foi construído
+# Gold standard: how it was built
 
-## Schema de anotação
+## Annotation schema
 
-Cada entrada do gold-standard segue o mesmo schema JSON
+Every gold-standard entry follows the same JSON schema
 (`inst/extdata/cerrado_gold_standard_v1.jsonl`):
 
 ```
@@ -106,15 +110,19 @@ Cada entrada do gold-standard segue o mesmo schema JSON
 }
 ```
 
-O vocabulário canônico (`precipitation`, `temperature`, `clay`,
+The canonical vocabulary (`precipitation`, `temperature`, `clay`,
 `sand`, `soc`, `ndvi`, `ph`, `cec`, `bulk_density`, `vegetation`,
 `parent_material`, `land_use`, `erosion`, `weathering`, `elevation`,
 `slope`, `twi`, `aspect`, `mean_annual_precipitation`,
-`mean_annual_temperature`, `fire_frequency`) é **o mesmo** do
-prompt de extração (`R/causal_llm.R`) — isso é essencial para o
-matching ser fair.
+`mean_annual_temperature`, `fire_frequency`) is **the same** as the
+extraction prompt's (`R/causal_llm.R`) -- essential for the matching to
+be fair.
 
-## Estatísticas descritivas
+The 30 abstracts in the gold standard are themselves simulated, written to
+resemble Cerrado pedology papers (the README's data inventory lists the
+file as "30 simulated abstracts x 72 annotated causal claims").
+
+## Descriptive statistics
 
 ```{r gold-stats}
 topics_df <- do.call(rbind, lapply(B$gold_records, function(r) {
@@ -129,7 +137,7 @@ cat(sprintf(
 ))
 ```
 
-```{r gold-topic-bar, fig.cap = "Distribuição do gold-standard por tópico pedogenético. Cinco domínios dominam: drivers climáticos, textura, manejo do uso do solo, topografia e perturbações (fogo / erosão). Esta cobertura reflete a literatura reviewed do Cerrado (2018-2024)."}
+```{r gold-topic-bar, fig.cap = "Distribution of the gold standard by pedogenetic topic. Five domains dominate: climatic drivers, texture, land-use management, topography and disturbance (fire / erosion)."}
 topics_df$topic <- factor(
   topics_df$topic,
   levels = names(sort(table(topics_df$topic), decreasing = TRUE))
@@ -138,11 +146,11 @@ ggplot(topics_df, aes(x = topic, fill = topic)) +
   geom_bar(show.legend = FALSE, width = 0.7) +
   scale_fill_brewer(palette = "Set2") +
   labs(x = NULL, y = "Abstracts",
-       title = "Cobertura temática do gold-standard Cerrado v1") +
+       title = "Topic coverage of the Cerrado gold standard") +
   theme(axis.text.x = element_text(angle = 25, hjust = 1))
 ```
 
-```{r gold-edge-hist, fig.cap = "Frequência das arestas (cause → effect) mais comuns no gold-standard. 'vegetation → soc' e 'land_use → soc' são as arestas mais recorrentes — são os mecanismos pedogenéticos mais estudados no Cerrado."}
+```{r gold-edge-hist, fig.cap = "Frequency of the most common edges (cause → effect) in the gold standard. 'vegetation → soc' and 'land_use → soc' recur most often."}
 gold_edges <- B$gold_df |>
   mutate(edge = paste(cause, "→", effect)) |>
   count(edge, sort = TRUE) |>
@@ -151,52 +159,51 @@ ggplot(gold_edges, aes(x = reorder(edge, n), y = n)) +
   geom_col(fill = "#2ECC71", width = 0.7) +
   geom_text(aes(label = n), hjust = -0.3, size = 3.5) +
   coord_flip() +
-  labs(x = NULL, y = "Ocorrências no gold-standard",
-       title = "Arestas mais frequentes") +
+  labs(x = NULL, y = "Occurrences in the gold standard",
+       title = "Most frequent edges") +
   ylim(0, max(gold_edges$n) * 1.15)
 ```
 
 ---
 
-# Protocolo de benchmark
+# Benchmark protocol
 
-## Os três backends
+## The three backends
 
 ```{r backend-table}
 backend_desc <- data.frame(
-  Backend   = c("Gemma 4 (local)", "GPT-4o-mini", "Claude Sonnet-4.5"),
-  Provedor  = c("Google DeepMind (via Ollama)",
-                 "OpenAI", "Anthropic"),
-  Tipo      = c("Open-weights, CPU/MPS local",
-                 "API hospedada", "API hospedada"),
-  Preço_entrada = c("$0",  "$0,15/1M tokens", "$3,00/1M tokens"),
-  Preço_saída   = c("$0",  "$0,60/1M tokens", "$15,00/1M tokens"),
-  Perfil    = c("Recall médio · Precisão alta · Lento",
-                 "Recall alto · Precisão média · Rápido",
-                 "Recall alto · Precisão alta · Médio"),
+  Backend      = c("Gemma 4 (local)", "GPT-4o-mini", "Claude Sonnet-4.5"),
+  Provider     = c("Google DeepMind (via Ollama)",
+                    "OpenAI", "Anthropic"),
+  Type         = c("Open weights, local CPU/MPS",
+                    "Hosted API", "Hosted API"),
+  Input_price  = c("$0",  "$0.15/1M tokens", "$3.00/1M tokens"),
+  Output_price = c("$0",  "$0.60/1M tokens", "$15.00/1M tokens"),
+  Simulated_profile = c("Mid recall · high precision · slow",
+                        "High recall · mid precision · fast",
+                        "High recall · high precision · medium"),
   stringsAsFactors = FALSE
 )
 knitr::kable(backend_desc,
-              caption = "Os três backends comparados neste benchmark.")
+              caption = "The three backends. The last column is the noise profile the simulator assigns to each, not a measured property of the model.")
 ```
 
-## Prompt de extração
+## Extraction prompt
 
-Prompt idêntico nos três backends (`R/causal_llm.R`). Extração
-forçada via `format="json"` no Ollama (para output determinístico) ou
-JSON mode / function calling nas APIs hospedadas.
+The prompt is identical across the three backends (`R/causal_llm.R`).
+Extraction is forced with `format = "json"` in Ollama (for deterministic
+output) or with JSON mode / function calling on the hosted APIs.
 
-## Função de matching
+## Matching function
 
-Uma claim extraída é **true positive (TP)** se o par (cause,
-effect) — após canonicalização — coincide com uma claim do
-gold-standard para o mesmo abstract. O matching é *fuzzy*: uma
-distância de Levenshtein total (cause + effect) ≤ 2 caracteres é
-aceita para absorver variantes ortográficas ("precipitation" vs.
-"precipitations").
+An extracted claim is a **true positive (TP)** if its (cause, effect)
+pair -- after canonicalisation -- matches a gold-standard claim for the
+same abstract. The matching is *fuzzy*: a total Levenshtein distance
+(cause + effect) of at most 2 characters is accepted, to absorb spelling
+variants ("precipitation" vs. "precipitations").
 
 ```{r matching-example}
-# Exemplo mínimo do matching
+# Minimal example of the matching
 example_predicted <- data.frame(
   abstract_id = c("CER_01", "CER_01", "CER_01"),
   cause       = c("mean_annual_precipitation", "soil_moisture", "temperature"),
@@ -210,33 +217,37 @@ example_gold <- data.frame(
   stringsAsFactors = FALSE
 )
 m <- llm_benchmark_match(example_predicted, example_gold)
-knitr::kable(m, caption = "Saída do matcher em um caso didático: 1 TP, 1 FP, 1 FN.")
+knitr::kable(m, caption = "Matcher output on a teaching case: 1 TP, 1 FP, 1 FN.")
 ```
 
-## Reprodutibilidade e modo de execução
+## Reproducibility and run mode
 
-O runner `data-raw/llm_benchmark_run.R` opera em dois modos:
+The runner `data-raw/llm_benchmark_run.R` has two modes:
 
-- **`EDAPHOS_USE_REAL_LLM=1`**: chama os 3 APIs reais (requer Ollama
-  rodando + `OPENAI_API_KEY` + `ANTHROPIC_API_KEY`). ~20-40 min,
-  ~$0,20 de custo total para 30 abstracts.
-- **Modo padrão (simulado)**: usa `llm_benchmark_simulate()` com
-  perfis de ruído calibrados às literaturas publicadas para cada
-  backend. Determinístico por semente; **reproduz em CI sem
-  dependência externa**.
+- **`EDAPHOS_USE_REAL_LLM=1`**: calls the three real APIs (needs Ollama
+  running + `OPENAI_API_KEY` + `ANTHROPIC_API_KEY`). About 20-40 min and
+  about $0.20 in total for 30 abstracts. **This is the mode that would
+  compare the models**, and it has not been run for the shipped results.
+- **Default mode (simulated)**: uses `llm_benchmark_simulate()` with
+  per-backend noise profiles. Deterministic given a seed; **reproduces in
+  CI with no external dependency**.
 
-Os números nesta vignette foram gerados no **modo simulado** para
-garantir build offline. Os perfis de simulação por backend são:
+Every number in this article comes from the **simulated mode**. The
+simulation profiles are:
 
-| Backend | Recall alvo | Precisão alvo | Latência média (s) |
+| Backend | Target recall | Target precision | Mean latency (s) |
 |:---|---:|---:|---:|
-| Gemma 4 | 0,80 | 0,85 | 15,2 |
-| GPT-4o-mini | 0,88 | 0,80 | 3,1 |
-| Claude Sonnet-4.5 | 0,84 | 0,90 | 5,7 |
+| Gemma 4 | 0.80 | 0.85 | 15.2 |
+| GPT-4o-mini | 0.88 | 0.80 | 3.1 |
+| Claude Sonnet-4.5 | 0.84 | 0.90 | 5.7 |
+
+So any ordering of the backends in the results below follows from these
+inputs. The results check that the harness recovers what was put in; they
+say nothing about the models themselves.
 
 ---
 
-# Resultados
+# Results of the simulated run
 
 ## Precision / Recall / F1
 
@@ -252,15 +263,14 @@ knitr::kable(
   col.names = c("Backend", "n_claims", "TP", "FP", "FN",
                 "Precision", "Recall", "F1"),
   caption = paste0(
-    "Desempenho dos três backends contra o gold-standard ",
-    "(30 abstracts, 72 claims). Claude Sonnet-4.5 atinge o melhor ",
-    "F1 (0,82); GPT-4o-mini tem recall ligeiramente maior mas ",
-    "precisão menor; Gemma 4 fica no meio mas é gratuito."
+    "Scores of the three simulated profiles against the gold standard ",
+    "(30 abstracts, 72 claims). The ordering reflects the simulation ",
+    "profiles above, not the models."
   )
 )
 ```
 
-```{r prf1-plot, fig.cap = "Precision × Recall plot com tamanho proporcional a F1. A diagonal tracejada marca precision = recall. Claude Sonnet-4.5 está no canto superior-direito (ambos altos); GPT-4o-mini privilegia recall sobre precisão; Gemma 4 é ligeiramente mais conservador."}
+```{r prf1-plot, fig.cap = "Precision × recall, with point size proportional to F1, for the three simulated profiles. The dashed diagonal marks precision = recall. Positions follow from each profile's target recall and precision."}
 ggplot(mt, aes(x = recall, y = precision,
                  color = backend, size = f1)) +
   geom_point(alpha = 0.8) +
@@ -272,12 +282,12 @@ ggplot(mt, aes(x = recall, y = precision,
   scale_size_continuous(range = c(5, 12), name = "F1") +
   xlim(0.5, 1) + ylim(0.5, 1) +
   labs(x = "Recall", y = "Precision",
-       title = "Precision × Recall por backend")
+       title = "Precision × recall by simulated profile")
 ```
 
-## Cohen's κ pairwise
+## Pairwise Cohen's κ
 
-```{r kappa-heatmap, fig.height = 4.5, fig.cap = "Matriz pairwise de Cohen's κ entre os três backends e o gold-standard. A diagonal é 1 por construção. O κ com o gold-standard — última coluna/linha — é a métrica mais relevante: Claude (0,57) atinge agreement 'substancial' (Landis & Koch 1977: >0,6); Gemma (0,34) e GPT (0,26) ficam no 'fair' (0,21-0,40). Os backends discordam fortemente entre si — um motivo para combinar via causal_llm_vote()."}
+```{r kappa-heatmap, fig.height = 4.5, fig.cap = "Pairwise Cohen's κ between the three simulated profiles and the gold standard. The diagonal is 1 by construction. Agreement with the gold standard (last row/column) is the metric of interest in a real run; here it measures the simulator. The profiles disagree strongly with one another because each draws its errors independently."}
 km <- B$kappa_matrix
 km_df <- expand.grid(i = rownames(km), j = colnames(km),
                       stringsAsFactors = FALSE)
@@ -288,21 +298,22 @@ ggplot(km_df, aes(x = j, y = i, fill = kappa)) +
   scale_fill_distiller(palette = "RdYlBu", direction = 1,
                         limits = c(-0.2, 1), name = "κ") +
   labs(x = NULL, y = NULL,
-       title = "Cohen's κ pairwise",
-       caption = "Gold = pedólogo humano. Landis-Koch: >0.60 = substancial.") +
+       title = "Pairwise Cohen's κ (simulated run)",
+       caption = "Gold = human pedologist. Landis-Koch: > 0.60 = substantial.") +
   theme(axis.text.x = element_text(angle = 20, hjust = 1),
         panel.grid  = element_blank())
 ```
 
-**Leitura operacional.** O κ dos backends *entre si* é baixo
-(-0,08 a 0,12), o que significa que **eles erram em lugares
-diferentes**. Essa diversidade é exatamente o que
-`causal_llm_vote()` aproveita: combinar os três por majority voting
-captura o TP de cada um sem herdar os FPs individuais.
+**Operational reading.** In the simulation the profiles' κ *with one
+another* is low, because each draws its errors independently -- so they
+**err in different places**. If real models behave the same way, that
+diversity is what `causal_llm_vote()` exploits: majority voting keeps
+each one's true positives without inheriting its individual false
+positives. Whether they do is a question for the real-API run.
 
-## Custo de escalar para 10 000 abstracts
+## Cost of scaling to 10,000 abstracts
 
-```{r cost-bar, fig.cap = "Custo total estimado (USD) para processar um corpus de 10 000 abstracts — a escala de uma revisão sistemática real do Cerrado. Gemma 4 é gratuito; GPT-4o-mini custa ~$2; Claude custa ~$38, o que é uma diferença de cerca de 22× entre os dois backends comerciais."}
+```{r cost-bar, fig.cap = "Estimated total cost (USD) to process a 10,000-abstract corpus -- the scale of a real systematic review of the Cerrado -- at list prices and assumed token counts. Unlike the accuracy figures, this projection follows from published prices rather than from the simulator."}
 ct <- B$cost_table
 ct$label <- factor(c("Gemma 4", "GPT-4o-mini", "Claude Sonnet-4.5"),
                     levels = c("Gemma 4", "GPT-4o-mini",
@@ -312,9 +323,9 @@ ggplot(ct, aes(x = label, y = cost_10k_abstracts_usd, fill = label)) +
   geom_text(aes(label = sprintf("$%.2f", cost_10k_abstracts_usd)),
              vjust = -0.4, size = 4) +
   scale_fill_brewer(palette = "Dark2") +
-  labs(x = NULL, y = "USD para 10 000 abstracts",
-       title = "Custo de escalar o benchmark",
-       subtitle = "Assumindo ~700 tokens input + ~110 output por call") +
+  labs(x = NULL, y = "USD for 10,000 abstracts",
+       title = "Cost of scaling the benchmark",
+       subtitle = "Assuming ~700 input + ~110 output tokens per call") +
   ylim(0, max(ct$cost_10k_abstracts_usd) * 1.15)
 ```
 
@@ -327,73 +338,75 @@ knitr::kable(
   ct_disp[, c("backend", "model", "n_abstracts", "n_claims",
                "cost_total_usd", "cost_per_1k_claims_usd",
                "cost_10k_abstracts_usd")],
-  col.names = c("Backend", "Modelo", "n abs.", "n claims",
-                "Custo 30 abs. (USD)", "Custo/1k claims (USD)",
-                "Projeção 10k abs. (USD)"),
+  col.names = c("Backend", "Model", "n abs.", "n claims",
+                "Cost, 30 abs. (USD)", "Cost/1k claims (USD)",
+                "Projection, 10k abs. (USD)"),
   caption = paste0(
-    "Custos computados a preços de lista (2026-04). ",
-    "Gemma 4 local tem custo de inferência zero, a preço de ",
-    "latência ~5× maior (15 s vs. 3 s)."
+    "Costs computed at list prices (2026-04). Local Gemma 4 has zero ",
+    "inference cost."
   )
 )
 ```
 
-## Latência
+## Latency
 
-```{r latency-boxplot, fig.cap = "Distribuição de latência (segundos por abstract) por backend. GPT-4o-mini é o mais rápido (mediana 2,8 s); Claude é intermediário (5,4 s); Gemma 4 roda localmente e tem latência ~5× maior (16 s), o que é coerente com inferência em CPU/MPS vs. GPU de data center."}
+```{r latency-boxplot, fig.cap = "Latency distribution (seconds per abstract) by simulated profile. The values are drawn around each profile's assumed mean latency, not timed."}
 lat_df <- B$latency_df
 ggplot(lat_df, aes(x = backend, y = latency_sec, fill = backend)) +
   geom_boxplot(outlier.size = 0.8, alpha = 0.8, width = 0.5,
                 show.legend = FALSE) +
   scale_fill_brewer(palette = "Dark2") +
-  labs(x = NULL, y = "Latência por abstract (s)",
-       title = "Latência por backend") +
+  labs(x = NULL, y = "Latency per abstract (s)",
+       title = "Latency by simulated profile") +
   theme(axis.text.x = element_text(angle = 15, hjust = 1))
 ```
 
 ---
 
-# Recomendações operacionais
+# Operational recommendations
 
-## Quando usar cada backend
+## Which backend for which scenario
+
+These follow from cost, privacy and reproducibility, not from the
+simulated accuracy figures.
 
 ```{r rec-table, echo = FALSE}
 rec <- data.frame(
-  Cenário = c("Corpus grande (>5 000 abs.) com budget limitado",
-               "Corpus pequeno (<500 abs.) com alta qualidade",
-               "Corpus grande com orçamento",
-               "Pipeline reproduzível em CI",
-               "Decisões de alto impacto (paper final)"),
-  Recomendação = c("Gemma 4 local (zero custo, 24h runtime)",
-                    "Claude Sonnet-4.5 (melhor F1)",
-                    "causal_llm_vote(Gemma, Claude) (consenso)",
-                    "Gemma 4 + simulator fallback",
-                    "causal_llm_vote() 3-way majority"),
+  Scenario = c("Large corpus (>5,000 abs.) on a limited budget",
+               "Small corpus (<500 abs.), quality first",
+               "Large corpus with a budget",
+               "Reproducible pipeline in CI",
+               "High-stakes decisions (final paper)"),
+  Recommendation = c("Local Gemma 4 (zero cost, ~24 h runtime)",
+                     "A hosted model, chosen after a real-API benchmark",
+                     "causal_llm_vote(Gemma, hosted model) (consensus)",
+                     "Gemma 4 + simulator fallback",
+                     "causal_llm_vote() three-way majority"),
   stringsAsFactors = FALSE
 )
-knitr::kable(rec, caption = "Matriz de decisão por cenário operacional.")
+knitr::kable(rec, caption = "Decision matrix by operational scenario.")
 ```
 
-## Zenodo: o KG como artefato publicável
+## Zenodo: the KG as a publishable artefact
 
-A extração de um corpus de 10 000 abstracts produz ~20 000 a 50 000
-claims. Esse grafo deve ser publicado como artefato independente
-para satisfazer princípios FAIR. O fluxo recomendado:
+Extracting a 10,000-abstract corpus produces about 20,000 to 50,000
+claims. That graph should be published as an independent artefact to
+satisfy the FAIR principles. The recommended flow:
 
 ```r
-# 1. Extrair corpus completo
+# 1. Fetch the full corpus
 corpus <- causal_corpus_openalex(
   query = "cerrado AND (pedogenesis OR soil organic carbon)",
   max_results = 10000L
 )
 
-# 2. Extrair com Gemma 4 (baseline gratuito)
+# 2. Extract with Gemma 4 (free baseline)
 kg_gemma <- causal_llm_ingest_corpus(
   corpus, backend = "ollama", model = "gemma4:latest",
   cache_dir = "~/.cache/edaphos_cerrado_10k"
 )
 
-# 3. (Opcional) voting com Claude nos 500 mais citados
+# 3. (Optional) voting with Claude on the 500 most-cited abstracts
 kg_voted <- causal_llm_ingest_corpus_voted(
   corpus_top500, backends = list(
     list(backend = "ollama",    model = "gemma4:latest"),
@@ -401,28 +414,33 @@ kg_voted <- causal_llm_ingest_corpus_voted(
   ), voting = "majority"
 )
 
-# 4. Exportar para Turtle RDF + publicar no Zenodo
+# 4. Export to Turtle RDF + publish on Zenodo
 causal_kg_to_turtle(kg_voted, "cerrado_kg_v1.ttl")
-# Upload manual: https://zenodo.org/deposit/new
+# Manual upload: https://zenodo.org/deposit/new
 #   → concept DOI: 10.5281/zenodo.XXXXXXX
 ```
 
 ---
 
-# Próximos passos (v1.8.x → v2.0.0)
+# Next steps
 
-- **v1.8.0 atual**: infra completa + gold-standard seed de 72 claims
-  + benchmark simulado reproduzível.
-- **v1.8.1**: expandir gold-standard para 300 claims anotadas por
-  pedólogo humano (escala para ter poder estatístico em subgrupos).
-- **v1.8.2**: rodar live no corpus OpenAlex de 10 000 abstracts;
-  depositar KG resultante no Zenodo com DOI próprio.
-- **v1.8.3**: migrar para `causal_llm_vote()` como default dos
-  pipelines, com agregação por confidence ponderada pelos κ
-  backend-vs-gold.
+Each item has a name rather than a version number: the numbers this list
+used to carry (v1.8.x → v2.0.0) were internal labels that were never
+released, and one of them collides with the 2.0.0 release.
+
+- **Done:** the full harness, a 72-claim seed gold standard, and a
+  reproducible *simulated* benchmark.
+- **To do -- real-API run:** run `data-raw/llm_benchmark_run.R` with
+  `EDAPHOS_USE_REAL_LLM=1`, so that the backends are actually compared.
+- **To do -- 300-claim gold standard:** annotation by a human
+  pedologist, for statistical power in subgroups.
+- **To do -- real run on the OpenAlex corpus:** 10,000 abstracts, with
+  the resulting KG deposited on Zenodo under its own DOI.
+- **To do -- `causal_llm_vote()` by default:** aggregation by
+  confidence weighted by each backend's κ against the gold standard.
 
 ---
 
-# Referências
+# References
 
 <div id="refs"></div>
