@@ -50,7 +50,7 @@ jobs:
       # Same cache key as R-CMD-check.yaml's +torch leg, so the two jobs
       # share one download.
       - name: Cache libtorch
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/torch
           key: libtorch-${{ runner.os }}-${{ hashFiles('DESCRIPTION') }}
