@@ -93,7 +93,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Fit a DeepONet for depth-profile operators</h1>
-      <small class="dont-index">Source: <a href="https://github.com/HugoMachadoRodrigues/edaphos/blob/main/R/pillar8_neural_operators.R" class="external-link"><code>R/pillar8_neural_operators.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/HugoMachadoRodrigues/edaphos/blob/v2.0.0/R/pillar8_neural_operators.R" class="external-link"><code>R/pillar8_neural_operators.R</code></a></small>
       <div class="d-none name"><code>no_deeponet_fit.Rd</code></div>
     </div>
 
@@ -234,7 +234,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-in"><span>        nse_vs_mean_profile <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">pred</span> <span class="op">-</span> <span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span></span></span>
 <span class="r-in"><span>                                  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">soc</span><span class="op">[</span><span class="va">te</span>, <span class="op">]</span> <span class="op">-</span> <span class="va">null_prof</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           train_mse        mean_profile           test_rmse nse_vs_mean_profile </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              0.0281              1.0000              0.3249              0.9624 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              0.0281              1.0000              0.3245              0.9625 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The trunk accepts depths that were never in the training grid --</span></span></span>
 <span class="r-in"><span><span class="co"># the property a pointwise regressor cannot have.  Score those</span></span></span>
@@ -248,7 +248,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rmse <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">off</span> <span class="op">-</span> <span class="va">truth</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        nse  <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">off</span> <span class="op">-</span> <span class="va">truth</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">truth</span> <span class="op">-</span> <span class="va">null_new</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   rmse    nse </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.7783 0.8125 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.7778 0.8128 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Interpolating is not extrapolating.  Past the deepest training</span></span></span>
 <span class="r-in"><span><span class="co"># depth the per-depth un-standardisation constants are held FLAT</span></span></span>
@@ -261,7 +261,7 @@ Networks</em> <strong>6</strong>, 911-917. <a href="https://doi.org/10.1109/72.3
 <span class="r-in"><span>        mean_truth_300 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">truth_deep</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        worst_site_err <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">deep</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">truth_deep</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  mean_pred_300 mean_truth_300 worst_site_err </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          9.837          9.888          1.359 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          9.836          9.888          1.352 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># backend = "r" trains the second layer of each subnet; the first</span></span></span>
 <span class="r-in"><span><span class="co"># hidden layers stay at their random initialisation.</span></span></span>

@@ -216,7 +216,7 @@ print(c(other_R_seed = identical(a$loss_history, b$loss_history),
 #>        8        8        0 
 #> [1] 3.481 6.945 5.476 7.761 5.958 5.376 5.758 5.940
 #>            final all_logits_equal 
-#>         5.939973         2.833213 
+#>         5.939979         2.833213 
 #> other_R_seed  same_R_seed 
 #>        FALSE         TRUE 
 ```

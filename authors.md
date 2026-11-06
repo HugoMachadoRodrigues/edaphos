@@ -9,7 +9,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/HugoMachadoRodrigues/edaphos/blob/v2.0.0/DESCRIPTION)
 
 Rodrigues H (2026). *edaphos: Digital Soil Mapping with Causal,
 Physics-Informed and Generative Methods*. R package version 2.0.0,

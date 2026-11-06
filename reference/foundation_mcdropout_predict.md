@@ -180,10 +180,10 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>      seeded_same unseeded_differs 
 #>             TRUE             TRUE 
 #>    predict_1    mc_mean_1 mean_abs_gap 
-#>       19.861       19.671        0.076 
+#>       19.687       19.516        0.075 
 #> [1] 0
 #> median_sd_seed301 median_sd_seed302 
-#>             0.626             0.335 
+#>             0.562             0.343 
 #>            picp mean_half_width            rmse  interval_score 
-#>           0.583           1.517           1.327          10.805 
+#>           0.583           1.443           1.391          12.147 
 ```

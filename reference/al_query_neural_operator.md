@@ -96,7 +96,7 @@ c(deeponet = edaphos_rmse(prof[po, ], predict(no, Xc[po, ],
   mean_profile = edaphos_rmse(prof[po, ],
     matrix(colMeans(prof[tr, ]), 30L, 5L, byrow = TRUE)))
 #>     deeponet mean_profile 
-#>     5.710867     3.424886 
+#>     5.737922     3.424886 
 # 2.72 vs 3.42 g/kg
 
 # Pillar 2 supplies the reference kinetics, fitted to the mean
@@ -110,11 +110,11 @@ q
 #>   n_select  : 5
 #>   top candidates (NO vs ODE disagreement, normalised):
 #>    pool_index    score no_ode_disagreement no_uncertainty_sd
-#> 5           5 6.268740            2.240044         0.3573356
-#> 9           9 5.778171            7.833821         1.3557613
-#> 30         30 5.511177            8.518347         1.5456493
-#> 4           4 5.402066            8.199613         1.5178662
-#> 6           6 5.260019            7.725521         1.4687250
+#> 5           5 5.856529            2.089174         0.3567256
+#> 9           9 5.786232            7.837013         1.3544242
+#> 4           4 5.455869            8.251261         1.5123644
+#> 30         30 5.419815            8.422052         1.5539371
+#> 6           6 5.216944            7.687975         1.4736548
 
 # First trap: `n_select` never subsets.  The frame is the whole
 # pool and n_select is an attribute the print method reads.
@@ -137,7 +137,7 @@ c(sd_cv = sd(q$no_uncertainty_sd) / mean(q$no_uncertainty_sd),
   rank_agreement = cor(rank(q$score),
                        rank(q$no_ode_disagreement)))   # 0.231, 0.960
 #>          sd_cv rank_agreement 
-#>      0.4806778      0.7090100 
+#>      0.4803004      0.6943270 
 
 # It is also the only stochastic part and there is no default seed.
 # Here the top five survive a change of seed but individual scores
@@ -148,7 +148,7 @@ identical(head(q$pool_index, 5L), head(q2$pool_index, 5L))   # TRUE
 #> [1] FALSE
 max(abs(q$score[order(q$pool_index)] /
         q2$score[order(q2$pool_index)] - 1))                 # 0.506
-#> [1] 0.4218518
+#> [1] 0.4192618
 
 # Trap for the other operator class: predict() for an FNO has no
 # `newdepths` argument at all, so `pool_depths` is swallowed by

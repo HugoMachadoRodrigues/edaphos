@@ -244,7 +244,7 @@ Pillar 1 where there is no observable “true” causal effect).
 |:------|:-------------------|:----------|----:|--------:|----------:|----------:|---------:|
 | 0.95  | P1 causal          | bootstrap |   1 | 0.00632 |     1.000 |     0.111 | 0.000242 |
 | 0.951 | P2 PIML neural-ODE | ensemble  |   5 | 0.42500 |     0.200 |     0.196 | 0.611000 |
-| 0.952 | P4 foundation fit  | ensemble  |  10 | 2.97000 |     1.000 |    13.700 | 0.000000 |
+| 0.952 | P4 foundation fit  | ensemble  |  10 | 3.01000 |     1.000 |    13.900 | 0.000000 |
 | 0.953 | P5 AL / QRF        | ensemble  |  38 | 0.28800 |     0.947 |     2.510 | 0.469000 |
 | 0.954 | P6 quantum KRR     | analytic  |  12 | 0.33400 |     1.000 |     3.630 | 0.539000 |
 

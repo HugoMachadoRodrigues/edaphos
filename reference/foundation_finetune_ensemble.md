@@ -214,18 +214,18 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> <edaphos_foundation_ensemble>
 #>   task    : regression
 #>   K_ens   : 3
-#>   final losses : min=0.5504  median=0.8138  max=0.9107
-#> [1] 0.814 0.550 0.911
+#>   final losses : min=0.5407  median=0.829  max=0.9189
+#> [1] 0.829 0.541 0.919
 #> [1]  3 12
 #>       [,1]  [,2]  [,3]  [,4]
-#> mean 21.02 20.35 22.99 21.04
-#> sd    1.42  1.29  2.03  1.29
+#> mean 20.98 20.31 22.95 21.01
+#> sd    1.50  1.35  2.10  1.34
 #>        member1        member2        member3  ensemble_mean average_member 
-#>          1.760          2.358          4.132          1.569          2.750 
+#>          1.935          2.333          4.163          1.540          2.810 
 #>     train_mean 
 #>          5.216 
 #>   member1_enc_5ep same_head_enc_1ep     member_spread 
-#>             1.760             1.932             2.372 
+#>             1.935             1.911             2.228 
 #>           picp     mean_width interval_score 
-#>          0.917          5.105          9.112 
+#>          0.917          5.288          8.696 
 ```
