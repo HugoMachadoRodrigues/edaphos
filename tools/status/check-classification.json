@@ -15,7 +15,7 @@
    "class": "informational",
    "summary": "CRAN reports this as a New submission. The two redirecting URLs it flagged at baseline have been fixed.",
    "source": "README.md (https://hugomachadorodrigues.github.io/edaphos needs a trailing slash) and inst/doc/case-cerrado-end-to-end.html (https://github.com/ipeaGIT/geobr moved to https://github.com/ipea/geobr); both fixed. Tarball was 15734027 bytes at the baseline commit and is 6740328 bytes now.",
-   "fix": "Nothing to fix: 'New submission' is accurate. Recorded because it is R's own confirmation that nothing named edaphos exists on CRAN, which contradicts every artefact implying the package is released.",
+   "fix": "Nothing to fix: 'New submission' is accurate. edaphos has GitHub and Zenodo releases (2.0.0 is DOI 10.5281/zenodo.24017391) but has never been on CRAN.",
    "blocks_cran": false,
    "note": "'New submission' is R's own confirmation that nothing named edaphos exists on CRAN, at version 3.10.0 with 43 NEWS releases behind it.",
    "urls_resolved": true

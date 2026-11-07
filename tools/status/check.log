@@ -1,39 +1,37 @@
-* using log directory ‘/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/edaphos.Rcheck’
-* using R version 4.6.1 (2026-06-24)
+* using log directory ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck’
+* using R version 4.6.2 (2026-10-29)
 * using platform: aarch64-apple-darwin23
 * R was compiled by
     Apple clang version 17.0.0 (clang-1700.3.19.1)
     GNU Fortran (GCC) 14.2.0
-* running under: macOS Tahoe 26.6.1
+* running under: macOS Golden Gate 27.2
 * using session charset: UTF-8
-* current time: 2026-08-13 22:56:19 UTC
-* using options ‘--no-manual --as-cran’
+* current time: 2026-11-07 12:21:43 UTC
+* using option ‘--as-cran’
 * checking for file ‘edaphos/DESCRIPTION’ ... OK
-* this is package ‘edaphos’ version ‘0.9.0’
+* this is package ‘edaphos’ version ‘2.0.0’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [4s/33s] NOTE
+* checking CRAN incoming feasibility ... [4s/88s] NOTE
 Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
 
 New submission
 * checking package namespace information ... OK
-* checking package dependencies ... INFO
-Packages suggested but not available for checking:
-  'DiagrammeR', 'ecmwfr', 'fmsb', 'ontologyIndex', 'spBayes'
+* checking package dependencies ... OK
 * checking if this is a source package ... OK
 * checking if there is a namespace ... OK
 * checking for executable files ... OK
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
-* checking whether package ‘edaphos’ can be installed ... [12s/13s] OK
-* used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.1.1.101)’
-* used SDK: ‘MacOSX26.5.sdk’
+* checking whether package ‘edaphos’ can be installed ... [13s/13s] OK
+* used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.4.1.1)’
+* used SDK: ‘MacOSX27.2.sdk’
 * checking installed package size ... INFO
-  installed size is  8.4Mb
+  installed size is  6.9Mb
   sub-directories of 1Mb or more:
-    doc       3.2Mb
-    extdata   2.2Mb
-    help      1.5Mb
+    doc       2.9Mb
+    extdata   1.0Mb
+    help      1.6Mb
 * checking package directory ... OK
 * checking for future file timestamps ... OK
 * checking ‘build’ directory ... OK
@@ -49,6 +47,7 @@ Packages suggested but not available for checking:
 * checking whether the package can be unloaded cleanly ... OK
 * checking whether the namespace can be loaded with stated dependencies ... OK
 * checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
 * checking use of S3 registration ... OK
 * checking dependencies in R code ... OK
 * checking S3 generic/method consistency ... OK
@@ -76,23 +75,26 @@ Packages suggested but not available for checking:
 * checking compiled code ... OK
 * checking installed files from ‘inst/doc’ ... OK
 * checking files in ‘vignettes’ ... OK
-* checking examples ... [84s/81s] OK
-* checking examples with --run-donttest ... [107s/104s] OK
+* checking examples ... [88s/86s] OK
+* checking examples with --run-donttest ... [94s/91s] OK
 * checking for unstated dependencies in ‘tests’ ... OK
 * checking tests ...
-  Running ‘testthat.R’ [467s/449s]
- [467s/449s] OK
+  Running ‘testthat.R’ [99s/79s]
+ [99s/79s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [260s/248s] OK
+* checking re-building of vignette outputs ... [250s/235s] OK
+* checking PDF version of manual ... OK
+* checking HTML version of manual ... NOTE
+Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
+Please obtain a recent version of HTML Tidy by downloading a binary
+release or compiling the source code from <https://www.html-tidy.org/>.
 * checking for non-standard things in the check directory ... OK
-* checking for detritus in the temp directory ... NOTE
-Found the following files/directories:
-  ‘tmpxhxwcnyp’
+* checking for detritus in the temp directory ... OK
 * DONE
 
 Status: 2 NOTEs
 See
-  ‘/Users/rodrigues.h/Library/CloudStorage/OneDrive-Personal/edaphos/edaphos.Rcheck/00check.log’
+  ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck/00check.log’
 for details.
 
