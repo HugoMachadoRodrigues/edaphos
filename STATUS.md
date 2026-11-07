@@ -1,7 +1,7 @@
 # edaphos — development status
 
-**Commit** `585d291` (`Hugo/docs-size-and-labels`) — **DESCRIPTION
-version** `2.0.0` — **measured** 2026-11-06T16:17:05Z
+**Commit** `5e6736b` (`Hugo/cran-comments-final`) — **DESCRIPTION
+version** `2.0.0` — **measured** 2026-11-07T12:33:02Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](https://hugomachadorodrigues.github.io/edaphos/tools/status/facts.R)
@@ -17,12 +17,12 @@ the frozen output of an adversarial audit of commit `272b378`.
 
 | Measure | Value |
 |----|----|
-| Commits | 243 |
-| First → last commit | 2026-04-20 → 2026-11-04 (197.7 calendar days, 28 with commits) |
-| Days since last commit | 2 |
+| Commits | 250 |
+| First → last commit | 2026-04-20 → 2026-11-07 (200.4 calendar days, 30 with commits) |
+| Days since last commit | 0 |
 | NEWS release sections | 1 |
-| Git tags | 17 |
-| NEWS versions with no tag | 1 |
+| Git tags | 18 |
+| NEWS versions with no tag | 0 |
 | R/ source lines | 31 569 |
 | Exported functions | 177 |
 | Test blocks | 750 |
@@ -37,7 +37,7 @@ the frozen output of an adversarial audit of commit `272b378`.
 ### Stage assessment
 
 From the audit’s completeness critic (editorial, not measured). It
-describes the tree at `272b378`, not at `585d291`: several of the
+describes the tree at `272b378`, not at `5e6736b`: several of the
 specifics it cites have since been closed — see “Closed since the audit”
 in section 11 for which ones, and on what measurement. The verdict is
 quoted unedited because a stage assessment that gets revised alongside
@@ -100,12 +100,12 @@ the work it judges is worth nothing.
 | Platform              | aarch64-apple-darwin23        |
 | OS                    | Darwin 27.2.0                 |
 | Worktree clean        | no                            |
-| Local vs origin/main  | `0 / 21` (ahead / behind)     |
+| Local vs origin/main  | `0 / 40` (ahead / behind)     |
 | Optional deps missing | 0                             |
 
 ## 3. The git clock
 
-`585d291` — 243 commits across 28 active days.
+`5e6736b` — 250 commits across 30 active days.
 
 | Date       | Commits |
 |------------|--------:|
@@ -137,23 +137,23 @@ the work it judges is worth nothing.
 | 2026-10-22 |       1 |
 | 2026-11-03 |       6 |
 | 2026-11-04 |      24 |
+| 2026-11-06 |       5 |
+| 2026-11-07 |       2 |
 
-Releases declared in `NEWS.md`: **1**. Git tags: **17**. Tags present:
+Releases declared in `NEWS.md`: **1**. Git tags: **18**. Tags present:
 `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`,
 `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`,
-`v1.4.0`, `v1.5.0`, `v1.6.0`. Commits since the newest tag (`v1.6.0`):
-**214**.
-
-`NEWS.md` versions with **no git tag** (1): `2.0.0`.
+`v1.4.0`, `v1.5.0`, `v1.6.0`, `v2.0.0`. Commits since the newest tag
+(`v2.0.0`): **5**.
 
 ## 4. Version coherence
 
 | Check | Result |
 |----|----|
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `2.0.0`, NEWS `2.0.0`) |
-| DESCRIPTION version has a git tag | ❌ (`v2.0.0`) |
-| HEAD is the tagged release commit | ❌ (214 commits past `v1.6.0`) |
-| Every NEWS release is tagged | ❌ (1 of 1 untagged) |
+| DESCRIPTION version has a git tag | ✅ (`v2.0.0`) |
+| HEAD is the tagged release commit | ❌ (5 commits past `v2.0.0`) |
+| Every NEWS release is tagged | ✅ (0 of 1 untagged) |
 
 Version strings each artefact claims for the package:
 
@@ -217,17 +217,16 @@ Installed size, verbatim from the log:
         extdata   1.0Mb
         help      1.6Mb
 
-Log:
-`/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/chk5/check.log`
-(100 lines, sha256 `4b907b1818e1fb43`). Verbatim tail:
+Log: `tools/status/check.log` (100 lines, sha256 `851ae1e7107086fe`).
+Verbatim tail:
 
     * checking tests ...
-      Running testthat.R [11m/13m]
-     [11m/13m] OK
+      Running testthat.R [99s/79s]
+     [99s/79s] OK
     * checking for unstated dependencies in vignettes ... OK
     * checking package vignettes ... OK
-    * checking re-building of vignette outputs ... [325s/337s] OK
-    * checking PDF version of manual ... [10s/11s] OK
+    * checking re-building of vignette outputs ... [250s/235s] OK
+    * checking PDF version of manual ... OK
     * checking HTML version of manual ... NOTE
     Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
     Please obtain a recent version of HTML Tidy by downloading a binary
@@ -237,7 +236,7 @@ Log:
     * DONE
     Status: 2 NOTEs
     See
-      /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/chk5/edaphos.Rcheck/00check.log
+      /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck/00check.log
     for details.
 
 #### Each reported item: package defect or measuring environment?
@@ -268,9 +267,8 @@ this measuring environment. 3 block CRAN acceptance.
 Fixes, per item:
 
 - `checking CRAN incoming feasibility` — Nothing to fix: ‘New
-  submission’ is accurate. Recorded because it is R’s own confirmation
-  that nothing named edaphos exists on CRAN, which contradicts every
-  artefact implying the package is released.
+  submission’ is accurate. edaphos has GitHub and Zenodo releases (2.0.0
+  is DOI 10.5281/zenodo.24017391) but has never been on CRAN.
 - `checking tests` — See findings FC68E1D (move .moco_require_torch
   below the argument validation in R/foundation_weights.R) and FAEC54C
   (validate num.trees in R/active_fit.R, seed the test).
@@ -349,7 +347,7 @@ lines:
 | `test_that` blocks            | 750   |
 | `expect_*` calls              | 2 140 |
 | `skip_if_not_installed` gates | 103   |
-| `skip_on_cran` gates          | 21    |
+| `skip_on_cran` gates          | 25    |
 | `set.seed` calls              | 173   |
 
 Live run in this environment:
@@ -361,7 +359,7 @@ Live run in this environment:
 | Failed         | 0     |
 | Errored        | 0     |
 | Warnings       | 4     |
-| Wall clock (s) | 591.7 |
+| Wall clock (s) | 483.2 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -437,7 +435,7 @@ nowhere** in `R/` (**9** of 43 referenced): `al_batchbald`,
 | `R`           |  1.35 MB |        ✅        |
 | `inst`        |  1011 KB |        ✅        |
 | `tools`       |   891 KB |        ❌        |
-| `tests`       |   640 KB |        ✅        |
+| `tests`       |   641 KB |        ✅        |
 | `data-raw`    |   527 KB |        ❌        |
 | `vignettes`   |   436 KB |        ✅        |
 | `<root>`      |   381 KB |        ✅        |
@@ -657,7 +655,7 @@ severity, which may differ from what the original auditor reported.
 ### Closed since the audit (measured, not asserted)
 
 122 findings were true at `272b378` and cannot be reproduced at
-`585d291`. Each line states the measurement that closed it, not a claim
+`5e6736b`. Each line states the measurement that closed it, not a claim
 that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |

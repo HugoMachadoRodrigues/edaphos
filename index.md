@@ -2325,7 +2325,7 @@ bibliography (`vignettes/references.bib`).
   are absent; every skip is an explicit `skip_if_not_installed()` gate.
 - **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`,
   `spBayes`, `reticulate`, `terra`, `geodata`, `igraph`.
-- **`R CMD check --as-cran`:** `2 NOTEs` at commit `585d291`. The
+- **`R CMD check --as-cran`:** `2 NOTEs` at commit `5e6736b`. The
   per-item breakdown, including which items are package defects and
   which are artefacts of the checking machine, is in
   [`cran-comments.md`](https://hugomachadorodrigues.github.io/edaphos/cran-comments.md);
