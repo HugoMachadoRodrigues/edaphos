@@ -23,7 +23,7 @@ Description: Digital soil mapping methods beyond regression trees,
     space; denoising diffusion probabilistic models for soil-property
     maps; and graph attention networks (Velickovic and others, 2018,
     <doi:10.48550/arXiv.1710.10903>). A shared calibration class scores
-    every method with the same uncertainty diagnostics. A synthesised
+    seven of the ten with the same uncertainty diagnostics. A synthesised
     Cerrado dataset is bundled so vignettes run offline. See McBratney,
     Mendonca Santos and Minasny (2003, <doi:10.1016/S0016-7061(03)00223-4>)
     for the digital soil mapping framework.
