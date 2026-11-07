@@ -1,3 +1,8 @@
+# Trains Neural ODEs: minutes of CPU when libtorch is present. CRAN asks for
+# a check of about ten minutes in total, so this file is skipped there; it runs
+# on every CI leg, and the torch leg asserts the torch tests actually executed.
+skip_on_cran()
+
 
 make_hier_dataset <- function(n_pedons = 8L, seed = 1L) {
   set.seed(seed)

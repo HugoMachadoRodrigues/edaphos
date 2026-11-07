@@ -1,3 +1,8 @@
+# Trains Neural ODEs: minutes of CPU when libtorch is present. CRAN asks for
+# a check of about ten minutes in total, so this file is skipped there; it runs
+# on every CI leg, and the torch leg asserts the torch tests actually executed.
+skip_on_cran()
+
 # Pillar 2 v1.1.0 tests: Neural ODE deep ensemble.
 
 
