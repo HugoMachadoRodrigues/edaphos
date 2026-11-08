@@ -66,5 +66,5 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 }
 #> [1] TRUE
 #> [1] FALSE
-#> Error : File '/tmp/RtmpGCq8JL/file1f834326c285.rds' does not look like a saved edaphos KG (format_version mismatch).
+#> Error : File '/tmp/RtmpYVJLMy/file1eaa7a336bce.rds' does not look like a saved edaphos KG (format_version mismatch).
 ```

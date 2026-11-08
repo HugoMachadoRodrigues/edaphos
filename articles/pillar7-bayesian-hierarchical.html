@@ -371,7 +371,7 @@ refitting.</p>
 <span>  range_per_dmin <span class="op">=</span> <span class="op">(</span><span class="fl">3</span> <span class="op">/</span> <span class="va">fit_drop</span><span class="op">$</span><span class="va">phi_hat</span><span class="op">)</span> <span class="op">/</span> <span class="va">d_min</span>,</span>
 <span>  corr_nearest   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">fit_drop</span><span class="op">$</span><span class="va">phi_hat</span> <span class="op">*</span> <span class="va">d_min</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        phi_hat       interior   range_3_over range_per_dmin   corr_nearest </span></span>
-<span><span class="co">#&gt;   130.33663484     1.00000000     0.02301732     3.37587356     0.41120686</span></span></code></pre></div>
+<span><span class="co">#&gt;   130.33663474     1.00000000     0.02301732     3.37587357     0.41120686</span></span></code></pre></div>
 <p>No warning this time:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>ϕ</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat\phi</annotation></semantics></math>
 is interior, so the data — not the bracket — chose it. And the range now
@@ -517,8 +517,10 @@ a catena down a slope — is not represented.</li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>3</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^3)</annotation></semantics></math>
 Cholesky bounds practical
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
-to the low thousands. The RcppArmadillo backend moves the constant, not
-the exponent.</li>
+to the low thousands. The RcppArmadillo backend runs the same linear
+algebra through R’s BLAS, so its speed follows that BLAS (an optimised
+one such as OpenBLAS or Accelerate helps both backends); it changes
+neither the exponent nor, with the reference BLAS, the constant.</li>
 <li>
 <code>br_cerrado</code> is synthesised. The numbers above
 demonstrate machinery, not a published finding about the Cerrado. For

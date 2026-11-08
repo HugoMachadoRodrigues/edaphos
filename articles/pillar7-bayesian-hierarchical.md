@@ -231,7 +231,7 @@ c(phi_hat        = fit_drop$phi_hat,
   range_per_dmin = (3 / fit_drop$phi_hat) / d_min,
   corr_nearest   = exp(-fit_drop$phi_hat * d_min))
 #>        phi_hat       interior   range_3_over range_per_dmin   corr_nearest 
-#>   130.33663484     1.00000000     0.02301732     3.37587356     0.41120686
+#>   130.33663474     1.00000000     0.02301732     3.37587357     0.41120686
 ```
 
 No warning this time: $`\hat\phi`$ is interior, so the data — not the
@@ -382,7 +382,10 @@ for this model inside a full sampling-campaign decision.
 - The exponential correlation is isotropic. Anisotropic pedogenesis — a
   catena down a slope — is not represented.
 - The $`O(n^3)`$ Cholesky bounds practical $`n`$ to the low thousands.
-  The RcppArmadillo backend moves the constant, not the exponent.
+  The RcppArmadillo backend runs the same linear algebra through R’s
+  BLAS, so its speed follows that BLAS (an optimised one such as
+  OpenBLAS or Accelerate helps both backends); it changes neither the
+  exponent nor, with the reference BLAS, the constant.
 - `br_cerrado` is synthesised. The numbers above demonstrate machinery,
   not a published finding about the Cerrado. For real WoSIS profiles see
   [`vignette("case-cerrado-end-to-end")`](https://hugomachadorodrigues.github.io/edaphos/articles/case-cerrado-end-to-end.md).

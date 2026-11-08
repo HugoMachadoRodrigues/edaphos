@@ -255,12 +255,12 @@ global average pooling.</p>
 <span><span class="va">br_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">grid</span>, <span class="va">emb</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">br_ext</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">covs_base</span>, <span class="st">"soc"</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">emb</span><span class="op">)</span>, <span class="fl">3L</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    elev slope    twi map_mm  ndvi   soc     emb01 emb02     emb03</span></span>
-<span><span class="co">#&gt; 1 903.9  2.59 10.324 1197.2 0.719 27.65 0.6837819     0 0.3180625</span></span>
-<span><span class="co">#&gt; 2 927.8  9.90 11.228 1238.8 0.619 20.07 0.6101781     0 0.2849999</span></span>
-<span><span class="co">#&gt; 3 900.4 14.19 11.475 1209.1 0.531 20.18 0.5989195     0 0.2714473</span></span>
-<span><span class="co">#&gt; 4 912.0  6.23 11.284 1159.5 0.586 17.25 0.6434516     0 0.2803029</span></span>
-<span><span class="co">#&gt; 5 934.2 11.89  8.116 1225.3 0.517 15.65 0.6326668     0 0.2645772</span></span>
-<span><span class="co">#&gt; 6 926.6  6.31 11.107 1261.7 0.648 25.42 0.6825560     0 0.3001959</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 903.9  2.59 10.324 1197.2 0.719 27.65 0.6837822     0 0.3180628</span></span>
+<span><span class="co">#&gt; 2 927.8  9.90 11.228 1238.8 0.619 20.07 0.6101785     0 0.2850002</span></span>
+<span><span class="co">#&gt; 3 900.4 14.19 11.475 1209.1 0.531 20.18 0.5989199     0 0.2714476</span></span>
+<span><span class="co">#&gt; 4 912.0  6.23 11.284 1159.5 0.586 17.25 0.6434519     0 0.2803031</span></span>
+<span><span class="co">#&gt; 5 934.2 11.89  8.116 1225.3 0.517 15.65 0.6326671     0 0.2645773</span></span>
+<span><span class="co">#&gt; 6 926.6  6.31 11.107 1261.7 0.648 25.42 0.6825563     0 0.3001962</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="controlled-experiment-al-with-and-without-simclr-features">5. Controlled experiment — AL with and without SimCLR features<a class="anchor" aria-label="anchor" href="#controlled-experiment-al-with-and-without-simclr-features"></a>
@@ -374,7 +374,7 @@ and additive Gaussian sensor noise.</p>
 <span><span class="co">#&gt; &lt;edaphos_foundation_moco&gt;  (MoCo v2 -- Pillar 4)</span></span>
 <span><span class="co">#&gt;   in_channels = 5  feature_dim = 32  proj_dim = 16</span></span>
 <span><span class="co">#&gt;   queue_size = 128  momentum = 0.9900  tau = 0.1  batch = 32</span></span>
-<span><span class="co">#&gt;   epochs = 30  final InfoNCE loss = 3.683</span></span></code></pre></div>
+<span><span class="co">#&gt;   epochs = 30  final InfoNCE loss = 3.684</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loss_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>epoch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">simclr</span><span class="op">$</span><span class="va">loss_history</span><span class="op">)</span>,</span>
@@ -547,8 +547,8 @@ progress.</p>
 <span><span class="co">#&gt; coord. ref. : lon/lat WGS 84 (EPSG:4326)</span></span>
 <span><span class="co">#&gt; source(s)   : memory</span></span>
 <span><span class="co">#&gt; names       :  emb_001,  emb_002,  emb_003,  emb_004,  emb_005,  emb_006, ...</span></span>
-<span><span class="co">#&gt; min values  : 0.392041,  0.47011, 0.324458, 0.457592, 0.427687, 0.284419, ...</span></span>
-<span><span class="co">#&gt; max values  : 0.508106, 0.554665, 0.389245, 0.572707, 0.510934, 0.323895, ...</span></span></code></pre></div>
+<span><span class="co">#&gt; min values  : 0.391858, 0.470214, 0.324402, 0.457403,  0.42759, 0.284449, ...</span></span>
+<span><span class="co">#&gt; max values  : 0.508254, 0.554739,  0.38902, 0.572811, 0.510894, 0.323855, ...</span></span></code></pre></div>
 <p>The output is a <code><a href="https://rspatial.github.io/terra/reference/SpatRaster-class.html" class="external-link">terra::SpatRaster</a></code> with one band per
 backbone feature (<code>feature_dim = 32</code> here). For visualisation
 we project the embedding onto its top-3 principal components and render

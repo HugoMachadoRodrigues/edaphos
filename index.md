@@ -1488,7 +1488,7 @@ uncertainty recipes:
 
 - **`foundation_finetune_ensemble(K = 5L)`** — K independent heads on
   the same encoder, different seeds \[[Lakshminarayanan et
-  al. 2017](https://papers.nips.cc/paper/7219-simple-and-scalable-predictive-uncertainty-estimation-using-deep-ensembles)\].
+  al. 2017](https://arxiv.org/abs/1612.01474)\].
 - **[`foundation_mcdropout_predict()`](https://hugomachadorodrigues.github.io/edaphos/reference/foundation_mcdropout_predict.md)**
   — N Monte-Carlo dropout forward passes with the dropout layers left
   active at predict time \[[Gal and Ghahramani
@@ -1578,7 +1578,7 @@ An information-theoretic alternative to the hybrid heuristic:
 [`al_query_batchbald()`](https://hugomachadorodrigues.github.io/edaphos/reference/al_query_batchbald.md)
 picks the batch that maximises the mutual information between its labels
 and the model parameters \[[Kirsch et
-al. 2019](https://papers.nips.cc/paper/9357-batchbald-efficient-and-diverse-batch-acquisition-for-deep-bayesian-active-learning)\]:
+al. 2019](https://arxiv.org/abs/1906.08158)\]:
 
 ``` math
 \mathrm{BatchBALD}(B) \;=\; I(y_B; \theta \mid x_B, \mathcal D).
@@ -2328,9 +2328,9 @@ bibliography (`vignettes/references.bib`).
 - **`R CMD check --as-cran`:** `2 NOTEs` at commit `5e6736b`. The
   per-item breakdown, including which items are package defects and
   which are artefacts of the checking machine, is in
-  [`cran-comments.md`](https://hugomachadorodrigues.github.io/edaphos/cran-comments.md);
+  [`cran-comments.md`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/cran-comments.md);
   the log itself is committed at
-  [`tools/status/check.log`](https://hugomachadorodrigues.github.io/edaphos/tools/status/check.log).
+  [`tools/status/check.log`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/tools/status/check.log).
 - **CI:** GitHub Actions matrix on `macos-latest / R release`,
   `windows-latest / R release`, `ubuntu-latest / R devel`,
   `ubuntu-latest / R release`, `ubuntu-latest / R oldrel-1`,
@@ -2497,7 +2497,7 @@ paper that motivates its framework:
 ## License
 
 MIT © Hugo Rodrigues. See
-[LICENSE.md](https://hugomachadorodrigues.github.io/edaphos/LICENSE.md).
+[`LICENSE.md`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/LICENSE.md).
 
 ------------------------------------------------------------------------
 

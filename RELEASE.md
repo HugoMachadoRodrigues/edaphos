@@ -180,7 +180,7 @@ The package qualifies for rOpenSci’s “Statistical software” category
 (Bayesian / spatial / machine learning). Editors may ask for:
 
 - Coverage metrics (use
-  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md)
+  [`covr::package_coverage()`](https://covr.r-lib.org/reference/package_coverage.html)
   before submitting to pre-empt the question).
 - A link to a CRAN submission (do \#3 first).
 - A clear statement of scope vs. alternatives – already present in
