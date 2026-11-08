@@ -2396,7 +2396,7 @@ paper that motivates its framework:
 
 ## License
 
-MIT © Hugo Rodrigues. See [LICENSE.md](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/LICENSE.md).
+MIT © Hugo Rodrigues. See [`LICENSE.md`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/LICENSE.md).
 
 ---
 
