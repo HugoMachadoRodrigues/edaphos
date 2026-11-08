@@ -14,3 +14,9 @@ This is a resubmission. The CRAN incoming pretests of 2026-11-07 reported:
   proper names; contrastive, convolutional, denoising, pedogenetic and
   pedometry are standard technical terms. "pre-training" is now written
   "pretraining".
+
+On the maintainer's network `papers.nips.cc` and `proceedings.neurips.cc`
+time out (libcurl error 28). The two `papers.nips.cc` links in README.md now
+point to the same papers on arXiv. The remaining
+`proceedings.neurips.cc` link (Ho, Jain and Abbeel, 2020) passes the URL check
+on GitHub Actions and was not flagged by the previous CRAN pretest.

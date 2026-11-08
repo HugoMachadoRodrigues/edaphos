@@ -1,7 +1,7 @@
 {
   "schema": "edaphos-status-facts/1",
   "environment": {
-    "measured_at_utc": "2026-11-07T12:33:02Z",
+    "measured_at_utc": "2026-11-08T22:31:37Z",
     "r_version": "4.6.2",
     "r_nickname": "Diversified Portfolio",
     "platform": "aarch64-apple-darwin23",
@@ -9,17 +9,17 @@
     "os_release": "27.2.0"
   },
   "git": {
-    "head_sha": "5e6736b6023f2f5b0e4a65a6f5fe957b71fde6d3",
-    "head_sha_short": "5e6736b",
-    "branch": "Hugo/cran-comments-final",
+    "head_sha": "6a038e2632c889ffd618dab83bfc4f91a781e2e1",
+    "head_sha_short": "6a038e2",
+    "branch": "Hugo/cran-comments-resubmission",
     "remote_url": "https://github.com/HugoMachadoRodrigues/edaphos.git",
-    "commit_count": 250,
+    "commit_count": 258,
     "first_commit": "2026-04-20T23:44:43-04:00",
     "first_subject": "Initial release of edaphos 0.1.0",
-    "last_commit": "2026-11-07T07:16:56-05:00",
-    "last_subject": "Merge pull request #17 from HugoMachadoRodrigues/Hugo/cran-description",
-    "span_days": 200.355706018519,
-    "active_days": 30,
+    "last_commit": "2026-11-08T17:06:44-05:00",
+    "last_subject": "Merge pull request #20 from HugoMachadoRodrigues/Hugo/cran-resubmit-lapack",
+    "span_days": 201.765289351852,
+    "active_days": 31,
     "commits_per_day": {
       "2026-04-20": 1,
       "2026-04-21": 10,
@@ -50,15 +50,16 @@
       "2026-11-03": 6,
       "2026-11-04": 24,
       "2026-11-06": 5,
-      "2026-11-07": 2
+      "2026-11-07": 4,
+      "2026-11-08": 6
     },
-    "days_since_last": 0.0111892521519352,
+    "days_since_last": 0.0172848984019624,
     "tags": ["v0.1.0", "v0.2.0", "v0.3.0", "v0.4.0", "v0.5.0", "v0.6.0", "v0.7.0", "v0.8.0", "v0.9.0", "v1.0.0", "v1.1.0", "v1.2.0", "v1.3.0", "v1.3.1", "v1.4.0", "v1.5.0", "v1.6.0", "v2.0.0"],
     "tag_count": 18,
     "worktree_clean": false,
-    "ahead_behind_origin_main": "0\t40",
+    "ahead_behind_origin_main": "0\t48",
     "remote_tag_count": 18,
-    "commits_since_last_tag": 5,
+    "commits_since_last_tag": 13,
     "last_tag": "v2.0.0"
   },
   "description": {
@@ -216,7 +217,7 @@
         "says_ten": 1
       }
     ],
-    "readme_bytes": 116880,
+    "readme_bytes": 116953,
     "readme_mentions_getting_started": 1
   },
   "rd_portability": {
@@ -697,7 +698,7 @@
     "warnings": 4,
     "files": 114,
     "results": 750,
-    "real_seconds": 483.2,
+    "real_seconds": 481.5,
     "failing_files": []
   },
   "dependencies": {
@@ -707,8 +708,8 @@
   },
   "check": {
     "log_path": "tools/status/check.log",
-    "log_lines": 100,
-    "log_sha256": "851ae1e7107086fee0e4e670fef025488496494f14d1eddb04485e3ee5984ea8",
+    "log_lines": 111,
+    "log_sha256": "06bb0f5123abebd54ec42cda3cca167416382b35ecf3f237b05377355beaae20",
     "status_line": "Status: 2 NOTEs",
     "n_errors": 0,
     "n_warnings": 0,
@@ -718,7 +719,7 @@
       "WARNING": 0,
       "NOTE": 2,
       "INFO": 1,
-      "OK": 63
+      "OK": 67
     },
     "counts_reconcile": true,
     "items": [
@@ -730,7 +731,7 @@
       {
         "step": "checking CRAN incoming feasibility",
         "level": "NOTE",
-        "detail": "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com> | New submission"
+        "detail": "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com> | New submission | Found the following (possibly) invalid URLs: |   URL: https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html |     From: README.md |     Status: Error |     Message: libcurl error code 28: |       \tConnection timed out after 60002 milliseconds"
       },
       {
         "step": "checking package namespace information",
@@ -780,7 +781,7 @@
       {
         "step": "checking installed package size",
         "level": "INFO",
-        "detail": "  installed size is  6.9Mb |   sub-directories of 1Mb or more: |     doc       2.9Mb |     extdata   1.0Mb |     help      1.6Mb"
+        "detail": "  installed size is  7.0Mb |   sub-directories of 1Mb or more: |     doc       2.9Mb |     extdata   1.0Mb |     help      1.6Mb"
       },
       {
         "step": "checking package directory",
@@ -963,6 +964,26 @@
         "detail": ""
       },
       {
+        "step": "checking line endings in Makefiles",
+        "level": "OK",
+        "detail": ""
+      },
+      {
+        "step": "checking compilation flags in Makevars",
+        "level": "OK",
+        "detail": ""
+      },
+      {
+        "step": "checking for GNU extensions in Makefiles",
+        "level": "OK",
+        "detail": ""
+      },
+      {
+        "step": "checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS)",
+        "level": "OK",
+        "detail": ""
+      },
+      {
         "step": "checking use of PKG_*FLAGS in Makefiles",
         "level": "OK",
         "detail": ""
@@ -1015,7 +1036,7 @@
       {
         "step": "checking tests",
         "level": "OK",
-        "detail": "  Running testthat.R [99s/79s] |  [99s/79s] OK"
+        "detail": "  Running testthat.R [97s/70s] |  [97s/71s] OK"
       },
       {
         "step": "checking for unstated dependencies in vignettes",
@@ -1050,29 +1071,29 @@
       {
         "step": "checking for detritus in the temp directory",
         "level": "OK",
-        "detail": "* DONE | Status: 2 NOTEs | See |   /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck/00check.log | for details."
+        "detail": "* DONE | Status: 2 NOTEs | See |   /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub2/edaphos.Rcheck/00check.log | for details."
       }
     ],
     "errors": [],
     "warnings": [],
     "notes": ["checking CRAN incoming feasibility", "checking HTML version of manual"],
     "infos": "checking installed package size",
-    "installed_size": ["  installed size is  6.9Mb", "  sub-directories of 1Mb or more:", "    doc       2.9Mb", "    extdata   1.0Mb", "    help      1.6Mb"],
+    "installed_size": ["  installed size is  7.0Mb", "  sub-directories of 1Mb or more:", "    doc       2.9Mb", "    extdata   1.0Mb", "    help      1.6Mb"],
     "cran_incoming": {
       "is_new_submission": true,
       "maintainer": "Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>",
-      "invalid_urls": [],
-      "n_invalid_urls": 0,
+      "invalid_urls": "https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html",
+      "n_invalid_urls": 1,
       "tarball_bytes": null,
-      "block": ["* checking CRAN incoming feasibility ... [4s/88s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission"]
+      "block": ["* checking CRAN incoming feasibility ... [4s/147s] NOTE", "Maintainer: Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>", "", "New submission", "", "Found the following (possibly) invalid URLs:", "  URL: https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html", "    From: README.md", "    Status: Error", "    Message: libcurl error code 28:", "      \tConnection timed out after 60002 milliseconds"]
     },
     "test_summary": [],
     "suggests_unavailable": [],
-    "tail": ["* checking tests ...", "  Running testthat.R [99s/79s]", " [99s/79s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [250s/235s] OK", "* checking PDF version of manual ... OK", "* checking HTML version of manual ... NOTE", "Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.", "Please obtain a recent version of HTML Tidy by downloading a binary", "release or compiling the source code from <https://www.html-tidy.org/>.", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... OK", "* DONE", "", "Status: 2 NOTEs", "See", "  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck/00check.log", "for details.", ""]
+    "tail": ["* checking tests ...", "  Running testthat.R [97s/70s]", " [97s/71s] OK", "* checking for unstated dependencies in vignettes ... OK", "* checking package vignettes ... OK", "* checking re-building of vignette outputs ... [242s/223s] OK", "* checking PDF version of manual ... OK", "* checking HTML version of manual ... NOTE", "Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.", "Please obtain a recent version of HTML Tidy by downloading a binary", "release or compiling the source code from <https://www.html-tidy.org/>.", "* checking for non-standard things in the check directory ... OK", "* checking for detritus in the temp directory ... OK", "* DONE", "", "Status: 2 NOTEs", "See", "  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub2/edaphos.Rcheck/00check.log", "for details.", ""]
   },
   "size": {
     "measured_over": "git-tracked files only (build artefacts excluded)",
-    "tracked_file_count": 627,
+    "tracked_file_count": 629,
     "by_dir": [
       {
         "dir": "paper",
@@ -1091,17 +1112,17 @@
       },
       {
         "dir": "inst",
-        "bytes": 1035053,
+        "bytes": 1035062,
         "ships_in_tarball": true
       },
       {
         "dir": "tools",
-        "bytes": 912102,
+        "bytes": 915069,
         "ships_in_tarball": false
       },
       {
         "dir": "tests",
-        "bytes": 656144,
+        "bytes": 656525,
         "ships_in_tarball": true
       },
       {
@@ -1111,12 +1132,12 @@
       },
       {
         "dir": "vignettes",
-        "bytes": 446091,
+        "bytes": 446284,
         "ships_in_tarball": true
       },
       {
         "dir": "<root>",
-        "bytes": 390127,
+        "bytes": 391150,
         "ships_in_tarball": true
       },
       {
@@ -1126,12 +1147,12 @@
       },
       {
         "dir": ".github",
-        "bytes": 21479,
+        "bytes": 22149,
         "ships_in_tarball": false
       },
       {
         "dir": "src",
-        "bytes": 17903,
+        "bytes": 17865,
         "ships_in_tarball": true
       },
       {
@@ -1140,13 +1161,13 @@
         "ships_in_tarball": false
       }
     ],
-    "shipped_bytes": 5233988,
-    "shipped_file_count": 464,
+    "shipped_bytes": 5234605,
+    "shipped_file_count": 465,
     "tarball_bytes": null,
     "tarball_file": null,
     "tarball_composition": null,
     "excluded_by_rbuildignore": 17,
-    "repo_bytes": 27121719,
+    "repo_bytes": 27126924,
     "cran_soft_cap_bytes": 5242880,
     "largest_shipped_files": [
       {
@@ -1176,7 +1197,7 @@
       },
       {
         "file": "README.md",
-        "bytes": 116880,
+        "bytes": 116953,
         "ships": true
       },
       {
@@ -1210,7 +1231,7 @@
         "ships": true
       }
     ],
-    "untracked_files": []
+    "untracked_files": ["tests/testthat/_problems/", "tests/testthat/testthat-problems.rds"]
   },
   "ci": {
     "workflows": ["pkgdown.yaml", "quality-gates.yaml", "R-CMD-check.yaml", "release-tag.yaml", "test-coverage.yaml"],

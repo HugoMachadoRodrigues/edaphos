@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `5e6736b` (`Hugo/cran-comments-final`) — **DESCRIPTION version** `2.0.0` — **measured** 2026-11-07T12:33:02Z
+**Commit** `6a038e2` (`Hugo/cran-comments-resubmission`) — **DESCRIPTION version** `2.0.0` — **measured** 2026-11-08T22:31:37Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,8 +18,8 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 250 |
-| First → last commit | 2026-04-20 → 2026-11-07 (200.4 calendar days, 30 with commits) |
+| Commits | 258 |
+| First → last commit | 2026-04-20 → 2026-11-08 (201.8 calendar days, 31 with commits) |
 | Days since last commit | 0 |
 | NEWS release sections | 1 |
 | Git tags | 18 |
@@ -37,7 +37,7 @@ adversarial audit of commit `272b378`.
 
 ### Stage assessment
 
-From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `5e6736b`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
+From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `6a038e2`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
 
 > Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and
 > nowhere near release-candidate. The eight audits read the artefact as a mature project that had
@@ -82,12 +82,12 @@ From the audit's completeness critic (editorial, not measured). It describes the
 | Platform | aarch64-apple-darwin23 |
 | OS | Darwin 27.2.0 |
 | Worktree clean | no |
-| Local vs origin/main | `0 / 40` (ahead / behind) |
+| Local vs origin/main | `0 / 48` (ahead / behind) |
 | Optional deps missing | 0 |
 
 ## 3. The git clock
 
-`5e6736b` — 250 commits across 30 active days.
+`6a038e2` — 258 commits across 31 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -120,11 +120,12 @@ From the audit's completeness critic (editorial, not measured). It describes the
 | 2026-11-03 | 6 |
 | 2026-11-04 | 24 |
 | 2026-11-06 | 5 |
-| 2026-11-07 | 2 |
+| 2026-11-07 | 4 |
+| 2026-11-08 | 6 |
 
 Releases declared in `NEWS.md`: **1**. Git tags: **18**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v2.0.0`.
-Commits since the newest tag (`v2.0.0`): **5**.
+Commits since the newest tag (`v2.0.0`): **13**.
 
 ## 4. Version coherence
 
@@ -132,7 +133,7 @@ Commits since the newest tag (`v2.0.0`): **5**.
 | --- | --- |
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `2.0.0`, NEWS `2.0.0`) |
 | DESCRIPTION version has a git tag | ✅ (`v2.0.0`) |
-| HEAD is the tagged release commit | ❌ (5 commits past `v2.0.0`) |
+| HEAD is the tagged release commit | ❌ (13 commits past `v2.0.0`) |
 | Every NEWS release is tagged | ✅ (0 of 1 untagged) |
 
 Version strings each artefact claims for the package:
@@ -181,27 +182,31 @@ Counts are taken from R's own `Status:` line; an independent walk of the log agr
 | Maintainer | `Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>` |
 | CRAN status | **New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN |
 | Tarball size | _not measured_ measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
-| URLs flagged as invalid | 0 |
+| URLs flagged as invalid | 1 |
+
+```
+https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html
+```
 
 Installed size, verbatim from the log:
 
 ```
-  installed size is  6.9Mb
+  installed size is  7.0Mb
   sub-directories of 1Mb or more:
     doc       2.9Mb
     extdata   1.0Mb
     help      1.6Mb
 ```
 
-Log: `tools/status/check.log` (100 lines, sha256 `851ae1e7107086fe`). Verbatim tail:
+Log: `tools/status/check.log` (111 lines, sha256 `06bb0f5123abebd5`). Verbatim tail:
 
 ```
 * checking tests ...
-  Running testthat.R [99s/79s]
- [99s/79s] OK
+  Running testthat.R [97s/70s]
+ [97s/71s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [250s/235s] OK
+* checking re-building of vignette outputs ... [242s/223s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -212,7 +217,7 @@ release or compiling the source code from <https://www.html-tidy.org/>.
 * DONE
 Status: 2 NOTEs
 See
-  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck/00check.log
+  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub2/edaphos.Rcheck/00check.log
 for details.
 ```
 
@@ -299,7 +304,7 @@ Live run in this environment:
 | Failed | 0 |
 | Errored | 0 |
 | Warnings | 4 |
-| Wall clock (s) | 483.2 |
+| Wall clock (s) | 481.5 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -360,13 +365,13 @@ Function names called in `pillar1.md`, `pillar10.md`, `pillar2.md`, `pillar3.md`
 | `man` | 1.37 MB | ✅ |
 | `R` | 1.35 MB | ✅ |
 | `inst` | 1011 KB | ✅ |
-| `tools` | 891 KB | ❌ |
+| `tools` | 894 KB | ❌ |
 | `tests` | 641 KB | ✅ |
 | `data-raw` | 527 KB | ❌ |
 | `vignettes` | 436 KB | ✅ |
-| `<root>` | 381 KB | ✅ |
+| `<root>` | 382 KB | ✅ |
 | `data` | 64 KB | ✅ |
-| `.github` | 21 KB | ❌ |
+| `.github` | 22 KB | ❌ |
 | `src` | 17 KB | ✅ |
 | `cheatsheets` | 16 KB | ❌ |
 
@@ -507,7 +512,7 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-122 findings were true at `272b378` and cannot be reproduced at `5e6736b`. Each line states the measurement that closed it, not a claim that it was addressed.
+122 findings were true at `272b378` and cannot be reproduced at `6a038e2`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |
