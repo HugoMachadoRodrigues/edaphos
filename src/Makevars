@@ -1,4 +1,0 @@
-# Link R's LAPACK and BLAS for the RcppArmadillo code (bhs_gibbs_rcpp.cpp).
-# R does not add these by default: without this file the CRAN Debian pretest
-# built edaphos.so but could not load it ("undefined symbol: dgelsd_").
-PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
