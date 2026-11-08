@@ -2374,8 +2374,8 @@ paper that motivates its framework:
 [hengl2017]:     https://doi.org/10.1371/journal.pone.0169748
 [jarvis2008]:    https://srtm.csi.cgiar.org
 [jean2019]:      https://arxiv.org/abs/1805.02855
-[kirsch2019]:    https://papers.nips.cc/paper/9357-batchbald-efficient-and-diverse-batch-acquisition-for-deep-bayesian-active-learning
-[lakshminarayanan2017]: https://papers.nips.cc/paper/7219-simple-and-scalable-predictive-uncertainty-estimation-using-deep-ensembles
+[kirsch2019]:    https://arxiv.org/abs/1906.08158
+[lakshminarayanan2017]: https://arxiv.org/abs/1612.01474
 [lehmann2015]:   https://doi.org/10.1038/nature16069
 [mcbratney2003]: https://doi.org/10.1016/S0016-7061(03)00223-4
 [meinshausen2006]: https://jmlr.csail.mit.edu/papers/v7/meinshausen06a.html
