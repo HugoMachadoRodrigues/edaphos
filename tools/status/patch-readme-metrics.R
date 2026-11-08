@@ -98,8 +98,8 @@ section <- c(
   sprintf(paste0("- **`R CMD check --as-cran`:** `%s` at commit `%s`. ",
                  "The per-item breakdown, including which items are package ",
                  "defects and which are artefacts of the checking machine, is ",
-                 "in [`cran-comments.md`](cran-comments.md); the log itself is ",
-                 "committed at [`tools/status/check.log`](tools/status/check.log)."),
+                 "in [`cran-comments.md`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/cran-comments.md); the log itself is ",
+                 "committed at [`tools/status/check.log`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/tools/status/check.log)."),
           if (length(ck$status_line)) sub("^Status:\\s*", "", ck$status_line[1])
             else "not measured",
           facts$git$head_sha_short),

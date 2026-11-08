@@ -53,6 +53,12 @@ add("<!-- GENERATED FILE -- DO NOT EDIT BY HAND.",
     sprintf("# cran-comments for edaphos %s", d$version %||% "?"),
     "")
 
+# ---- resubmission notes (hand-written prose, kept in its own file) ---------
+# The answer to CRAN's previous review is prose, not a measurement, so it lives
+# in tools/status/resubmission.md and is copied in verbatim when present.
+resub <- file.path("tools", "status", "resubmission.md")
+if (file.exists(resub)) add(readLines(resub, warn = FALSE), "")
+
 # ---- test environments (measured) -----------------------------------------
 add("## Test environments", "",
     sprintf("* %s %s, %s, R %s (%s)",

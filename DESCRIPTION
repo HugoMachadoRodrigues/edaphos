@@ -14,7 +14,7 @@ Description: Digital soil mapping methods beyond regression trees,
     neural ordinary differential equation; four-dimensional pedometry
     with stacked convolutional long short-term memory networks and an
     ensemble Kalman filter; foundation models via 'SimCLR' and 'MoCo'
-    contrastive pre-training on raster patches; active learning with
+    contrastive pretraining on raster patches; active learning with
     hybrid uncertainty and diversity policies; quantum machine
     learning with a state-vector feature-map simulator and quantum
     kernel ridge regression; Bayesian hierarchical spatial models with
