@@ -80,6 +80,19 @@ jobs:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
 
+      # CRAN's Debian pretest rejected 2.0.0 with "undefined symbol: dgelsd_":
+      # without src/Makevars the shared object did not link LAPACK, and these
+      # legs still passed because libR happened to resolve the symbols.  Fail
+      # unless edaphos.so itself lists a LAPACK library as a dependency.
+      - name: Assert edaphos.so links LAPACK
+        if: runner.os == 'Linux'
+        run: |
+          so=$(ls check/*.Rcheck/edaphos/libs/edaphos.so)
+          readelf -d "$so" | grep NEEDED
+          readelf -d "$so" | grep NEEDED | grep -Ei 'lapack' \
+            || { echo "edaphos.so does not link LAPACK (see src/Makevars)"; exit 1; }
+        shell: bash
+
       # A green run must mean the torch paths ran, not that they skipped.
       - name: Assert the torch tests actually executed
         if: matrix.config.torch
