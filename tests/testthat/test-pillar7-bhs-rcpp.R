@@ -4,8 +4,8 @@
 ##      posterior mean recovers a known true beta within 5 sigma.
 ##   2. Under one seed it reproduces backend = "gibbs" draw for draw, and
 ##      `predict()` and `as_edaphos_posterior()` work the same way.
-##   3. The Rcpp sweep is materially faster than the R fast path
-##      (we contract a perf-regression ceiling, not a raw speedup).
+##   3. The Rcpp sweep is not materially slower than the R fast path
+##      (a perf-regression ceiling, not a speedup: see the test).
 ##   4. Posterior variance components remain positive.
 
 .mk_spatial_data <- function(n = 100L, true_beta = 2, seed = 1L) {
@@ -87,7 +87,7 @@ test_that("backend = 'rcpp': as_edaphos_posterior wraps cleanly", {
   expect_equal(post$query_type, "map")
 })
 
-test_that("backend = 'rcpp': performance ceiling -- under R fast path on n = 200", {
+test_that("backend = 'rcpp': performance ceiling -- within 1.5x of the R fast path on n = 200", {
   # Wall-clock assertion: skipped on CRAN, whose builders are shared, some
   # single-core, some under valgrind, so an absolute ceiling or an A < B
   # timing comparison flips for reasons unrelated to the code. It still runs
@@ -113,8 +113,13 @@ test_that("backend = 'rcpp': performance ceiling -- under R fast path on n = 200
     t_r <- min(t_r, fit_time("gibbs"))
     t_c <- min(t_c, fit_time("rcpp"))
   }
-  # Measured on an M-series Mac, eight alternating runs each: rcpp takes
-  # 0.50 of the R time at n = 200 and 0.37 at n = 500, faster in 8 of 8 at
-  # both sizes. The contract asserted is only that rcpp is not slower.
-  expect_lt(t_c, t_r)
+  # Both backends do the same Cholesky and triangular solves, so with the
+  # same BLAS they run at about the same speed. Measured on an M-series Mac
+  # with R's reference BLAS, eight alternating runs each: rcpp takes 1.05 of
+  # the R time at n = 200 (max 1.09) and 1.04 at n = 500 (max 1.05).
+  # An earlier "rcpp takes 0.50 of the R time" came from a build without
+  # src/Makevars, whose shared object picked up a faster BLAS by accident;
+  # that build failed to load on CRAN's Debian check. The contract is only
+  # that rcpp is not pathologically slower than the R path.
+  expect_lt(t_c, 1.5 * t_r)
 })
