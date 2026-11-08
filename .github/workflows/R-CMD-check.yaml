@@ -41,7 +41,7 @@ jobs:
       TORCH_INSTALL: ${{ matrix.config.torch && '1' || '0' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: r-lib/actions/setup-pandoc@v2
 
