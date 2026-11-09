@@ -21,6 +21,7 @@ with a Mann-Kendall trend summary as the plot subtitle.  Requires
 \code{ggplot2}.
 }
 \examples{
+\donttest{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   # Synthetic panel whose MAP -> SOC effect decays over 36 slices,
   # with elevation as the confounder that must be adjusted away.
@@ -57,5 +58,6 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   # No autoplot() method is registered for this class, despite the
   # wording of the error raised when ggplot2 is missing.
   inherits(try(ggplot2::autoplot(boot), silent = TRUE), "try-error")
+}
 }
 }

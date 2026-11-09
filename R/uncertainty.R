@@ -631,6 +631,7 @@ autoplot.edaphos_posterior <- function(object, ...) {
 #' @param ... Ignored.
 #' @return A `ggplot` object.
 #' @examples
+#' \donttest{
 #' # Two posteriors over the same 200 held-out Cerrado cells: a linear
 #' # model, and the null every soil map has to beat -- the training
 #' # marginal pasted on every cell, covariates ignored.
@@ -679,6 +680,7 @@ autoplot.edaphos_posterior <- function(object, ...) {
 #'   print(identical(p_model$data, cal_m$reliability_df))
 #'
 #'   p_model
+#' }
 #' }
 #' @export
 uncertainty_plot_reliability <- function(calib, ...) {

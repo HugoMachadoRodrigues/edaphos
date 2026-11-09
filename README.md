@@ -2413,7 +2413,7 @@ MIT © Hugo Rodrigues. See [`LICENSE.md`](https://github.com/HugoMachadoRodrigue
 [banerjee2014]: https://doi.org/10.1201/b17115
 [li2021fno]: https://openreview.net/forum?id=c8P9NQVtmnO
 [lu2021deeponet]: https://doi.org/10.1038/s42256-021-00302-5
-[ho2020ddpm]: https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html
+[ho2020ddpm]: https://arxiv.org/abs/2006.11239
 [nichol2021]: https://proceedings.mlr.press/v139/nichol21a.html
 [velickovic2018]: https://openreview.net/forum?id=rJXMpikCZ
 [rue2009]: https://doi.org/10.1111/j.1467-9868.2008.00700.x

@@ -284,6 +284,7 @@
 #'   embeddings), the key encoder, the training loss history and the
 #'   configuration.
 #' @examples
+#' \donttest{
 #' # `requireNamespace("torch")` is TRUE as soon as the R package is
 #' # installed, but the libtorch/lantern shared libraries are a separate
 #' # separate binary download that CI and CRAN machines routinely lack
@@ -370,6 +371,7 @@
 #'                               batch_size = 8L, epochs = 3L, seed = 1L)
 #' print(c(other_R_seed = identical(a$loss_history, b$loss_history),
 #'         same_R_seed  = identical(a$loss_history, d$loss_history)))
+#' }
 #' }
 #' @export
 foundation_moco_pretrain <- function(patches,
@@ -509,6 +511,7 @@ foundation_moco_pretrain <- function(patches,
 #' @return Numeric matrix `(N, D)` where `D = feature_dim` (or
 #'   `proj_dim` if `projection = TRUE`).
 #' @examples
+#' \donttest{
 #' # The installed-package check is not enough on its own: libtorch /
 #' # lantern is a separate binary download, and torch_is_installed() is
 #' # what tells you it is actually there.
@@ -567,6 +570,7 @@ foundation_moco_pretrain <- function(patches,
 #' # momentum copy that built the dictionary during training and is
 #' # never consulted by this function.
 #' }
+#' }
 #' @export
 foundation_moco_embed <- function(object, patches, projection = FALSE) {
   .moco_require_torch()
@@ -620,6 +624,7 @@ foundation_moco_embed <- function(object, patches, projection = FALSE) {
 #' @return An `edaphos_foundation_moco` (identical structure to
 #'   [foundation_moco_pretrain()]).
 #' @examples
+#' \donttest{
 #' # torch_is_installed() is the half of the guard that matters on a
 #' # fresh machine: the R package installs in seconds, the libtorch /
 #' # lantern binaries behind it are a separate download.
@@ -717,6 +722,7 @@ foundation_moco_embed <- function(object, patches, projection = FALSE) {
 #'   ds_big, queue_size = 4096L, batch_size = 64L, epochs = 20000L,
 #'   device = "mps", checkpoint_dir = "moco_ck", checkpoint_every = 500L,
 #'   verbose = TRUE)
+#' }
 #' }
 #' @export
 foundation_moco_pretrain_tiles <- function(dataset,
@@ -927,6 +933,7 @@ foundation_moco_pretrain_tiles <- function(dataset,
 #' @return A `terra::SpatRaster` with `feature_dim` (or `proj_dim`)
 #'   layers.
 #' @examples
+#' \donttest{
 #' # Guard on the libtorch binaries as well as on the R package --
 #' # requireNamespace() alone is TRUE on machines that cannot run a
 #' # single tensor operation.
@@ -1009,6 +1016,7 @@ foundation_moco_pretrain_tiles <- function(dataset,
 #'                                      projection = TRUE)
 #' print(c(layers = terra::nlyr(embp), proj_dim = moco$proj_dim))
 #' print(range(round(sqrt(rowSums(terra::values(embp)^2)), 6)))
+#' }
 #' }
 #' @export
 foundation_moco_embed_raster <- function(moco, stack, dataset,

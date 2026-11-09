@@ -47,6 +47,7 @@ WoSIS head-to-head; the exported API is stable enough for
 use on any regional subset that follows the same schema.
 }
 \examples{
+\donttest{
 data(br_cerrado)
 
 # The wrapper checks for the response `soc` and the named covariates
@@ -120,5 +121,6 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
   print(benchmark_fit_p1_causal(train, test, covs, dag = d_one,
                                 n_boot = 50L,
                                 seed = 1L)$metadata$adjusted_features)
+}
 }
 }

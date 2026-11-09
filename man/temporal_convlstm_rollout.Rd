@@ -29,6 +29,7 @@ This function automates that call and returns only the future part
 of the prediction.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -111,5 +112,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(tryCatch(temporal_convlstm_rollout(s2o, past, fut),
                  error = function(e) conditionMessage(e)))
   # "isTRUE(object$return_sequence) is not TRUE"
+}
 }
 }

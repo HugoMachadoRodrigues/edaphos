@@ -149,6 +149,7 @@ test_that("causal_iv_posterior: a clean bootstrap reports every replicate used",
 })
 
 test_that("causal_iv_posterior: unidentified resamples are dropped with a warning", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   df <- .rare_iv_data()
   expect_warning(
     post <- causal_iv_posterior(df, "X", "Y", "Z", B = 200L, seed = 1L),

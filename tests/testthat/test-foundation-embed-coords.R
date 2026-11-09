@@ -210,6 +210,7 @@ test_that("the weights registry records whether normalisation stats exist", {
 # ---------------------------------------------------------------------------
 
 test_that("a truncated or mislabelled cache entry is rejected", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   skip_if_not_installed("terra")
 
   dir <- withr::local_tempdir()

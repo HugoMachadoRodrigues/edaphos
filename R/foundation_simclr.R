@@ -111,6 +111,7 @@
 #'
 #' @return A `edaphos_foundation_simclr` object (S3).
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   data(br_cerrado)
@@ -196,6 +197,7 @@
 #'                                    batch_size = 6L, seed = 11L)
 #'   print(identical(c1$loss_history, c2$loss_history))
 #' }
+#' }
 #' @export
 foundation_simclr_pretrain <- function(patches,
                                         feature_dim = 32L, proj_dim = 16L,
@@ -269,6 +271,7 @@ foundation_simclr_pretrain <- function(patches,
 #'   outputs instead of backbone features.
 #' @return Numeric matrix `N x D` with `D = feature_dim` (or `proj_dim`).
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   data(br_cerrado)
@@ -350,6 +353,7 @@ foundation_simclr_pretrain <- function(patches,
 #'   # Treat even that as an interface check: an encoder pre-trained
 #'   # on twelve tiles for thirty epochs has memorised twelve tiles,
 #'   # not learned a transferable covariate representation.
+#' }
 #' }
 #' @export
 foundation_simclr_embed <- function(object, patches, projection = FALSE) {

@@ -50,6 +50,7 @@
 #' and scalable predictive uncertainty estimation using deep
 #' ensembles. *NeurIPS 30*.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   # 8 x 8 covariate patches cut on a stride-6 grid over the 45 x 45
@@ -185,6 +186,7 @@
 #'   # a standard error near 0.1: a smoke test that the plumbing runs,
 #'   # not a calibration result for this or any encoder.
 #' }
+#' }
 #' @export
 foundation_finetune_ensemble <- function(encoder, x, y,
                                            task = c("classification",
@@ -285,6 +287,7 @@ predict.edaphos_foundation_ensemble <- function(object, x, ...) {
 #' approximation: representing model uncertainty in deep learning.
 #' *ICML 33*, 1050-1059.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   # Same 8 x 8 br_cerrado patches as foundation_finetune_ensemble().
@@ -412,6 +415,7 @@ predict.edaphos_foundation_ensemble <- function(object, x, ...) {
 #'     rmse            = sqrt(mean((y[test] - point)^2)),
 #'     interval_score = edaphos_interval_score(y[test], mu - 1.96 * s,
 #'                                             mu + 1.96 * s)), 3))
+#' }
 #' }
 #' @export
 foundation_mcdropout_predict <- function(object, x,

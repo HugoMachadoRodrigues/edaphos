@@ -55,6 +55,7 @@ so that \code{\link[=uncertainty_calibrate]{uncertainty_calibrate()}} and \code{
 uniformly.
 }
 \examples{
+\donttest{
 # Geology is a landscape attribute, so the instruments are constant
 # within a farm -- and the agronomy shock is shared within a farm
 # too. That is the regime where row-wise resampling lies.
@@ -98,4 +99,5 @@ c(rows = iv_rows$mean, farms = iv_farms$mean)
 # Resamples that do not identify the effect are dropped with a
 # warning; the metadata records how many were asked for and used.
 iv_farms$metadata[c("B_requested", "B_effective", "n_failed")]
+}
 }

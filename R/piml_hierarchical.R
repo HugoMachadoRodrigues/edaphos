@@ -119,6 +119,7 @@
 #'
 #' @return A `edaphos_piml_hierarchical` object (S3).
 #' @examples
+#' \donttest{
 #' # torch is a Suggests dependency AND the lantern binaries are a
 #' # separate download, so both halves of the guard are needed.
 #' if (requireNamespace("torch", quietly = TRUE) &&
@@ -181,6 +182,7 @@
 #'       epochs = 2L, lr = 0.05, n_steps = 2L, seed = 1L)$final_loss
 #'   print(c(base = short_fit(pedons), deep_permuted = short_fit(perm),
 #'           topsoil_changed = short_fit(top)))
+#' }
 #' }
 #' @export
 piml_hierarchical_fit <- function(pedons,
@@ -281,6 +283,7 @@ piml_hierarchical_fit <- function(pedons,
 #' @return Numeric matrix, one row per location in `new_covariates`, one
 #'   column per depth in `newdepths`.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   data(br_cerrado)
@@ -346,6 +349,7 @@ piml_hierarchical_fit <- function(pedons,
 #'   print(round(
 #'     piml_hierarchical_predict(fit, held[1, ], c(60, 100, 200)), 2))
 #'   print(round(range(train$soc), 2))
+#' }
 #' }
 #' @export
 piml_hierarchical_predict <- function(object, new_covariates, newdepths,
@@ -434,6 +438,7 @@ print.edaphos_piml_hierarchical <- function(x, ...) {
 #' @return A function suitable for
 #'   `al_query(..., physics_gate = <this>)`.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   data(br_cerrado)
@@ -518,6 +523,7 @@ print.edaphos_piml_hierarchical <- function(x, ...) {
 #'   # length(envelope_depths).  Eight rows are instant, 400 rows with
 #'   # the default five depths take a few seconds -- gate a subset,
 #'   # not a whole raster.
+#' }
 #' }
 #' @export
 al_physics_gate_piml_hierarchical <- function(

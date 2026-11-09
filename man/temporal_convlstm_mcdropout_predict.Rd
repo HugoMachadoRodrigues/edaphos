@@ -50,6 +50,7 @@ posterior; it samples the head's weights only and stays blind to
 the frozen ConvLSTM backbone beneath it.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
 
@@ -118,6 +119,7 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # whose whole-cube sd is 9.58 g/kg. The interval score charges for
   # that width -- 15.52 there is all width and no miss penalty.
   print(round(stats::sd(cube$soc), 2))
+}
 }
 }
 \references{

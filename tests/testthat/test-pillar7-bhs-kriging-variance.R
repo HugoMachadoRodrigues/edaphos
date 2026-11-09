@@ -9,6 +9,11 @@
 ##      optimise() returned, including a value pinned to an endpoint.
 ##      A railed phi collapses sigma^2, which made (a) invisible.
 
+# Each block refits a spatial model by profile likelihood: about 5 s locally
+# and 10 s on a Windows builder.  CRAN's incoming check has a 10-minute
+# budget, so these run on every GitHub Actions leg instead.
+skip_on_cran()
+
 .mk_spatial <- function(n = 120L, seed = 7L) {
   set.seed(seed)
   lon <- stats::runif(n, 0, 1)

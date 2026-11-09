@@ -27,6 +27,14 @@ knitr::opts_chunk$set(
   fig.width = 7.5, fig.height = 4.5,
   fig.align = "center", out.width = "92%", dpi        = 60
 )
+# CRAN's incoming check rebuilds every vignette inside a 10-minute budget for
+# the whole check.  This vignette's code runs in full everywhere else: when
+# the package is built (so the HTML shipped in the tarball has every result),
+# and on every GitHub Actions leg, which sets NOT_CRAN=true.  Only a
+# CRAN-mode R CMD check skips evaluating it.
+.full_run <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  !nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+knitr::opts_chunk$set(eval = .full_run)
 ```
 
 ## 1. The problem this vignette solves
@@ -75,7 +83,7 @@ post
 
 The `autoplot` method dispatches on `query_type`:
 
-```{r autoplot-demo, eval = requireNamespace("ggplot2", quietly = TRUE)}
+```{r autoplot-demo, eval = .full_run && requireNamespace("ggplot2", quietly = TRUE)}
 autoplot(post)
 ```
 
@@ -274,7 +282,7 @@ tbl <- do.call(rbind, rows)
 knitr::kable(tbl, caption = "Unified calibration across the six pillars (v1.6.0).")
 ```
 
-```{r reliability-panel, eval = requireNamespace("ggplot2", quietly = TRUE), fig.height = 5.2}
+```{r reliability-panel, eval = .full_run && requireNamespace("ggplot2", quietly = TRUE), fig.height = 5.2}
 panels <- list()
 add_panel <- function(label, calib) {
   if (is.null(calib)) return(invisible())

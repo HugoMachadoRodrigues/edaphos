@@ -26,6 +26,13 @@ knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>",
   fig.width = 6.5, fig.height = 5
 )
+# The qiskit chunks below are probed only outside a CRAN-mode R CMD check.
+# CRAN has no qiskit, and asking reticulate whether it is there starts
+# Python (or provisions one) just to answer no.  The package build, which
+# writes the HTML shipped in the tarball, and GitHub Actions (NOT_CRAN=true)
+# probe as before.
+.py_probe <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  !nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
 ```
 
 ## Abstract
@@ -265,14 +272,14 @@ benchmark. Its Bravyi-Kitaev-tapered Hamiltonian has only five Pauli
 terms on two qubits, and the ground-state energy is known to be
 \(-1.857275\) Hartree.
 
-```{r vqe-setup, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit")}
+```{r vqe-setup, eval=.py_probe && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit")}
 library(edaphos)
 
 ham_h2 <- quantum_hamiltonian_h2()
 ham_h2
 ```
 
-```{r vqe-h2, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit")}
+```{r vqe-h2, eval=.py_probe && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit")}
 exact_h2 <- quantum_vqe_exact(ham_h2)
 vqe_h2   <- quantum_vqe_fit(ham_h2, ansatz_reps = 2L,
                               optimizer = "COBYLA",
@@ -305,7 +312,7 @@ that cannot be written as a product of the Fe and ligand wave-
 functions — exactly the regime where a classical model-free regressor
 struggles.
 
-```{r vqe-organo, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit")}
+```{r vqe-organo, eval=.py_probe && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit")}
 ham_om <- quantum_hamiltonian_organo_mineral()
 exact_om <- quantum_vqe_exact(ham_om)
 vqe_om   <- quantum_vqe_fit(ham_om, ansatz_reps = 3L,
@@ -315,7 +322,7 @@ vqe_om   <- quantum_vqe_fit(ham_om, ansatz_reps = 3L,
 vqe_om
 ```
 
-```{r vqe-curve, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit") && requireNamespace("ggplot2", quietly = TRUE)}
+```{r vqe-curve, eval=.py_probe && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit") && requireNamespace("ggplot2", quietly = TRUE)}
 library(ggplot2)
 df <- data.frame(iter = seq_along(vqe_om$history),
                   energy = vqe_om$history)
@@ -360,7 +367,7 @@ is automatically transpiled to the \(\{id, R_z, \sqrt{X}, X,
 \mathrm{CNOT}, U\}\) basis gate set that Aer (and every IBM heavy-hex
 processor) speaks.
 
-```{r vqe-shots, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit") && reticulate::py_module_available("qiskit_aer")}
+```{r vqe-shots, eval=.py_probe && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit") && reticulate::py_module_available("qiskit_aer")}
 fit_sv    <- quantum_vqe_fit(ham_h2, backend = "aer_statevector",
                                optimizer = "COBYLA",
                                max_iter = 200L, seed = 1L)
@@ -489,7 +496,7 @@ pedology:
 | `"methanediol"`      | ortho-diol (`HO–C–OH`) — catechol-style Fe(III) chelator   | (2e, 2o)     | 2      |
 | `"ferric_formate"`   | monodentate Fe(III)–OOCH — minimum viable organo-mineral   | (4e, 4o)     | 4      |
 
-```{r vqe-nature, eval=requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit_nature") && reticulate::py_module_available("pyscf")}
+```{r vqe-nature, eval=.py_probe && requireNamespace("reticulate", quietly = TRUE) && reticulate::py_module_available("qiskit_nature") && reticulate::py_module_available("pyscf")}
 ham_nat  <- quantum_hamiltonian_organo_mineral_nature("formic_acid")
 ham_nat
 

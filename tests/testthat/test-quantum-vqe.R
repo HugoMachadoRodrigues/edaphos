@@ -3,6 +3,9 @@
 # without the reticulate virtualenv.
 
 skip_if_no_qiskit <- function() {
+  # CRAN has no qiskit, and probing for it starts Python through reticulate:
+  # 9-17 s per check on the 2.0.0 incoming builders, for a skip.
+  skip_on_cran()
   skip_if_not_installed("reticulate")
   if (!reticulate::py_module_available("qiskit")) {
     skip("qiskit Python module not available")
@@ -89,6 +92,7 @@ test_that("print methods do not error", {
 })
 
 test_that("quantum_ibmq_available is FALSE without IBMQ_TOKEN", {
+  skip_on_cran()  # starts Python through reticulate; see skip_if_no_qiskit()
   old <- Sys.getenv("IBMQ_TOKEN")
   Sys.setenv(IBMQ_TOKEN = "")
   on.exit(Sys.setenv(IBMQ_TOKEN = old), add = TRUE)

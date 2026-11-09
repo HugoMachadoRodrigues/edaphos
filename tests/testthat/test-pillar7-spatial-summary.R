@@ -10,6 +10,7 @@
 # ---------------------------------------------------------------------------
 
 test_that("the spatial share matches the hand computation it replaces", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   data(br_cerrado, envir = environment())
   ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
   blk <- br_cerrado[br_cerrado$x %in% ux[10:22] & br_cerrado$y %in% uy[10:22], ]
@@ -27,6 +28,7 @@ test_that("the spatial share matches the hand computation it replaces", {
 })
 
 test_that("a range shorter than the closest pair is flagged, not reported as spatial", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   data(br_cerrado, envir = environment())
   ux <- sort(unique(br_cerrado$x)); uy <- sort(unique(br_cerrado$y))
   blk <- br_cerrado[br_cerrado$x %in% ux[10:22] & br_cerrado$y %in% uy[10:22], ]

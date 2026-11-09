@@ -67,6 +67,7 @@ test_that("every bundle carrying provenance is consistent with its script", {
 })
 
 test_that("the provenance block has the shape the contract promises", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   root <- pkg_root()
   skip_if(is.na(root), "not running from a source checkout")
   n_with <- 0L

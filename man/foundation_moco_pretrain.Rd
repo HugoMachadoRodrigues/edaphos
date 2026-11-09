@@ -95,6 +95,7 @@ Bernoulli dropout (missing-band simulation), spatial cutout
 jitter, and additive Gaussian sensor noise.
 }
 \examples{
+\donttest{
 # `requireNamespace("torch")` is TRUE as soon as the R package is
 # installed, but the libtorch/lantern shared libraries are a separate
 # separate binary download that CI and CRAN machines routinely lack
@@ -181,5 +182,6 @@ d <- foundation_moco_pretrain(patches, feature_dim = 8L, proj_dim = 4L,
                               batch_size = 8L, epochs = 3L, seed = 1L)
 print(c(other_R_seed = identical(a$loss_history, b$loss_history),
         same_R_seed  = identical(a$loss_history, d$loss_history)))
+}
 }
 }

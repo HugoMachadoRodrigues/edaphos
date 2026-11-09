@@ -362,6 +362,7 @@ foundation_tile_source_srtm <- function(aoi, derive = c("slope"),
 #' @return A single `terra::SpatRaster` with one layer per input
 #'   layer, aligned.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("terra", quietly = TRUE)) {
 #'   # Two Cerrado covariates on deliberately mismatched grids: soil at
 #'   # 0.05 degrees, terrain at 0.10, on extents that only partly
@@ -435,6 +436,7 @@ foundation_tile_source_srtm <- function(aoi, derive = c("slope"),
 #'   # anything categorical -- interpolating soil-class codes invents
 #'   # classes that do not exist.
 #' }
+#' }
 #' @export
 foundation_tile_align <- function(sources, target_res = 0.005,
                                     target_crs = "EPSG:4326",
@@ -498,6 +500,7 @@ foundation_tile_align <- function(sources, target_res = 0.005,
 #'   `sds`, `valid_cells`; and a `sample(batch_size)` function that
 #'   returns a `(batch_size, C, H, W)` R array.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("terra", quietly = TRUE)) {
 #'   data(br_cerrado, package = "edaphos")
 #'   # br_cerrado is a complete 45 x 45 grid, so it converts straight to
@@ -586,6 +589,7 @@ foundation_tile_align <- function(sources, target_res = 0.005,
 #'
 #'   # batch_size is capped by n_patches, not by memory.
 #'   try(ds$sample(batch_size = 1000L))
+#' }
 #' }
 #' @export
 foundation_tile_dataset <- function(stack, patch_size = 16L,

@@ -90,6 +90,7 @@ future driver channels are known (e.g. weather forecasts).
 }
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -175,5 +176,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # times heavier than the data term and made the fit 12 times WORSE,
   # so training optimised the guard rather than the soil. That is why
   # the scaling constants are now required rather than optional.
+}
 }
 }

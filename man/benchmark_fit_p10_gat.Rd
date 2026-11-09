@@ -52,6 +52,7 @@ seeds, and harvests predictions at the test nodes.  Predictive
 posterior is the seed ensemble.
 }
 \examples{
+\donttest{
 data(br_cerrado)
 set.seed(3)
 sub <- br_cerrado[sample(nrow(br_cerrado), 160L), ]
@@ -128,4 +129,5 @@ f1 <- gnn_fit(g1, df_all$soc, train_mask = !is.na(df_all$soc),
               lr = 0.05, seed = 2L)          # member b uses seed + b
 c(best_epoch = f1$best_epoch, epochs_run = length(f1$history))
 isTRUE(all.equal(predict(f1)[121:160], epi$samples[1, ]))
+}
 }

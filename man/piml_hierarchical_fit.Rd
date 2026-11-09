@@ -80,6 +80,7 @@ covariates, which is what it is.
 }
 
 \examples{
+\donttest{
 # torch is a Suggests dependency AND the lantern binaries are a
 # separate download, so both halves of the guard are needed.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -142,5 +143,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
       epochs = 2L, lr = 0.05, n_steps = 2L, seed = 1L)$final_loss
   print(c(base = short_fit(pedons), deep_permuted = short_fit(perm),
           topsoil_changed = short_fit(top)))
+}
 }
 }

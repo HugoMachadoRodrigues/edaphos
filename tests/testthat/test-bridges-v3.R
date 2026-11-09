@@ -69,6 +69,7 @@
 # ---------------------------------------------------------------------------
 
 test_that("al_query_neural_operator: returns a well-formed query frame", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   d <- .mk_no_dataset(n_obs = 12L, n_depths = 8L, p_in = 3L, seed = 1L)
   no <- no_deeponet_fit(d$depths, d$targets, d$covariates,
                           branch_hidden = 8L, trunk_hidden = 8L,

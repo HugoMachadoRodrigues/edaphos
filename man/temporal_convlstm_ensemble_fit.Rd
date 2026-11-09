@@ -50,6 +50,7 @@ natural forecast-ensemble input for \code{\link[=temporal_kalman_update]{tempora
 for \code{\link[=as_edaphos_posterior]{as_edaphos_posterior()}}.
 }
 \examples{
+\donttest{
 # Pillar 3 on a 12-month synthetic Cerrado SOC cube: 8 x 8 cells,
 # two channels (standardised elevation, monthly precipitation) and
 # SOC in g/kg. Months 1-9 are the training window.
@@ -104,6 +105,7 @@ if (requireNamespace("torch", quietly = TRUE) &&
                    flat, past_seq,
                    tt$sequence[, 10:12, , , , drop = FALSE]),
                  error = function(e) conditionMessage(e)))
+}
 }
 }
 \seealso{

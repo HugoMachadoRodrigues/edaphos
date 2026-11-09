@@ -574,6 +574,7 @@ causal_iv_sargan_test <- function(data, exposure, outcome,
 #'   naming both counts. Fewer than two identified replicates is an error.
 #'
 #' @examples
+#' \donttest{
 #' # Geology is a landscape attribute, so the instruments are constant
 #' # within a farm -- and the agronomy shock is shared within a farm
 #' # too. That is the regime where row-wise resampling lies.
@@ -617,6 +618,7 @@ causal_iv_sargan_test <- function(data, exposure, outcome,
 #' # Resamples that do not identify the effect are dropped with a
 #' # warning; the metadata records how many were asked for and used.
 #' iv_farms$metadata[c("B_requested", "B_effective", "n_failed")]
+#' }
 #' @export
 causal_iv_posterior <- function(data, exposure, outcome, instruments,
                                   covariates = NULL,

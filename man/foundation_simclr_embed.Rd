@@ -24,6 +24,7 @@ you wanted the contrastive-projection vectors instead, pass
 \code{projection = TRUE}.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -105,5 +106,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # Treat even that as an interface check: an encoder pre-trained
   # on twelve tiles for thirty epochs has memorised twelve tiles,
   # not learned a transferable covariate representation.
+}
 }
 }

@@ -25,6 +25,14 @@ knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>",
   fig.width = 6, fig.height = 4.5
 )
+# CRAN's incoming check rebuilds every vignette inside a 10-minute budget for
+# the whole check.  This vignette's code runs in full everywhere else: when
+# the package is built (so the HTML shipped in the tarball has every result),
+# and on every GitHub Actions leg, which sets NOT_CRAN=true.  Only a
+# CRAN-mode R CMD check skips evaluating it.
+.full_run <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  !nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+knitr::opts_chunk$set(eval = .full_run)
 ```
 
 ## Abstract
@@ -125,7 +133,7 @@ fit <- causal_estimate_effect(
 fit
 ```
 
-```{r plot-compare, eval=requireNamespace("ggplot2", quietly = TRUE)}
+```{r plot-compare, eval=.full_run && requireNamespace("ggplot2", quietly = TRUE)}
 library(ggplot2)
 df <- data.frame(
   estimator = factor(c("Naive (lm(soc ~ ndvi))",
@@ -293,7 +301,7 @@ must collapse to a single canonical term. Pillar 1 ships a three-tier
 matcher — exact, substring, fuzzy Levenshtein — against a hand-curated
 Cerrado-pedometry vocabulary (~60 terms, subset of AGROVOC + ENVO):
 
-```{r align, eval=requireNamespace("igraph", quietly = TRUE)}
+```{r align, eval=.full_run && requireNamespace("igraph", quietly = TRUE)}
 mapping <- causal_kg_alignment(kg)
 head(mapping[mapping$method != "exact", ], 8)
 kg_canon <- causal_kg_rename(kg, mapping)
@@ -359,7 +367,7 @@ direct effect is computed as the average partial derivative
 averaged over the training data; a 95 % credible interval is
 recovered from the BART posterior.
 
-```{r bart, eval=requireNamespace("dbarts", quietly = TRUE)}
+```{r bart, eval=.full_run && requireNamespace("dbarts", quietly = TRUE)}
 set.seed(1)
 fit_bart <- causal_estimate_effect(
   br_cerrado, g,
@@ -492,7 +500,7 @@ tidy edge list — not through `igraph`'s raw C-level pointer layout —
 so the resulting `.rds` is portable across `igraph` versions and
 byte-reproducible:
 
-```{r kg-save-roundtrip, eval=requireNamespace("igraph", quietly = TRUE)}
+```{r kg-save-roundtrip, eval=.full_run && requireNamespace("igraph", quietly = TRUE)}
 kg_roundtrip <- causal_kg_new()
 kg_roundtrip <- causal_kg_add_edge(kg_roundtrip, "precipitation", "soc",
                                      source = "Jenny 1941", confidence = 0.9)
@@ -517,7 +525,7 @@ form, and each node gets a stable IRI inside a user-controlled
 namespace so the KG can be federated with external vocabularies
 (AGROVOC, ENVO, SKOS thesauri) by a simple `owl:sameAs`:
 
-```{r kg-turtle, eval=requireNamespace("igraph", quietly = TRUE)}
+```{r kg-turtle, eval=.full_run && requireNamespace("igraph", quietly = TRUE)}
 ttl <- causal_kg_to_turtle(
   kg_roundtrip,
   base_uri   = "https://edaphos.io/kg/",
@@ -539,7 +547,7 @@ far more trustworthy than one asserted by a single paper with
 confidence 1.0. `causal_kg_rank_edges()` collapses the KG to unique
 `(cause, effect)` pairs and sorts by a priority list of metrics:
 
-```{r kg-rank, eval=requireNamespace("igraph", quietly = TRUE)}
+```{r kg-rank, eval=.full_run && requireNamespace("igraph", quietly = TRUE)}
 causal_kg_rank_edges(
   kg_roundtrip,
   by = c("n_sources", "mean_confidence")
@@ -556,7 +564,7 @@ and edge counts, number of unique sources, confidence quartiles and
 a DAG-ness verdict — useful right after a 10 k-abstract
 `causal_llm_ingest_corpus()` run:
 
-```{r kg-summary, eval=requireNamespace("igraph", quietly = TRUE)}
+```{r kg-summary, eval=.full_run && requireNamespace("igraph", quietly = TRUE)}
 summary(kg_roundtrip)
 ```
 
@@ -619,7 +627,7 @@ bootstrap over rows of `data` returns the per-edge frequency, which
 is stored as the edge's `confidence` and becomes comparable to the
 LLM-derived confidences produced by the abstract-level pipeline.
 
-```{r structure-learn, eval=requireNamespace("bnlearn", quietly = TRUE) && requireNamespace("igraph", quietly = TRUE)}
+```{r structure-learn, eval=.full_run && requireNamespace("bnlearn", quietly = TRUE) && requireNamespace("igraph", quietly = TRUE)}
 library(edaphos)
 data(br_cerrado)
 

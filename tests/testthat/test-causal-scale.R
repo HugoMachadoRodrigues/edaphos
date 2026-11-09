@@ -125,6 +125,7 @@ test_that("causal_llm_ingest_corpus honours cache_dir (no LLM call on hit)", {
 })
 
 test_that("causal_llm_ingest_corpus retries on malformed responses", {
+  skip_on_cran()  # the retry really waits out its 2 s backoff
   skip_if_not_installed("httr2")
   skip_if_not_installed("igraph")
   responses <- list(

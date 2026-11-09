@@ -98,6 +98,7 @@ exponential-correlation Gaussian process on the residual field
 and returns full posterior draws.
 }
 \examples{
+\donttest{
 data(br_cerrado)
 
 # A contiguous 13 x 13 block of the Cerrado grid: 169 sites, 0.0080 deg
@@ -167,6 +168,7 @@ round(rbind(bhs = colMeans(fit_wide$beta_draws), ols = coef(o),
 # predict()'s -- is built from those kept draws alone.
 c(nmcmc = fit_wide$nmcmc, burn = fit_wide$burn,
   kept = nrow(fit_wide$beta_draws))
+}
 }
 \references{
 Banerjee, S., Carlin, B. P. and Gelfand, A. E. (2014). \emph{Hierarchical

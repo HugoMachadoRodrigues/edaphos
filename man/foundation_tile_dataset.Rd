@@ -51,6 +51,7 @@ extracted from the raster; missing values are replaced by the
 per-layer mean.
 }
 \examples{
+\donttest{
 if (requireNamespace("terra", quietly = TRUE)) {
   data(br_cerrado, package = "edaphos")
   # br_cerrado is a complete 45 x 45 grid, so it converts straight to
@@ -139,5 +140,6 @@ if (requireNamespace("terra", quietly = TRUE)) {
 
   # batch_size is capped by n_patches, not by memory.
   try(ds$sample(batch_size = 1000L))
+}
 }
 }

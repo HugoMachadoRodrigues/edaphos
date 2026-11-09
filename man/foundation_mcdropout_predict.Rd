@@ -30,6 +30,7 @@ Monte-Carlo sample of the predictive posterior (Gal & Ghahramani
 non-zero \code{dropout} for the draws to be non-degenerate.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   # Same 8 x 8 br_cerrado patches as foundation_finetune_ensemble().
@@ -157,6 +158,7 @@ if (requireNamespace("torch", quietly = TRUE) &&
     rmse            = sqrt(mean((y[test] - point)^2)),
     interval_score = edaphos_interval_score(y[test], mu - 1.96 * s,
                                             mu + 1.96 * s)), 3))
+}
 }
 }
 \references{
