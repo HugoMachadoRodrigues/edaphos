@@ -50,6 +50,7 @@ A function suitable for `al_query(..., physics_gate = <this>)`.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -151,4 +152,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> [1] 5 4 8
 #> [1] TRUE
 #> [1] 1
+# }
 ```

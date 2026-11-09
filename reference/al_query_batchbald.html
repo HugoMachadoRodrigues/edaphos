@@ -230,11 +230,11 @@ analysis of approximations for maximizing submodular set functions
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># `al_initial_design()` returns a bare integer vector of row indices</span></span></span>
-<span class="r-in"><span><span class="co"># into the pool -- not a list, so there is no `$idx` to pull out.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A random start keeps this example light; al_initial_design() gives a</span></span></span>
+<span class="r-in"><span><span class="co"># conditioned Latin hypercube start instead (see its own example).</span></span></span>
 <span class="r-in"><span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elev"</span>, <span class="st">"slope"</span>, <span class="st">"twi"</span>, <span class="st">"map_mm"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">idx</span>  <span class="op">&lt;-</span> <span class="fu"><a href="al_initial_design.html">al_initial_design</a></span><span class="op">(</span><span class="va">br_cerrado</span>, <span class="va">covs</span>, n <span class="op">=</span> <span class="fl">30L</span>, seed <span class="op">=</span> <span class="fl">1L</span>,</span></span>
-<span class="r-in"><span>                          iter <span class="op">=</span> <span class="fl">500L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">idx</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span>, <span class="fl">30L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lab</span>  <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">pool</span> <span class="op">&lt;-</span> <span class="va">br_cerrado</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">br_cerrado</span><span class="op">)</span><span class="op">)</span>, <span class="va">idx</span><span class="op">)</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
@@ -245,15 +245,15 @@ analysis of approximations for maximizing submodular set functions
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">batch</span> <span class="op">&lt;-</span> <span class="fu">al_query_batchbald</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pool</span>, n <span class="op">=</span> <span class="fl">8L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">batch</span>                       <span class="co"># row indices into `pool`, in greedy order</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  172 1542 1238 1462  793  352 1856 1685</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1994   81  745   82  489  482 1021 1029</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pool</span><span class="op">[</span><span class="va">batch</span>, <span class="va">covs</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        elev slope    twi map_mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 176   833.0 20.00 13.141 1768.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1567  989.5 15.87  6.870 1815.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1257  958.6 16.25 10.833 1801.6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1485  929.5  3.15  7.968 1848.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 805  1012.6 20.00  8.439 1783.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 359   817.1 16.86 12.674 1872.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2024  863.0 20.00 10.673 1876.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 82    904.6 20.00 10.998 1741.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 755  1107.0  3.35  4.156 1752.6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 83    884.7 13.05 10.278 1742.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 496   907.3  1.57 10.735 1183.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 489   936.3 14.33 10.715 1750.0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># What BatchBALD buys over a plain uncertainty sort: the top-n</span></span></span>
 <span class="r-in"><span><span class="co"># strategy will happily return near-duplicate neighbours, while the</span></span></span>
@@ -264,7 +264,7 @@ analysis of approximations for maximizing submodular set functions
 <span class="r-in"><span><span class="va">closest_pair</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">rows</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">dist</a></span><span class="op">(</span><span class="va">Z</span><span class="op">[</span><span class="va">rows</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>batchbald <span class="op">=</span> <span class="fu">closest_pair</span><span class="op">(</span><span class="va">batch</span><span class="op">)</span>, uncertainty <span class="op">=</span> <span class="fu">closest_pair</span><span class="op">(</span><span class="va">greedy</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   batchbald uncertainty </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.82834109  0.03897504 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.55626028  0.05384814 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># This 30-point fit is a runnable demonstration, not a usable model:</span></span></span>
 <span class="r-in"><span><span class="co"># its out-of-bag RMSE beats simply predicting the mean of the 30</span></span></span>
@@ -274,7 +274,7 @@ analysis of approximations for maximizing submodular set functions
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>oob_rmse  <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">history</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">rmse_oob</span>,</span></span>
 <span class="r-in"><span>  mean_only <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">lab</span><span class="op">$</span><span class="va">soc</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">lab</span><span class="op">$</span><span class="va">soc</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  oob_rmse mean_only </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5.204848  6.687530 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5.147480  7.057422 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

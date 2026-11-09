@@ -33,6 +33,7 @@ Numeric matrix `N x D` with `D = feature_dim` (or `proj_dim`).
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -125,4 +126,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> untrained 1.00000000 0.50000000
 #> trained   1.00000000 0.83333333
 #> chance    0.08333333 0.08333333
+# }
 ```

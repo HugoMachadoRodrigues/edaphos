@@ -29,6 +29,7 @@ Numeric vector, one value per element of `newdepths`.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   depths <- c(5, 15, 30, 50, 80)
@@ -88,4 +89,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>             z0 shallowest_obs 
 #>        20.2978        22.0000 
 #> [1] "all(newdepths >= 0) is not TRUE"
+# }
 ```

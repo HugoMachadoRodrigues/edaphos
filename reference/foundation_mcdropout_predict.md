@@ -45,6 +45,7 @@ representing model uncertainty in deep learning. *ICML 33*, 1050-1059.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   # Same 8 x 8 br_cerrado patches as foundation_finetune_ensemble().
@@ -186,4 +187,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>             0.634             0.413 
 #>            picp mean_half_width            rmse  interval_score 
 #>           0.583           1.505           1.296          10.937 
+# }
 ```

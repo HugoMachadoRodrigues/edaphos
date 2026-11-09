@@ -69,6 +69,7 @@ values are replaced by the per-layer mean.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("terra", quietly = TRUE)) {
   data(br_cerrado, package = "edaphos")
   # br_cerrado is a complete 45 x 45 grid, so it converts straight to
@@ -187,4 +188,5 @@ if (requireNamespace("terra", quietly = TRUE)) {
 #> [1] 0
 #> Error in ds$sample(batch_size = 1000L) : 
 #>   batch_size <= n_patches is not TRUE
+# }
 ```

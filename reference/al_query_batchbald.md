@@ -122,11 +122,11 @@ for the QRF backbone.
 ## Examples
 
 ``` r
-# `al_initial_design()` returns a bare integer vector of row indices
-# into the pool -- not a list, so there is no `$idx` to pull out.
+# A random start keeps this example light; al_initial_design() gives a
+# conditioned Latin hypercube start instead (see its own example).
 covs <- c("elev", "slope", "twi", "map_mm")
-idx  <- al_initial_design(br_cerrado, covs, n = 30L, seed = 1L,
-                          iter = 500L)
+set.seed(1)
+idx  <- sample(nrow(br_cerrado), 30L)
 lab  <- br_cerrado[idx, ]
 pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ]
 
@@ -137,15 +137,15 @@ fit <- al_fit(lab, target = "soc", covariates = covs, num.trees = 200L,
 
 batch <- al_query_batchbald(fit, pool, n = 8L)
 batch                       # row indices into `pool`, in greedy order
-#> [1]  172 1542 1238 1462  793  352 1856 1685
+#> [1] 1994   81  745   82  489  482 1021 1029
 head(pool[batch, covs])
 #>        elev slope    twi map_mm
-#> 176   833.0 20.00 13.141 1768.3
-#> 1567  989.5 15.87  6.870 1815.1
-#> 1257  958.6 16.25 10.833 1801.6
-#> 1485  929.5  3.15  7.968 1848.4
-#> 805  1012.6 20.00  8.439 1783.5
-#> 359   817.1 16.86 12.674 1872.7
+#> 2024  863.0 20.00 10.673 1876.5
+#> 82    904.6 20.00 10.998 1741.0
+#> 755  1107.0  3.35  4.156 1752.6
+#> 83    884.7 13.05 10.278 1742.0
+#> 496   907.3  1.57 10.735 1183.8
+#> 489   936.3 14.33 10.715 1750.0
 
 # What BatchBALD buys over a plain uncertainty sort: the top-n
 # strategy will happily return near-duplicate neighbours, while the
@@ -156,7 +156,7 @@ Z <- scale(pool[, covs])
 closest_pair <- function(rows) min(stats::dist(Z[rows, , drop = FALSE]))
 c(batchbald = closest_pair(batch), uncertainty = closest_pair(greedy))
 #>   batchbald uncertainty 
-#>  0.82834109  0.03897504 
+#>  0.55626028  0.05384814 
 
 # This 30-point fit is a runnable demonstration, not a usable model:
 # its out-of-bag RMSE beats simply predicting the mean of the 30
@@ -166,5 +166,5 @@ c(batchbald = closest_pair(batch), uncertainty = closest_pair(greedy))
 c(oob_rmse  = fit$history[[1]]$rmse_oob,
   mean_only = sqrt(mean((lab$soc - mean(lab$soc))^2)))
 #>  oob_rmse mean_only 
-#>  5.204848  6.687530 
+#>  5.147480  7.057422 
 ```

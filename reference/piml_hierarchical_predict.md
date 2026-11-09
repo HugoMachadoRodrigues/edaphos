@@ -41,6 +41,7 @@ depth in `newdepths`.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -124,4 +125,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>      [,1] [,2] [,3]
 #> [1,]    0    0    0
 #> [1]  5.83 22.75
+# }
 ```

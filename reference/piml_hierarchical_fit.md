@@ -101,6 +101,7 @@ on covariates, which is what it is.
 ## Examples
 
 ``` r
+# \donttest{
 # torch is a Suggests dependency AND the lantern binaries are a
 # separate download, so both halves of the guard are needed.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -174,4 +175,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>     818      20 
 #>            base   deep_permuted topsoil_changed 
 #>       0.5999728       0.5999728       0.6432516 
+# }
 ```

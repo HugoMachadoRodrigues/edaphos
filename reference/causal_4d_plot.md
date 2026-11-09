@@ -27,6 +27,7 @@ A `ggplot` object.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   # Synthetic panel whose MAP -> SOC effect decays over 36 slices,
   # with elevation as the confounder that must be adjusted away.
@@ -69,4 +70,5 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 #> bootstrap    normal 
 #>   0.00485   0.00515 
 #> [1] TRUE
+# }
 ```

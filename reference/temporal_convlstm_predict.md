@@ -34,6 +34,7 @@ otherwise `(batch, H, W)`.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -78,4 +79,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> [1] 1.883 1.727 1.463 1.153 0.703 0.095
 #>  rmse_gkg sd_month6 
 #>     0.410     3.189 
+# }
 ```

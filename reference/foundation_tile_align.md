@@ -82,6 +82,7 @@ cares where a raster came from.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("terra", quietly = TRUE)) {
   # Two Cerrado covariates on deliberately mismatched grids: soil at
   # 0.05 degrees, terrain at 0.10, on extents that only partly
@@ -171,4 +172,5 @@ if (requireNamespace("terra", quietly = TRUE)) {
 #> [1] "soc" "soc"
 #> Warning: [subset] using a name that is not unique
 #> [1] 2
+# }
 ```

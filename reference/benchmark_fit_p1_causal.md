@@ -60,6 +60,7 @@ An `edaphos_posterior` with `method = "bootstrap"`,
 ## Examples
 
 ``` r
+# \donttest{
 data(br_cerrado)
 
 # The wrapper checks for the response `soc` and the named covariates
@@ -144,4 +145,5 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
 #> [1] "elev"   "slope"  "twi"    "map_mm" "ndvi"  
 #> [1] "twi"    "map_mm" "ndvi"  
 #> [1] "elev"   "slope"  "twi"    "map_mm" "ndvi"  
+# }
 ```

@@ -76,6 +76,7 @@ cannot represent.
 ## Examples
 
 ``` r
+# \donttest{
 # torch is a Suggests dependency and libtorch is a separate binary
 # download, so requireNamespace() alone is not a sufficient guard.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -129,4 +130,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> [1] 18.4505 15.4342 13.4813 12.8103 12.4058
 #> [1] TRUE
 #> [1] 2.77732 0.85243 0.66257 0.56551 0.50617
+# }
 ```

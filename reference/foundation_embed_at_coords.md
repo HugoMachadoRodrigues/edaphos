@@ -105,6 +105,7 @@ cross the raster edge, are returned as a row of `NA`.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed()) &&
     requireNamespace("terra", quietly = TRUE)) {
@@ -224,4 +225,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> [1] TRUE
 #> ncol norm 
 #>    4    1 
+# }
 ```

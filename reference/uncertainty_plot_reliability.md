@@ -29,6 +29,7 @@ A `ggplot` object.
 ## Examples
 
 ``` r
+# \donttest{
 # Two posteriors over the same 200 held-out Cerrado cells: a linear
 # model, and the null every soil map has to beat -- the training
 # marginal pasted on every cell, covariates ignored.
@@ -87,4 +88,6 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 #> mpiw90_model  mpiw90_clim 
 #>        14.12        21.30 
 #> [1] TRUE
+
+# }
 ```

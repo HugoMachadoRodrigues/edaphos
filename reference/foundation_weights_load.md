@@ -74,6 +74,7 @@ if (FALSE) { # \dontrun{
   emb <- foundation_moco_embed(moco, patches)
 } # }
 
+# \donttest{
 # The local-path route is offline, and is also how you reload your
 # own encoders. It is shown here end to end on a throwaway model.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -115,4 +116,5 @@ unlink(pt)
 #>           5          16           8 
 #> [1] TRUE
 #> [1] "Loading from a local path requires `n_channels`, `feature_dim` and `proj_dim` to be supplied explicitly."
+# }
 ```

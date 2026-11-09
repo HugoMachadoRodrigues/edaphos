@@ -48,6 +48,7 @@ what that costs.
 ## Examples
 
 ``` r
+# \donttest{
 # A stand-in for a MoCo v2 patch encoder: 64 columns built by a
 # fixed random projection of five Cerrado covariates through a
 # tanh, plus noise.  Wide but low-rank, like a real encoder's
@@ -92,4 +93,5 @@ c(range_2pi = mean(Kw[upper.tri(Kw)]),
   range_pi  = mean(Kn[upper.tri(Kn)]))    # 0.0153 vs 0.0189
 #>  range_2pi   range_pi 
 #> 0.01531711 0.01893714 
+# }
 ```

@@ -191,7 +191,8 @@ checkpoint.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># torch_is_installed() is the half of the guard that matters on a</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># torch_is_installed() is the half of the guard that matters on a</span></span></span>
 <span class="r-in"><span><span class="co"># fresh machine: the R package installs in seconds, the libtorch /</span></span></span>
 <span class="r-in"><span><span class="co"># lantern binaries behind it are a separate download.</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"torch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
@@ -302,6 +303,7 @@ checkpoint.</p>
 <span class="r-in"><span>  device <span class="op">=</span> <span class="st">"mps"</span>, checkpoint_dir <span class="op">=</span> <span class="st">"moco_ck"</span>, checkpoint_every <span class="op">=</span> <span class="fl">500L</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

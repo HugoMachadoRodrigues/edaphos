@@ -53,6 +53,7 @@ An `edaphos_posterior` with `method = "ensemble"`.
 ## Examples
 
 ``` r
+# \donttest{
 # torch is a Suggests dependency AND its libtorch binaries are a
 # separate download, so both halves of the guard are needed.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -130,4 +131,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> plus_noise 4.5354 0.6114 1.2045
 #> [1] "feature"
 #> [1] "Supply `newdepths = ...` to adapt a Neural-ODE ensemble."
+# }
 ```

@@ -80,6 +80,7 @@ reduction. The top-`n_select` rows are the recommended next samples.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("dagitty", quietly = TRUE)) {
   # 80 labelled sites, 200 unlabelled candidates. The question is not
   # "where is SOC uncertain?" but "how hard does rainfall push SOC?".
@@ -186,4 +187,5 @@ if (requireNamespace("dagitty", quietly = TRUE)) {
 #> seed2       3    4    2    1    5
 #> seed3       4    2    1    3    5
 #> leverage    1    2    4    3    5
+# }
 ```

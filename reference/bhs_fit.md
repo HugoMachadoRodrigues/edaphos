@@ -144,6 +144,7 @@ Data*. Wiley, Hoboken.
 ## Examples
 
 ``` r
+# \donttest{
 data(br_cerrado)
 
 # A contiguous 13 x 13 block of the Cerrado grid: 169 sites, 0.0080 deg
@@ -243,4 +244,5 @@ c(nmcmc = fit_wide$nmcmc, burn = fit_wide$burn,
   kept = nrow(fit_wide$beta_draws))
 #> nmcmc  burn  kept 
 #>   600   300   300 
+# }
 ```

@@ -70,6 +70,7 @@ representing model uncertainty in deep learning. *ICML 33*, 1050-1059.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
 
@@ -147,4 +148,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> month_09_in_sample  4.719 2.168 0.089  1.000 15.524
 #> month_12_forecast   4.429 8.455 8.013  0.438 45.328
 #> [1] 9.58
+# }
 ```

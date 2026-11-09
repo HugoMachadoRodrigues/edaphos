@@ -81,6 +81,7 @@ both counts. Fewer than two identified replicates is an error.
 ## Examples
 
 ``` r
+# \donttest{
 # Geology is a landscape attribute, so the instruments are constant
 # within a farm -- and the agronomy shock is shared within a farm
 # too. That is the regime where row-wise resampling lies.
@@ -145,4 +146,5 @@ iv_farms$metadata[c("B_requested", "B_effective", "n_failed")]
 #> $n_failed
 #> [1] 0
 #> 
+# }
 ```

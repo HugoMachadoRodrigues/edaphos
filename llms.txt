@@ -488,7 +488,7 @@ light and the scientific boundary between pillars explicit.
 | 6 | **Quantum ML** | `quantum_*` | ✅ v0.9.0 | ZZFeatureMap quantum kernel \[[Havlicek et al. 2019](https://doi.org/10.1038/s41586-019-0980-2)\] + Quantum Kernel Ridge Regression; **Qiskit VQE** with M3 / ZNE mitigation |
 | 7 | **Bayesian Hierarchical Spatial** | `bhs_*` | ✅ | Hierarchical model $`y = X\beta + w + \varepsilon`$ with $`w \sim GP(0, \sigma^2 R(\phi))`$ \[[Banerjee et al. 2014](https://doi.org/10.1201/b17115)\]; conjugate Gibbs sampler with profile-MLE for the rate $`\phi`$ (RcppArmadillo backend); Bayesian kriging that propagates every posterior draw |
 | 8 | **Neural Operators** | `no_*` | ✅ | Solution operator $`\mathcal{G}: u(z) \mapsto y(z)`$ between depth-function spaces — FNO $`(\mathcal{K}v)(z) = \mathcal{F}^{-1}(R_\theta \cdot \mathcal{F}v)(z)`$ \[[Li et al. 2021](https://openreview.net/forum?id=c8P9NQVtmnO)\] and DeepONet $`\sum_k b_k(u)\,t_k(z)`$ \[[Lu et al. 2021](https://doi.org/10.1038/s42256-021-00302-5)\]; off-grid depth queries |
-| 9 | **Diffusion Models** | `dm_*` | ✅ | DDPM \[[Ho et al. 2020](https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html)\] over map patches: forward $`q(x_t \mid x_0) = N(\sqrt{\bar\alpha_t}x_0, (1-\bar\alpha_t)I)`$ on the cosine schedule \[[Nichol & Dhariwal 2021](https://proceedings.mlr.press/v139/nichol21a.html)\], denoiser $`\epsilon_\theta(x_t,t)`$, ancestral sampling with $`x_0`$ clipping |
+| 9 | **Diffusion Models** | `dm_*` | ✅ | DDPM \[[Ho et al. 2020](https://arxiv.org/abs/2006.11239)\] over map patches: forward $`q(x_t \mid x_0) = N(\sqrt{\bar\alpha_t}x_0, (1-\bar\alpha_t)I)`$ on the cosine schedule \[[Nichol & Dhariwal 2021](https://proceedings.mlr.press/v139/nichol21a.html)\], denoiser $`\epsilon_\theta(x_t,t)`$, ancestral sampling with $`x_0`$ clipping |
 | 10 | **Graph Neural Networks** | `gnn_*` | ✅ | GAT \[[Veličković et al. 2018](https://openreview.net/forum?id=rJXMpikCZ)\] on a k-NN co-location graph: $`\alpha_{ij} = \mathrm{softmax}_j(\mathrm{LeakyReLU}(a^\top[Wh_i \Vert Wh_j]))`$ by analytic reverse-mode gradients, transductive train mask, closed-form ridge readout |
 | **🔗** | **Unified uncertainty API** | `uncertainty_*` | ✅ v1.6.0 | `edaphos_posterior` S3 class + [`uncertainty_calibrate()`](https://hugomachadorodrigues.github.io/edaphos/reference/uncertainty_calibrate.md) returning CRPS / PICP / MPIW / reliability diagram. **7 of the 10 pillars** carry an [`as_edaphos_posterior()`](https://hugomachadorodrigues.github.io/edaphos/reference/as_edaphos_posterior.md) method (1, 2, 3, 4, 5, 6, 7); pillars 8, 9 and 10 do not — see the note below |
 | **🎬** | **Capstone vignette** | — | ✅ | “Capstone: a sampling decision under uncertainty in the Cerrado” — a demonstration of how six of the pillars’ APIs compose, partly on synthetic inputs, framed by [Zhang & Wadoux (2026)](https://doi.org/10.1111/ejss.70284) |
@@ -1931,8 +1931,7 @@ q(x_t \mid x_0) = N\big(\sqrt{\bar\alpha_t}\,x_0,\ (1 - \bar\alpha_t) I\big)
 ```
 
 Only the denoiser $`\epsilon_\theta(x_t, t)`$ is learned, by score
-matching \[[Ho et
-al. 2020](https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html)\];
+matching \[[Ho et al. 2020](https://arxiv.org/abs/2006.11239)\];
 [`dm_sample()`](https://hugomachadorodrigues.github.io/edaphos/reference/dm_sample.md)
 then runs ancestral sampling from $`t = T`$ down to $`0`$ with $`x_0`$
 clipping.
@@ -2325,7 +2324,7 @@ bibliography (`vignettes/references.bib`).
   are absent; every skip is an explicit `skip_if_not_installed()` gate.
 - **Gated dependencies:** `torch`, `dagitty`, `bnlearn`, `dbarts`,
   `spBayes`, `reticulate`, `terra`, `geodata`, `igraph`.
-- **`R CMD check --as-cran`:** `2 NOTEs` at commit `5e6736b`. The
+- **`R CMD check --as-cran`:** `2 NOTEs` at commit `3f3181a`. The
   per-item breakdown, including which items are package defects and
   which are artefacts of the checking machine, is in
   [`cran-comments.md`](https://github.com/HugoMachadoRodrigues/edaphos/blob/main/cran-comments.md);

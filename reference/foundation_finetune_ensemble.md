@@ -71,6 +71,7 @@ scalable predictive uncertainty estimation using deep ensembles.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   # 8 x 8 covariate patches cut on a stride-6 grid over the 45 x 45
@@ -228,4 +229,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>             1.680             1.889             2.490 
 #>           picp     mean_width interval_score 
 #>          0.917          5.112          8.574 
+# }
 ```

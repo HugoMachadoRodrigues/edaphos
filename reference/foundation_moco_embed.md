@@ -36,6 +36,7 @@ Numeric matrix `(N, D)` where `D = feature_dim` (or `proj_dim` if
 ## Examples
 
 ``` r
+# \donttest{
 # The installed-package check is not enough on its own: libtorch /
 # lantern is a separate binary download, and torch_is_installed() is
 # what tells you it is actually there.
@@ -100,4 +101,5 @@ print(c(chunked  = isTRUE(all.equal(chunk, emb[1:3, , drop = FALSE],
 #> [1] 1 1
 #>  chunked repeated 
 #>     TRUE     TRUE 
+# }
 ```

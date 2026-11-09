@@ -98,16 +98,16 @@
 
 <div id="edaphos--development-status" class="section level1">
 
-<p><strong>Commit</strong> <code>5e6736b</code> (<code>Hugo/cran-comments-final</code>) — <strong>DESCRIPTION version</strong> <code>2.0.0</code> — <strong>measured</strong> 2026-11-07T12:33:02Z</p>
+<p><strong>Commit</strong> <code>3f3181a</code> (<code>Hugo/cran-comments-resubmission</code>) — <strong>DESCRIPTION version</strong> <code>2.0.0</code> — <strong>measured</strong> 2026-11-09T03:51:27Z</p>
 <p>Every quantity in this document is measured at render time by <a href="tools/status/facts.R"><code>tools/status/facts.R</code></a> and rendered by <a href="tools/status/render.R"><code>tools/status/render.R</code></a>. Nothing is typed by hand. A quantity that could not be measured prints <code>_not measured_</code> rather than a plausible-looking value. The findings register comes from <a href="tools/status/findings.json"><code>tools/status/findings.json</code></a>, the frozen output of an adversarial audit of commit <code>272b378</code>.</p>
 <div class="section level2">
 <h2 id="id_1-headline">1. Headline<a class="anchor" aria-label="anchor" href="#id_1-headline"></a></h2>
 <table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Measure</th>
 <th>Value</th>
 </tr></thead><tbody><tr><td>Commits</td>
-<td>250</td>
+<td>260</td>
 </tr><tr><td>First → last commit</td>
-<td>2026-04-20 → 2026-11-07 (200.4 calendar days, 30 with commits)</td>
+<td>2026-04-20 → 2026-11-08 (202.0 calendar days, 31 with commits)</td>
 </tr><tr><td>Days since last commit</td>
 <td>0</td>
 </tr><tr><td>NEWS release sections</td>
@@ -117,7 +117,7 @@
 </tr><tr><td>NEWS versions with no tag</td>
 <td>0</td>
 </tr><tr><td>R/ source lines</td>
-<td>31 569</td>
+<td>31 635</td>
 </tr><tr><td>Exported functions</td>
 <td>177</td>
 </tr><tr><td>Test blocks</td>
@@ -138,7 +138,7 @@
 <td>122</td>
 </tr></tbody></table><div class="section level3">
 <h3 id="stage-assessment">Stage assessment<a class="anchor" aria-label="anchor" href="#stage-assessment"></a></h3>
-<p>From the audit’s completeness critic (editorial, not measured). It describes the tree at <code>272b378</code>, not at <code>5e6736b</code>: several of the specifics it cites have since been closed — see “Closed since the audit” in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.</p>
+<p>From the audit’s completeness critic (editorial, not measured). It describes the tree at <code>272b378</code>, not at <code>3f3181a</code>: several of the specifics it cites have since been closed — see “Closed since the audit” in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.</p>
 <blockquote>
 <p>Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and nowhere near release-candidate. The eight audits read the artefact as a mature project that had drifted; the git clock says the opposite: this is a single 8-day build (2026-04-20 → 2026-04-27, 82 commits) that emitted 43 NEWS “releases”, 19,700 lines of R, 10 “research pillars”, 185 man pages, 14 vignettes, a Dockerfile, a Zenodo dossier and an rOpenSci submission draft, and has had no commit in the 90 days since. That single fact explains nearly every finding the other auditors reported as independent drift: metadata “9 minor versions stale”, 32 untagged releases, four contradictory citation versions, four contradictory test counts, a README frozen at v2.8.0 and a homepage that still says six pillars — none of these are decay, they are the natural state of version labels that were minted faster than any of them could be verified, because no version was ever cut, installed or consumed by a third party. The structural tell is that the project’s own roadmap agrees with me: README’s terminal milestone is still <code>| v3.0.0 | CRAN + rOpenSci submission | 📝 |</code> — unstarted — while DESCRIPTION reads 3.10.0, so the package shipped ten minor versions past its own submission gate without submitting. The code itself is genuinely substantial and much of it works (the pkgdown site does build and deploy at HEAD, 184 reference pages, 1022 passing expectations), which is why this is alpha rather than a sketch; but the outer shell is systematically unverified. Documentation artefacts fail the cheapest possible check — cheatsheets/pilar4.md’s entire “Core API” block calls four functions that exist nowhere in R/; the README’s vignette table advertises four vignettes that are not in the tarball or on the site while omitting <code>getting-started</code>, whose name appears nowhere in the 84 KB README; pillars 8-10 cite their source papers only in <code>#</code> comments and have no bibliography entries at all; and the two deep-learning pillars render as empty stubs on the live public site. A beta means the outside of the box has been checked once against the inside; here it demonstrably never has.</p>
 </blockquote>
@@ -162,13 +162,13 @@
 <td>no</td>
 </tr><tr><td>Local vs origin/main</td>
 <td>
-<code>0 / 40</code> (ahead / behind)</td>
+<code>0 / 48</code> (ahead / behind)</td>
 </tr><tr><td>Optional deps missing</td>
 <td>0</td>
 </tr></tbody></table></div>
 <div class="section level2">
 <h2 id="id_3-the-git-clock">3. The git clock<a class="anchor" aria-label="anchor" href="#id_3-the-git-clock"></a></h2>
-<p><code>5e6736b</code> — 250 commits across 30 active days.</p>
+<p><code>3f3181a</code> — 260 commits across 31 active days.</p>
 <table class="table"><thead><tr><th>Date</th>
 <th align="right">Commits</th>
 </tr></thead><tbody><tr><td>2026-04-20</td>
@@ -230,8 +230,10 @@
 </tr><tr><td>2026-11-06</td>
 <td align="right">5</td>
 </tr><tr><td>2026-11-07</td>
-<td align="right">2</td>
-</tr></tbody></table><p>Releases declared in <code>NEWS.md</code>: <strong>1</strong>. Git tags: <strong>18</strong>. Tags present: <code>v0.1.0</code>, <code>v0.2.0</code>, <code>v0.3.0</code>, <code>v0.4.0</code>, <code>v0.5.0</code>, <code>v0.6.0</code>, <code>v0.7.0</code>, <code>v0.8.0</code>, <code>v0.9.0</code>, <code>v1.0.0</code>, <code>v1.1.0</code>, <code>v1.2.0</code>, <code>v1.3.0</code>, <code>v1.3.1</code>, <code>v1.4.0</code>, <code>v1.5.0</code>, <code>v1.6.0</code>, <code>v2.0.0</code>. Commits since the newest tag (<code>v2.0.0</code>): <strong>5</strong>.</p>
+<td align="right">4</td>
+</tr><tr><td>2026-11-08</td>
+<td align="right">8</td>
+</tr></tbody></table><p>Releases declared in <code>NEWS.md</code>: <strong>1</strong>. Git tags: <strong>18</strong>. Tags present: <code>v0.1.0</code>, <code>v0.2.0</code>, <code>v0.3.0</code>, <code>v0.4.0</code>, <code>v0.5.0</code>, <code>v0.6.0</code>, <code>v0.7.0</code>, <code>v0.8.0</code>, <code>v0.9.0</code>, <code>v1.0.0</code>, <code>v1.1.0</code>, <code>v1.2.0</code>, <code>v1.3.0</code>, <code>v1.3.1</code>, <code>v1.4.0</code>, <code>v1.5.0</code>, <code>v1.6.0</code>, <code>v2.0.0</code>. Commits since the newest tag (<code>v2.0.0</code>): <strong>15</strong>.</p>
 </div>
 <div class="section level2">
 <h2 id="id_4-version-coherence">4. Version coherence<a class="anchor" aria-label="anchor" href="#id_4-version-coherence"></a></h2>
@@ -242,7 +244,7 @@
 </tr><tr><td>DESCRIPTION version has a git tag</td>
 <td>✅ (<code>v2.0.0</code>)</td>
 </tr><tr><td>HEAD is the tagged release commit</td>
-<td>❌ (5 commits past <code>v2.0.0</code>)</td>
+<td>❌ (15 commits past <code>v2.0.0</code>)</td>
 </tr><tr><td>Every NEWS release is tagged</td>
 <td>✅ (0 of 1 untagged)</td>
 </tr></tbody></table><p>Version strings each artefact claims for the package:</p>
@@ -304,18 +306,18 @@
 </tr><tr><td>URLs flagged as invalid</td>
 <td>0</td>
 </tr></tbody></table><p>Installed size, verbatim from the log:</p>
-<pre><code>  installed size is  6.9Mb
+<pre><code>  installed size is  7.0Mb
   sub-directories of 1Mb or more:
     doc       2.9Mb
     extdata   1.0Mb
     help      1.6Mb</code></pre>
-<p>Log: <code>tools/status/check.log</code> (100 lines, sha256 <code>851ae1e7107086fe</code>). Verbatim tail:</p>
+<p>Log: <code>tools/status/check.log</code> (104 lines, sha256 <code>5881cee4a6057c4c</code>). Verbatim tail:</p>
 <pre><code>* checking tests ...
-  Running testthat.R [99s/79s]
- [99s/79s] OK
+  Running testthat.R [60s/54s]
+ [60s/54s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [250s/235s] OK
+* checking re-building of vignette outputs ... [35s/35s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -326,7 +328,7 @@ release or compiling the source code from &lt;https://www.html-tidy.org/&gt;.
 * DONE
 Status: 2 NOTEs
 See
-  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck/00check.log
+  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub6/edaphos.Rcheck/00check.log
 for details.</code></pre>
 </div>
 <div class="section level4">
@@ -492,7 +494,7 @@ for details.</code></pre>
 <td>103</td>
 </tr><tr><td>
 <code>skip_on_cran</code> gates</td>
-<td>25</td>
+<td>54</td>
 </tr><tr><td>
 <code>set.seed</code> calls</td>
 <td>173</td>
@@ -510,7 +512,7 @@ for details.</code></pre>
 </tr><tr><td>Warnings</td>
 <td>4</td>
 </tr><tr><td>Wall clock (s)</td>
-<td>483.2</td>
+<td>493.8</td>
 </tr></tbody></table><p>Conditional skipping by dependency (static gate count):</p>
 <table class="table"><thead><tr><th>Dependency</th>
 <th align="right">Gate sites</th>
@@ -559,9 +561,9 @@ for details.</code></pre>
 <td>41</td>
 </tr><tr><td>— wrapping <code>\donttest</code>
 </td>
-<td>14</td>
+<td>45</td>
 </tr><tr><td>— with an example <code>R CMD check</code> runs</td>
-<td>124</td>
+<td>95</td>
 </tr><tr><td>Exports with no example anywhere</td>
 <td>0</td>
 </tr><tr><td>Exports with no <code>.Rd</code>
@@ -634,25 +636,25 @@ for details.</code></pre>
 <td align="right">1011 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>tools</code></td>
-<td align="right">891 KB</td>
+<td align="right">895 KB</td>
 <td align="center">❌</td>
 </tr><tr><td><code>tests</code></td>
-<td align="right">641 KB</td>
+<td align="right">644 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>data-raw</code></td>
 <td align="right">527 KB</td>
 <td align="center">❌</td>
 </tr><tr><td><code>vignettes</code></td>
-<td align="right">436 KB</td>
+<td align="right">441 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>&lt;root&gt;</code></td>
-<td align="right">381 KB</td>
+<td align="right">382 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>data</code></td>
 <td align="right">64 KB</td>
 <td align="center">✅</td>
 </tr><tr><td><code>.github</code></td>
-<td align="right">21 KB</td>
+<td align="right">22 KB</td>
 <td align="center">❌</td>
 </tr><tr><td><code>src</code></td>
 <td align="right">17 KB</td>
@@ -660,7 +662,7 @@ for details.</code></pre>
 </tr><tr><td><code>cheatsheets</code></td>
 <td align="right">16 KB</td>
 <td align="center">❌</td>
-</tr></tbody></table><p>Git-tracked bytes that ship: <strong>4.99 MB</strong>. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because <code>R CMD build</code> renders the vignettes into <code>inst/doc</code>, which does not exist in the repository.</p>
+</tr></tbody></table><p>Git-tracked bytes that ship: <strong>5.00 MB</strong>. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because <code>R CMD build</code> renders the vignettes into <code>inst/doc</code>, which does not exist in the repository.</p>
 <p>Largest tracked files that ship:</p>
 <table class="table"><thead><tr><th>File</th>
 <th align="right">Size</th>
@@ -893,7 +895,7 @@ for details.</code></pre>
 </ul></div>
 <div class="section level3">
 <h3 id="closed-since-the-audit-measured-not-asserted">Closed since the audit (measured, not asserted)<a class="anchor" aria-label="anchor" href="#closed-since-the-audit-measured-not-asserted"></a></h3>
-<p>122 findings were true at <code>272b378</code> and cannot be reproduced at <code>5e6736b</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
+<p>122 findings were true at <code>272b378</code> and cannot be reproduced at <code>3f3181a</code>. Each line states the measurement that closed it, not a claim that it was addressed.</p>
 <table style="width:100%;" class="table"><colgroup><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"></colgroup><thead><tr><th>ID</th>
 <th>Sev</th>
 <th>Area</th>

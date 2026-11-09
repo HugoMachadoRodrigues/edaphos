@@ -61,6 +61,7 @@ A `edaphos_foundation_simclr` object (S3).
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -161,4 +162,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>    64.000    12.000     3.135 
 #> [1] TRUE
 #> [1] FALSE
+# }
 ```

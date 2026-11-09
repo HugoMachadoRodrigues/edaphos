@@ -23,6 +23,7 @@ An `nn_module` cell with methods `forward(input, state)` and
 ## Examples
 
 ``` r
+# \donttest{
 # lantern is a separate binary download, so requireNamespace() alone
 # is not enough -- torch_is_installed() is the half that matters.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -81,4 +82,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> h_absmax c_absmax 
 #>   0.1323   0.2638 
 #> [1] "The size of tensor a (7) must match the size of tensor b (8) at non-singleton dimension 3"
+# }
 ```

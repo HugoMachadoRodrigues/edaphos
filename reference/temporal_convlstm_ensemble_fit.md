@@ -81,6 +81,7 @@ for the unified uncertainty wrapper.
 ## Examples
 
 ``` r
+# \donttest{
 # Pillar 3 on a 12-month synthetic Cerrado SOC cube: 8 x 8 cells,
 # two channels (standardised elevation, monthly precipitation) and
 # SOC in g/kg. Months 1-9 are the training window.
@@ -147,4 +148,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> [1] 16.7 52.2
 #> [1] 0.6993 0.1495 0.0337
 #> [1] "isTRUE(object$return_sequence) is not TRUE"
+# }
 ```

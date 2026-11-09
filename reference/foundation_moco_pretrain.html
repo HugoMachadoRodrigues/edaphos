@@ -229,7 +229,8 @@ jitter, and additive Gaussian sensor noise.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># `requireNamespace("torch")` is TRUE as soon as the R package is</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># `requireNamespace("torch")` is TRUE as soon as the R package is</span></span></span>
 <span class="r-in"><span><span class="co"># installed, but the libtorch/lantern shared libraries are a separate</span></span></span>
 <span class="r-in"><span><span class="co"># separate binary download that CI and CRAN machines routinely lack</span></span></span>
 <span class="r-in"><span><span class="co"># (about 0.45 GB installed here). Both halves</span></span></span>
@@ -329,6 +330,7 @@ jitter, and additive Gaussian sensor noise.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         5.940000         2.833213 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> other_R_seed  same_R_seed </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        FALSE         TRUE </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

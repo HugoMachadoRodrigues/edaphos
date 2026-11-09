@@ -116,6 +116,7 @@ config, and loss history.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -219,4 +220,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>     0.3070     0.0151 
 #>   no_physics with_physics 
 #>      0.06453      0.06992 
+# }
 ```

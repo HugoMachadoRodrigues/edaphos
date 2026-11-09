@@ -119,6 +119,7 @@ sensor noise.
 ## Examples
 
 ``` r
+# \donttest{
 # `requireNamespace("torch")` is TRUE as soon as the R package is
 # installed, but the libtorch/lantern shared libraries are a separate
 # separate binary download that CI and CRAN machines routinely lack
@@ -219,4 +220,5 @@ print(c(other_R_seed = identical(a$loss_history, b$loss_history),
 #>         5.940000         2.833213 
 #> other_R_seed  same_R_seed 
 #>        FALSE         TRUE 
+# }
 ```

@@ -36,6 +36,7 @@ Array `(batch, T_future, H, W)` with per-step predictions.
 ## Examples
 
 ``` r
+# \donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -131,4 +132,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #> drivers_above_train  target_above_train 
 #>               0.328               0.578 
 #> [1] "isTRUE(object$return_sequence) is not TRUE"
+# }
 ```

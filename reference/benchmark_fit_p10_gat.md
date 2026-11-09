@@ -69,6 +69,7 @@ An `edaphos_posterior` with `method = "ensemble"`, `query_type = "map"`.
 ## Examples
 
 ``` r
+# \donttest{
 data(br_cerrado)
 set.seed(3)
 sub <- br_cerrado[sample(nrow(br_cerrado), 160L), ]
@@ -158,4 +159,5 @@ c(best_epoch = f1$best_epoch, epochs_run = length(f1$history))
 #>          2         22 
 isTRUE(all.equal(predict(f1)[121:160], epi$samples[1, ]))
 #> [1] TRUE
+# }
 ```

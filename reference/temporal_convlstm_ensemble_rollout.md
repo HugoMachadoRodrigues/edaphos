@@ -31,6 +31,7 @@ A 4-D numeric array `(K_ens, T_future, H, W)`.
 ## Examples
 
 ``` r
+# \donttest{
 # Forecast months 10-12 of the synthetic Cerrado SOC cube from an
 # ensemble trained on months 1-9, then score the across-member
 # spread as if it were a predictive interval.
@@ -152,4 +153,5 @@ if (requireNamespace("torch", quietly = TRUE) &&
 #>                                  "3"                                  "3" 
 #>                               source 
 #> "temporal_convlstm_ensemble_rollout" 
+# }
 ```

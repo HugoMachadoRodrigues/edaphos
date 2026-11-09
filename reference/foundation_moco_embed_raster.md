@@ -68,6 +68,7 @@ inference.
 ## Examples
 
 ``` r
+# \donttest{
 # Guard on the libtorch binaries as well as on the R package --
 # requireNamespace() alone is TRUE on machines that cannot run a
 # single tensor operation.
@@ -169,4 +170,5 @@ print(range(round(sqrt(rowSums(terra::values(embp)^2)), 6)))
 #>   layers proj_dim 
 #>        4        4 
 #> [1] 1 1
+# }
 ```
