@@ -80,6 +80,7 @@ Coordinates that fall outside the raster extent, or whose patch
 would cross the raster edge, are returned as a row of \code{NA}.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed()) &&
     requireNamespace("terra", quietly = TRUE)) {
@@ -181,5 +182,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   ok <- stats::complete.cases(proj)
   print(c(ncol = ncol(proj),
           norm = unique(round(sqrt(rowSums(proj[ok, ]^2)), 6))))
+}
 }
 }

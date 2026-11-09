@@ -91,6 +91,7 @@ test_that("no_deeponet_fit predicts on the response scale, not the topsoil scale
 })
 
 test_that("no_fno_fit predicts on the response scale", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   d  <- .mk_profiles(n = 60L, n_depths = 12L)
   tr <- 1:40; te <- 41:60
 

@@ -24,6 +24,7 @@ An R array. Shape is \verb{(batch, T, H, W)} when
 Predict with a fitted stacked ConvLSTM
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -61,5 +62,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
     sd_month6 = sd(as.vector(cube$soc[6, , ]))), 3))
   #  rmse_gkg sd_month6
   #     0.410     3.189
+}
 }
 }

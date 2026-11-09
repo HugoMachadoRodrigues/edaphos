@@ -16,6 +16,7 @@ make_fake_soil <- function(n = 60L, seed = 1L) {
 }
 
 test_that("al_initial_design returns n indices from complete rows", {
+  skip_on_cran()  # loads clhs, whose sf/raster/ggplot2 imports take 6-8 s on CRAN's builders
   d <- make_fake_soil()
   idx <- al_initial_design(d, covariates = c("dist", "elev"),
                            n = 10, seed = 42, iter = 200)
@@ -86,6 +87,7 @@ test_that("al_query cost strategy requires base and coords", {
 })
 
 test_that("al_loop decreases OOB RMSE on a learnable signal", {
+  skip_on_cran()  # loads clhs, whose sf/raster/ggplot2 imports take 6-8 s on CRAN's builders
   d <- make_fake_soil(n = 120, seed = 2)
   set.seed(2)
   seed_idx <- al_initial_design(d, c("dist", "elev"), n = 12, iter = 200)

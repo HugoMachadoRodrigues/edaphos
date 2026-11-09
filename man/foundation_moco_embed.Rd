@@ -27,6 +27,7 @@ normalised projection-head output instead, which is useful when
 visualising the contrastive space.
 }
 \examples{
+\donttest{
 # The installed-package check is not enough on its own: libtorch /
 # lantern is a separate binary download, and torch_is_installed() is
 # what tells you it is actually there.
@@ -84,5 +85,6 @@ print(c(chunked  = isTRUE(all.equal(chunk, emb[1:3, , drop = FALSE],
 # Only the query encoder is read here. `fit$encoder_k` is the
 # momentum copy that built the dictionary during training and is
 # never consulted by this function.
+}
 }
 }

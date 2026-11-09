@@ -19,6 +19,7 @@ Given the output of \code{\link[=uncertainty_calibrate]{uncertainty_calibrate()}
 diagram (nominal vs empirical coverage) with the identity line.
 }
 \examples{
+\donttest{
 # Two posteriors over the same 200 held-out Cerrado cells: a linear
 # model, and the null every soil map has to beat -- the training
 # marginal pasted on every cell, covariates ignored.
@@ -67,5 +68,6 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   print(identical(p_model$data, cal_m$reliability_df))
 
   p_model
+}
 }
 }

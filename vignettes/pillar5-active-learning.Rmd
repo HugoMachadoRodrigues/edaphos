@@ -26,6 +26,14 @@ knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>",
   fig.width = 6, fig.height = 4
 )
+# CRAN's incoming check rebuilds every vignette inside a 10-minute budget for
+# the whole check, and this is one of the three slowest.  Its code runs in
+# full everywhere else: when the package is built (so the HTML shipped in the
+# tarball has every result), and on every GitHub Actions leg, which sets
+# NOT_CRAN=true.  Only a CRAN-mode R CMD check skips evaluating it.
+.full_run <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  !nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+knitr::opts_chunk$set(eval = .full_run)
 ```
 
 ## Abstract
@@ -172,7 +180,7 @@ h_hyb <- al_history(model_hybrid)
 h_hyb
 ```
 
-```{r plot-learning, eval=requireNamespace("ggplot2", quietly = TRUE)}
+```{r plot-learning, eval=.full_run && requireNamespace("ggplot2", quietly = TRUE)}
 library(ggplot2)
 ggplot(h_hyb, aes(n_labeled, rmse_oob)) +
   geom_line(linewidth = 0.7) + geom_point(size = 2) +
@@ -207,7 +215,7 @@ h_all <- rbind(
 )
 ```
 
-```{r plot-compare, eval=requireNamespace("ggplot2", quietly = TRUE)}
+```{r plot-compare, eval=.full_run && requireNamespace("ggplot2", quietly = TRUE)}
 ggplot(h_all, aes(n_labeled, rmse_oob, colour = strategy)) +
   geom_line(linewidth = 0.7) + geom_point(size = 2) +
   labs(x = "Labelled sample size n_t",
@@ -283,7 +291,7 @@ enjoys the \((1 - 1/e)\) optimality guarantee of
 incremental Cholesky / Schur updates so each greedy step is
 \(O(m^2 n_{\mathrm{pool}})\) rather than \(O(m^3 n_{\mathrm{pool}})\).
 
-```{r batchbald, eval=TRUE}
+```{r batchbald, eval=.full_run}
 library(edaphos)
 data(br_cerrado)
 

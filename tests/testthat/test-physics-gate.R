@@ -53,6 +53,7 @@ test_that("al_query errors cleanly when the gate rejects everything", {
 })
 
 test_that("al_loop forwards physics_gate to al_query and decreases RMSE", {
+  skip_on_cran()  # loads clhs, whose sf/raster/ggplot2 imports take 6-8 s on CRAN's builders
   d <- make_fake_soil(n = 120, seed = 6L)
   set.seed(6)
   seed_idx <- al_initial_design(d, c("dist", "elev"), n = 12, iter = 200)

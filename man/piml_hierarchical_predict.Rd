@@ -30,6 +30,7 @@ column per depth in \code{newdepths}.
 Predict depth profiles for new locations from covariates
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -95,5 +96,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(round(
     piml_hierarchical_predict(fit, held[1, ], c(60, 100, 200)), 2))
   print(round(range(train$soc), 2))
+}
 }
 }

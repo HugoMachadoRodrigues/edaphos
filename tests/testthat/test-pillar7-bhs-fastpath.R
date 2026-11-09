@@ -4,6 +4,7 @@
 ## single Cholesky of the precision matrix and 3 backsolves.
 
 test_that("fast-path bhs_fit: posterior mean of beta recovers the truth", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   set.seed(10L)
   n <- 120L
   dat <- data.frame(

@@ -63,6 +63,7 @@
 #'   recommended next samples.
 #'
 #' @examples
+#' \donttest{
 #' if (requireNamespace("dagitty", quietly = TRUE)) {
 #'   # 80 labelled sites, 200 unlabelled candidates. The question is not
 #'   # "where is SOC uncertain?" but "how hard does rainfall push SOC?".
@@ -137,6 +138,7 @@
 #'               leverage = al_query_causal(dat, pool[1:5, ], dag,
 #'                                          exposure = "map_mm",
 #'                                          outcome  = "soc")$pool_index))
+#' }
 #' }
 #' @export
 al_query_causal <- function(data, pool, dag,

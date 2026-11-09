@@ -1,4 +1,5 @@
 skip_if_no_bart <- function() {
+  skip_on_cran()  # BART MCMC; runs on every GitHub Actions leg instead
   skip_if_not_installed("dbarts")
   skip_if_not_installed("dagitty")
 }

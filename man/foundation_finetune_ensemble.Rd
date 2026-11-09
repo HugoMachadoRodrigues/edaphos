@@ -45,6 +45,7 @@ Each member is a full \code{\link[=foundation_fit_classifier]{foundation_fit_cla
 \code{\link[=foundation_fit_regressor]{foundation_fit_regressor()}} fit.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   # 8 x 8 covariate patches cut on a stride-6 grid over the 45 x 45
@@ -179,6 +180,7 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # With length(test) = 12, PICP moves in steps of 1/12 and carries
   # a standard error near 0.1: a smoke test that the plumbing runs,
   # not a calibration result for this or any encoder.
+}
 }
 }
 \references{

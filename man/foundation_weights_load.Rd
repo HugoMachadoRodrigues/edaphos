@@ -61,6 +61,7 @@ without any additional plumbing.
   emb <- foundation_moco_embed(moco, patches)
 }
 
+\donttest{
 # The local-path route is offline, and is also how you reload your
 # own encoders. It is shown here end to end on a throwaway model.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -97,5 +98,6 @@ print(all.equal(foundation_moco_embed(moco, patches),
 # the download and load by name.
 print(tryCatch(foundation_weights_load(pt), error = conditionMessage))
 unlink(pt)
+}
 }
 }

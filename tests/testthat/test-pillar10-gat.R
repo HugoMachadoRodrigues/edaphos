@@ -13,6 +13,7 @@
 }
 
 test_that("gnn_build_graph: constructs a well-formed edaphos_gnn_graph", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   dat <- .mk_profile_network(n = 30L)
   g <- gnn_build_graph(dat, k = 5L,
                          feature_cols = c("x1", "x2", "x3"))

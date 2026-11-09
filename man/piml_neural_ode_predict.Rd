@@ -21,6 +21,7 @@ Numeric vector, one value per element of \code{newdepths}.
 Predict a depth profile from a fitted Neural ODE
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   depths <- c(5, 15, 30, 50, 80)
@@ -68,5 +69,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # Depths are distances below the surface; negatives are rejected.
   print(tryCatch(piml_neural_ode_predict(fit, c(0, -5)),
                  error = function(e) conditionMessage(e)))
+}
 }
 }

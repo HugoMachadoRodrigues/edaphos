@@ -88,11 +88,11 @@ batch size is moderate (\code{n <= 50} for laptop-scale pools of up to
 ~10 000 candidates).
 }
 \examples{
-# `al_initial_design()` returns a bare integer vector of row indices
-# into the pool -- not a list, so there is no `$idx` to pull out.
+# A random start keeps this example light; al_initial_design() gives a
+# conditioned Latin hypercube start instead (see its own example).
 covs <- c("elev", "slope", "twi", "map_mm")
-idx  <- al_initial_design(br_cerrado, covs, n = 30L, seed = 1L,
-                          iter = 500L)
+set.seed(1)
+idx  <- sample(nrow(br_cerrado), 30L)
 lab  <- br_cerrado[idx, ]
 pool <- br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ]
 

@@ -67,6 +67,7 @@ queue, the loss history and the configuration are written to
 checkpoint.
 }
 \examples{
+\donttest{
 # torch_is_installed() is the half of the guard that matters on a
 # fresh machine: the R package installs in seconds, the libtorch /
 # lantern binaries behind it are a separate download.
@@ -164,5 +165,6 @@ moco <- foundation_moco_pretrain_tiles(
   ds_big, queue_size = 4096L, batch_size = 64L, epochs = 20000L,
   device = "mps", checkpoint_dir = "moco_ck", checkpoint_every = 500L,
   verbose = TRUE)
+}
 }
 }

@@ -56,6 +56,7 @@
 #' @return An `nn_module` cell with methods `forward(input, state)` and
 #'   `init_state(batch, height, width)`.
 #' @examples
+#' \donttest{
 #' # lantern is a separate binary download, so requireNamespace() alone
 #' # is not enough -- torch_is_installed() is the half that matters.
 #' if (requireNamespace("torch", quietly = TRUE) &&
@@ -106,6 +107,7 @@
 #'                    sub("Exception raised.*", "", conditionMessage(e)))))
 #'   # "The size of tensor a (7) must match the size of tensor b (8) at
 #'   #  non-singleton dimension 3"
+#' }
 #' }
 #' @export
 temporal_convlstm_cell <- function(input_dim, hidden_dim, kernel_size = 3L) {
@@ -229,6 +231,7 @@ temporal_convlstm_cell <- function(input_dim, hidden_dim, kernel_size = 3L) {
 #' @return A `edaphos_temporal_convlstm` object (list) with the trained
 #'   model, config, and loss history.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -314,6 +317,7 @@ temporal_convlstm_cell <- function(input_dim, hidden_dim, kernel_size = 3L) {
 #'   # times heavier than the data term and made the fit 12 times WORSE,
 #'   # so training optimised the guard rather than the soil. That is why
 #'   # the scaling constants are now required rather than optional.
+#' }
 #' }
 #' @export
 temporal_convlstm_fit <- function(sequence, target,
@@ -475,6 +479,7 @@ temporal_convlstm_fit <- function(sequence, target,
 #' @return An R array. Shape is `(batch, T, H, W)` when
 #'   `return_sequence = TRUE`, otherwise `(batch, H, W)`.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -513,6 +518,7 @@ temporal_convlstm_fit <- function(sequence, target,
 #'   #  rmse_gkg sd_month6
 #'   #     0.410     3.189
 #' }
+#' }
 #' @export
 temporal_convlstm_predict <- function(object, sequence,
                                       return_sequence = NULL, ...) {
@@ -547,6 +553,7 @@ temporal_convlstm_predict <- function(object, sequence,
 #'   same channel layout as `past_sequence`.
 #' @return Array `(batch, T_future, H, W)` with per-step predictions.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   cube <- temporal_synth_soc_cube(H = 8, W = 8, T_total = 6, seed = 42)
@@ -629,6 +636,7 @@ temporal_convlstm_predict <- function(object, sequence,
 #'   print(tryCatch(temporal_convlstm_rollout(s2o, past, fut),
 #'                  error = function(e) conditionMessage(e)))
 #'   # "isTRUE(object$return_sequence) is not TRUE"
+#' }
 #' }
 #' @export
 temporal_convlstm_rollout <- function(object, past_sequence, future_drivers) {

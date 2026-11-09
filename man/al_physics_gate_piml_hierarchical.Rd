@@ -39,6 +39,7 @@ from its own covariates, giving a tighter physical plausibility
 window driven by the local pedogenic context.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -123,5 +124,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # length(envelope_depths).  Eight rows are instant, 400 rows with
   # the default five depths take a few seconds -- gate a subset,
   # not a whole raster.
+}
 }
 }

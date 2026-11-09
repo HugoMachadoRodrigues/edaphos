@@ -9,6 +9,9 @@
 # qiskit-nature or qiskit-ibm-runtime virtualenvs.
 
 skip_if_no_qiskit <- function() {
+  # CRAN has no qiskit, and probing for it starts Python through reticulate:
+  # 9-17 s per check on the 2.0.0 incoming builders, for a skip.
+  skip_on_cran()
   skip_if_not_installed("reticulate")
   if (!reticulate::py_module_available("qiskit")) {
     skip("qiskit Python module not available")
@@ -109,6 +112,7 @@ test_that("print.edaphos_quantum_vqe echoes shots + mitigation", {
 # --- (ii) qiskit-nature bridge ----------------------------------------------
 
 test_that("quantum_nature_available() returns a length-1 logical", {
+  skip_on_cran()  # starts Python through reticulate; see skip_if_no_qiskit()
   v <- quantum_nature_available()
   expect_length(v, 1L)
   expect_type(v, "logical")
@@ -193,6 +197,7 @@ test_that("unknown mapper is rejected with a helpful error", {
 # --- (iii) IBMQ preflight + dispatch plumbing --------------------------------
 
 test_that("quantum_ibmq_available is FALSE without IBMQ_TOKEN", {
+  skip_on_cran()  # starts Python through reticulate; see skip_if_no_qiskit()
   old <- Sys.getenv("IBMQ_TOKEN")
   Sys.setenv(IBMQ_TOKEN = "")
   on.exit(Sys.setenv(IBMQ_TOKEN = old), add = TRUE)
@@ -201,6 +206,7 @@ test_that("quantum_ibmq_available is FALSE without IBMQ_TOKEN", {
 })
 
 test_that("quantum_ibmq_least_busy returns NA without IBMQ_TOKEN", {
+  skip_on_cran()  # starts Python through reticulate; see skip_if_no_qiskit()
   old <- Sys.getenv("IBMQ_TOKEN")
   Sys.setenv(IBMQ_TOKEN = "")
   on.exit(Sys.setenv(IBMQ_TOKEN = old), add = TRUE)

@@ -26,6 +26,14 @@ knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>",
   fig.width = 6.5, fig.height = 4.5
 )
+# CRAN's incoming check rebuilds every vignette inside a 10-minute budget for
+# the whole check.  This vignette's code runs in full everywhere else: when
+# the package is built (so the HTML shipped in the tarball has every result),
+# and on every GitHub Actions leg, which sets NOT_CRAN=true.  Only a
+# CRAN-mode R CMD check skips evaluating it.
+.full_run <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  !nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+knitr::opts_chunk$set(eval = .full_run)
 library(edaphos)
 ```
 

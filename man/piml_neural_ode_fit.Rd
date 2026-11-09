@@ -54,6 +54,7 @@ Compared to \code{\link[=piml_profile_fit]{piml_profile_fit()}}, the Neural ODE 
 the parametric exponential-asymptote ODE cannot represent.
 }
 \examples{
+\donttest{
 # torch is a Suggests dependency and libtorch is a separate binary
 # download, so requireNamespace() alone is not a sufficient guard.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -95,5 +96,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   # epochs = 500L, six times this budget). Quote the trace, never the
   # single final number.
   print(round(fit$loss_history[c(1, 20, 40, 60, 80)], 5))
+}
 }
 }

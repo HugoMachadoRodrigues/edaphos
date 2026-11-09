@@ -49,6 +49,7 @@ Normalisation uses the global per-layer mean and sd stored in
 pretraining and inference.
 }
 \examples{
+\donttest{
 # Guard on the libtorch binaries as well as on the R package --
 # requireNamespace() alone is TRUE on machines that cannot run a
 # single tensor operation.
@@ -131,5 +132,6 @@ embp <- foundation_moco_embed_raster(moco, covs, ds, stride = 24L,
                                      projection = TRUE)
 print(c(layers = terra::nlyr(embp), proj_dim = moco$proj_dim))
 print(range(round(sqrt(rowSums(terra::values(embp)^2)), 6)))
+}
 }
 }

@@ -40,6 +40,7 @@ passes a single depth and wants the posterior over that single
 scalar).
 }
 \examples{
+\donttest{
 # torch is a Suggests dependency AND its libtorch binaries are a
 # separate download, so both halves of the guard are needed.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -94,5 +95,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   print(piml_neural_ode_posterior(ens, newdepths = 40)$query_type)
   print(tryCatch(as_edaphos_posterior(ens),
                  error = function(e) conditionMessage(e)))
+}
 }
 }

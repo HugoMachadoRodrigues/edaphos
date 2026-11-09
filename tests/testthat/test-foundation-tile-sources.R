@@ -116,6 +116,7 @@ test_that("a malformed AoI is rejected before any download is attempted", {
 })
 
 test_that("the numeric, SpatExtent and sf-bbox spellings of an AoI agree", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   skip_tiles()
   skip_if_not_installed("sf")
   local_geodata(soil_world = function(...) fake_stack(1L))

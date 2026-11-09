@@ -58,6 +58,7 @@
 #'   forecast ensemble, [`as_edaphos_posterior()`] for the unified
 #'   uncertainty wrapper.
 #' @examples
+#' \donttest{
 #' # Pillar 3 on a 12-month synthetic Cerrado SOC cube: 8 x 8 cells,
 #' # two channels (standardised elevation, monthly precipitation) and
 #' # SOC in g/kg. Months 1-9 are the training window.
@@ -112,6 +113,7 @@
 #'                    flat, past_seq,
 #'                    tt$sequence[, 10:12, , , , drop = FALSE]),
 #'                  error = function(e) conditionMessage(e)))
+#' }
 #' }
 #' @export
 temporal_convlstm_ensemble_fit <- function(sequence, target,
@@ -184,6 +186,7 @@ print.edaphos_temporal_convlstm_ensemble <- function(x, ...) {
 #'   [`temporal_convlstm_rollout()`] for each member.
 #' @return A 4-D numeric array `(K_ens, T_future, H, W)`.
 #' @examples
+#' \donttest{
 #' # Forecast months 10-12 of the synthetic Cerrado SOC cube from an
 #' # ensemble trained on months 1-9, then score the across-member
 #' # spread as if it were a predictive interval.
@@ -279,6 +282,7 @@ print.edaphos_temporal_convlstm_ensemble <- function(x, ...) {
 #'   print(post)
 #'   print(unlist(post$metadata))
 #' }
+#' }
 #' @export
 temporal_convlstm_ensemble_rollout <- function(object,
                                                  past_sequence,
@@ -343,6 +347,7 @@ temporal_convlstm_ensemble_rollout <- function(object,
 #' approximation: representing model uncertainty in deep learning.
 #' *ICML 33*, 1050-1059.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'
@@ -411,6 +416,7 @@ temporal_convlstm_ensemble_rollout <- function(object,
 #'   # whose whole-cube sd is 9.58 g/kg. The interval score charges for
 #'   # that width -- 15.52 there is all width and no miss penalty.
 #'   print(round(stats::sd(cube$soc), 2))
+#' }
 #' }
 #' @export
 temporal_convlstm_mcdropout_predict <- function(object, sequence,

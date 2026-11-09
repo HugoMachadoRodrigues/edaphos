@@ -137,6 +137,7 @@
 #' Cressie, N. and Wikle, C. K. (2011). *Statistics for Spatio-Temporal
 #' Data*. Wiley, Hoboken.
 #' @examples
+#' \donttest{
 #' data(br_cerrado)
 #'
 #' # A contiguous 13 x 13 block of the Cerrado grid: 169 sites, 0.0080 deg
@@ -206,6 +207,7 @@
 #' # predict()'s -- is built from those kept draws alone.
 #' c(nmcmc = fit_wide$nmcmc, burn = fit_wide$burn,
 #'   kept = nrow(fit_wide$beta_draws))
+#' }
 #' @export
 bhs_fit <- function(data, formula, coords = c("lon", "lat"),
                       backend = c("gibbs", "rcpp", "spBayes"),

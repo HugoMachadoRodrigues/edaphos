@@ -94,16 +94,19 @@ check_config <- function(residual, average_heads, cs = make_case()) {
 }
 
 test_that("GAT gradients match central finite differences (heads concatenated)", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   expect_true(check_config(residual = FALSE, average_heads = FALSE))
   expect_true(check_config(residual = TRUE,  average_heads = FALSE))
 })
 
 test_that("GAT gradients match central finite differences (heads averaged)", {
+  skip_on_cran()  # finite differences; runs on every GitHub Actions leg
   expect_true(check_config(residual = FALSE, average_heads = TRUE))
   expect_true(check_config(residual = TRUE,  average_heads = TRUE))
 })
 
 test_that("training the attention actually reduces the loss", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   # The target must carry LEARNABLE structure.  With pure noise the honest
   # answer is "stop at epoch 1", early stopping returns the initialisation,
   # and asserting that the parameters moved would be asserting that the
@@ -158,6 +161,7 @@ test_that("training the attention actually reduces the loss", {
 })
 
 test_that("held-out targets never influence the fit", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   cs <- make_case(n = 60L)
   y_a <- y_b <- rep(NA_real_, cs$g$n)
   set.seed(4L)

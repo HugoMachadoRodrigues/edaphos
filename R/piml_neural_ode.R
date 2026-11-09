@@ -113,6 +113,7 @@
 #'
 #' @return A `edaphos_piml_neural_ode` object (S3).
 #' @examples
+#' \donttest{
 #' # torch is a Suggests dependency and libtorch is a separate binary
 #' # download, so requireNamespace() alone is not a sufficient guard.
 #' if (requireNamespace("torch", quietly = TRUE) &&
@@ -154,6 +155,7 @@
 #'   # epochs = 500L, six times this budget). Quote the trace, never the
 #'   # single final number.
 #'   print(round(fit$loss_history[c(1, 20, 40, 60, 80)], 5))
+#' }
 #' }
 #' @export
 piml_neural_ode_fit <- function(depths, values, y_surface = NULL,
@@ -234,6 +236,7 @@ piml_neural_ode_fit <- function(depths, values, y_surface = NULL,
 #' @param ... Unused.
 #' @return Numeric vector, one value per element of `newdepths`.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed())) {
 #'   depths <- c(5, 15, 30, 50, 80)
@@ -281,6 +284,7 @@ piml_neural_ode_fit <- function(depths, values, y_surface = NULL,
 #'   # Depths are distances below the surface; negatives are rejected.
 #'   print(tryCatch(piml_neural_ode_predict(fit, c(0, -5)),
 #'                  error = function(e) conditionMessage(e)))
+#' }
 #' }
 #' @export
 piml_neural_ode_predict <- function(object, newdepths, ...) {

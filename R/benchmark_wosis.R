@@ -159,6 +159,7 @@
 #' @return An `edaphos_posterior` with
 #'   `method = "bootstrap"`, `query_type = "map"`.
 #' @examples
+#' \donttest{
 #' data(br_cerrado)
 #'
 #' # The wrapper checks for the response `soc` and the named covariates
@@ -232,6 +233,7 @@
 #'   print(benchmark_fit_p1_causal(train, test, covs, dag = d_one,
 #'                                 n_boot = 50L,
 #'                                 seed = 1L)$metadata$adjusted_features)
+#' }
 #' }
 #' @export
 benchmark_fit_p1_causal <- function(train, test, cov_cols, dag = NULL,
@@ -495,6 +497,7 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 #' @return An `edaphos_posterior` with
 #'   `method = "ensemble"`, `query_type = "map"`.
 #' @examples
+#' \donttest{
 #' data(br_cerrado)
 #' set.seed(3)
 #' sub <- br_cerrado[sample(nrow(br_cerrado), 160L), ]
@@ -571,6 +574,7 @@ benchmark_fit_p6_quantum <- function(train, test, cov_cols,
 #'               lr = 0.05, seed = 2L)          # member b uses seed + b
 #' c(best_epoch = f1$best_epoch, epochs_run = length(f1$history))
 #' isTRUE(all.equal(predict(f1)[121:160], epi$samples[1, ]))
+#' }
 #' @export
 benchmark_fit_p10_gat <- function(train, test, cov_cols,
                                       k = 8L, hidden = 12L, n_heads = 2L,

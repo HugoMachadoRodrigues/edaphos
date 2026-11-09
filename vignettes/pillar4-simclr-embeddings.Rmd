@@ -25,6 +25,14 @@ knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>",
   fig.width = 6.5, fig.height = 4.2
 )
+# CRAN's incoming check rebuilds every vignette inside a 10-minute budget for
+# the whole check.  This vignette's code runs in full everywhere else: when
+# the package is built (so the HTML shipped in the tarball has every result),
+# and on every GitHub Actions leg, which sets NOT_CRAN=true.  Only a
+# CRAN-mode R CMD check skips evaluating it.
+.full_run <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  !nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+knitr::opts_chunk$set(eval = .full_run)
 ```
 
 ## Abstract
@@ -188,7 +196,7 @@ tail(h[h$setup == "baseline (5 covariates)", ], 4)
 tail(h[h$setup == "baseline + SimCLR (29 covariates)", ], 4)
 ```
 
-```{r plot-compare, eval=requireNamespace("ggplot2", quietly = TRUE)}
+```{r plot-compare, eval=.full_run && requireNamespace("ggplot2", quietly = TRUE)}
 library(ggplot2)
 ggplot(h, aes(n_labeled, rmse_oob, colour = setup)) +
   geom_line(linewidth = 0.7) + geom_point(size = 2) +
@@ -241,7 +249,7 @@ per-channel Bernoulli dropout (missing-band simulation), spatial
 cutout (cloud-mask simulation), per-channel multiplicative
 brightness jitter, and additive Gaussian sensor noise.
 
-```{r moco-pretrain, eval=.torch_ok, message=FALSE}
+```{r moco-pretrain, eval=.full_run && .torch_ok, message=FALSE}
 set.seed(1)
 moco_fit <- foundation_moco_pretrain(
   patches[pretrain_idx, , , , drop = FALSE],
@@ -255,7 +263,7 @@ moco_fit <- foundation_moco_pretrain(
 moco_fit
 ```
 
-```{r moco-loss, eval=.torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
+```{r moco-loss, eval=.full_run && .torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
 loss_df <- rbind(
   data.frame(epoch = seq_along(simclr$loss_history),
              loss  = simclr$loss_history, method = "SimCLR"),
@@ -281,7 +289,7 @@ than their absolute values.
 The final step is identical to the SimCLR workflow — extract backbone
 features and pipe them into the Active-Learning loop:
 
-```{r moco-embed, eval=.torch_ok}
+```{r moco-embed, eval=.full_run && .torch_ok}
 moco_emb <- foundation_moco_embed(moco_fit, patches)
 colnames(moco_emb) <- paste0("mocoemb", sprintf("%02d", seq_len(ncol(moco_emb))))
 br_moco <- cbind(grid, moco_emb)
@@ -344,7 +352,7 @@ stack          # SpatRaster (n_rows, n_cols, n_layers)
 
 ### 9.3 Lazy patch dataset
 
-```{r tile-dataset-doc, eval=requireNamespace("terra", quietly = TRUE)}
+```{r tile-dataset-doc, eval=.full_run && requireNamespace("terra", quietly = TRUE)}
 # For vignette reproducibility, build a synthetic 4-channel 48x48
 # raster that stands in for the real SoilGrids + WorldClim + SRTM
 # stack above. Replace with the `stack` from 9.2 on a real AoI.
@@ -385,7 +393,7 @@ dataset
      vignette, here. `.torch_ok` is computed by the setup gate above and is
      the whole condition. -->
 
-```{r tile-train, eval = .torch_ok}
+```{r tile-train, eval = .full_run && .torch_ok}
 ck_dir <- tempfile("moco_ck_")
 moco_tiles <- foundation_moco_pretrain_tiles(
   dataset,
@@ -405,7 +413,7 @@ any number of restarts without losing progress.
 
 ### 9.5 Embedding the full mosaic
 
-```{r tile-embed, eval=.torch_ok}
+```{r tile-embed, eval=.full_run && .torch_ok}
 emb <- foundation_moco_embed_raster(
   moco_tiles,
   stack   = stack,
@@ -421,7 +429,7 @@ feature (`feature_dim = 32` here). For visualisation we project the
 embedding onto its top-3 principal components and render them as an
 RGB composite:
 
-```{r tile-embed-plot, eval=.torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
+```{r tile-embed-plot, eval=.full_run && .torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
 emb_mat <- terra::values(emb)
 keep    <- stats::complete.cases(emb_mat)
 pr      <- stats::prcomp(emb_mat[keep, , drop = FALSE], scale. = TRUE)

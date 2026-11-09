@@ -80,6 +80,7 @@
 #'   `na_share` gives each row's share of imputed values (`NA` where no
 #'   patch was read), so the imputation is visible downstream.
 #' @examples
+#' \donttest{
 #' if (requireNamespace("torch", quietly = TRUE) &&
 #'     isTRUE(torch::torch_is_installed()) &&
 #'     requireNamespace("terra", quietly = TRUE)) {
@@ -181,6 +182,7 @@
 #'   ok <- stats::complete.cases(proj)
 #'   print(c(ncol = ncol(proj),
 #'           norm = unique(round(sqrt(rowSums(proj[ok, ]^2)), 6))))
+#' }
 #' }
 #' @export
 foundation_embed_at_coords <- function(moco, coords, stack, dataset,

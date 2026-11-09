@@ -57,6 +57,7 @@
 #'   `pca_center`, `pca_scale`, and `range_min`/`range_max` used for
 #'   the pi-rescale.
 #' @examples
+#' \donttest{
 #' # A stand-in for a MoCo v2 patch encoder: 64 columns built by a
 #' # fixed random projection of five Cerrado covariates through a
 #' # tanh, plus noise.  Wide but low-rank, like a real encoder's
@@ -92,6 +93,7 @@
 #' Kn <- quantum_kernel((red$X_q[1:60, ] + pi) / 2, reps = 2L)
 #' c(range_2pi = mean(Kw[upper.tri(Kw)]),
 #'   range_pi  = mean(Kn[upper.tri(Kn)]))    # 0.0153 vs 0.0189
+#' }
 #' @export
 qf_embed_reduce <- function(embeddings, n_pcs = 8L) {
   stopifnot(is.matrix(embeddings) || is.data.frame(embeddings),

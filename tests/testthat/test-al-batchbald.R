@@ -4,7 +4,9 @@
   set.seed(seed)
   data(br_cerrado, package = "edaphos", envir = environment())
   covs <- c("elev", "slope", "twi", "map_mm")
-  idx  <- al_initial_design(br_cerrado, covs, n = n, seed = seed)
+  # A random start, not al_initial_design(): these tests are about the
+  # acquisition, and the cLHS start would load clhs (6-8 s on CRAN).
+  idx  <- sample(nrow(br_cerrado), n)
   list(
     labeled = br_cerrado[idx, ],
     pool    = br_cerrado[setdiff(seq_len(nrow(br_cerrado)), idx), ],
@@ -48,6 +50,7 @@ test_that("al_query_batchbald uses the physics_gate when supplied", {
 })
 
 test_that("al_query_batchbald chooses a batch different from hybrid", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   ff  <- .batchbald_fixture()
   fit <- al_fit(ff$labeled, target = "soc", covariates = ff$covs)
   bb  <- al_query_batchbald(fit, ff$pool, n = 8L)

@@ -64,6 +64,7 @@ covariate-importance table.
 }
 
 \examples{
+\donttest{
 if (requireNamespace("terra", quietly = TRUE)) {
   # Two Cerrado covariates on deliberately mismatched grids: soil at
   # 0.05 degrees, terrain at 0.10, on extents that only partly
@@ -136,5 +137,6 @@ if (requireNamespace("terra", quietly = TRUE)) {
   # method = "bilinear" is for continuous covariates. Use "near" for
   # anything categorical -- interpolating soil-class codes invents
   # classes that do not exist.
+}
 }
 }

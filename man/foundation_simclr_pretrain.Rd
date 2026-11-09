@@ -46,6 +46,7 @@ embedding similarity between views of the same patch and low
 similarity otherwise.
 }
 \examples{
+\donttest{
 if (requireNamespace("torch", quietly = TRUE) &&
     isTRUE(torch::torch_is_installed())) {
   data(br_cerrado)
@@ -130,5 +131,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
   c2 <- foundation_simclr_pretrain(patches, epochs = 3L,
                                    batch_size = 6L, seed = 11L)
   print(identical(c1$loss_history, c2$loss_history))
+}
 }
 }

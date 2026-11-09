@@ -17,6 +17,7 @@ An \code{nn_module} cell with methods \code{forward(input, state)} and
 Build a standalone ConvLSTM cell (Pillar 3 primitive)
 }
 \examples{
+\donttest{
 # lantern is a separate binary download, so requireNamespace() alone
 # is not enough -- torch_is_installed() is the half that matters.
 if (requireNamespace("torch", quietly = TRUE) &&
@@ -67,5 +68,6 @@ if (requireNamespace("torch", quietly = TRUE) &&
                    sub("Exception raised.*", "", conditionMessage(e)))))
   # "The size of tensor a (7) must match the size of tensor b (8) at
   #  non-singleton dimension 3"
+}
 }
 }

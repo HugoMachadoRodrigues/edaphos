@@ -26,6 +26,14 @@ knitr::opts_chunk$set(
   collapse = TRUE, comment = "#>",
   fig.width = 6.5, fig.height = 4.5
 )
+# CRAN's incoming check rebuilds every vignette inside a 10-minute budget for
+# the whole check.  This vignette's code runs in full everywhere else: when
+# the package is built (so the HTML shipped in the tarball has every result),
+# and on every GitHub Actions leg, which sets NOT_CRAN=true.  Only a
+# CRAN-mode R CMD check skips evaluating it.
+.full_run <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  !nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+knitr::opts_chunk$set(eval = .full_run)
 ```
 
 ## Abstract
@@ -177,7 +185,7 @@ pred_pedon <- data.frame(depth = grid_z,
                          soc   = predict(fit_pedon, grid_z))
 ```
 
-```{r plot-single, eval=requireNamespace("ggplot2", quietly = TRUE)}
+```{r plot-single, eval=.full_run && requireNamespace("ggplot2", quietly = TRUE)}
 library(ggplot2)
 ggplot() +
   geom_line(data = pred_pedon, aes(soc, depth),
@@ -283,7 +291,7 @@ the whole trajectory:
       \;-\;y_{j}\Bigr)^{2}.
 \]
 
-```{r neural-ode, eval=.torch_ok}
+```{r neural-ode, eval=.full_run && .torch_ok}
 nn_fit <- piml_neural_ode_fit(
   depths  = pedon$depth_mid, values = pedon$soc_g_kg,
   hidden  = c(16L, 16L), epochs = 500L,
@@ -294,7 +302,7 @@ pred_nn <- data.frame(depth = grid_z,
                       soc   = predict(nn_fit, grid_z))
 ```
 
-```{r plot-neural, eval=.torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
+```{r plot-neural, eval=.full_run && .torch_ok && requireNamespace("ggplot2", quietly = TRUE)}
 ggplot() +
   geom_line(data = pred_pedon, aes(soc, depth,
             colour = "Parametric ODE"), linewidth = 1) +
@@ -325,7 +333,7 @@ negative: on 300 real WoSIS pedons the gate then accepted an organic
 carbon of \(-5\) g/kg on 73 of them. It now floors at zero for a
 property the fit itself requires to be positive.
 
-```{r gate, eval=.torch_ok}
+```{r gate, eval=.full_run && .torch_ok}
 gate <- al_physics_gate_piml(fit_pedon, safety_factor = 1.2)
 cand_dummy <- data.frame(dummy = 1:4)
 gate(cand_dummy, predicted_mean = c(10, 25, 200, -5))
@@ -387,7 +395,7 @@ coordinates and for anything you intend to use as a point estimate, and
 it is not fine for a derived quantity whose map is unstable in a tail it
 cannot reach. The package's reported numbers use MCMC.
 
-```{r bayes-laplace, eval=TRUE}
+```{r bayes-laplace, eval=.full_run}
 library(edaphos)
 
 depths <- c(5, 15, 30, 60, 100)
@@ -398,7 +406,7 @@ fit_bayes <- piml_profile_fit_bayesian(depths, values,
 fit_bayes
 ```
 
-```{r bayes-predictive, eval=TRUE}
+```{r bayes-predictive, eval=.full_run}
 predict(fit_bayes,
          newdepths         = c(10, 20, 40, 80),
          interval          = 0.95,
@@ -417,7 +425,7 @@ trained from different random seeds produce an empirical posterior
 whose mean and variance approximate the Bayesian predictive posterior
 [@Wilson2020bayesian].
 
-```{r bayes-deep-ensemble, eval=.torch_ok}
+```{r bayes-deep-ensemble, eval=.full_run && .torch_ok}
 ens <- piml_neural_ode_fit_ensemble(depths, values,
                                        K = 5L, epochs = 300L, seed = 1L)
 predict(ens, newdepths = c(10, 20, 40, 80), interval = 0.9)

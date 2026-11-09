@@ -36,6 +36,7 @@ The wider interval doubles the entangling phase
 costs.
 }
 \examples{
+\donttest{
 # A stand-in for a MoCo v2 patch encoder: 64 columns built by a
 # fixed random projection of five Cerrado covariates through a
 # tanh, plus noise.  Wide but low-rank, like a real encoder's
@@ -71,4 +72,5 @@ Kw <- quantum_kernel(red$X_q[1:60, ], reps = 2L)
 Kn <- quantum_kernel((red$X_q[1:60, ] + pi) / 2, reps = 2L)
 c(range_2pi = mean(Kw[upper.tri(Kw)]),
   range_pi  = mean(Kn[upper.tri(Kn)]))    # 0.0153 vs 0.0189
+}
 }

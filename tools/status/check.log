@@ -1,4 +1,4 @@
-* using log directory ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck’
+* using log directory ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub6/edaphos.Rcheck’
 * using R version 4.6.2 (2026-10-29)
 * using platform: aarch64-apple-darwin23
 * R was compiled by
@@ -6,12 +6,12 @@
     GNU Fortran (GCC) 14.2.0
 * running under: macOS Golden Gate 27.2
 * using session charset: UTF-8
-* current time: 2026-11-07 12:21:43 UTC
+* current time: 2026-11-09 03:46:35 UTC
 * using option ‘--as-cran’
 * checking for file ‘edaphos/DESCRIPTION’ ... OK
 * this is package ‘edaphos’ version ‘2.0.0’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [4s/88s] NOTE
+* checking CRAN incoming feasibility ... [4s/25s] NOTE
 Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
 
 New submission
@@ -23,11 +23,11 @@ New submission
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
-* checking whether package ‘edaphos’ can be installed ... [13s/13s] OK
+* checking whether package ‘edaphos’ can be installed ... [12s/12s] OK
 * used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.4.1.1)’
 * used SDK: ‘MacOSX27.2.sdk’
 * checking installed package size ... INFO
-  installed size is  6.9Mb
+  installed size is  7.0Mb
   sub-directories of 1Mb or more:
     doc       2.9Mb
     extdata   1.0Mb
@@ -68,6 +68,10 @@ New submission
 * checking LazyData ... OK
 * checking data for ASCII and uncompressed saves ... OK
 * checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking compilation flags in Makevars ... OK
+* checking for GNU extensions in Makefiles ... OK
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
 * checking use of PKG_*FLAGS in Makefiles ... OK
 * checking use of SHLIB_OPENMP_*FLAGS in Makefiles ... OK
 * checking pragmas in C/C++ headers and code ... OK
@@ -75,15 +79,15 @@ New submission
 * checking compiled code ... OK
 * checking installed files from ‘inst/doc’ ... OK
 * checking files in ‘vignettes’ ... OK
-* checking examples ... [88s/86s] OK
-* checking examples with --run-donttest ... [94s/91s] OK
+* checking examples ... [29s/28s] OK
+* checking examples with --run-donttest ... [88s/84s] OK
 * checking for unstated dependencies in ‘tests’ ... OK
 * checking tests ...
-  Running ‘testthat.R’ [99s/79s]
- [99s/79s] OK
+  Running ‘testthat.R’ [60s/54s]
+ [60s/54s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [250s/235s] OK
+* checking re-building of vignette outputs ... [35s/35s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -95,6 +99,6 @@ release or compiling the source code from <https://www.html-tidy.org/>.
 
 Status: 2 NOTEs
 See
-  ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/final/edaphos.Rcheck/00check.log’
+  ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub6/edaphos.Rcheck/00check.log’
 for details.
 

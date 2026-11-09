@@ -57,6 +57,7 @@ test_that("benchmark_fit_p1_causal: calibrated posterior covers more variance", 
 })
 
 test_that("benchmark_fit_p1_causal: PICP_90 of calibrated posterior is closer to 0.9", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   dat <- .mk_mini_wosis(n = 120L, seed = 2L)
   tr  <- dat[1:80, ]; te <- dat[81:120, ]
   cal <- benchmark_fit_p1_causal(tr, te, .cov_cols,

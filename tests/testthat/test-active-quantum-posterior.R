@@ -3,6 +3,7 @@
 # ---- Pillar 5 --------------------------------------------------------------
 
 test_that("active_learning_posterior() returns a sample posterior with QRF quantile grid", {
+  skip_on_cran()  # over 0.5 s on a Windows runner; runs on every GitHub Actions leg
   skip_if_not_installed("ranger")
   set.seed(1L)
   n <- 60L
