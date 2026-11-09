@@ -1,4 +1,4 @@
-* using log directory ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub2/edaphos.Rcheck’
+* using log directory ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub6/edaphos.Rcheck’
 * using R version 4.6.2 (2026-10-29)
 * using platform: aarch64-apple-darwin23
 * R was compiled by
@@ -6,22 +6,15 @@
     GNU Fortran (GCC) 14.2.0
 * running under: macOS Golden Gate 27.2
 * using session charset: UTF-8
-* current time: 2026-11-08 22:11:04 UTC
+* current time: 2026-11-09 03:46:35 UTC
 * using option ‘--as-cran’
 * checking for file ‘edaphos/DESCRIPTION’ ... OK
 * this is package ‘edaphos’ version ‘2.0.0’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [4s/147s] NOTE
+* checking CRAN incoming feasibility ... [4s/25s] NOTE
 Maintainer: ‘Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>’
 
 New submission
-
-Found the following (possibly) invalid URLs:
-  URL: https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html
-    From: README.md
-    Status: Error
-    Message: libcurl error code 28:
-      	Connection timed out after 60002 milliseconds
 * checking package namespace information ... OK
 * checking package dependencies ... OK
 * checking if this is a source package ... OK
@@ -30,7 +23,7 @@ Found the following (possibly) invalid URLs:
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
-* checking whether package ‘edaphos’ can be installed ... [12s/13s] OK
+* checking whether package ‘edaphos’ can be installed ... [12s/12s] OK
 * used C++ compiler: ‘Apple clang version 21.0.0 (clang-2100.4.1.1)’
 * used SDK: ‘MacOSX27.2.sdk’
 * checking installed package size ... INFO
@@ -60,7 +53,7 @@ Found the following (possibly) invalid URLs:
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
-* checking R code for possible problems ... [10s/10s] OK
+* checking R code for possible problems ... [11s/11s] OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
 * checking Rd line widths ... OK
@@ -86,15 +79,15 @@ Found the following (possibly) invalid URLs:
 * checking compiled code ... OK
 * checking installed files from ‘inst/doc’ ... OK
 * checking files in ‘vignettes’ ... OK
-* checking examples ... [77s/74s] OK
-* checking examples with --run-donttest ... [82s/78s] OK
+* checking examples ... [29s/28s] OK
+* checking examples with --run-donttest ... [88s/84s] OK
 * checking for unstated dependencies in ‘tests’ ... OK
 * checking tests ...
-  Running ‘testthat.R’ [97s/70s]
- [97s/71s] OK
+  Running ‘testthat.R’ [60s/54s]
+ [60s/54s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [242s/223s] OK
+* checking re-building of vignette outputs ... [35s/35s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -106,6 +99,6 @@ release or compiling the source code from <https://www.html-tidy.org/>.
 
 Status: 2 NOTEs
 See
-  ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub2/edaphos.Rcheck/00check.log’
+  ‘/private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub6/edaphos.Rcheck/00check.log’
 for details.
 

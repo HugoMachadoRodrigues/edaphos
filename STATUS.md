@@ -4,7 +4,7 @@
 
 # edaphos — development status
 
-**Commit** `6a038e2` (`Hugo/cran-comments-resubmission`) — **DESCRIPTION version** `2.0.0` — **measured** 2026-11-08T22:31:37Z
+**Commit** `3f3181a` (`Hugo/cran-comments-resubmission`) — **DESCRIPTION version** `2.0.0` — **measured** 2026-11-09T03:51:27Z
 
 Every quantity in this document is measured at render time by
 [`tools/status/facts.R`](tools/status/facts.R) and rendered by
@@ -18,13 +18,13 @@ adversarial audit of commit `272b378`.
 
 | Measure | Value |
 | --- | --- |
-| Commits | 258 |
-| First → last commit | 2026-04-20 → 2026-11-08 (201.8 calendar days, 31 with commits) |
+| Commits | 260 |
+| First → last commit | 2026-04-20 → 2026-11-08 (202.0 calendar days, 31 with commits) |
 | Days since last commit | 0 |
 | NEWS release sections | 1 |
 | Git tags | 18 |
 | NEWS versions with no tag | 0 |
-| R/ source lines | 31 569 |
+| R/ source lines | 31 635 |
 | Exported functions | 177 |
 | Test blocks | 750 |
 | Tests passing | 2 679 |
@@ -37,7 +37,7 @@ adversarial audit of commit `272b378`.
 
 ### Stage assessment
 
-From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `6a038e2`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
+From the audit's completeness critic (editorial, not measured). It describes the tree at `272b378`, not at `3f3181a`: several of the specifics it cites have since been closed — see "Closed since the audit" in section 11 for which ones, and on what measurement. The verdict is quoted unedited because a stage assessment that gets revised alongside the work it judges is worth nothing.
 
 > Late-stage prototype dressed as a release candidate — call it prototype-to-alpha, not beta and
 > nowhere near release-candidate. The eight audits read the artefact as a mature project that had
@@ -87,7 +87,7 @@ From the audit's completeness critic (editorial, not measured). It describes the
 
 ## 3. The git clock
 
-`6a038e2` — 258 commits across 31 active days.
+`3f3181a` — 260 commits across 31 active days.
 
 | Date | Commits |
 | --- | --: |
@@ -121,11 +121,11 @@ From the audit's completeness critic (editorial, not measured). It describes the
 | 2026-11-04 | 24 |
 | 2026-11-06 | 5 |
 | 2026-11-07 | 4 |
-| 2026-11-08 | 6 |
+| 2026-11-08 | 8 |
 
 Releases declared in `NEWS.md`: **1**. Git tags: **18**.
 Tags present: `v0.1.0`, `v0.2.0`, `v0.3.0`, `v0.4.0`, `v0.5.0`, `v0.6.0`, `v0.7.0`, `v0.8.0`, `v0.9.0`, `v1.0.0`, `v1.1.0`, `v1.2.0`, `v1.3.0`, `v1.3.1`, `v1.4.0`, `v1.5.0`, `v1.6.0`, `v2.0.0`.
-Commits since the newest tag (`v2.0.0`): **13**.
+Commits since the newest tag (`v2.0.0`): **15**.
 
 ## 4. Version coherence
 
@@ -133,7 +133,7 @@ Commits since the newest tag (`v2.0.0`): **13**.
 | --- | --- |
 | DESCRIPTION version equals newest NEWS section | ✅ (DESCRIPTION `2.0.0`, NEWS `2.0.0`) |
 | DESCRIPTION version has a git tag | ✅ (`v2.0.0`) |
-| HEAD is the tagged release commit | ❌ (13 commits past `v2.0.0`) |
+| HEAD is the tagged release commit | ❌ (15 commits past `v2.0.0`) |
 | Every NEWS release is tagged | ✅ (0 of 1 untagged) |
 
 Version strings each artefact claims for the package:
@@ -182,11 +182,7 @@ Counts are taken from R's own `Status:` line; an independent walk of the log agr
 | Maintainer | `Hugo Rodrigues <rodrigues.machado.hugo@gmail.com>` |
 | CRAN status | **New submission** — R's own confirmation that nothing named `edaphos` exists on CRAN |
 | Tarball size | _not measured_ measured on disk — the log prints this only above its own threshold (CRAN guidance: 5.00 MB) |
-| URLs flagged as invalid | 1 |
-
-```
-https://proceedings.neurips.cc/paper/2020/hash/4c5bcfec8584af0d967f1ab10179ca4b-Abstract.html
-```
+| URLs flagged as invalid | 0 |
 
 Installed size, verbatim from the log:
 
@@ -198,15 +194,15 @@ Installed size, verbatim from the log:
     help      1.6Mb
 ```
 
-Log: `tools/status/check.log` (111 lines, sha256 `06bb0f5123abebd5`). Verbatim tail:
+Log: `tools/status/check.log` (104 lines, sha256 `5881cee4a6057c4c`). Verbatim tail:
 
 ```
 * checking tests ...
-  Running testthat.R [97s/70s]
- [97s/71s] OK
+  Running testthat.R [60s/54s]
+ [60s/54s] OK
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... [242s/223s] OK
+* checking re-building of vignette outputs ... [35s/35s] OK
 * checking PDF version of manual ... OK
 * checking HTML version of manual ... NOTE
 Skipping checking HTML validation: 'tidy' doesn't look like recent enough HTML Tidy.
@@ -217,7 +213,7 @@ release or compiling the source code from <https://www.html-tidy.org/>.
 * DONE
 Status: 2 NOTEs
 See
-  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub2/edaphos.Rcheck/00check.log
+  /private/tmp/claude-501/-Users-rodrigues-h-Library-CloudStorage-OneDrive-Personal-edaphos--claude-worktrees-practical-pike-b07d22/7a3065cd-02f9-4662-acb5-6be8a621d770/scratchpad/resub6/edaphos.Rcheck/00check.log
 for details.
 ```
 
@@ -292,7 +288,7 @@ Fixes, per item:
 | `test_that` blocks | 750 |
 | `expect_*` calls | 2 140 |
 | `skip_if_not_installed` gates | 103 |
-| `skip_on_cran` gates | 25 |
+| `skip_on_cran` gates | 54 |
 | `set.seed` calls | 173 |
 
 Live run in this environment:
@@ -304,7 +300,7 @@ Live run in this environment:
 | Failed | 0 |
 | Errored | 0 |
 | Warnings | 4 |
-| Wall clock (s) | 481.5 |
+| Wall clock (s) | 493.8 |
 
 Conditional skipping by dependency (static gate count):
 
@@ -329,8 +325,8 @@ Result bundles in `inst/extdata/`: **24**. Test files that read `inst/extdata`: 
 | `man/*.Rd` files | 190 |
 | Rd with `\examples` | 179 |
 | — wrapping `\dontrun` | 41 |
-| — wrapping `\donttest` | 14 |
-| — with an example `R CMD check` runs | 124 |
+| — wrapping `\donttest` | 45 |
+| — with an example `R CMD check` runs | 95 |
 | Exports with no example anywhere | 0 |
 | Exports with no `.Rd` | 0 |
 | Rd with `\references` | 37 |
@@ -365,17 +361,17 @@ Function names called in `pillar1.md`, `pillar10.md`, `pillar2.md`, `pillar3.md`
 | `man` | 1.37 MB | ✅ |
 | `R` | 1.35 MB | ✅ |
 | `inst` | 1011 KB | ✅ |
-| `tools` | 894 KB | ❌ |
-| `tests` | 641 KB | ✅ |
+| `tools` | 895 KB | ❌ |
+| `tests` | 644 KB | ✅ |
 | `data-raw` | 527 KB | ❌ |
-| `vignettes` | 436 KB | ✅ |
+| `vignettes` | 441 KB | ✅ |
 | `<root>` | 382 KB | ✅ |
 | `data` | 64 KB | ✅ |
 | `.github` | 22 KB | ❌ |
 | `src` | 17 KB | ✅ |
 | `cheatsheets` | 16 KB | ❌ |
 
-Git-tracked bytes that ship: **4.99 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
+Git-tracked bytes that ship: **5.00 MB**. That is not the figure CRAN applies its 5 MB guidance to — the built tarball is, and it is larger, because `R CMD build` renders the vignettes into `inst/doc`, which does not exist in the repository.
 
 Largest tracked files that ship:
 
@@ -512,7 +508,7 @@ original auditor reported.
 
 ### Closed since the audit (measured, not asserted)
 
-122 findings were true at `272b378` and cannot be reproduced at `6a038e2`. Each line states the measurement that closed it, not a claim that it was addressed.
+122 findings were true at `272b378` and cannot be reproduced at `3f3181a`. Each line states the measurement that closed it, not a claim that it was addressed.
 
 | ID | Sev | Area | Fixed in | Finding | Measurement |
 | --- | --- | --- | --- | --- | --- |
