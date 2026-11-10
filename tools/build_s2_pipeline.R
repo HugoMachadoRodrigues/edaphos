@@ -89,6 +89,7 @@ for (i in seq_along(scripts)) {
   if (grepl("reticulate|qiskit|import\\(", txt)) n <- c(n, "python")
   if (grepl("torch::|torch_is_installed", txt)) n <- c(n, "torch")
   if (grepl("ollama|causal_llm_extract", txt)) n <- c(n, "local LLM")
+  if (grepl("records_path\\(|read_records\\(", txt)) n <- c(n, "record cache")
   needs[[i]] <- n
 }
 
@@ -134,6 +135,15 @@ lines <- c(
   "marked `network` re-downloads from WoSIS, SoilData or Copernicus and will",
   "differ if those archives have changed.",
   "",
+  "A script marked `record cache` reads soil-profile records that the package",
+  "does not ship, because they are third-party measurements under per-record",
+  "licences. It reads them from `data-raw/build/records/`, which",
+  "`records.R` defines and `restore_records.R` rebuilds offline from the git",
+  "history of the repository (the exact snapshot the published results came",
+  "from). Those scripts need a git checkout, not this archive alone. Re-running",
+  "one writes its full bundle, records included, into `inst/extdata/`; the",
+  "package test `test-no-third-party-data.R` fails until they are removed.",
+  "",
   "| # | Script | Requires | Produces |",
   "|---:|:---|:---|:---|")
 for (i in seq_along(placed)) {
@@ -154,6 +164,9 @@ if (length(pending)) {
 lines <- c(lines, "",
   "## What cannot be reproduced from here",
   "",
+  "- Scripts marked `record cache` need the repository with its history, or a",
+  "  fresh pull from WoSIS and SoilData, which will differ from the published",
+  "  snapshot as those archives change.",
   "- The foundation encoder's training data is a 2 GB Sentinel-2 / Copernicus",
   "  extract that is downloaded, not shipped; `case_cerrado_prepare.R` fetches it.",
   "- The LLM extraction needs a local Ollama; without one the capstone builder",
@@ -177,6 +190,7 @@ setwd(old)
 cat(sprintf("\nS2 File: %d scripts, %d ordered, %d unordered, %.0f KB\n",
             length(scripts), length(placed), length(pending),
             file.size(zipfile) / 1024))
+cat(sprintf("record cache: %d\n", sum(vapply(needs, function(n) "record cache" %in% n, TRUE))))
 cat(sprintf("network-dependent: %d | torch: %d | python: %d | offline: %d\n",
             sum(vapply(needs, function(n) "network" %in% n, TRUE)),
             sum(vapply(needs, function(n) "torch" %in% n, TRUE)),

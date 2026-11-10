@@ -31,6 +31,7 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 
 DOI  <- "doi:10.60502/SoilData/QN7OBM"
 BASE <- "https://repositorio.soildata.mapbiomas.org"
@@ -138,5 +139,5 @@ saveRDS(list(
              dataset = "ctb0017 - Solos da Bacia Hidrografica do Rio Uberaba",
              fetched_at = format(Sys.Date()),
              built_by = "data-raw/soildata_uberaba_bd.R"),
-        "inst/extdata/soildata_uberaba_bd.rds")
-message("\nwrote inst/extdata/soildata_uberaba_bd.rds")
+        records_path("soildata_uberaba_bd"))
+message("\nwrote data-raw/build/records/soildata_uberaba_bd.rds")

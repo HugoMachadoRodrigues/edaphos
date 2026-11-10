@@ -36,10 +36,11 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 set.seed(29L)
 
-P <- readRDS("inst/extdata/piml_ptf_bulk_density.rds")
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+P <- readRDS(records_path("piml_ptf_bulk_density"))
+D <- readRDS(records_path("piml_wosis_cerrado"))
 H <- D$horizons
 message(sprintf("PTF: %s, blocked RMSE %.4f g/cm3 (%.1f%% relative)",
                 P$best, P$blocked_rmse, 100 * P$blocked_rel_rmse))
@@ -57,7 +58,7 @@ message(sprintf("%d profiles in the declared domain", length(dom)))
 # ---------------------------------------------------------------------------
 # PART 1 -- what does swapping the measured density for the PTF's cost?
 # ---------------------------------------------------------------------------
-SV <- readRDS("inst/extdata/piml_stock_validation.rds")
+SV <- read_records("piml_stock_validation")  # needs $stock, removed from the shipped bundle
 S <- SV$stock
 S$bd_ptf <- P$predict(data.frame(soc_g_kg = S$conc_obs, depth_mid = S$depth,
                                  clay = NA_real_, sand = NA_real_))
@@ -163,7 +164,7 @@ saveRDS(list(
                         skill_vs_constant = P$aggregate$skill_vs_constant[1],
                         n_cal = P$calibration$n, n_prof = P$calibration$n_profiles,
                         n_latossolo = sum(grepl("^Latossolo",
-                          readRDS("inst/extdata/soildata_uberaba_bd.rds")$horizons$soil_class))),
+                          readRDS(records_path("soildata_uberaba_bd"))$horizons$soil_class))),
              built_by = "data-raw/piml_stock_at_scale.R"),
         "inst/extdata/piml_stock_at_scale.rds")
 message("\nwrote inst/extdata/piml_stock_at_scale.rds")

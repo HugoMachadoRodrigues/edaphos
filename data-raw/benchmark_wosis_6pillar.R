@@ -24,12 +24,13 @@
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 set.seed(20260501L)
 
 OUT_PATH  <- file.path("inst", "extdata", "benchmark_wosis_6pillar.rds")
 V280_PATH <- file.path("data-raw", "build", "benchmark_wosis_p4_p5_p7.rds")
-DAG_RDS   <- file.path("inst", "extdata", "causal_cerrado_real.rds")
+DAG_RDS   <- records_path("causal_cerrado_real")
 
 # ---------------------------------------------------------------------------
 # 1. Load WoSIS profiles + v2.8.0 posterior bank (re-used for P4/P5/P7)

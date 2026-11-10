@@ -31,9 +31,10 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 set.seed(23L)
 
-U <- readRDS("inst/extdata/soildata_uberaba_bd.rds")
+U <- readRDS(records_path("soildata_uberaba_bd"))
 H <- U$horizons
 message(sprintf("calibration set: %d horizons, %d profiles",
                 nrow(H), length(unique(H$profile_id))))
@@ -157,7 +158,7 @@ stopifnot(is.finite(ptf_predict(data.frame(soc_g_kg = c(1, 20), depth_mid = c(10
                                            clay = c(30, 30), sand = c(40, 40)))))
 
 cat("\n=== where the PTF is being asked to work ===\n")
-W <- readRDS("inst/extdata/piml_wosis_cerrado.rds")$horizons
+W <- readRDS(records_path("piml_wosis_cerrado"))$horizons
 cat(sprintf("calibration: carbon %.1f-%.1f g/kg, depth %g-%g cm, clay %.0f-%.0f%%\n",
             min(H$soc_g_kg), max(H$soc_g_kg), min(H$depth_mid), max(H$depth_mid),
             min(H$clay), max(H$clay)))
@@ -181,5 +182,5 @@ saveRDS(list(
              extrapolation = list(frac_carbon_outside = out_c, frac_deeper = out_d),
              source = U$dataset, doi = U$doi,
              built_by = "data-raw/piml_ptf_bulk_density.R"),
-        "inst/extdata/piml_ptf_bulk_density.rds")
-message("\nwrote inst/extdata/piml_ptf_bulk_density.rds")
+        records_path("piml_ptf_bulk_density"))
+message("\nwrote data-raw/build/records/piml_ptf_bulk_density.rds")

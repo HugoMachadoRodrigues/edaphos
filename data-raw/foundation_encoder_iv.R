@@ -19,6 +19,7 @@
 # Needs libtorch (torch::torch_is_installed()). ~7 min on Apple MPS.
 # =============================================================================
 suppressPackageStartupMessages({ library(terra); pkgload::load_all(".", quiet = TRUE) })
+source("data-raw/records.R")  # record-level inputs, not shipped
 stopifnot(torch::torch_is_installed())
 CACHE <- Sys.getenv("EDAPHOS_REAL_CACHE", file.path(tempdir(), "edaphos_real"))
 dev <- if (torch::backends_mps_is_available()) "mps" else
@@ -46,7 +47,7 @@ moco <- foundation_moco_pretrain_tiles(ds, feature_dim = 128L, proj_dim = 64L,
 h <- moco$loss_history
 message(sprintf("[enc] %s: InfoNCE %.3f -> %.3f (min %.3f)", dev, h[1], utils::tail(h, 1), min(h)))
 
-d <- readRDS("inst/extdata/causal_cerrado_real_v2.rds")$profiles
+d <- read_records("causal_cerrado_real_v2")$profiles
 emb <- foundation_embed_at_coords(moco, coords = as.matrix(d[, c("lon", "lat")]),
                                   stack = stk, dataset = ds, patch_size = 24L, projection = FALSE)
 keep <- stats::complete.cases(emb) & is.finite(d$map) & is.finite(d$soc)

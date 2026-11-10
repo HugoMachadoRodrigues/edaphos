@@ -4,8 +4,10 @@
 #
 # One shared visual system, one file per figure, written at 300 dpi as TIFF
 # (PLOS's required format) and PNG (for the Word build). Every figure is drawn
-# from data distributed with the package or from public boundaries; nothing is
-# mocked up.
+# from data distributed with the package, from public boundaries, or -- for the
+# three figures that plot records the package no longer ships (Fig 1, the
+# Fig 3 pedon, Fig 5) -- from the local record cache that
+# data-raw/restore_records.R rebuilds. Nothing is mocked up.
 #
 #   Rscript paper/assets/figures.R
 # =============================================================================
@@ -17,6 +19,9 @@ ROOT <- normalizePath(file.path(dirname(sub("^--file=", "",
 OUT <- file.path(ROOT, "paper", "figures"); dir.create(OUT, showWarnings = FALSE)
 suppressMessages(pkgload::load_all(ROOT, quiet = TRUE))
 ex <- function(f) readRDS(system.file("extdata", f, package = "edaphos"))
+# record-level inputs: data-raw/build/records/, never shipped
+source(file.path(ROOT, "data-raw", "records.R"))
+setwd(ROOT)
 
 # ---- shared visual system ---------------------------------------------------
 PAL <- c(
@@ -72,7 +77,7 @@ save_fig <- function(p, name, w, h) {
 # =============================================================================
 message("Fig 1: study area")
 CAU <- ex("causal_cerrado_real_v2.rds")
-prof <- CAU$profiles
+prof <- read_records("causal_cerrado_real_v2")$profiles
 pts <- sf::st_as_sf(prof, coords = c("lon", "lat"), crs = 4326)
 
 biomes  <- suppressMessages(geobr::read_biomes(year = 2019, showProgress = FALSE))
@@ -200,7 +205,15 @@ pd <- ggplot(tb, aes(x = elapsed_sum, y = label, fill = label)) +
   scale_x_continuous(trans = "log10", labels = label_number(accuracy = 1),
                      expand = expansion(mult = c(0, 0.30))) +
   labs(title = "D  Computational cost",
-       subtitle = "the two methods that fall below the achievable null are the\ntwo most expensive; the most accurate costs 2.3 s",
+       subtitle = local({
+         # computed, not typed: the claim must hold on the bundle it plots
+         below <- as.character(tb$label[tb$nse_mean <= 0])
+         dear  <- as.character(tb$label[order(-tb$elapsed_sum)][seq_along(below)])
+         stopifnot(setequal(below, dear))
+         sprintf(paste0("the %d methods that fall below the achievable null are the\n",
+                        "%d most expensive; the most accurate costs %.1f s"),
+                 length(below), length(below), tb$elapsed_sum[1])
+       }),
        x = "Seconds (log scale)", y = NULL) +
   theme_edaphos()
 
@@ -260,7 +273,7 @@ save_fig(fig_causal, "Fig14", 7.6, 7.2)
 # =============================================================================
 message("Fig 3: pedogenetic ODE")
 CAP <- ex("capstone_campaign_results.rds")
-ped <- CAP$piml_profile_obs
+ped <- read_records("capstone_campaign_results")$piml_profile_obs
 fitb <- piml_profile_fit_bayesian(ped$depth_mid, ped$soc_g_kg, method = "laplace", seed = 7L)
 dz <- seq(0, max(ped$bottom) * 1.15, by = 2)   # past the deepest horizon
 pp <- predict(fitb, newdepths = dz, interval = 0.95)
@@ -359,7 +372,7 @@ save_fig(fig_ode, "Fig3", 9.4, 5.2)
 # =============================================================================
 if (need("Fig4")) {
 message("Fig 4: parameter variograms")
-V  <- ex("piml_parameter_variograms.rds")
+V  <- read_records("piml_parameter_variograms")   # deleted 2026-08-27; record cache
 tb <- V$table
 LAB <- c(log_y0 = "log~y[0]", log_y_asym = "log~y(infinity)",
          log_kappa = "log~kappa", log_mu = "log~mu")
@@ -444,7 +457,7 @@ message("done -> ", OUT)
 # Fig 5 — Pillar 3: space-time forecasting and sequential assimilation
 # =============================================================================
 message("Fig 5: 4D pedometry")
-TT   <- ex("temporal_cerrado_results.rds")
+TT   <- read_records("temporal_cerrado_results")
 meta <- TT$meta
 grid_df <- function(m, lab) {
   data.frame(lon = rep(meta$lons, times = meta$W),

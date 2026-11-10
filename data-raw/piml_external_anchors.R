@@ -41,9 +41,10 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 set.seed(11)
 
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+D <- readRDS(records_path("piml_wosis_cerrado"))
 H <- D$horizons
 
 message("fitting the depth function at every profile ...")
@@ -128,7 +129,7 @@ if (length(bd_ok) >= 3L) {
 }
 
 # --- join the covariates ---------------------------------------------------
-CAU <- readRDS("inst/extdata/causal_cerrado_real_v2.rds")$profiles
+CAU <- read_records("causal_cerrado_real_v2")$profiles
 nn <- vapply(seq_len(nrow(FP)), function(i)
   which.min((CAU$lon - FP$x[i])^2 + (CAU$lat - FP$y[i])^2), integer(1))
 FP$clay  <- CAU$clay[nn]
@@ -208,5 +209,5 @@ saveRDS(list(
              beta = list(quantiles = qb, model_trees = m2, n = nrow(A2)),
              bd_check = bd_cmp,
              built_by = "data-raw/piml_external_anchors.R"),
-        "inst/extdata/piml_external_anchors.rds")
-message("\nwrote inst/extdata/piml_external_anchors.rds")
+        records_path("piml_external_anchors"))
+message("\nwrote data-raw/build/records/piml_external_anchors.rds")

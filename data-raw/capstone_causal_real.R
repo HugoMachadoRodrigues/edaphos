@@ -17,9 +17,10 @@
 # the causal slots from the same sources.
 # =============================================================================
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 CAP <- "inst/extdata/capstone_campaign_results.rds"
 R   <- readRDS(CAP)
-v2  <- readRDS("inst/extdata/causal_cerrado_real_v2.rds")
+v2  <- read_records("causal_cerrado_real_v2")  # needs $profiles, removed from the shipped bundle
 d   <- v2$profiles
 dag <- v2$dag
 

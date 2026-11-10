@@ -41,12 +41,13 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 set.seed(11L)
 
 NOMINAL <- 0.90
 N_COV   <- 150L
 
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+D <- readRDS(records_path("piml_wosis_cerrado"))
 H <- D$horizons
 
 split_profile <- function(s) {

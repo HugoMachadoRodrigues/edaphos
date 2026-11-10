@@ -10,6 +10,7 @@
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages({
   library(dplyr)
 })
@@ -22,7 +23,7 @@ OUT_PATH <- file.path("inst", "extdata", "causal_sensitivity_cerrado.rds")
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [1/4] Loading data + refitting estimators ===")
 
-causal_rds <- readRDS("inst/extdata/causal_cerrado_real.rds")
+causal_rds <- readRDS(records_path("causal_cerrado_real"))
 profiles <- causal_rds$profiles |>
   filter(!is.na(soc_topsoil_gkg)) |>
   mutate(

@@ -21,13 +21,14 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 set.seed(20260501L)
 
 BUF <- readRDS("inst/extdata/benchmark_wosis_6pillar.rds")
 v28 <- readRDS("data-raw/build/benchmark_wosis_p4_p5_p7.rds")
 
-P <- readRDS("inst/extdata/causal_cerrado_real.rds")$profiles |>
+P <- readRDS(records_path("causal_cerrado_real"))$profiles |>
   filter(!is.na(soc_topsoil_gkg), !is.na(lon), !is.na(lat)) |>
   mutate(soc = soc_topsoil_gkg, map = wc_bio_12, mat = wc_bio_01 / 10,
          trees = wc_landcover_trees, cropland = wc_landcover_cropland,

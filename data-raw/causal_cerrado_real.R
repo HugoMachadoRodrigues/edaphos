@@ -12,6 +12,7 @@
 # Output is a self-contained RDS that the `pillar1-causal` vignette
 # consumes so the vignette builds on any installation.
 
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressPackageStartupMessages({
   devtools::load_all(".", quiet = TRUE)
   library(dagitty)
@@ -146,7 +147,7 @@ effects_slim <- lapply(fit_rows, function(row) {
   )
 })
 
-out_path <- "inst/extdata/causal_cerrado_real.rds"
+out_path <- records_path("causal_cerrado_real")
 saveRDS(
   list(
     profiles      = profiles[, c("profile_id", "dataset_id", "year",

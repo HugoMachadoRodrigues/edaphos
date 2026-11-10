@@ -26,9 +26,10 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 set.seed(7L)
 
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+D <- readRDS(records_path("piml_wosis_cerrado"))
 src <- D$profiles[D$profiles$monotone_decreasing, ]
 src <- src[order(-src$n_hor, -src$z_max), ]
 PID <- src$profile_id[1]
