@@ -41,6 +41,7 @@ GAT <- ex("pillar10_gat_tuning.rds")
 # pre-strip records by data-raw/paper_record_aggregates.R and shipped as
 # aggregates only.
 PRA <- ex("paper_record_aggregates.rds")
+UV  <- ex("piml_unvisited_site.rds")
 # S2 File's script counts, read from its own RUN-ORDER rather than typed.
 .ro <- readLines(unz("S2_File_pipeline.zip", "S2_File_pipeline/RUN-ORDER.md"))
 .ro <- grep("^\\| [0-9]+ \\|", .ro, value = TRUE)
@@ -431,13 +432,38 @@ These figures replace an earlier version of this table computed from Gaussian-li
 
 The consequence for mapping is unfavourable, and more so than before. The single identified range, `r vfmt(vr('log y(Inf)'))` km, is far shorter than the median separation between profiles in this archive, so kriging that parameter would be extrapolating almost everywhere — and for the other three there is no range to krige with at all. Regressing each on climate and terrain first does not rescue the situation: those covariates explain between `r fmt(100*min(vt$cov_r2), 1)`% and `r fmt(100*max(vt$cov_r2), 1)`% of the parameters' variance, and the residual variograms are no better structured than the raw ones.
 
-We therefore report the two-stage workflow as inadequate on these data, and for a reason that is about sampling design rather than about the equation: the depth function varies over tens of kilometres while the profiles are hundreds of kilometres apart. The remedy is not a better kriging model but a one-stage hierarchical one, in which the profile parameters are regressed on covariates and share a spatial random effect, so that the shape of a profile at an unvisited site is borrowed rather than interpolated. We flag that as the pillar's next step rather than claim it here.
+We therefore report the two-stage workflow as inadequate on these data, and for a reason that is about sampling design rather than about the equation: the depth function varies over tens of kilometres while the profiles are hundreds of kilometres apart. The remedy is not a better kriging model but a one-stage hierarchical one, in which the profile parameters are regressed on covariates and share a spatial random effect, so that the shape of a profile at an unvisited site is borrowed rather than interpolated. Before building one, we measured how much it could gain.
 
 ```{r fig4, out.width="100%"}
 knitr::include_graphics("figures/Fig4.png")
 ```
 
 **Fig 4. The depth function varies faster than the survey can see.** Empirical variograms of the four fitted parameters across `r vfmt(VG$n_fitted)` profiles with converged fits, `r vfmt(VG$n_pairs)` point pairs within the `r vfmt(VG$cutoff_km)` km cutoff, with fitted exponential models. One parameter — the attainable deep value — reaches a sill within the observed separations, at `r vfmt(vr('log y(Inf)'))` km; the other three fit ranges shorter than the `r vfmt(VG$first_lag_km)` km nearest lag the archive supports, and are therefore not identified. Point size is the number of pairs in each lag.
+
+**What a hierarchical model could borrow.** At a site nobody has dug, a one-stage hierarchical model has two sources to draw on: the covariates, and the neighbouring profiles through its spatial random effect. We measured each directly, at the task the model exists for — predicting every horizon of a held-out profile with no measurement at its site — on the benchmark's `r length(UV$fold_sizes)` spatially blocked folds with their `r UV$buffer_km` km buffer (Table 11). Every method predicts the equation's four identified coordinates and evaluates the closed-form solution as a horizon average, as the per-profile fit does; the decision rule, declared before the first run, was that if no method beat the population curve, a hierarchical model would have nothing to borrow.
+
+```{r unvisited}
+ut <- UV$table
+ut$Method <- c(population = "population curve (training mean)",
+               covariates = "covariates (climate, terrain, texture)",
+               nearest = "nearest training profile",
+               knn10 = sprintf("mean of %d nearest profiles", UV$k_nn),
+               `cov+knn` = sprintf("covariates + residuals of %d nearest", UV$k_nn))[ut$method]
+pfmt <- function(p) ifelse(is.na(p), "", ifelse(p < 1e-4, "< 0.0001", fmt(p, 4)))
+knitr::kable(data.frame(
+  Method = c(ut$Method, "the profile's own fit (in-sample reference)"),
+  `MAE, log SOC` = fmt(c(ut$mae_log, UV$reference$mae_log), 3),
+  `MAE, g/kg` = fmt(c(ut$mae_gkg, UV$reference$mae_gkg), 2),
+  `Better than population` = c(ifelse(is.na(ut$wins_vs_population), "",
+                                      paste0(ut$wins_vs_population, " / ", ut$n)), ""),
+  `Paired p` = c(pfmt(ut$p_vs_population), ""),
+  check.names = FALSE), align = "lrrrr")
+.u <- function(m, col) ut[[col]][ut$method == m]
+```
+
+**Table 11. Predicting a whole profile at an unvisited site.** Mean over `r format(UV$n_scored, big.mark=",")` held-out profiles of each profile's mean absolute error across its horizons; held-out profiles lie `r fmt(UV$d_nearest_km[1],0)` to `r format(round(UV$d_nearest_km[3]), big.mark=",")` km (median `r fmt(UV$d_nearest_km[2],0)` km) from the nearest training profile. "Better than population" counts profiles on which the method's error is lower; the *p*-value is a two-sided paired Wilcoxon test against the population curve, so for the neighbour-based rows it measures how reliably they are worse. The last row is not a competitor: it is fitted to the profile it scores, and shows what the site's own horizons buy.
+
+Covariates help, and only modestly: they lower the error in log carbon from `r fmt(.u("population","mae_log"),3)` to `r fmt(.u("covariates","mae_log"),3)`, better on `r .u("covariates","wins_vs_population")` of `r format(UV$n_scored, big.mark=",")` profiles. Neighbours do not help at all. Copying the nearest training profile, or averaging the `r UV$k_nn` nearest, is *worse* than the population curve, and adding the neighbours' residuals to the covariate prediction makes it worse again (`r fmt(.u("cov+knn","mae_log"),3)`). That is what the variograms predict: the parameters decorrelate within tens of kilometres, and on blocked folds the nearest training profile is never closer than the buffer. The ceiling for a hierarchical model on these data is therefore set by its covariate component; its spatial random effect has nothing to borrow at this sampling density and would be expected to shrink to zero. Against that ceiling stands the site's own data: the profile's own horizons bring the error to `r fmt(UV$reference$mae_log,3)`, `r fmt(.u("covariates","mae_log")/UV$reference$mae_log,1)` times lower than the best prediction without them. On these data the decision a depth model informs best is not where to map but where to dig.
 
 **Do the parameters mean what they are called?** The pillar claims its parameters are identified and interpretable. Identified we demonstrate; interpretable we had only asserted. Two directional predictions test it, both falsifiable, and they come out differently.
 
@@ -549,7 +575,7 @@ apol <- do.call(rbind, lapply(AL$arms, function(a) {
 knitr::kable(apol[order(apol$`Final RMSE`), ], align = "lrrrr", row.names = FALSE)
 ```
 
-**Table 11. Acquisition policies against a random draw.** Root-mean-square error on the held-out set after `r AL$rounds` rounds (`r max(AL$aggregate$n_labelled)` labelled profiles), averaged over `r AL$n_rep` repeats. "Wins" counts repeats in which the policy beat random.
+**Table 12. Acquisition policies against a random draw.** Root-mean-square error on the held-out set after `r AL$rounds` rounds (`r max(AL$aggregate$n_labelled)` labelled profiles), averaged over `r AL$n_rep` repeats. "Wins" counts repeats in which the policy beat random.
 
 None of them does. The three policies that edge ahead do so by between 0.0002 and 0.0021 in RMSE, with paired *p* values of 0.81 and above and wins in two or three repeats out of five — which is a tie described at length. BatchBALD, the most elaborate of the five, is the only arm that finishes *behind* the random draw. `r if (AL$n_fallback == 0) "No acquisition fell back to random selection, so these are the policies' own choices." else paste0(AL$n_fallback, " acquisitions fell back to random selection and are marked in the bundle.")`
 
@@ -629,7 +655,7 @@ knitr::kable(data.frame(
   check.names = FALSE), align = "lrrr")
 ```
 
-**Table 12. The neural operator on measured pedons.** `r P8$n_cells` measured values over `r P8$n_profiles` profiles, spatially blocked folds with a `r P8$buffer_km` km buffer. "Skill" is the proportional reduction in squared error against the training-set mean at each depth node.
+**Table 13. The neural operator on measured pedons.** `r P8$n_cells` measured values over `r P8$n_profiles` profiles, spatially blocked folds with a `r P8$buffer_km` km buffer. "Skill" is the proportional reduction in squared error against the training-set mean at each depth node.
 
 The operator is beaten by the mean value at each depth node, on every node separately, and by a margin (`r fmt(p8$skill[p8$method == "DeepONet (real pedons)"],2)` skill). It does beat carrying a pedon's shallowest measurement downward, which is what a practitioner with one sample would do, but that is a low bar.
 
@@ -711,11 +737,11 @@ All data analysed are from public sources. Soil-profile organic carbon is from t
 
 ## A directed-acyclic-graph-informed linear model is the strongest method
 
-Table 13 reports the matched benchmark. Read across the row rather than down the first column: accuracy (root-mean-square error, lower is better), skill against each of two nulls, calibration (coverage near the nominal 0.90 and interval width), the proper score, and wall-clock cost.
+Table 14 reports the matched benchmark. Read across the row rather than down the first column: accuracy (root-mean-square error, lower is better), skill against each of two nulls, calibration (coverage near the nominal 0.90 and interval width), the proper score, and wall-clock cost.
 
 Two columns report skill because the choice of null decides the headline, and the two are easy to conflate. **NSE** is measured against the mean of each fold's *training* rows — a null a deployed map could actually use. **R-squared** is measured against the mean of the *test* rows, which is what the conventional formula does and which no map has access to; it is the harder bar, because the test mean is by construction the best constant predictor of the test set. An earlier version of this paper reported the second under the first's name, and the difference is not cosmetic: three methods fall below the oracle null and two below the achievable one.
 
-**Table 13. Matched cross-pillar benchmark on real Cerrado profiles.** Six methods on the same spatially blocked folds and the same target transform. Folds carry a 68 km buffer: training rows within that distance of any test row are discarded, which cost 88 training rows across the five folds (2.0% of the fold-wise training rows) and raised the realised minimum training-to-test distance from 15.2 to 68.5 km. Those distances are for the 1,095 benchmark profiles; the denser 3,077-profile causal extract, which is a different data set, would give 12.3 km unbuffered. RMSE and CRPS: lower is better. NSE is skill against the training-fold mean, R-squared against the test-fold mean; PICP should approach 0.90. Rows are ordered by RMSE.
+**Table 14. Matched cross-pillar benchmark on real Cerrado profiles.** Six methods on the same spatially blocked folds and the same target transform. Folds carry a 68 km buffer: training rows within that distance of any test row are discarded, which cost 88 training rows across the five folds (2.0% of the fold-wise training rows) and raised the realised minimum training-to-test distance from 15.2 to 68.5 km. Those distances are for the 1,095 benchmark profiles; the denser 3,077-profile causal extract, which is a different data set, would give 12.3 km unbuffered. RMSE and CRPS: lower is better. NSE is skill against the training-fold mean, R-squared against the test-fold mean; PICP should approach 0.90. Rows are ordered by RMSE.
 
 ```{r bench-table}
 tb <- B6$cv_aggregate[order(B6$cv_aggregate$rmse_mean), ]
@@ -750,7 +776,7 @@ knitr::kable(data.frame(
   check.names = FALSE), align = "lrrrrr")
 ```
 
-**Table 14. What the 68 km buffer costs each method.** RMSE on the log1p scale, five methods on identical test blocks; the only difference is which training rows are discarded. Pillar 4 is scored in a separate harness and is not re-run here, so it is absent rather than omitted silently.
+**Table 15. What the 68 km buffer costs each method.** RMSE on the log1p scale, five methods on identical test blocks; the only difference is which training rows are discarded. Pillar 4 is scored in a separate harness and is not re-run here, so it is absent rather than omitted silently.
 
 The buffer costs every method a little and the graph attention network the most (`r fmt(max(bc$d_rmse),3)` against at most `r fmt(sort(bc$d_rmse, decreasing = TRUE)[2],3)` for any other), which is the direction the mechanism predicts: a network whose representation is a graph over spatial neighbours is the method that gains most from training points immediately across a block boundary. But the effect is an order of magnitude smaller than we previously reported, and **the ranking is identical with and without it**. The buffer is the right protocol on principle — a model must not be scored on rows it could interpolate from near-duplicates — and we keep it for that reason, not because it rescues a conclusion. On these data it does not change one.
 
@@ -781,7 +807,7 @@ knitr::kable(data.frame(
   align = "lrrrr")
 ```
 
-**Table 15. Does interval width track extrapolation distance?** Spearman correlations over `r PRA$extrapolation_distance$n` held-out profiles across the `r EXTRA$n_folds` buffered folds. "partial" removes covariate-space distance, so what remains is geographic.
+**Table 16. Does interval width track extrapolation distance?** Spearman correlations over `r PRA$extrapolation_distance$n` held-out profiles across the `r EXTRA$n_folds` buffered folds. "partial" removes covariate-space distance, so what remains is geographic.
 
 The three methods answer differently, and the difference is not subtle. The Bayesian hierarchical model's width tracks distance strongly ($\rho = `r fmt(et$width_rho[et$method=='P7'],3)`$), and it survives the covariate control almost intact ($`r fmt(et$width_rho_pc[et$method=='P7'],3)`$) — the widening is geographic, which is what a kriging variance is built to do. The quantile forest widens weakly and mostly for covariate reasons. The graph attention network does not widen at all: its correlation is `r fmt(et$width_rho[et$method=='P10'],3)` raw and `r fmt(et$width_rho_pc[et$method=='P10'],3)` partial — if anything slightly *narrower* further from the data.
 
@@ -795,13 +821,13 @@ Two consequences follow for practice. First, a coverage rate should be read alon
 
 The comparison above runs every method at fixed defaults, which could disadvantage a method whose performance depends on tuning. We therefore compared the graph attention network and the quantile random forest under nested cross-validation on `r GAT$n_profiles` profiles, tuning both inside each training partition and evaluating on outer folds never seen by the tuner. In the stored result of that experiment the graph network reached a pooled Nash–Sutcliffe efficiency of `r fmt(GAT$pooled$nse_vs_training_fold_mean[1],3)` against the forest's `r fmt(GAT$pooled$nse_vs_training_fold_mean[2],3)`; the difference of `r fmt(diff(rev(GAT$pooled$nse_vs_training_fold_mean)),3)` carried a 95% block-bootstrap interval of [`r fmt(GAT$boot_diff_ci[1],3)`, `r fmt(GAT$boot_diff_ci[2],3)`], spanning zero.
 
-That stored result, however, predates subsequent changes to the graph backend, and we report a reproduction failure rather than the stored number alone: re-running the same protocol with the bundle's own per-fold hyperparameters and seeds on the current code returns a pooled efficiency near 0.10 rather than 0.18. We flag this openly because it is the kind of drift between a shipped result and the code that produced it that this framework is explicitly designed to prevent, and in this instance the safeguard was added after the bundle was created. The scientific conclusion is unaffected in direction, and if anything strengthened: under both the stored and the re-run figures the graph attention network does not beat a tuned random forest on this task. We treat the tuned comparison as indicative only, and rest the paper's ranking on the matched benchmark of Table 13, whose bundle is bound to the current code by the test suite.
+That stored result, however, predates subsequent changes to the graph backend, and we report a reproduction failure rather than the stored number alone: re-running the same protocol with the bundle's own per-fold hyperparameters and seeds on the current code returns a pooled efficiency near 0.10 rather than 0.18. We flag this openly because it is the kind of drift between a shipped result and the code that produced it that this framework is explicitly designed to prevent, and in this instance the safeguard was added after the bundle was created. The scientific conclusion is unaffected in direction, and if anything strengthened: under both the stored and the re-run figures the graph attention network does not beat a tuned random forest on this task. We treat the tuned comparison as indicative only, and rest the paper's ranking on the matched benchmark of Table 14, whose bundle is bound to the current code by the test suite.
 
 ## Backdoor adjustment yields robust associations, and exposes confounding
 
-Table 16 reports the causal analysis on `r CAU$n_profiles` profiles. For each exposure it gives the unadjusted association, the association after backdoor adjustment, the block-bootstrap interval, and the robustness value.
+Table 17 reports the causal analysis on `r CAU$n_profiles` profiles. For each exposure it gives the unadjusted association, the association after backdoor adjustment, the block-bootstrap interval, and the robustness value.
 
-**Table 16. Backdoor-adjusted associations with sensitivity bounds.** Units are grams of topsoil organic carbon per kilogram of soil, per unit of the exposure. The robustness value (RV) is the proportion of residual variance an unobserved confounder would need to explain in both exposure and outcome to reduce the estimate to zero.
+**Table 17. Backdoor-adjusted associations with sensitivity bounds.** Units are grams of topsoil organic carbon per kilogram of soil, per unit of the exposure. The robustness value (RV) is the proportion of residual variance an unobserved confounder would need to explain in both exposure and outcome to reduce the estimate to zero.
 
 ```{r causal-table}
 e <- CAU$effects
@@ -838,7 +864,7 @@ knitr::include_graphics("figures/Fig14.png")
 
 ## The graph itself is testable, and it fails its own test
 
-Every estimate in Table 16 is conditional on the directed acyclic graph being a correct description of the system. That premise is not merely an assumption to be declared: a graph implies a specific set of conditional independencies among the observed variables, and those implications can be tested against the data. Zhang and Wadoux [@Zhang2026causal] list this compatibility — faithfulness — as the third of their three conditions for causal inference, alongside an explicit model and causal sufficiency. We are not aware of a digital soil mapping study that reports the test.
+Every estimate in Table 17 is conditional on the directed acyclic graph being a correct description of the system. That premise is not merely an assumption to be declared: a graph implies a specific set of conditional independencies among the observed variables, and those implications can be tested against the data. Zhang and Wadoux [@Zhang2026causal] list this compatibility — faithfulness — as the third of their three conditions for causal inference, alongside an explicit model and causal sufficiency. We are not aware of a digital soil mapping study that reports the test.
 
 ```{r dag-tests, include = FALSE}
 # causal_dag_test(causal_cerrado_real_dag(), <the 3,077 profiles>,
@@ -854,7 +880,7 @@ We applied the implied-independence test to the shipped pedogenetic graph, restr
 
 That pooled test has an obvious objection, and it is worth answering rather than leaving open. Soil profiles are spatially autocorrelated, so treating `r format(DT$n, big.mark = ",")` of them as independent observations overstates the effective sample size and will reject independencies a spatially aware test would not. Residualising every variable on a thin-plate spline of position before testing — and charging the smoother its degrees of freedom — reduces the count to **`r n_rej_sp` of `r n_tests`**. In all, `r DT$n_verdict_changes` individual independencies change verdict in one direction or the other. The conclusion is unchanged in kind: the graph, as drawn from published pedogenetic knowledge, is not compatible with the covariance structure of the data it is applied to, on either test. But the *count* moves with the treatment of spatial structure, and we report both rather than the more striking one. `causal_dag_test()` runs both on any graph and data frame.
 
-This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 16, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
+This is a substantive negative result, and it propagates: an adjustment set is only minimal-and-sufficient relative to a graph, so a falsified graph undermines the identification argument for every estimate in Table 17, which is why we have reported those estimates as adjusted associations with sensitivity bounds throughout rather than as effects. It also has a mundane component worth stating plainly — `r length(no_data)` of the graph's nodes (`r paste(no_data, collapse = ", ")`) have no corresponding column in the shipped profiles at all, so the tested sub-graph is smaller than the graph the analyst drew.
 
 We report this rather than quietly adopting a graph that passes. The constructive reading is that the test is cheap, diagnostic and almost never performed: it localises exactly which pedological assumptions the data contradict — here, principally the assumed conditional independence of texture fractions and of texture from terrain — and so tells a soil scientist where the causal model needs work. A framework that makes backdoor adjustment easy should make this test equally easy, and reporting it should become routine.
 
