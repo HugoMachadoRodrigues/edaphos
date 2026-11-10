@@ -120,7 +120,7 @@
                         <h4 data-toc-skip class="author">Hugo
 Rodrigues</h4>
             
-            <h4 data-toc-skip class="date">2026-11-09</h4>
+            <h4 data-toc-skip class="date">2026-11-10</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/HugoMachadoRodrigues/edaphos/blob/main/vignettes/edaphos-paper.Rmd" class="external-link"><code>vignettes/edaphos-paper.Rmd</code></a></small>
       <div class="d-none name"><code>edaphos-paper.Rmd</code></div>
@@ -280,7 +280,7 @@ profile-MLE Gibbs sampler.</li>
 <div class="section level3">
 <h3 id="evaluation-protocol">Evaluation protocol<a class="anchor" aria-label="anchor" href="#evaluation-protocol"></a>
 </h3>
-<p>All methods are evaluated on the same 0 spatially blocked
+<p>All methods are evaluated on the same 5 spatially blocked
 cross-validation folds (<em>k</em>-means on coordinates), on the log1p
 scale of organic carbon, and scored against the <em>achievable</em> null
 — each fold’s <strong>training</strong>-fold mean, never the global
@@ -319,107 +319,115 @@ over-identification test.</p>
 </h3>
 <p>Table 1 is the matched benchmark. Read it whole: the columns are
 accuracy (RMSE, lower is better), variance explained against the
-achievable null (NSE / R², higher is better), calibration (PICP near
-0.90 is good; MPIW is interval width), the proper score (CRPS, lower is
-better), and wall-clock time.</p>
-<table class="table">
+achievable null (NSE, higher is better; R² is the same quantity against
+the test fold’s own mean, an oracle no map could use), calibration (PICP
+near 0.90 is good; MPIW is interval width), the proper score (CRPS,
+lower is better), and wall-clock time.</p>
+<table style="width:100%;" class="table">
 <caption>Matched cross-pillar benchmark on 1095 WoSIS Cerrado profiles
-(0 spatially blocked folds, log1p scale). RMSE and CRPS lower is better;
-R2 and PICP near 0.90 better. Sorted by RMSE.</caption>
+(5 spatially blocked folds, log1p scale). RMSE and CRPS lower is better;
+NSE, R2 and PICP near 0.90 better. Sorted by RMSE.</caption>
 <colgroup>
-<col width="44%">
+<col width="40%">
+<col width="7%">
 <col width="8%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
 <col width="8%">
-<col width="12%">
+<col width="8%">
+<col width="8%">
+<col width="7%">
+<col width="10%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Method</th>
 <th align="right">RMSE</th>
+<th align="right">NSE</th>
 <th align="right">R2</th>
 <th align="right">PICP90</th>
 <th align="right">MPIW90</th>
 <th align="right">CRPS</th>
-<th align="right">Time (s)</th>
+<th align="left">Time (s)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">P1 OLS (DAG-selected covariates)</td>
 <td align="right">0.583</td>
+<td align="right">0.200</td>
 <td align="right">0.069</td>
 <td align="right">0.882</td>
 <td align="right">1.843</td>
 <td align="right">0.323</td>
-<td align="right">2.0</td>
+<td align="left">2.0</td>
 </tr>
 <tr class="even">
 <td align="left">P5 QRF</td>
 <td align="right">0.592</td>
+<td align="right">0.176</td>
 <td align="right">0.043</td>
 <td align="right">0.872</td>
 <td align="right">1.864</td>
 <td align="right">0.323</td>
-<td align="right">1.9</td>
+<td align="left">1.9</td>
 </tr>
 <tr class="odd">
 <td align="left">P7 BHS</td>
 <td align="right">0.608</td>
+<td align="right">0.137</td>
 <td align="right">0.004</td>
 <td align="right">0.922</td>
 <td align="right">2.157</td>
 <td align="right">0.341</td>
-<td align="right">138.1</td>
+<td align="left">138.1</td>
 </tr>
 <tr class="even">
 <td align="left">P4 Foundation embeddings + QRF</td>
 <td align="right">0.614</td>
+<td align="right">0.125</td>
 <td align="right">-0.006</td>
 <td align="right">0.889</td>
 <td align="right">2.218</td>
 <td align="right">0.339</td>
-<td align="right">117.9</td>
+<td align="left">117.9</td>
 </tr>
 <tr class="odd">
 <td align="left">P6 Quantum KRR</td>
 <td align="right">0.663</td>
+<td align="right">-0.024</td>
 <td align="right">-0.185</td>
 <td align="right">0.663</td>
 <td align="right">1.263</td>
 <td align="right">0.391</td>
-<td align="right">767.3</td>
+<td align="left">767.3</td>
 </tr>
 <tr class="even">
 <td align="left">P10 GAT (trained attention)</td>
 <td align="right">0.680</td>
+<td align="right">-0.131</td>
 <td align="right">-0.346</td>
 <td align="right">0.790</td>
 <td align="right">1.846</td>
 <td align="right">0.413</td>
-<td align="right">179.2</td>
+<td align="left">179.2</td>
 </tr>
 </tbody>
 </table>
 <div class="float">
-<img src="edaphos-paper_files/figure-html/bench-plot-1.png" alt="Accuracy (RMSE, x, lower better) against variance explained (R2 vs the training-fold mean, y). The DAG-informed OLS (filled) is the most accurate; every more elaborate method sits down and to the left, and three fall below the achievable null (R2 &lt; 0)."><div class="figcaption">Accuracy (RMSE, x, lower better) against
-variance explained (R2 vs the training-fold mean, y). The DAG-informed
-OLS (filled) is the most accurate; every more elaborate method sits down
-and to the left, and three fall below the achievable null (R2 &lt;
-0).</div>
+<img src="edaphos-paper_files/figure-html/bench-plot-1.png" alt="Accuracy (RMSE, x, lower better) against skill over the achievable null (NSE vs the training-fold mean, y). The DAG-informed OLS (filled) is the most accurate; methods below the dotted line explain less than the training-fold mean."><div class="figcaption">Accuracy (RMSE, x, lower better) against skill
+over the achievable null (NSE vs the training-fold mean, y). The
+DAG-informed OLS (filled) is the most accurate; methods below the dotted
+line explain less than the training-fold mean.</div>
 </div>
 <p>Ordinary least squares on the DAG-selected covariates has the lowest
-RMSE (0.583) and the highest R² (0.069), and its calibration (PICP
-0.882) is among the best. The random forest is a close second. The three
-deep or exotic methods — foundation embeddings, graph attention, and the
-quantum kernel — sit progressively lower, and all three fall
-<strong>below the achievable null</strong> (R² &lt; 0): on these
-spatially blocked folds they explain less than predicting the training
-mean. The quantum kernel is both least accurate and, at 179 s, several
-hundred times slower than the baseline. The spread among the top methods
-is small relative to the fold-to-fold standard deviation (≈ 0.06 RMSE),
-so we do not over-read the ordering beyond its headline: elaboration did
-not pay here.</p>
+RMSE (0.583) and the highest skill over the achievable null (NSE 0.200),
+and its calibration (PICP 0.882) is among the best. The random forest is
+a close second. The three methods with the greatest representational
+capacity — foundation embeddings, graph attention, and the quantum
+kernel — rank last, and 2 of them (P6 and P10) fall <strong>below the
+achievable null</strong>: on these spatially blocked folds they explain
+less than predicting the training mean. The least accurate method is
+P10; the most expensive is P6, at 767 s against 2.0 s for the baseline.
+The spread among the top methods is small relative to the fold-to-fold
+standard deviation (≈ 0.06 RMSE), so we do not over-read the ordering
+beyond its headline: elaboration did not pay here.</p>
 </div>
 <div class="section level3">
 <h3 id="when-both-are-tuned-the-graph-network-only-ties-the-forest">When both are tuned, the graph network only ties the forest<a class="anchor" aria-label="anchor" href="#when-both-are-tuned-the-graph-network-only-ties-the-forest"></a>
@@ -552,8 +560,8 @@ headline effect.</p>
 <h2 id="discussion">Discussion<a class="anchor" aria-label="anchor" href="#discussion"></a>
 </h2>
 <p>The benchmark’s honest conclusion — that a DAG-informed OLS is the
-strongest method, and that three of the five frontier pillars fall below
-the achievable null — deserves care rather than triumphalism in either
+strongest method, and that 2 of the five frontier pillars fall below the
+achievable null — deserves care rather than triumphalism in either
 direction. It does not show that deep learning “cannot work” in DSM; it
 shows that on ~1000 point profiles with a handful of coarse covariates,
 the sample and signal are too small for high-capacity models to express

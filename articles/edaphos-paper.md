@@ -134,7 +134,7 @@ named by its `edaphos` pillar:
 
 ### Evaluation protocol
 
-All methods are evaluated on the same 0 spatially blocked
+All methods are evaluated on the same 5 spatially blocked
 cross-validation folds (*k*-means on coordinates), on the log1p scale of
 organic carbon, and scored against the *achievable* null — each fold’s
 **training**-fold mean, never the global mean, which would be an oracle
@@ -167,45 +167,48 @@ validity with the Sargan over-identification test.
 
 Table 1 is the matched benchmark. Read it whole: the columns are
 accuracy (RMSE, lower is better), variance explained against the
-achievable null (NSE / R², higher is better), calibration (PICP near
-0.90 is good; MPIW is interval width), the proper score (CRPS, lower is
-better), and wall-clock time.
+achievable null (NSE, higher is better; R² is the same quantity against
+the test fold’s own mean, an oracle no map could use), calibration (PICP
+near 0.90 is good; MPIW is interval width), the proper score (CRPS,
+lower is better), and wall-clock time.
 
-| Method                           |  RMSE |     R2 | PICP90 | MPIW90 |  CRPS | Time (s) |
-|:---------------------------------|------:|-------:|-------:|-------:|------:|---------:|
-| P1 OLS (DAG-selected covariates) | 0.583 |  0.069 |  0.882 |  1.843 | 0.323 |      2.0 |
-| P5 QRF                           | 0.592 |  0.043 |  0.872 |  1.864 | 0.323 |      1.9 |
-| P7 BHS                           | 0.608 |  0.004 |  0.922 |  2.157 | 0.341 |    138.1 |
-| P4 Foundation embeddings + QRF   | 0.614 | -0.006 |  0.889 |  2.218 | 0.339 |    117.9 |
-| P6 Quantum KRR                   | 0.663 | -0.185 |  0.663 |  1.263 | 0.391 |    767.3 |
-| P10 GAT (trained attention)      | 0.680 | -0.346 |  0.790 |  1.846 | 0.413 |    179.2 |
+| Method | RMSE | NSE | R2 | PICP90 | MPIW90 | CRPS | Time (s) |
+|:---|---:|---:|---:|---:|---:|---:|:---|
+| P1 OLS (DAG-selected covariates) | 0.583 | 0.200 | 0.069 | 0.882 | 1.843 | 0.323 | 2.0 |
+| P5 QRF | 0.592 | 0.176 | 0.043 | 0.872 | 1.864 | 0.323 | 1.9 |
+| P7 BHS | 0.608 | 0.137 | 0.004 | 0.922 | 2.157 | 0.341 | 138.1 |
+| P4 Foundation embeddings + QRF | 0.614 | 0.125 | -0.006 | 0.889 | 2.218 | 0.339 | 117.9 |
+| P6 Quantum KRR | 0.663 | -0.024 | -0.185 | 0.663 | 1.263 | 0.391 | 767.3 |
+| P10 GAT (trained attention) | 0.680 | -0.131 | -0.346 | 0.790 | 1.846 | 0.413 | 179.2 |
 
-Matched cross-pillar benchmark on 1095 WoSIS Cerrado profiles (0
-spatially blocked folds, log1p scale). RMSE and CRPS lower is better; R2
-and PICP near 0.90 better. Sorted by RMSE. {.table}
+Matched cross-pillar benchmark on 1095 WoSIS Cerrado profiles (5
+spatially blocked folds, log1p scale). RMSE and CRPS lower is better;
+NSE, R2 and PICP near 0.90 better. Sorted by RMSE. {.table
+style="width:100%;"}
 
-![Accuracy (RMSE, x, lower better) against variance explained (R2 vs the
-training-fold mean, y). The DAG-informed OLS (filled) is the most
-accurate; every more elaborate method sits down and to the left, and
-three fall below the achievable null (R2 \<
-0).](edaphos-paper_files/figure-html/bench-plot-1.png)
+![Accuracy (RMSE, x, lower better) against skill over the achievable
+null (NSE vs the training-fold mean, y). The DAG-informed OLS (filled)
+is the most accurate; methods below the dotted line explain less than
+the training-fold
+mean.](edaphos-paper_files/figure-html/bench-plot-1.png)
 
-Accuracy (RMSE, x, lower better) against variance explained (R2 vs the
-training-fold mean, y). The DAG-informed OLS (filled) is the most
-accurate; every more elaborate method sits down and to the left, and
-three fall below the achievable null (R2 \< 0).
+Accuracy (RMSE, x, lower better) against skill over the achievable null
+(NSE vs the training-fold mean, y). The DAG-informed OLS (filled) is the
+most accurate; methods below the dotted line explain less than the
+training-fold mean.
 
 Ordinary least squares on the DAG-selected covariates has the lowest
-RMSE (0.583) and the highest R² (0.069), and its calibration (PICP
-0.882) is among the best. The random forest is a close second. The three
-deep or exotic methods — foundation embeddings, graph attention, and the
-quantum kernel — sit progressively lower, and all three fall **below the
-achievable null** (R² \< 0): on these spatially blocked folds they
-explain less than predicting the training mean. The quantum kernel is
-both least accurate and, at 179 s, several hundred times slower than the
-baseline. The spread among the top methods is small relative to the
-fold-to-fold standard deviation (≈ 0.06 RMSE), so we do not over-read
-the ordering beyond its headline: elaboration did not pay here.
+RMSE (0.583) and the highest skill over the achievable null (NSE 0.200),
+and its calibration (PICP 0.882) is among the best. The random forest is
+a close second. The three methods with the greatest representational
+capacity — foundation embeddings, graph attention, and the quantum
+kernel — rank last, and 2 of them (P6 and P10) fall **below the
+achievable null**: on these spatially blocked folds they explain less
+than predicting the training mean. The least accurate method is P10; the
+most expensive is P6, at 767 s against 2.0 s for the baseline. The
+spread among the top methods is small relative to the fold-to-fold
+standard deviation (≈ 0.06 RMSE), so we do not over-read the ordering
+beyond its headline: elaboration did not pay here.
 
 ### When both are tuned, the graph network only ties the forest
 
@@ -282,8 +285,8 @@ not a headline effect.
 ## Discussion
 
 The benchmark’s honest conclusion — that a DAG-informed OLS is the
-strongest method, and that three of the five frontier pillars fall below
-the achievable null — deserves care rather than triumphalism in either
+strongest method, and that 2 of the five frontier pillars fall below the
+achievable null — deserves care rather than triumphalism in either
 direction. It does not show that deep learning “cannot work” in DSM; it
 shows that on ~1000 point profiles with a handful of coarse covariates,
 the sample and signal are too small for high-capacity models to express
