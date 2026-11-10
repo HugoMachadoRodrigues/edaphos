@@ -37,6 +37,7 @@
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 set.seed(20260424L)
 
@@ -47,7 +48,7 @@ OUT_PATH <- file.path("inst", "extdata", "capstone_native_calibration.rds")
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [0/7] Loading shared inputs ===")
 
-causal_rds    <- readRDS("inst/extdata/causal_cerrado_real.rds")
+causal_rds    <- readRDS(records_path("causal_cerrado_real"))
 profiles_full <- causal_rds$profiles |>
   mutate(
     soc_g_kg   = soc_topsoil_gkg,
@@ -184,7 +185,7 @@ message("=== [2/7] P2 PIML — LOO horizon calibration ===")
 # The same real WoSIS profile the capstone campaign uses. This block used to
 # hard-code seven typed-in numbers, which meant the package's leave-one-horizon-
 # out calibration for Pillar 2 was calibrated against an invented profile.
-.nc_src  <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+.nc_src  <- readRDS(records_path("piml_wosis_cerrado"))
 .nc_cand <- .nc_src$profiles[.nc_src$profiles$monotone_decreasing, ]
 .nc_cand <- .nc_cand[order(-.nc_cand$n_hor, -.nc_cand$z_max), ]
 pedon <- .nc_src$horizons[.nc_src$horizons$profile_id == .nc_cand$profile_id[1L], ]
@@ -258,7 +259,7 @@ results$p2 <- p2_cal
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [3/7] P3 4D — LOO temporal calibration ===")
 
-temp_rds_path <- "inst/extdata/temporal_cerrado_results.rds"
+temp_rds_path <- records_path("temporal_cerrado_results")  # full series: record cache
 if (file.exists(temp_rds_path)) {
   T3 <- readRDS(temp_rds_path)
   # ensemble_forecast: (K, T_future, H, W) = (10, 36, 10, 10)

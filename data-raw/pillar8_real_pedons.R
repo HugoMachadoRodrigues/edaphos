@@ -33,11 +33,12 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 set.seed(31L)
 
 NODES <- c(5, 15, 30, 60, 100, 150, 200)
 
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+D <- readRDS(records_path("piml_wosis_cerrado"))
 H <- D$horizons
 P <- D$profiles
 
@@ -62,7 +63,7 @@ message(sprintf("%d profiles with >= 3 observed nodes of %d", nrow(TG), length(N
 message(sprintf("  target matrix %.0f%% observed", 100 * mean(is.finite(TG))))
 
 # --- covariates, matched to the nearest causal-extract profile -------------
-CV <- readRDS("inst/extdata/causal_cerrado_real_v2.rds")$profiles
+CV <- read_records("causal_cerrado_real_v2")$profiles
 xy <- P[match(ids, P$profile_id), c("x", "y")]
 nn <- vapply(seq_len(nrow(xy)), function(i)
   which.min((CV$lon - xy$x[i])^2 + (CV$lat - xy$y[i])^2), integer(1))

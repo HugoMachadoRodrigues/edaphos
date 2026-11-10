@@ -22,6 +22,7 @@
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 suppressMessages(library(dagitty))
 stopifnot(requireNamespace("bnlearn", quietly = TRUE))
@@ -33,7 +34,7 @@ OUT_PATH <- file.path("inst", "extdata", "causal_discovery_results.rds")
 # 0. Load shared data + expert DAG
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [0/5] Loading inputs ===")
-causal_rds <- readRDS("inst/extdata/causal_cerrado_real.rds")
+causal_rds <- readRDS(records_path("causal_cerrado_real"))
 profiles   <- causal_rds$profiles
 expert_dag <- causal_rds$dag
 

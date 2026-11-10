@@ -13,6 +13,7 @@
 # causal_cerrado_real_v2.rds and preserves the old bundle's syn_* slots.
 # =============================================================================
 suppressPackageStartupMessages({ library(terra); pkgload::load_all(".", quiet = TRUE) })
+source("data-raw/records.R")  # record-level inputs, not shipped
 stopifnot(torch::torch_is_installed())
 CACHE <- Sys.getenv("EDAPHOS_REAL_CACHE", file.path(tempdir(), "edaphos_real"))
 dev <- if (torch::backends_mps_is_available()) "mps" else "cpu"
@@ -36,7 +37,7 @@ moco <- foundation_moco_pretrain_tiles(ds, feature_dim = 128L, proj_dim = 64L,
   epochs = 3000L, lr = 3e-4, device = dev, seed = 1L, verbose = FALSE)
 
 ## ---- real profiles + embeddings --------------------------------------------
-d <- readRDS("inst/extdata/causal_cerrado_real_v2.rds")$profiles
+d <- read_records("causal_cerrado_real_v2")$profiles
 emb <- foundation_embed_at_coords(moco, coords = as.matrix(d[, c("lon", "lat")]),
                                   stack = stk, dataset = ds, patch_size = 24L, projection = FALSE)
 keep <- stats::complete.cases(emb); emb <- emb[keep, ]; d <- d[keep, ]

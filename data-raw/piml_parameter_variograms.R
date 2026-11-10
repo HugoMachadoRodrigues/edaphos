@@ -31,6 +31,7 @@
 # Output: inst/extdata/piml_parameter_variograms.rds
 # ---------------------------------------------------------------------------
 
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages({
   pkgload::load_all(".", quiet = TRUE)
   library(gstat)
@@ -38,7 +39,7 @@ suppressMessages({
 })
 
 set.seed(11)
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+D <- readRDS(records_path("piml_wosis_cerrado"))
 H <- D$horizons
 P <- D$profiles
 
@@ -156,7 +157,7 @@ if (.npairs < 0.05 * choose(nrow(FP), 2)) {
 
 # The covariate-residual version. If a parameter is spatially structured only
 # through climate and terrain, a regression maps it and kriging adds nothing.
-CAU <- readRDS("inst/extdata/causal_cerrado_real_v2.rds")$profiles
+CAU <- read_records("causal_cerrado_real_v2")$profiles
 nn <- function(x0, y0) which.min((CAU$lon - x0)^2 + (CAU$lat - y0)^2)
 idx <- vapply(seq_len(nrow(FP)), function(i) nn(FP$x[i], FP$y[i]), integer(1))
 COV <- CAU[idx, c("map", "mat", "elev", "slope", "clay", "sand")]
@@ -233,5 +234,8 @@ cat("parameters' cannot be carried out for it on these data.\n")
 saveRDS(list(params = FP, table = tab, raw = raw, residual = res,
              cutoff = CUTOFF, n_profiles = nrow(FP),
              built_by = "data-raw/piml_parameter_variograms.R"),
-        "inst/extdata/piml_parameter_variograms.rds")
-message("\nwrote inst/extdata/piml_parameter_variograms.rds")
+        records_path("piml_parameter_variograms"))
+# Not shipped: $params carries profile ids and coordinates. The table the
+# manuscript reports reaches the package through
+# data-raw/paper_record_aggregates.R.
+message("\nwrote ", records_path("piml_parameter_variograms"))

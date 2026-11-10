@@ -18,6 +18,7 @@
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 set.seed(20260424L)
 
@@ -27,7 +28,7 @@ OUT_PATH <- file.path("data-raw", "build", "benchmark_wosis_p4_p5_p7.rds")
 # 1. Load the 1 095 real WoSIS Cerrado profiles
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [1/7] Loading WoSIS profiles ===")
-causal_rds <- readRDS("inst/extdata/causal_cerrado_real.rds")
+causal_rds <- readRDS(records_path("causal_cerrado_real"))
 profiles <- causal_rds$profiles |>
   filter(!is.na(soc_topsoil_gkg), !is.na(lon), !is.na(lat)) |>
   mutate(

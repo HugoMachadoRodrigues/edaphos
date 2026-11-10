@@ -22,6 +22,7 @@
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 set.seed(20260425L)
 
@@ -67,7 +68,7 @@ message(sprintf("  stage-1 F = %.1f,  Sargan p = %.3f",
 # 1. Load Cerrado WoSIS profiles
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [1/6] Loading Cerrado WoSIS profiles ===")
-causal_rds <- readRDS("inst/extdata/causal_cerrado_real.rds")
+causal_rds <- readRDS(records_path("causal_cerrado_real"))
 profiles <- causal_rds$profiles |>
   mutate(
     soc      = soc_topsoil_gkg,

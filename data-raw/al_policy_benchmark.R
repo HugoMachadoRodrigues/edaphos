@@ -33,6 +33,7 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 set.seed(4L)
 
@@ -43,7 +44,7 @@ ROUNDS <- 6L
 N_REP  <- 5L
 N_TEST <- 300L
 
-P <- readRDS("inst/extdata/causal_cerrado_real.rds")$profiles |>
+P <- readRDS(records_path("causal_cerrado_real"))$profiles |>
   filter(!is.na(soc_topsoil_gkg), !is.na(lon), !is.na(lat)) |>
   mutate(soc = log1p(soc_topsoil_gkg), map = wc_bio_12, mat = wc_bio_01 / 10,
          clay = soilgrids_clay, sand = soilgrids_sand, bd = soilgrids_bdod)

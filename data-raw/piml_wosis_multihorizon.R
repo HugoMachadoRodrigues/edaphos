@@ -32,13 +32,14 @@
 # Run from the package root:  Rscript data-raw/piml_wosis_multihorizon.R
 # ---------------------------------------------------------------------------
 
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages({
   library(sf)
 })
 
 ORGC_GML  <- "tools/case_cerrado/wosis_orgc_cerrado.gml"
 BDFIOD_GML <- "tools/case_cerrado/wosis_bdfiod_cerrado.gml"
-OUT       <- "inst/extdata/piml_wosis_cerrado.rds"
+OUT       <- records_path("piml_wosis_cerrado")
 
 if (!file.exists(ORGC_GML)) {
   stop("Missing ", ORGC_GML, ". Run data-raw/case_cerrado_prepare.R first ",

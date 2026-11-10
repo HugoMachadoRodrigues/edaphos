@@ -37,6 +37,7 @@
 
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages({
   library(dplyr); library(terra); library(torch)
 })
@@ -59,7 +60,7 @@ dataset_meta <- list(
   sds        = rep(1, moco$n_channels)
 )
 
-causal_rds <- readRDS("inst/extdata/causal_cerrado_real.rds")
+causal_rds <- readRDS(records_path("causal_cerrado_real"))
 profiles <- causal_rds$profiles |>
   filter(!is.na(soc_topsoil_gkg), !is.na(lon), !is.na(lat))
 bbox <- c(min(profiles$lon) - 0.2, min(profiles$lat) - 0.2,

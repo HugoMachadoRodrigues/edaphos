@@ -44,9 +44,10 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 set.seed(11L)
 
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+D <- readRDS(records_path("piml_wosis_cerrado"))
 H <- D$horizons
 
 # Hold out the INTERIOR horizon carrying a measured density that sits closest

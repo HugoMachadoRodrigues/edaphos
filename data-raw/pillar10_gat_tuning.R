@@ -19,6 +19,7 @@
 ##   -> inst/extdata/pillar10_gat_tuning.rds
 
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages({ library(dplyr); library(ranger) })
 
 OUT_PATH <- file.path("inst", "extdata", "pillar10_gat_tuning.rds")
@@ -31,8 +32,8 @@ set.seed(20260726L)
 # ---------------------------------------------------------------------------
 # Data + outer folds (identical to the 6-pillar benchmark)
 # ---------------------------------------------------------------------------
-bench <- readRDS("inst/extdata/benchmark_wosis_6pillar.rds")
-prof  <- readRDS("inst/extdata/causal_cerrado_real.rds")$profiles |>
+bench <- read_records("benchmark_wosis_6pillar")  # needs $folds, removed from the shipped bundle
+prof  <- readRDS(records_path("causal_cerrado_real"))$profiles |>
   filter(!is.na(soc_topsoil_gkg), !is.na(lon), !is.na(lat)) |>
   mutate(soc = log1p(soc_topsoil_gkg), map = wc_bio_12, mat = wc_bio_01 / 10,
          trees = wc_landcover_trees, cropland = wc_landcover_cropland,

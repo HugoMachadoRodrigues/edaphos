@@ -13,6 +13,7 @@
 ## ── bootstrapping ────────────────────────────────────────────────────────────
 if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 suppressMessages(devtools::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 suppressMessages(library(dplyr))
 set.seed(20260423L)
 
@@ -23,7 +24,7 @@ OUT_PATH <- file.path("inst", "extdata", "capstone_campaign_results.rds")
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [0/9] Loading shared inputs ===")
 
-causal_rds     <- readRDS("inst/extdata/causal_cerrado_real.rds")
+causal_rds     <- readRDS(records_path("causal_cerrado_real"))
 profiles_full  <- causal_rds$profiles   # 1 095 WoSIS profiles
 
 # ── column aliases ────────────────────────────────────────────────────────────
@@ -271,7 +272,7 @@ message("=== [2/9] Pillar 2 — PIML ===")
 # model's validity domain (monotone non-increasing), take the one with the most
 # horizons, breaking ties by depth reached. That is ISRIC WoSIS profile
 # 1115679: nine horizons to 550 cm.
-.piml_src <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+.piml_src <- readRDS(records_path("piml_wosis_cerrado"))
 .piml_cand <- .piml_src$profiles[.piml_src$profiles$monotone_decreasing, ]
 .piml_cand <- .piml_cand[order(-.piml_cand$n_hor, -.piml_cand$z_max), ]
 PEDON_ID <- .piml_cand$profile_id[1L]
@@ -449,7 +450,7 @@ if (!is.null(piml_summary)) {
 # ─────────────────────────────────────────────────────────────────────────────
 message("=== [3/9] Pillar 3 — 4D temporal (loading cache) ===")
 
-temp_path <- "inst/extdata/temporal_cerrado_results.rds"
+temp_path <- records_path("temporal_cerrado_results")  # full series: record cache
 if (file.exists(temp_path)) {
   T3 <- readRDS(temp_path)
   # Flatten 2D (H x W = 10 x 10) fields to 100-length vectors

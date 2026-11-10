@@ -45,9 +45,10 @@
 # ---------------------------------------------------------------------------
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
+source("data-raw/records.R")  # record-level inputs, not shipped
 
 set.seed(11)
-D <- readRDS("inst/extdata/piml_wosis_cerrado.rds")
+D <- readRDS(records_path("piml_wosis_cerrado"))
 h <- D$horizons
 
 split_profile <- function(s) {
@@ -263,7 +264,7 @@ saveRDS(list(rows = rows, interpolation = res_A, extrapolation = res_B,
              n_monotone = sum(rows$monotone[rows$task == "extrapolation"]),
              n_monotone_full_profile = sum(mono_full),
              domain_leak_table = .leak,
-             source = "inst/extdata/piml_wosis_cerrado.rds",
+             source = records_path("piml_wosis_cerrado"),
              built_by = "data-raw/piml_depth_benchmark.R"),
         "inst/extdata/piml_depth_benchmark.rds")
 message("\nwrote inst/extdata/piml_depth_benchmark.rds")
