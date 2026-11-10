@@ -699,6 +699,14 @@ We additionally attempt instrumental-variable estimation, which identifies an ef
 
 The article, the package and its data form one artefact. The manuscript is compiled from an R Markdown source whose code chunks read the result bundles distributed inside the package, so no number in the text is transcribed by hand and none can drift from the data that produced it. Those bundles carry aggregate results only. The soil-profile records behind them are third-party measurements under per-record licences, which the package does not redistribute; the scripts that need them read them from a local cache that the retrieval scripts fill from WoSIS and SoilData, so a fresh retrieval re-runs the analysis on those archives as they stand at the time, which will differ from the snapshot reported here as they are updated. Three figures plot records directly — the profile map in Fig 1, the pedon in Fig 3, and the vegetation-index cube in Fig 5 — and are drawn from that cache. The package's test suite includes assertions that bind published figures to the shipped bundles, so a change to either without the other fails the suite, and a test that fails if any shipped bundle carries a record-level measurement.
 
+## Software availability
+
+This article describes edaphos `r as.character(utils::packageVersion("edaphos"))`, released under the MIT licence. The result bundles were built during its development; each records the script and package version that produced it. The source is at https://github.com/HugoMachadoRodrigues/edaphos, and this release is archived on Zenodo with version DOI 10.5281/zenodo.24017391 (concept DOI 10.5281/zenodo.19683708, which resolves to the latest release). The package runs on `r sub("^R \\(>= ([^)]+)\\)$", "R \\1", grep("^R ", trimws(strsplit(utils::packageDescription("edaphos")$Depends, ",")[[1]]), value = TRUE))` or later; `torch`, the optional dependency of the neural pillars, is resolved at run time as described under Backend resolution.
+
+## Data availability
+
+All data analysed are from public sources. Soil-profile organic carbon is from the World Soil Information Service (WoSIS), `wosis_latest` layer, retrieved from the ISRIC web feature service at maps.isric.org; WoSIS records a licence for each profile, mostly CC BY 4.0 or CC BY-NC 4.0. The bulk-density calibration horizons are dataset ctb0017 of the SoilData repository (CC BY 4.0). Covariates are WorldClim 2.1, SoilGrids, Copernicus fractional tree cover and MODIS NDVI; the space–time cube of Pillar 3 is MODIS MOD13Q1 vegetation index with NASA POWER precipitation and temperature. The scripts that retrieve every one of these from its source are in S2 File. Because the soil-profile records are third-party data under per-record licences, they are not redistributed with the package or this article; the aggregate results that every number in the text is computed from are distributed in the package's `inst/extdata` directory.
+
 # Results
 
 ## A directed-acyclic-graph-informed linear model is the strongest method
@@ -854,7 +862,7 @@ We report this rather than quietly adopting a graph that passes. The constructiv
 
 Backdoor adjustment buys identification only at the price of causal sufficiency. Instrumental-variable estimation offers a different bargain: identification without that assumption, provided the instrument reaches the outcome only through the exposure. Modern representation learning makes an appealing candidate — an encoder trained on landscape imagery, never shown the soil measurement, that summarises terrain and climate context in a handful of components.
 
-We trained such an encoder for real: a MoCo-v2 contrastive model over `r CAU$encoder$channels` covariate channels and `r format(CAU$encoder$tiles, big.mark=',')` raster tiles for `r format(CAU$encoder$epochs, big.mark=',')` epochs on the graphics processor, reaching an InfoNCE loss of `r fmt(CAU$encoder$min_loss, 2)`. We then embedded each profile's landscape and used the leading principal components of that embedding as instruments for precipitation.
+We trained such an encoder for real: a MoCo-v2 contrastive model over `r CAU$encoder$channels` covariate channels and `r format(CAU$encoder$tiles, big.mark=',')` raster tiles for `r format(CAU$encoder$epochs, big.mark=',')` epochs on the graphics processor, reaching an InfoNCE loss of `r fmt(CAU$encoder$min_loss, 2)`. We then embedded each profile's landscape and used the leading principal components of that embedding as instruments for precipitation. The encoder.s weights were not archived. `data-raw/foundation_encoder_iv.R` (S2 File) retrains it, but training on the graphics processor is not bitwise deterministic, so a rerun is not expected to reproduce the statistics below to the digit.
 
 The instruments are extraordinarily relevant. The first-stage F statistic is `r round(CAU$iv$first_stage_F)`, against a conventional weak-instrument threshold of 10 — the embedding predicts precipitation almost perfectly, which is unsurprising given that climate is among the things it encodes. And that is exactly the problem. The Sargan over-identification test rejects decisively (chi-squared `r fmt(CAU$iv$sargan_stat,1)` on `r CAU$iv$sargan_df` degrees of freedom, p `r ifelse(CAU$iv$sargan_p < 1e-12, "< 10^-12^", paste("=", formatC(CAU$iv$sargan_p, format='e', digits=1)))`): the instruments do not satisfy the exclusion restriction.
 
@@ -891,6 +899,14 @@ The contribution we claim is therefore not a new best predictor. It is an appara
 # Acknowledgments
 
 The author thanks the International Soil Reference and Information Centre for maintaining the World Soil Information Service as an open resource, and the maintainers of WorldClim, SoilGrids and the Copernicus land-cover products, without which the analyses reported here could not have been made reproducible from public sources.
+
+# Funding
+
+The author received no specific funding for this work.
+
+# Competing interests
+
+The author has declared that no competing interests exist.
 
 # References
 
