@@ -1083,30 +1083,35 @@ edaphos::causal_sensitivity_from_lm(fit, exposure = "map")
 edaphos::causal_sensitivity_from_iv(iv_fit)
 ```
 
-**Robustness table on the 1 095 Cerrado profiles:**
+**Robustness table on the 1 095 Cerrado profiles**
+(`inst/extdata/causal_sensitivity_cerrado.rds`, built by
+`data-raw/causal_sensitivity_run.R`; the IV rows come from
+`causal_iv_cerrado_real.rds`, whose instruments are embeddings of the
+real SoilGrids/WorldClim/SRTM stack):
 
 | Exposure | Estimator | β̂ | **RV** | RV @ 5% |
 |:---|:---|---:|---:|---:|
 | MAP (mm/a) | Naive OLS | 0.0072 | **9.2%** | 3.7% |
 | MAP (mm/a) | Backdoor OLS | 0.0077 | **8.3%** | 2.6% |
-| MAP (mm/a) | Proxy IV | 0.0081 | **8.6%** | 3.0% |
-| MAP (mm/a) | Real MoCo IV | 0.0169 | **3.9%** | 0.0% |
+| MAP (mm/a) | Real MoCo v1 IV | 0.0126 | **11.9%** | 6.4% |
+| Tree cover | Naive OLS | 0.898 | **1.5%** | 0.0% |
 | Tree cover | Backdoor OLS | 6.54 | **6.3%** | 0.5% |
-| Tree cover | Real MoCo IV | 4.98 | **0.9%** | 0.0% |
+| Tree cover | Real MoCo v1 IV | 47.7 | **8.1%** | 2.5% |
 | **Clay (%)** | Naive OLS | 0.526 | **24.4%** | 19.8% |
 | Clay (%) | Backdoor OLS | 0.192 | **5.0%** | 0.0% |
-| Clay (%) | Real MoCo IV | 0.858 | **3.9%** | 0.0% |
+| Clay (%) | Real MoCo v1 IV | −0.533 | **3.0%** | 0.0% |
 
-**Scientific finding.** *The only robust causal claim in the Cerrado
-stack is Clay → SOC under Naive OLS* (RV = 24%): no plausible
-confounder explaining less than a quarter of the residual variance
-could zero it out.  MAP → SOC under Backdoor OLS is moderately
-robust (RV ≈ 8%); under real-encoder IV it drops to ≈ 4%, because
-the synthetic-stack mode yields weak instruments (Stage-1 F ≈ 10) and
-an inflated SE.  A real-covariate run should lift F and reduce the SE,
-restoring RV — but note that the `EDAPHOS_IV_REAL_STACK` switch this
-README once told readers to set is read nowhere in the package.  The
-real-stack path is a roadmap item, not a flag.
+**Scientific finding.** *The largest robustness value in the Cerrado
+stack is Clay → SOC under Naive OLS* (RV = 24%), but it shrinks to 5%
+once the backdoor set is adjusted for, so most of it is confounding
+rather than effect. MAP → SOC is the most stable across estimators
+(RV 8–12%). The IV rows need reading next to their instrument tests:
+for MAP the first stage is strong (F ≈ 862) and Sargan does not reject
+(p = 0.25); for tree cover and clay the instruments are weak (F ≈ 8 and
+11) and Sargan rejects (p = 0.04 and 0.003), so those two IV estimates
+should not be read as effects. An earlier version of this table used a
+synthetic covariate stack for the IV rows; the real-stack refit is
+`data-raw/causal_iv_benchmark_real.R` with `EDAPHOS_IV_REAL_STACK=1`.
 
 The package was validated against the published Cinelli-Hazlett
 Theorem 4.4 example to four decimal places (RV = 0.1810 expected,
@@ -2246,9 +2251,9 @@ mistaken for a release:
 | Item | Status |
 |:-----|:------:|
 | Re-benchmark with a longer-trained MoCo v2 encoder (200 k steps) | 🚧 |
-| Real geodata download path for the IV refit (`EDAPHOS_IV_REAL_STACK` is not yet read anywhere) | 📝 |
 | Expand the LLM gold standard from 72 to 300 real claims | 📝 |
-| CRAN and rOpenSci submission of 2.0.0 | 📝 |
+| CRAN submission of 2.0.0 (submitted 2026-11-09, in manual review) | 🚧 |
+| rOpenSci submission | 📝 |
 
 ---
 

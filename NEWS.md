@@ -1,3 +1,33 @@
+# edaphos (development version)
+
+## New features
+
+* `edaphos_map()` maps a fitted model over a `terra` raster of covariates,
+  an `sf` set of points, or a data frame, and returns the prediction with
+  its uncertainty (`mean`, `sd` and quantile layers) in the same form as
+  the input. It supports Pillar 7 (`bhs_fit()`, posterior predictive draws),
+  Pillar 5 (`al_fit()`, quantile regression forest), `lm()` (prediction
+  interval), `ranger()` with `quantreg = TRUE`, and, mean only, `glm()` and
+  any model whose `predict()` returns one number per location. The
+  getting-started vignette now ends with a map.
+
+## Corrections
+
+* The Cinelli–Hazlett robustness table (`causal_sensitivity_cerrado.rds`,
+  the README and `vignette("pillar1-pillar4-iv")`) is rebuilt from the
+  current real-stack IV fit. Its IV rows had been computed from an earlier
+  fit on a synthetic covariate stack, and its proxy-IV rows referred to a
+  fit that no longer exists. The vignette now computes its numbers from the
+  bundle, and a test checks the README table against it.
+* The README, two vignettes and a script comment said the real covariate
+  stack for the IV refit was not implemented. It is:
+  `data-raw/causal_iv_benchmark_real.R` builds it when
+  `EDAPHOS_IV_REAL_STACK=1`, and the shipped IV fit used it.
+* `vignette("edaphos-paper")`: the fold count, the number of methods below
+  the achievable null, and the least accurate method are now computed
+  rather than typed (they read "0 folds", 3 and quantum; they are 5, 2
+  and GAT).
+
 # edaphos 2.0.0
 
 edaphos is a research package for digital soil mapping beyond regression-tree
