@@ -81,7 +81,9 @@ for (ex in exposures) {
     stringsAsFactors = FALSE
   )
 
-  # Proxy IV (v1.9.0)
+  # Proxy IV. causal_iv_cerrado.rds no longer carries a proxy-embedding
+  # row (it was rebuilt on the real MoCo v2 encoder), so this adds nothing
+  # unless such a row comes back.
   px <- iv_proxy_bundle$benchmark_table |>
     dplyr::filter(exposure == ex$label,
                     estimator == "2SLS (proxy embeddings)")
@@ -94,14 +96,14 @@ for (ex in exposures) {
     )
   }
 
-  # Real MoCo IV (v1.9.1)
+  # Real MoCo v1 IV, on the real covariate stack
   if (!is.null(iv_real_bundle)) {
     rx <- iv_real_bundle$benchmark_table |>
       dplyr::filter(exposure == ex$label,
                       estimator == "2SLS (real MoCo v1)")
     if (nrow(rx) > 0L) {
       rows[[paste0(ec, "_iv_real")]] <- data.frame(
-        exposure = ex$label, estimator = "Real MoCo IV (v1.9.1)",
+        exposure = ex$label, estimator = "Real MoCo v1 IV",
         effect = rx$beta, se = rx$se,
         df     = iv_real_bundle$n_profiles_extracted -
                    (1L + length(ecov) + 1L),
@@ -160,7 +162,7 @@ grid_proxy <- if (nrow(headline_proxy) > 0L) {
 
 headline_real <- tbl |>
   dplyr::filter(exposure == "MAP (mm/a)",
-                  estimator == "Real MoCo IV (v1.9.1)") |>
+                  estimator == "Real MoCo v1 IV") |>
   dplyr::slice(1)
 grid_real <- if (nrow(headline_real) > 0L) {
   causal_sensitivity_grid(
@@ -181,8 +183,10 @@ message(sprintf("  Headline backdoor: effect = %.4f, RV = %.3f",
 message("=== [4/4] Saving bundle ===")
 
 R_out <- list(
+  provenance       = edaphos_provenance(),
   version          = packageVersion("edaphos"),
-  date_computed    = Sys.time(),
+  date_computed    = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+  iv_real_stack    = iv_real_bundle$stack_source,
   fit_table        = tbl,
   sensitivity_table = sens_tbl,
   grid_backdoor    = grid_bd,

@@ -138,7 +138,7 @@ test_that("the check distinguishes stale from unbindable", {
 LEGACY_UNPROVENANCED <- c(
   "al_policy_benchmark.rds", "buffer_effect.rds",
   "causal_discovery_results.rds", "causal_iv_cerrado.rds",
-  "causal_iv_cerrado_real.rds", "causal_sensitivity_cerrado.rds",
+  "causal_iv_cerrado_real.rds",
   "llm_benchmark_results.rds", "pillar10_gat_tuning.rds"
 )
 

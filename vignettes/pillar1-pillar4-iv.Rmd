@@ -465,18 +465,15 @@ effect. **Low RV = fragile effect**.
 ## Sensitivity table by estimator
 
 This table is read from `causal_sensitivity_cerrado.rds`, produced by
-`data-raw/causal_sensitivity_run.R`. **It belongs to an earlier analysis
-on 1,095 profiles**, with an engineered-proxy IV alongside the real
-encoder, and not to the 3,020-profile benchmark above; its estimates
-differ accordingly.
+`data-raw/causal_sensitivity_run.R`. **It is a separate analysis on 1,095
+profiles**, whose IV rows use the v1 encoder over the real
+SoilGrids/WorldClim/SRTM stack (`causal_iv_cerrado_real.rds`), not the
+3,020-profile benchmark above; its estimates differ accordingly.
 
 ```{r sens-table}
 S <- readRDS(system.file("extdata", "causal_sensitivity_cerrado.rds",
                          package = "edaphos"))
 sens <- S$sensitivity_table
-# The bundle labels two estimators with internal version tags that were
-# never releases; they are dropped for display.
-sens$estimator <- sub(" \\(v[0-9.]+\\)$", "", sens$estimator)
 knitr::kable(
   data.frame(exposure  = sens$exposure,
              estimator = sens$estimator,
@@ -484,24 +481,32 @@ knitr::kable(
              RV        = sprintf("%.1f%%", 100 * sens$rv),
              RV_alpha  = sprintf("%.1f%%", 100 * sens$rv_alpha)),
   caption = "Robustness values by exposure and estimator (1,095-profile analysis).")
+IVR <- readRDS(system.file("extdata", "causal_iv_cerrado_real.rds",
+                           package = "edaphos"))$benchmark_table
+IVR <- IVR[IVR$estimator == "2SLS (real MoCo v1)", ]
+rv  <- function(e, est) 100 * sens$rv[sens$exposure == e & sens$estimator == est]
+ivf <- function(e, col) IVR[[col]][IVR$exposure == e]
+pc  <- function(x) sprintf("%.0f%%", x)
 ```
 
 ## Scientific reading
 
-1. **Clay → SOC under naive OLS is the only robust effect here** (RV ≈
-   24%) -- a latent confounder would have to explain a quarter of the
-   residual variance of both clay and SOC to cancel it. That is
-   consistent with the literature: clay is the most direct predictor of
-   SOC and little confounded.
-2. **MAP → SOC has RV ≈ 8-9% under OLS, backdoor and proxy IV** --
-   robust to moderate confounding, vulnerable to any latent variable
-   explaining more than about 9% of the residual variance at both ends.
-3. **The real-encoder IV estimates have small RVs (0.9-3.9%)** because
-   their SE is several times the backdoor's. A run on real covariates
-   might raise the first-stage F and lower the SE. Note that
-   `EDAPHOS_IV_REAL_STACK` is read nowhere in the package -- this text
-   once announced it as a switch, and it is not. The real-stack path is
-   not implemented yet.
+1. **Clay → SOC has the largest RV under naive OLS**
+   (`r pc(rv("Clay (%)", "Naive OLS"))`), but it falls to
+   `r pc(rv("Clay (%)", "Backdoor OLS"))` once the backdoor set is
+   adjusted for: most of the naive association is confounding.
+2. **MAP → SOC is the most stable across estimators**: RV
+   `r pc(rv("MAP (mm/a)", "Backdoor OLS"))` under backdoor OLS and
+   `r pc(rv("MAP (mm/a)", "Real MoCo v1 IV"))` under the real-encoder IV,
+   whose instruments are strong for this exposure (first-stage
+   F = `r round(ivf("MAP (mm/a)", "stage1_F"))`) and pass Sargan
+   (p = `r signif(ivf("MAP (mm/a)", "sargan_p"), 2)`).
+3. **The tree-cover and clay IV rows are not effects.** Their instruments
+   are weak (F = `r round(ivf("Tree cover (%)", "stage1_F"), 1)` and
+   `r round(ivf("Clay (%)", "stage1_F"), 1)`) and Sargan rejects
+   (p = `r signif(ivf("Tree cover (%)", "sargan_p"), 2)` and
+   `r signif(ivf("Clay (%)", "sargan_p"), 2)`), so their robustness values
+   describe estimates that should not be interpreted.
 
 On the 3,077-profile analysis in `causal_cerrado_real_v2.rds`, the
 effects that are both robust and significant are MAP → SOC (RV ≈ 16%)
@@ -580,8 +585,8 @@ carry (v1.9.0 to v2.0.0) were internal labels that were never released.
 - **Sensitivity analysis (done)**: Cinelli-Hazlett sensitivity analysis
   through `causal_sensitivity_*` -- RV and RV_alpha per estimator, a
   bias-contour grid, and the runner `data-raw/causal_sensitivity_run.R`.
-  For the v2 encoder: lifting the first-stage F needs the real-stack
-  path, not implemented yet.
+  The IV rows use the real covariate stack
+  (`data-raw/causal_iv_benchmark_real.R` with `EDAPHOS_IV_REAL_STACK=1`).
 - **200 k-step MoCo v2 encoder (to do)**: training and re-benchmark. The
   quantum kernel (Pillar 6) over the embeddings (Pillar 4 × Pillar 6) is
   already done; see `vignette("pillar4-pillar6-quantum")`.

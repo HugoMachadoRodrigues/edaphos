@@ -17,9 +17,10 @@
 ## by construction. The expected result is that they lose to the mean.
 ##
 ## The header of this script used to promise "or real if
-## EDAPHOS_IV_REAL_STACK=1". That environment variable is read nowhere, in
-## this script or anywhere in the package: the synthetic stack is
-## unconditional. The promise is removed rather than reworded. For the real
+## EDAPHOS_IV_REAL_STACK=1". This script never read that variable: the
+## synthetic stack is unconditional here. (The IV refit,
+## data-raw/causal_iv_benchmark_real.R, does read it and builds the real
+## stack.) The promise is removed rather than reworded. For the real
 ## covariate answer see inst/extdata/benchmark_wosis_6pilar.rds, which scores
 ## quantum KRR on measured SoilGrids / WorldClim / SRTM covariates.
 ##

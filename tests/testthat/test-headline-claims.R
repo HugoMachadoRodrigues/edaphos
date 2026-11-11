@@ -405,3 +405,44 @@ test_that("no shipped source claims a version that was never released", {
     info = "shipped code names a version with no NEWS section and no git tag"
   )
 })
+
+# ---------------------------------------------------------------------------
+# Pillar 1: Cinelli & Hazlett robustness table
+#
+# This table went stale once already: causal_iv_cerrado_real.rds was rebuilt
+# on the real covariate stack in July 2026 and the sensitivity bundle, and the
+# README table read from it, kept the synthetic-stack IV rows until November.
+# Every row of the README table is checked against the bundle here.
+# ---------------------------------------------------------------------------
+
+test_that("the sensitivity bundle uses the real-stack IV fit", {
+  S  <- bundle("causal_sensitivity_cerrado.rds")
+  IV <- bundle("causal_iv_cerrado_real.rds")
+  expect_identical(S$iv_real_stack, "real")
+  iv_s <- S$sensitivity_table[S$sensitivity_table$estimator == "Real MoCo v1 IV", ]
+  iv_b <- IV$benchmark_table[IV$benchmark_table$estimator == "2SLS (real MoCo v1)", ]
+  expect_equal(iv_s$effect, iv_b$beta[match(iv_s$exposure, iv_b$exposure)])
+})
+
+test_that("README robustness table matches causal_sensitivity_cerrado.rds", {
+  S  <- bundle("causal_sensitivity_cerrado.rds")$sensitivity_table
+  rl <- readme_lines()
+  start <- grep("^\\*\\*Robustness table on the 1 095 Cerrado profiles", rl)
+  expect_length(start, 1L)
+  rows <- rl[start:length(rl)]
+  rows <- rows[grepl("^\\| [^:|-]", rows)][-1L]          # drop header
+  rows <- rows[seq_len(which(!grepl("%", rows))[1] - 1L) %||% length(rows)]
+  rows <- rows[grepl("%", rows)]
+  expect_equal(length(rows), nrow(S))
+  cells <- lapply(strsplit(rows, "\\|"), function(x) trimws(x[-1]))
+  expo_key <- function(x) sub("^\\*\\*|\\*\\*$", "", sub(" .*", "", x))
+  for (cl in cells) {
+    r <- S[expo_key(S$exposure) == expo_key(cl[1]) & S$estimator == cl[2], ]
+    expect_equal(nrow(r), 1L, info = paste(cl[1:2], collapse = " / "))
+    pct <- function(x) as.numeric(sub("%", "", gsub("\\*", "", x)))
+    expect_equal(pct(cl[4]), round(100 * r$rv, 1), info = cl[2])
+    expect_equal(pct(cl[5]), round(100 * r$rv_alpha, 1), info = cl[2])
+    beta <- as.numeric(sub("−", "-", cl[3]))
+    expect_equal(beta, signif(r$effect, 3), tolerance = 0.02, info = cl[2])
+  }
+})

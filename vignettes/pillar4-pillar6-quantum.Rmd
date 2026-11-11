@@ -248,9 +248,11 @@ and "v2.0.0" collides with the package's 2.0.0 release.
   the hypothesis of @Havlicek2019 gains support in the DSM domain.
 - **To do -- real stack**: re-run with the real raster stack. If the
   gain appears here but not with the synthetic stack, that answers
-  whether the limitation lies in the encoder or in the stack. The
-  real-stack path is not implemented yet: `EDAPHOS_IV_REAL_STACK=1` is
-  read nowhere in the package.
+  whether the limitation lies in the encoder or in the stack. The real
+  stack exists (`foundation_build_cerrado_stack()`, used by the IV refit
+  in `data-raw/causal_iv_benchmark_real.R`), but this benchmark has not
+  been run on it: `data-raw/quantum_foundation_benchmark.R` still builds
+  the synthetic stack.
 - **After that**: a paper, "Quantum kernels over foundation-model
   embeddings for Digital Soil Mapping", only if the results confirm a
   gain.
