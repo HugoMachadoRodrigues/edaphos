@@ -140,6 +140,11 @@ navbar:
         href: articles/case-cerrado-end-to-end.html
 
 reference:
+- title: "Mapping"
+  desc: "From a fitted model to a map with its uncertainty."
+  contents:
+  - edaphos_map
+
 - title: "Pillar 1 — Causal AI"
   desc: "Backdoor adjustment, LLM-driven Knowledge Graphs, causal discovery, effect posteriors."
   contents:

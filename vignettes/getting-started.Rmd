@@ -233,6 +233,62 @@ six "static point regression" methods, load
 `inst/extdata/benchmark_wosis_6pillar.rds` and inspect
 `cv_aggregate` (vignette: `case-cerrado-end-to-end.Rmd`).
 
+## From a fitted model to a map
+
+Everything above predicts at points. A soil map needs a prediction, and
+its uncertainty, at every cell of a covariate raster. `edaphos_map()`
+does that for any of the supported models: it takes the fitted model
+and a `terra` raster whose layer names match the covariates, and
+returns a raster with `mean`, `sd` and quantile layers. Given an `sf`
+object or a data frame, it returns the same kind of object.
+
+`br_cerrado` is a **synthetic** 45 × 45 grid of covariates near
+Brasília, shipped with the package so this runs offline. We pretend 80
+cells were sampled, fit the Pillar 7 spatial model to them, and map
+the whole grid.
+
+```{r map, eval = requireNamespace("terra", quietly = TRUE), fig.height = 3.4}
+data(br_cerrado)
+samp <- br_cerrado[sample(nrow(br_cerrado), 80L), ]
+fit_map <- bhs_fit(samp, soc ~ elev + slope + twi + map_mm + ndvi,
+                   coords = c("x", "y"), nmcmc = 600L, seed = 1L)
+
+covs <- terra::rast(br_cerrado[, c("x", "y", "elev", "slope", "twi",
+                                   "map_mm", "ndvi")],
+                    type = "xyz", crs = "EPSG:4326")
+soc_map <- edaphos_map(fit_map, covs, n_draws = 200L)
+soc_map
+terra::plot(soc_map[[c("mean", "sd")]],
+            main = c("SOC, posterior mean (g/kg)", "posterior sd (g/kg)"))
+```
+
+The uncertainty comes from the model itself: for Pillar 7 it is the
+posterior predictive, kriging variance included, so `sd` drops at the
+sampled cells. Here it drops only there: the fitted spatial range is
+shorter than the spacing between samples (`bhs_fit()` warns about this),
+so a sample says nothing about the cell beside it. Because the grid is synthetic, the true SOC
+is known, and we can check how often the 90% interval (`q5` to `q95`)
+contains it, at the cells that were not sampled:
+
+```{r map-check, eval = requireNamespace("terra", quietly = TRUE)}
+out <- edaphos_map(fit_map, br_cerrado, n_draws = 200L)
+unsampled <- !(seq_len(nrow(br_cerrado)) %in% as.integer(rownames(samp)))
+cover90 <- mean(br_cerrado$soc[unsampled] >= out$q5[unsampled] &
+               br_cerrado$soc[unsampled] <= out$q95[unsampled])
+cover90
+```
+
+Here `r round(100 * cover90)`% of the unsampled cells fall inside their
+90% interval. The shortfall is the model's, not the map's: the
+synthetic SOC (`data-raw/prepare_br_cerrado.R`) has noise that grows
+with slope and an interaction between covariates, and the model above
+assumes neither, so its intervals are too narrow where the noise is
+largest. On real data the truth is not
+known everywhere, so run this check on held-out samples before
+publishing a map.
+
+Write the map to disk with `terra::writeRaster(soc_map, "soc.tif")`.
+
 ## Next steps
 
 * **Per-pillar deep dives** -- 17 vignettes, one per pillar + key
